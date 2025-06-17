@@ -396,7 +396,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       (message) => (this.selectionMessage = message),
       this.destroy$
     );
-    this.initializeProgressSync();
     
     this.initializeTooltip();
     this.resetStateHandlers();
@@ -428,26 +427,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       }
     });
-  }
-  
-  private initializeProgressSync(): void {
-    // Initialize badge text once when quiz data is ready
-    this.quizService.getTotalQuestionsCount(this.quizId).subscribe(totalQuestions => {
-      if (totalQuestions > 0) {
-        this.totalQuestions = totalQuestions;
-  
-        const currentIndex = this.quizService.getCurrentQuestionIndex();
-        const validIndex = currentIndex >= 0 && currentIndex < totalQuestions ? currentIndex : 0;
-  
-        if (!this.hasInitializedBadge) {
-          this.quizService.updateBadgeText(validIndex + 1, totalQuestions);
-          this.hasInitializedBadge = true;
-        }
-      }
-    });
-  
-    // Delegate progress handling to ProgressBarService
-    this.progressBarService.initializeProgressTracking(this.quizId);
   }
   
   private resetStateHandlers(): void {
