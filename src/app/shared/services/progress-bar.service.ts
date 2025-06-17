@@ -427,7 +427,13 @@ export class ProgressBarService implements OnDestroy {
   markQ1Complete(): void {
     const quizId = this.quizService.getCurrentQuizId?.();
     const totalRaw = this.quizService.getTotalQuestionsCount?.(quizId);
-    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 6; // fallback if needed
+    const total = typeof totalRaw === 'number' && totalRaw > 0 ? totalRaw : 1;
+  
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    if (currentIndex === 0) {
+      console.warn('[🛑 Q1 not left yet, skipping progress update]');
+      return;
+    }
   
     const percent = Math.floor((1 / total) * 100);
     this.progressPercentageSubject.next(percent);
