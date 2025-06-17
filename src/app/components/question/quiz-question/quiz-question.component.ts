@@ -2681,7 +2681,7 @@ export class QuizQuestionComponent
       // Final microtask flush and auto-advance check
       queueMicrotask(() => {
         const finalReady = this.answerTrackingService.isAnyOptionSelected();
-        this.nextButtonStateService.setButtonEnabled(finalReady);
+        // this.nextButtonStateService.setButtonEnabled(finalReady);
         this.nextButtonStateService.updateAndSyncNextButtonState(finalReady);
         this.cdRef.detectChanges();
 
