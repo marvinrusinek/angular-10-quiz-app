@@ -1,15 +1,15 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, take, takeUntil, takeUntilDestroyed } from 'rxjs/operators';
 
 import { QuizService } from './quiz.service'; 
 
 @Injectable({ providedIn: 'root' })
 export class ProgressBarService implements OnDestroy {
-  // Use BehaviorSubject to store progress value
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
+  
+  private hasMarkedQ1Complete = false;
 
   constructor(
     private quizService: QuizService
