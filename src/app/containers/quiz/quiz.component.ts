@@ -1957,7 +1957,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
   
           // 👇 Ensures everything resets and loads cleanly
-          await this.resetUIAndNavigate(this.currentQuestionIndex);
+          await this.acquireAndNavigateToQuestion(this.currentQuestionIndex);
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
@@ -2021,7 +2021,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.currentQuiz = this.quizService.getActiveQuiz();
           console.log(`[Route Init] ✅ Loaded Q${this.currentQuestionIndex}`);
   
-          await this.resetUIAndNavigate(this.currentQuestionIndex);
+          await this.acquireAndNavigateToQuestion(this.currentQuestionIndex);
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
@@ -3449,7 +3449,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // REMOVE!!
-  private async resetUIAndNavigate(questionIndex: number): Promise<void> {
+  private async acquireAndNavigateToQuestion(questionIndex: number): Promise<void> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
@@ -3473,7 +3473,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.loadAndRouteToQuestion(questionIndex);
   
     } catch (error) {
-      console.error('Error during resetUIAndNavigate():', error);
+      console.error('Error during acquireAndNavigateToQuestion():', error);
     }
   }
 
