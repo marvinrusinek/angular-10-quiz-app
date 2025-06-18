@@ -729,7 +729,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   } */
-  /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
 
     if (this.isNavigating) {
@@ -774,15 +774,15 @@ export class QuizNavigationService {
     
   
     // Always fetch question data
-    /* fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+    fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
   
     if (!fetchSuccess) {
       console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`);
       this.isNavigating = false;
       return false;
-    //}
+    }
   
-    // if (routeChanged) {
+    if (routeChanged) {
       const navSuccess = await this.router.navigate(['/question', quizId, clampedIndex + 1], {
         queryParams: { ts: Date.now() }, // 🔁 ensure route updates
       });
@@ -829,7 +829,7 @@ export class QuizNavigationService {
     this.isNavigating = false;
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
-  } */
+  }
   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
@@ -846,7 +846,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
     const quizId = this.quizService.quizId || this.quizId || 'dependency-injection';
@@ -880,7 +880,7 @@ export class QuizNavigationService {
       console.error('[❌ Router navigateByUrl error]', err);
       return false;
     }
-  }
+  } */
   
   
   
