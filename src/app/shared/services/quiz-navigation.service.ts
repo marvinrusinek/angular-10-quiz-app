@@ -727,6 +727,8 @@ export class QuizNavigationService {
     return true;
   } */
   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
+
     if (this.isNavigating) {
       console.warn('[⏳ Navigation blocked: already navigating]');
       return false;
