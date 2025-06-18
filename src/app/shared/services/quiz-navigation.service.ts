@@ -758,6 +758,15 @@ export class QuizNavigationService {
   
     const routeChanged = currentUrl !== routeUrl;
     let fetchSuccess = false;
+
+    console.log('[🔍 Navigation debug]', {
+      quizId,
+      clampedIndex,
+      totalQuestions: this.totalQuestions,
+      routeUrl: `/question/${quizId}/${clampedIndex + 1}`,
+      routerUrl: this.router.url,
+    });
+    
   
     // Always fetch question data
     fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
@@ -772,6 +781,7 @@ export class QuizNavigationService {
       const navSuccess = await this.router.navigate(['/question', quizId, clampedIndex + 1], {
         queryParams: { ts: Date.now() }, // 🔁 ensure route updates
       });
+      console.log('[📦 Route Navigation Result]', navSuccess);
   
       if (!navSuccess) {
         console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
