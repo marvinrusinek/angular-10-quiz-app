@@ -966,9 +966,9 @@ export class QuizNavigationService {
   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
-    const quizId = this.quizService.quizId || this.quizId || 'dependency-injection';
+    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     if (!quizId) {
-      console.error('[❌ Missing quizId]');
+      console.error('[❌ navigateToQuestion] Missing quizId from route');
       return false;
     }
   
@@ -981,7 +981,7 @@ export class QuizNavigationService {
     }
   
     try {
-      console.log('[➡️ Attempting navigation to]', routeUrl);
+      console.log('[➡️ Navigating to]', routeUrl);
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       console.log('[📦 Route Navigation Result]', navSuccess);
       return navSuccess;
@@ -990,6 +990,7 @@ export class QuizNavigationService {
       return false;
     }
   }
+  
   
   
   
