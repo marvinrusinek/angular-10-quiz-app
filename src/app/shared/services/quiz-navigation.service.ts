@@ -887,7 +887,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Success for Q${clampedIndex}`);
     return true;
   } */
-  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
     if (this.isNavigating) {
@@ -962,7 +962,35 @@ export class QuizNavigationService {
     this.isNavigating = false;
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
+  } */
+  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
+  
+    const quizId = this.quizService.quizId || this.quizId || 'dependency-injection';
+    if (!quizId) {
+      console.error('[❌ Missing quizId]');
+      return false;
+    }
+  
+    const routeUrl = `/question/${quizId}/${questionIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
+      return true;
+    }
+  
+    try {
+      console.log('[➡️ Attempting navigation to]', routeUrl);
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      console.log('[📦 Route Navigation Result]', navSuccess);
+      return navSuccess;
+    } catch (err) {
+      console.error('[❌ Router navigateByUrl error]', err);
+      return false;
+    }
   }
+  
   
   
 
