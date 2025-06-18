@@ -753,7 +753,7 @@ export class QuizNavigationService {
       return false;
     }
   
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // assumes route uses 1-based indexing
+    const routeUrl = `/question/${quizId}/${clampedIndex}`; // ✅ FIXED: removed +1 to match 0-based indexing
     const currentUrl = this.router.url;
   
     const routeChanged = currentUrl !== routeUrl;
@@ -794,7 +794,7 @@ export class QuizNavigationService {
     localStorage.setItem('savedQuestionIndex', JSON.stringify(clampedIndex));
   
     // ✅ Update badge
-    this.quizService.updateBadgeText(clampedIndex + 1, this.totalQuestions);
+    this.quizService.updateBadgeText(clampedIndex + 1, this.totalQuestions); // badge still expects 1-based
   
     // ✅ Update progress
     const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(quizId));
@@ -805,6 +805,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   }
+  
   
   
   public async resetUIAndNavigate(index: number): Promise<void> {
