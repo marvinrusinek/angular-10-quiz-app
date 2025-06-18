@@ -4,21 +4,16 @@ import { BehaviorSubject, combineLatest, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, take, takeUntil, takeUntilDestroyed } from 'rxjs/operators';
 
 import { QuizService } from './quiz.service'; 
-import { QuizStateService } from './quizstate.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProgressBarService implements OnDestroy {
   // Use BehaviorSubject to store progress value
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
-  private hasNavigatedPastQ1 = false;
-  private hasManuallyMarkedQ1Complete = false;
-  private hasMarkedQ1Complete = false;
 
   constructor(
-    private quizService: QuizService,
-    private quizStateService: QuizStateService, 
-    private router: Router) {}
+    private quizService: QuizService
+  ) {}
 
   private destroy$ = new Subject<void>();
   
