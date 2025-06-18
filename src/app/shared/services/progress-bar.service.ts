@@ -28,7 +28,7 @@ export class ProgressBarService {
     const clampedIndex = Math.min(Math.max(currentIndex, 0), totalQuestions);
   
     // Calculate and emit progress
-    const percent = Math.round((clampedIndex / totalQuestions) * 100);
+    const percent = Math.ceil((clampedIndex / totalQuestions) * 100);
     this.progressPercentageSubject.next(percent);
   }  
 }
