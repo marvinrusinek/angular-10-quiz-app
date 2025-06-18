@@ -966,7 +966,8 @@ export class QuizNavigationService {
   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    // const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const quizId = this.quizService.quizId || this.quizId || 'fallback-id';
     if (!quizId) {
       console.error('[❌ navigateToQuestion] Missing quizId from route');
       return false;
