@@ -205,6 +205,7 @@ export class QuizNavigationService {
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
+    console.log("TEST");
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
@@ -241,6 +242,7 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.resetUI();
   
       // ✅ Use centralized navigation logic
+      console.log('[📞 Calling navigateToQuestion]', nextIndex);
       const navSuccess = await this.navigateToQuestion(nextIndex);
   
       if (navSuccess) {
