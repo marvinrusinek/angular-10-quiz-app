@@ -1,10 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 import { QuizService } from './quiz.service'; 
 
 @Injectable({ providedIn: 'root' })
-export class ProgressBarService implements OnDestroy {
+export class ProgressBarService {
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
 
@@ -13,13 +13,6 @@ export class ProgressBarService implements OnDestroy {
   constructor(
     private quizService: QuizService
   ) {}
-
-  private destroy$ = new Subject<void>();
-  
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   // Method to update the progress
   setProgress(progress: number): void {
