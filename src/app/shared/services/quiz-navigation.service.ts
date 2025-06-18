@@ -512,16 +512,16 @@ export class QuizNavigationService {
       const success = await this.router.navigateByUrl(routeUrl);
   
       if (success) {
-        // Delay until after router has updated and Angular stabilizes
-        setTimeout(async () => {
-          this.quizService.setCurrentQuestionIndex(prevIndex);
-          this.currentQuestionIndex = prevIndex;
+        this.quizService.setCurrentQuestionIndex(prevIndex);
+        this.currentQuestionIndex = prevIndex;
   
-          const totalQuestions = await firstValueFrom(
-            this.quizService.getTotalQuestionsCount(quizIdToUse)
-          );
-          this.progressBarService.updateProgress(prevIndex, totalQuestions);
-        }, 50); // allow change detection to catch up before updating progress
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(quizIdToUse)
+        );
+  
+        // ✅ Ensure correct index is passed to updateProgress
+        console.log(`[📉 Progress Decrement] updateProgress(${prevIndex}, ${totalQuestions})`);
+        this.progressBarService.updateProgress(prevIndex, totalQuestions);
   
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
@@ -539,6 +539,7 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   }
+  
 
   advanceToResults(): void {
     if (this.navigatingToResults) {
