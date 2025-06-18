@@ -3470,7 +3470,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestion = null;
   
       // Add navigation to load Q&A
-      await this.navigateToQuestion(questionIndex);
+      await this.loadAndRouteToQuestion(questionIndex);
   
     } catch (error) {
       console.error('Error during resetUIAndNavigate():', error);
@@ -3478,7 +3478,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   // REMOVE!!
-  private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
+  /* private async navigateToQuestion(questionIndex: number): Promise<boolean> { 
     console.log(`[🚀 navigateToQuestion] Initiated for Q${questionIndex}`);
   
     if (this.quizQuestionComponent) {
@@ -3574,7 +3574,74 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     console.log(`[✅ navigateToQuestion] Completed for Q${questionIndex}`);
     return true;
-  }  
+  } */
+  private async loadAndRouteToQuestion(index: number): Promise<boolean> {
+    console.log(`[🚀 loadAndRouteToQuestion] Initiated for Q${index}`);
+  
+    if (!this.isValidIndex(index)) return false;
+  
+    this.resetSharedUIState();
+    this.syncCurrentIndex(index);
+  
+    const fetched = await this.acquireQuestionData(index);
+    if (!fetched) return false;
+  
+    const navSuccess = await this.attemptRouteUpdate(index);
+    if (!navSuccess) return false;
+  
+    this.injectDynamicComponent();
+    this.updateBadgeText();
+  
+    console.log(`[✅ loadAndRouteToQuestion] Completed for Q${index}`);
+    return true;
+  }
+
+  private async acquireQuestionData(index: number): Promise<boolean> {
+    const fetched = await this.fetchAndSetQuestionData(index);
+    if (!fetched || !this.question || !this.optionsToDisplay?.length) {
+      console.error(`[❌ Q${index}] Incomplete data`, { fetched, question: this.question });
+      return false;
+    }
+    return true;
+  }
+
+  private isValidIndex(index: number): boolean {
+    const valid = typeof index === 'number' && index >= 0 && index < this.totalQuestions;
+    if (!valid) {
+      console.warn(`[❌ Invalid index]: ${index}`);
+    }
+    return valid;
+  }
+  
+  private resetSharedUIState(): void {
+    if (this.quizQuestionComponent) this.quizQuestionComponent.renderReady = false;
+    this.sharedOptionComponent?.resetUIForNewQuestion();
+  }
+  
+  private syncCurrentIndex(index: number): void {
+    this.currentQuestionIndex = index;
+    this.quizService.setCurrentQuestionIndex(index);
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(index));
+  }
+
+  private updateBadgeText(): void {
+    const index = this.quizService.getCurrentQuestionIndex();
+    if (index >= 0 && index < this.totalQuestions) {
+      this.quizService.updateBadgeText(index + 1, this.totalQuestions);
+    } else {
+      console.warn('[⚠️ Badge update skipped] Invalid index or totalQuestions');
+    }
+  }
+
+  private async attemptRouteUpdate(index: number): Promise<boolean> {
+    const routeUrl = `/question/${this.quizId}/${index + 1}`;
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+    if (!navSuccess) {
+      console.error(`[❌ Navigation failed to ${routeUrl}]`);
+    }
+    return navSuccess;
+  }
+  
 
   private injectDynamicComponent(): void {
     // Only inject if the container is empty
