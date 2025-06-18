@@ -731,7 +731,7 @@ export class QuizNavigationService {
   } */
   public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
-
+  
     if (this.isNavigating) {
       console.warn('[⏳ Navigation blocked: already navigating]');
       return false;
@@ -740,7 +740,6 @@ export class QuizNavigationService {
     this.isNavigating = true;
   
     const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
-  
     if (!Number.isFinite(clampedIndex) || clampedIndex < 0 || clampedIndex >= this.totalQuestions) {
       console.warn(`[navigateToQuestion] ❌ Invalid index: ${clampedIndex}`);
       this.isNavigating = false;
@@ -752,30 +751,28 @@ export class QuizNavigationService {
       this.quizId ||
       this.activatedRoute.snapshot.paramMap.get('quizId') ||
       '';
+  
     if (!quizId) {
       console.error('[navigateToQuestion] ❌ quizId is missing');
       this.isNavigating = false;
       return false;
     }
   
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // ✅ assumes routes use 1-based indexing
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
     const currentUrl = this.router.url;
   
     const routeChanged = currentUrl !== routeUrl;
-    let fetchSuccess = false;
-
+  
     console.log('[🔍 Navigation debug]', {
       quizId,
       clampedIndex,
       totalQuestions: this.totalQuestions,
-      routeUrl: `/question/${quizId}/${clampedIndex + 1}`,
-      routerUrl: this.router.url,
+      routeUrl,
+      currentUrl
     });
-    
   
-    // Always fetch question data
-    fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
-  
+    // Always fetch data first
+    const fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
     if (!fetchSuccess) {
       console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`);
       this.isNavigating = false;
@@ -783,31 +780,17 @@ export class QuizNavigationService {
     }
   
     if (routeChanged) {
-      const navSuccess = await this.router.navigate(['/question', quizId, clampedIndex + 1], {
-        queryParams: { ts: Date.now() }, // 🔁 ensure route updates
-      });
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
       console.log('[📦 Route Navigation Result]', navSuccess);
   
       if (!navSuccess) {
-        console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
+        console.error(`[❌ navigateToQuestion] Router navigation failed to ${routeUrl}`);
         this.isNavigating = false;
         return false;
       }
     } else {
       console.warn(`[navigateToQuestion] ⚠️ Already on route ${routeUrl}`);
-    } 
-
-    console.log(`[🌐 Navigating to route] ${routeUrl}`);
-    const navSuccess = await this.router.navigateByUrl(routeUrl);
-    if (!navSuccess) {
-      console.error(`[❌ navigateToQuestion] Router navigation failed to ${routeUrl}`);
-      this.isNavigating = false;
-      return false;
     }
-
-    // ✅ Now fetch question data *after* route change
-    fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
-
   
     // ✅ Emit UI reset events
     this.emitRenderReset();
@@ -822,7 +805,7 @@ export class QuizNavigationService {
     // ✅ Update badge
     this.quizService.updateBadgeText(clampedIndex + 1, this.totalQuestions);
   
-    // ✅ Update progress
+    // ✅ Update progress bar
     const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(quizId));
     this.progressBarService.updateProgress(clampedIndex, totalQuestions);
   
@@ -830,6 +813,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   }
+  
   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
