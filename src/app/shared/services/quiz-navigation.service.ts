@@ -512,17 +512,17 @@ export class QuizNavigationService {
       const success = await this.router.navigateByUrl(routeUrl);
   
       if (success) {
-        // Update index BEFORE progress
-        this.quizService.setCurrentQuestionIndex(prevIndex);
-        this.currentQuestionIndex = prevIndex;
+        // Delay until after router has updated and Angular stabilizes
+        setTimeout(async () => {
+          this.quizService.setCurrentQuestionIndex(prevIndex);
+          this.currentQuestionIndex = prevIndex;
   
-        // ✅ Update progress bar to reflect new question index
-        const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(quizIdToUse)
-        );
-        this.progressBarService.updateProgress(prevIndex, totalQuestions);
+          const totalQuestions = await firstValueFrom(
+            this.quizService.getTotalQuestionsCount(quizIdToUse)
+          );
+          this.progressBarService.updateProgress(prevIndex, totalQuestions);
+        }, 50); // allow change detection to catch up before updating progress
   
-        // 🔁 Handle UI and state resets/navigation-related observers
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
@@ -530,7 +530,6 @@ export class QuizNavigationService {
         console.warn('[❌] router.navigateByUrl failed for Q', prevIndex);
       }
   
-      // Final UI reset
       this.quizQuestionLoaderService.resetUI();
     } catch (error) {
       console.error('[❌ advanceToPreviousQuestion error]', error);
@@ -540,7 +539,6 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   }
-  
 
   advanceToResults(): void {
     if (this.navigatingToResults) {
