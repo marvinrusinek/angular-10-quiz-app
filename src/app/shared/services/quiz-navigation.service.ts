@@ -813,7 +813,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
     return true;
   } */
-  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+  /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
   
     if (this.isNavigating) {
@@ -886,7 +886,84 @@ export class QuizNavigationService {
     this.isNavigating = false;
     console.log(`[✅ navigateToQuestion] Success for Q${clampedIndex}`);
     return true;
+  } */
+  public async navigateToQuestion(questionIndex: number): Promise<boolean> {
+    console.warn('[🚀 navigateToQuestion CALLED]', { questionIndex });
+  
+    if (this.isNavigating) {
+      console.warn('[⏳ Navigation blocked: already navigating]');
+      return false;
+    }
+  
+    this.isNavigating = true;
+  
+    const clampedIndex = Math.max(0, Math.min(questionIndex, this.totalQuestions - 1));
+    const quizId =
+      this.quizService.quizId ||
+      this.quizId ||
+      this.activatedRoute.snapshot.paramMap.get('quizId') ||
+      '';
+  
+    if (!quizId) {
+      console.error('[navigateToQuestion] ❌ quizId is missing');
+      this.isNavigating = false;
+      return false;
+    }
+  
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // ✅ 1-based route index
+    const currentUrl = this.router.url;
+  
+    const routeChanged = currentUrl !== routeUrl;
+  
+    console.log('[🔍 Navigation Debug]', {
+      currentUrl,
+      routeUrl,
+      routeChanged,
+      clampedIndex,
+      quizId,
+    });
+  
+    // Always fetch question data
+    const fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+  
+    if (!fetchSuccess) {
+      console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`);
+      this.isNavigating = false;
+      return false;
+    }
+  
+    if (routeChanged) {
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      if (!navSuccess) {
+        console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
+        this.isNavigating = false;
+        return false;
+      }
+    } else {
+      console.warn(`[⚠️ Already on route ${routeUrl}, skipping navigation]`);
+    }
+  
+    // ✅ Emit UI reset events
+    this.emitRenderReset();
+    this.emitResetUI();
+  
+    // ✅ Update internal state
+    this.currentQuestionIndex = clampedIndex;
+    this.quizService.setCurrentQuestionIndex(clampedIndex);
+    this.quizId = quizId;
+    localStorage.setItem('savedQuestionIndex', JSON.stringify(clampedIndex));
+  
+    // ✅ Update badge
+    this.quizService.updateBadgeText(clampedIndex + 1, this.totalQuestions);
+  
+    // ✅ Update progress bar
+    this.progressBarService.updateProgress(clampedIndex, this.totalQuestions);
+  
+    this.isNavigating = false;
+    console.log(`[✅ navigateToQuestion] Completed for Q${clampedIndex}`);
+    return true;
   }
+  
   
 
   
