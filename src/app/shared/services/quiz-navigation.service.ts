@@ -243,7 +243,9 @@ export class QuizNavigationService {
   
       // ✅ Use centralized navigation logic
       console.log('[📞 Calling navigateToQuestion]', nextIndex);
-      const navSuccess = await this.navigateToQuestion(nextIndex);
+      const routeUrl = `/question/${this.quizId}/${nextIndex}`;
+      //const navSuccess = await this.navigateToQuestion(nextIndex);
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
