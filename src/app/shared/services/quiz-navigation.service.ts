@@ -1,9 +1,8 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { Quiz } from '../models/Quiz.model';
@@ -12,7 +11,6 @@ import { AnswerTrackingService } from './answer-tracking.service';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { ProgressBarService } from './progress-bar.service';
-import { QuizDataService } from './quizdata.service'; // remove??
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
 import { QuizStateService } from './quizstate.service';
@@ -74,15 +72,13 @@ export class QuizNavigationService {
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private progressBarService: ProgressBarService,
-    private quizDataService: QuizDataService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
-    private router: Router,
-    private ngZone: NgZone
+    private router: Router
   ) {
     this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
 
