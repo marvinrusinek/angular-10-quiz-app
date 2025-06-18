@@ -773,15 +773,15 @@ export class QuizNavigationService {
     
   
     // Always fetch question data
-    fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+    /* fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
   
     if (!fetchSuccess) {
       console.error(`[❌ Q${clampedIndex}] Failed to fetch or assign question data`);
       this.isNavigating = false;
       return false;
-    }
+    } */
   
-    if (routeChanged) {
+    /* if (routeChanged) {
       const navSuccess = await this.router.navigate(['/question', quizId, clampedIndex + 1], {
         queryParams: { ts: Date.now() }, // 🔁 ensure route updates
       });
@@ -794,7 +794,18 @@ export class QuizNavigationService {
       }
     } else {
       console.warn(`[navigateToQuestion] ⚠️ Already on route ${routeUrl}`);
+    } */
+    console.log(`[🌐 Navigating to route] ${routeUrl}`);
+    const navSuccess = await this.router.navigateByUrl(routeUrl);
+    if (!navSuccess) {
+      console.error(`[❌ navigateToQuestion] Router navigation failed to ${routeUrl}`);
+      this.isNavigating = false;
+      return false;
     }
+
+    // ✅ Now fetch question data *after* route change
+    fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+
   
     // ✅ Emit UI reset events
     this.emitRenderReset();
