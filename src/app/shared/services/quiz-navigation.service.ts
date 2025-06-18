@@ -205,6 +205,7 @@ export class QuizNavigationService {
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
