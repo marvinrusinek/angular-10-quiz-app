@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
-
-import { QuizService } from './quiz.service'; 
+import { BehaviorSubject } from 'rxjs'; 
 
 @Injectable({ providedIn: 'root' })
 export class ProgressBarService {
@@ -10,31 +8,27 @@ export class ProgressBarService {
 
   private hasMarkedQ1Complete = false;
 
-  constructor(
-    private quizService: QuizService
-  ) {}
-
   // Method to update the progress
-  setProgress(progress: number): void {
-    const isQ1 = this.quizService.getCurrentQuestionIndex?.() === 0;
-    if (isQ1 && !this.hasMarkedQ1Complete) {
-      console.warn('[🛑 Progress Blocked inside setProgress()] Still on Q1');
-      return;
-    }
-  
-    this.progressPercentageSubject.next(progress);
-  }
-
   updateProgress(currentIndex: number, totalQuestions: number): void {
+    // If totalQuestions is not valid, default to 0%
     if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
+      console.warn('[⚠️ Invalid totalQuestions] Setting progress to 0%.');
       this.progressPercentageSubject.next(0);
       return;
     }
   
-    // Clamp to prevent values beyond totalQuestions
-    const clampedIndex = Math.min(Math.max(currentIndex, 0), totalQuestions);
-    const percent = Math.round((clampedIndex / totalQuestions) * 100);
+    // Prevent progress update if still on Q1 and not marked complete
+    const isQ1 = currentIndex === 0;
+    if (isQ1 && !this.hasMarkedQ1Complete) {
+      console.warn('[🛑 Progress Blocked] Still on Q1 and not marked complete.');
+      return;
+    }
   
+    // Clamp index between 0 and totalQuestions
+    const clampedIndex = Math.min(Math.max(currentIndex, 0), totalQuestions);
+  
+    // Calculate and emit progress
+    const percent = Math.round((clampedIndex / totalQuestions) * 100);
     this.progressPercentageSubject.next(percent);
-  }
+  }  
 }
