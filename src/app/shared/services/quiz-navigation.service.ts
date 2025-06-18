@@ -766,6 +766,9 @@ export class QuizNavigationService {
       fetchSuccess = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
       if (fetchSuccess) {
         const navSuccess = await this.router.navigateByUrl(routeUrl);
+        await this.router.navigate(['/question', quizId, clampedIndex + 1], {
+          queryParams: { ts: Date.now() }, // 🔁 forces change
+        });
         if (!navSuccess) {
           console.error(`[navigateToQuestion] ❌ Router failed to navigate to ${routeUrl}`);
           this.isNavigating = false;
