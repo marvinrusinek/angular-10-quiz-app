@@ -1284,12 +1284,25 @@ export class QuizNavigationService {
     this.navigationToQuestionSubject.next({ question, options });
   }
 
-  setQuizId(id: string): void {
+  /* setQuizId(id: string): void {
     this.quizId = id;
     console.log('[🧭 QuizNavigationService] quizId set to', id);
   }
 
   getQuizId(): string {
     return this.quizId;
+  } */
+
+  public setQuizId(id: string): void {
+    this.quizId = id;
+    this.quizService.quizId = id;
+    console.log('[🧭 QuizNavigationService] quizId set to:', id);
+  }
+
+  private getQuizId(): string | null {
+    const fromService = this.quizService.quizId;
+    const resolved = fromService || this.quizId;
+    console.log('[🔎 QuizNavigationService.getQuizId()] resolved:', resolved);
+    return resolved;
   }
 }
