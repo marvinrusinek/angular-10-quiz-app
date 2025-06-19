@@ -1074,8 +1074,11 @@ export class QuizNavigationService {
     }
   
     const total = this.quizService.totalQuestions;
-    if (typeof total !== 'number' || total <= 0) {
-      console.error('[❌ Invalid totalQuestions value]', total);
+    if (!total || total <= 0) {
+      console.error('[❌ Invalid or unset totalQuestions]', {
+        total,
+        quiz: this.quizService.quiz,
+      });
       return false;
     }
   
