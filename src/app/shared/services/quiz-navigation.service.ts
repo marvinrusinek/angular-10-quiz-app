@@ -1066,47 +1066,54 @@ export class QuizNavigationService {
   } */
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
-
+  
     const quizId = this.getQuizId();
     if (!quizId) {
       console.error('[❌ navigateToQuestion] quizId is missing. Aborting.');
       return false;
     }
-
-    const clampedIndex = Math.max(0, Math.min(index, this.quizService.totalQuestions - 1));
+  
+    const total = this.quizService.totalQuestions;
+    if (typeof total !== 'number' || total <= 0) {
+      console.error('[❌ Invalid totalQuestions value]', total);
+      return false;
+    }
+  
+    const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
-
+  
     if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
     }
-
+  
+    // Log before calling the service
+    console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
-    console.log('[🧪 fetchAndSetQuestionData result]', fetched);
-
+    console.log('[🧪 loadQuestionAndOptions result]', fetched);
+  
     if (!fetched) {
       console.error(`[❌ Failed to fetch question at index ${clampedIndex}]`);
       return false;
     }
-
+  
     console.log('[➡️ Attempting to navigate to]', routeUrl);
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Navigation result]', success);
-
+  
     if (!success) {
       console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
       return false;
     }
-
-    this.progressBarService.updateProgress(clampedIndex, this.quizService.totalQuestions);
+  
+    this.progressBarService.updateProgress(clampedIndex, total);
     this.quizService.setCurrentQuestionIndex(clampedIndex);
     localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
-
+  
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
   }
-  
   
   
 
