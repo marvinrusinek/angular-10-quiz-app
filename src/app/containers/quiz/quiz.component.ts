@@ -1120,7 +1120,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /******* initialize route parameters functions *********/
-  private subscribeToRouteParams(): void {
+  /* private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
       const routeQuizId = params.get('quizId');
       const routeIndex = Number(params.get('questionIndex'));
@@ -1141,7 +1141,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const adjustedIndex = routeIndex - 1;
       await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
     });
+  } */
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
+      const quizId = params.get('quizId');
+      const rawIndex = Number(params.get('questionIndex'));
+  
+      if (!quizId || isNaN(rawIndex)) {
+        console.error('[❌ Invalid route params]', { quizId, rawIndex });
+        return;
+      }
+  
+      const index = rawIndex - 1;
+      this.quizId = quizId;
+      this.quizService.quizId = quizId;
+      this.quizNavigationService.setQuizId(quizId);
+  
+      console.log('[🧭 Route change]', { quizId, index });
+  
+      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+      this.quizService.setCurrentQuestionIndex(index);
+    });
   }
+  
   
   private async initializeRouteParams(): Promise<void> {
     // *Ensure questions are loaded before processing route parameters**
