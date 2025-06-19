@@ -1314,7 +1314,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
     // Step 1: Get quizId and totalQuestions safely
@@ -1349,7 +1349,7 @@ export class QuizNavigationService {
     // Step 3: Load question data
     console.log('[🛠 Loading question & options]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
-  0
+  
     if (!fetched) {
       console.error(`[❌ Failed to load data for Q${clampedIndex}]`);
       return false;
@@ -1386,7 +1386,71 @@ export class QuizNavigationService {
   
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    console.log('[🚀 navigateToQuestion CALLED]', { index });
+  
+    // Step 1: Get quizId and totalQuestions safely
+    const quizId = this.getQuizId();
+    let total = this.quizService.totalQuestions;
+  
+    if (!quizId || total <= 0) {
+      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      total = this.quizService.totalQuestions;
+    }
+  
+    if (!quizId || total <= 0) {
+      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
+      return false;
+    }
+  
+    // Step 2: Clamp index and compute route
+    const clampedIndex = Math.max(0, Math.min(index, total - 1));
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    console.log('[📍 Current URL]', currentUrl);
+    console.log('[📍 Target URL]', routeUrl);
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
+      return true;
+    }
+  
+    // Step 3: Perform route navigation
+    const success = await this.router.navigateByUrl(routeUrl);
+    console.log('[📦 Router navigation result]', success);
+  
+    if (!success) {
+      console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
+      return false;
+    }
+  
+    // Step 4: Manually load question data after navigation
+    try {
+      console.log('[⚙️ Manually loading question and options after navigation]');
+      const postNavLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
+      console.log('[🧪 Post-navigation load result]', postNavLoaded);
+  
+      if (!postNavLoaded) {
+        console.error(`[❌ Failed to load question data after navigating to Q${clampedIndex}]`);
+        return false;
+      }
+    } catch (error) {
+      console.error('[❌ Error during post-navigation load]', error);
+      return false;
+    }
+  
+    // Step 5: Update state
+    this.quizService.setCurrentQuestionIndex(clampedIndex);
+    this.progressBarService.updateProgress(clampedIndex, total);
+    localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
+  
+    console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
+    return true;
   }
+  
   
   
   
