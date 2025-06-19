@@ -422,6 +422,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       
         this.quizService.setCurrentQuestionIndex(questionIndex);
+
+        console.log('[📥 Attempting to load question at index]', questionIndex);
       
         // ✅ LOAD the question manually
         const success = await this.quizQuestionLoaderService.loadQuestionAndOptions(questionIndex);
