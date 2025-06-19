@@ -410,24 +410,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       // ✅ Subscribe to param changes to react to new questionIndex
       this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
-        const questionIndex = Number(params.get('questionIndex')) - 1; // ← adjust for zero-based index
+        const rawIndex = params.get('questionIndex');
+        const questionIndex = rawIndex ? Number(rawIndex) - 1 : 0; // ✅ convert to 0-based
         const routeQuizId = params.get('quizId');
-  
-        console.log('[🧭 Param Change Detected]', { routeQuizId, questionIndex });
-  
+      
+        console.log('[🧭 Param Change Detected]', { routeQuizId, rawIndex, questionIndex });
+      
         if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('[❌ Invalid questionIndex in route]', questionIndex);
           return;
         }
-  
+      
         this.quizService.setCurrentQuestionIndex(questionIndex);
-  
-        // 🔄 Load question data when navigating
+      
+        // ✅ LOAD the question manually
         const success = await this.quizQuestionLoaderService.loadQuestionAndOptions(questionIndex);
         if (!success) {
           console.error(`[❌ Failed to load question at index ${questionIndex}]`);
         }
-      });
+      });      
     } catch (error) {
       console.error('[❌ Error loading quiz]', error);
     }
