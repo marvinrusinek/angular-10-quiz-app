@@ -1320,8 +1320,14 @@ export class QuizNavigationService {
   
     // Step 2 – Validate inputs
     if (!quizId || total <= 0) {
-      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
-      return false;
+      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying navigation]');
+      await new Promise(resolve => setTimeout(resolve, 50)); // wait 50ms
+      total = this.quizService.totalQuestions;
+    
+      if (total <= 0) {
+        console.error('[❌ Still invalid totalQuestions after wait]', { quizId, total });
+        return false;
+      }
     }
   
     // Step 3 – Clamp index and generate route
