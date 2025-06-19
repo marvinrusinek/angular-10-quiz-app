@@ -385,8 +385,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizNavigationService.setQuizId(quizId);
       this.quizId = quizId;
       this.quizService.quizId = quizId;
-
+  
       console.log('[📌 QuizComponent → quizId set]', quizId);
+  
+      // ✅ Attempt to find and set the correct quiz
+      const loadedQuiz = this.quizList?.find(q => q.quizId === quizId);
+      if (loadedQuiz) {
+        this.quizService.quiz = loadedQuiz;
+        this.quizService.totalQuestions = loadedQuiz.questions.length;
+  
+        console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
+        console.log('[✅ Loaded quiz]', loadedQuiz);
+      } else {
+        console.error('[❌ QuizComponent] Could not find quiz with ID:', quizId);
+      }
     } else {
       console.error('[❌ QuizComponent] quizId not found in route');
     }

@@ -1068,6 +1068,7 @@ export class QuizNavigationService {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
     const quizId = this.getQuizId();
+    console.log("MYQUIZID", quizId);
     if (!quizId) {
       console.error('[❌ navigateToQuestion] quizId is missing. Aborting.');
       return false;
@@ -1086,6 +1087,7 @@ export class QuizNavigationService {
   
     // ✅ Step 2: Ensure totalQuestions is correctly set
     const total = this.quizService.totalQuestions;
+    console.log('[📊 totalQuestions]', this.quizService.totalQuestions);
     if (!total || total <= 0) {
       console.error('[❌ Invalid or unset totalQuestions]', {
         total,
