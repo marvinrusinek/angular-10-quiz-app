@@ -381,29 +381,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-    
     if (!quizId) {
       console.error('[❌ QuizComponent] quizId not found in route');
       return;
     }
   
-    this.quizNavigationService.setQuizId(quizId);
     this.quizId = quizId;
     this.quizService.quizId = quizId;
+    this.quizNavigationService.setQuizId(quizId);
   
     console.log('[📌 QuizComponent → quizId set]', quizId);
   
     try {
       const loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
-      console.log("LOADEDQUIZ", loadedQuiz);
-  
       if (!loadedQuiz) {
         console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
         return;
       }
   
       this.quizService.quiz = loadedQuiz;
-      this.quizService.totalQuestions = loadedQuiz.questions.length;
+      this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
   
       console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
       console.log('[✅ Loaded quiz]', loadedQuiz);
