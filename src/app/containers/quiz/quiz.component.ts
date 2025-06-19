@@ -393,38 +393,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[📌 QuizComponent → quizId set]', quizId);
   
     try {
-      // ✅ Fetch the quiz only if it hasn't been loaded already
-      if (!this.quizService.quiz || this.quizService.quiz.quizId !== quizId) {
-        const loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
+      let loadedQuiz = this.quizService.quiz;
+      if (!loadedQuiz) {
+        loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
         if (!loadedQuiz) {
           console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
           return;
         }
-  
         this.quizService.quiz = loadedQuiz;
-        this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
-  
-        console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
-        console.log('[✅ Loaded quiz]', loadedQuiz);
-      } else {
-        console.log('[ℹ️ Quiz already loaded]', this.quizService.quiz);
       }
   
-      // 🧪 DEBUG: Check consistency across app
-      console.log('[🧪 this.quizService.quiz.quizId]', this.quizService.quiz?.quizId);
-      console.log('[🧪 this.quizService.totalQuestions]', this.quizService.totalQuestions);
+      this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
+      console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
   
-      // Step 3: Subscribe to route param changes to react to questionIndex updates
-      this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-        const questionIndex = Number(params.get('questionIndex'));
+      // ✅ Subscribe to param changes to react to new questionIndex
+      this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
+        const questionIndex = Number(params.get('questionIndex')) - 1; // ← adjust for zero-based index
         const routeQuizId = params.get('quizId');
+  
         console.log('[🧭 Param Change Detected]', { routeQuizId, questionIndex });
   
-        if (!isNaN(questionIndex) && questionIndex >= 0) {
-          this.quizService.setCurrentQuestionIndex(questionIndex);
-          this.quizService.getQuestionByIndex(questionIndex);
-        } else {
+        if (isNaN(questionIndex) || questionIndex < 0) {
           console.error('[❌ Invalid questionIndex in route]', questionIndex);
+          return;
+        }
+  
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+  
+        // 🔄 Load question data when navigating
+        const success = await this.quizQuestionLoaderService.loadQuestionAndOptions(questionIndex);
+        if (!success) {
+          console.error(`[❌ Failed to load question at index ${questionIndex}]`);
         }
       });
     } catch (error) {
