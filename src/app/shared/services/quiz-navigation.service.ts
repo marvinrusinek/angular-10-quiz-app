@@ -1419,7 +1419,7 @@ export class QuizNavigationService {
     }
   
     // Step 3: Perform route navigation
-    const success = await this.router.navigateByUrl(routeUrl);
+    const success = await this.router.navigateByUrl(routeUrl, { skipLocationChange: false });
     console.log('[📦 Router navigation result]', success);
   
     if (!success) {
