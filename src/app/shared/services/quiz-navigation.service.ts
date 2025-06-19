@@ -240,13 +240,6 @@ export class QuizNavigationService {
       // ✅ Use centralized navigation logic
       console.log('[📞 Calling navigateToQuestion]', nextIndex);
       const routeUrl = `/question/${this.quizId}/${nextIndex}`;
-
-      if (this.quizService.totalQuestions > 0) {
-        await this.navigateToQuestion(this.currentQuestionIndex + 1);
-      } else {
-        console.warn('[⚠️ Cannot navigate – totalQuestions not set yet]');
-      }
-
       const navSuccess = await this.navigateToQuestion(nextIndex);
       //const navSuccess = await this.router.navigateByUrl(routeUrl);
   
@@ -289,13 +282,12 @@ export class QuizNavigationService {
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
     if (!isEnabled || !isAnswered || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
         isEnabled,
         isAnswered,
         isLoading,
-        isNavigating
+        isNavigating,
       });
       return;
     }
@@ -307,7 +299,7 @@ export class QuizNavigationService {
     this.animationState$.next('animationStarted');
   
     try {
-      // Validate route and quiz ID
+      // Validate index and quizId
       if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
         console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
         return;
@@ -316,26 +308,29 @@ export class QuizNavigationService {
       // Flush UI before route change
       this.quizQuestionLoaderService.resetUI();
   
-      // ✅ Use centralized navigation logic
+      // ✅ Use centralized navigation
       console.log('[📞 Calling navigateToQuestion]', nextIndex);
-  
-      let navSuccess = false;
-  
-      if (this.quizService.totalQuestions > 0) {
-        navSuccess = await this.navigateToQuestion(nextIndex);
-      } else {
-        console.warn('[⚠️ Cannot navigate – totalQuestions not set yet]');
-        return;
-      }
+      const navSuccess = await this.navigateToQuestion(nextIndex);
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
-  
         this.quizService.setCurrentQuestionIndex(nextIndex);
+  
+        // Update progress bar conditionally
+        if (!isFirstQuestion) {
+          const totalQuestions = await firstValueFrom(
+            this.quizService.getTotalQuestionsCount(this.quizId)
+          );
+          this.progressBarService.updateProgress(currentIndex, totalQuestions);
+        } else {
+          this.progressBarService.updateProgress(0, 1); // force reset for Q1
+        }
+  
+        // Reset quiz state
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   
-        // Trigger UI observers
+        // Trigger post-navigation updates
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
@@ -1250,10 +1245,10 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    if (currentUrl === routeUrl) {
+    /* if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
-    }
+    } */
   
     console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
