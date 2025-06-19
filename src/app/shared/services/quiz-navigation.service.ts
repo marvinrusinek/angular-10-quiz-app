@@ -1349,7 +1349,7 @@ export class QuizNavigationService {
     // Step 3: Load question data
     console.log('[🛠 Loading question & options]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
-  
+  0
     if (!fetched) {
       console.error(`[❌ Failed to load data for Q${clampedIndex}]`);
       return false;
@@ -1361,6 +1361,21 @@ export class QuizNavigationService {
   
     if (!success) {
       console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
+      return false;
+    }
+
+    // Manually trigger quiz logic after successful navigation
+    try {
+      console.log('[⚙️ Manually loading question and options after navigation]');
+      const postNavLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
+      console.log('[🧪 Post-navigation load result]', postNavLoaded);
+
+      if (!postNavLoaded) {
+        console.error(`[❌ Failed to load question data after navigating to Q${clampedIndex}]`);
+        return false;
+      }
+    } catch (error) {
+      console.error('[❌ Error during post-navigation load]', error);
       return false;
     }
   
