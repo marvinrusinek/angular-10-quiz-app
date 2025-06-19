@@ -366,6 +366,30 @@ export class QuizQuestionComponent
     });
 
 
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      const questionIndex = Number(params.get('questionIndex'));
+      console.log('[🧭 Param change detected] Loading question index:', questionIndex);
+    
+      try {
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
+    
+        if (!question) {
+          console.warn(`[⚠️ No valid question returned for index ${questionIndex}]`);
+          return;
+        }
+    
+        // Set current index in service
+        this.quizService.setCurrentQuestionIndex(questionIndex);
+    
+        // Optional: call any other UI update logic here
+        await this.loadQuestion();
+    
+      } catch (err) {
+        console.error('[❌ Error during question fetch]', err);
+      }
+    });
+
+
     const routeIndex =
       +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
     this.currentQuestionIndex = routeIndex; // ensures correct index
@@ -5334,3 +5358,4 @@ export class QuizQuestionComponent
     }, 1000); // ensure audio has time to play before clearing
   }
 }
+
