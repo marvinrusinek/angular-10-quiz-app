@@ -1122,26 +1122,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /******* initialize route parameters functions *********/
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
-      const quizId = params.get('quizId');
-      const questionIndex = Number(params.get('questionIndex'));
+      const routeQuizId = params.get('quizId');
+      const routeIndex = Number(params.get('questionIndex'));
   
-      console.log('[🧭 Route Params Changed]', { quizId, questionIndex });
+      console.log('[🧭 Route param change]', { routeQuizId, routeIndex });
   
-      if (!quizId || isNaN(questionIndex) || questionIndex < 1) {
-        console.error('[❌ Invalid route params]', { quizId, questionIndex });
+      if (!routeQuizId || isNaN(routeIndex)) {
+        console.error('[❌ Invalid route params]', { routeQuizId, routeIndex });
         return;
       }
   
-      const adjustedIndex = questionIndex - 1;
+      // ✅ Set quizId
+      this.quizId = routeQuizId;
+      this.quizService.quizId = routeQuizId;
+      this.quizNavigationService.setQuizId(routeQuizId);
   
-      // 🔐 Set quiz ID and index across services
-      this.quizId = quizId;
-      this.quizService.quizId = quizId;
-      this.quizService.setCurrentQuestionIndex(adjustedIndex);
-  
-      // 🔄 Load question and options
-      const loaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
-      console.log(`[✅ Data load after route change] Q${adjustedIndex}:`, loaded);
+      // ✅ Then load question at that index (zero-based)
+      const adjustedIndex = routeIndex - 1;
+      await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
     });
   }
   
