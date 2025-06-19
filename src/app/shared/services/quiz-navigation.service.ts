@@ -1430,7 +1430,6 @@ export class QuizNavigationService {
     // Step 4: Manually load question data after navigation
     try {
       console.log('[⚙️ Manually loading question and options after navigation]');
-      const clampedIndex = Math.max(0, Math.min(index, total - 1));
       const postNavLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
       console.log('[🧪 Post-navigation load result]', postNavLoaded);
   
@@ -1452,13 +1451,6 @@ export class QuizNavigationService {
     return true;
   }
   
-  
-  
-  
-  
-  
-  
-
   
   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
