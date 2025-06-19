@@ -1082,6 +1082,7 @@ export class QuizNavigationService {
       const quizId =
         this.quizService.quizId ||
         this.quizId ||
+        this.getQuizId() || 
         this.activatedRoute.snapshot.paramMap.get('quizId');
 
       console.log('[🔎 quizId resolution]', {
