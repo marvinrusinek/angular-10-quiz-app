@@ -393,19 +393,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[📌 QuizComponent → quizId set]', quizId);
   
     try {
-      const loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
-      if (!loadedQuiz) {
-        console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
-        return;
+      // ✅ Fetch the quiz only if it hasn't been loaded already
+      if (!this.quizService.quiz || this.quizService.quiz.quizId !== quizId) {
+        const loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
+        if (!loadedQuiz) {
+          console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
+          return;
+        }
+  
+        this.quizService.quiz = loadedQuiz;
+        this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
+  
+        console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
+        console.log('[✅ Loaded quiz]', loadedQuiz);
+      } else {
+        console.log('[ℹ️ Quiz already loaded]', this.quizService.quiz);
       }
   
-      this.quizService.quiz = loadedQuiz;
-      this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
-  
-      console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
-      console.log('[✅ Loaded quiz]', loadedQuiz);
-      
-      // DEBUG: Check consistency across app
+      // 🧪 DEBUG: Check consistency across app
       console.log('[🧪 this.quizService.quiz.quizId]', this.quizService.quiz?.quizId);
       console.log('[🧪 this.quizService.totalQuestions]', this.quizService.totalQuestions);
   
