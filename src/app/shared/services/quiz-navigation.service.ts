@@ -1250,16 +1250,16 @@ export class QuizNavigationService {
     this.navigationToQuestionSubject.next({ question, options });
   }
 
-  /* setQuizId(id: string): void {
+  public setQuizId(id: string): void {
     this.quizId = id;
     console.log('[🧭 QuizNavigationService] quizId set to', id);
   }
 
-  getQuizId(): string {
-    return this.quizId;
-  } */
+  private getQuizId(): string | null {
+    return this.quizId || null;
+  }
 
-  public setQuizId(id: string): void {
+  /* public setQuizId(id: string): void {
     this.quizId = id;
     this.quizService.quizId = id;
     console.log('[🧭 QuizNavigationService] quizId set to:', id);
@@ -1270,5 +1270,5 @@ export class QuizNavigationService {
     const resolved = fromService || this.quizId;
     console.log('[🔎 QuizNavigationService.getQuizId()] resolved:', resolved);
     return resolved;
-  }
+  } */
 }
