@@ -1064,7 +1064,7 @@ export class QuizNavigationService {
       this.isNavigating = false;
     }
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
     const quizId = this.getQuizId();
@@ -1095,6 +1095,9 @@ export class QuizNavigationService {
       });
       return false;
     }
+
+    console.log('[🧪 NAV INPUT] quizId:', quizId);
+    console.log('[🧪 NAV INPUT] totalQuestions:', total);
   
     // ✅ Step 3: Confirm valid navigation target
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
@@ -1132,7 +1135,67 @@ export class QuizNavigationService {
   
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    console.log('[🚀 navigateToQuestion CALLED]', { index });
+  
+    let quizId: string | null = null;
+    let total = 0;
+  
+    try {
+      quizId = this.getQuizId();
+      total = this.quizService.totalQuestions;
+  
+      console.log('[🧪 NAV INPUT] quizId:', quizId);
+      console.log('[🧪 NAV INPUT] totalQuestions:', total);
+    } catch (err) {
+      console.error('[❌ Exception during quizId or total retrieval]', err);
+      return false;
+    }
+  
+    if (!quizId || total <= 0) {
+      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
+      return false;
+    }
+  
+    const clampedIndex = Math.max(0, Math.min(index, total - 1));
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    console.log('[📍 Current URL]', currentUrl);
+    console.log('[📍 Target URL]', routeUrl);
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
+      return true;
+    }
+  
+    console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
+    const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
+    console.log('[🧪 loadQuestionAndOptions result]', fetched);
+  
+    if (!fetched) {
+      console.error(`[❌ Failed to fetch question at index ${clampedIndex}]`);
+      return false;
+    }
+  
+    console.log('[➡️ Attempting to navigate to]', routeUrl);
+    const success = await this.router.navigateByUrl(routeUrl);
+    console.log('[📦 Navigation result]', success);
+  
+    if (!success) {
+      console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
+      return false;
+    }
+  
+    this.progressBarService.updateProgress(clampedIndex, total);
+    this.quizService.setCurrentQuestionIndex(clampedIndex);
+    localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
+  
+    console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
+    return true;
   }
+  
   
   
   
