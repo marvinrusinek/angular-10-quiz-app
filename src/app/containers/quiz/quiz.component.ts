@@ -407,11 +407,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
       console.log('[✅ Loaded quiz]', loadedQuiz);
-
-      // ✅ NOW it is safe to navigate
-      const currentIndex = this.quizService.getCurrentQuestionIndex?.() ?? 0;
-      await this.quizNavigationService.navigateToQuestion(currentIndex);
-
+      
       // 🧪 DEBUG: Check consistency across app
       console.log('[🧪 this.quizService.quiz.quizId]', this.quizService.quiz?.quizId);
       console.log('[🧪 this.quizService.totalQuestions]', this.quizService.totalQuestions);
