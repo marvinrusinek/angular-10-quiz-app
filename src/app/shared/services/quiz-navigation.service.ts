@@ -1245,10 +1245,10 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    if (currentUrl === routeUrl) {
+    /* if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
-    }
+    } */
   
     console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
