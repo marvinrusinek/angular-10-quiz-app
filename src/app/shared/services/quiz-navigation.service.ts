@@ -386,7 +386,8 @@ export class QuizNavigationService {
   
     try {
       // Validate nextIndex and quizId
-      if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
+      const effectiveQuizId = this.quizId || this.quizService.quizId;
+      if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
         console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
         return;
       }
