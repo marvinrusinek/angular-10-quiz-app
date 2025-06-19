@@ -1090,7 +1090,10 @@ export class QuizNavigationService {
       return false;
     }
 
+    console.log('[➡️ Attempting to navigate to]', routeUrl);
     const success = await this.router.navigateByUrl(routeUrl);
+    console.log('[📦 Navigation result]', success);
+
     if (!success) {
       console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
       return false;

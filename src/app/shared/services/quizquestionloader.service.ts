@@ -183,6 +183,7 @@ export class QuizQuestionLoaderService {
   }
 
   async fetchAndSetQuestionData(questionIndex: number): Promise<boolean> {    
+    console.log('[📥 fetchAndSetQuestionData CALLED]', questionIndex);
     // ───── Reset state flags ─────
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
