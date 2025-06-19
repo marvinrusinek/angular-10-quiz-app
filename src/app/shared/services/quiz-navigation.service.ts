@@ -1390,7 +1390,7 @@ export class QuizNavigationService {
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
-    // Step 1: Get quizId and totalQuestions safely
+    // Step 1: Validate quizId and totalQuestions
     const quizId = this.getQuizId();
     let total = this.quizService.totalQuestions;
   
@@ -1405,7 +1405,7 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Step 2: Clamp index and compute route
+    // Step 2: Build route and validate
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -1418,8 +1418,8 @@ export class QuizNavigationService {
       return true;
     }
   
-    // Step 3: Perform route navigation
-    const success = await this.router.navigateByUrl(routeUrl, { skipLocationChange: false });
+    // Step 3: Route navigation only
+    const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
   
     if (!success) {
@@ -1427,30 +1427,16 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Step 4: Manually load question data after navigation
-    try {
-      console.log('[⚙️ Manually loading question and options after navigation]');
-      const postNavLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
-      console.log('[🧪 Post-navigation load result]', postNavLoaded);
+    // Step 4: Do not load manually — handled by route subscription
   
-      if (!postNavLoaded) {
-        console.error(`[❌ Failed to load question data after navigating to Q${clampedIndex}]`);
-        return false;
-      }
-    } catch (error) {
-      console.error('[❌ Error during post-navigation load]', error);
-      return false;
-    }
-  
-    // Step 5: Update state
+    // Step 5: Update index in service
     this.quizService.setCurrentQuestionIndex(clampedIndex);
     this.progressBarService.updateProgress(clampedIndex, total);
     localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
   
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
-  }
-  
+  }  
   
   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
