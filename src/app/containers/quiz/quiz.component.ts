@@ -405,11 +405,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
       console.log('[✅ Loaded quiz]', loadedQuiz);
       
-      // 🧪 DEBUG: Check consistency across app
+      // DEBUG: Check consistency across app
       console.log('[🧪 this.quizService.quiz.quizId]', this.quizService.quiz?.quizId);
       console.log('[🧪 this.quizService.totalQuestions]', this.quizService.totalQuestions);
   
-      // ✅ Step 3: Subscribe to route param changes to react to questionIndex updates
+      // Step 3: Subscribe to route param changes to react to questionIndex updates
       this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
         const questionIndex = Number(params.get('questionIndex'));
         const routeQuizId = params.get('quizId');
@@ -417,12 +417,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         if (!isNaN(questionIndex) && questionIndex >= 0) {
           this.quizService.setCurrentQuestionIndex(questionIndex);
-          this.loadQuestion(questionIndex); // ✅ Replace with your actual method
+          this.quizService.getQuestionByIndex(questionIndex);
         } else {
           console.error('[❌ Invalid questionIndex in route]', questionIndex);
         }
       });
-  
     } catch (error) {
       console.error('[❌ Error loading quiz]', error);
     }
