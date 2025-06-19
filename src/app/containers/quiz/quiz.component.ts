@@ -1142,7 +1142,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
     });
   } */
-  private subscribeToRouteParams(): void {
+  /* private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
       const quizId = params.get('quizId');
       const rawIndex = Number(params.get('questionIndex'));
@@ -1162,7 +1162,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
       this.quizService.setCurrentQuestionIndex(index);
     });
+  } */
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.paramMap.subscribe(async (params) => {
+      const quizId = params.get('quizId');
+      const index = Number(params.get('questionIndex')) - 1;
+  
+      if (!quizId || isNaN(index)) {
+        console.error('[❌ Invalid route params]', { quizId, index });
+        return;
+      }
+  
+      this.quizId = quizId;
+      this.quizService.quizId = quizId;
+  
+      console.log('[🧭 Route param change]', { quizId, index });
+      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+    });
   }
+  
   
   
   private async initializeRouteParams(): Promise<void> {
