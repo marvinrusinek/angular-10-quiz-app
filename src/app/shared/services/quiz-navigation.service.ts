@@ -1082,7 +1082,7 @@ export class QuizNavigationService {
       return true;
     }
 
-    const fetched = await this.quizQuestionLoaderService.fetchAndSetQuestionData(clampedIndex);
+    const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
     console.log('[🧪 fetchAndSetQuestionData result]', fetched);
 
     if (!fetched) {
