@@ -1073,6 +1073,18 @@ export class QuizNavigationService {
       return false;
     }
   
+    // ✅ Step 1: Ensure the quiz data is correctly loaded based on quizId
+    const loadedQuiz = this.quizService.quiz;
+  
+    if (!loadedQuiz || loadedQuiz.quizId !== quizId) {
+      console.error('[❌ Quiz mismatch or missing quiz]', {
+        expected: quizId,
+        actual: loadedQuiz?.quizId,
+      });
+      return false;
+    }
+  
+    // ✅ Step 2: Ensure totalQuestions is correctly set
     const total = this.quizService.totalQuestions;
     if (!total || total <= 0) {
       console.error('[❌ Invalid or unset totalQuestions]', {
@@ -1082,6 +1094,7 @@ export class QuizNavigationService {
       return false;
     }
   
+    // ✅ Step 3: Confirm valid navigation target
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -1110,6 +1123,7 @@ export class QuizNavigationService {
       return false;
     }
   
+    // ✅ Update progress bar and internal state
     this.progressBarService.updateProgress(clampedIndex, total);
     this.quizService.setCurrentQuestionIndex(clampedIndex);
     localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
@@ -1117,6 +1131,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
   }
+  
   
   
 
