@@ -371,6 +371,13 @@ export class QuizNavigationService {
       return;
     }
   
+    console.log('[🧪 Guard values]', {
+      isEnabled,
+      isAnswered,
+      isLoading,
+      isNavigating
+    });
+  
     // Lock UI state
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
@@ -396,7 +403,14 @@ export class QuizNavigationService {
   
       // ✅ Use centralized navigation
       console.log('[📞 Calling navigateToQuestion]', nextIndex);
-      const navSuccess = await this.navigateToQuestion(nextIndex);
+  
+      let navSuccess = false;
+      try {
+        navSuccess = await this.navigateToQuestion(nextIndex);
+        console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
+      } catch (navError) {
+        console.error('[❌ navigateToQuestion threw error]', navError);
+      }
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
