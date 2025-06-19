@@ -382,63 +382,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-    if (!quizId) {
-      console.error('[❌ QuizComponent] quizId not found in route');
-      return;
-    }
-  
-    this.quizId = quizId;
-    this.quizService.quizId = quizId;
-    this.quizNavigationService.setQuizId(quizId);
-  
-    console.log('[📌 QuizComponent → quizId set]', quizId);
-  
-    try {
-      let loadedQuiz = this.quizService.quiz;
-      if (!loadedQuiz) {
-        loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
-        if (!loadedQuiz) {
-          console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
-          return;
-        }
-        this.quizService.quiz = loadedQuiz;
-      }
-  
-      this.quizService.totalQuestions = loadedQuiz.questions?.length || 0;
-      console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
-  
-      // ✅ Subscribe to param changes to react to new questionIndex
-      this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
-        const rawIndex = params.get('questionIndex');
-        const questionIndex = rawIndex ? Number(rawIndex) - 1 : 0; // ✅ convert to 0-based
-        const routeQuizId = params.get('quizId');
-      
-        console.log('[🧭 Param Change Detected]', { routeQuizId, rawIndex, questionIndex });
-      
-        if (isNaN(questionIndex) || questionIndex < 0) {
-          console.error('[❌ Invalid questionIndex in route]', questionIndex);
-          return;
-        }
-      
-        this.quizService.setCurrentQuestionIndex(questionIndex);
-
-        console.log('[📥 Attempting to load question at index]', questionIndex);
-      
-        // ✅ LOAD the question manually
-        const success = await this.quizQuestionLoaderService.loadQuestionAndOptions(questionIndex);
-        if (!success) {
-          console.error(`[❌ Failed to load question at index ${questionIndex}]`);
-        }
-      });      
-    } catch (error) {
-      console.error('[❌ Error loading quiz]', error);
-    }
+    this.setupQuiz();
+    this.subscribeToRouteParams();
 
     this.registerVisibilityChangeHandler();
     this.initializeDisplayVariables();
-  
-    this.setupQuiz();
     
     this.quizInitializationService.initializeAnswerSync(
       (enabled) => (this.isNextButtonEnabled = enabled),
@@ -1173,10 +1121,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /******* initialize route parameters functions *********/
   private subscribeToRouteParams(): void {
-    this.activatedRoute.params.subscribe((params) => {
-      this.quizId = params['quizId'];
-      this.currentQuestionIndex = +params['questionIndex'] - 1;
-      this.loadAndSetupQuestion(this.currentQuestionIndex);
+    this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
+      const quizId = params.get('quizId');
+      const questionIndex = Number(params.get('questionIndex'));
+  
+      console.log('[🧭 Route Params Changed]', { quizId, questionIndex });
+  
+      if (!quizId || isNaN(questionIndex) || questionIndex < 1) {
+        console.error('[❌ Invalid route params]', { quizId, questionIndex });
+        return;
+      }
+  
+      const adjustedIndex = questionIndex - 1;
+  
+      // 🔐 Set quiz ID and index across services
+      this.quizId = quizId;
+      this.quizService.quizId = quizId;
+      this.quizService.setCurrentQuestionIndex(adjustedIndex);
+  
+      // 🔄 Load question and options
+      const loaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
+      console.log(`[✅ Data load after route change] Q${adjustedIndex}:`, loaded);
     });
   }
   
