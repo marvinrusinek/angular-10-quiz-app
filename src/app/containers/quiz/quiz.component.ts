@@ -394,7 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[📌 QuizComponent → quizId set]', quizId);
   
     try {
-      const loadedQuiz = await this.quizService.loadQuizById(quizId);
+      const loadedQuiz = await this.quizService.fetchAndFindQuiz(quizId);
   
       if (!loadedQuiz) {
         console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
