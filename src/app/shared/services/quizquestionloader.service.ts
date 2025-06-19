@@ -141,7 +141,7 @@ export class QuizQuestionLoaderService {
           return;
         }
   
-        // Extract correct options **for the current question
+        // Extract correct options for the current question
         const correctOptions = data.options.filter(opt => opt.correct);
   
         // Ensure `generateFeedbackForOptions` receives correct data for each question
