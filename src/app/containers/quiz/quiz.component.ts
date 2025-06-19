@@ -381,26 +381,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     const quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-    if (quizId) {
-      this.quizNavigationService.setQuizId(quizId);
-      this.quizId = quizId;
-      this.quizService.quizId = quizId;
-  
-      console.log('[📌 QuizComponent → quizId set]', quizId);
-  
-      // ✅ Attempt to find and set the correct quiz
-      const loadedQuiz = this.quizList?.find(q => q.quizId === quizId);
-      if (loadedQuiz) {
-        this.quizService.quiz = loadedQuiz;
-        this.quizService.totalQuestions = loadedQuiz.questions.length;
-  
-        console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
-        console.log('[✅ Loaded quiz]', loadedQuiz);
-      } else {
-        console.error('[❌ QuizComponent] Could not find quiz with ID:', quizId);
-      }
-    } else {
+    
+    if (!quizId) {
       console.error('[❌ QuizComponent] quizId not found in route');
+      return;
+    }
+  
+    this.quizNavigationService.setQuizId(quizId);
+    this.quizId = quizId;
+    this.quizService.quizId = quizId;
+  
+    console.log('[📌 QuizComponent → quizId set]', quizId);
+  
+    try {
+      const loadedQuiz = await this.quizService.loadQuizById(quizId);
+  
+      if (!loadedQuiz) {
+        console.error('[❌ QuizComponent] Failed to load quiz for ID:', quizId);
+        return;
+      }
+  
+      this.quizService.quiz = loadedQuiz;
+      this.quizService.totalQuestions = loadedQuiz.questions.length;
+  
+      console.log('[📊 totalQuestions set]', this.quizService.totalQuestions);
+      console.log('[✅ Loaded quiz]', loadedQuiz);
+    } catch (error) {
+      console.error('[❌ Error loading quiz]', error);
     }
 
     this.registerVisibilityChangeHandler();
