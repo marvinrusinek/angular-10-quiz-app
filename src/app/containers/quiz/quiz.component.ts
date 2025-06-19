@@ -27,6 +27,7 @@ import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
+import { QuizQuestionLoaderService } from '../../shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from '../../shared/services/quizquestionmgr.service';
 import { AnswerTrackingService } from '../../shared/services/answer-tracking.service';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
@@ -238,6 +239,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private quizDataService: QuizDataService,
     private quizInitializationService: QuizInitializationService,
     private quizNavigationService: QuizNavigationService,
+    private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private quizStateService: QuizStateService,
     private timerService: TimerService,
