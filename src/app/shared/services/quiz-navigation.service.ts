@@ -1303,32 +1303,22 @@ export class QuizNavigationService {
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
-    // Step 1 – Retrieve quizId and totalQuestions
-    let quizId: string | null;
+    // Step 1: Get quizId and totalQuestions safely
+    const quizId = this.getQuizId();
     let total = this.quizService.totalQuestions;
   
-    try {
-      quizId = this.getQuizId();
-      console.log('[🧪 NAV INPUT] quizId:', quizId);
-      console.log('[🧪 NAV INPUT] totalQuestions:', total);
-    } catch (err) {
-      console.error('[❌ Exception during quizId retrieval]', err);
+    if (!quizId || total <= 0) {
+      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      total = this.quizService.totalQuestions;
+    }
+  
+    if (!quizId || total <= 0) {
+      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
       return false;
     }
   
-    // Step 2 – Retry if totalQuestions is not yet available
-    if (!quizId || total <= 0) {
-      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying navigation]');
-      await new Promise(resolve => setTimeout(resolve, 50));
-      total = this.quizService.totalQuestions;
-  
-      if (!quizId || total <= 0) {
-        console.error('[❌ Still invalid quizId or totalQuestions after retry]', { quizId, total });
-        return false;
-      }
-    }
-  
-    // Step 3 – Clamp index and build route
+    // Step 2: Clamp index and compute route
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -1336,37 +1326,33 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    // Optional skip if already on route
-    /*
+    // Optional skip if already on correct route
     if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
     }
-    */
   
-    // Step 4 – Preload question and options
-    console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
+    // Step 3: Load question data
+    console.log('[🛠 Loading question & options]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
-    console.log('[🧪 loadQuestionAndOptions result]', fetched);
   
     if (!fetched) {
-      console.error(`[❌ Failed to fetch question at index ${clampedIndex}]`);
+      console.error(`[❌ Failed to load data for Q${clampedIndex}]`);
       return false;
     }
   
-    // Step 5 – Perform navigation
-    console.log('[➡️ Attempting to navigate to]', routeUrl);
+    // Step 4: Navigate to new route
     const success = await this.router.navigateByUrl(routeUrl);
-    console.log('[📦 Navigation result]', success);
+    console.log('[📦 Router navigation result]', success);
   
     if (!success) {
       console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
       return false;
     }
   
-    // Step 6 – Post-navigation updates
-    this.progressBarService.updateProgress(clampedIndex, total);
+    // Step 5: Update state
     this.quizService.setCurrentQuestionIndex(clampedIndex);
+    this.progressBarService.updateProgress(clampedIndex, total);
     localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
   
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
