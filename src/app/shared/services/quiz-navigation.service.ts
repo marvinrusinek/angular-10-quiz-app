@@ -1219,6 +1219,7 @@ export class QuizNavigationService {
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
+    // Step 1 – Retrieve quizId and totalQuestions
     let quizId: string | null = null;
     let total = 0;
   
@@ -1233,11 +1234,13 @@ export class QuizNavigationService {
       return false;
     }
   
+    // Step 2 – Validate inputs
     if (!quizId || total <= 0) {
       console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
       return false;
     }
   
+    // Step 3 – Clamp index and generate route
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -1245,11 +1248,15 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    /* if (currentUrl === routeUrl) {
+    // Optional: Skip if already on route
+    /*
+    if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
-    } */
+    }
+    */
   
+    // Load data before navigation
     console.log('[🛠 Calling loader: loadQuestionAndOptions()]');
     const fetched = await this.quizQuestionLoaderService.loadQuestionAndOptions(clampedIndex);
     console.log('[🧪 loadQuestionAndOptions result]', fetched);
@@ -1259,6 +1266,7 @@ export class QuizNavigationService {
       return false;
     }
   
+    // Perform route navigation
     console.log('[➡️ Attempting to navigate to]', routeUrl);
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Navigation result]', success);
@@ -1268,6 +1276,7 @@ export class QuizNavigationService {
       return false;
     }
   
+    // Post-navigation state updates
     this.progressBarService.updateProgress(clampedIndex, total);
     this.quizService.setCurrentQuestionIndex(clampedIndex);
     localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
@@ -1275,6 +1284,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
   }
+  
   
   
   
