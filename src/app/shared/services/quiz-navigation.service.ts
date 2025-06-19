@@ -118,7 +118,7 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
@@ -199,7 +199,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
+  } */
   /* public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
@@ -271,6 +271,86 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion called]');
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const nextIndex = currentIndex + 1;
+    const isFirstQuestion = currentIndex === 0;
+  
+    // Guards – is button enabled, answered, not loading/navigating
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    if (!isEnabled || !isAnswered || isLoading || isNavigating) {
+      console.warn('[🚫 Navigation blocked]', {
+        isEnabled,
+        isAnswered,
+        isLoading,
+        isNavigating,
+      });
+      return;
+    }
+  
+    // Lock UI state
+    this.isNavigating = true;
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+    this.animationState$.next('animationStarted');
+  
+    try {
+      // Validate index and quizId
+      if (isNaN(nextIndex) || nextIndex < 0 || !this.quizId) {
+        console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
+        return;
+      }
+  
+      // Flush UI before route change
+      this.quizQuestionLoaderService.resetUI();
+  
+      // ✅ Use centralized navigation
+      console.log('[📞 Calling navigateToQuestion]', nextIndex);
+      const navSuccess = await this.navigateToQuestion(nextIndex);
+  
+      if (navSuccess) {
+        console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
+        this.quizService.setCurrentQuestionIndex(nextIndex);
+  
+        // Update progress bar conditionally
+        if (!isFirstQuestion) {
+          const totalQuestions = await firstValueFrom(
+            this.quizService.getTotalQuestionsCount(this.quizId)
+          );
+          this.progressBarService.updateProgress(currentIndex, totalQuestions);
+        } else {
+          this.progressBarService.updateProgress(0, 1); // force reset for Q1
+        }
+  
+        // Reset quiz state
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+  
+        // Trigger post-navigation updates
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+  
+        // Evaluate Next button state on arrival
+        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
+        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+      } else {
+        console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
+      }
+    } catch (error) {
+      console.error('[❌ advanceToNextQuestion() error]', error);
+    } finally {
+      // Unlock UI
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+    }
+  }
+  
   
   
   // Helper method to consolidate Q1 logic
