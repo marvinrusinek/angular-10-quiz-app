@@ -118,7 +118,7 @@ export class QuizNavigationService {
     );
   }
 
-  /* public async advanceToNextQuestion(): Promise<void> {
+  public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
@@ -199,8 +199,8 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  } */
-  public async advanceToNextQuestion(): Promise<void> {
+  }
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -270,7 +270,7 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
+  } */
   
   
   // Helper method to consolidate Q1 logic
