@@ -1285,6 +1285,7 @@ export class QuizNavigationService {
 
   setQuizId(id: string): void {
     this.quizId = id;
+    console.log('[🧭 QuizNavigationService] quizId set to', id);
   }
 
   getQuizId(): string {
