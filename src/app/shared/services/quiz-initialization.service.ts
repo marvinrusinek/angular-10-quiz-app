@@ -1024,7 +1024,7 @@ export class QuizInitializationService {
           console.log('[Route Init] 🟢 Initialization complete.');
         }
       });
-  } */
+  } */ 
   public initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -1069,17 +1069,17 @@ export class QuizInitializationService {
                     console.error('[Route Init] ❌ No question returned.');
                     return EMPTY;
                   }
-  
+              
                   this.quizService.setCurrentQuestion(question);
                   this.currentQuiz = this.quizService.getActiveQuiz();
-  
+              
                   console.log('[✅ Route Init] Question and state set. Now resetting UI and navigating...');
-  
+              
                   // ✅ Safe to trigger UI reset now
                   await this.quizNavigationService.resetUIAndNavigate(adjustedIndex);
-  
-                  return []; // dummy observable to satisfy return type
-                })
+              
+                  return of(question); // ✅ FIX HERE
+                }),
               );
             }),
             catchError((error) => {

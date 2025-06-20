@@ -1365,7 +1365,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize quiz session, dependencies, and routing
     this.prepareQuizSession();
     this.initializeQuizDependencies();
-    this.initializeQuizBasedOnRouteParams();
+    this.quizInitializationService.initializeQuizBasedOnRouteParams();
   
     // Set index to the first question
     const initialIndex = 0;
