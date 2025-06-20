@@ -1039,11 +1039,6 @@ export class QuizInitializationService {
           console.log('[Route Init] ✅ Current Index:', this.currentQuestionIndex);
       
           this.currentQuiz = this.quizService.getActiveQuiz();
-      
-          // Use IIFE to handle async call
-          (async () => {
-            await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
-          })();
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
