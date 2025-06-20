@@ -1164,42 +1164,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   } */
   private subscribeToRouteParams(): void {
-    this.activatedRoute.params
-      .pipe(
-        distinctUntilChanged((prev, curr) => prev.questionIndex === curr.questionIndex)
+    this.activatedRoute.paramMap
+    .pipe(
+      distinctUntilChanged((prev, curr) => 
+        prev.get('questionIndex') === curr.get('questionIndex') &&
+        prev.get('quizId') === curr.get('quizId')
       )
-      .subscribe(async (params) => {
-        const quizId = params['quizId'];
-        const index = Number(params['questionIndex']) - 1;
-  
-        if (!quizId || isNaN(index) || index < 0) {
-          console.error('[❌ Invalid route params]', { quizId, index });
-          return;
-        }
-  
-        console.log('[🧭 Route param change]', { quizId, index });
-  
-        // Manual component reset
-        this.resetComponentState();
-  
-        this.quizId = quizId;
-        this.currentQuestionIndex = index;
-        this.quizService.quizId = quizId;
-        this.quizService.setCurrentQuestionIndex(index);
-  
-        this.initializeQuestionStreams();
-  
-        // Load question + options again
-        await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-  
-        this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
-        localStorage.setItem('savedQuestionIndex', index.toString());
-  
-        console.log('[✅ Question & options loaded]', {
-          quizId,
-          questionIndex: index
-        });
-      });
+    )
+    .subscribe(async (params) => {
+      const quizId = params.get('quizId');
+      const index = Number(params.get('questionIndex')) - 1;
+
+      if (!quizId || isNaN(index) || index < 0) {
+        console.error('[❌ Invalid route params]', { quizId, index });
+        return;
+      }
+
+      console.log('[🧭 Route param change]', { quizId, index });
+
+      this.resetComponentState?.();
+
+      this.quizId = quizId;
+      this.currentQuestionIndex = index;
+      this.quizService.quizId = quizId;
+      this.quizService.setCurrentQuestionIndex(index);
+
+      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+
+      this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+      localStorage.setItem('savedQuestionIndex', index.toString());
+    });
   }
   
   
