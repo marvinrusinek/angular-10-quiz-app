@@ -1173,18 +1173,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return;
       }
   
+      console.log('[🧭 Route param change]', { quizId, index });
+  
+      // 💥 Reset before load
+      this.resetComponentState();
+  
       this.quizId = quizId;
       this.currentQuestionIndex = index;
       this.quizService.quizId = quizId;
       this.quizService.setCurrentQuestionIndex(index);
+  
       this.initializeQuestionStreams();
   
-      console.log('[🧭 Route param change]', { quizId, index });
+      // 💡 Load fresh data
       await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+  
+      // 🧪 Confirm loaded correctly
+      console.log('[✅ Question & options loaded]', {
+        question: this.currentQuestionIndex,
+        quizId
+      });
+  
       this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
       localStorage.setItem('savedQuestionIndex', index.toString());
     });
   }
+  
   
   
   
