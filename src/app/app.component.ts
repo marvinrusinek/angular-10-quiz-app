@@ -23,8 +23,12 @@ export class AppComponent  {
       console.log('[✅ questionIndexKey]', this.questionIndexKey);
 
       // Force destroy and recreate router-outlet
-      this.showOutlet = false;
-      setTimeout(() => this.showOutlet = true, 0);
+      if (this.showOutlet) {
+        this.showOutlet = false;
+        setTimeout(() => {
+          this.showOutlet = true;
+        }, 0);
+      }
     });
   }
 }
