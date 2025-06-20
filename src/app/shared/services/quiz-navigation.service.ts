@@ -1391,8 +1391,7 @@ export class QuizNavigationService {
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
   
-    // Step 1: Validate quizId and totalQuestions
-    const quizId = this.getQuizId();
+    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
     let total = this.quizService.totalQuestions;
   
     if (!quizId || total <= 0) {
@@ -1406,7 +1405,6 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Step 2: Build route and validate
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
@@ -1419,25 +1417,12 @@ export class QuizNavigationService {
       return true;
     }
   
-    // Step 3: Route navigation only
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
   
-    if (!success) {
-      console.error(`[❌ Router failed to navigate to ${routeUrl}]`);
-      return false;
-    }
+    return success;
+  }
   
-    // Step 4: Do not load manually — handled by route subscription
-  
-    // Step 5: Update index in service
-    this.quizService.setCurrentQuestionIndex(clampedIndex);
-    this.progressBarService.updateProgress(clampedIndex, total);
-    localStorage.setItem('savedQuestionIndex', clampedIndex.toString());
-  
-    console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
-    return true;
-  }  
   
   /* public async navigateToQuestion(questionIndex: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { questionIndex });
