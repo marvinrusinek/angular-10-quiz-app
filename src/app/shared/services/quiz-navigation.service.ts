@@ -643,7 +643,7 @@ export class QuizNavigationService {
     }
   }
 
-  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
     console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId: this.quizId });
     console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index });
     console.log('[🚀 navigateToQuestion CALLED]', { index });
@@ -670,11 +670,11 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    /* if (currentUrl === routeUrl) {
+    if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
-    } */
-  
+    }
+
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
   
@@ -683,7 +683,43 @@ export class QuizNavigationService {
 
     console.log('[🏁 EXIT navigateToQuestion]');
     return success;
+  } */
+  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    let total = this.quizService.totalQuestions;
+  
+    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId });
+  
+    if (!quizId || total <= 0) {
+      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      total = this.quizService.totalQuestions;
+    }
+  
+    if (!quizId || total <= 0) {
+      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
+      return false;
+    }
+  
+    const clampedIndex = Math.max(0, Math.min(index, total - 1));
+    const routeParams = ['/question/', quizId, clampedIndex + 1];
+  
+    console.log('[📍 Navigating to route]', routeParams);
+  
+    try {
+      const success = await this.router.navigate(routeParams);
+      console.log('[✅ Navigation success]', success);
+  
+      // Optional: unlock explanation display after route change
+      this.explanationTextService.unlockExplanation();
+  
+      return success;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
