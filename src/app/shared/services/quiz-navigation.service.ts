@@ -719,7 +719,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
     const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
     let total = this.quizService.totalQuestions;
   
@@ -740,7 +740,12 @@ export class QuizNavigationService {
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
     if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
+      console.warn('[⚠️ Already on route] Forcing route param update...');
+      
+      // ✅ Manually re-trigger route param logic
+      this.quizService.setCurrentQuestionIndex(clampedIndex);
+      this.subscribeToRouteParams(); // Or manually call your route param handler if you decoupled it
+    
       return true;
     }
   
@@ -758,7 +763,38 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
+    const quizId = this.quizService.quizId ?? 'fallback-id';
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based URL
+    const currentUrl = this.router.url;
+  
+    // If we're already on the same URL, Angular won't reload the component unless forced
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
+  
+      // Manually trigger logic as fallback
+      this.quizService.setCurrentQuestionIndex(clampedIndex);
+  
+      // Optional: dispatch a dummy navigation to force paramMap update
+      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
+    }
+  
+    try {
+      console.log('[➡️ Navigating to]', routeUrl);
+      const navSuccess = await this.router.navigateByUrl(routeUrl, {
+        replaceUrl: false,
+      });
+      console.log('[✅ Navigation success?]', navSuccess);
+      return navSuccess;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   
   
