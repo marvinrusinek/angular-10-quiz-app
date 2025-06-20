@@ -1164,9 +1164,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   } */
   private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap.subscribe(async (params) => {
-      const quizId = params.get('quizId');
-      const index = Number(params.get('questionIndex')) - 1;
+    this.activatedRoute.params
+    .pipe(distinctUntilChanged((prev, curr) => prev.questionIndex === curr.questionIndex))
+    .subscribe(async (params) => {
+      const quizId = params['quizId'];
+      const index = Number(params['questionIndex']) - 1;
   
       if (!quizId || isNaN(index) || index < 0) {
         console.error('[❌ Invalid route params]', { quizId, index });
