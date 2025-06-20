@@ -710,7 +710,7 @@ export class QuizNavigationService {
       const success = await this.router.navigate(routeParams);
       console.log('[✅ Navigation success]', success);
   
-      // Optional: unlock explanation display after route change
+      // Unlock explanation display after route change
       this.explanationTextService.unlockExplanation();
   
       return success;
