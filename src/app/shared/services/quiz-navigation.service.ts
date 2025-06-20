@@ -386,9 +386,13 @@ export class QuizNavigationService {
   
     try {
       // Validate nextIndex and quizId
-      const effectiveQuizId = this.quizId || this.quizService.quizId;
-      if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
+      const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+      /* if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
         console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
+        return;
+      } */
+      if (!effectiveQuizId) {
+        console.error('[❌ Invalid quizId]', { nextIndex, quizId: effectiveQuizId });
         return;
       }
   
