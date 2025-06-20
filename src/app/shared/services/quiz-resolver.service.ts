@@ -16,15 +16,18 @@ export class QuizResolverService implements Resolve<Quiz | null> {
     return this.quizDataService.getQuiz(quizId).pipe(
       map((quiz) => {
         if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found.`);
+          console.error(`[❌ QuizResolver] Quiz not found for ID: ${quizId}`);
+          this.router.navigate(['/select']);
+          throw new Error('Quiz not found');
         }
+        console.log('[✅ QuizResolver] Quiz resolved:', quiz);
         return quiz;
       }),
       catchError((error) => {
-        console.error('[❌ QuizResolver] Error:', error);
+        console.error('[❌ QuizResolverService error]', error);
         this.router.navigate(['/select']);
         return EMPTY;
       })
     );
-  }  
+  }
 }
