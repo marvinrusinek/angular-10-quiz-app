@@ -1444,6 +1444,9 @@ export class QuizNavigationService {
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
   
+    // Unlock explanation display now that we're on the new question
+    this.explanationTextService.unlockExplanation();
+
     console.log('[🏁 EXIT navigateToQuestion]');
     return success;
   }
