@@ -73,30 +73,41 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    let shouldInitializeDynamicComponent = false;
+  
     if (changes.question) {
       const newQuestion = changes.question.currentValue;
       if (!newQuestion || !Array.isArray(newQuestion.options) || newQuestion.options.length === 0) {
         console.warn('[⏳ ngOnChanges] Question or options not ready. Will retry...');
-        setTimeout(() => this.ngOnChanges(changes), 50); // retry once after delay
+        setTimeout(() => this.ngOnChanges(changes), 50); // Retry once after delay
         return;
       }
   
       this.handleQuestionChange(changes.question);
       this.initializeQuestionIfAvailable();
       await this.initializeSharedOptionConfig();
+  
+      shouldInitializeDynamicComponent = true;
     }
   
     if (changes.optionsToDisplay && changes.optionsToDisplay.currentValue) {
       this.handleOptionsToDisplayChange(changes.optionsToDisplay);
+      shouldInitializeDynamicComponent = true;
+    }
+  
+    // ✅ Safe to initialize dynamic component after both inputs are handled
+    if (shouldInitializeDynamicComponent && this.question && this.optionsToDisplay?.length > 0) {
+      console.log('[📦 ngOnChanges] Inputs ready, initializing dynamic component...');
+      this.initializeDynamicComponentIfNeeded();
     }
   }
   
-  ngAfterViewInit(): void {
+  /* ngAfterViewInit(): void {
     if (!this.initializedOnce) {
       this.initializeDynamicComponentIfNeeded();
       this.initializedOnce = true;
     }
-  }
+  } */
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
