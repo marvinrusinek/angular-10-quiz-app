@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { SelectedOptionService } from '../../../shared/services/selectedoption.s
   selector: 'app-base-question',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit
+export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDestroy
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
@@ -101,13 +101,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       this.initializeDynamicComponentIfNeeded();
     }
   }
-  
-  /* ngAfterViewInit(): void {
-    if (!this.initializedOnce) {
-      this.initializeDynamicComponentIfNeeded();
-      this.initializedOnce = true;
-    }
-  } */
 
   ngOnDestroy(): void {
     this.currentQuestionSubscription?.unsubscribe();
