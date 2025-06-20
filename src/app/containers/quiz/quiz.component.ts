@@ -1282,7 +1282,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
   
         this.currentQuestion = question;
-        this.optionsToDisplay = this.quizService.getOptionsForQuestion(question); // <- use correct method here
+        this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
   
         this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
         localStorage.setItem('savedQuestionIndex', index.toString());
