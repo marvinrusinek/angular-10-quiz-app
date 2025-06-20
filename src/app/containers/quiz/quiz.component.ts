@@ -1216,7 +1216,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
   
         // Clear dynamic inputs and UI state
-        this.resetComponentState?.(); // ✅ Your own cleanup if defined
+        this.resetComponentState?.();
         this.optionsToDisplay = [];
         this.currentQuestion = null;
   
