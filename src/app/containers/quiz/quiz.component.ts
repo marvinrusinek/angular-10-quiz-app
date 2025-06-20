@@ -1168,12 +1168,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const quizId = params.get('quizId');
       const index = Number(params.get('questionIndex')) - 1;
   
-      if (!quizId || isNaN(index)) {
+      if (!quizId || isNaN(index) || index < 0) {
         console.error('[❌ Invalid route params]', { quizId, index });
         return;
       }
   
       this.quizId = quizId;
+      this.currentQuestionIndex = questionIndex;
       this.quizService.quizId = quizId;
   
       console.log('[🧭 Route param change]', { quizId, index });
