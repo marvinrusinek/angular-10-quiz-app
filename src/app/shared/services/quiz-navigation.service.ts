@@ -707,7 +707,7 @@ export class QuizNavigationService {
     console.log('[📍 Navigating to route]', routeParams);
   
     try {
-      const success = await this.router.navigate(routeParams);
+      await this.router.navigate(routeParams);
       console.log('[✅ Navigation success]', success);
   
       // Optional: unlock explanation display after route change
