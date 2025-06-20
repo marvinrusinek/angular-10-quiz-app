@@ -1189,7 +1189,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.initializeQuestionStreams();
   
-        // ✅ Load question + options again
+        // Load question + options again
         await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
   
         this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
@@ -1205,6 +1205,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   private resetComponentState(): void {
     // Reset any UI state / option lists / flags here
+    this.currentQuestion = null;
     this.optionsToDisplay = [];
     this.explanationToDisplay = '';
     this.selectedOptionService.setAnswered(false);
