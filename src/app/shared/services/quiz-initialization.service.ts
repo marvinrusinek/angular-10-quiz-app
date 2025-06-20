@@ -1088,7 +1088,7 @@ export class QuizInitializationService {
             })
           );
         })
-      )
+      ) 
       .subscribe({
         next: (question: QuizQuestion) => {
           if (!question) {
