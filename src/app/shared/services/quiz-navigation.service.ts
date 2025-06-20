@@ -253,11 +253,11 @@ export class QuizNavigationService {
     const nextIndex = this.currentQuestionIndex + 1;
     const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
   
-    const nextUrl = `/question/${quizId}/${nextIndex + 1}`;
+    const nextUrl = `/question/dependency-injection/${nextIndex + 1}`;
     console.warn('[🛣️ Navigating directly to]', nextUrl);
   
     try {
-      const success = await this.router.navigateByUrl(nextUrl);
+      await this.router.navigateByUrl(nextUrl);
       console.warn('[✅ Navigation success?]', success);
     } catch (err) {
       console.error('[❌ Navigation error]', err);
