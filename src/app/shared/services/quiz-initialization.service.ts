@@ -1090,7 +1090,7 @@ export class QuizInitializationService {
         })
       )
       .subscribe({
-        next: async (question: QuizQuestion) => {
+        next: (question: QuizQuestion) => {
           if (!question) {
             console.error('[Route Init] ❌ No question returned.');
             return;
@@ -1101,7 +1101,10 @@ export class QuizInitializationService {
       
           this.currentQuiz = this.quizService.getActiveQuiz();
       
-          await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
+          // Use IIFE to handle async call
+          (async () => {
+            await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
+          })();
         },
         complete: () => {
           console.log('[Route Init] 🟢 Initialization complete.');
