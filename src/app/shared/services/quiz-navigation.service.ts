@@ -202,8 +202,10 @@ export class QuizNavigationService {
   
       let navSuccess = false;
       try {
+        const nextIndex = 1;
         console.log('[📞 Attempting to navigate to index]', nextIndex);
         navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
+
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
