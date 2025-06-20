@@ -1199,7 +1199,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
   
-  
+  private resetComponentState(): void {
+    // Reset any UI state / option lists / flags here
+    this.optionsToDisplay = [];
+    this.explanationToDisplay = '';
+    this.selectedOptionService.setAnswered(false);
+    this.quizStateService.setAnswered(false);
+    this.quizStateService.setLoading(false);
+    this.quizStateService.setNavigating(false);
+  }
   
   
   private async initializeRouteParams(): Promise<void> {
