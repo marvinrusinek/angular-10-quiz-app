@@ -776,10 +776,8 @@ export class QuizNavigationService {
       // Manually trigger logic as fallback
       this.quizService.setCurrentQuestionIndex(clampedIndex);
   
-      // Optional: dispatch a dummy navigation to force paramMap update
-      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
-        this.router.navigateByUrl(routeUrl)
-      );
+      await this.router.navigateByUrl('/', { skipLocationChange: true });
+      return this.router.navigateByUrl(routeUrl);
     }
   
     try {
