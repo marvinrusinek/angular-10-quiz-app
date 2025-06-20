@@ -122,6 +122,7 @@ export class QuizNavigationService {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
+    console.log('[🔢 Next index calculated]:', nextIndex);
     const isFirstQuestion = currentIndex === 0;
   
     // Guards – is button enabled, answered, not loading/navigating
@@ -793,15 +794,19 @@ export class QuizNavigationService {
     }
   } */
   public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
+    console.log('[DEBUG] forceNavigateToQuestionIndex currentUrl → targetUrl', {
+      currentUrl: this.router.url,
+      targetUrl: routeUrl
+    });
     const quizId = this.quizService.quizId ?? 'fallback-id';
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
     const currentUrl = this.router.url;
   
-    console.log('[🔁 forceNavigateToQuestionIndex]', {
-      quizId,
-      clampedIndex,
-      routeUrl,
+    console.log('[DEBUG] forceNavigateToQuestionIndex', {
       currentUrl,
+      routeUrl,
+      clampedIndex,
+      quizId
     });
   
     if (currentUrl === routeUrl) {
