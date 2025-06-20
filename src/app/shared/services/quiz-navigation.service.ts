@@ -1394,6 +1394,7 @@ export class QuizNavigationService {
   } */
   public async navigateToQuestion(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
+    console.log('[🚀 ENTER navigateToQuestion]', { index });
   
     const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
     let total = this.quizService.totalQuestions;
@@ -1424,6 +1425,7 @@ export class QuizNavigationService {
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
   
+    console.log('[🏁 EXIT navigateToQuestion]');
     return success;
   }
   
