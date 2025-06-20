@@ -1174,11 +1174,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
   
       this.quizId = quizId;
-      this.currentQuestionIndex = questionIndex;
+      this.currentQuestionIndex = index;
       this.quizService.quizId = quizId;
+      this.quizService.setCurrentQuestionIndex(index);
   
       console.log('[🧭 Route param change]', { quizId, index });
       await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+      this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+      localStorage.setItem('savedQuestionIndex', index.toString());
     });
   }
   
