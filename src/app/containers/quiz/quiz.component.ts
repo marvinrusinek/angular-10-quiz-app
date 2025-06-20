@@ -1229,8 +1229,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         if (questionLoaded) {
           // Set data for current view
-          this.currentQuestion = this.quizService.getCurrentQuestion();
-          this.optionsToDisplay = this.quizService.getOptionsForCurrentQuestion();
+          this.currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion(this.currentQuestionIndex));
+          this.optionsToDisplay = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
   
           this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
           localStorage.setItem('savedQuestionIndex', index.toString());
