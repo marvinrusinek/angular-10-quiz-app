@@ -169,6 +169,11 @@ export class QuizNavigationService {
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
     this.animationState$.next('animationStarted');
+
+    console.log('[🧪 DEBUG] typeof navigateToQuestion', typeof this.navigateToQuestion);
+    console.log('[🧪 DEBUG] typeof forceNavigateToQuestionIndex', typeof this.forceNavigateToQuestionIndex);
+    console.log('[🧪 DEBUG] this keys', Object.keys(this));
+
   
     try {
       // Validate nextIndex and quizId
@@ -198,13 +203,8 @@ export class QuizNavigationService {
       let navSuccess = false;
       try {
         console.log('[📞 Attempting to navigate to index]', nextIndex);
-        // navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
+        navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
-
-        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-          this.router.navigateByUrl('/question/dependency-injection/2');
-        });
-        
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
       }
