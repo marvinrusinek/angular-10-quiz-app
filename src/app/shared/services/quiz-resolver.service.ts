@@ -12,20 +12,23 @@ export class QuizResolverService implements Resolve<Quiz | null> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz> {
     const quizId = route.params['quizId'];
+    console.log('[🧩 QuizResolver] Resolving for quizId:', quizId);
   
     return this.quizDataService.getQuiz(quizId).pipe(
       tap((quiz) => {
         if (!quiz) {
-          console.error(`Quiz with ID ${quizId} not found.`);
+          console.error(`[❌ QuizResolver] Quiz with ID ${quizId} not found.`);
           this.router.navigate(['/select']);
+        } else {
+          console.log('[✅ QuizResolver] Quiz data loaded:', quiz);
         }
       }),
       map((quiz) => quiz as Quiz),
       catchError((error) => {
-        console.error('QuizResolverService: Error fetching quiz data:', error);
+        console.error('[❌ QuizResolver ERROR]', error);
         this.router.navigate(['/select']);
         return EMPTY;
       })
     );
-  }  
+  }
 }
