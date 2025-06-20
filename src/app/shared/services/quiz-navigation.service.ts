@@ -739,6 +739,10 @@ export class QuizNavigationService {
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
     const currentUrl = this.router.url;
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
+      return true;
+    }
   
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
