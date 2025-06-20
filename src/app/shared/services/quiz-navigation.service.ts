@@ -258,7 +258,7 @@ export class QuizNavigationService {
   
     try {
       await this.router.navigateByUrl(nextUrl);
-      console.warn('[✅ Navigation success?]', success);
+      // console.warn('[✅ Navigation success?]', success);
     } catch (err) {
       console.error('[❌ Navigation error]', err);
     }
