@@ -1171,7 +1171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         prev.get('quizId') === curr.get('quizId')
       )
     )
-    .subscribe(async (params) => {
+    .subscribe(async (params: ParamMap) => {
       const quizId = params.get('quizId');
       const index = Number(params.get('questionIndex')) - 1;
       console.log('[🔁 paramMap triggered] currentQuestionIndex:', index);
