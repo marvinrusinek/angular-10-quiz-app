@@ -1165,41 +1165,43 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   private subscribeToRouteParams(): void {
     this.activatedRoute.params
-    .pipe(distinctUntilChanged((prev, curr) => prev.questionIndex === curr.questionIndex))
-    .subscribe(async (params) => {
-      const quizId = params['quizId'];
-      const index = Number(params['questionIndex']) - 1;
+      .pipe(
+        distinctUntilChanged((prev, curr) => prev.questionIndex === curr.questionIndex)
+      )
+      .subscribe(async (params) => {
+        const quizId = params['quizId'];
+        const index = Number(params['questionIndex']) - 1;
   
-      if (!quizId || isNaN(index) || index < 0) {
-        console.error('[❌ Invalid route params]', { quizId, index });
-        return;
-      }
+        if (!quizId || isNaN(index) || index < 0) {
+          console.error('[❌ Invalid route params]', { quizId, index });
+          return;
+        }
   
-      console.log('[🧭 Route param change]', { quizId, index });
+        console.log('[🧭 Route param change]', { quizId, index });
   
-      // 💥 Reset before load
-      this.resetComponentState();
+        // Manual component reset
+        this.resetComponentState();
   
-      this.quizId = quizId;
-      this.currentQuestionIndex = index;
-      this.quizService.quizId = quizId;
-      this.quizService.setCurrentQuestionIndex(index);
+        this.quizId = quizId;
+        this.currentQuestionIndex = index;
+        this.quizService.quizId = quizId;
+        this.quizService.setCurrentQuestionIndex(index);
   
-      this.initializeQuestionStreams();
+        this.initializeQuestionStreams();
   
-      // 💡 Load fresh data
-      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+        // ✅ Load question + options again
+        await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
   
-      // 🧪 Confirm loaded correctly
-      console.log('[✅ Question & options loaded]', {
-        question: this.currentQuestionIndex,
-        quizId
+        this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', index.toString());
+  
+        console.log('[✅ Question & options loaded]', {
+          quizId,
+          questionIndex: index
+        });
       });
-  
-      this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
-      localStorage.setItem('savedQuestionIndex', index.toString());
-    });
   }
+  
   
   private resetComponentState(): void {
     // Reset any UI state / option lists / flags here
