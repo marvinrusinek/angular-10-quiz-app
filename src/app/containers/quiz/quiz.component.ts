@@ -1163,7 +1163,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setCurrentQuestionIndex(index);
     });
   } */
-  private subscribeToRouteParams(): void {
+  /* private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
     .pipe(
       distinctUntilChanged((prev, curr) => 
@@ -1195,7 +1195,61 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
       localStorage.setItem('savedQuestionIndex', index.toString());
     });
+  } */
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        distinctUntilChanged((prev: ParamMap, curr: ParamMap) =>
+          prev.get('questionIndex') === curr.get('questionIndex') &&
+          prev.get('quizId') === curr.get('quizId')
+        )
+      )
+      .subscribe(async (params: ParamMap) => {
+        const quizId = params.get('quizId');
+        const index = Number(params.get('questionIndex')) - 1;
+  
+        console.log('[🔁 paramMap triggered] currentQuestionIndex:', index);
+  
+        if (!quizId || isNaN(index) || index < 0) {
+          console.error('[❌ Invalid route params]', { quizId, index });
+          return;
+        }
+  
+        // Clear dynamic inputs and UI state
+        this.resetComponentState?.(); // ✅ Your own cleanup if defined
+        this.optionsToDisplay = [];
+        this.currentQuestion = null;
+  
+        this.quizId = quizId;
+        this.currentQuestionIndex = index;
+        this.quizService.quizId = quizId;
+        this.quizService.setCurrentQuestionIndex(index);
+  
+        const questionLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+  
+        if (questionLoaded) {
+          // Set data for current view
+          this.currentQuestion = this.quizService.getCurrentQuestion();
+          this.optionsToDisplay = this.quizService.getOptionsForCurrentQuestion();
+  
+          this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+          localStorage.setItem('savedQuestionIndex', index.toString());
+  
+          // Re-render dynamic components (if needed)
+          setTimeout(() => {
+            this.injectDynamicComponent?.(); // 🔁 optional if you use dynamic component loading
+          }, 0);
+  
+          console.log('[✅ Question loaded from paramMap]', {
+            questionText: this.currentQuestion?.questionText,
+            optionsLength: this.optionsToDisplay?.length
+          });
+        } else {
+          console.error('[❌ Failed to load question for index]', index);
+        }
+      });
   }
+  
   
   
   private resetComponentState(): void {
