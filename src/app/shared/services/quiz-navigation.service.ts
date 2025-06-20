@@ -684,7 +684,7 @@ export class QuizNavigationService {
     console.log('[🏁 EXIT navigateToQuestion]');
     return success;
   } */
-  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
     const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
     let total = this.quizService.totalQuestions;
   
@@ -718,7 +718,44 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    let total = this.quizService.totalQuestions;
+  
+    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId });
+  
+    if (!quizId || total <= 0) {
+      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      total = this.quizService.totalQuestions;
+    }
+  
+    if (!quizId || total <= 0) {
+      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
+      return false;
+    }
+  
+    const clampedIndex = Math.max(0, Math.min(index, total - 1));
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
+    const currentUrl = this.router.url;
+  
+    console.log('[📍 Current URL]', currentUrl);
+    console.log('[📍 Target URL]', routeUrl);
+  
+    try {
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      console.log('[📦 Router navigation result]', navSuccess);
+  
+      this.explanationTextService.unlockExplanation();
+  
+      return navSuccess;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   
   public async resetUIAndNavigate(index: number): Promise<void> {
