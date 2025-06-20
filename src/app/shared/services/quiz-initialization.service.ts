@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, EMPTY, firstValueFrom, forkJoin, from, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -963,68 +963,6 @@ export class QuizInitializationService {
     }
   }
 
-  /* public initializeQuizBasedOnRouteParams(): void { 
-    this.activatedRoute.paramMap
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          const questionIndexParam = params.get('questionIndex');
-          const routeIndex = Number(questionIndexParam);
-          const internalIndex = isNaN(routeIndex) ? 0 : Math.max(routeIndex - 1, 0); // 0-based
-  
-          console.log(`[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`);
-  
-          if (!quizId) {
-            console.error('[Route Init] ❌ No quizId found in URL.');
-            return EMPTY;
-          }
-  
-          this.quizId = quizId;
-  
-          return this.quizNavigationService.handleRouteParams(params).pipe(
-            switchMap(({ quizData }) => {
-              if (!quizData || !Array.isArray(quizData.questions)) {
-                console.error('[Route Init] ❌ Invalid quiz data or missing questions array.');
-                return EMPTY;
-              }
-  
-              const lastIndex = quizData.questions.length - 1;
-              const adjustedIndex = Math.min(Math.max(internalIndex, 0), lastIndex);
-  
-              this.currentQuestionIndex = adjustedIndex;
-              this.totalQuestions = quizData.questions.length;
-  
-              this.quizService.setActiveQuiz(quizData);
-              this.quizService.setCurrentQuestionIndex(adjustedIndex);
-              this.quizService.updateBadgeText(adjustedIndex + 1, quizData.questions.length);
-  
-              this.initializeQuizState();
-  
-              return this.quizService.getQuestionByIndex(adjustedIndex);
-            }),
-            catchError((error) => {
-              console.error('[Route Init] ❌ Error during quiz initialization:', error);
-              return EMPTY;
-            })
-          )
-        })
-      )
-      .subscribe({
-        next: async (question) => {
-          if (!question) {
-            console.error('[Route Init] ❌ No question returned.');
-            return;
-          }
-  
-          this.currentQuiz = this.quizService.getActiveQuiz();
-          await this.quizNavigationService.resetUIAndNavigate(this.currentQuestionIndex);
-        },
-        complete: () => {
-          console.log('[Route Init] 🟢 Initialization complete.');
-        }
-      });
-  } */ 
   public initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -1064,22 +1002,23 @@ export class QuizInitializationService {
               this.initializeQuizState();
   
               return this.quizService.getQuestionByIndex(adjustedIndex).pipe(
-                switchMap(async (question) => {
-                  if (!question) {
-                    console.error('[Route Init] ❌ No question returned.');
-                    return EMPTY;
-                  }
-              
-                  this.quizService.setCurrentQuestion(question);
-                  this.currentQuiz = this.quizService.getActiveQuiz();
-              
-                  console.log('[✅ Route Init] Question and state set. Now resetting UI and navigating...');
-              
-                  // ✅ Safe to trigger UI reset now
-                  await this.quizNavigationService.resetUIAndNavigate(adjustedIndex);
-              
-                  return of(question); // ✅ FIX HERE
-                }),
+                switchMap(question =>
+                  from((async () => {
+                    if (!question) {
+                      console.error('[Route Init] ❌ No question returned.');
+                      return null;
+                    }
+                
+                    this.quizService.setCurrentQuestion(question);
+                    this.currentQuiz = this.quizService.getActiveQuiz();
+                
+                    console.log('[✅ Route Init] Question and state set. Now resetting UI and navigating...');
+                
+                    await this.quizNavigationService.resetUIAndNavigate(adjustedIndex);
+                
+                    return question;
+                  })())
+                )
               );
             }),
             catchError((error) => {
