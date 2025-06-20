@@ -214,7 +214,7 @@ export class QuizInitializationService {
         filter((question: QuizQuestion): question is QuizQuestion => question !== null),
         map((question) => ({
           ...question,
-          options: question.options.map((option) => ({
+          options: question.options.map((option) => ({ 
             ...option,
             correct: option.correct ?? false,
           })),
