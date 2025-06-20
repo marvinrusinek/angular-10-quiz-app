@@ -430,7 +430,7 @@ export class QuizNavigationService {
       let navSuccess = false;
       try {
         console.log('[📞 Attempting to navigate to index]', nextIndex);
-        navSuccess = await this.navigateToQuestion(nextIndex);
+        navSuccess = await this.navigateToQuestionIndex(nextIndex);
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
@@ -1411,7 +1411,7 @@ export class QuizNavigationService {
     console.log(`[✅ navigateToQuestion] Navigation successful for Q${clampedIndex}`);
     return true;
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  public async navigateToQuestionIndex(index: number): Promise<boolean> {
     console.log('[🚀 navigateToQuestion CALLED]', { index });
     console.log('[🚀 ENTER navigateToQuestion]', { index });
   
