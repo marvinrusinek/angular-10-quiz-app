@@ -118,7 +118,7 @@ export class QuizNavigationService {
     );
   }
 
-  /* public async advanceToNextQuestion(): Promise<void> {
+  public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -248,8 +248,8 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  } */
-  public async advanceToNextQuestion(): Promise<void> {
+  }
+  /* public async advanceToNextQuestion(): Promise<void> {
     const nextIndex = this.currentQuestionIndex + 1;
     const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
   
@@ -262,7 +262,7 @@ export class QuizNavigationService {
     } catch (err) {
       console.error('[❌ Navigation error]', err);
     }
-  }
+  } */
   
   
   
@@ -670,10 +670,10 @@ export class QuizNavigationService {
     console.log('[📍 Current URL]', currentUrl);
     console.log('[📍 Target URL]', routeUrl);
   
-    if (currentUrl === routeUrl) {
+    /* if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}]`);
       return true;
-    }
+    } */
   
     const success = await this.router.navigateByUrl(routeUrl);
     console.log('[📦 Router navigation result]', success);
