@@ -250,7 +250,6 @@ export class QuizNavigationService {
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    console.warn('[🧭 advanceToNextQuestion CALLED]');
     const nextIndex = this.currentQuestionIndex + 1;
     const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
   
@@ -264,6 +263,7 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
     }
   }
+  
   
   
   // Helper method to consolidate Q1 logic
