@@ -3513,7 +3513,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  // REMOVE!!
   private async acquireAndNavigateToQuestion(questionIndex: number): Promise<void> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
