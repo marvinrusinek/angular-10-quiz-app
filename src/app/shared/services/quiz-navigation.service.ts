@@ -122,7 +122,10 @@ export class QuizNavigationService {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-    console.log('[🔢 Next index calculated]:', nextIndex);
+    
+    console.log('[🔢 current index]', currentIndex);
+    console.log('[➡️ Calculated next index]', nextIndex);
+
     const isFirstQuestion = currentIndex === 0;
   
     // Guards – is button enabled, answered, not loading/navigating
@@ -202,15 +205,26 @@ export class QuizNavigationService {
       console.log('[📞 Calling navigateToQuestion]', nextIndex);
   
       let navSuccess = false;
-      try {
-        console.log('[📞 Calling navigateToQuestion with]', nextIndex);
+      if (typeof this.forceNavigateToQuestionIndex !== 'function') {
+        console.error('[❌] forceNavigateToQuestionIndex is not a function');
+      } else {
+        console.log('[CALLING] forceNavigateToQuestionIndex with:', nextIndex);
+        try {
+          navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
+          console.log('[🧭 navigateToQuestion returned]', navSuccess);
+        } catch (navError) {
+          console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
+        }
+      }
+      /* try {
+        console.log('[CALLING] forceNavigateToQuestionIndex with:', nextIndex);
         navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
         console.log('[🧭 navigateToQuestion returned]', navSuccess);
 
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
-      }
+      } */
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
@@ -794,6 +808,7 @@ export class QuizNavigationService {
     }
   } */
   public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
+    console.log("MYFORCE");
     const quizId = this.quizService.quizId ?? 'fallback-id';
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
     const currentUrl = this.router.url;
