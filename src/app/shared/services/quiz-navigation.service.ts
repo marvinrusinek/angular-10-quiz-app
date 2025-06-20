@@ -626,6 +626,7 @@ export class QuizNavigationService {
   }
 
   public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId: this.quizId });
     console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index });
     console.log('[🚀 navigateToQuestion CALLED]', { index });
     console.log('[🚀 ENTER navigateToQuestion]', { index });
