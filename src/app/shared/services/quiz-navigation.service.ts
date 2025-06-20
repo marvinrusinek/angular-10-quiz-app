@@ -764,7 +764,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
+  /* public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
     const quizId = this.quizService.quizId ?? 'fallback-id';
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based URL
     const currentUrl = this.router.url;
@@ -791,7 +791,45 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
+    const quizId = this.quizService.quizId ?? 'fallback-id';
+    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
+    const currentUrl = this.router.url;
+  
+    console.log('[🔁 forceNavigateToQuestionIndex]', {
+      quizId,
+      clampedIndex,
+      routeUrl,
+      currentUrl,
+    });
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
+  
+      // Optionally update state here if needed
+      this.quizService.setCurrentQuestionIndex(clampedIndex);
+  
+      // 🔁 Force component reload by navigating away then back
+      await this.router.navigateByUrl('/', { skipLocationChange: true });
+      const result = await this.router.navigateByUrl(routeUrl);
+      console.log('[🔁 Forced re-navigation result]', result);
+      return result;
+    }
+  
+    try {
+      console.log('[➡️ Navigating to]', routeUrl);
+      const navSuccess = await this.router.navigateByUrl(routeUrl, {
+        replaceUrl: false,
+      });
+      console.log('[✅ Navigation success?]', navSuccess);
+      return navSuccess;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   
   
