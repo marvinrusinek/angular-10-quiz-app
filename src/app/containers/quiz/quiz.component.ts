@@ -1196,7 +1196,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       localStorage.setItem('savedQuestionIndex', index.toString());
     });
   } */
-  private subscribeToRouteParams(): void {
+  /* private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
         distinctUntilChanged((prev: ParamMap, curr: ParamMap) =>
@@ -1248,7 +1248,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.error('[❌ Failed to load question for index]', index);
         }
       });
+  } */
+  private subscribeToRouteParams(): void {
+    this.activatedRoute.paramMap
+      .pipe(
+        distinctUntilChanged((prev, curr) =>
+          prev.get('questionIndex') === curr.get('questionIndex') &&
+          prev.get('quizId') === curr.get('quizId')
+        )
+      )
+      .subscribe(async (params) => {
+        const quizId = params.get('quizId') ?? '';
+        const indexParam = params.get('questionIndex');
+        const index = Number(indexParam) - 1;
+  
+        if (!quizId || isNaN(index) || index < 0) {
+          console.error('[❌ Invalid route params]', { quizId, indexParam });
+          return;
+        }
+  
+        console.log('[🔁 paramMap triggered]', { quizId, index });
+  
+        this.quizId = quizId;
+        this.currentQuestionIndex = index;
+  
+        this.quizService.quizId = quizId;
+        this.quizService.setCurrentQuestionIndex(index);
+  
+        const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+        if (!question) {
+          console.error('[❌ Failed to fetch question]');
+          return;
+        }
+  
+        this.currentQuestion = question;
+        this.optionsToDisplay = this.quizService.getOptionsForQuestion(question); // <- use correct method here
+  
+        this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+        localStorage.setItem('savedQuestionIndex', index.toString());
+      });
   }
+  
   
   
   
