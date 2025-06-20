@@ -1098,32 +1098,57 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionIndexSubject.asObservable();
   }
 
-  getNextQuestion(
-    currentQuestionIndex: number
-  ): Promise<QuizQuestion | undefined> {
+  getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
     return firstValueFrom(
       this.getCurrentQuiz().pipe(
         map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
-          if (
-            currentQuiz &&
-            Array.isArray(currentQuiz.questions) &&
-            currentQuestionIndex >= 0 &&
-            currentQuestionIndex < currentQuiz.questions.length
-          ) {
-            const nextQuestion = currentQuiz.questions[currentQuestionIndex];
-            this.nextQuestionSource.next(nextQuestion);
-            this.nextQuestionSubject.next(nextQuestion);
-            this.setCurrentQuestionAndNext(nextQuestion, '');
-            return nextQuestion;
-          } else {
+          // Log the inputs to help debug
+          console.log('[📊 getNextQuestion called]', {
+            currentQuiz,
+            currentQuestionIndex,
+          });
+  
+          // Ensure quiz and its questions exist
+          if (!currentQuiz) {
+            console.error('[❌ getNextQuestion] currentQuiz is undefined or null');
             this.nextQuestionSource.next(null);
             this.nextQuestionSubject.next(null);
             return undefined;
           }
+  
+          if (!Array.isArray(currentQuiz.questions)) {
+            console.error('[❌ getNextQuestion] currentQuiz.questions is not an array', {
+              questions: currentQuiz.questions,
+            });
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+  
+          // Validate currentQuestionIndex
+          if (isNaN(currentQuestionIndex) || currentQuestionIndex < 0 || currentQuestionIndex >= currentQuiz.questions.length) {
+            console.error('[❌ getNextQuestion] Invalid currentQuestionIndex', {
+              currentQuestionIndex,
+              total: currentQuiz.questions.length,
+            });
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+  
+          // Fetch the question
+          const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+          this.nextQuestionSource.next(nextQuestion);
+          this.nextQuestionSubject.next(nextQuestion);
+          this.setCurrentQuestionAndNext(nextQuestion, '');
+  
+          console.log('[✅ getNextQuestion] Successfully retrieved question', nextQuestion);
+          return nextQuestion;
         })
       )
     );
   }
+  
 
   getPreviousQuestion(
     questionIndex: number
