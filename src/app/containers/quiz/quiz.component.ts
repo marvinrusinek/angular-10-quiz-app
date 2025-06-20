@@ -2115,7 +2115,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         for (const [index, question] of questions.entries()) {
           const defaultState: QuestionState = this.quizStateService.createDefaultQuestionState();
           this.quizStateService.setQuestionState(this.quizId, index, defaultState);
-        }        
+        }
   
         // Set initial question and options
         this.currentQuestion = questions[this.currentQuestionIndex];
@@ -2130,38 +2130,46 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('Current question:', this.currentQuestion);
         console.log('Options with correct property:', this.options);
   
-        // Fetch next question and options
-        this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
-          if (nextQuestion) {
-            console.log('Next question:', nextQuestion);
-          } else {
-            console.warn('No next question available.');
-          }
-        }).catch((error) => {
-          console.error('Error fetching next question:', error);
+        // ✅ Wait for quiz to be fully loaded before continuing
+        this.quizService.getCurrentQuiz().pipe(
+          filter((quiz): quiz is Quiz => !!quiz),
+          take(1)
+        ).subscribe((quiz) => {
+          // Fetch next question and options
+          this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
+            if (nextQuestion) {
+              console.log('Next question:', nextQuestion);
+            } else {
+              console.warn('No next question available.');
+            }
+          }).catch((error) => {
+            console.error('Error fetching next question:', error);
+          });
+  
+          this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
+            if (nextOptions) {
+              // Ensure next options have the `correct` property explicitly set
+              const updatedNextOptions = nextOptions.map(option => ({
+                ...option,
+                correct: option.correct ?? false, // Default `correct` to false if undefined
+              }));
+              console.log('Next options with correct property:', updatedNextOptions);
+            } else {
+              console.warn('No next options available.');
+            }
+          }).catch((error) => {
+            console.error('Error fetching next options:', error);
+          });
         });
   
-        this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
-          if (nextOptions) {
-            // Ensure next options have the `correct` property explicitly set
-            const updatedNextOptions = nextOptions.map(option => ({
-              ...option,
-              correct: option.correct ?? false, // Default `correct` to false if undefined
-            }));
-            console.log('Next options with correct property:', updatedNextOptions);
-          } else {
-            console.warn('No next options available.');
-          }
-        }).catch((error) => {
-          console.error('Error fetching next options:', error);
-        });
       } else {
         console.warn('No questions available for this quiz.');
         this.currentQuestion = null;
         this.options = [];
       }
     });
-  }  
+  }
+  
 
   // Function to load all questions for the current quiz
   private loadQuizQuestionsForCurrentQuiz(): void {
