@@ -170,7 +170,7 @@ export class QuizNavigationService {
     this.quizStateService.setLoading(true);
     this.animationState$.next('animationStarted');
 
-    console.log('[🧪 DEBUG] typeof navigateToQuestion', typeof this.navigateToQuestion);
+    console.log('[🧪 DEBUG] typeof navigateToQuestion', typeof this.forceNavigateToQuestionIndex);
     console.log('[🧪 DEBUG] typeof forceNavigateToQuestionIndex', typeof this.forceNavigateToQuestionIndex);
     console.log('[🧪 DEBUG] this keys', Object.keys(this));
 
@@ -202,9 +202,9 @@ export class QuizNavigationService {
   
       let navSuccess = false;
       try {
-        const nextIndex = 1;
-        console.log('[📞 Attempting to navigate to index]', nextIndex);
+        console.log('[📞 Calling navigateToQuestion with]', nextIndex);
         navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
+        console.log('[🧭 navigateToQuestion returned]', navSuccess);
 
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
       } catch (navError) {
