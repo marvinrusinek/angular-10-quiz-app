@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, filter, map, take } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
@@ -378,6 +378,24 @@ export class QuizNavigationService {
       isNavigating
     });
   
+    // Wait for quiz to finish loading
+    const currentQuiz = await firstValueFrom(this.quizService.getCurrentQuiz().pipe(
+      filter(q => !!q), // Wait until it's not undefined/null
+      take(1)
+    ));
+  
+    if (!currentQuiz || !Array.isArray(currentQuiz.questions)) {
+      console.error('[❌ advanceToNextQuestion] Quiz not ready');
+      return;
+    }
+  
+    const total = currentQuiz.questions.length;
+    const quizId = this.quizId || this.quizService.quizId;
+    if (isNaN(nextIndex) || nextIndex < 0 || !quizId) {
+      console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId });
+      return;
+    }
+
     // Lock UI state
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
@@ -411,6 +429,7 @@ export class QuizNavigationService {
   
       let navSuccess = false;
       try {
+        console.log('[📞 Attempting to navigate to index]', nextIndex);
         navSuccess = await this.navigateToQuestion(nextIndex);
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
       } catch (navError) {
