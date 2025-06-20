@@ -794,10 +794,6 @@ export class QuizNavigationService {
     }
   } */
   public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
-    console.log('[DEBUG] forceNavigateToQuestionIndex currentUrl → targetUrl', {
-      currentUrl: this.router.url,
-      targetUrl: routeUrl
-    });
     const quizId = this.quizService.quizId ?? 'fallback-id';
     const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
     const currentUrl = this.router.url;
