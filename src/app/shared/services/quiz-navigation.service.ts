@@ -118,7 +118,7 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -178,10 +178,10 @@ export class QuizNavigationService {
     try {
       // Validate nextIndex and quizId
       const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-      /* if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
-        console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
-        return;
-      } */
+      // if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
+      //  console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
+      //  return;
+      //}
       if (!effectiveQuizId) {
         console.error('[❌ Invalid quizId]', { nextIndex, quizId: effectiveQuizId });
         return;
@@ -248,7 +248,23 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.warn('[🧭 advanceToNextQuestion CALLED]');
+    const nextIndex = this.currentQuestionIndex + 1;
+    const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
+  
+    const nextUrl = `/question/${quizId}/${nextIndex + 1}`;
+    console.warn('[🛣️ Navigating directly to]', nextUrl);
+  
+    try {
+      const success = await this.router.navigateByUrl(nextUrl);
+      console.warn('[✅ Navigation success?]', success);
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+    }
   }
+  
   
   // Helper method to consolidate Q1 logic
   private async handleFirstQuestionTransition(): Promise<void> {
