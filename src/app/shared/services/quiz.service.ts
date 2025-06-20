@@ -439,6 +439,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  public getOptionsForQuestion(question: QuizQuestion): Option[] {
+    return Array.isArray(question.options) ? question.options : [];
+  }
+
   sanitizeOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       console.warn('⚠️ [sanitizeOptions] Options is not an array.');

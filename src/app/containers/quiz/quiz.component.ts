@@ -1291,7 +1291,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   
   
-  
   private resetComponentState(): void {
     // Reset any UI state / option lists / flags here
     this.currentQuestion = null;
