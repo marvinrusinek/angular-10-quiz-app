@@ -198,8 +198,12 @@ export class QuizNavigationService {
       let navSuccess = false;
       try {
         console.log('[📞 Attempting to navigate to index]', nextIndex);
-        navSuccess = await this.navigateToQuestionIndex(nextIndex);
+        // navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
+
+        this.router.navigateByUrl('/question/dependency-injection/2').then(res => {
+          console.log('[✅ Hardcoded Router Test]', res);
+        });
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
       }
@@ -620,7 +624,8 @@ export class QuizNavigationService {
     }
   }
 
-  public async navigateToQuestionIndex(index: number): Promise<boolean> {
+  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index });
     console.log('[🚀 navigateToQuestion CALLED]', { index });
     console.log('[🚀 ENTER navigateToQuestion]', { index });
   
