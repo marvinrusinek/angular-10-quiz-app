@@ -201,9 +201,10 @@ export class QuizNavigationService {
         // navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
         console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
 
-        this.router.navigateByUrl('/question/dependency-injection/2').then(res => {
-          console.log('[✅ Hardcoded Router Test]', res);
+        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+          this.router.navigateByUrl('/question/dependency-injection/2');
         });
+        
       } catch (navError) {
         console.error('[❌ navigateToQuestion threw error]', navError);
       }
