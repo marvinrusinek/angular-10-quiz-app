@@ -10,11 +10,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class AppComponent  {
   questionIndexKey = '';
 
-  constructor(private router: Router, private route: ActivatedRoute) {
-    this.router.events.subscribe(() => {
+  constructor(private router: Router) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
       const segments = this.router.url.split('/');
       const maybeIndex = segments[segments.length - 1];
-      this.questionIndexKey = maybeIndex;
+      this.questionIndexKey = isNaN(+maybeIndex) ? '' : maybeIndex;
+      console.log('[✅ questionIndexKey]', this.questionIndexKey);
     });
   }
 }
