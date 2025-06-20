@@ -702,12 +702,12 @@ export class QuizNavigationService {
     }
   
     const clampedIndex = Math.max(0, Math.min(index, total - 1));
-    const routeParams = ['/question/', quizId, clampedIndex + 1];
+    const routeParams = ['question', quizId, clampedIndex + 1];
   
     console.log('[📍 Navigating to route]', routeParams);
   
     try {
-      await this.router.navigate(routeParams);
+      const success = await this.router.navigate(routeParams);
       console.log('[✅ Navigation success]', success);
   
       // Optional: unlock explanation display after route change
