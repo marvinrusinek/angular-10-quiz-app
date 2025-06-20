@@ -1171,7 +1171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         prev.get('quizId') === curr.get('quizId')
       )
     )
-    .subscribe(async (params: ParamMap) => {
+    .subscribe(async (params) => {
       const quizId = params.get('quizId');
       const index = Number(params.get('questionIndex')) - 1;
       console.log('[🔁 paramMap triggered] currentQuestionIndex:', index);
@@ -1365,7 +1365,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Initialize quiz session, dependencies, and routing
     this.prepareQuizSession();
     this.initializeQuizDependencies();
-    this.quizInitializationService.initializeQuizBasedOnRouteParams();
+    this.initializeQuizBasedOnRouteParams();
   
     // Set index to the first question
     const initialIndex = 0;
