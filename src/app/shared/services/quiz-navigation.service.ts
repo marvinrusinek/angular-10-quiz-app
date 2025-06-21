@@ -121,7 +121,6 @@ export class QuizNavigationService {
   public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-  
     const isFirstQuestion = currentIndex === 0;
   
     // Guard conditions
@@ -168,18 +167,14 @@ export class QuizNavigationService {
     try {
       this.quizQuestionLoaderService.resetUI();
   
-      console.log('[📞 Calling forceNavigateToQuestionIndex]', nextIndex);
       let navSuccess = false;
-  
       try {
         navSuccess = await this.navigateToQuestion(nextIndex);
-        console.log('[🧭 forceNavigateToQuestionIndex returned]', navSuccess);
       } catch (navError) {
         console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
       }
   
       if (navSuccess) {
-        console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
         this.quizService.setCurrentQuestionIndex(nextIndex);
   
         // ⏱Update progress bar
@@ -213,18 +208,6 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  }
-  
-  // Helper method to consolidate Q1 logic
-  private async handleFirstQuestionTransition(): Promise<void> {
-    if (!this.hasFlushedQ1UI) {
-      console.warn('[🕒 Q1 UI Flush] Waiting briefly to stabilize state');
-      await new Promise(resolve => setTimeout(resolve, 30));
-      this.hasFlushedQ1UI = true;
-    }
-  
-    console.warn('[🛠 Q1 PATCH] Waiting for UI to settle...');
-    await new Promise(resolve => setTimeout(resolve, 50));
   }
 
   public async advanceToPreviousQuestion(): Promise<void> {
