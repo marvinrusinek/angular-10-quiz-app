@@ -126,6 +126,11 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
+
+    const routeQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (routeQuizId) {
+      this.quizService.setQuizId(routeQuizId);
+    }
   
     // Guard conditions
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
@@ -150,6 +155,7 @@ export class QuizNavigationService {
         take(1)
       )
     );
+
     if (!currentQuiz) {
       console.error('[❌ advanceToNextQuestion] Quiz not ready or invalid');
       return;
@@ -164,7 +170,7 @@ export class QuizNavigationService {
   
     // Check if already at the last question
     // const totalQuestions = currentQuiz.questions.length;
-    const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
+    //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
     /* if (nextIndex >= totalQuestions) {
       console.warn('[⛔️ Cannot advance — already at last question]');
       return;
@@ -187,6 +193,22 @@ export class QuizNavigationService {
   
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
+
+        const activeQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(activeQuizId)
+        );
+
+        //const totalQuestions = currentQuiz.questions.length;
+        //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizService.quizId));
+
+        console.log('[📊 Progress Debug]', {
+          nextIndex,
+          totalQuestions,
+          quizId: currentQuiz.id,
+          questionCount: currentQuiz.questions.length,
+        });
+        
   
         // ⏱Update progress bar
         this.progressBarService.updateProgress(nextIndex, totalQuestions);
