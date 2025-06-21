@@ -18,11 +18,11 @@ export class ProgressBarService {
     }
   
     // Prevent progress update if still on Q1 and not marked complete
-    const isQ1 = currentIndex === 0;
+    /* const isQ1 = currentIndex === 0;
     if (isQ1 && !this.hasMarkedQ1Complete) {
       console.warn('[🛑 Progress Blocked] Still on Q1 and not marked complete.');
       return;
-    }
+    } */
   
     // Clamp index between 0 and totalQuestions
     const clampedIndex = Math.min(Math.max(currentIndex, 0), totalQuestions);

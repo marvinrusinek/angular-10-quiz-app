@@ -120,7 +120,7 @@ export class QuizNavigationService {
 
   public async advanceToNextQuestion(): Promise<void> {
     this.animationState$.next('animationStarted');
-    
+
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
@@ -186,11 +186,15 @@ export class QuizNavigationService {
         this.quizService.setCurrentQuestionIndex(nextIndex);
   
         // ⏱Update progress bar
-        if (!isFirstQuestion) {
+        /* if (!isFirstQuestion) {
           this.progressBarService.updateProgress(currentIndex, totalQuestions);
         } else {
           this.progressBarService.updateProgress(0, 1);
-        }
+        } */
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(this.quizId)
+        );
+        this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         // Reset state
         this.selectedOptionService.setAnswered(false);
