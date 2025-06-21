@@ -2666,12 +2666,13 @@ export class QuizQuestionComponent
         return;
       }
   
-      this.emitExplanationIfValid(explanationText, {
+      const lockedState: LockedState = {
         index: lockedIndex,
         text: lockedText,
         snapshot: lockedSnapshot,
         timestamp: lockedTimestamp
-      });
+      };
+      this.emitExplanationIfValid(explanationText, lockedState);
 
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.setExplanationText(explanationText);
