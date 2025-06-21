@@ -118,21 +118,18 @@ export class QuizNavigationService {
     );
   }
 
-  /* public async advanceToNextQuestion(): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion called]');
+  public async advanceToNextQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-    
-    console.log('[🔢 current index]', currentIndex);
-    console.log('[➡️ Calculated next index]', nextIndex);
-
+  
     const isFirstQuestion = currentIndex === 0;
   
-    // Guards – is button enabled, answered, not loading/navigating
+    // Guard conditions
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+  
     if (!isEnabled || !isAnswered || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
         isEnabled,
@@ -142,102 +139,68 @@ export class QuizNavigationService {
       });
       return;
     }
+    
+    // Ensure quiz is ready
+    const currentQuiz: Quiz = await firstValueFrom(
+      this.quizService.getCurrentQuiz().pipe(
+        filter((q): q is Quiz => !!q),
+        take(1)
+      )
+    );
   
-    console.log('[🧪 Guard values]', {
-      isEnabled,
-      isAnswered,
-      isLoading,
-      isNavigating
-    });
-  
-    // Wait for quiz to finish loading
-    const currentQuiz: Quiz = await firstValueFrom(this.quizService.getCurrentQuiz().pipe(
-      filter((q): q is Quiz => !!q),
-      take(1)
-    ));
-  
-    if (!currentQuiz || !Array.isArray(currentQuiz.questions)) {
+    if (!currentQuiz?.questions?.length) {
       console.error('[❌ advanceToNextQuestion] Quiz not ready');
       return;
     }
   
-    const total = currentQuiz.questions.length;
-    const quizId = this.quizId || this.quizService.quizId;
-    if (isNaN(nextIndex) || nextIndex < 0 || !quizId) {
-      console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId });
+    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
+      console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
       return;
     }
-
-    // Lock UI state
+  
+    // UI lock
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
     this.animationState$.next('animationStarted');
-
-    console.log('[🧪 DEBUG] typeof navigateToQuestion', typeof this.forceNavigateToQuestionIndex);
-    console.log('[🧪 DEBUG] typeof forceNavigateToQuestionIndex', typeof this.forceNavigateToQuestionIndex);
-    console.log('[🧪 DEBUG] this keys', Object.keys(this));
-
   
     try {
-      // Validate nextIndex and quizId
-      const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-      // if (isNaN(nextIndex) || nextIndex < 0 || !effectiveQuizId) {
-      //  console.error('[❌] Invalid nextIndex or quizId:', { nextIndex, quizId: this.quizId });
-      //  return;
-      //}
-      if (!effectiveQuizId) {
-        console.error('[❌ Invalid quizId]', { nextIndex, quizId: effectiveQuizId });
-        return;
-      }
-  
-      // Ensure totalQuestions is populated before continuing
-      const total = this.quizService.totalQuestions;
-      if (!total || total <= 0) {
-        console.warn('[⚠️ Cannot advance – totalQuestions not initialized yet]', { total });
-        return;
-      }
-  
-      // Flush UI before route change
       this.quizQuestionLoaderService.resetUI();
   
-      // ✅ Use centralized navigation
-      console.log('[📞 Calling navigateToQuestion]', nextIndex);
-  
+      console.log('[📞 Calling forceNavigateToQuestionIndex]', nextIndex);
       let navSuccess = false;
-      console.log('[CALLING] forceNavigateToQuestionIndex with:', nextIndex);
+  
       try {
-        navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
-        console.log('[🧭 navigateToQuestion returned]', navSuccess);
+        navSuccess = await this.navigateToQuestion(nextIndex);
+        console.log('[🧭 forceNavigateToQuestionIndex returned]', navSuccess);
       } catch (navError) {
         console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
       }
-      
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
         this.quizService.setCurrentQuestionIndex(nextIndex);
   
-        // Update progress bar conditionally
+        // ⏱Update progress bar
         if (!isFirstQuestion) {
           const totalQuestions = await firstValueFrom(
             this.quizService.getTotalQuestionsCount(this.quizId)
           );
           this.progressBarService.updateProgress(currentIndex, totalQuestions);
         } else {
-          this.progressBarService.updateProgress(0, 1); // force reset for Q1
+          this.progressBarService.updateProgress(0, 1);
         }
   
-        // Reset quiz state
+        // Reset state
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   
-        // Trigger post-navigation updates
+        // Post-navigation logic
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
   
-        // Evaluate Next button state on arrival
         const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
         this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       } else {
@@ -246,51 +209,11 @@ export class QuizNavigationService {
     } catch (error) {
       console.error('[❌ advanceToNextQuestion() error]', error);
     } finally {
-      // Unlock UI
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
-  } */
-  public async advanceToNextQuestion(quizId: string): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion called]');
-  
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const nextIndex = currentIndex + 1;
-  
-    console.log('[🔢 current index]', currentIndex);
-    console.log('[➡️ Calculated next index]', nextIndex);
-  
-    // 👇 ADD THIS LINE to actually navigate
-    const navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
-  
-    if (navSuccess) {
-      console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
-      this.quizService.setCurrentQuestionIndex(nextIndex);
-      // Any additional post-navigation logic here
-    } else {
-      console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
-    }
   }
-  
-
-
-  /* public async advanceToNextQuestion(): Promise<void> {
-    const nextIndex = this.currentQuestionIndex + 1;
-    const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
-  
-    const nextUrl = `/question/dependency-injection/${nextIndex + 1}`;
-    console.warn('[🛣️ Navigating directly to]', nextUrl);
-  
-    try {
-      await this.router.navigateByUrl(nextUrl);
-      // console.warn('[✅ Navigation success?]', success);
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-    }
-  } */
-  
-  
   
   // Helper method to consolidate Q1 logic
   private async handleFirstQuestionTransition(): Promise<void> {
@@ -669,194 +592,7 @@ export class QuizNavigationService {
     }
   }
 
-  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
-    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId: this.quizId });
-    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index });
-    console.log('[🚀 navigateToQuestion CALLED]', { index });
-    console.log('[🚀 ENTER navigateToQuestion]', { index });
-  
-    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    let total = this.quizService.totalQuestions;
-  
-    if (!quizId || total <= 0) {
-      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      total = this.quizService.totalQuestions;
-    }
-  
-    if (!quizId || total <= 0) {
-      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
-      return false;
-    }
-  
-    const clampedIndex = Math.max(0, Math.min(index, total - 1));
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
-    const currentUrl = this.router.url;
-  
-    console.log('[📍 Current URL]', currentUrl);
-    console.log('[📍 Target URL]', routeUrl);
-  
-    if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}]`);
-      return true;
-    }
-
-    const success = await this.router.navigateByUrl(routeUrl);
-    console.log('[📦 Router navigation result]', success);
-  
-    // Unlock explanation display now that we're on the new question
-    this.explanationTextService.unlockExplanation();
-
-    console.log('[🏁 EXIT navigateToQuestion]');
-    return success;
-  } */
-  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
-    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    let total = this.quizService.totalQuestions;
-  
-    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId });
-  
-    if (!quizId || total <= 0) {
-      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      total = this.quizService.totalQuestions;
-    }
-  
-    if (!quizId || total <= 0) {
-      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
-      return false;
-    }
-  
-    const clampedIndex = Math.max(0, Math.min(index, total - 1));
-    const routeParams = ['question', quizId, clampedIndex + 1];
-  
-    console.log('[📍 Navigating to route]', routeParams);
-  
-    try {
-      const success = await this.router.navigate(routeParams);
-      console.log('[✅ Navigation success]', success);
-  
-      // Unlock explanation display after route change
-      this.explanationTextService.unlockExplanation();
-  
-      return success;
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
-    }
-  } */
-  /* public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
-    const quizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    let total = this.quizService.totalQuestions;
-  
-    console.log('[🚀 forceNavigateToQuestionIndex CALLED]', { index, quizId });
-  
-    if (!quizId || total <= 0) {
-      console.warn('[⏳ Waiting for totalQuestions to be set... Retrying]');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      total = this.quizService.totalQuestions;
-    }
-  
-    if (!quizId || total <= 0) {
-      console.error('[❌ Invalid quizId or totalQuestions]', { quizId, total });
-      return false;
-    }
-  
-    const clampedIndex = Math.max(0, Math.min(index, total - 1));
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`;
-    const currentUrl = this.router.url;
-    if (currentUrl === routeUrl) {
-      console.warn('[⚠️ Already on route] Forcing route param update...');
-      
-      // ✅ Manually re-trigger route param logic
-      this.quizService.setCurrentQuestionIndex(clampedIndex);
-      this.subscribeToRouteParams(); // Or manually call your route param handler if you decoupled it
-    
-      return true;
-    }
-  
-    console.log('[📍 Current URL]', currentUrl);
-    console.log('[📍 Target URL]', routeUrl);
-  
-    try {
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
-      console.log('[📦 Router navigation result]', navSuccess);
-  
-      this.explanationTextService.unlockExplanation();
-  
-      return navSuccess;
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
-    }
-  } */
-  /* public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
-    const quizId = this.quizService.quizId ?? 'fallback-id';
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based URL
-    const currentUrl = this.router.url;
-  
-    // If we're already on the same URL, Angular won't reload the component unless forced
-    if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
-  
-      // Manually trigger logic as fallback
-      this.quizService.setCurrentQuestionIndex(clampedIndex);
-  
-      await this.router.navigateByUrl('/', { skipLocationChange: true });
-      return this.router.navigateByUrl(routeUrl);
-    }
-  
-    try {
-      console.log('[➡️ Navigating to]', routeUrl);
-      const navSuccess = await this.router.navigateByUrl(routeUrl, {
-        replaceUrl: false,
-      });
-      console.log('[✅ Navigation success?]', navSuccess);
-      return navSuccess;
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
-    }
-  } */
-  /* public async forceNavigateToQuestionIndex(clampedIndex: number): Promise<boolean> {
-    console.log("MYFORCE");
-    const quizId = this.quizService.quizId ?? 'fallback-id';
-    const routeUrl = `/question/${quizId}/${clampedIndex + 1}`; // 1-based
-    const currentUrl = this.router.url;
-  
-    console.log('[DEBUG] forceNavigateToQuestionIndex', {
-      currentUrl,
-      routeUrl,
-      clampedIndex,
-      quizId
-    });
-  
-    if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
-  
-      // Optionally update state here if needed
-      this.quizService.setCurrentQuestionIndex(clampedIndex);
-  
-      // 🔁 Force component reload by navigating away then back
-      await this.router.navigateByUrl('/', { skipLocationChange: true });
-      const result = await this.router.navigateByUrl(routeUrl);
-      console.log('[🔁 Forced re-navigation result]', result);
-      return result;
-    }
-  
-    try {
-      console.log('[➡️ Navigating to]', routeUrl);
-      const navSuccess = await this.router.navigateByUrl(routeUrl, {
-        replaceUrl: false,
-      });
-      console.log('[✅ Navigation success?]', navSuccess);
-      return navSuccess;
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
-    }
-  } */
-  public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
+  public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
 
@@ -877,7 +613,6 @@ export class QuizNavigationService {
   
     if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
-      //await this.router.navigateByUrl('/', { skipLocationChange: true });
       return this.router.navigateByUrl(routeUrl);
     }
   
@@ -889,38 +624,7 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }
-  
-  /* public async forceNavigateToQuestionIndex(index: number, quizId: string): Promise<boolean> {
-    const routeUrl = `/question/${quizId}/${index + 1}`;
-    const currentUrl = this.router.url;
-  
-    console.log('[DEBUG] forceNavigateToQuestionIndex', { currentUrl, routeUrl });
-  
-    if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
-    
-      // Navigate away first without changing URL
-      await this.router.navigateByUrl('/', { skipLocationChange: true });
-    
-      // ✅ Now actually navigate to the target route
-      return this.router.navigateByUrl(routeUrl);
-    }
-  
-    try {
-      const success = await this.router.navigateByUrl(routeUrl);
-      console.log('[✅ Router navigation success]', success);
-      return success;
-    } catch (err) {
-      console.error('[❌ Router navigation error]', err);
-      return false;
-    }
-  } */
-  
-  
-  
-  
-  
+  }  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
