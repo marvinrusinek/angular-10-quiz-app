@@ -212,18 +212,6 @@ export class QuizNavigationService {
     this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      // Ensure consistent quizId for navigation
-      const quizIdToUse =
-        this.quizId ||
-        this.quizService.quizId ||
-        this.activatedRoute.snapshot.paramMap.get('quizId') ||
-        localStorage.getItem('quizId');
-  
-      if (!quizIdToUse) {
-        console.error('[❌] Cannot navigate — quizId is missing!');
-        return;
-      }
-  
       this.quizQuestionLoaderService.resetUI();
 
       // Centralized navigation
