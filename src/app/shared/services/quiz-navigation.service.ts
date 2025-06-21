@@ -485,7 +485,7 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   } */
-  public async advanceToPreviousQuestion(): Promise<void> {
+  /* public async advanceToPreviousQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const prevIndex = currentIndex - 1;
   
@@ -548,7 +548,78 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizService.setIsNavigatingToPrevious(false);
     }
+  } */
+  public async advanceToPreviousQuestion(): Promise<void> {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const prevIndex = currentIndex - 1;
+  
+    if (currentIndex === 0) {
+      console.warn('[⛔] Already at first question, cannot go back.');
+      return;
+    }
+  
+    console.log('[🔁] Attempting to go back from Q', currentIndex, '→ Q', prevIndex);
+  
+    if (this.isNavigating) {
+      console.warn('[⏳] Navigation already in progress. Skipping.');
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizStateService.setNavigating(true);
+    this.quizService.setIsNavigatingToPrevious(true);
+    this.animationState$.next('animationStarted');
+  
+    try {
+      // Ensure consistent quizId for navigation
+      const quizIdToUse =
+        this.quizId ||
+        this.quizService.quizId ||
+        this.activatedRoute.snapshot.paramMap.get('quizId') ||
+        localStorage.getItem('quizId');
+  
+      if (!quizIdToUse) {
+        console.error('[❌] Cannot navigate — quizId is missing!');
+        return;
+      }
+  
+      // 🧭 Centralized navigation
+      let navSuccess = false;
+      try {
+        navSuccess = await this.forceNavigateToQuestionIndex(prevIndex);
+        console.log('[🧭 forceNavigateToQuestionIndex returned]', navSuccess);
+      } catch (navError) {
+        console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
+      }
+  
+      if (navSuccess) {
+        this.quizService.setCurrentQuestionIndex(prevIndex);
+        this.currentQuestionIndex = prevIndex;
+  
+        const totalQuestions = await firstValueFrom(
+          this.quizService.getTotalQuestionsCount(quizIdToUse)
+        );
+  
+        console.log(`[📉 Progress Decrement] updateProgress(${prevIndex}, ${totalQuestions})`);
+        this.progressBarService.updateProgress(prevIndex, totalQuestions);
+  
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+      } else {
+        console.warn('[❌] Navigation to previous question failed for Q', prevIndex);
+      }
+  
+      this.quizQuestionLoaderService.resetUI();
+    } catch (error) {
+      console.error('[❌ advanceToPreviousQuestion error]', error);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizService.setIsNavigatingToPrevious(false);
+    }
   }
+  
   
 
   advanceToResults(): void {
