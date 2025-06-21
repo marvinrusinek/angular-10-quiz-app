@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, combineLatest, distinctUntilChanged, filter, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';

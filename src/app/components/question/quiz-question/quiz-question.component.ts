@@ -2750,9 +2750,6 @@ export class QuizQuestionComponent
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
-  
-      queueMicrotask(() => this.tryAutoAdvanceFromFirstQuestion());
-  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
@@ -2813,23 +2810,6 @@ export class QuizQuestionComponent
       });
     }
   }
-  
-  private tryAutoAdvanceFromFirstQuestion(): void {
-    const isFirstQuestion = (this.fixedQuestionIndex ?? this.currentQuestionIndex) === 0;
-    if (!isFirstQuestion || this.hasAutoAdvancedFromQ1) return;
-  
-    const isNextEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
-  
-    console.warn('[🧪 Auto-Advance Check]', { isNextEnabled, isAnswered });
-  
-    if (isNextEnabled && isAnswered) {
-      this.hasAutoAdvancedFromQ1 = true;
-      console.warn('[🧭 Q1 PATCH] Calling advanceToNextQuestion()');
-      this.quizNavigationService.advanceToNextQuestion();
-    }
-  }
-  
   
   /* remove?? private async handleRefreshExplanation(): Promise<string> {
     console.log('[🔄 handleRefreshExplanation] called');
