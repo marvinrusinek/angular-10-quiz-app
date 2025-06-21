@@ -66,7 +66,7 @@ export class QuizGuard implements CanActivate {
         }
   
         const totalQuestions = quiz.questions.length;
-        const isValidIndex = questionIndex >= 0 && questionIndex < totalQuestions;
+        const isValidIndex = questionIndex >= 0 && questionIndex <= totalQuestions;
   
         console.log('[🧪 QuestionIndex Check]', { questionIndex, totalQuestions, isValidIndex });
   

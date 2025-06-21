@@ -119,6 +119,8 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
+    this.animationState$.next('animationStarted');
+    
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
     const isFirstQuestion = currentIndex === 0;
@@ -169,7 +171,6 @@ export class QuizNavigationService {
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
-    this.animationState$.next('animationStarted');
   
     try {
       this.quizQuestionLoaderService.resetUI();
