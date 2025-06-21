@@ -212,7 +212,7 @@ export class QuizNavigationService {
         
   
         // ⏱Update progress bar
-        this.progressBarService.updateProgress(nextIndex, totalQuestions);
+        // this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         // Reset state
         this.selectedOptionService.setAnswered(false);
@@ -236,7 +236,6 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
-  
 
   public async advanceToPreviousQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
