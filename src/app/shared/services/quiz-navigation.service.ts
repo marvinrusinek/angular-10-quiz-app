@@ -178,9 +178,6 @@ export class QuizNavigationService {
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
-  
-        const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-        this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
       } else {
         console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
       }
