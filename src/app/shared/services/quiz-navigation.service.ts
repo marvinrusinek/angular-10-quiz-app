@@ -138,7 +138,7 @@ export class QuizNavigationService {
       });
       return;
     }
-    
+  
     // Ensure quiz data is loaded before navigating
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizService.getCurrentQuiz().pipe(
@@ -155,6 +155,13 @@ export class QuizNavigationService {
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
       console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
+      return;
+    }
+  
+    // Check if already at the last question
+    const totalQuestions = currentQuiz.questions.length;
+    if (nextIndex >= totalQuestions) {
+      console.warn('[⛔️ Cannot advance — already at last question]');
       return;
     }
   
@@ -179,9 +186,6 @@ export class QuizNavigationService {
   
         // ⏱Update progress bar
         if (!isFirstQuestion) {
-          const totalQuestions = await firstValueFrom(
-            this.quizService.getTotalQuestionsCount(this.quizId)
-          );
           this.progressBarService.updateProgress(currentIndex, totalQuestions);
         } else {
           this.progressBarService.updateProgress(0, 1);
@@ -209,6 +213,7 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(false);
     }
   }
+  
 
   public async advanceToPreviousQuestion(): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
