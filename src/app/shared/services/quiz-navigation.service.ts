@@ -114,9 +114,9 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  private async navigateWithOffset(offset: number): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const nextIndex = currentIndex + 1;
+    const targetIndex = currentIndex + offset;
   
     // Guard conditions
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
@@ -124,7 +124,7 @@ export class QuizNavigationService {
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
-    if (!isEnabled || !isAnswered || isLoading || isNavigating) {
+    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
         isEnabled,
         isAnswered,
@@ -134,113 +134,74 @@ export class QuizNavigationService {
       return;
     }
   
-    // Ensure quiz data is loaded before navigating
+    if (targetIndex < 0) {
+      console.warn('[⛔] Already at first question, cannot go back.');
+      return;
+    }
+  
+    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    console.log('[🧩 effectiveQuizId]', effectiveQuizId);
+  
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizService.getCurrentQuiz().pipe(
         filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
         take(1)
       )
     );
-
-    if (!currentQuiz) {
-      console.error('[❌ advanceToNextQuestion] Quiz not ready or invalid');
+  
+    if (!effectiveQuizId || !currentQuiz) {
+      console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
       return;
     }
   
-    // Validate navigation parameters
-    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    console.log('[🧩 effectiveQuizId]', effectiveQuizId);
-    if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
-      console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
-      return;
-    }
-  
-    // UI lock
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
   
+    if (offset < 0) {
+      this.quizService.setIsNavigatingToPrevious(true);
+    }
+  
     try {
       this.quizQuestionLoaderService.resetUI();
   
-      const navSuccess = await this.navigateToQuestion(nextIndex).catch((navError) => {
-        console.error('[❌ navigateToQuestion error]', navError);
+      const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
+        console.error('[❌ navigateToQuestion error]', err);
         return false;
-      });      
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(nextIndex);
+      });
   
-        // Reset state
+      if (navSuccess) {
+        this.quizService.setCurrentQuestionIndex(targetIndex);
+        this.currentQuestionIndex = targetIndex;
+  
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
   
-        // Post-navigation logic
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
       } else {
-        console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
+        console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
       }
-    } catch (error) {
-      console.error('[❌ advanceToNextQuestion() error]', error);
+    } catch (err) {
+      console.error('[❌ navigateWithOffset error]', err);
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
+  
+      if (offset < 0) {
+        this.quizService.setIsNavigatingToPrevious(false);
+      }
     }
   }
 
+  public async advanceToNextQuestion(): Promise<void> {
+    await this.navigateWithOffset(1);
+  }
+  
   public async advanceToPreviousQuestion(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const prevIndex = currentIndex - 1;
-  
-    if (currentIndex === 0) {
-      console.warn('[⛔] Already at first question, cannot go back.');
-      return;
-    }
-  
-    if (this.isNavigating) {
-      console.warn('[⏳] Navigation already in progress. Skipping.');
-      return;
-    }
-  
-    this.isNavigating = true;
-    this.quizStateService.setNavigating(true);
-    this.quizService.setIsNavigatingToPrevious(true);
-  
-    try {
-      this.quizQuestionLoaderService.resetUI();
-
-      // Centralized navigation
-      const navSuccess = await this.navigateToQuestion(prevIndex).catch((navError) => {
-        console.error('[❌ navigateToQuestion error]', navError);
-        return false;
-      });  
-  
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(prevIndex);
-        this.currentQuestionIndex = prevIndex;
-
-        // Reset state
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-  
-        // Post-navigation logic
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-      } else {
-        console.warn('[❌] Navigation to previous question failed for Q', prevIndex);
-      }
-  
-      this.quizQuestionLoaderService.resetUI();
-    } catch (error) {
-      console.error('[❌ advanceToPreviousQuestion error]', error);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizService.setIsNavigatingToPrevious(false);
-    }
+    await this.navigateWithOffset(-1);
   }
 
   advanceToResults(): void {
