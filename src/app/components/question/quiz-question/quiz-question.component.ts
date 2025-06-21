@@ -2672,6 +2672,8 @@ export class QuizQuestionComponent
         snapshot: lockedSnapshot,
         timestamp: lockedTimestamp
       });
+
+      this.explanationTextService.setShouldDisplayExplanation(true);
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
