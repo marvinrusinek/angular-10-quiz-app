@@ -3901,6 +3901,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   triggerAnimation(): void {
-    this.animationState$.next('animationStarted');
+    this.ngZone.run(() => {
+      this.animationState$.next('animationStarted');
+    });
   }
 }
