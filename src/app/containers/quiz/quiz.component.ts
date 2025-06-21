@@ -1288,12 +1288,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         const totalQuestions = currentQuiz.questions.length;
-  
-        /* const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-        if (!question) {
-          console.error('[❌ Failed to fetch question]');
-          return;
-        } */
+        
         const question = currentQuiz.questions[index];
         if (!question) {
           console.error('[❌ Failed to fetch question from quiz]', { index });
