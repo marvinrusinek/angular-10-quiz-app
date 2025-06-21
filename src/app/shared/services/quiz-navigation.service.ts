@@ -191,9 +191,9 @@ export class QuizNavigationService {
         } else {
           this.progressBarService.updateProgress(0, 1);
         } */
-        const totalQuestions = await firstValueFrom(
+        /* const totalQuestions = await firstValueFrom(
           this.quizService.getTotalQuestionsCount(this.quizId)
-        );
+        ); */
         this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         // Reset state

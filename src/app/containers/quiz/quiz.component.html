@@ -133,9 +133,7 @@
           [animated]="true"
           [value]="(progress$ | async) || 0"
         >
-          <ng-template ngbProgressbarLabel>
-            <strong *ngIf="(progress$ | async) as p">{{ p.toFixed(0) }}%</strong>
-          </ng-template>
+          <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
         </ngb-progressbar>
       </section>
     </mat-card-footer>
