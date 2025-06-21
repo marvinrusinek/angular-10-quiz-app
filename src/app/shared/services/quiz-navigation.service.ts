@@ -158,7 +158,7 @@ export class QuizNavigationService {
     // Validate navigation parameters
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     const quizMatchingId = await firstValueFrom(
-      this.quizDataService.getQuizById(effectiveQuizId).pipe(
+      this.quizDataService.getQuiz(effectiveQuizId).pipe(
         filter((q): q is Quiz => !!q && q.id === effectiveQuizId),
         take(1)
       )
