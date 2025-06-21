@@ -710,23 +710,9 @@ export class QuizNavigationService {
 
   public setQuizId(id: string): void {
     this.quizId = id;
-    console.log('[🧭 QuizNavigationService] quizId set to', id);
   }
 
   private getQuizId(): string | null {
     return this.quizId || null;
   }
-
-  /* public setQuizId(id: string): void {
-    this.quizId = id;
-    this.quizService.quizId = id;
-    console.log('[🧭 QuizNavigationService] quizId set to:', id);
-  }
-
-  private getQuizId(): string | null {
-    const fromService = this.quizService.quizId;
-    const resolved = fromService || this.quizId;
-    console.log('[🔎 QuizNavigationService.getQuizId()] resolved:', resolved);
-    return resolved;
-  } */
 } 
