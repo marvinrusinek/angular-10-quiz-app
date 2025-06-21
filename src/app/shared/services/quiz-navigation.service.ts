@@ -30,7 +30,6 @@ export class QuizNavigationService {
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   totalQuestions = 0;
-
   answers = [];
 
   optionsToDisplay: Option[] = [];
@@ -40,12 +39,10 @@ export class QuizNavigationService {
   private navigatingToResults = false;
 
   isOptionSelected = false;
-  
   isButtonEnabled$: Observable<boolean>;
 
-  elapsedTimeDisplay = 0;
-
   shouldRenderQuestionComponent = false;
+  elapsedTimeDisplay = 0;
 
   private navigationSuccessSubject = new Subject<void>();
   navigationSuccess$ = this.navigationSuccessSubject.asObservable();
