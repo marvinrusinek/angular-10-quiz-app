@@ -163,7 +163,8 @@ export class QuizNavigationService {
     }
   
     // Check if already at the last question
-    const totalQuestions = currentQuiz.questions.length;
+    // const totalQuestions = currentQuiz.questions.length;
+    const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
     if (nextIndex >= totalQuestions) {
       console.warn('[⛔️ Cannot advance — already at last question]');
       return;
