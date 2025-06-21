@@ -223,7 +223,7 @@ export class QuizNavigationService {
   
     try {
       // Ensure consistent quizId for navigation
-      /* const quizIdToUse =
+      const quizIdToUse =
         this.quizId ||
         this.quizService.quizId ||
         this.activatedRoute.snapshot.paramMap.get('quizId') ||
@@ -232,7 +232,7 @@ export class QuizNavigationService {
       if (!quizIdToUse) {
         console.error('[❌] Cannot navigate — quizId is missing!');
         return;
-      } */
+      }
   
       this.quizQuestionLoaderService.resetUI();
 
@@ -245,12 +245,12 @@ export class QuizNavigationService {
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(prevIndex);
         this.currentQuestionIndex = prevIndex;
+
+        // Reset state
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
   
-        const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(quizIdToUse)
-        );
-        this.progressBarService.updateProgress(prevIndex, totalQuestions);
-  
+        // Post-navigation logic
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
@@ -421,23 +421,6 @@ export class QuizNavigationService {
   }
 
   private getQuizId(): string | null {
-    // Prefer local property if defined
-    if (this.quizId) {
-      return this.quizId;
-    }
-  
-    // Fallback to quizService.quizId
-    if (this.quizService?.quizId) {
-      return this.quizService.quizId;
-    }
-  
-    // Final fallback: attempt to grab from route snapshot
-    const routeQuizId = this.activatedRoute?.snapshot?.paramMap?.get('quizId');
-    if (routeQuizId) {
-      return routeQuizId;
-    }
-  
-    // Nothing found
-    return null;
+    return this.quizId || null;
   }  
-} 
+}
