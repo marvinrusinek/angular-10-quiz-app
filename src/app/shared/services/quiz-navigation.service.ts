@@ -202,7 +202,7 @@ export class QuizNavigationService {
       return;
     }
   
-    this.navigatingToResults = true; // Prevent multiple clicks
+    this.navigatingToResults = true; // prevent multiple clicks
   
     // Reset quiz state
     this.quizService.resetAll();
@@ -229,7 +229,7 @@ export class QuizNavigationService {
           console.error('Error during checkIfAnsweredCorrectly:', error);
         })
         .finally(() => {
-          this.navigatingToResults = false; // Allow navigation again after the process
+          this.navigatingToResults = false; // allow navigation again after the process
         });
     } else {
       console.warn('Quiz already marked as completed.');
