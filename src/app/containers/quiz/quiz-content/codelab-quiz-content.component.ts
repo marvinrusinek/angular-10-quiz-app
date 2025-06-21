@@ -12,6 +12,7 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
+import { RenderStateService } from '../../../shared/services/render-state.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
@@ -103,6 +104,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
+    private renderStateService: RenderStateService,
     private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
@@ -224,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -239,6 +241,50 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
         const question = questionText?.trim();
   
         const showExplanation =
+          state.mode === 'explanation' &&
+          !!explanation &&
+          shouldDisplayExplanation === true &&
+          resetComplete === true;
+  
+        if (showExplanation) {
+          console.log('[📢 Showing EXPLANATION]');
+          return explanation;
+        }
+  
+        return correctText?.trim()
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      }),
+      distinctUntilChanged()
+    );
+  } */
+  private getCombinedDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$,
+      this.explanationTextService.resetComplete$,
+      this.renderStateService.renderGate$
+    ]).pipe(
+      debounceTime(30),
+      map((
+        [
+          state,
+          explanationText,
+          questionText,
+          correctText,
+          shouldDisplayExplanation,
+          resetComplete,
+          renderGateReady
+        ]
+      ) => {
+        const explanation = explanationText?.trim();
+        const question = questionText?.trim();
+  
+        const showExplanation =
+          renderGateReady === true && // ✅ do not show anything until everything is ready
           state.mode === 'explanation' &&
           !!explanation &&
           shouldDisplayExplanation === true &&
