@@ -583,10 +583,10 @@ export class QuizNavigationService {
         return;
       }
   
-      // 🧭 Centralized navigation
+      // Centralized navigation
       let navSuccess = false;
       try {
-        navSuccess = await this.forceNavigateToQuestionIndex(prevIndex);
+        navSuccess = await this.navigateToQuestion(prevIndex);
         console.log('[🧭 forceNavigateToQuestionIndex returned]', navSuccess);
       } catch (navError) {
         console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
@@ -619,8 +619,6 @@ export class QuizNavigationService {
       this.quizService.setIsNavigatingToPrevious(false);
     }
   }
-  
-  
 
   advanceToResults(): void {
     if (this.navigatingToResults) {
