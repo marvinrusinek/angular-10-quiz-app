@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, take, tap, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, distinctUntilChanged, filter, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
@@ -29,7 +29,7 @@ export class RenderStateService {
     private quizService: QuizService
   ) {}
 
-  public setupRenderGateSync(): void {
+  /* public setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
       return;
@@ -48,7 +48,35 @@ export class RenderStateService {
         this.renderGateSubject.next(true); // signal ready to render
       })
     ).subscribe();
+  } */
+  public setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$.pipe(
+      filter(Boolean),
+      switchMap(() =>
+        combineLatest([
+          this.quizService.questionData$.pipe(
+            filter(q => !!q),
+            distinctUntilChanged((a, b) => a?.questionText === b?.questionText)
+          ),
+          this.optionsToDisplay$.pipe(
+            filter(opts => Array.isArray(opts) && opts.length > 0),
+            distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)) // You can optimize this
+          )
+        ])
+      ),
+      tap(([question, options]) => {
+        console.log('[✅ RenderGate Triggered]', { question, options });
+        this.combinedQuestionDataSubject.next({ question, options });
+        this.renderGateSubject.next(true);
+      })
+    ).subscribe();
   }
+  
 
   tryRenderGate(): void {  
     if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
