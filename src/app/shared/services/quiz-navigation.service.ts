@@ -176,35 +176,12 @@ export class QuizNavigationService {
     try {
       this.quizQuestionLoaderService.resetUI();
   
-      let navSuccess = false;
-      try {
-        navSuccess = await this.navigateToQuestion(nextIndex);
-      } catch (navError) {
-        console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
-      }
-  
+      const navSuccess = await this.navigateToQuestion(nextIndex).catch((navError) => {
+        console.error('[❌ navigateToQuestion error]', navError);
+        return false;
+      });      
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
-
-        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-        this.quizService.quizId = this.quizId;
-        const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(this.quizId)
-        );
-
-        //const totalQuestions = currentQuiz.questions.length;
-        //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizService.quizId));
-
-        console.log('[📊 Progress Debug]', {
-          nextIndex,
-          totalQuestions,
-          quizId: currentQuiz.quizId,
-          questionCount: currentQuiz.questions.length,
-        });
-        
-  
-        // ⏱Update progress bar
-        // this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         // Reset state
         this.selectedOptionService.setAnswered(false);
