@@ -1273,6 +1273,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         this.quizService.quizId = quizId;
         this.quizService.setCurrentQuestionIndex(index);
+
+        // Fetch current quiz using quizId
+        const currentQuiz: Quiz = await firstValueFrom(this.quizService.getCurrentQuiz().pipe(
+          filter(q => !!q && Array.isArray(q.questions) && q.id === quizId),
+          take(1)
+        ));
+
+        if (!currentQuiz) {
+          console.error('[❌ Failed to fetch quiz with quizId]', quizId);
+          return;
+        }
+
+        const totalQuestions = currentQuiz.questions.length;
   
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
         if (!question) {
@@ -1283,12 +1296,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.currentQuestion = question;
         this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
   
-        this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
+        // Properly update progress using correct totalQuestions
+        this.progressBarService.updateProgress(index, totalQuestions);
         localStorage.setItem('savedQuestionIndex', index.toString());
       });
   }
-  
-  
   
   private resetComponentState(): void {
     // Reset any UI state / option lists / flags here
