@@ -4237,11 +4237,6 @@ export class QuizQuestionComponent
       //this.nextButtonStateService.syncNextButtonState(); // let the observable handle enable logic
       const isSelected = this.answerTrackingService.isAnyOptionSelected();
       this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
-  
-      // Immediate change detection
-      this.cdRef.detectChanges();
-      console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
-  
     } catch (error) {
       console.error('Error during option selection:', error);
     }
