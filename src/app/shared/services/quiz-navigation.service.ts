@@ -125,7 +125,6 @@ export class QuizNavigationService {
 
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
-    const isFirstQuestion = currentIndex === 0;
 
     const routeQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
     if (routeQuizId) {
