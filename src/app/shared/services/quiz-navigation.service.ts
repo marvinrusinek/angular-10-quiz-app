@@ -456,6 +456,23 @@ export class QuizNavigationService {
   }
 
   private getQuizId(): string | null {
-    return this.quizId || null;
-  }
+    // Prefer local property if defined
+    if (this.quizId) {
+      return this.quizId;
+    }
+  
+    // Fallback to quizService.quizId
+    if (this.quizService?.quizId) {
+      return this.quizService.quizId;
+    }
+  
+    // Final fallback: attempt to grab from route snapshot
+    const routeQuizId = this.activatedRoute?.snapshot?.paramMap?.get('quizId');
+    if (routeQuizId) {
+      return routeQuizId;
+    }
+  
+    // Nothing found
+    return null;
+  }  
 } 
