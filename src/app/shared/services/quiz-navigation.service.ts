@@ -13,6 +13,7 @@ import { NextButtonStateService } from './next-button-state.service';
 import { ProgressBarService } from './progress-bar.service';
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
+import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
@@ -74,6 +75,7 @@ export class QuizNavigationService {
     private progressBarService: ProgressBarService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
@@ -155,13 +157,21 @@ export class QuizNavigationService {
   
     // Validate navigation parameters
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    const quizMatchingId = await firstValueFrom(
+      this.quizDataService.getQuizById(effectiveQuizId).pipe(
+        filter((q): q is Quiz => !!q && q.id === effectiveQuizId),
+        take(1)
+      )
+    );
+    const totalQuestions = quizMatchingId?.questions?.length ?? 0;
+
     if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
       console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
       return;
     }
   
     // Check if already at the last question
-    const totalQuestions = currentQuiz.questions.length;
+    // const totalQuestions = currentQuiz.questions.length;
     if (nextIndex >= totalQuestions) {
       console.warn('[⛔️ Cannot advance — already at last question]');
       return;
