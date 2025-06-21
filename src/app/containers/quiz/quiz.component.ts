@@ -61,6 +61,7 @@ export interface LoadedQuestionData {
   providers: [QuizService, QuizDataService, UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
+  animationState$: BehaviorSubject<AnimationState> = new BehaviorSubject('none');
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
@@ -3897,5 +3898,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[⛔ renderGate] Conditions not met');
     }
+  }
+
+  triggerAnimation(): void {
+    this.animationState$.next('animationStarted');
   }
 }
