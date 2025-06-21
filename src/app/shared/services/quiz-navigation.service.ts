@@ -142,13 +142,12 @@ export class QuizNavigationService {
     // Ensure quiz is ready
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizService.getCurrentQuiz().pipe(
-        filter((q): q is Quiz => !!q),
+        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
         take(1)
       )
     );
-  
-    if (!currentQuiz?.questions?.length) {
-      console.error('[❌ advanceToNextQuestion] Quiz not ready');
+    if (!currentQuiz) {
+      console.error('[❌ advanceToNextQuestion] Quiz not ready or invalid');
       return;
     }
   
