@@ -118,7 +118,7 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     console.log('[🟢 advanceToNextQuestion called]');
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
@@ -212,15 +212,7 @@ export class QuizNavigationService {
       } catch (navError) {
         console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
       }
-      /* try {
-        console.log('[CALLING] forceNavigateToQuestionIndex with:', nextIndex);
-        navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
-        console.log('[🧭 navigateToQuestion returned]', navSuccess);
-
-        console.log('[🧭 advanceToNextQuestion ➜ navigateToQuestion result]', navSuccess);
-      } catch (navError) {
-        console.error('[❌ navigateToQuestion threw error]', navError);
-      } */
+      
   
       if (navSuccess) {
         console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
@@ -259,7 +251,31 @@ export class QuizNavigationService {
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion called]');
+  
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const nextIndex = currentIndex + 1;
+    const quizId = this.quizService.quizId ?? 'fallback-id';
+  
+    console.log('[🔢 current index]', currentIndex);
+    console.log('[➡️ Calculated next index]', nextIndex);
+  
+    // 👇 ADD THIS LINE to actually navigate
+    const navSuccess = await this.forceNavigateToQuestionIndex(nextIndex);
+  
+    if (navSuccess) {
+      console.log(`[✅ Navigation Success] -> Q${nextIndex}`);
+      this.quizService.setCurrentQuestionIndex(nextIndex);
+      // Any additional post-navigation logic here
+    } else {
+      console.warn(`[❌ Navigation Failed] -> Q${nextIndex}`);
+    }
   }
+  
+
+
   /* public async advanceToNextQuestion(): Promise<void> {
     const nextIndex = this.currentQuestionIndex + 1;
     const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
