@@ -853,8 +853,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.isAnswered,
           this.quizStateService.isLoadingSubject.getValue(),
           this.quizStateService.isNavigatingSubject.getValue()
-        );        
-        this.cdRef.detectChanges(); // force UI sync
+        );
   
         console.log('[🧪 post-setSelectionMessage]', {
           index: this.currentQuestionIndex,
@@ -3206,8 +3205,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
-    const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
-    await this.quizNavigationService.advanceToNextQuestion(quizId);
+    //const quizId = this.quizId ?? this.quizService.quizId ?? 'fallback-id';
+    await this.quizNavigationService.advanceToNextQuestion();
   }  
   
   public async advanceToPreviousQuestion(): Promise<void> {
