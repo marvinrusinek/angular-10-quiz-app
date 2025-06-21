@@ -195,10 +195,10 @@ export class QuizNavigationService {
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
         this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-        this.quizService.quizId = this.quizId; // ✅ force set it here
+        this.quizService.quizId = this.quizId;
         const totalQuestions = await firstValueFrom(
           this.quizService.getTotalQuestionsCount(this.quizId)
-        );        
+        );
 
         //const totalQuestions = currentQuiz.questions.length;
         //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizService.quizId));
