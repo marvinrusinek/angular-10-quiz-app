@@ -194,10 +194,11 @@ export class QuizNavigationService {
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(nextIndex);
 
-        const activeQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+        this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
+        this.quizService.quizId = this.quizId; // ✅ force set it here
         const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(activeQuizId)
-        );
+          this.quizService.getTotalQuestionsCount(this.quizId)
+        );        
 
         //const totalQuestions = currentQuiz.questions.length;
         //const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizService.quizId));
@@ -205,7 +206,7 @@ export class QuizNavigationService {
         console.log('[📊 Progress Debug]', {
           nextIndex,
           totalQuestions,
-          quizId: currentQuiz.id,
+          quizId: currentQuiz.quizId,
           questionCount: currentQuiz.questions.length,
         });
         
