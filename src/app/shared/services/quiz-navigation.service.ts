@@ -330,12 +330,13 @@ export class QuizNavigationService {
   
     try {
       const navSuccess = await this.router.navigateByUrl(routeUrl);
+
       return navSuccess;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }  
+  }
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
