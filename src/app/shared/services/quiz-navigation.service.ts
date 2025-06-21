@@ -857,7 +857,10 @@ export class QuizNavigationService {
     }
   } */
   public async forceNavigateToQuestionIndex(index: number): Promise<boolean> {
-    const quizId = this.quizService.quizId || localStorage.getItem('quizId') || 'fallback-id';
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+
+    const quizId = quizIdFromRoute || fallbackQuizId;
     if (!quizId || quizId === 'fallback-id') {
       console.error('[❌ Invalid quizId – fallback used]', quizId);
     }
