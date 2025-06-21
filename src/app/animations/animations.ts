@@ -15,9 +15,9 @@ export const ChangeRouteAnimation = {
   changeRoute: trigger('changeRoute', [
     transition('* => animationStarted', [
       animate('600ms ease-in-out', keyframes([
-        style({ transform: 'scale(1.0)', opacity: 1, offset: 0 }),
-        style({ transform: 'scale(1.3)', opacity: 0.7, offset: 0.5 }),
-        style({ transform: 'scale(1.0)', opacity: 1, offset: 1 })
+        style({ transform: 'scale(1.0)' }),
+        style({ transform: 'scale(1.3)' }),
+        style({ transform: 'scale(1.0)' })
       ]))      
     ]),
   ])
