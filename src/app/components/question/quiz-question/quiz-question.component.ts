@@ -2739,24 +2739,6 @@ export class QuizQuestionComponent
     }
   }
   
-  /* remove?? private async handleRefreshExplanation(): Promise<string> {
-    console.log('[🔄 handleRefreshExplanation] called');
-  
-    try {
-      const explanationText = await this.fetchAndUpdateExplanationText(this.currentQuestionIndex);
-      console.log('[✅ handleRefreshExplanation] Fetched Explanation:', explanationText);
-  
-      if (explanationText) {
-        await this.emitExplanationIfNeeded(explanationText);
-      }
-  
-      return explanationText;
-    } catch (error) {
-      console.error('[❌ handleRefreshExplanation] Error handling explanation:', error);
-      return '';
-    }
-  } */
-  
   private markAsAnsweredAndShowExplanation(index: number): void {
     this.quizService.setCurrentQuestionIndex(index);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
