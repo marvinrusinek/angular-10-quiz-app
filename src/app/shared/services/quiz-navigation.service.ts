@@ -152,7 +152,7 @@ export class QuizNavigationService {
   
     // Wait for quiz to finish loading
     const currentQuiz: Quiz = await firstValueFrom(this.quizService.getCurrentQuiz().pipe(
-      filter(q => !!q), // Wait until it's not undefined/null
+      filter((q): q is Quiz => !!q),
       take(1)
     ));
   
