@@ -2317,7 +2317,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       options: []
     };
   
-    const createQuestionData = (
+    const createSafeQuestionData = (
       question: QuizQuestion | null,
       options: Option[] | null
     ): { question: QuizQuestion; options: Option[] } => {
@@ -2334,78 +2334,79 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
     };
   
-    this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$.pipe(
-        map(value => {
-          if (value === undefined) {
-            console.warn('nextQuestion$ emitted undefined, defaulting to null');
-            return null;
-          }
-          return value;
-        }),
-        distinctUntilChanged()
-      ),
-      this.quizService.nextOptions$.pipe(
-        map(value => {
-          if (value === undefined) {
-            console.warn('nextOptions$ emitted undefined, defaulting to empty array');
-            return [];
-          }
+    const safeQuestion$ = this.quizService.nextQuestion$.pipe(
+      map(value => {
+        if (value === undefined) {
+          console.warn('[⚠️ nextQuestion$ emitted undefined]');
+          return null;
+        }
+        return value;
+      }),
+      distinctUntilChanged()
+    );
   
-          return Array.isArray(value)
-            ? value.map(option => ({
-                ...option,
-                correct: option.correct ?? false,
-              }))
-            : [];
-        }),
-        distinctUntilChanged()
-      )
-    ]).pipe(
+    const safeOptions$ = this.quizService.nextOptions$.pipe(
+      map(value => {
+        if (value === undefined) {
+          console.warn('[⚠️ nextOptions$ emitted undefined]');
+          return [];
+        }
+        return Array.isArray(value)
+          ? value.map(option => ({
+              ...option,
+              correct: option.correct ?? false,
+            }))
+          : [];
+      }),
+      distinctUntilChanged()
+    );
+  
+    const safePreviousQuestion$ = this.quizService.previousQuestion$.pipe(
+      map(value => {
+        if (value === undefined) {
+          console.warn('[⚠️ previousQuestion$ emitted undefined]');
+          return null;
+        }
+        return value;
+      }),
+      distinctUntilChanged()
+    );
+  
+    const safePreviousOptions$ = this.quizService.previousOptions$.pipe(
+      map(value => {
+        if (value === undefined) {
+          console.warn('[⚠️ previousOptions$ emitted undefined]');
+          return [];
+        }
+        return Array.isArray(value)
+          ? value.map(option => ({
+              ...option,
+              correct: option.correct ?? false,
+            }))
+          : [];
+      }),
+      distinctUntilChanged()
+    );
+  
+    this.combinedQuestionData$ = combineLatest([safeQuestion$, safeOptions$]).pipe(
       switchMap(([nextQuestion, nextOptions]) => {
         if (nextQuestion) {
-          return of(createQuestionData(nextQuestion, nextOptions));
+          return of(createSafeQuestionData(nextQuestion, nextOptions));
         } else {
-          return combineLatest([
-            this.quizService.previousQuestion$.pipe(
-              map(value => {
-                if (value === undefined) {
-                  console.warn('previousQuestion$ emitted undefined, defaulting to null');
-                  return null;
-                }
-                return value;
-              }),
-              distinctUntilChanged()
-            ),
-            this.quizService.previousOptions$.pipe(
-              map(value => {
-                if (value === undefined) {
-                  console.warn('previousOptions$ emitted undefined, defaulting to empty array');
-                  return [];
-                }
-  
-                return Array.isArray(value)
-                  ? value.map(option => ({
-                      ...option,
-                      correct: option.correct ?? false,
-                    }))
-                  : [];
-              }),
-              distinctUntilChanged()
-            )
-          ]).pipe(
-            map(([previousQuestion, previousOptions]) =>
-              createQuestionData(previousQuestion, previousOptions)
+          return combineLatest([safePreviousQuestion$, safePreviousOptions$]).pipe(
+            map(([prevQuestion, prevOptions]) =>
+              createSafeQuestionData(prevQuestion, prevOptions)
             )
           );
         }
       }),
       catchError(error => {
-        console.error('Error in createQuestionData:', error);
-        return of(createQuestionData(null, [])); // fallback with dummy question
+        console.error('[❌ Error in createQuestionData]', error);
+        return of(createSafeQuestionData(null, [])); // fallback
       })
     );
-  }    
+  }
+    
 
   private async getQuestion(): Promise<void | null> {
     try {
