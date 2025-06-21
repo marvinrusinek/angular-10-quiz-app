@@ -342,7 +342,6 @@ export class QuizNavigationService {
     }
   
     try {
-      console.log('[➡️ Navigating to]', routeUrl);
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       return navSuccess;
     } catch (err) {
