@@ -6,8 +6,6 @@ export class ProgressBarService {
   private progressPercentageSubject = new BehaviorSubject<number>(0);
   progress$ = this.progressPercentageSubject.asObservable();
 
-  private hasMarkedQ1Complete = false;
-
   // Method to update the progress
   updateProgress(currentIndex: number, totalQuestions: number): void {
     // If totalQuestions is not valid, default to 0%
