@@ -202,6 +202,8 @@ export class QuizNavigationService {
   }
 
   public async advanceToPreviousQuestion(): Promise<void> {
+    this.animationState$.next('animationStarted');
+
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const prevIndex = currentIndex - 1;
   
@@ -218,11 +220,10 @@ export class QuizNavigationService {
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizService.setIsNavigatingToPrevious(true);
-    this.animationState$.next('animationStarted');
   
     try {
       // Ensure consistent quizId for navigation
-      const quizIdToUse =
+      /* const quizIdToUse =
         this.quizId ||
         this.quizService.quizId ||
         this.activatedRoute.snapshot.paramMap.get('quizId') ||
@@ -231,15 +232,15 @@ export class QuizNavigationService {
       if (!quizIdToUse) {
         console.error('[❌] Cannot navigate — quizId is missing!');
         return;
-      }
+      } */
   
+      this.quizQuestionLoaderService.resetUI();
+
       // Centralized navigation
-      let navSuccess = false;
-      try {
-        navSuccess = await this.navigateToQuestion(prevIndex);
-      } catch (navError) {
-        console.error('[❌ forceNavigateToQuestionIndex threw]', navError);
-      }
+      const navSuccess = await this.navigateToQuestion(prevIndex).catch((navError) => {
+        console.error('[❌ navigateToQuestion error]', navError);
+        return false;
+      });  
   
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(prevIndex);
