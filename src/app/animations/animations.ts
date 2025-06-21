@@ -14,11 +14,6 @@ export const SlideLeftToRightAnimation = {
 export const ChangeRouteAnimation = {
   changeRoute: trigger('changeRoute', [
     transition('* => animationStarted', [
-      /* animate('1s', keyframes([
-        style({transform: 'scale(1.0)'}),
-        style({transform: 'scale(1.3)'}),
-        style({transform: 'scale(1.0)'})
-      ])) */
       animate('600ms ease-in-out', keyframes([
         style({ transform: 'scale(1.0)', offset: 0 }),
         style({ transform: 'scale(1.15)', offset: 0.5 }),

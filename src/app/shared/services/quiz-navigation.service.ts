@@ -116,6 +116,7 @@ export class QuizNavigationService {
 
   public async advanceToNextQuestion(): Promise<void> {
     this.animationState$.next('animationStarted');
+    console.log('[🎞️ Animation Triggered: animationStarted]');
 
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = currentIndex + 1;
