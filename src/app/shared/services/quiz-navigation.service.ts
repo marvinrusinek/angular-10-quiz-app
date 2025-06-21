@@ -64,9 +64,6 @@ export class QuizNavigationService {
 
   private renderResetSubject = new Subject<void>();
   renderReset$ = this.renderResetSubject.asObservable();
-
-  private resetComplete = false;
-  private hasFlushedQ1UI = false;
   
   constructor(
     private answerTrackingService: AnswerTrackingService,
