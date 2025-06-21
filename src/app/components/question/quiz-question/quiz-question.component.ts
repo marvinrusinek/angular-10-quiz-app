@@ -2674,6 +2674,7 @@ export class QuizQuestionComponent
       });
 
       this.explanationTextService.setShouldDisplayExplanation(true);
+      this.explanationTextService.explanationSubject.next(explanationText);
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);

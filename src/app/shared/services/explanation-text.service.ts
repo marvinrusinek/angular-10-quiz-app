@@ -8,7 +8,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
-  private explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
   explanation$ = this.explanationSubject.asObservable().pipe(debounceTime(30));
 
   explanationText$: BehaviorSubject<string | null> = 
