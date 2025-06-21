@@ -1275,10 +1275,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.setCurrentQuestionIndex(index);
 
         // Fetch current quiz using quizId
-        const currentQuiz: Quiz = await firstValueFrom(this.quizService.getCurrentQuiz().pipe(
-          filter(q => !!q && Array.isArray(q.questions) && q.id === quizId),
-          take(1)
-        ));
+        const currentQuiz: Quiz = await firstValueFrom(
+          this.quizDataService.getQuiz(quizId).pipe(
+            filter(q => !!q && Array.isArray(q.questions)),
+            take(1)
+          )
+        );
 
         if (!currentQuiz) {
           console.error('[❌ Failed to fetch quiz with quizId]', quizId);
@@ -1287,9 +1289,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         const totalQuestions = currentQuiz.questions.length;
   
-        const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+        /* const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
         if (!question) {
           console.error('[❌ Failed to fetch question]');
+          return;
+        } */
+        const question = currentQuiz.questions[index];
+        if (!question) {
+          console.error('[❌ Failed to fetch question from quiz]', { index });
           return;
         }
   
