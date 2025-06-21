@@ -186,14 +186,6 @@ export class QuizNavigationService {
         this.quizService.setCurrentQuestionIndex(nextIndex);
   
         // ⏱Update progress bar
-        /* if (!isFirstQuestion) {
-          this.progressBarService.updateProgress(currentIndex, totalQuestions);
-        } else {
-          this.progressBarService.updateProgress(0, 1);
-        } */
-        /* const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(this.quizId)
-        ); */
         this.progressBarService.updateProgress(nextIndex, totalQuestions);
   
         // Reset state
