@@ -139,7 +139,7 @@ export class QuizNavigationService {
       return;
     }
     
-    // Ensure quiz is ready
+    // Ensure quiz data is loaded before navigating
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizService.getCurrentQuiz().pipe(
         filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
@@ -151,6 +151,7 @@ export class QuizNavigationService {
       return;
     }
   
+    // Validate navigation parameters
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
       console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
