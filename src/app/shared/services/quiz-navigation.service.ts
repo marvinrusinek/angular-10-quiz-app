@@ -421,14 +421,6 @@ export class QuizNavigationService {
     this.explanationResetSubject.next();
   }
 
-  private emitRenderReset(): void {
-    this.renderResetSubject.next();
-  }
-  
-  private emitResetUI(): void {
-    this.resetUIForNewQuestionSubject.next();
-  }
-
   emitNavigationToQuestion(question: QuizQuestion, options: Option[]): void {
     this.navigationToQuestionSubject.next({ question, options });
   }
