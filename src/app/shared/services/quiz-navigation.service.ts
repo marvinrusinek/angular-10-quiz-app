@@ -157,21 +157,13 @@ export class QuizNavigationService {
   
     // Validate navigation parameters
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    const quizMatchingId = await firstValueFrom(
-      this.quizDataService.getQuiz(effectiveQuizId).pipe(
-        filter((q): q is Quiz => !!q && q.id === effectiveQuizId),
-        take(1)
-      )
-    );
-    const totalQuestions = quizMatchingId?.questions?.length ?? 0;
-
     if (!effectiveQuizId || isNaN(nextIndex) || nextIndex < 0) {
       console.error('[❌ Invalid navigation parameters]', { nextIndex, effectiveQuizId });
       return;
     }
   
     // Check if already at the last question
-    // const totalQuestions = currentQuiz.questions.length;
+    const totalQuestions = currentQuiz.questions.length;
     if (nextIndex >= totalQuestions) {
       console.warn('[⛔️ Cannot advance — already at last question]');
       return;
