@@ -2577,34 +2577,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // REMOVE!!
   private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
     if (!question) {
-        console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
-        return;
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
+      return;
     }
-
-    console.log(`🔄 [updateQuizUIForNewQuestion] Looking for question:`, question.questionText);
 
     if (!this.selectedQuiz || !this.selectedQuiz.questions) {
-        console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.');
-        return;
+      console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.');
+      return;
     }
 
-    // ✅ Log all quiz questions before searching
+    // Log all quiz questions before searching
     console.log(`📋 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz.questions);
 
     const questionIndex = this.quizService.findQuestionIndex(question);
 
-    console.log(`🔍 [updateQuizUIForNewQuestion] Found question index:`, questionIndex);
-
     if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
-        console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
-        return;
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
+      return;
     }
-
-    console.log(`✅ [updateQuizUIForNewQuestion] Updating UI for question index: ${questionIndex}`);
 
     // Reset UI elements
     this.selectedOption$.next(null);
-    // this.explanationTextService.explanationText$.next('');
   }
 
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
