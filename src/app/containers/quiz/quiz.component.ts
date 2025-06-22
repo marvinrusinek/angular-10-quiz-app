@@ -95,6 +95,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questionData!: QuizQuestion;
 
   currentQuiz: Quiz;
+  currentRouteIndex = 0;
   routeSubscription: Subscription;
   routerSubscription: Subscription;
   questionAndOptionsSubscription: Subscription;
@@ -1261,6 +1262,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const quizId = params.get('quizId') ?? '';
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
+
+        this.currentRouteIndex = index;
+
         this.quizService.setCurrentQuestionIndex(index);
   
         if (!quizId || isNaN(index) || index < 0) {
