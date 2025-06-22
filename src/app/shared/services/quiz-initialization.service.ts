@@ -1255,6 +1255,9 @@ export class QuizInitializationService {
         const currentQuestion =
           currentQuiz.questions[this.currentQuestionIndex];
 
+        // Set the selected quiz so downstream functions like updateQuizUIForNewQuestion() work
+        this.selectedQuiz = currentQuiz;
+
         // Check if the currentQuestion is defined before proceeding
         if (!currentQuestion) {
           console.error(
