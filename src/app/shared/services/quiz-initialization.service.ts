@@ -1276,9 +1276,11 @@ export class QuizInitializationService {
         console.error(`Error retrieving quiz: ${error.message}`);
       },
     });
-  }
+  }  
 
   public updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
+    console.trace('[TRACE] updateQuizUIForNewQuestion called');
+
     if (!question) {
       console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
       return;
