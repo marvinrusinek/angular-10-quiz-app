@@ -158,6 +158,9 @@ export class QuizNavigationService {
     /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
     const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
 
+    /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
+    const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
+
    /*  const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
     const currentIndex = routeParam ? Number(routeParam) - 1 : 0; */
     
@@ -303,7 +306,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -342,7 +345,41 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+    const quizId = quizIdFromRoute || fallbackQuizId;
+  
+    if (!quizId || quizId === 'fallback-id') {
+      console.error('[❌ Invalid quizId – fallback used]', quizId);
+    }
+  
+    const routeUrl = `/question/${quizId}/${index + 1}`;
+    const currentUrl = this.router.url;
+  
+    // Use service's known current index instead of route snapshot
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+  
+    if (currentIndex === index && currentUrl === routeUrl) {
+      console.warn('[⚠️ Already on route – forcing reload]', {
+        currentIndex,
+        index,
+        routeUrl,
+      });
+      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
+    }
+  
+    try {
+      return await this.router.navigateByUrl(routeUrl);
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
