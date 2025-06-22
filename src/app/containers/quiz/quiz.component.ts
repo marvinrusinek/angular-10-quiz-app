@@ -1134,19 +1134,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
   
-        console.log('[🔁 paramMap triggered]', { quizId, index });
-  
         if (!quizId || isNaN(index) || index < 0) {
           console.error('[❌ Invalid route params]', { quizId, indexParam });
           return;
         }
   
-        // Clear dynamic inputs and UI state
-        this.resetComponentState?.();
-        this.optionsToDisplay = [];
-        this.currentQuestion = null;
-  
-        // Update indices before async work
+        // Update indices before async calls
         this.quizId = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId = quizId;
@@ -1159,7 +1152,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               take(1)
             )
           );
-  
           if (!currentQuiz) {
             console.error('[❌ Failed to fetch quiz with quizId]', quizId);
             return;
@@ -1172,27 +1164,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
           }
   
-          const questionLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+          this.currentQuestion = question;
+          this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
+          this.resetComponentState?.();
   
-          if (questionLoaded) {
-            this.currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion(index));
-            this.optionsToDisplay = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-  
-            this.progressBarService.updateProgress(index, totalQuestions);
-            localStorage.setItem('savedQuestionIndex', index.toString());
-  
-            // Re-render dynamic components (if needed)
-            setTimeout(() => {
-              this.injectDynamicComponent?.();
-            }, 0);
-  
-            console.log('[✅ Question loaded from paramMap]', {
-              questionText: this.currentQuestion?.questionText,
-              optionsLength: this.optionsToDisplay?.length
-            });
-          } else {
-            console.error('[❌ Failed to load question for index]', index);
-          }
+          // Progress Bar
+          this.progressBarService.updateProgress(index, totalQuestions);
+          localStorage.setItem('savedQuestionIndex', index.toString());
         } catch (err) {
           console.error('[❌ Error in paramMap subscribe]', err);
         }
