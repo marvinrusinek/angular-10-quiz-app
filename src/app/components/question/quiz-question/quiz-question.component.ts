@@ -532,7 +532,6 @@ export class QuizQuestionComponent
               if (this.dynamicAnswerContainer) {
                 const currentQuestion = this.currentQuestion;
                 const options = this.optionsToDisplay;
-                const currentIndex = this.currentQuestionIndex;
     
                 this.loadDynamicComponent(currentQuestion, options);
                 this.containerInitialized = true;
