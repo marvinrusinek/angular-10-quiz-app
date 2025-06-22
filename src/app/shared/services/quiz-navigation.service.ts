@@ -154,7 +154,11 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.currentQuestionIndex ?? this.quizService.getCurrentQuestionIndex();
+    // const currentIndex = this.currentQuestionIndex ?? this.quizService.getCurrentQuestionIndex();
+    const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    let currentIndex = routeParam ? Number(routeParam) - 1 : 0;
+    if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
+
     const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
@@ -359,7 +363,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -393,7 +397,43 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+    const quizId = quizIdFromRoute || fallbackQuizId;
+  
+    if (!quizId || quizId === 'fallback-id') {
+      console.error('[❌ Invalid quizId – fallback used]', quizId);
+    }
+  
+    const targetUrl = `/question/${quizId}/${index + 1}`;
+    const currentUrl = this.router.url;
+  
+    const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const currentRouteIndex = routeParam ? Number(routeParam) - 1 : -1;
+  
+    // Don't block reload if navigating backwards or index is out of sync
+    if (currentRouteIndex === index && currentUrl === targetUrl) {
+      console.warn('[⚠️ Already on route – forcing reload]', {
+        currentRouteIndex,
+        index,
+        targetUrl,
+      });
+  
+      // Force re-navigation to trigger subscription
+      await this.router.navigateByUrl('/', { skipLocationChange: true });
+      return this.router.navigateByUrl(targetUrl);
+    }
+  
+    try {
+      return await this.router.navigateByUrl(targetUrl);
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   
   
