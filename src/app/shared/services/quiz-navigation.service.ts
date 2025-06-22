@@ -155,26 +155,6 @@ export class QuizNavigationService {
 
   private async navigateWithOffset(offset: number): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-    /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
-    const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
-
-    /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
-    const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
-
-   /*  const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const currentIndex = routeParam ? Number(routeParam) - 1 : 0; */
-    
-
-    //const currentIndex = this.currentQuestionIndex;
-    // Pull current index from the route directly
-    /* const routeIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
-    const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; */
-
-    /* const routeParam = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
-    const currentIndex = !isNaN(routeParam) ? routeParam - 1 : this.quizService.getCurrentQuestionIndex(); */
-
-    /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
-    const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
     const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
