@@ -237,9 +237,11 @@ export class QuizNavigationService {
     }
   } */
   private async navigateWithOffset(offset: number): Promise<void> {
-    // ✅ Use route param to get the freshest index
     const routeIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const currentIndex = routeIndexParam ? Number(routeIndexParam) - 1 : 0;
+    const routeIndex = routeIndexParam ? Number(routeIndexParam) - 1 : null;
+    const serviceIndex = this.quizService.getCurrentQuestionIndex();
+    const currentIndex = !isNaN(routeIndex!) && routeIndex! >= 0 ? routeIndex! : serviceIndex;
+  
     const targetIndex = currentIndex + offset;
   
     // Guard conditions
