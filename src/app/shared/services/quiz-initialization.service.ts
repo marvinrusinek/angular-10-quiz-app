@@ -1177,7 +1177,7 @@ export class QuizInitializationService {
       return;
     }
 
-    const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
+    const questionIndex = this.quizService.findQuestionIndex(question);
     if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
       console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
