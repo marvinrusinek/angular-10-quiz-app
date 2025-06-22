@@ -2406,7 +2406,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
-  private subscribeToCurrentQuestion(): void {
+  public subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable: Observable<QuizQuestion | null> = merge(
       this.quizService.getCurrentQuestionObservable().pipe(
         retry(2),
@@ -2419,6 +2419,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         })
       ),
       this.quizStateService.currentQuestion$
+    ).pipe(
+      map((val) => val as QuizQuestion | null) // explicitly cast to resolve merge typing ambiguity
     );
   
     combinedQuestionObservable
