@@ -2566,7 +2566,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         // Proceed to update the UI for the new question if all checks pass
-        this.updateQuizUIForNewQuestion(currentQuestion);
+        this.quizInitializationService.updateQuizUIForNewQuestion(currentQuestion);
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
