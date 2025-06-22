@@ -2591,7 +2591,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // ✅ Log all quiz questions before searching
     console.log(`📋 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz.questions);
 
-    const questionIndex = this.quizService.findQuestionIndex(this.currentQuestion);
+    const questionIndex = this.quizService.findQuestionIndex(question);
 
     console.log(`🔍 [updateQuizUIForNewQuestion] Found question index:`, questionIndex);
 
