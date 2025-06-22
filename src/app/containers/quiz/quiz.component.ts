@@ -3776,4 +3776,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   triggerAnimation(): void {
     this.animationState$.next('animationStarted');
   }
+
+  private syncQuestionAndOptionsDisplay(): void {
+    if (
+      this.currentQuestion &&
+      Array.isArray(this.optionsToDisplay) &&
+      this.optionsToDisplay.length > 0
+    ) {
+      this.quizQuestionComponent.renderReady = true;
+      this.cdRef.detectChanges();
+      console.log('[✅ Rendered Q&A together]');
+    } else {
+      console.warn('[⏳ Waiting for both question and options to be ready]');
+    }
+  }  
 }
