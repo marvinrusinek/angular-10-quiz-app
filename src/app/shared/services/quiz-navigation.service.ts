@@ -241,20 +241,35 @@ export class QuizNavigationService {
       }
     }
   }
-
   
-
   public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
-
+  
     const quizId = quizIdFromRoute || fallbackQuizId;
     if (!quizId || quizId === 'fallback-id') {
       console.error('[❌ Invalid quizId – fallback used]', quizId);
     }
-
+  
     const routeUrl = `/question/${quizId}/${index + 1}`;
     const currentUrl = this.router.url;
+  
+    const currentRouteIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
+    const currentQuizId = this.activatedRoute.snapshot.paramMap.get('quizId');
+  
+    // Param-based route match check
+    if (
+      currentRouteIndex === index + 1 &&
+      currentQuizId === quizId
+    ) {
+      console.warn('[⚠️ Already on target route]', {
+        currentRouteIndex,
+        expectedIndex: index + 1,
+        currentQuizId,
+        expectedQuizId: quizId,
+      });
+      return true;
+    }
   
     console.warn('[DEBUG] forceNavigateToQuestionIndex', {
       quizId,
@@ -263,6 +278,7 @@ export class QuizNavigationService {
       currentUrl
     });
   
+    // Fallback URL-based check (if needed)
     if (currentUrl === routeUrl) {
       console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
       return this.router.navigateByUrl(routeUrl);
@@ -270,13 +286,12 @@ export class QuizNavigationService {
   
     try {
       const navSuccess = await this.router.navigateByUrl(routeUrl);
-
       return navSuccess;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }
+  }  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
