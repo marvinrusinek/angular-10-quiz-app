@@ -394,6 +394,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('[🧩 Q&A ready to render]', { question, options });
         this.currentQuestion = question;
         this.optionsToDisplay = options;
+        this.quizQuestionComponent.renderReady = true;
         this.cdRef.markForCheck(); // update UI
       });
   
@@ -1835,7 +1836,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       const transformedData: QuizQuestion = {
         questionText: rawData.questionText ?? '',
-        options: [],
+        options: rawData.currentOptions ?? [],
         explanation: explanation ?? '',
         type: this.quizDataService.questionType as QuestionType,
       };
