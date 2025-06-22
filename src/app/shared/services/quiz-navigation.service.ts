@@ -160,8 +160,8 @@ export class QuizNavigationService {
     //const currentIndex = this.currentQuestionIndex;
     // Pull current index from the route directly
     /* const routeIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
-    const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1;
-    const targetIndex = currentIndex + offset; */
+    const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; */
+    const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
     if (targetIndex < 0) {
