@@ -154,14 +154,11 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    // Extract current index from the actual URL path
-    const match = this.router.url.match(/\/question\/[^/]+\/(\d+)/);
-    let currentIndex = match ? parseInt(match[1], 10) - 1 : 0;
-
-    if (isNaN(currentIndex) || currentIndex < 0) {
-      console.warn('[⚠️ Defaulting currentIndex to 0]');
-      currentIndex = 0;
-    }
+    const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
+    let currentIndex = routeParams
+      ? parseInt(routeParams.get('questionIndex') ?? '', 10) - 1
+      : 0;
+    if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
 
     const targetIndex = currentIndex + offset;
 
