@@ -208,7 +208,7 @@ export class RenderStateService {
       )
       .subscribe();
   } */
-  public setupRenderGateSync(): void {
+  /* public setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
       return;
@@ -245,6 +245,44 @@ export class RenderStateService {
           this.renderGateSubject.next(true);
         }),
         catchError(err => {
+          console.error('[❌ RenderGateSync Error]', err);
+          return of(null);
+        })
+      )
+      .subscribe();
+  } */
+  public setupRenderGateSync(): void {
+    combineLatest([
+      this.quizService.currentQuestionIndex$,
+      this.quizService.questionData$,
+      this.optionsToDisplay$
+    ])
+      .pipe(
+        filter(([index, question, options]) => {
+          const valid =
+            !!question &&
+            Array.isArray(options) &&
+            options.length > 0 &&
+            this.quizService.findQuestionIndex(question) === index;
+  
+          if (!valid) {
+            console.warn('[🕒 Waiting for question/options sync]', {
+              index,
+              questionText: question?.questionText,
+              optionsLength: options?.length
+            });
+          }
+  
+          return valid;
+        }),
+        take(1), // only fire once per question load
+        tap(([index, question, options]) => {
+          console.log('[✅ RenderGate: All data ready]', { index, question, options });
+  
+          this.combinedQuestionDataSubject.next({ question, options });
+          this.renderGateSubject.next(true);
+        }),
+        catchError((err) => {
           console.error('[❌ RenderGateSync Error]', err);
           return of(null);
         })
