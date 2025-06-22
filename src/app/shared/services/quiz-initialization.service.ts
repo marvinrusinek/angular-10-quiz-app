@@ -1267,7 +1267,13 @@ export class QuizInitializationService {
         }
 
         // Proceed to update the UI for the new question if all checks pass
-        this.updateQuizUIForNewQuestion(currentQuestion);
+        this.selectedQuiz = currentQuiz;
+
+        if (this.selectedQuiz && Array.isArray(this.selectedQuiz.questions)) {
+          this.updateQuizUIForNewQuestion(currentQuestion);
+        } else {
+          console.error('[🚨 Skipping UI update – selectedQuiz or questions invalid]');
+        }
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
