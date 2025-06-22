@@ -1261,6 +1261,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const quizId = params.get('quizId') ?? '';
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
+        this.quizService.setCurrentQuestionIndex(index);
   
         if (!quizId || isNaN(index) || index < 0) {
           console.error('[❌ Invalid route params]', { quizId, indexParam });
@@ -1269,13 +1270,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         console.log('[🔁 paramMap triggered]', { quizId, index });
   
-        // ✅ Update indices BEFORE async calls
+        // Update indices BEFORE async calls
         this.quizId = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId = quizId;
-        this.quizService.setCurrentQuestionIndex(index);
   
-        // 🧪 Debug index update
+        // Debug index update
         console.log('[✅ Index updated before async]', index);
   
         try {
