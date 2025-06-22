@@ -2524,11 +2524,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
       next: (currentQuiz) => {
+        console.log('[✅ QUIZ LOADED]', currentQuiz);
+  
+        // Validate the quiz object
         if (!currentQuiz) {
           console.error(`Quiz not found: Quiz ID ${this.quizId}`);
           return;
         }
-
+  
         // Check if the questions property exists, is an array, and is not empty
         if (
           !Array.isArray(currentQuiz.questions) ||
@@ -2539,7 +2542,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           );
           return;
         }
-
+  
+        // Assign selectedQuiz before proceeding (must be done before update)
+        this.selectedQuiz = currentQuiz;
+        console.log('[🧪 selectedQuiz.questions]', this.selectedQuiz.questions);
+  
         // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
         if (
           !this.quizService.isValidQuestionIndex(
@@ -2552,10 +2559,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           );
           return;
         }
-
+  
         // Retrieve the current question using the valid index
         const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
-
+  
         // Check if the currentQuestion is defined before proceeding
         if (!currentQuestion) {
           console.error(
@@ -2563,16 +2570,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           );
           return;
         }
-
+  
         // Proceed to update the UI for the new question if all checks pass
-        this.selectedQuiz = currentQuiz;
         this.quizInitializationService.updateQuizUIForNewQuestion(currentQuestion);
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
       },
     });
-  }
+  }  
 
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
     // Reset `questionTextLoaded` to `false` before loading a new question
