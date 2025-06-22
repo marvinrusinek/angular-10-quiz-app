@@ -251,7 +251,7 @@ export class RenderStateService {
       )
       .subscribe();
   } */
-  public setupRenderGateSync(): void {
+  /* public setupRenderGateSync(): void {
     combineLatest([
       this.quizService.currentQuestionIndex$,
       this.quizService.questionData$,
@@ -288,6 +288,41 @@ export class RenderStateService {
         })
       )
       .subscribe();
+  } */
+  public setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$.pipe(
+      filter(Boolean),
+      take(1),
+      switchMap(() =>
+        combineLatest([
+          this.quizService.currentQuestionIndex$,
+          this.quizService.questionData$,
+          this.optionsToDisplay$
+        ]).pipe(
+          filter(([index, question, options]) =>
+            !!question &&
+            Array.isArray(options) &&
+            options.length > 0 &&
+            question.questionIndex === index
+          ),
+          take(1)
+        )
+      ),
+      tap(([index, question, options]) => {
+        console.log('[✅ RenderGate Triggered]', { index, question, options });
+        this.combinedQuestionDataSubject.next({ question, options });
+        this.renderGateSubject.next(true);
+      }),
+      catchError((err) => {
+        console.error('[❌ RenderGateSync Error]', err);
+        return of(null);
+      })
+    ).subscribe();
   }
   
   
