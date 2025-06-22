@@ -68,8 +68,6 @@ export class QuizNavigationService {
     private activatedRoute: ActivatedRoute, 
     private router: Router
   ) {
-    // this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId') ?? '';
-
     this.isButtonEnabled$ = this.nextButtonStateService.isButtonEnabled$;
   }
 
