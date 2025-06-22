@@ -325,9 +325,6 @@ export class RenderStateService {
     ).subscribe();
     
   }
-  
-  
-  
 
   tryRenderGate(): void {  
     if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
