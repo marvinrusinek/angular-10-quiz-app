@@ -111,7 +111,7 @@ export class RenderStateService {
       })
     ).subscribe();
   } */
-  public setupRenderGateSync(): void {
+  /* public setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
       return;
@@ -158,7 +158,100 @@ export class RenderStateService {
         })
       )
       .subscribe();
+  } */
+  /* public setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$
+      .pipe(
+        filter(Boolean), // Wait until renderReady is true
+        take(1),
+        switchMap(() => {
+          console.log('[🚦 Waiting for question + options to sync]');
+          return combineLatest([
+            this.quizService.currentQuestionIndex$,
+            this.quizService.questionData$,
+            this.optionsToDisplay$
+          ]).pipe(
+            // filter(([index, question, options]) => {
+              const ready =
+                !!question &&
+                Array.isArray(options) &&
+                options.length > 0 &&
+                question.questionIndex === index;
+  
+              if (!ready) {
+                console.log('[🕓 Not ready yet]', { index, questionIndex: question?.questionIndex, options });
+              }
+  
+              return ready;
+            //}),
+            // Remove index strict match for debugging
+            filter(([index, question, options]) =>
+            !!question && Array.isArray(options) && options.length > 0
+            ),
+            take(1)
+          );
+        }),
+        tap(([index, question, options]) => {
+          console.log('[✅ Ready: emitting combined data]', { index, question, options });
+          this.combinedQuestionDataSubject.next({ question, options });
+          this.renderGateSubject.next(true);
+        }),
+        catchError((err) => {
+          console.error('[❌ setupRenderGateSync error]', err);
+          return of(null);
+        })
+      )
+      .subscribe();
+  } */
+  public setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$
+      .pipe(
+        filter(Boolean),
+        take(1),
+        switchMap(() =>
+          combineLatest([
+            this.quizService.currentQuestionIndex$,
+            this.quizService.questionData$,
+            this.optionsToDisplay$
+          ]).pipe(
+            filter(([index, question, options]) => {
+              const isSynced = !!question &&
+                Array.isArray(options) &&
+                options.length > 0 &&
+                index === this.quizService.findQuestionIndex(question);
+  
+              if (!isSynced) {
+                console.warn('[⏳ Waiting for sync]', { index, question });
+              }
+  
+              return isSynced;
+            }),
+            take(1)
+          )
+        ),
+        tap(([index, question, options]) => {
+          console.log('[✅ RenderGate Triggered]', { index, question, options });
+          this.combinedQuestionDataSubject.next({ question, options });
+          this.renderGateSubject.next(true);
+        }),
+        catchError(err => {
+          console.error('[❌ RenderGateSync Error]', err);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
+  
   
   
 
