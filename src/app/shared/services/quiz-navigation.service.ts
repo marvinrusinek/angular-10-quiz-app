@@ -155,40 +155,6 @@ export class QuizNavigationService {
     }
   }
 
-  public async navigateToQuestion(index: number): Promise<boolean> {
-    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
-    const fallbackQuizId = localStorage.getItem('quizId');
-
-    const quizId = quizIdFromRoute || fallbackQuizId;
-    if (!quizId || quizId === 'fallback-id') {
-      console.error('[❌ Invalid quizId – fallback used]', quizId);
-    }
-
-    const routeUrl = `/question/${quizId}/${index + 1}`;
-    const currentUrl = this.router.url;
-  
-    console.warn('[DEBUG] forceNavigateToQuestionIndex', {
-      quizId,
-      index,
-      routeUrl,
-      currentUrl
-    });
-  
-    if (currentUrl === routeUrl) {
-      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
-      return this.router.navigateByUrl(routeUrl);
-    }
-  
-    try {
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
-
-      return navSuccess;
-    } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
-    }
-  }
-
   private async navigateWithOffset(offset: number): Promise<void> {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const targetIndex = currentIndex + offset;
@@ -268,6 +234,40 @@ export class QuizNavigationService {
       if (offset < 0) {
         this.quizService.setIsNavigatingToPrevious(false);
       }
+    }
+  }
+
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+
+    const quizId = quizIdFromRoute || fallbackQuizId;
+    if (!quizId || quizId === 'fallback-id') {
+      console.error('[❌ Invalid quizId – fallback used]', quizId);
+    }
+
+    const routeUrl = `/question/${quizId}/${index + 1}`;
+    const currentUrl = this.router.url;
+  
+    console.warn('[DEBUG] forceNavigateToQuestionIndex', {
+      quizId,
+      index,
+      routeUrl,
+      currentUrl
+    });
+  
+    if (currentUrl === routeUrl) {
+      console.warn(`[⚠️ Already on route: ${routeUrl}] Forcing reload`);
+      return this.router.navigateByUrl(routeUrl);
+    }
+  
+    try {
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+
+      return navSuccess;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
     }
   }
   
