@@ -162,10 +162,8 @@ export class QuizNavigationService {
     /* const routeIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
     const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; */
 
-    const routeIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    const currentIndex = !isNaN(Number(routeIndexParam))
-      ? Number(routeIndexParam) - 1
-      : this.quizService.getCurrentQuestionIndex();
+    const routeParam = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
+    const currentIndex = !isNaN(routeParam) ? routeParam - 1 : this.quizService.getCurrentQuestionIndex();
 
     /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
     const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
