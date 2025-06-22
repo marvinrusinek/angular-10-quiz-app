@@ -1027,7 +1027,7 @@ export class QuizQuestionComponent
             this.applyOptionFeedback(previouslySelectedOption);
           } else {
             console.log(
-              '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.'
+              '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.mmm'
             );
           }
         }, 50); // extra delay ensures selections are fully restored before applying feedback
