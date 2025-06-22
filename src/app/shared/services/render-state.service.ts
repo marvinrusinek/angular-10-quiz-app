@@ -76,7 +76,7 @@ export class RenderStateService {
       })
     ).subscribe();
   } */
-  public setupRenderGateSync(): void {
+  /* public setupRenderGateSync(): void {
     if (!this.quizQuestionComponent?.renderReady$) {
       console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
       return;
@@ -110,6 +110,54 @@ export class RenderStateService {
         return of(null); // swallow and recover
       })
     ).subscribe();
+  } */
+  public setupRenderGateSync(): void {
+    if (!this.quizQuestionComponent?.renderReady$) {
+      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
+      return;
+    }
+  
+    this.quizQuestionComponent.renderReady$
+      .pipe(
+        filter(Boolean),
+        take(1), // 🛑 Only once per question load
+        switchMap(() =>
+          combineLatest([
+            this.quizService.currentQuestionIndex$,
+            this.quizService.questionData$,
+            this.optionsToDisplay$
+          ]).pipe(
+            filter(([index, question, options]) => {
+              const isValid =
+                !!question &&
+                Array.isArray(options) &&
+                options.length > 0 &&
+                question.questionIndex === index;
+  
+              if (!isValid) {
+                console.warn('[⏳ Waiting for full sync]', { index, question, options });
+              }
+  
+              return isValid;
+            }),
+            take(1)
+          )
+        ),
+        tap(([index, question, options]) => {
+          console.log('[✅ RenderGate Triggered]', { index, question, options });
+  
+          // Emit both question + options together for subscribers
+          this.combinedQuestionDataSubject.next({ question, options });
+  
+          // Let listeners know we're ready to render
+          this.renderGateSubject.next(true);
+        }),
+        catchError(err => {
+          console.error('[❌ RenderGateSync Error]', err);
+          return of(null); // swallow error and continue
+        })
+      )
+      .subscribe();
   }
   
   
