@@ -1270,7 +1270,9 @@ export class QuizInitializationService {
         }
   
         // Proceed to update the UI for the new question if all checks pass
-        this.updateQuizUIForNewQuestion(currentQuestion);
+        setTimeout(() => {
+          this.updateQuizUIForNewQuestion(currentQuestion);
+        }, 0);
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
@@ -1286,13 +1288,8 @@ export class QuizInitializationService {
       return;
     }
   
-    if (!this.selectedQuiz) {
-      console.warn('⚠️ [updateQuizUIForNewQuestion] selectedQuiz is still undefined. Skipping...');
-      return;
-    }
-  
-    if (!Array.isArray(this.selectedQuiz.questions)) {
-      console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz.questions is not a valid array:', this.selectedQuiz.questions);
+    if (!this.selectedQuiz || !Array.isArray(this.selectedQuiz.questions)) {
+      console.warn('🚧 selectedQuiz or questions not ready yet – skipping UI update');
       return;
     }
   
