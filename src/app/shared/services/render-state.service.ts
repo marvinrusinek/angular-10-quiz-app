@@ -298,8 +298,8 @@ export class RenderStateService {
     this.quizQuestionComponent.renderReady$.pipe(
       filter(Boolean),
       take(1),
-      switchMap(() =>
-        combineLatest([
+      switchMap(() => {
+        return combineLatest([
           this.quizService.currentQuestionIndex$,
           this.quizService.questionData$,
           this.optionsToDisplay$
@@ -311,18 +311,19 @@ export class RenderStateService {
             question.questionIndex === index
           ),
           take(1)
-        )
-      ),
+        );
+      }),
       tap(([index, question, options]) => {
         console.log('[✅ RenderGate Triggered]', { index, question, options });
         this.combinedQuestionDataSubject.next({ question, options });
-        this.renderGateSubject.next(true);
+        this.renderGateSubject.next(true); // ✅ This tells the UI to render
       }),
-      catchError((err) => {
+      catchError(err => {
         console.error('[❌ RenderGateSync Error]', err);
         return of(null);
       })
     ).subscribe();
+    
   }
   
   
