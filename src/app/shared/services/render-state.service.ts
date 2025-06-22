@@ -316,7 +316,7 @@ export class RenderStateService {
       tap(([index, question, options]) => {
         console.log('[✅ RenderGate Triggered]', { index, question, options });
         this.combinedQuestionDataSubject.next({ question, options });
-        this.renderGateSubject.next(true); // ✅ This tells the UI to render
+        this.renderGateSubject.next(true); // this tells the UI to render
       }),
       catchError(err => {
         console.error('[❌ RenderGateSync Error]', err);
