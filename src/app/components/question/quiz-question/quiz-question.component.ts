@@ -546,8 +546,6 @@ export class QuizQuestionComponent
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('[🔄 ngOnChanges] renderReady:', this.renderReady, 'finalRenderReady:', this.finalRenderReady);
-  
     if (changes.questionPayload && this.questionPayload) {
       const serialized = JSON.stringify(this.questionPayload);
   
