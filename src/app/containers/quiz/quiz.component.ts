@@ -61,7 +61,6 @@ export interface LoadedQuestionData {
   providers: [QuizService, QuizDataService, UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
-  animationState$: BehaviorSubject<AnimationState> = new BehaviorSubject('none');
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
@@ -205,7 +204,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   shouldDisplayCorrectAnswers = false;
   shouldRenderChild = false;
 
-  animationState$ = new BehaviorSubject<AnimationState>('none');
+  animationState$: BehaviorSubject<AnimationState> = new BehaviorSubject('none');
   unsubscribe$ = new Subject<void>();
   private destroy$ = new Subject<void>();
   audioAvailable = true;
