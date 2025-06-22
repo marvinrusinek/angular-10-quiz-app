@@ -383,19 +383,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    // Assign question + options together when ready
+    this.combinedQuestionData$
+      .pipe(
+        filter((data): data is { question: QuizQuestion; options: Option[] } =>
+          !!data?.question && Array.isArray(data.options) && data.options.length > 0
+        )
+      )
+      .subscribe(({ question, options }) => {
+        console.log('[🧩 Q&A ready to render]', { question, options });
+        this.currentQuestion = question;
+        this.optionsToDisplay = options;
+        this.cdRef.markForCheck(); // update UI
+      });
+  
     this.setupQuiz();
     this.subscribeToRouteParams();
-
     this.registerVisibilityChangeHandler();
     this.initializeDisplayVariables();
-    
+  
     this.quizInitializationService.initializeAnswerSync(
       (enabled) => (this.isNextButtonEnabled = enabled),
       (answered) => (this.isCurrentQuestionAnswered = answered),
       (message) => (this.selectionMessage = message),
       this.destroy$
     );
-    
+  
     this.initializeTooltip();
     this.resetStateHandlers();
     this.initializeExplanationText();
