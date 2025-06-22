@@ -611,6 +611,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.optionsToDisplay = [...updatedOptions];
         this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
+        this.syncQuestionAndOptionsDisplay();
   
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
