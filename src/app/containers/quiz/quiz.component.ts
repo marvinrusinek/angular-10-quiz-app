@@ -386,16 +386,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Assign question + options together when ready
     this.combinedQuestionData$
       .pipe(
-        filter((data): data is { question: QuizQuestion; options: Option[] } =>
-          !!data?.question && Array.isArray(data.options) && data.options.length > 0
-        )
+        filter(
+          (data): data is { question: QuizQuestion; options: Option[] } =>
+            !!data?.question &&
+            Array.isArray(data.options) &&
+            data.options.length > 0
+        ),
+        take(1) // only take the first fully ready pair per question load
       )
       .subscribe(({ question, options }) => {
         console.log('[🧩 Q&A ready to render]', { question, options });
+
+        // Set local fields only once both question + options are ready
         this.currentQuestion = question;
         this.optionsToDisplay = options;
-        this.quizQuestionComponent.renderReady = true;
-        this.cdRef.markForCheck(); // update UI
+
+        // Mark view for change detection only when both are set
+        this.cdRef.markForCheck();
       });
   
     this.setupQuiz();
