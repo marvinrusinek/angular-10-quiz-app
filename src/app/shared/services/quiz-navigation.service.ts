@@ -156,9 +156,17 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    // const currentIndex = this.quizService.getCurrentQuestionIndex();
     //const currentIndex = this.currentQuestionIndex;
+    const routeIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
+    const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1;
     const targetIndex = currentIndex + offset;
+
+    // Block if going out of bounds
+    if (targetIndex < 0) {
+      console.warn('[⛔] Already at first question, cannot go back.');
+      return;
+    }
   
     // Guard conditions
     const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
