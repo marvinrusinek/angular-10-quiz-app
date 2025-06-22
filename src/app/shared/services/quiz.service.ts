@@ -268,7 +268,7 @@ export class QuizService implements OnDestroy {
         Array.isArray(selectedQuiz.questions) &&
         selectedQuiz.questions.length > 0
       ) {
-        this.questions = [...selectedQuiz.questions]; // Create a new array to avoid reference issues
+        this.questions = [...selectedQuiz.questions]; // create a new array to avoid reference issues
       } else {
         console.error(
           `Selected quiz (ID: ${this.quizId}) does not have a valid questions array:`,
