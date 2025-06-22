@@ -326,7 +326,7 @@ export class QuizNavigationService {
       return false;
     }
   } */
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -358,7 +358,43 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+    const quizId = quizIdFromRoute || fallbackQuizId;
+  
+    if (!quizId || quizId === 'fallback-id') {
+      console.error('[❌ Invalid quizId – fallback used]', quizId);
+    }
+  
+    const routeUrl = `/question/${quizId}/${index + 1}`;
+    const currentUrl = this.router.url;
+  
+    const currentRouteIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
+    const currentServiceIndex = this.quizService.getCurrentQuestionIndex();
+  
+    // Only force reload if both indices match
+    if (currentRouteIndex === index && currentServiceIndex === index && currentUrl === routeUrl) {
+      console.warn('[⚠️ Already on target question – forcing reload]', {
+        currentRouteIndex,
+        serviceIndex: currentServiceIndex,
+        targetIndex: index,
+      });
+  
+      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
+    }
+  
+    try {
+      return await this.router.navigateByUrl(routeUrl);
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
   }
+  
   
   
   public async resetUIAndNavigate(index: number): Promise<void> {
