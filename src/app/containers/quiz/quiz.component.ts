@@ -235,6 +235,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private hasUserClickedNext = false;
 
+  qaToDisplay: { question: QuizQuestion; options: Option[] } | null = null;
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
@@ -397,9 +399,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe(({ question, options }) => {
         console.log('[🧩 Q&A ready to render]', { question, options });
 
-        // Set local fields only once both question + options are ready
-        this.currentQuestion = question;
-        this.optionsToDisplay = options;
+        // Set a single composite object
+        this.qaToDisplay = { question, options };
 
         // Mark view for change detection only when both are set
         this.cdRef.markForCheck();
