@@ -106,88 +106,6 @@ export class QuizNavigationService {
     );
   }
 
-  private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
-    const targetIndex = currentIndex + offset;
-  
-    // Guard conditions
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
-    const isLoading = this.quizStateService.isLoadingSubject.getValue();
-    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
-      console.warn('[🚫 Navigation blocked]', {
-        isEnabled,
-        isAnswered,
-        isLoading,
-        isNavigating,
-      });
-      return;
-    }
-  
-    if (targetIndex < 0) {
-      console.warn('[⛔] Already at first question, cannot go back.');
-      return;
-    }
-  
-    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    console.log('[🧩 effectiveQuizId]', effectiveQuizId);
-  
-    const currentQuiz: Quiz = await firstValueFrom(
-      this.quizService.getCurrentQuiz().pipe(
-        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
-        take(1)
-      )
-    );
-  
-    if (!effectiveQuizId || !currentQuiz) {
-      console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
-      return;
-    }
-  
-    this.isNavigating = true;
-    this.quizStateService.setNavigating(true);
-    this.quizStateService.setLoading(true);
-  
-    if (offset < 0) {
-      this.quizService.setIsNavigatingToPrevious(true);
-    }
-  
-    try {
-      this.quizQuestionLoaderService.resetUI();
-  
-      const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
-        console.error('[❌ navigateToQuestion error]', err);
-        return false;
-      });
-  
-      if (navSuccess) {
-        this.quizService.setCurrentQuestionIndex(targetIndex);
-        this.currentQuestionIndex = targetIndex;
-  
-        this.selectedOptionService.setAnswered(false);
-        this.quizStateService.setAnswered(false);
-  
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-      } else {
-        console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
-      }
-    } catch (err) {
-      console.error('[❌ navigateWithOffset error]', err);
-    } finally {
-      this.isNavigating = false;
-      this.quizStateService.setNavigating(false);
-      this.quizStateService.setLoading(false);
-  
-      if (offset < 0) {
-        this.quizService.setIsNavigatingToPrevious(false);
-      }
-    }
-  }
-
   public async advanceToNextQuestion(): Promise<void> {
     await this.navigateWithOffset(1);
   }
@@ -268,6 +186,88 @@ export class QuizNavigationService {
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
+    }
+  }
+
+  private async navigateWithOffset(offset: number): Promise<void> {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const targetIndex = currentIndex + offset;
+  
+    // Guard conditions
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
+    const isLoading = this.quizStateService.isLoadingSubject.getValue();
+    const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+  
+    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
+      console.warn('[🚫 Navigation blocked]', {
+        isEnabled,
+        isAnswered,
+        isLoading,
+        isNavigating,
+      });
+      return;
+    }
+  
+    if (targetIndex < 0) {
+      console.warn('[⛔] Already at first question, cannot go back.');
+      return;
+    }
+  
+    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    console.log('[🧩 effectiveQuizId]', effectiveQuizId);
+  
+    const currentQuiz: Quiz = await firstValueFrom(
+      this.quizService.getCurrentQuiz().pipe(
+        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
+        take(1)
+      )
+    );
+  
+    if (!effectiveQuizId || !currentQuiz) {
+      console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
+      return;
+    }
+  
+    this.isNavigating = true;
+    this.quizStateService.setNavigating(true);
+    this.quizStateService.setLoading(true);
+  
+    if (offset < 0) {
+      this.quizService.setIsNavigatingToPrevious(true);
+    }
+  
+    try {
+      this.quizQuestionLoaderService.resetUI();
+  
+      const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
+        console.error('[❌ navigateToQuestion error]', err);
+        return false;
+      });
+  
+      if (navSuccess) {
+        this.quizService.setCurrentQuestionIndex(targetIndex);
+        this.currentQuestionIndex = targetIndex;
+  
+        this.selectedOptionService.setAnswered(false);
+        this.quizStateService.setAnswered(false);
+  
+        this.notifyNavigationSuccess();
+        this.notifyNavigatingBackwards();
+        this.notifyResetExplanation();
+      } else {
+        console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
+      }
+    } catch (err) {
+      console.error('[❌ navigateWithOffset error]', err);
+    } finally {
+      this.isNavigating = false;
+      this.quizStateService.setNavigating(false);
+      this.quizStateService.setLoading(false);
+  
+      if (offset < 0) {
+        this.quizService.setIsNavigatingToPrevious(false);
+      }
     }
   }
   
