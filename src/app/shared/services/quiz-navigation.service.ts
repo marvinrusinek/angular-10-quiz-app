@@ -156,7 +156,8 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    // const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const currentIndex = this.currentQuestionIndex;
     const targetIndex = currentIndex + offset;
   
     // Guard conditions
