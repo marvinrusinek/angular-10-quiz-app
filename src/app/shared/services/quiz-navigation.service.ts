@@ -154,26 +154,16 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    //let currentIndex = this.currentQuestionIndex ?? this.quizService.getCurrentQuestionIndex();
-    //if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
-
-    // 🚨 Use route param to avoid stale index bugs
-    /* const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
-    let currentIndex = routeParam ? Number(routeParam) - 1 : 0;
-
-    if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0; */
     // Extract current index from the actual URL path
-  const match = this.router.url.match(/\/question\/[^/]+\/(\d+)/);
-  let currentIndex = match ? parseInt(match[1], 10) - 1 : 0;
+    const match = this.router.url.match(/\/question\/[^/]+\/(\d+)/);
+    let currentIndex = match ? parseInt(match[1], 10) - 1 : 0;
 
-  if (isNaN(currentIndex) || currentIndex < 0) {
-    console.warn('[⚠️ Defaulting currentIndex to 0]');
-    currentIndex = 0;
-  }
+    if (isNaN(currentIndex) || currentIndex < 0) {
+      console.warn('[⚠️ Defaulting currentIndex to 0]');
+      currentIndex = 0;
+    }
 
     const targetIndex = currentIndex + offset;
-
-    // const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
     if (targetIndex < 0) {
