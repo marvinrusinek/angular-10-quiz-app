@@ -239,6 +239,8 @@ export class QuizInitializationService {
         })
       ),
       this.quizStateService.currentQuestion$
+    ).pipe(
+      map((val) => val as QuizQuestion | null) // cast to resolve merge typing ambiguity
     );
 
     combinedQuestionObservable
