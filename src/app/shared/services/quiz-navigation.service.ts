@@ -347,10 +347,6 @@ export class QuizNavigationService {
     this.navigationToQuestionSubject.next({ question, options });
   }
 
-  public setQuizId(id: string): void {
-    this.quizId = id;
-  }
-
   private getQuizId(): string | null {
     return this.quizId || null;
   }  
