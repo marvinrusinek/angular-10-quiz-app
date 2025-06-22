@@ -349,5 +349,5 @@ export class QuizNavigationService {
 
   private getQuizId(): string | null {
     return this.quizId || null;
-  }  
+  }
 }
