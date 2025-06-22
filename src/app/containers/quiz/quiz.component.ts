@@ -2574,32 +2574,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
-  // REMOVE!!
-  private updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
-    if (!question) {
-      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
-      return;
-    }
-
-    if (!this.selectedQuiz || !this.selectedQuiz.questions) {
-      console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.');
-      return;
-    }
-
-    // Log all quiz questions before searching
-    console.log(`📋 [updateQuizUIForNewQuestion] Available questions in selectedQuiz:`, this.selectedQuiz.questions);
-
-    const questionIndex = this.quizService.findQuestionIndex(question);
-
-    if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
-      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
-      return;
-    }
-
-    // Reset UI elements
-    this.selectedOption$.next(null);
-  }
-
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
     // Reset `questionTextLoaded` to `false` before loading a new question
     this.questionTextLoaded = false;
