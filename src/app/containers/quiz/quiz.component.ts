@@ -1269,39 +1269,44 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         console.log('[🔁 paramMap triggered]', { quizId, index });
   
+        // ✅ Update indices BEFORE async calls
         this.quizId = quizId;
         this.currentQuestionIndex = index;
-  
         this.quizService.quizId = quizId;
         this.quizService.setCurrentQuestionIndex(index);
-
-        // Fetch current quiz using quizId
-        const currentQuiz: Quiz = await firstValueFrom(
-          this.quizDataService.getQuiz(quizId).pipe(
-            filter(q => !!q && Array.isArray(q.questions)),
-            take(1)
-          )
-        );
-
-        if (!currentQuiz) {
-          console.error('[❌ Failed to fetch quiz with quizId]', quizId);
-          return;
-        }
-
-        const totalQuestions = currentQuiz.questions.length;
-        
-        const question = currentQuiz.questions[index];
-        if (!question) {
-          console.error('[❌ Failed to fetch question from quiz]', { index });
-          return;
-        }
   
-        this.currentQuestion = question;
-        this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
+        // 🧪 Debug index update
+        console.log('[✅ Index updated before async]', index);
   
-        // Properly update progress using correct totalQuestions
-        this.progressBarService.updateProgress(index, totalQuestions);
-        localStorage.setItem('savedQuestionIndex', index.toString());
+        try {
+          const currentQuiz: Quiz = await firstValueFrom(
+            this.quizDataService.getQuiz(quizId).pipe(
+              filter(q => !!q && Array.isArray(q.questions)),
+              take(1)
+            )
+          );
+  
+          if (!currentQuiz) {
+            console.error('[❌ Failed to fetch quiz with quizId]', quizId);
+            return;
+          }
+  
+          const totalQuestions = currentQuiz.questions.length;
+          const question = currentQuiz.questions[index];
+          if (!question) {
+            console.error('[❌ No question at index]', { index });
+            return;
+          }
+  
+          this.currentQuestion = question;
+          this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
+  
+          // Progress Bar
+          this.progressBarService.updateProgress(index, totalQuestions);
+          localStorage.setItem('savedQuestionIndex', index.toString());
+        } catch (err) {
+          console.error('[❌ Error in paramMap subscribe]', err);
+        }
       });
   }
   
