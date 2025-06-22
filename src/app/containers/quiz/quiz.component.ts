@@ -1121,135 +1121,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /******* initialize route parameters functions *********/
-  /* private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
-      const routeQuizId = params.get('quizId');
-      const routeIndex = Number(params.get('questionIndex'));
-  
-      console.log('[🧭 Route param change]', { routeQuizId, routeIndex });
-  
-      if (!routeQuizId || isNaN(routeIndex)) {
-        console.error('[❌ Invalid route params]', { routeQuizId, routeIndex });
-        return;
-      }
-  
-      // ✅ Set quizId
-      this.quizId = routeQuizId;
-      this.quizService.quizId = routeQuizId;
-      this.quizNavigationService.setQuizId(routeQuizId);
-  
-      // ✅ Then load question at that index (zero-based)
-      const adjustedIndex = routeIndex - 1;
-      await this.quizQuestionLoaderService.loadQuestionAndOptions(adjustedIndex);
-    });
-  } */
-  /* private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap.subscribe(async (params: ParamMap) => {
-      const quizId = params.get('quizId');
-      const rawIndex = Number(params.get('questionIndex'));
-  
-      if (!quizId || isNaN(rawIndex)) {
-        console.error('[❌ Invalid route params]', { quizId, rawIndex });
-        return;
-      }
-  
-      const index = rawIndex - 1;
-      this.quizId = quizId;
-      this.quizService.quizId = quizId;
-      this.quizNavigationService.setQuizId(quizId);
-  
-      console.log('[🧭 Route change]', { quizId, index });
-  
-      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-      this.quizService.setCurrentQuestionIndex(index);
-    });
-  } */
-  /* private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap
-    .pipe(
-      distinctUntilChanged((prev, curr) => 
-        prev.get('questionIndex') === curr.get('questionIndex') &&
-        prev.get('quizId') === curr.get('quizId')
-      )
-    )
-    .subscribe(async (params) => {
-      const quizId = params.get('quizId');
-      const index = Number(params.get('questionIndex')) - 1;
-      console.log('[🔁 paramMap triggered] currentQuestionIndex:', index);
-
-      if (!quizId || isNaN(index) || index < 0) {
-        console.error('[❌ Invalid route params]', { quizId, index });
-        return;
-      }
-
-      console.log('[🧭 Route param change]', { quizId, index });
-
-      this.resetComponentState?.();
-
-      this.quizId = quizId;
-      this.currentQuestionIndex = index;
-      this.quizService.quizId = quizId;
-      this.quizService.setCurrentQuestionIndex(index);
-
-      await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-
-      this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
-      localStorage.setItem('savedQuestionIndex', index.toString());
-    });
-  } */
-  /* private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        distinctUntilChanged((prev: ParamMap, curr: ParamMap) =>
-          prev.get('questionIndex') === curr.get('questionIndex') &&
-          prev.get('quizId') === curr.get('quizId')
-        )
-      )
-      .subscribe(async (params: ParamMap) => {
-        const quizId = params.get('quizId');
-        const index = Number(params.get('questionIndex')) - 1;
-  
-        console.log('[🔁 paramMap triggered] currentQuestionIndex:', index);
-  
-        if (!quizId || isNaN(index) || index < 0) {
-          console.error('[❌ Invalid route params]', { quizId, index });
-          return;
-        }
-  
-        // Clear dynamic inputs and UI state
-        this.resetComponentState?.();
-        this.optionsToDisplay = [];
-        this.currentQuestion = null;
-  
-        this.quizId = quizId;
-        this.currentQuestionIndex = index;
-        this.quizService.quizId = quizId;
-        this.quizService.setCurrentQuestionIndex(index);
-  
-        const questionLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-  
-        if (questionLoaded) {
-          // Set data for current view
-          this.currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion(this.currentQuestionIndex));
-          this.optionsToDisplay = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-  
-          this.progressBarService.updateProgress(index, this.quizService.totalQuestions);
-          localStorage.setItem('savedQuestionIndex', index.toString());
-  
-          // Re-render dynamic components (if needed)
-          setTimeout(() => {
-            this.injectDynamicComponent?.(); // 🔁 optional if you use dynamic component loading
-          }, 0);
-  
-          console.log('[✅ Question loaded from paramMap]', {
-            questionText: this.currentQuestion?.questionText,
-            optionsLength: this.optionsToDisplay?.length
-          });
-        } else {
-          console.error('[❌ Failed to load question for index]', index);
-        }
-      });
-  } */
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -1262,24 +1133,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const quizId = params.get('quizId') ?? '';
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
-
-        // this.currentRouteIndex = index;
+  
+        console.log('[🔁 paramMap triggered]', { quizId, index });
   
         if (!quizId || isNaN(index) || index < 0) {
           console.error('[❌ Invalid route params]', { quizId, indexParam });
           return;
         }
   
-        console.log('[🔁 paramMap triggered]', { quizId, index });
+        // Clear dynamic inputs and UI state
+        this.resetComponentState?.();
+        this.optionsToDisplay = [];
+        this.currentQuestion = null;
   
-        // Update indices BEFORE async calls
+        // Update indices before async work
         this.quizId = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId = quizId;
         this.quizService.setCurrentQuestionIndex(index);
-  
-        // Debug index update
-        console.log('[✅ Index updated before async]', index);
   
         try {
           const currentQuiz: Quiz = await firstValueFrom(
@@ -1289,10 +1160,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             )
           );
   
-          /* if (!currentQuiz) {
+          if (!currentQuiz) {
             console.error('[❌ Failed to fetch quiz with quizId]', quizId);
             return;
-          } */
+          }
   
           const totalQuestions = currentQuiz.questions.length;
           const question = currentQuiz.questions[index];
@@ -1301,12 +1172,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
           }
   
-          this.currentQuestion = question;
-          this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
+          const questionLoaded = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
   
-          // Progress Bar
-          this.progressBarService.updateProgress(index, totalQuestions);
-          localStorage.setItem('savedQuestionIndex', index.toString());
+          if (questionLoaded) {
+            this.currentQuestion = await firstValueFrom(this.quizService.getCurrentQuestion(index));
+            this.optionsToDisplay = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+  
+            this.progressBarService.updateProgress(index, totalQuestions);
+            localStorage.setItem('savedQuestionIndex', index.toString());
+  
+            // Re-render dynamic components (if needed)
+            setTimeout(() => {
+              this.injectDynamicComponent?.();
+            }, 0);
+  
+            console.log('[✅ Question loaded from paramMap]', {
+              questionText: this.currentQuestion?.questionText,
+              optionsLength: this.optionsToDisplay?.length
+            });
+          } else {
+            console.error('[❌ Failed to load question for index]', index);
+          }
         } catch (err) {
           console.error('[❌ Error in paramMap subscribe]', err);
         }
@@ -1346,7 +1232,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
       if (Array.isArray(this.questions) && this.questions.length > 0) {
         if (adjustedIndex === 0) {
-          await this.initializeFirstQuestion(); // Wait for first question to be initialized
+          await this.initializeFirstQuestion(); // wait for first question to be initialized
         } else {
           this.updateQuestionDisplay(adjustedIndex);
         }
