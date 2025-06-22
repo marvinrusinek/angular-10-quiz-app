@@ -156,11 +156,19 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    // const currentIndex = this.quizService.getCurrentQuestionIndex();
     //const currentIndex = this.currentQuestionIndex;
     // Pull current index from the route directly
     /* const routeIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
     const currentIndex = isNaN(routeIndex) ? 0 : routeIndex - 1; */
+
+    const routeIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const currentIndex = !isNaN(Number(routeIndexParam))
+      ? Number(routeIndexParam) - 1
+      : this.quizService.getCurrentQuestionIndex();
+
+    /* const routeParamIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) - 1;
+    const currentIndex = !isNaN(routeParamIndex) ? routeParamIndex : this.quizService.getCurrentQuestionIndex(); */
     const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
@@ -242,7 +250,7 @@ export class QuizNavigationService {
     }
   }
   
-  public async navigateToQuestion(index: number): Promise<boolean> {
+  /* public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
   
@@ -291,7 +299,42 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }  
+  } */
+  public async navigateToQuestion(index: number): Promise<boolean> {
+    const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
+    const fallbackQuizId = localStorage.getItem('quizId');
+    const quizId = quizIdFromRoute || fallbackQuizId;
+  
+    if (!quizId || quizId === 'fallback-id') {
+      console.error('[❌ Invalid quizId – fallback used]', quizId);
+    }
+  
+    const routeUrl = `/question/${quizId}/${index + 1}`;
+    const currentUrl = this.router.url;
+  
+    // 🔐 Compare both URL and paramMap-derived values to force navigation if needed
+    const routeParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const currentRouteIndex = Number(routeParam) - 1;
+  
+    if (currentRouteIndex === index && currentUrl === routeUrl) {
+      console.warn('[⚠️ Already on route – forcing reload]', {
+        currentRouteIndex,
+        targetIndex: index,
+        routeUrl,
+      });
+      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
+    }
+  
+    try {
+      return await this.router.navigateByUrl(routeUrl);
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
+    }
+  }
+  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
