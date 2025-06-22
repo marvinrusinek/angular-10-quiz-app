@@ -183,12 +183,7 @@ export class QuizNavigationService {
       });
       return;
     }
-  
-    if (targetIndex < 0) {
-      console.warn('[⛔] Already at first question, cannot go back.');
-      return;
-    }
-  
+    
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     console.log('[🧩 effectiveQuizId]', effectiveQuizId);
   
