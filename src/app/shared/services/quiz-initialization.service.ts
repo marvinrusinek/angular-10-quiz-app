@@ -1255,9 +1255,6 @@ export class QuizInitializationService {
         const currentQuestion =
           currentQuiz.questions[this.currentQuestionIndex];
 
-        // Set the selected quiz so downstream functions like updateQuizUIForNewQuestion() work
-        this.selectedQuiz = currentQuiz;
-
         // Check if the currentQuestion is defined before proceeding
         if (!currentQuestion) {
           console.error(
@@ -1268,12 +1265,13 @@ export class QuizInitializationService {
 
         // Proceed to update the UI for the new question if all checks pass
         this.selectedQuiz = currentQuiz;
+        this.updateQuizUIForNewQuestion(currentQuestion);
 
-        if (this.selectedQuiz && Array.isArray(this.selectedQuiz.questions)) {
+        /* if (this.selectedQuiz && Array.isArray(this.selectedQuiz.questions)) {
           this.updateQuizUIForNewQuestion(currentQuestion);
         } else {
           console.error('[🚨 Skipping UI update – selectedQuiz or questions invalid]');
-        }
+        } */
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
