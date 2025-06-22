@@ -1272,8 +1272,7 @@ export class QuizInitializationService {
     });
   }
 
-  // call somewhere??
-  private updateQuizUIForNewQuestion(
+  public updateQuizUIForNewQuestion(
     question: QuizQuestion = this.currentQuestion
   ): void {
     if (!question) {
