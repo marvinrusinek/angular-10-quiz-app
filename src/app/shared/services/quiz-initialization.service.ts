@@ -1291,10 +1291,18 @@ export class QuizInitializationService {
       return;
     }
 
-    if (!this.selectedQuiz || !this.selectedQuiz.questions) {
-      console.error(
-        '🚨 [updateQuizUIForNewQuestion] selectedQuiz or questions array is missing.'
-      );
+    if (!this.selectedQuiz) {
+      console.error('🚨 selectedQuiz is undefined in updateQuizUIForNewQuestion');
+      return;
+    }
+    
+    if (!Array.isArray(this.selectedQuiz.questions)) {
+      console.error('🚨 selectedQuiz.questions is not a valid array:', this.selectedQuiz.questions);
+      return;
+    }
+    
+    if (this.selectedQuiz.questions.length === 0) {
+      console.error('🚨 selectedQuiz.questions array is empty');
       return;
     }
 
