@@ -181,9 +181,6 @@ export class QuizNavigationService {
       });
       return;
     }
-    
-    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
-    console.log('[🧩 effectiveQuizId]', effectiveQuizId);
   
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizService.getCurrentQuiz().pipe(
@@ -192,6 +189,7 @@ export class QuizNavigationService {
       )
     );
   
+    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
       return;
