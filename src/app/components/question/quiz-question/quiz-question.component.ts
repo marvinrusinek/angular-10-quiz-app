@@ -465,8 +465,6 @@ export class QuizQuestionComponent
   }
 
   async ngAfterViewInit(): Promise<void> {
-    super.ngAfterViewInit?.();
-  
     this.containerReady.next();
     this.containerReady.complete();
   
