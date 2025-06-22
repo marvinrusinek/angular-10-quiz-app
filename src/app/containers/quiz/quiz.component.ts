@@ -1263,9 +1263,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
 
-        this.currentRouteIndex = index;
-
-        this.quizService.setCurrentQuestionIndex(index);
+        // this.currentRouteIndex = index;
   
         if (!quizId || isNaN(index) || index < 0) {
           console.error('[❌ Invalid route params]', { quizId, indexParam });
@@ -1278,6 +1276,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizId = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId = quizId;
+        this.quizService.setCurrentQuestionIndex(index);
   
         // Debug index update
         console.log('[✅ Index updated before async]', index);
@@ -1290,10 +1289,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             )
           );
   
-          if (!currentQuiz) {
+          /* if (!currentQuiz) {
             console.error('[❌ Failed to fetch quiz with quizId]', quizId);
             return;
-          }
+          } */
   
           const totalQuestions = currentQuiz.questions.length;
           const question = currentQuiz.questions[index];
