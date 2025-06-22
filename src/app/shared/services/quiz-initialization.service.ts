@@ -1222,11 +1222,14 @@ export class QuizInitializationService {
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
       next: (currentQuiz) => {
+        console.log('[✅ QUIZ LOADED]', currentQuiz);
+  
+        // Validate the quiz object
         if (!currentQuiz) {
           console.error(`Quiz not found: Quiz ID ${this.quizId}`);
           return;
         }
-
+  
         // Check if the questions property exists, is an array, and is not empty
         if (
           !Array.isArray(currentQuiz.questions) ||
@@ -1237,7 +1240,11 @@ export class QuizInitializationService {
           );
           return;
         }
-
+  
+        // Assign selectedQuiz before proceeding (must be done before update)
+        this.selectedQuiz = currentQuiz;
+        console.log('[🧪 selectedQuiz.questions]', this.selectedQuiz.questions);
+  
         // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
         if (
           !this.quizService.isValidQuestionIndex(
@@ -1250,11 +1257,10 @@ export class QuizInitializationService {
           );
           return;
         }
-
+  
         // Retrieve the current question using the valid index
-        const currentQuestion =
-          currentQuiz.questions[this.currentQuestionIndex];
-
+        const currentQuestion = currentQuiz.questions[this.currentQuestionIndex];
+  
         // Check if the currentQuestion is defined before proceeding
         if (!currentQuestion) {
           console.error(
@@ -1262,16 +1268,9 @@ export class QuizInitializationService {
           );
           return;
         }
-
+  
         // Proceed to update the UI for the new question if all checks pass
-        this.selectedQuiz = currentQuiz;
         this.updateQuizUIForNewQuestion(currentQuestion);
-
-        /* if (this.selectedQuiz && Array.isArray(this.selectedQuiz.questions)) {
-          this.updateQuizUIForNewQuestion(currentQuestion);
-        } else {
-          console.error('[🚨 Skipping UI update – selectedQuiz or questions invalid]');
-        } */
       },
       error: (error) => {
         console.error(`Error retrieving quiz: ${error.message}`);
@@ -1279,46 +1278,37 @@ export class QuizInitializationService {
     });
   }
 
-  public updateQuizUIForNewQuestion(
-    question: QuizQuestion = this.currentQuestion
-  ): void {
+  public updateQuizUIForNewQuestion(question: QuizQuestion = this.currentQuestion): void {
     if (!question) {
-      console.error(
-        '🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).'
-      );
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question (null or undefined).');
       return;
     }
-
+  
     if (!this.selectedQuiz) {
-      console.error('🚨 selectedQuiz is undefined in updateQuizUIForNewQuestion');
+      console.warn('⚠️ [updateQuizUIForNewQuestion] selectedQuiz is still undefined. Skipping...');
       return;
     }
-    
+  
     if (!Array.isArray(this.selectedQuiz.questions)) {
-      console.error('🚨 selectedQuiz.questions is not a valid array:', this.selectedQuiz.questions);
+      console.error('🚨 [updateQuizUIForNewQuestion] selectedQuiz.questions is not a valid array:', this.selectedQuiz.questions);
       return;
     }
-    
-    if (this.selectedQuiz.questions.length === 0) {
-      console.error('🚨 selectedQuiz.questions array is empty');
-      return;
-    }
-
+  
     const questionIndex = this.quizService.findQuestionIndex(question);
     if (
       questionIndex < 0 ||
       questionIndex >= this.selectedQuiz.questions.length
     ) {
-      console.error(
-        '🚨 [updateQuizUIForNewQuestion] Invalid question index:',
-        questionIndex
-      );
+      console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
     }
-
+  
+    console.log(`✅ [updateQuizUIForNewQuestion] Ready to update UI for question index: ${questionIndex}`);
+  
     // Reset UI elements
     this.selectedOption$.next(null);
   }
+  
 
   loadQuestionData(
     index: number,
