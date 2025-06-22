@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -30,8 +30,6 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  //@ViewChild(QuizQuestionComponent, { static: false })
-  //quizQuestionComponent!: QuizQuestionComponent;
   @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
