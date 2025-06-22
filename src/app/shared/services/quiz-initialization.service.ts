@@ -5,6 +5,7 @@ import {
   EMPTY,
   firstValueFrom,
   forkJoin,
+  merge, 
   Observable,
   of,
   Subject,
@@ -17,7 +18,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  merge,
   retry,
   switchMap,
   take,
@@ -227,7 +227,7 @@ export class QuizInitializationService {
 
   // Function to subscribe to changes in the current question and update the currentQuestionType
   public subscribeToCurrentQuestion(): void {
-    const combinedQuestionObservable = merge(
+    const combinedQuestionObservable: Observable<QuizQuestion | null> = merge(
       this.quizService.getCurrentQuestionObservable().pipe(
         retry(2),
         catchError((error: Error) => {
