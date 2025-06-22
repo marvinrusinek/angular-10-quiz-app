@@ -154,7 +154,9 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    // const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const routeParam = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex'));
+    const currentIndex = !isNaN(routeParam) ? routeParam - 1 : this.quizService.getCurrentQuestionIndex();
     const targetIndex = currentIndex + offset;
 
     // Block if going out of bounds
