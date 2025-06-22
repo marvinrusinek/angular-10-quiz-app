@@ -2405,6 +2405,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isAnswered = isAnswered;
   }
 
+  // REMOVE!!
   // Function to subscribe to changes in the current question and update the currentQuestionType
   public subscribeToCurrentQuestion(): void {
     const combinedQuestionObservable: Observable<QuizQuestion | null> = merge(
