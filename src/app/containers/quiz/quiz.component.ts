@@ -2898,7 +2898,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       Utils.shuffleArray(this.options);
     }
   
-    this.setOptions();
+    this.quizService.setOptions(this.options);
   }
 
   handleParamMap(params: ParamMap): void {
