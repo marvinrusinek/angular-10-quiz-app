@@ -323,6 +323,7 @@ export class QuizQuestionLoaderService {
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
+      this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
   
