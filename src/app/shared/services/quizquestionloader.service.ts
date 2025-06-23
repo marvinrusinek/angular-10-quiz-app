@@ -73,7 +73,7 @@ export class QuizQuestionLoaderService {
     private feedbackService: FeedbackService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private quizInitializationService: QuizInitializationService,
+    // private quizInitializationService: QuizInitializationService,
     private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
