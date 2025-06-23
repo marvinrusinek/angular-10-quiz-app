@@ -389,20 +389,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     // Assign question + options together when ready
-    this.combinedQuestionData$ = combineLatest([
-      this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(
-        filter((q): q is QuizQuestion => !!q),
-        distinctUntilChanged((a, b) => a.questionText === b.questionText)
+    this.quizInitializationService.combinedQuestionData$
+    .pipe(
+      filter((data): data is { question: QuizQuestion; options: Option[] } =>
+        !!data?.question &&
+        Array.isArray(data.options) &&
+        data.options.length > 0
       ),
-      this.optionsToDisplay$.pipe(
-        filter((opts) => Array.isArray(opts) && opts.length > 0),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
-      )
-    ]).pipe(
-      map(([question, options]) => ({ question, options })),
-      take(1),
-      shareReplay(1)
-    );
+      take(1) // one per load cycle
+    )
+    .subscribe(({ question, options }) => {
+      console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
+
+      this.qaToDisplay = { question, options };
+
+      this.cdRef.markForCheck(); // trigger UI update
+    });
   
     // Subscribe when both are ready
     this.combinedQuestionData$
