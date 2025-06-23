@@ -66,6 +66,9 @@ export class QuizQuestionLoaderService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
+  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
+  public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+
   isButtonEnabled = false;
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
