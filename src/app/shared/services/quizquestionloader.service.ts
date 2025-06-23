@@ -537,8 +537,8 @@ export class QuizQuestionLoaderService {
   }
 
   async loadQA(index: number) {
-    const fetchedQuestion = await this.quizService.getQuestionByIndex(index);
-    const fetchedOptions = await this.quizService.getOptionsForQuestion(index); 
+    const fetchedQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+    const fetchedOptions = await this.quizService.getOptionsForQuestion(fetchedQuestion); 
   
     if (!fetchedQuestion || !Array.isArray(fetchedOptions) || fetchedOptions.length === 0) {
       console.error('[❌ loadQA] Invalid question or options');
