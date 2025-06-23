@@ -522,4 +522,14 @@ export class QuizQuestionLoaderService {
       console.log('[📤 POST-EMIT] Emitted combined Q&A');
     });
   }
+
+  loadQA(index: number) {
+    // Simulate async fetch
+    setTimeout(() => {
+      const q = `Question #${index}`;
+      const opts = [`Option A`, `Option B`, `Option C`];
+      console.log('[📥 loadQA fetched]', { q, opts });
+      this.state.emitQA(q, opts);
+    }, 500);
+  }
 }
