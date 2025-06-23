@@ -487,8 +487,8 @@ export class QuizQuestionLoaderService {
 
   public setupCombinedQuestionStream(): void {
     combineLatest([
-      this.quizService.currentQuestion$,      // emits QuizQuestion
-      this.quizStateService.optionsToDisplay$      // emits Option[]
+      this.quizService.currentQuestion$,  // emits QuizQuestion
+      this.quizService.options$           // emits Option[]
     ])
     .pipe(
       filter(([question, options]) =>
