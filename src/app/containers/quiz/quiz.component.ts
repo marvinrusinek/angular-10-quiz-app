@@ -1195,6 +1195,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('[❌ No question at index]', { index });
             return;
           }
+
+          this.quizQuestionLoaderService.loadQuestionAndOptions(index);
   
           this.currentQuestion = question;
           this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
