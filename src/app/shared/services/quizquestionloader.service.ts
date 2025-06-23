@@ -11,6 +11,7 @@ import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
+import { QuizInitializationService } from './quiz-initialization.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
 import { RenderStateService } from './render-state.service';
@@ -72,6 +73,7 @@ export class QuizQuestionLoaderService {
     private feedbackService: FeedbackService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizInitializationService: QuizInitializationService,
     private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
@@ -165,6 +167,9 @@ export class QuizQuestionLoaderService {
   
         this.questionData = data.question ?? ({} as QuizQuestion);
         this.renderStateService.tryRenderGate();
+
+        // Trigger combined stream AFTER question + options are set
+        this.quizInitializationService.setupCombinedQuestionStream();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
