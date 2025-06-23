@@ -536,13 +536,15 @@ export class QuizQuestionLoaderService {
     });
   }
 
-  loadQA(index: number) {
-    // Simulate async fetch
-    setTimeout(() => {
-      const q = `Question #${index}`;
-      const opts = [`Option A`, `Option B`, `Option C`];
-      console.log('[📥 loadQA fetched]', { q, opts });
-      this.state.emitQA(q, opts);
-    }, 500);
+  async loadQA(index: number) {
+    const fetchedQuestion = await this.quizService.getQuestionByIndex(index);
+    const fetchedOptions = await this.quizService.getOptionsForQuestion(index);
+  
+    if (!fetchedQuestion || !Array.isArray(fetchedOptions) || fetchedOptions.length === 0) {
+      console.error('[❌ loadQA] Invalid question or options');
+      return;
+    }
+  
+    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
   }
 }
