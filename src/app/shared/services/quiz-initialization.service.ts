@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
-  
+
   EMPTY,
   firstValueFrom,
   forkJoin,
@@ -1302,8 +1302,6 @@ export class QuizInitializationService {
       console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
     }
-  
-    console.log(`✅ [updateQuizUIForNewQuestion] Ready to update UI for question index: ${questionIndex}`);
   
     // Reset UI elements
     this.selectedOption$.next(null);
