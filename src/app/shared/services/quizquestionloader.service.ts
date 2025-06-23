@@ -506,7 +506,15 @@ export class QuizQuestionLoaderService {
     )
     .subscribe(([question, options]) => {
       console.log('[✅ Q&A in sync — emitting]', { question, options });
+      
+      console.log('[📤 PRE-EMIT] About to emit combined Q&A', {
+        question,
+        options
+      });
+      
       this.combinedQuestionDataSubject.next({ question, options });
+      
+      console.log('[📤 POST-EMIT] Emitted combined Q&A');
     });
   }
 }
