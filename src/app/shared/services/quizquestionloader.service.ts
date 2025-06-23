@@ -335,12 +335,9 @@ export class QuizQuestionLoaderService {
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
-      this.quizStateService.emitCombinedData({
-        question: this.currentQuestion!,
-        options: clonedOptions
-      });
   
+      this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
+
       this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
