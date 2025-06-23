@@ -60,6 +60,9 @@ export class QuizStateService {
   });
   public displayState$ = this.displayStateSubject.asObservable();
 
+  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
+  public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
 
@@ -349,5 +352,10 @@ export class QuizStateService {
 
   resetState(): void {
     this.quizQuestionCreated = false;
+  }
+
+  emitCombinedData(data: { question: QuizQuestion; options: Option[] }) {
+    console.log('[📤 Emitting combined Q&A]', data);
+    this.combinedQuestionDataSubject.next(data);
   }
 }
