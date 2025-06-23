@@ -335,8 +335,16 @@ export class QuizQuestionLoaderService {
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
+
+      if (fetchedQuestion?.questionText?.trim() && Array.isArray(clonedOptions) && clonedOptions.length > 0) {
+        // this.quizService.setCurrentQuestion(this.currentQuestion);
+        // this.quizDataService.setOptions(clonedOptions);
+      
+        // Emit after both values are set
+        this.quizStateService.emitQA(this.currentQuestion!, clonedOptions);
+      }
   
-      this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
+      // this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
 
       this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);

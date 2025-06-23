@@ -423,6 +423,19 @@ export class QuizService implements OnDestroy {
     this.questionsSubject.next(questions);
   }
 
+  setOptions(options: Option[]): void {
+    if (!Array.isArray(options) || options.length === 0) {
+      console.error('[❌ setOptions] Options are either missing or empty.');
+      return;
+    }
+  
+    const values = options.map(opt => 'value' in opt ? opt.value : 0);
+    this.setAnswers(values); // Or whatever logic you're calling
+  
+    this.optionsSubject.next(options); // Emit to options$
+    this.setAnswers(options);
+  }
+
   getOptions(index: number): Observable<Option[]> {
     return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
       map((question) => {

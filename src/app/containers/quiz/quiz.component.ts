@@ -3007,23 +3007,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (error) {
       console.error('Failed to load quiz:', error);
     }
-  }  
-
-  setOptions(): void {
-    if (!this.question) {
-      console.error('Question not found.');
-      return;
-    }
-  
-    if (!Array.isArray(this.options) || this.options.length === 0) {
-      console.error('Options are either missing or empty.');
-      return;
-    }
-  
-    const options = (this.question.options || []).map((option) => 
-      'value' in option ? option.value : 0
-    );
-    this.quizService.setAnswers(options);
   }
 
   animationDoneHandler(): void {
