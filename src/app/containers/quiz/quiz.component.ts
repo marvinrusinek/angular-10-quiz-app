@@ -398,7 +398,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     )
     .subscribe(({ question, options }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
-
       this.qaToDisplay = { question, options };
 
       // Show question first, explanation later
