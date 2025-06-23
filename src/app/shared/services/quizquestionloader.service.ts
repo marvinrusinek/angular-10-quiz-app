@@ -280,6 +280,15 @@ export class QuizQuestionLoaderService {
           console.log('[⏳ Pending options queued until component ready]');
         });
       }
+
+      setTimeout(() => {
+        if (isAnswered) {
+          const explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
+          this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
+          this.explanationToDisplay = explanationText;
+          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+        }
+      }, 100);
   
       this.hasOptionsLoaded = true;
       this.shouldRenderOptions = true;
