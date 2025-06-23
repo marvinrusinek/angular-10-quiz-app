@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
-import { catchError, combineLatest, filter, take } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { catchError, filter, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { Option } from '../models/Option.model';
