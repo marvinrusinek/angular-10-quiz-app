@@ -407,8 +407,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Show explanation only if answered
       const isAnswered =
-      Array.isArray(question.selectedOptionIds) && question.selectedOptionIds.length > 0 ||
-      Array.isArray(question.answer) && question.answer.length > 0;
+        Array.isArray(question.selectedOptionIds) && question.selectedOptionIds.length > 0 ||
+        Array.isArray(question.answer) && question.answer.length > 0;
 
       if (isAnswered) {
         setTimeout(() => {
