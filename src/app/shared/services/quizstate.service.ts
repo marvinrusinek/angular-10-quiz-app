@@ -60,8 +60,8 @@ export class QuizStateService {
   });
   public displayState$ = this.displayStateSubject.asObservable();
 
-  private combinedQASubject = new ReplaySubject<{question: string, options: string[]}>(1);
-  combinedQA$ = this.combinedQASubject.asObservable();
+  private qaSubject = new ReplaySubject<{ question: QuizQuestion; options: Option[] }>(1);
+  public qa$ = this.qaSubject.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
@@ -354,8 +354,8 @@ export class QuizStateService {
     this.quizQuestionCreated = false;
   }
 
-  emitQA(question: string, options: string[]) {
-    console.log('[📤 emitQA]', { question, options });
-    this.combinedQASubject.next({ question, options });
+  emitQA(question: QuizQuestion, options: Option[]) {
+    console.log('[📤 Emitting QA]', { question, options });
+    this.qaSubject.next({ question, options });
   }
 }
