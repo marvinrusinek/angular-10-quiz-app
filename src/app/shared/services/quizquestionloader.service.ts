@@ -491,6 +491,7 @@ export class QuizQuestionLoaderService {
   }
 
   public setupCombinedQuestionStream(): void {
+    // Force re-creation of the stream per call
     combineLatest([
       this.quizService.currentQuestion$,  // emits QuizQuestion
       this.quizService.options$           // emits Option[]
