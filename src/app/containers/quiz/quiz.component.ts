@@ -235,7 +235,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private hasUserClickedNext = false;
 
-  qa?: {question: string, options: string[]};
+  qa?: { question: QuizQuestion; options: Option[] };
 
   private readonly questionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private readonly optionsSubject = new BehaviorSubject<Option[] | null>(null);
@@ -402,7 +402,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     .subscribe(({ question, options }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
 
-      this.qaToDisplay = { question, options };
+      this.qa = { question, options };
 
       this.cdRef.markForCheck(); // trigger UI update
     });
@@ -419,6 +419,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();
       });
 
+    // Trigger load
+    this.quizQuestionLoaderService.loadQA(1);
   
     this.setupQuiz();
     this.subscribeToRouteParams();
