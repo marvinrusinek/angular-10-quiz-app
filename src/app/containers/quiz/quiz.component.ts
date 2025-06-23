@@ -389,7 +389,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     // Assign question + options together when ready
-    this.quizInitializationService.combinedQuestionData$
+    this.quizQuestionLoaderService.combinedQuestionData$
     .pipe(
       filter((data): data is { question: QuizQuestion; options: Option[] } =>
         !!data && 
