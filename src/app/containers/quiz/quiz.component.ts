@@ -408,13 +408,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Subscribe when both are ready
     this.combinedQuestionData$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        filter((data): data is { question: QuizQuestion; options: Option[] } => !!data),
+        takeUntil(this.destroy$)
+      )
       .subscribe(({ question, options }) => {
         console.log('[🧩 Q&A ready to render]', { question, options });
-  
+
         this.qaToDisplay = { question, options };
         this.cdRef.markForCheck();
       });
+
   
     this.setupQuiz();
     this.subscribeToRouteParams();
