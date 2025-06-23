@@ -236,7 +236,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private hasUserClickedNext = false;
 
-  qa?: { question: QuizQuestion; options: Option[] };
+  qaToDisplay?: { question: QuizQuestion; options: Option[] };
 
   private readonly questionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private readonly optionsSubject = new BehaviorSubject<Option[] | null>(null);
@@ -399,7 +399,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     .subscribe(({ question, options }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
 
-      this.qa = { question, options };
+      this.qaToDisplay = { question, options };
 
       // Show question first, explanation later
       this.displayText = question.questionText;
