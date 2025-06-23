@@ -78,10 +78,7 @@ export class QuizInitializationService {
     question: QuizQuestion;
     options: Option[];
   } | null>(null);
-  combinedQuestionData$: Observable<{
-    question: QuizQuestion;
-    options: Option[];
-  } | null> = this.combinedQuestionDataSubject.asObservable();
+  public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
   correctAnswersText: string;
   private correctAnswersTextSource = new BehaviorSubject<string>('');
@@ -1331,5 +1328,24 @@ export class QuizInitializationService {
         })
       )
       .subscribe();
+  }
+
+  public setupCombinedQuestionStream(): void {
+    combineLatest([
+      this.quizService.currentQuestion$,      // emits QuizQuestion
+      this.quizService.optionsToDisplay$      // emits Option[]
+    ])
+    .pipe(
+      filter(([question, options]) =>
+        !!question &&
+        Array.isArray(options) &&
+        options.length > 0
+      ),
+      take(1) // emit only the first valid pair per question load
+    )
+    .subscribe(([question, options]) => {
+      console.log('[✅ Q&A in sync — emitting]', { question, options });
+      this.combinedQuestionDataSubject.next({ question, options });
+    });
   }
 }
