@@ -355,7 +355,7 @@ export class QuizStateService {
   }
 
   emitQA(question: QuizQuestion, options: Option[]) {
-    if (!question?.questionText || !options?.length) {
+    if (!question || !Array.isArray(options) || options.length === 0) {
       console.warn('[❌ emitQA] Missing question or options:', { question, options });
       return;
     }
