@@ -405,7 +405,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.displayText = question.questionText;
       this.cdRef.markForCheck(); // trigger UI update
 
-      if (question.hasBeenAnswered) {
+      // Show explanation only if answered
+      const isAnswered =
+      Array.isArray(question.selectedOptionIds) && question.selectedOptionIds.length > 0 ||
+      Array.isArray(question.answer) && question.answer.length > 0;
+
+      if (isAnswered) {
         setTimeout(() => {
           this.displayText = question.explanation;
           this.cdRef.markForCheck();
