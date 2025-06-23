@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
@@ -60,8 +60,8 @@ export class QuizStateService {
   });
   public displayState$ = this.displayStateSubject.asObservable();
 
-  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
-  public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+  private combinedQASubject = new ReplaySubject<{question: string, options: string[]}>(1);
+  combinedQA$ = this.combinedQASubject.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
@@ -354,8 +354,8 @@ export class QuizStateService {
     this.quizQuestionCreated = false;
   }
 
-  emitCombinedData(data: { question: QuizQuestion; options: Option[] }) {
-    console.log('[📤 Emitting combined Q&A]', data);
-    this.combinedQuestionDataSubject.next(data);
+  emitQA(question: string, options: string[]) {
+    console.log('[📤 emitQA]', { question, options });
+    this.combinedQASubject.next({ question, options });
   }
 }
