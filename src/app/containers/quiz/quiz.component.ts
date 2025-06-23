@@ -157,6 +157,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   explanationToDisplay = '';
   displayVariables: { question: string; explanation: string };
+  displayText = '';
 
   questionToDisplay$ = new BehaviorSubject<string>('');
 
@@ -389,22 +390,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     // Assign question + options together when ready
-    this.quizQuestionLoaderService.combinedQuestionData$
+    this.quizStateService.qa$
     .pipe(
-      filter((data): data is { question: QuizQuestion; options: Option[] } =>
-        !!data && 
-        !!data?.question &&
-        Array.isArray(data.options) &&
-        data.options.length > 0
-      ),
-      take(1) // one per load cycle
+      filter(d => !!d.question && Array.isArray(d.options) && d.options.length > 0),
+      take(1), // one per load cycle
+      takeUntil(this.destroy$)
     )
     .subscribe(({ question, options }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
 
       this.qa = { question, options };
 
+      // Show question first, explanation later
+      this.displayText = question.questionText;
       this.cdRef.markForCheck(); // trigger UI update
+
+      if (question.hasBeenAnswered) {
+        setTimeout(() => {
+          this.displayText = question.explanation;
+          this.cdRef.markForCheck();
+        }, 100);
+      }
     });
   
     // Subscribe when both are ready
