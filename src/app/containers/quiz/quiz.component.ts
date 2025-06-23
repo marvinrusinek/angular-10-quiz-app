@@ -392,6 +392,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizInitializationService.combinedQuestionData$
     .pipe(
       filter((data): data is { question: QuizQuestion; options: Option[] } =>
+        !!data && 
         !!data?.question &&
         Array.isArray(data.options) &&
         data.options.length > 0
