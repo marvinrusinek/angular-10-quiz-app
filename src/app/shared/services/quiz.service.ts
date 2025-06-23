@@ -431,9 +431,8 @@ export class QuizService implements OnDestroy {
   
     const values = options.map(opt => 'value' in opt ? opt.value : 0);
     this.setAnswers(values); // Or whatever logic you're calling
-  
-    this.optionsSubject.next(options); // Emit to options$
-    this.setAnswers(options);
+
+    this.optionsSubject.next(options); // emit to options$
   }
 
   getOptions(index: number): Observable<Option[]> {
