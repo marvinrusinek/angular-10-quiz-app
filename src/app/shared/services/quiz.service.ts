@@ -21,6 +21,7 @@ import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
+
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = 0;
