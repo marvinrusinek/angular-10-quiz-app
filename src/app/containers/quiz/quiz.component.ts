@@ -237,6 +237,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   qaToDisplay: { question: QuizQuestion; options: Option[] } | null = null;
 
+  private readonly questionSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  private readonly optionsSubject = new BehaviorSubject<Option[] | null>(null);
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
