@@ -336,7 +336,7 @@ export class QuizQuestionLoaderService {
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
   
-      this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
+      this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
 
       this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);
