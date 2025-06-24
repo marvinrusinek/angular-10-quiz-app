@@ -125,7 +125,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
     private fb: FormBuilder
-  ) {}
+  ) {
+    console.log('[🧩 SharedOptionComponent] constructed');
+  }
 
   ngOnInit(): void {
     this.initializeFromConfig();
@@ -229,6 +231,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    try { console.timeEnd('[⏱ OptionBind] total'); } catch {}
+    console.log('[🧩 SharedOptionComponent] ngOnChanges fired');
     const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
     if (incomingConfig) {
       const qTxt   = incomingConfig.currentQuestion?.questionText ?? '[–]';
@@ -269,11 +273,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     if (changes.optionsToDisplay && incomingConfig?.optionsToDisplay?.length) {
+      console.log('[🔁 Regenerating optionBindings for new options]');
       // Regenerating optionBindings for new options
       this.optionsToDisplay = [...incomingConfig.optionsToDisplay]; // ensure it's set
-      this.initializeOptionBindings(); // resets bindings
-      this.generateOptionBindings();   // builds new bindings
-      this.initializeFeedbackBindings(); // resets feedback
+
+      
+      // console.time('[⏱ OptionBind] total');
+  console.time('[⏱ OptionBind] initializeOptionBindings');
+  console.log('▶ calling initializeOptionBindings');
+  this.initializeOptionBindings();
+  console.log('◀ finished initializeOptionBindings');
+  console.timeEnd('[⏱ OptionBind] initializeOptionBindings');
+
+  console.time('[⏱ OptionBind] generateOptionBindings');
+  this.generateOptionBindings();
+  console.timeEnd('[⏱ OptionBind] generateOptionBindings');
+
+  console.time('[⏱ OptionBind] initializeFeedbackBindings');
+  this.initializeFeedbackBindings();
+  console.timeEnd('[⏱ OptionBind] initializeFeedbackBindings');
+  
+
+      console.timeEnd('[⏱ RenderLag] from QA emission to options list'); // end timer
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
