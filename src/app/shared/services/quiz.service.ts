@@ -449,6 +449,7 @@ export class QuizService implements OnDestroy {
     this.setAnswers(values);
   
     this.optionsSubject.next(options); // emit to options$
+    this.optionsSub.next(opts);
   }
 
   getOptions(index: number): Observable<Option[]> {
