@@ -391,19 +391,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     // Assign question + options together when ready
-    this.quizService.combinedQA$
+    this.quizStateService.qa$
     .pipe(
       filter(d => !!d.question && Array.isArray(d.options) && d.options.length > 0),
       takeUntil(this.destroy$)
     )
     .subscribe(({ question, options, selectionMessage }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
-      console.time('[⏱ RenderLag] from QA emission to options list');
-      this.qaToDisplay = { question, options };
-      this.displayText = question.questionText;
-      this.selectionMessage = selectionMessage;
 
-      this.cdRef.markForCheck(); // trigger UI update
+      this.qaToDisplay = { question, options };
+
+      this.displayText    = question.questionText;
+      this.explanationText  = '';
+      this.selectionMessage = selectionMessage;
 
       // Show explanation only if answered
       const answered =
@@ -411,6 +411,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (answered) {
         this.explanationText = question.explanation;
       }
+
+      this.cdRef.markForCheck(); // trigger UI update
     });
   
     this.setupQuiz();
