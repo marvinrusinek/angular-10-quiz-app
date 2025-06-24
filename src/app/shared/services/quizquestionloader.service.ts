@@ -173,7 +173,7 @@ export class QuizQuestionLoaderService {
         this.renderStateService.tryRenderGate();
 
         // Trigger combined stream AFTER question + options are set
-        this.quizInitializationService.setupCombinedQuestionStream();
+        // this.quizInitializationService.setupCombinedQuestionStream();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
