@@ -1201,8 +1201,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizQuestionLoaderService.loadQuestionAndOptions(index);
   
           this.currentQuestion = question;
-          this.optionsToDisplay = this.quizService.getOptionsForQuestion(question);
+          this.optionsToDisplay = await this.quizService.getOptionsForQuestion(question);
           this.resetComponentState?.();
+
+          this.quizQuestionLoaderService.loadQA(index);
   
           // Progress Bar
           this.progressBarService.updateProgress(index, totalQuestions);
