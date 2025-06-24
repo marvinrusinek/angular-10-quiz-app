@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
@@ -224,6 +224,13 @@ export class QuizService implements OnDestroy {
     })),
     shareReplay(1)
   );
+
+  private qaSub = new ReplaySubject<{
+    question: QuizQuestion;
+    options:  Option[];
+    selectionMessage: string;
+  }>(1);
+  qa$ = this.qaSub.asObservable();
 
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
