@@ -583,7 +583,7 @@ export class QuizQuestionLoaderService {
     const fetchedOptions = fetchedQuestion.options;
 
     // Push message first
-    const message = this.selectionMessageService.determineSelectionMessage(
+    const selectionMsg = this.selectionMessageService.determineSelectionMessage(
       index, this.totalQuestions, /* answered? */ false
     );
     this.quizService.setSelectionMessage(message);
@@ -596,6 +596,6 @@ export class QuizQuestionLoaderService {
     this.quizService.setOptions(fetchedOptions);
   
     // Emit via quizStateService if something else still listens there
-    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions, message);
+    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions, selectionMsg);
   }
 }
