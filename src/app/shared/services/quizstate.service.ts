@@ -63,6 +63,13 @@ export class QuizStateService {
   private qaSubject = new ReplaySubject<{ question: QuizQuestion; options: Option[] }>(1);
   public qa$ = this.qaSubject.asObservable();
 
+  private qaSub = new ReplaySubject<{
+    question: QuizQuestion;
+    options:  Option[];
+    selectionMessage: string;
+  }>(1);
+  qa$ = this.qaSub.asObservable();
+
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
 
@@ -354,13 +361,23 @@ export class QuizStateService {
     this.quizQuestionCreated = false;
   }
 
-  emitQA(question: QuizQuestion, options: Option[]) {
+  emitQA(question: QuizQuestion, options: Option[], selectionMessage: string) {
     if (!question || !Array.isArray(options) || options.length === 0) {
       console.warn('[❌ emitQA] Missing question or options:', { question, options });
       return;
     }
 
+    const opts = question.options.map((opt, i) => ({
+      ...opt,
+      optionId : opt.optionId ?? i,
+      active   : opt.active   ?? true,
+      showIcon : !!opt.showIcon,
+      correct  : !!opt.correct,
+      selected : !!opt.selected,
+      feedback : opt.feedback ?? 'No feedback'
+    }));
+
     console.log('[📤 Emitting QA]', { question, options });
-    this.qaSubject.next({ question, options });
+    this.qaSub.next({ question: { ...question, options: opts }, options: opts, selectionMessage });
   }
 }
