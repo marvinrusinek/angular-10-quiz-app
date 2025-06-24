@@ -207,14 +207,22 @@ export class QuizService implements OnDestroy {
   // options$ = this.optionsSub.asObservable();
   selectionMsg$ = this.selectionMsgSub.asObservable();
 
-  public readonly combinedQA$ = combineLatest([ this.currentQuestion$, this.options$, this.selectionMsg$ ]).pipe(
-    filter(([q, opts, msg]) =>
-      !!q && !!q.questionText &&
-      Array.isArray(opts) && opts.length > 0 &&
-      msg !== null
+  public readonly combinedQA$ = combineLatest([
+    this.currentQuestion$,
+    this.options$,
+    this.selectionMsg$
+  ]).pipe(
+    filter(([question, options, selectionMessage]) =>
+      !!question?.questionText &&
+      Array.isArray(options) && options.length > 0 &&
+      typeof selectionMessage === 'string' && selectionMessage.trim().length > 0
     ),
-    map(([question, options, selectionMessage]) => ({ question, options, selectionMessage })),
-    shareReplay(1) // late subscribers get latest trio
+    map(([question, options, selectionMessage]) => ({
+      question,
+      options,
+      selectionMessage
+    })),
+    shareReplay(1)
   );
 
   destroy$ = new Subject<void>();
