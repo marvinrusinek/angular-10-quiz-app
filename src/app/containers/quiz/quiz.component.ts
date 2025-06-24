@@ -409,10 +409,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const answered =
         !!question.selectedOptionIds?.length || !!question.answer?.length;
       if (answered) {
-        setTimeout(() => {
-          this.displayText = question.explanation;
-          this.cdRef.markForCheck();
-        }, 100);
+        this.explanationText = question.explanation;
       }
     });
   
