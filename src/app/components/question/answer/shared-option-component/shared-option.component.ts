@@ -296,41 +296,61 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
-    if (!incomingConfig) return;
-  
-    /* Remove the expensive fetch: ---------------------------------- */
-    // const allQuestions = await firstValueFrom(this.quizService.getAllQuestions());
-    // const incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingConfig.currentQuestion?.questionText?.trim());
-    /* Replace with the index already provided by parent */
-    const incomingIndex = incomingConfig.currentQuestionIndex;  // add this to SharedOptionConfig
-  
+    const incomingConfig = changes.config?.currentValue as SharedOptionConfig | undefined;
+    if (!incomingConfig) { return; }
+
+    // Debug: show incoming options
+    console.log('[SharedOptionComponent] incoming options:',
+                incomingConfig.optionsToDisplay?.map(o => o.text));
+
+    /* ----- Determine what changed ----- */
     const questionChanged =
-      incomingConfig.currentQuestion?.questionText?.trim() !== this.currentQuestion?.questionText?.trim();
+      incomingConfig.currentQuestion?.questionText?.trim() !==
+      this.currentQuestion?.questionText?.trim();
+
     const optsMissing = !this.optionsToDisplay?.length;
-  
-    if ((questionChanged || optsMissing) &&
-        incomingIndex === this.quizService.getCurrentQuestionIndex()) {
-  
-      this.currentQuestion   = { ...incomingConfig.currentQuestion };
-      this.optionsToDisplay  = incomingConfig.optionsToDisplay.map(opt => ({
+    const configChanged = !!changes.config;
+
+    /* ----- Re-initialise only when needed ----- */
+    if (configChanged || questionChanged || optsMissing) {
+      console.log('[SharedOptionComponent] 🔁 Re-initialising option state...');
+      this.currentQuestion    = { ...incomingConfig.currentQuestion };
+      this.optionsToDisplay   = incomingConfig.optionsToDisplay.map(opt => ({
         ...opt,
         active  : opt.active  ?? true,
-        feedback: opt.feedback ?? 'No feedback',
+        feedback: opt.feedback ?? 'No feedback available.',
         showIcon: !!opt.showIcon,
         selected: !!opt.selected,
         correct : !!opt.correct
       }));
-  
+
       this.initializeOptionBindings();
       this.generateOptionBindings();
       this.initializeFeedbackBindings();
+    } else {
+      console.debug('[SharedOptionComponent] ⏸ Nothing meaningful changed; skipping re-init.');
     }
-  
+
+    /* ----- Handle other independent changes ----- */
+    if (changes.currentQuestion) {
+      this.handleQuestionChange(changes.currentQuestion);
+    }
+
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+
+    /* ----- Debug: selected option ----- */
+    if (this.selectedOption) {
+      console.log('[SharedOptionComponent] selectedOption →', {
+        optionId: this.selectedOption.optionId,
+        text    : this.selectedOption.text,
+        correct : this.selectedOption.correct,
+        feedback: this.selectedOption.feedback
+      });
+    }
   }
+
   
 
   ngAfterViewInit(): void {
