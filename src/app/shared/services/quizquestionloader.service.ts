@@ -573,6 +573,12 @@ export class QuizQuestionLoaderService {
     }
   
     const fetchedOptions = fetchedQuestion.options;
+
+    // Push message first
+    const message = this.selectionMessageService.determineSelectionMessage(
+      index, this.totalQuestions, /* answered? */ false
+    );
+    this.quizService.setSelectionMessage(message);
   
     // Push to subjects back-to-back
     console.log('[LOADER] setCurrentQuestion', fetchedQuestion.questionText);
@@ -580,11 +586,6 @@ export class QuizQuestionLoaderService {
   
     console.log('[LOADER] setOptions', fetchedOptions.length);
     this.quizService.setOptions(fetchedOptions);
-
-    const message = this.selectionMessageService.determineSelectionMessage(
-      index, this.totalQuestions, /* answered? */ false
-    );
-    this.quizService.setSelectionMessage(message);
   
     // Emit via quizStateService if something else still listens there
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
