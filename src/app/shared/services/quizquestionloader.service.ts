@@ -561,5 +561,5 @@ export class QuizQuestionLoaderService {
   
     // Emit the combined pair
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
-  }  
+  } 
 }
