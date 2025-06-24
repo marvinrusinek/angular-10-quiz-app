@@ -138,10 +138,8 @@ export class QuizService implements OnDestroy {
   previousAnswers = [];
 
   private optionsSource: Subject<Option[]> = new Subject<Option[]>();
-  optionsSubject: BehaviorSubject<Option[] | null> = new BehaviorSubject<
-    Option[] | null
-  >(null);
-  options$: Observable<Option[]> = this.optionsSource.asObservable();
+  private optionsSubject = new BehaviorSubject<Option[]>([]);
+  public options$ = this.optionsSubject.asObservable();;
 
   nextQuestionSource = new BehaviorSubject<QuizQuestion | null>(null);
   private nextQuestionSubject = new BehaviorSubject<QuizQuestion>(null);
