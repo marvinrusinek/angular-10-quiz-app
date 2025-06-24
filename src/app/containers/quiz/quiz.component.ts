@@ -395,12 +395,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       filter(d => !!d.question && Array.isArray(d.options) && d.options.length > 0),
       takeUntil(this.destroy$)
     )
-    .subscribe(({ question, options }) => {
+    .subscribe(({ question, options, selectionMessage }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
       this.qaToDisplay = { question, options };
 
       // Show question first, explanation later
       this.displayText = question.questionText;
+      this.selectionMessage = selectionMessage;
+
       this.cdRef.markForCheck(); // trigger UI update
 
       // Show explanation only if answered
