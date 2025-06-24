@@ -228,7 +228,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
 
     console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
@@ -294,7 +294,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
+  } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
+    if (!incomingConfig) return;
+  
+    /* Remove the expensive fetch: ---------------------------------- */
+    // const allQuestions = await firstValueFrom(this.quizService.getAllQuestions());
+    // const incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingConfig.currentQuestion?.questionText?.trim());
+    /* Replace with the index already provided by parent */
+    const incomingIndex = incomingConfig.currentQuestionIndex;  // add this to SharedOptionConfig
+  
+    const questionChanged =
+      incomingConfig.currentQuestion?.questionText?.trim() !== this.currentQuestion?.questionText?.trim();
+    const optsMissing = !this.optionsToDisplay?.length;
+  
+    if ((questionChanged || optsMissing) &&
+        incomingIndex === this.quizService.getCurrentQuestionIndex()) {
+  
+      this.currentQuestion   = { ...incomingConfig.currentQuestion };
+      this.optionsToDisplay  = incomingConfig.optionsToDisplay.map(opt => ({
+        ...opt,
+        active  : opt.active  ?? true,
+        feedback: opt.feedback ?? 'No feedback',
+        showIcon: !!opt.showIcon,
+        selected: !!opt.selected,
+        correct : !!opt.correct
+      }));
+  
+      this.initializeOptionBindings();
+      this.generateOptionBindings();
+      this.initializeFeedbackBindings();
+    }
+  
+    if (changes.shouldResetBackground && this.shouldResetBackground) {
+      this.resetState();
+    }
   }
+  
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
