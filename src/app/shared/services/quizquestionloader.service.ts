@@ -596,6 +596,6 @@ export class QuizQuestionLoaderService {
     this.quizService.setOptions(fetchedOptions);
   
     // Emit via quizStateService if something else still listens there
-    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
+    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions, message);
   }
 }

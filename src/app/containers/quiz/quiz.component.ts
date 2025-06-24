@@ -397,6 +397,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     )
     .subscribe(({ question, options, selectionMessage }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
+      console.time('[⏱ RenderLag] from QA emission to options list');
       this.qaToDisplay = { question, options };
       this.displayText = question.questionText;
       this.selectionMessage = selectionMessage;
