@@ -201,7 +201,8 @@ export class QuizService implements OnDestroy {
     this.combinedQuestionDataSubject.asObservable();
 
   private questionSub = new BehaviorSubject<QuizQuestion | null>(null);
-  private optionsSub  = new BehaviorSubject<Option[]>([]);
+  private optionsSub = new BehaviorSubject<Option[]>([]);
+  private selectionMsgSub = new BehaviorSubject<string>('');
 
   public readonly combinedQA$ = combineLatest([ this.currentQuestion$, this.options$ ]).pipe(
     filter(([q, opts]) =>
