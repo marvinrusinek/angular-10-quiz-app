@@ -445,8 +445,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const fallbackOptions = this.currentQuestion?.options;
   
     if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
-      // Already populated — no need to proceed
-      return;
+      return; // already populated, no need to proceed
     }
   
     if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
@@ -458,7 +457,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }));
       console.log('[SharedOptionComponent] Restored optionsToDisplay from currentQuestion.options');
     } else {
-      // Avoid hard error — just warn and leave array empty
       console.warn('[SharedOptionComponent] No valid options available to restore.');
       this.optionsToDisplay = [];
     }
