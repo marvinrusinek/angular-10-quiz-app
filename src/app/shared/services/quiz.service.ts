@@ -951,22 +951,16 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  public setCurrentQuestion(question: QuizQuestion): void {
-    console.log('[QuizService] setCurrentQuestion called with:', question);
-  
+  public setCurrentQuestion(question: QuizQuestion): void {  
     if (!question) {
       console.error('[QuizService] Attempted to set a null or undefined question.');
       return;
     }
   
     const previousQuestion = this.currentQuestion.getValue();
-    
-    console.log('[QuizService] Previous Question:', previousQuestion);
-    console.log('[QuizService] New Question:', question);
   
     // Check for deep comparison result
     const isEqual = this.areQuestionsEqual(previousQuestion, question);
-    console.log('[QuizService] areQuestionsEqual:', isEqual);
   
     if (isEqual) {
       console.warn('[QuizService] Question is considered identical to the previous one. Skipping update.');
@@ -986,21 +980,18 @@ export class QuizService implements OnDestroy {
       correct: option.correct ?? false,
       selected: option.selected ?? false,
       active: option.active ?? true,
-      showIcon: option.showIcon ?? false,
+      showIcon: option.showIcon ?? false
     }));
-  
-    console.log('[QuizService] Updated Options:', updatedOptions);
   
     // Construct the updated question object
     const updatedQuestion: QuizQuestion = {
       ...question,
-      options: updatedOptions,
+      options: updatedOptions
     };
-  
-    console.log('[QuizService] Emitting updated question:', updatedQuestion);
   
     // Emit the new question
     this.currentQuestion.next(updatedQuestion);
+    this.questionSub.next(updatedQuestion);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
