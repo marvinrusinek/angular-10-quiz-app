@@ -449,7 +449,7 @@ export class QuizService implements OnDestroy {
     this.setAnswers(values);
   
     this.optionsSubject.next(options); // emit to options$
-    this.optionsSub.next(opts);
+    this.optionsSub.next(options);
   }
 
   getOptions(index: number): Observable<Option[]> {
@@ -952,47 +952,24 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  public setCurrentQuestion(question: QuizQuestion): void {  
-    if (!question) {
-      console.error('[QuizService] Attempted to set a null or undefined question.');
+  setCurrentQuestion(q: QuizQuestion): void {
+    if (!q || !Array.isArray(q.options) || q.options.length === 0) {
+      console.error('[QuizService] Invalid question payload:', q);
       return;
     }
   
-    const previousQuestion = this.currentQuestion.getValue();
-  
-    // Check for deep comparison result
-    const isEqual = this.areQuestionsEqual(previousQuestion, question);
-  
-    if (isEqual) {
-      console.warn('[QuizService] Question is considered identical to the previous one. Skipping update.');
-      return;
-    }
-  
-    // Verify options structure
-    if (!Array.isArray(question.options) || question.options.length === 0) {
-      console.error('[QuizService] No valid options array found in the provided question:', question);
-      return;
-    }
-  
-    // Populate options ensuring necessary properties are present
-    const updatedOptions = question.options.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index,
-      correct: option.correct ?? false,
-      selected: option.selected ?? false,
-      active: option.active ?? true,
-      showIcon: option.showIcon ?? false
+    // Normalise option shape once
+    const normalisedOptions = q.options.map((opt, i) => ({
+      ...opt,
+      optionId : opt.optionId ?? i,
+      correct  : !!opt.correct,
+      selected : !!opt.selected,
+      active   : opt.active ?? true,
+      showIcon : !!opt.showIcon
     }));
   
-    // Construct the updated question object
-    const updatedQuestion: QuizQuestion = {
-      ...question,
-      options: updatedOptions
-    };
-  
-    // Emit the new question
-    this.currentQuestion.next(updatedQuestion);
-    this.questionSub.next(updatedQuestion);
+    // Emit single, final object
+    this.questionSub.next({ ...q, options: normalisedOptions });
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
