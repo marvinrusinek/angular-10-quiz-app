@@ -61,7 +61,7 @@ export class QuizStateService {
   public displayState$ = this.displayStateSubject.asObservable();
 
   private qaSubject = new ReplaySubject<{ question: QuizQuestion; options: Option[] }>(1);
-  public qa$ = this.qaSubject.asObservable();
+  // public qa$ = this.qaSubject.asObservable();
 
   private qaSub = new ReplaySubject<{
     question: QuizQuestion;
@@ -375,7 +375,7 @@ export class QuizStateService {
       correct  : !!opt.correct,
       selected : !!opt.selected,
       feedback : opt.feedback ?? 'No feedback'
-    }));
+    })) ?? [];
 
     console.log('[📤 Emitting QA]', { question, options });
     this.qaSub.next({ question: { ...question, options: opts }, options: opts, selectionMessage });
