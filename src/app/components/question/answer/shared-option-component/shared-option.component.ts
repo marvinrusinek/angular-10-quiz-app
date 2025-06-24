@@ -426,7 +426,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
 
-  private ensureOptionsToDisplay(): void {
+  /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
       if (this.currentQuestion?.options) {
@@ -440,7 +440,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[SharedOptionComponent] No options available in the current question.');
       }
     }
-  }
+  } */
+  private ensureOptionsToDisplay(): void {
+    const fallbackOptions = this.currentQuestion?.options;
+  
+    if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
+      // Already populated — no need to proceed
+      return;
+    }
+  
+    if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
+      this.optionsToDisplay = fallbackOptions.map((option) => ({
+        ...option,
+        active: option.active ?? true,
+        feedback: option.feedback ?? undefined,
+        showIcon: option.showIcon ?? false
+      }));
+      console.log('[SharedOptionComponent] Restored optionsToDisplay from currentQuestion.options');
+    } else {
+      // Avoid hard error — just warn and leave array empty
+      console.warn('[SharedOptionComponent] No valid options available to restore.');
+      this.optionsToDisplay = [];
+    }
+  }  
 
   private restoreOptionsToDisplay(): void {
     // Use a flag to prevent multiple restorations
