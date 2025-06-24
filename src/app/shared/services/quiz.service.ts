@@ -957,8 +957,8 @@ export class QuizService implements OnDestroy {
       return;
     }
   
-    // Normalise option shape once
-    const normalisedOptions = q.options.map((opt, i) => ({
+    // Normalize option shape once
+    const normalizedOptions = q.options.map((opt, i) => ({
       ...opt,
       optionId : opt.optionId ?? i,
       correct  : !!opt.correct,
@@ -968,7 +968,7 @@ export class QuizService implements OnDestroy {
     }));
   
     // Emit single, final object
-    this.questionSub.next({ ...q, options: normalisedOptions });
+    this.questionSub.next({ ...q, options: normalizedOptions });
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {
