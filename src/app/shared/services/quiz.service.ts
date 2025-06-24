@@ -203,13 +203,18 @@ export class QuizService implements OnDestroy {
   private questionSub = new BehaviorSubject<QuizQuestion | null>(null);
   private optionsSub = new BehaviorSubject<Option[]>([]);
   private selectionMsgSub = new BehaviorSubject<string>('');
+  question$ = this.questionSub.asObservable();
+  // options$ = this.optionsSub.asObservable();
+  selectionMsg$ = this.selectionMsgSub.asObservable();
 
-  public readonly combinedQA$ = combineLatest([ this.currentQuestion$, this.options$ ]).pipe(
-    filter(([q, opts]) =>
-      !!q && !!q.questionText && Array.isArray(opts) && opts.length > 0
+  public readonly combinedQA$ = combineLatest([ this.currentQuestion$, this.options$, this.selectionMsg$ ]).pipe(
+    filter(([q, opts, msg]) =>
+      !!q && !!q.questionText &&
+      Array.isArray(opts) && opts.length > 0 &&
+      msg !== null
     ),
-    map(([question, options]) => ({ question, options })),
-    shareReplay(1) // late subscribers get latest pair
+    map(([question, options, selectionMessage]) => ({ question, options, selectionMessage })),
+    shareReplay(1) // late subscribers get latest trio
   );
 
   destroy$ = new Subject<void>();
@@ -432,6 +437,10 @@ export class QuizService implements OnDestroy {
 
   setQuestions(questions: QuizQuestion[]): void {
     this.questionsSubject.next(questions);
+  }
+
+  setSelectionMessage(msg: string) {
+    this.selectionMsgSub.next(msg);
   }
 
   setOptions(options: Option[]): void {
