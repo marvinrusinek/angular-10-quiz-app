@@ -423,14 +423,20 @@ export class QuizService implements OnDestroy {
   }
 
   setOptions(options: Option[]): void {
-    if (!Array.isArray(options) || options.length === 0) {
-      console.error('[❌ setOptions] Options are either missing or empty.');
+    if (!Array.isArray(options)) {
+      console.error('[❌ setOptions] Provided value is not an array:', options);
       return;
     }
   
-    const values = options.map(opt => 'value' in opt ? opt.value : 0);
-    this.setAnswers(values); // Or whatever logic you're calling
-
+    if (options.length === 0) {
+      console.warn('[⚠️ setOptions] Empty options array received.');
+    }
+  
+    const values = options.map(opt => 
+      'value' in opt ? opt.value : opt.optionId ?? 0
+    );
+    this.setAnswers(values);
+  
     this.optionsSubject.next(options); // emit to options$
   }
 
