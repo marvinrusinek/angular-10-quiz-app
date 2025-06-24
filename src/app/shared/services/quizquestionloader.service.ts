@@ -340,7 +340,7 @@ export class QuizQuestionLoaderService {
         fetchedQuestion?.questionText?.trim() &&
         Array.isArray(clonedOptions) && clonedOptions.length > 0
       ) {
-        /* Build the selection message synchronously */
+        // Build the selection message synchronously
         const selMsg = this.selectionMessageService
                          .determineSelectionMessage(
                            questionIndex,
@@ -348,7 +348,7 @@ export class QuizQuestionLoaderService {
                            /* answered? */ false
                          );
       
-        /* ONE emission – all three arrive together */
+        // ONE emission – all three arrive together
         this.quizStateService.emitQA(this.currentQuestion!, clonedOptions, selMsg);
       }
   
