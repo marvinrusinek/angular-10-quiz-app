@@ -228,7 +228,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
 
     console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
@@ -294,7 +294,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
+  } */
+  ngOnChanges(changes: SimpleChanges): void {
+    const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
+  
+    if (!incomingConfig) return;
+  
+    const incomingQ = incomingConfig.currentQuestion?.questionText?.trim() ?? '';
+    const currentQ  = this.currentQuestion?.questionText?.trim() ?? '';
+    const optionsChanged = !this.optionsToDisplay?.length ||
+      incomingConfig.optionsToDisplay?.length !== this.optionsToDisplay.length;
+  
+    const questionChanged = incomingQ !== currentQ;
+    const configChanged = !!changes.config;
+  
+    if (configChanged || questionChanged || optionsChanged) {
+      this.currentQuestion = { ...incomingConfig.currentQuestion };
+      this.optionsToDisplay = [...incomingConfig.optionsToDisplay];
+      this.initializeOptionBindings();
+      this.generateOptionBindings();
+      this.initializeFeedbackBindings();
+      console.log('[⚡ SOC] Options rendered for', incomingQ);
+    } else {
+      console.log('[⏸️ SOC] Skipped option re-render');
+    }
+  
+    if (changes.shouldResetBackground && this.shouldResetBackground) {
+      this.resetState();
+    }
   }
+  
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
