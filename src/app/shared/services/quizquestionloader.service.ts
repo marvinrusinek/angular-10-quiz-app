@@ -586,7 +586,7 @@ export class QuizQuestionLoaderService {
     const selectionMsg = this.selectionMessageService.determineSelectionMessage(
       index, this.totalQuestions, /* answered? */ false
     );
-    this.quizService.setSelectionMessage(message);
+    this.quizService.setSelectionMessage(selectionMsg);
   
     // Push to subjects back-to-back
     console.log('[LOADER] setCurrentQuestion', fetchedQuestion.questionText);
