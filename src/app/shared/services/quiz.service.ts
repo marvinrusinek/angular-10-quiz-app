@@ -225,13 +225,6 @@ export class QuizService implements OnDestroy {
     shareReplay(1)
   );
 
-  private qaSub = new ReplaySubject<{
-    question: QuizQuestion;
-    options:  Option[];
-    selectionMessage: string;
-  }>(1);
-  qa$ = this.qaSub.asObservable();
-
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
