@@ -537,15 +537,27 @@ export class QuizQuestionLoaderService {
     });
   }
 
-  async loadQA(index: number) {
-    const fetchedQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-    const fetchedOptions = await this.quizService.getOptionsForQuestion(fetchedQuestion); 
+  public async loadQA(index: number) {
+    // Fetch both pieces
+    const fetchedQuestion = await firstValueFrom(
+      this.quizService.getQuestionByIndex(index)
+    );
   
+    const fetchedOptions  = await this.quizService.getOptionsForQuestion(
+      fetchedQuestion
+    );
+  
+    // Validate
     if (!fetchedQuestion || !Array.isArray(fetchedOptions) || fetchedOptions.length === 0) {
       console.error('[❌ loadQA] Invalid question or options');
       return;
     }
   
+    // Push into QuizService subjects first
+    this.quizService.setCurrentQuestion(fetchedQuestion);
+    this.quizService.setOptions(fetchedOptions);
+  
+    // Emit the combined pair
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
-  }
+  }  
 }
