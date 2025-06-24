@@ -553,7 +553,10 @@ export class QuizQuestionLoaderService {
     }
   
     // Push into QuizService subjects first
+    console.log('[LOADER] setCurrentQuestion', fetchedQuestion.questionText);
     this.quizService.setCurrentQuestion(fetchedQuestion);
+
+    console.log('[LOADER] setOptions', fetchedOptions.length);
     this.quizService.setOptions(fetchedOptions);
   
     // Emit the combined pair

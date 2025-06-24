@@ -418,21 +418,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
     });
   
-    // Subscribe when both are ready
-    /* this.combinedQuestionData$
-      .pipe(
-        filter((data): data is { question: QuizQuestion; options: Option[] } => !!data),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(({ question, options }) => {
-        console.log('[🧩 got QA]', { question, options });
-        this.qaToDisplay = { question, options };
-        this.cdRef.markForCheck();
-      }); */
-
-    // Trigger load
-    this.quizQuestionLoaderService.loadQA(1);
-  
     this.setupQuiz();
     this.subscribeToRouteParams();
     this.registerVisibilityChangeHandler();
