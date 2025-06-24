@@ -336,12 +336,20 @@ export class QuizQuestionLoaderService {
       this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
-      if (fetchedQuestion?.questionText?.trim() && Array.isArray(clonedOptions) && clonedOptions.length > 0) {
-        // this.quizService.setCurrentQuestion(this.currentQuestion);
-        // this.quizDataService.setOptions(clonedOptions);
+      if (
+        fetchedQuestion?.questionText?.trim() &&
+        Array.isArray(clonedOptions) && clonedOptions.length > 0
+      ) {
+        /* Build the selection message synchronously */
+        const selMsg = this.selectionMessageService
+                         .determineSelectionMessage(
+                           questionIndex,
+                           this.totalQuestions,
+                           /* answered? */ false
+                         );
       
-        // Emit after both values are set
-        this.quizStateService.emitQA(this.currentQuestion!, clonedOptions);
+        /* ONE emission – all three arrive together */
+        this.quizStateService.emitQA(this.currentQuestion!, clonedOptions, selMsg);
       }
   
       // this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
