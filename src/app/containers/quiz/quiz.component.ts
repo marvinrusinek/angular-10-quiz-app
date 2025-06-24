@@ -398,20 +398,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     .subscribe(({ question, options, selectionMessage }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
       this.qaToDisplay = { question, options };
-
-      // Show question first, explanation later
       this.displayText = question.questionText;
       this.selectionMessage = selectionMessage;
 
       this.cdRef.markForCheck(); // trigger UI update
 
       // Show explanation only if answered
-      /* const isAnswered =
-        Array.isArray(question.selectedOptionIds) && question.selectedOptionIds.length > 0 ||
-        Array.isArray(question.answer) && question.answer.length > 0; */
       const answered =
         !!question.selectedOptionIds?.length || !!question.answer?.length;
-
       if (answered) {
         setTimeout(() => {
           this.displayText = question.explanation;
