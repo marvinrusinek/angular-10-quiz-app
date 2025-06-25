@@ -548,45 +548,6 @@ export class QuizQuestionLoaderService {
     });
   }
 
-  /* public async loadQA(index: number) {
-    // Fetch both pieces
-    const fetchedQuestion = await firstValueFrom(
-      this.quizService.getQuestionByIndex(index)
-    );
-  
-    const fetchedOptions  = await this.quizService.getOptionsForQuestion(
-      fetchedQuestion
-    );
-  
-    // Validate
-    if (!fetchedQuestion || !Array.isArray(fetchedOptions) || fetchedOptions.length === 0) {
-      console.error('[❌ loadQA] Invalid question or options');
-      return;
-    }
-  
-    // Push into QuizService subjects first
-    console.log('[LOADER] setCurrentQuestion', fetchedQuestion.questionText);
-    this.quizService.setCurrentQuestion(fetchedQuestion);
-
-    console.log('[LOADER] setOptions', fetchedOptions.length);
-    this.quizService.setOptions(fetchedOptions);
-  
-    // Emit the combined pair
-    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
-  } */
-  /* async loadQA(index: number): Promise<void> {
-    // Clear any previous explanation immediately
-    this.explanationTextService.explanationText$.next('');
-    
-    const q = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-    if (!q?.options?.length) { console.error('empty options'); return; }
-  
-    const msg = this.selectionMessageService
-                  .determineSelectionMessage(index, this.totalQuestions, false);
-  
-    // ONE emission → trio arrives together
-    this.quizStateService.emitQA(q, msg);
-  } */
   public async loadQA(index: number): Promise<boolean> {
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
@@ -625,7 +586,7 @@ export class QuizQuestionLoaderService {
 
       // Emit the trio ONCE
       this.quizStateService.emitQA(
-        { ...q, options: opts },  // question with finalised options
+        { ...q, options: opts },  // question with finalized options
         msg
       );
 
