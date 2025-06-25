@@ -390,4 +390,8 @@ export class QuizStateService {
       selectionMessage
     });
   }
+
+  clearQA(): void {
+    this.qaSub.next(null); // push a null sentinel
+  }
 }

@@ -352,7 +352,6 @@ export class QuizQuestionLoaderService {
                            /* answered? */ false
                          );
       
-        // ONE emission – all three arrive together
         this.quizStateService.emitQA(this.currentQuestion, selMsg);
       }
   
