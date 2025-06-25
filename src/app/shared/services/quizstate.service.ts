@@ -373,8 +373,20 @@ export class QuizStateService {
       showIcon : !!opt.showIcon,
       correct  : !!opt.correct,
       selected : !!opt.selected,
-      feedback : opt.feedback ?? 'No feedback'
+      feedback : opt.feedback
     })) ?? [];
+
+    const correctLabels = opts
+    .filter(o => o.correct)
+    .map(o => `Option ${(o.optionId ?? 0) + 1}`)     // “Option 2”, “Option 3”, …
+    .join(' and ');                                  // handles 1 or many
+
+  /* assign the fallback to any option that’s still missing feedback */
+  opts.forEach(o => {
+    if (!o.feedback || !o.feedback.trim()) {
+      o.feedback = `You're right! The correct answer is ${correctLabels}.`;
+    }
+  });
 
     this.qaSub.next({ question: { ...question, options: opts }, options: opts, selectionMessage });
   }
