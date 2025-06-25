@@ -9,11 +9,10 @@ import {
   Observable,
   of,
   Subject,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import {
   catchError,
-
   combineLatest,
   debounceTime,
   distinctUntilChanged,
@@ -23,7 +22,7 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
+  tap
 } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -32,7 +31,6 @@ import { Option } from '../models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
-
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { ProgressBarService } from './progress-bar.service';
