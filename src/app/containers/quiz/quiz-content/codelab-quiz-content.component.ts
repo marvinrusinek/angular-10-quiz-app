@@ -226,7 +226,7 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -257,7 +257,49 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
       }),
       distinctUntilChanged()
     );
+  } */
+  /** Combine the streams that decide what <codelab-quiz-content> shows         */
+  private getCombinedDisplayTextStream(): void {
+    this.combinedText$ = combineLatest([
+      this.displayState$,                                   // { mode: 'question' | 'explanation', … }
+      this.explanationTextService.explanationText$,         // '' until we push real text
+      this.questionToDisplay$,                              // question text always present
+      this.correctAnswersText$,                             // '' or 'Correct (2/3)'
+      this.explanationTextService.shouldDisplayExplanation$ // author flag (true/false)
+      // this.explanationTextService.resetComplete$         // ← removed: no longer needed
+    ]).pipe(
+      /* debounceTime(30), */                               // ← removed: causes visible flash
+      map((
+        [state, explanationText, questionText,
+        correctText, shouldDisplayExplanation /* , resetComplete */]
+      ) => {
+
+        const explanation = explanationText?.trim();
+        const question    = questionText?.trim();
+
+        /** Show explanation only when:
+         *  • mode is 'explanation'
+         *  • explanation text is non-empty
+         *  • author explicitly allowed it            */
+        const showExplanation =
+          state.mode === 'explanation' &&
+          !!explanation &&
+          shouldDisplayExplanation === true;
+
+        if (showExplanation) {
+          console.log('[📢 Showing EXPLANATION]');
+          return explanation;                              // ← render explanation once
+        }
+
+        /** Otherwise show question (+ correct count if present) */
+        return correctText?.trim()
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      }),
+      distinctUntilChanged()
+    );
   }
+
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
