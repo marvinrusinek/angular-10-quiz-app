@@ -409,8 +409,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const answered =
         !!question.selectedOptionIds?.length || !!question.answer?.length;
       if (answered) {
-        const explanation = question.explanation?.trim() ?? '';
-        this.explanationTextService.explanationText$.next(explanation);
+        this.explanationTextService.explanationText$.next(question.explanation?.trim() ?? '');
         
         queueMicrotask(() => {
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
