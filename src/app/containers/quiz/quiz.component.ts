@@ -393,7 +393,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Assign question + options together when ready
     this.quizStateService.qa$
     .pipe(
-      filter(d => !!d.question && Array.isArray(d.options) && d.options.length > 0),
+      filter(d =>
+        !!d &&
+        !!d.question &&
+        Array.isArray(d.options) && d.options.length > 0
+      ),
       takeUntil(this.destroy$)
     )
     .subscribe(({ question, options, selectionMessage }) => {
