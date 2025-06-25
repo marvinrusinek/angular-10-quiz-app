@@ -599,7 +599,7 @@ export class QuizQuestionLoaderService {
     try {
       // Fetch the question + options
       const q = await firstValueFrom(
-        this.quizService.getQuestionByIndex(index, { signal: this.currentLoadAbortCtl.signal })
+        this.quizService.getQuestionByIndex(index)
       );
 
       if (!q?.options?.length) {
