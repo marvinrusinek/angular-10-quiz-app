@@ -451,9 +451,6 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  /* public getOptionsForQuestion(question: QuizQuestion): Option[] {
-    return Array.isArray(question.options) ? question.options : [];
-  } */
   getOptionsForQuestion(question: QuizQuestion): Promise<Option[]> {
     return Promise.resolve(question.options ?? []);
   }  
