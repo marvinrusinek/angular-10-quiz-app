@@ -1236,19 +1236,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
   
-        // Update indices before async calls
+        /* ─── A. Wipe every headline stream BEFORE any async work ─────────── */
+        this.quizQuestionLoaderService.resetHeadlineStreams();   // clears QA, header, expl.
+        this.cdRef.markForCheck();                               // instant blank / loading view
+        /* ──────────────────────────────────────────────────────────────────── */
+  
+        // Update indices (local + services) before async calls
         this.quizId               = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId   = quizId;
         this.quizService.setCurrentQuestionIndex(index);
   
         try {
-  
-          /* ─── A. Wipe every headline stream first ───────────────────────── */
-          this.quizQuestionLoaderService.resetHeadlineStreams();   // clears QA, header, expl.
-          this.cdRef.markForCheck();                               // instant blank / loading view
-          /* ────────────────────────────────────────────────────────────────── */
-  
           /* fetch current quiz meta (unchanged) */
           const currentQuiz: Quiz = await firstValueFrom(
             this.quizDataService.getQuiz(quizId).pipe(
@@ -1274,9 +1273,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           /* local state still needed elsewhere in the component  */
           this.currentQuestion = question;
-          /* optionsToDisplay now comes from qa$ so no separate fetch */
-          // this.optionsToDisplay = await this.quizService.getOptionsForQuestion(question); // ← removed
-          // this.resetComponentState?.();                                                   // ← removed
   
           /* Progress Bar */
           this.progressBarService.updateProgress(index, totalQuestions);
@@ -1287,6 +1283,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       });
   }
+  
   
   
   private resetComponentState(): void {
