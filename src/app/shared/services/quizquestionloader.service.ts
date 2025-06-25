@@ -572,8 +572,11 @@ export class QuizQuestionLoaderService {
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
   } */
   async loadQA(index: number): Promise<void> {
+    // Clear any previous explanation immediately
+    this.explanationTextService.explanationText$.next('');
+    
     const q = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-    if (!q?.options?.length) { console.error('bad Q'); return; }
+    if (!q?.options?.length) { console.error('empty options'); return; }
   
     const msg = this.selectionMessageService
                   .determineSelectionMessage(index, this.totalQuestions, false);
