@@ -361,10 +361,9 @@ export class QuizStateService {
     this.quizQuestionCreated = false;
   }
 
-  emitQA(question: QuizQuestion, options: Option[], selectionMessage: string) {
-    if (!question || !Array.isArray(options) || options.length === 0) {
-      console.warn('[❌ emitQA] Missing question or options:', { question, options });
-      return;
+  emitQA(question: QuizQuestion, selectionMessage: string): void {
+    if (!question?.options?.length) {
+      console.warn('[emitQA] question or options missing'); return;
     }
 
     const opts = question.options.map((opt, i) => ({
@@ -377,7 +376,6 @@ export class QuizStateService {
       feedback : opt.feedback ?? 'No feedback'
     })) ?? [];
 
-    console.log('[📤 Emitting QA]', { question, options });
     this.qaSub.next({ question: { ...question, options: opts }, options: opts, selectionMessage });
   }
 }

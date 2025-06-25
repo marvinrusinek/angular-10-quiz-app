@@ -571,32 +571,14 @@ export class QuizQuestionLoaderService {
     // Emit the combined pair
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
   } */
-  public async loadQA(index: number): Promise<void> {
-    // Fetch the question (already includes .options)
-    const fetchedQuestion = await firstValueFrom(
-      this.quizService.getQuestionByIndex(index)
-    );
-    if (!fetchedQuestion || !Array.isArray(fetchedQuestion.options) || fetchedQuestion.options.length === 0) {
-      console.error('[loadQA] invalid question or empty options');
-      return;
-    }
+  async loadQA(index: number): Promise<void> {
+    const q = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+    if (!q?.options?.length) { console.error('bad Q'); return; }
   
-    const fetchedOptions = fetchedQuestion.options;
-
-    // Push message first
-    const selectionMsg = this.selectionMessageService.determineSelectionMessage(
-      index, this.totalQuestions, /* answered? */ false
-    );
-    this.quizService.setSelectionMessage(selectionMsg);
+    const msg = this.selectionMessageService
+                  .determineSelectionMessage(index, this.totalQuestions, false);
   
-    // Push to subjects back-to-back
-    console.log('[LOADER] setCurrentQuestion', fetchedQuestion.questionText);
-    this.quizService.setCurrentQuestion(fetchedQuestion);
-  
-    console.log('[LOADER] setOptions', fetchedOptions.length);
-    this.quizService.setOptions(fetchedOptions);
-  
-    // Emit via quizStateService if something else still listens there
-    this.quizStateService.emitQA(fetchedQuestion, fetchedOptions, selectionMsg);
+    // ONE emission → trio arrives together
+    this.quizStateService.emitQA(q, msg);
   }
 }
