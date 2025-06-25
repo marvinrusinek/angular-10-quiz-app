@@ -1,7 +1,8 @@
+
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, firstValueFrom, from, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
@@ -199,31 +200,6 @@ export class QuizService implements OnDestroy {
     new BehaviorSubject<CombinedQuestionDataType | null>(null);
   combinedQuestionData$: Observable<CombinedQuestionDataType> =
     this.combinedQuestionDataSubject.asObservable();
-
-  private questionSub = new BehaviorSubject<QuizQuestion | null>(null);
-  private optionsSub = new BehaviorSubject<Option[]>([]);
-  private selectionMsgSub = new BehaviorSubject<string>('');
-  question$ = this.questionSub.asObservable();
-  // options$ = this.optionsSub.asObservable();
-  selectionMsg$ = this.selectionMsgSub.asObservable();
-
-  public readonly combinedQA$ = combineLatest([
-    this.currentQuestion$,
-    this.options$,
-    this.selectionMsg$
-  ]).pipe(
-    filter(([question, options, selectionMessage]) =>
-      !!question?.questionText &&
-      Array.isArray(options) && options.length > 0 &&
-      typeof selectionMessage === 'string' && selectionMessage.trim().length > 0
-    ),
-    map(([question, options, selectionMessage]) => ({
-      question,
-      options,
-      selectionMessage
-    })),
-    shareReplay(1)
-  );
 
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
@@ -447,25 +423,15 @@ export class QuizService implements OnDestroy {
     this.questionsSubject.next(questions);
   }
 
-  setSelectionMessage(msg: string) {
-    this.selectionMsgSub.next(msg);
-  }
-
   setOptions(options: Option[]): void {
-    if (!Array.isArray(options)) {
-      console.error('[❌ setOptions] Provided value is not an array:', options);
+    if (!Array.isArray(options) || options.length === 0) {
+      console.error('[❌ setOptions] Options are either missing or empty.');
       return;
     }
   
-    if (options.length === 0) {
-      console.warn('[⚠️ setOptions] Empty options array received.');
-    }
-  
-    const values = options.map(opt => 
-      'value' in opt ? opt.value : opt.optionId ?? 0
-    );
-    this.setAnswers(values);
-  
+    const values = options.map(opt => 'value' in opt ? opt.value : 0);
+    this.setAnswers(values); // Or whatever logic you're calling
+
     this.optionsSubject.next(options); // emit to options$
   }
 
@@ -969,24 +935,56 @@ export class QuizService implements OnDestroy {
     this.nextExplanationTextSource.next(explanationText);
   }
 
-  setCurrentQuestion(q: QuizQuestion): void {
-    if (!q || !Array.isArray(q.options) || q.options.length === 0) {
-      console.error('[QuizService] Invalid question payload:', q);
+  public setCurrentQuestion(question: QuizQuestion): void {
+    console.log('[QuizService] setCurrentQuestion called with:', question);
+  
+    if (!question) {
+      console.error('[QuizService] Attempted to set a null or undefined question.');
       return;
     }
   
-    // Normalize option shape once
-    const normalizedOptions = q.options.map((opt, i) => ({
-      ...opt,
-      optionId : opt.optionId ?? i,
-      correct  : !!opt.correct,
-      selected : !!opt.selected,
-      active   : opt.active ?? true,
-      showIcon : !!opt.showIcon
+    const previousQuestion = this.currentQuestion.getValue();
+    
+    console.log('[QuizService] Previous Question:', previousQuestion);
+    console.log('[QuizService] New Question:', question);
+  
+    // Check for deep comparison result
+    const isEqual = this.areQuestionsEqual(previousQuestion, question);
+    console.log('[QuizService] areQuestionsEqual:', isEqual);
+  
+    if (isEqual) {
+      console.warn('[QuizService] Question is considered identical to the previous one. Skipping update.');
+      return;
+    }
+  
+    // Verify options structure
+    if (!Array.isArray(question.options) || question.options.length === 0) {
+      console.error('[QuizService] No valid options array found in the provided question:', question);
+      return;
+    }
+  
+    // Populate options ensuring necessary properties are present
+    const updatedOptions = question.options.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index,
+      correct: option.correct ?? false,
+      selected: option.selected ?? false,
+      active: option.active ?? true,
+      showIcon: option.showIcon ?? false,
     }));
   
-    // Emit single, final object
-    this.questionSub.next({ ...q, options: normalizedOptions });
+    console.log('[QuizService] Updated Options:', updatedOptions);
+  
+    // Construct the updated question object
+    const updatedQuestion: QuizQuestion = {
+      ...question,
+      options: updatedOptions,
+    };
+  
+    console.log('[QuizService] Emitting updated question:', updatedQuestion);
+  
+    // Emit the new question
+    this.currentQuestion.next(updatedQuestion);
   }
 
   public getCurrentQuestion(questionIndex: number): Observable<QuizQuestion | null> {

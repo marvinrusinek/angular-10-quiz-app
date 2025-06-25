@@ -1522,27 +1522,47 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
-    if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-      console.warn('[loadOptionsForQuestion] ❌ No valid question or options.');
+    if (!question || !question.options?.length) {
+      console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
       return;
     }
-  
-    // Rebuild options with default-safe properties
-    this.optionsToDisplay = question.options.map((option) => ({
-      ...option,
-      feedback: option.feedback ?? 'No feedback available.',
-      showIcon: option.showIcon ?? false,
-      active: option.active ?? true,
-      selected: option.selected ?? false,
-      correct: option.correct ?? false
-    }));
-  
-    // Apply feedback only if the question index changed
+
+    if (this.optionsToDisplay.length !== question.options.length) {
+      console.warn(
+        `[DEBUG] ❌ Clearing optionsToDisplay at:`,
+        new Error().stack
+      );
+      this.optionsToDisplay = [];
+    }
+
+    this.optionsToDisplay = [...question.options];
+
+    const currentQuestion = this.quizService.currentQuestion.getValue();
+    if (!currentQuestion) {
+      console.error(
+        '[loadOptionsForQuestion] ❌ No current question available in QuizService.'
+      );
+      return;
+    }
+
+    this.optionsToDisplay = [...(currentQuestion.options ?? [])].map(
+      (option) => ({
+        ...option,
+        feedback: option.feedback ?? 'No feedback available.',
+        showIcon: option.showIcon ?? false,
+        active: option.active ?? true,
+        selected: option.selected ?? false,
+        correct: option.correct ?? false,
+      })
+    );
+
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
       this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
-      console.debug('[loadOptionsForQuestion] ✅ Feedback already applied for this question.');
+      console.debug(
+        '[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.'
+      );
     }
   }
 
@@ -5219,4 +5239,3 @@ export class QuizQuestionComponent
     }, 1000); // ensure audio has time to play before clearing
   }
 }
-
