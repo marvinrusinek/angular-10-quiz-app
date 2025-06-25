@@ -73,6 +73,9 @@ export class QuizQuestionLoaderService {
   isButtonEnabled = false;
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
+  public readonly isLoading$   = new BehaviorSubject<boolean>(false); // true while a question is being fetched
+  private currentLoadAbortCtl  = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -571,7 +574,7 @@ export class QuizQuestionLoaderService {
     // Emit the combined pair
     this.quizStateService.emitQA(fetchedQuestion, fetchedOptions);
   } */
-  async loadQA(index: number): Promise<void> {
+  /* async loadQA(index: number): Promise<void> {
     // Clear any previous explanation immediately
     this.explanationTextService.explanationText$.next('');
     
@@ -583,5 +586,58 @@ export class QuizQuestionLoaderService {
   
     // ONE emission → trio arrives together
     this.quizStateService.emitQA(q, msg);
+  } */
+  public async loadQA(index: number): Promise<boolean> {
+    /* 0️⃣ – abort any in-flight request */
+    this.currentLoadAbortCtl.abort();
+    this.currentLoadAbortCtl = new AbortController();
+    this.isLoading$.next(true);
+
+    /* 1️⃣ – clear stale explanation so it can’t flash */
+    this.explanationTextService.explanationText$.next('');
+
+    try {
+      /** 2️⃣ – fetch the question + options                */
+      const q = await firstValueFrom(
+        this.quizService.getQuestionByIndex(index, { signal: this.currentLoadAbortCtl.signal })
+      );
+
+      if (!q?.options?.length) {
+        console.error('[loadQA] no options for Q', index);
+        return false;
+      }
+
+      /** 3️⃣ – build a per-question fallback feedback just once */
+      const opts = q.options.map((o, i) => ({
+        ...o,
+        optionId : o.optionId ?? i,
+        active   : o.active  ?? true,
+        showIcon : !!o.showIcon,
+        selected : !!o.selected,
+        correct  : !!o.correct,
+        feedback : o.feedback
+              ?? `You're right! The correct answer is Option ${i + 1}.`
+      }));
+
+      /** 4️⃣ – synthesize the selection message              */
+      const msg = this.selectionMessageService
+                    .determineSelectionMessage(index, this.totalQuestions, false);
+
+      /** 5️⃣ – emit the trio ONCE                           */
+      this.quizStateService.emitQA(
+        { ...q, options: opts },  // question with finalised options
+        msg
+      );
+
+      return true;
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        console.error('[loadQA] fetch failed', err);
+      }
+      return false;
+    } finally {
+      this.isLoading$.next(false);
+    }
   }
+
 }
