@@ -45,7 +45,6 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
   questionIndex: number;
-  questionText = '';
   currentQuestionIndexValue: number;
   currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
