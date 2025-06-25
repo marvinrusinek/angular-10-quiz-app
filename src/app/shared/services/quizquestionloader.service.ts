@@ -548,6 +548,10 @@ export class QuizQuestionLoaderService {
   }
 
   public async loadQA(index: number): Promise<boolean> {
+    // Clear stale question + options immediately
+    this.quizStateService.clearQA();
+    this.explanationTextService.explanationText$.next('');
+
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
 
     // Abort any in-flight request
