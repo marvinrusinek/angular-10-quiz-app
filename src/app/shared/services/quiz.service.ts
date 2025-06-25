@@ -485,7 +485,7 @@ export class QuizService implements OnDestroy {
         console.warn(
           `⚠️ [sanitizeOptions] optionId is missing or invalid at index ${index}. Assigning fallback optionId.`
         );
-        option.optionId = index; // Assign fallback optionId
+        option.optionId = index; // assign fallback optionId
       }
 
       // Ensure option text is present
