@@ -409,14 +409,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const answered =
         !!question.selectedOptionIds?.length || !!question.answer?.length;
       if (answered) {
-        // 🔐 Defer pushing explanation + display mode until next tick
+        // Defer pushing explanation + display mode until next tick
         queueMicrotask(() => {
-          // 1. Emit the explanation text
+          //  Emit the explanation text
           this.explanationTextService.explanationText$.next(
             question.explanation?.trim() ?? ''
           );
 
-          // 2. Emit display mode
+          // Emit display mode
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         });
       }
