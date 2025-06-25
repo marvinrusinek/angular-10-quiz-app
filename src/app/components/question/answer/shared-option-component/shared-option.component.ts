@@ -231,9 +231,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    try { console.timeEnd('[⏱ OptionBind] total'); } catch {}
-    console.log('[🧩 SharedOptionComponent] ngOnChanges fired');
     const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
+
+    console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
+
     if (incomingConfig) {
       const qTxt   = incomingConfig.currentQuestion?.questionText ?? '[–]';
       const optTxt = incomingConfig.optionsToDisplay?.map(o => o.text) ?? [];
@@ -250,7 +251,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const incomingText = incomingConfig?.currentQuestion?.questionText?.trim();
 
     try {
-      const allQuestions = await firstValueFrom(this.quizService.getAllQuestions()); // unwrap Observable
+      const allQuestions = await firstValueFrom(this.quizService.getAllQuestions()); // ✅ unwrap Observable
       incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingText);
     } catch (err) {
       console.warn('[❌ Failed to get all questions]', err);
@@ -261,7 +262,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       (configChanged || questionChanged || optsMissing) &&
       incomingIndex === this.quizService.getCurrentQuestionIndex()
     ) {
-      // Forcing reinit due to config / question / missing opts
+      console.log('[🔁 Reinit] Forcing reinit due to config / question / missing opts');
       this.currentQuestion = { ...incomingConfig.currentQuestion };
       this.initializeFromConfig();
     } else {
@@ -274,27 +275,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     if (changes.optionsToDisplay && incomingConfig?.optionsToDisplay?.length) {
       console.log('[🔁 Regenerating optionBindings for new options]');
-      // Regenerating optionBindings for new options
       this.optionsToDisplay = [...incomingConfig.optionsToDisplay]; // ensure it's set
-
-      
-      // console.time('[⏱ OptionBind] total');
-  console.time('[⏱ OptionBind] initializeOptionBindings');
-  console.log('▶ calling initializeOptionBindings');
-  this.initializeOptionBindings();
-  console.log('◀ finished initializeOptionBindings');
-  console.timeEnd('[⏱ OptionBind] initializeOptionBindings');
-
-  console.time('[⏱ OptionBind] generateOptionBindings');
-  this.generateOptionBindings();
-  console.timeEnd('[⏱ OptionBind] generateOptionBindings');
-
-  console.time('[⏱ OptionBind] initializeFeedbackBindings');
-  this.initializeFeedbackBindings();
-  console.timeEnd('[⏱ OptionBind] initializeFeedbackBindings');
-  
-
-      console.timeEnd('[⏱ RenderLag] from QA emission to options list'); // end timer
+      this.initializeOptionBindings(); // resets bindings
+      this.generateOptionBindings();   // builds new bindings
+      this.initializeFeedbackBindings(); // resets feedback
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
