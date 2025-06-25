@@ -588,16 +588,16 @@ export class QuizQuestionLoaderService {
     this.quizStateService.emitQA(q, msg);
   } */
   public async loadQA(index: number): Promise<boolean> {
-    /* 0️⃣ – abort any in-flight request */
+    // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
     this.currentLoadAbortCtl = new AbortController();
     this.isLoading$.next(true);
 
-    /* 1️⃣ – clear stale explanation so it can’t flash */
+    // Clear stale explanation so it can’t flash
     this.explanationTextService.explanationText$.next('');
 
     try {
-      /** 2️⃣ – fetch the question + options                */
+      // Fetch the question + options
       const q = await firstValueFrom(
         this.quizService.getQuestionByIndex(index, { signal: this.currentLoadAbortCtl.signal })
       );
@@ -607,7 +607,7 @@ export class QuizQuestionLoaderService {
         return false;
       }
 
-      /** 3️⃣ – build a per-question fallback feedback just once */
+      // Build a per-question fallback feedback just once
       const opts = q.options.map((o, i) => ({
         ...o,
         optionId : o.optionId ?? i,
@@ -619,11 +619,11 @@ export class QuizQuestionLoaderService {
               ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
 
-      /** 4️⃣ – synthesize the selection message              */
+      // Synthesize the selection message
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
 
-      /** 5️⃣ – emit the trio ONCE                           */
+      // Emit the trio ONCE
       this.quizStateService.emitQA(
         { ...q, options: opts },  // question with finalised options
         msg
@@ -639,5 +639,4 @@ export class QuizQuestionLoaderService {
       this.isLoading$.next(false);
     }
   }
-
 }
