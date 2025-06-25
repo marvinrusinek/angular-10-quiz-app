@@ -363,19 +363,31 @@ export class QuizStateService {
 
   emitQA(question: QuizQuestion, selectionMessage: string): void {
     if (!question?.options?.length) {
-      console.warn('[emitQA] question or options missing'); return;
+      console.warn('[❌ emitQA] Question or options missing', { question });
+      return;
     }
-
-    const opts = question.options.map((opt, i) => ({
+  
+    // Normalize each option safely
+    const normalizedOptions = question.options.map((opt, i) => ({
       ...opt,
       optionId : opt.optionId ?? i,
-      active   : opt.active   ?? true,
-      showIcon : !!opt.showIcon,
-      correct  : !!opt.correct,
-      selected : !!opt.selected,
-      feedback : opt.feedback
-    })) ?? [];
-
-    this.qaSub.next({ question: { ...question, options: opts }, options: opts, selectionMessage });
+      active   : opt.active !== undefined ? opt.active : true,
+      showIcon : Boolean(opt.showIcon),
+      correct  : Boolean(opt.correct),
+      selected : Boolean(opt.selected),
+      feedback : typeof opt.feedback === 'string' ? opt.feedback.trim() : 'No feedback'
+    }));
+  
+    const updatedQuestion: QuizQuestion = {
+      ...question,
+      options: normalizedOptions
+    };
+  
+    // Emit the complete QA object as a single payload
+    this.qaSub.next({
+      question: updatedQuestion,
+      options: normalizedOptions,
+      selectionMessage
+    });
   }
 }
