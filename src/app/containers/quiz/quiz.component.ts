@@ -84,6 +84,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
   questionPayload: QuestionPayload | null = null;
+  questionTextForHeader = '';
   currentQuestion$: Observable<QuizQuestion | null> = 
     this.quizStateService.currentQuestion$.pipe(startWith(null));
   currentQuestionType: string;
