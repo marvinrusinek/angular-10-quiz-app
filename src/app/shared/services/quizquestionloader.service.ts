@@ -353,7 +353,7 @@ export class QuizQuestionLoaderService {
                          );
       
         // ONE emission – all three arrive together
-        this.quizStateService.emitQA(this.currentQuestion!, clonedOptions, selMsg);
+        this.quizStateService.emitQA(this.currentQuestion, selMsg);
       }
   
       // this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
@@ -550,7 +550,7 @@ export class QuizQuestionLoaderService {
 
   public async loadQA(index: number): Promise<boolean> {
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-    
+
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
     this.currentLoadAbortCtl = new AbortController();
