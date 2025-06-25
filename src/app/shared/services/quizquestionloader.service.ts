@@ -549,10 +549,7 @@ export class QuizQuestionLoaderService {
 
   public async loadQA(index: number): Promise<boolean> {
     // Clear stale question + options immediately
-    this.quizStateService.clearQA();
-    this.explanationTextService.explanationText$.next('');
-
-    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+    this.resetHeadlineStreams();
 
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
@@ -604,5 +601,15 @@ export class QuizQuestionLoaderService {
     } finally {
       this.isLoading$.next(false);
     }
+  }
+
+  resetHeadlineStreams(): void {
+    this.quizStateService.clearQA();                            // clears question + options
+    this.questionToDisplay$.next('');                           // clears question text
+    this.explanationTextService.explanationText$.next('');      // clears explanation
+    this.quizStateService.setDisplayState({                     // force “question” mode
+      mode: 'question',
+      answered: false
+    });
   }
 }
