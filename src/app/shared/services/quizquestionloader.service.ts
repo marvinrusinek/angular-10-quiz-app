@@ -549,6 +549,8 @@ export class QuizQuestionLoaderService {
   }
 
   public async loadQA(index: number): Promise<boolean> {
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+    
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
     this.currentLoadAbortCtl = new AbortController();
