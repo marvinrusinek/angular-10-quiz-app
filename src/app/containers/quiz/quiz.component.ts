@@ -3401,7 +3401,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
-      this.questionToDisplay$.next(trimmedText);
+
+      /* 🔄 defer header update until QA has been emitted */
+      queueMicrotask(() => {
+        console.trace('[TRACE] questionToDisplay$.next after QA');
+        this.questionToDisplay$.next(trimmedText);
+      });
       this.questionTextLoaded = true;
   
       /* ───────── Hydrate & clone options ───────── */
