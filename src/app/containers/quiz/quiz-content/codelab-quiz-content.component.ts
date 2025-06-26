@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -22,7 +22,7 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
@@ -209,9 +209,10 @@ export class CodelabQuizContentComponent implements OnInit, OnDestroy, AfterView
     this.setupCorrectAnswersTextDisplay();
   }
 
-  ngAfterViewChecked(): void {
-    if (this.currentQuestion && !this.questionRendered.getValue()) {
-      this.questionRendered.next(false);
+  ngOnChanges(): void {
+    /** Run only when the new questionText arrives */
+    if (!!this.questionText && !this.questionRendered.getValue()) {
+      this.questionRendered.next(true);
       this.initializeExplanationTextObservable();
     }
   }
