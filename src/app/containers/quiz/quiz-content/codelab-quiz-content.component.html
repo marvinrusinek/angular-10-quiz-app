@@ -1,4 +1,4 @@
-<h3 question-content>
+<h3 question-content *ngIf="questionText">
   <ng-container *ngIf="combinedText$ | async as combinedText">
     <span [innerHTML]="combinedText"></span>
   </ng-container>
