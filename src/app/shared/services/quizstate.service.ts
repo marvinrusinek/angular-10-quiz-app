@@ -363,6 +363,8 @@ export class QuizStateService {
   }
 
   emitQA(question: QuizQuestion, selectionMessage: string): void {
+    console.log('[DEBUG] emitQA firing', question?.questionText, options?.length);
+
     if (!question?.options?.length) {
       console.warn('[❌ emitQA] Question or options missing', { question });
       return;

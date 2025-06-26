@@ -552,30 +552,43 @@ export class QuizQuestionLoaderService {
   }
 
   public async loadQA(index: number): Promise<boolean> {
+    console.log('[DEBUG] loadQA called for index', index);
+  
     // Clear stale question + options immediately
     this.resetHeadlineStreams();
-
+  
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
     this.currentLoadAbortCtl = new AbortController();
     this.isLoading$.next(true);
-
+  
     // Clear stale explanation so it can’t flash
     this.explanationTextService.explanationText$.next('');
-
+  
     try {
-      // Fetch the question + options
+      /* ─── 1. Fetch the question skeleton ─────────────────────────────── */
       const q = await firstValueFrom(
         this.quizService.getQuestionByIndex(index)
       );
-
-      if (!q?.options?.length) {
-        console.error('[loadQA] no options for Q', index);
+      if (!q) {
+        console.error('[loadQA] null question for Q', index);
         return false;
       }
-
-      // Build a per-question fallback feedback just once
-      const opts = q.options.map((o, i) => ({
+  
+      /* ─── 2. Ensure we have an options array ─────────────────────────── */
+      let opts = q.options ?? [];
+      if (opts.length === 0) {
+        // Fetch options separately when they’re not embedded in the question
+        opts = await this.quizService.getOptionsForQuestion(q);   // Promise<Option[]>
+        console.log('[DEBUG] fetched options in loadQA', opts.length);
+        if (opts.length === 0) {
+          console.error('[loadQA] no options for Q', index);
+          return false;
+        }
+      }
+  
+      /* ─── 3. Normalise / add fallback feedback once ─────────────────── */
+      const finalOpts = opts.map((o, i) => ({
         ...o,
         optionId : o.optionId ?? i,
         active   : o.active  ?? true,
@@ -585,17 +598,17 @@ export class QuizQuestionLoaderService {
         feedback : o.feedback
               ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
-
-      // Synthesize the selection message
+  
+      /* ─── 4. Synthesize the selection message ────────────────────────── */
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
-
-      // Emit the trio ONCE
+  
+      /* ─── 5. Emit the trio ONCE  (question now guaranteed to carry opts) */
       this.quizStateService.emitQA(
-        { ...q, options: opts },  // question with finalized options
+        { ...q, options: finalOpts },   // question with finalized options
         msg
       );
-
+  
       return true;
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
