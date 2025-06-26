@@ -253,7 +253,12 @@ export class QuizQuestionLoaderService {
   
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
-      this.questionToDisplay$.next(trimmedText);
+      
+      setTimeout(() => { // ← 1 macrotask delay
+        console.trace('[TRACE] questionToDisplay$.next after QA');
+        this.questionToDisplay$.next(trimmedText);
+      });
+
       this.questionTextLoaded = true;
   
       // ───── Hydrate and clone options ─────
