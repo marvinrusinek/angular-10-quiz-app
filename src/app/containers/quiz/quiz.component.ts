@@ -3402,8 +3402,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
 
-      /* 🔄 defer header update until QA has been emitted */
-      queueMicrotask(() => {
+      /* DEFER header update until Angular has already rendered the new QA */
+      setTimeout(() => {                               // ← 1 macrotask delay
         console.trace('[TRACE] questionToDisplay$.next after QA');
         this.questionToDisplay$.next(trimmedText);
       });
