@@ -1275,6 +1275,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           /* ─── B. Fetch + emit the new question once ─────────────────────── */
           await this.quizQuestionLoaderService.loadQA(index);
+          this.cdRef.markForCheck();
           /* ────────────────────────────────────────────────────────────────── */
   
           /* local state still needed elsewhere in the component  */
