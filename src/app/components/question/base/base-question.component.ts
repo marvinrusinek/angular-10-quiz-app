@@ -313,22 +313,33 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
 
     // Subscribe to `currentQuestion$` with filtering to skip undefined values
     this.currentQuestionSubscription = currentQuestion$.pipe(
-      filter((currentQuestion) => {
-        const isDefined = currentQuestion !== undefined;
-        if (!isDefined) {
-          console.warn('Received undefined currentQuestion');
+      // Filter out undefined or option-less emissions
+      filter(
+        (quizQuestion): quizQuestion is QuizQuestion => {
+          // 1️Guard against undefined values
+          if (!quizQuestion) {
+            console.warn('Received undefined currentQuestion');
+            return false;
+          }
+    
+          // Guard against questions that don’t yet have options
+          const hasOptions = !!quizQuestion.options?.length;
+          if (!hasOptions) {
+            console.warn('Current question has no options', quizQuestion);
+          }
+    
+          return hasOptions;
         }
-        return isDefined;
-      })
+      )
     ).subscribe({
-      next: (currentQuestion: QuizQuestion | null | undefined) => {
-        this.question = currentQuestion;
-        this.initializeOptions(); // Initialize options if needed
+      next: (quizQuestion: QuizQuestion) => {
+        this.question = quizQuestion;
+        this.initializeOptions();
       },
       error: (err) => {
         console.error('Error subscribing to currentQuestion:', err);
       },
-    });
+    });    
   }
 
   protected abstract loadDynamicComponent(
