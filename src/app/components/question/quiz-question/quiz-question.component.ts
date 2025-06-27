@@ -1989,6 +1989,12 @@ export class QuizQuestionComponent
         }
       }
 
+      // If questionsArray still empty, bail out gracefully
+      if (!this.questionsArray.length) {
+        console.warn('[loadQuestion] questionsArray still empty – aborting load');
+        return;
+      }
+
       // Validate current index
       if (
         this.currentQuestionIndex < 0 ||
