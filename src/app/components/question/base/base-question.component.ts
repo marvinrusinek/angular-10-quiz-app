@@ -316,7 +316,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       // Filter out undefined or option-less emissions
       filter(
         (quizQuestion): quizQuestion is QuizQuestion => {
-          // 1️Guard against undefined values
+          // Guard against undefined values
           if (!quizQuestion) {
             console.warn('Received undefined currentQuestion');
             return false;
@@ -338,8 +338,8 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       },
       error: (err) => {
         console.error('Error subscribing to currentQuestion:', err);
-      },
-    });    
+      }
+    });
   }
 
   protected abstract loadDynamicComponent(
