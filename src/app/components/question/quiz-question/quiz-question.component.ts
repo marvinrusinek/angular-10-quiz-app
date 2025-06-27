@@ -1395,7 +1395,7 @@ export class QuizQuestionComponent
   } */
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      const rawParam = params.get('questionIndex');
+      const rawParam   = params.get('questionIndex');
       const parsedParam = Number(rawParam);
   
       console.log('[📦 Route param received]', { rawParam, parsed: parsedParam });
@@ -1412,11 +1412,15 @@ export class QuizQuestionComponent
       console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
   
       try {
-        // ✅ Sync state
+        /* ───────────────────────────────────────────────────────────
+           Sync state **before** loadQuestion() so it sees the
+           correct 0-based index.  (Moved this.currentQuestionIndex up)
+        ─────────────────────────────────────────────────────────── */
+        this.currentQuestionIndex = zeroBasedIndex;           // 👈 moved earlier
         this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
   
         // ✅ Load the question using correct index
-        const loaded = await this.loadQuestion(); // this should internally use zeroBasedIndex
+        const loaded = await this.loadQuestion();             // now uses new index
         if (!loaded) {
           console.error(`[handleRouteChanges] ❌ Failed to load data for Q${questionIndex}`);
           return;
@@ -1424,9 +1428,9 @@ export class QuizQuestionComponent
   
         // ✅ Reset form and assign question
         this.resetForm();
-        this.currentQuestionIndex = zeroBasedIndex;
-        this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
+        /* currentQuestionIndex already set above */
   
+        this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
         if (!this.currentQuestion) {
           console.warn(`[handleRouteChanges] ⚠️ No currentQuestion for Q${questionIndex}`);
           return;
@@ -1439,7 +1443,7 @@ export class QuizQuestionComponent
         const originalOptions = this.currentQuestion.options ?? [];
         this.optionsToDisplay = originalOptions.map((opt) => ({
           ...opt,
-          active: true,
+          active:   true,
           feedback: undefined,
           showIcon: false
         }));
@@ -1465,6 +1469,7 @@ export class QuizQuestionComponent
       }
     });
   }
+  
 
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
