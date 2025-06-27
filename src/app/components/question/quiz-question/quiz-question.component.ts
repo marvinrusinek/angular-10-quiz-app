@@ -3983,8 +3983,18 @@ export class QuizQuestionComponent
             console.warn(
               `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — redirecting to /results`
             );
-            await this.router.navigate(['/results']);
-            return;
+          }
+
+          // Attempt absolute navigation to /results and swallow failures
+          try {
+            await this.router.navigateByUrl('/results');
+          } catch (navErr) {
+            console.error(
+              '[waitForQuestionData] Navigation to /results failed:',
+              navErr
+            );
+          }
+          return;
           }
   
           // Existing validity check
