@@ -602,11 +602,27 @@ export class QuizQuestionLoaderService {
       /* ─── 4. Synthesize the selection message ────────────────────────── */
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
+
+      /* 5 ─── CLONE question & attach quizId + index ------------------------------------ */
+      const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
+        ...q,
+        options: finalOpts
+      }));
+
+      const currentQuizId = this.quizId || this.quizService.quizId
   
-      /* ─── 5. Emit the trio ONCE  (question now guaranteed to carry opts) */
-      this.quizStateService.emitQA(
+      /* ─── 6. Emit the trio ONCE  (question now guaranteed to carry opts) */
+      /* this.quizStateService.emitQA(
         { ...q, options: finalOpts },   // question with finalized options
         msg
+      ); */
+
+      this.quizStateService.emitQA(
+        safeQuestion,        // ✅ now used
+        finalOpts,
+        msg,
+        currentQuizId,
+        index
       );
   
       return true;
