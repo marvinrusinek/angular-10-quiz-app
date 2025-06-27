@@ -1269,8 +1269,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Directly use index and prevent negative values
-    const questionIndex = Math.max(0, index);
+    // Directly use and clamp index to prevent negative values
+    const questionIndex = Math.max(0, Math.min(index, this.questionsArray.length - 1));
 
     if (questionIndex >= this.questionsArray.length) {
       console.error(
