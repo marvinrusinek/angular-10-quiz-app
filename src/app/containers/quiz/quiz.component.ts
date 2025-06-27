@@ -3680,12 +3680,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private setQuestionText(raw: string | undefined | null): void {
-    this.questionToDisplaySubject.next(raw?.trim() || 'No question available');
+  // Push the trimmed final text or a fallback                      */
+  private setQuestionText(raw: string | null | undefined): void {
+    const trimmed =
+      (raw ?? '')
+        .trim() || 'No question available';
+
+    this.questionToDisplaySubject.next(trimmed);
+    this.questionToDisplay = trimmed;
   }
 
+  // Clear UI instantly so the old question never flashes
   private clearQuestionText(): void {
-    this.questionToDisplaySubject.next(null);  // ⬅️ pushes a blank so UI empties instantly
+    this.questionToDisplaySubject.next(null);  // pushes a blank so UI empties instantly
   }
 
   private async acquireAndNavigateToQuestion(questionIndex: number): Promise<void> {
