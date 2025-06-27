@@ -10,6 +10,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
+import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
@@ -62,6 +63,7 @@ export class QuizNavigationService {
     private nextButtonStateService: NextButtonStateService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
+    private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
@@ -182,14 +184,22 @@ export class QuizNavigationService {
       return;
     }
   
+    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    if (!effectiveQuizId) {
+      console.error('[❌ No quizId available]');
+      return;
+    }
+
+    // Fetch the quiz that matches the current route
     const currentQuiz: Quiz = await firstValueFrom(
-      this.quizService.getCurrentQuiz().pipe(
+      this.quizDataService.getQuiz(effectiveQuizId).pipe(
         filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
         take(1)
       )
     );
-  
-    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+
+    console.log('[DEBUG] quiz length', currentQuiz.questions.length);
+
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
       return;
