@@ -194,6 +194,13 @@ export class QuizNavigationService {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
       return;
     }
+
+    // EARLY EXIT: already beyond last question → /results
+    const lastIndex = currentQuiz.questions.length - 1;
+    if (targetIndex > lastIndex) {
+      await this.router.navigate(['/results']);
+      return;
+    }
   
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
