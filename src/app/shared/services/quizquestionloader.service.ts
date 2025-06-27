@@ -609,19 +609,15 @@ export class QuizQuestionLoaderService {
         options: finalOpts
       }));
 
-      const currentQuizId = this.quizId || this.quizService.quizId
+      const effectiveQuizId =
+        this.quizService.quizId || this.getQuizIdFromRoute();
   
       /* ─── 6. Emit the trio ONCE  (question now guaranteed to carry opts) */
-      /* this.quizStateService.emitQA(
-        { ...q, options: finalOpts },   // question with finalized options
-        msg
-      ); */
-
       this.quizStateService.emitQA(
         safeQuestion,
         finalOpts,
         msg,
-        currentQuizId,
+        effectiveQuizId,
         index
       );
   
