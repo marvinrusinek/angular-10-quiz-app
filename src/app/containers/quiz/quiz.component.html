@@ -24,10 +24,10 @@
         [question]="questionPayload?.question"
         [options]="questionPayload?.options"
         [explanation]="questionPayload?.explanation"
-        [quizData]="quizComponentData"
+        
         [questionData]="combined.question"
-        [currentQuestionIndex]="currentQuestionIndex"
-        [explanationToDisplay]="explanationToDisplay"
+        
+        
         [displayState$]="displayState$"
         [shouldRenderOptions]="shouldRenderOptions"
         (answer)="selectedAnswer($event)"
