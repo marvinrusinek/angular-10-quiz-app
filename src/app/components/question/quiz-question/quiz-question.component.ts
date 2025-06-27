@@ -1492,6 +1492,14 @@ export class QuizQuestionComponent
         );
       }
 
+      if (this.currentQuestionIndex === this.questionsArray.length) {
+        console.info(
+          '[initializeComponent] Reached end of quiz, navigating to /results'
+        );
+        await this.router.navigate(['/results']);
+        return;
+      }
+
       // Ensure the current question index is valid
       if (
         this.currentQuestionIndex < 0 ||
