@@ -204,6 +204,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
+  private get paintTarget(): HTMLElement {
+    // host is <label>, its first element child is the flex box
+    return this.el.nativeElement.firstElementChild as HTMLElement ?? this.el.nativeElement;
+  }
+
   private setBackgroundColor(element: HTMLElement, color: string): void {
     this.renderer.setStyle(element, 'background-color', color);
   }
