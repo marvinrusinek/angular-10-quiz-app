@@ -166,11 +166,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   displayVariables: { question: string; explanation: string };
   displayText = '';
 
-  questionToDisplay$ = new BehaviorSubject<string>('');
-  /* questionToDisplay$: Observable<string> = this.quizStateService.qa$.pipe(
-    map(qa => qa ? qa.question.questionText.trim() : ''),
-    distinctUntilChanged()
-  ); */
+  private questionToDisplaySubject = new BehaviorSubject<string | null>(null);
+  questionToDisplay$ = this.questionToDisplaySubject.asObservable();
 
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
@@ -3677,6 +3674,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!this.explanationToDisplay || this.explanationToDisplay === 'No explanation available') {
       console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
     }
+  }
+
+  private setQuestionText(raw: string | undefined | null): void {
+    this.questionToDisplaySubject.next(raw?.trim() || 'No question available');
+  }
+
+  private clearQuestionText(): void {
+    this.questionToDisplaySubject.next(null);  // ⬅️ pushes a blank so UI empties instantly
   }
 
   private async acquireAndNavigateToQuestion(questionIndex: number): Promise<void> {
