@@ -1,135 +1,136 @@
 <ng-container>
-<mat-card
-  [@changeRoute]="animationState$ | async"
-  (@changeRoute.done)="animationDoneHandler()"
->
-  <codelab-quiz-header></codelab-quiz-header>
-
-  <mat-card-content *ngIf="combinedQuestionData$ | async as combined">
-    <!-- the scoreboard -->
-    <codelab-scoreboard></codelab-scoreboard>
-    
-    <ng-container *ngIf="shouldDisplayContent">
-      <!-- the question and options -->
+  <mat-card
+    [@changeRoute]="animationState$ | async"
+    (@changeRoute.done)="animationDoneHandler()"
+  >
+    <codelab-quiz-header></codelab-quiz-header>
+  
+    <mat-card-content *ngIf="quizStateService.qa$ | async as qa; else loading">
+      <!-- the scoreboard -->
+      <codelab-scoreboard></codelab-scoreboard>
       
-      <codelab-quiz-content
-        [questionToDisplay$]="questionToDisplay$"
-        [explanationToDisplay]="explanationToDisplay"
-      ></codelab-quiz-content>
-      
-      <ng-content></ng-content>
-      
-      <codelab-quiz-question
-        [question]="questionPayload?.question"
-        [options]="questionPayload?.options"
-        [explanation]="questionPayload?.explanation"
-        [displayState$]="displayState$"
-        [shouldRenderOptions]="shouldRenderOptions"
-        (answer)="selectedAnswer($event)"
-        (optionSelected)="onOptionSelected($event)"
-      ></codelab-quiz-question>
-    </ng-container>
-  </mat-card-content>
-
-  <ng-template #errorTemplate>
-    <p>Error loading question. Please try again.</p>
-  </ng-template>
-
-  <mat-card-footer [ngClass]="cardFooterClass">
-    <!-- instructions message -->
-    <h5 class="instructions-message"
-    *ngIf="selectionMessage$ | async as message">
-      {{ message }}
-    </h5>
-
-    <!-- paging -->
-    <section class="paging">
-      <mat-card-actions [class.last-question]="shouldApplyLastQuestionClass">
-        <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav">
-          <button
-            type="button"
-            mat-icon-button
-            routerLinkActive="active"
-            (click)="advanceToPreviousQuestion()"
-            (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
-            matTooltip="&laquo; Previous Question"
-            matTooltipPosition="above"
-            aria-label="Previous Question"
-          >
-            <i class="material-icons">navigate_before</i>
-          </button>
-        </div>
-
-        <div class="restart-nav" [hidden]="shouldHideRestartNav">
-          <button
-            type="button"
-            mat-icon-button
-            routerLinkActive="active"
-            (click)="restartQuiz()"
-            matTooltip="Restart Quiz"
-            matTooltipPosition="above"
-            aria-label="Restart Quiz"
-          >
-            <i class="material-icons">replay</i>
-          </button>
-        </div>
-
-        <div class="next-question-nav" [hidden]="shouldHideNextButton">
-          <button
-            type="button"
-            #nextButton="matTooltip"
-            mat-icon-button
-            routerLinkActive="active"
-            (click)="advanceToNextQuestion()"
-            (window:keydown.ArrowRight)="advanceToNextQuestion()"
-            (window:keydown.Enter)="advanceToNextQuestion()"
-            matTooltipPosition="above"
-            [matTooltip]="nextButtonTooltip$ | async"
-            [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
-            [ngStyle]="nextButtonStateService.nextButtonStyle"
-            aria-label="Next Question"
-          >
-            <i class="material-icons">navigate_next</i>
-          </button>
-        </div>
+      <ng-container *ngIf="qa">
+        <!-- the question and options -->
         
-        <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
-          <button
-            type="submit"
-            mat-raised-button
-            routerLinkActive="active"
-            disableRipple="true"
-            *ngIf="isLastQuestion"
-            (click)="advanceToResults()"
-            (window:keydown.Enter)="advanceToResults()"
-            (window:keydown.ArrowRight)="advanceToResults()"
-            class="btn btn-outline-primary"
-            aria-label="Show Results"
-          >
-            <i class="material-icons">score</i>&nbsp;&nbsp;<strong
-              >Show Results</strong
+        <codelab-quiz-content
+          [questionText]="qa.question.questionText" 
+          [questionToDisplay$]="questionToDisplay$"
+          [explanationToDisplay]="explanationToDisplay"
+        ></codelab-quiz-content>
+        
+        <ng-content></ng-content>
+        
+        <codelab-quiz-question
+          [question]="qa?.question"
+          [options]="qa?.options"
+          [explanation]="qa?.explanation"
+          [displayState$]="displayState$"
+          [shouldRenderOptions]="shouldRenderOptions"
+          (answer)="selectedAnswer($event)"
+          (optionSelected)="onOptionSelected($event)"
+        ></codelab-quiz-question>
+      </ng-container>
+    </mat-card-content>
+  
+    <ng-template #errorTemplate>
+      <p>Error loading question. Please try again.</p>
+    </ng-template>
+  
+    <mat-card-footer [ngClass]="cardFooterClass">
+      <!-- instructions message -->
+      <h5 class="instructions-message"
+      *ngIf="selectionMessage$ | async as message">
+        {{ message }}
+      </h5>
+  
+      <!-- paging -->
+      <section class="paging">
+        <mat-card-actions [class.last-question]="shouldApplyLastQuestionClass">
+          <div class="prev-question-nav" [hidden]="shouldHidePrevQuestionNav">
+            <button
+              type="button"
+              mat-icon-button
+              routerLinkActive="active"
+              (click)="advanceToPreviousQuestion()"
+              (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
+              matTooltip="&laquo; Previous Question"
+              matTooltipPosition="above"
+              aria-label="Previous Question"
             >
-          </button>
-        </div>
-      </mat-card-actions>
-    </section>
-
-    <!-- progress bar -->
-    <section class="progress-bar">
-      <ngb-progressbar
-        max="100"
-        type="success"
-        [striped]="true"
-        [animated]="true"
-        [value]="(progress$ | async) || 0"
-      >
-        <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
-      </ngb-progressbar>
-    </section>
-  </mat-card-footer>
-</mat-card>
-
-<ng-template #loading>
-  <p>Loading quiz&hellip;</p>
-</ng-template>
+              <i class="material-icons">navigate_before</i>
+            </button>
+          </div>
+  
+          <div class="restart-nav" [hidden]="shouldHideRestartNav">
+            <button
+              type="button"
+              mat-icon-button
+              routerLinkActive="active"
+              (click)="restartQuiz()"
+              matTooltip="Restart Quiz"
+              matTooltipPosition="above"
+              aria-label="Restart Quiz"
+            >
+              <i class="material-icons">replay</i>
+            </button>
+          </div>
+  
+          <div class="next-question-nav" [hidden]="shouldHideNextButton">
+            <button
+              type="button"
+              #nextButton="matTooltip"
+              mat-icon-button
+              routerLinkActive="active"
+              (click)="advanceToNextQuestion()"
+              (window:keydown.ArrowRight)="advanceToNextQuestion()"
+              (window:keydown.Enter)="advanceToNextQuestion()"
+              matTooltipPosition="above"
+              [matTooltip]="nextButtonTooltip$ | async"
+              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
+              [ngStyle]="nextButtonStateService.nextButtonStyle"
+              aria-label="Next Question"
+            >
+              <i class="material-icons">navigate_next</i>
+            </button>
+          </div>
+          
+          <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
+            <button
+              type="submit"
+              mat-raised-button
+              routerLinkActive="active"
+              disableRipple="true"
+              *ngIf="isLastQuestion"
+              (click)="advanceToResults()"
+              (window:keydown.Enter)="advanceToResults()"
+              (window:keydown.ArrowRight)="advanceToResults()"
+              class="btn btn-outline-primary"
+              aria-label="Show Results"
+            >
+              <i class="material-icons">score</i>&nbsp;&nbsp;<strong
+                >Show Results</strong
+              >
+            </button>
+          </div>
+        </mat-card-actions>
+      </section>
+  
+      <!-- progress bar -->
+      <section class="progress-bar">
+        <ngb-progressbar
+          max="100"
+          type="success"
+          [striped]="true"
+          [animated]="true"
+          [value]="(progress$ | async) || 0"
+        >
+          <strong>{{ (progress$ | async)?.toFixed(0) }}%</strong>
+        </ngb-progressbar>
+      </section>
+    </mat-card-footer>
+  </mat-card>
+  
+  <ng-template #loading>
+    <p>Loading quiz&hellip;</p>
+  </ng-template>
 </ng-container> 
