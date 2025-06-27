@@ -344,7 +344,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isContentAvailable$ = this.quizDataService.isContentAvailable$;
   }
 
-  // ⌨Handle Arrow Right / Enter globally
+  //Handle Arrow Right / Enter globally
   @HostListener('window:keydown.ArrowRight', ['$event'])
   @HostListener('window:keydown.Enter',      ['$event'])
   onGlobalKey(event: KeyboardEvent): void {
