@@ -351,7 +351,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (tag === 'INPUT' || tag === 'TEXTAREA') { return; }
 
     switch (event.key) {
-      // Arrow Right & Enter  → advance forward
+      // Arrow Right & Enter → advance forward
       case 'ArrowRight':
       case 'Enter': {
         // “Next” button visible? — go to next question
@@ -372,7 +372,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         break;
       }
 
-      // Arrow Left  ←  – move to previous question
+      // Arrow Left ← – move to previous question
       case 'ArrowLeft': {
         const idx = this.quizService.getCurrentQuestionIndex(); // 0-based
         if (idx > 0) {
