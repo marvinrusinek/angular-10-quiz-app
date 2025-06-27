@@ -480,7 +480,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
       
       // Emit the header text after qa arrived → header & options same frame
-      this.questionToDisplay$.next(question.questionText.trim());
+      this.questionToDisplaySubject.next(
+        (question?.questionText ?? '').trim() || 'No question available'
+      );
 
       this.qaToDisplay = { question, options };
       this.selectionMessage = selectionMessage;
@@ -3474,13 +3476,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
       
-      const trimmedText = fetchedQuestion.questionText.trim();
+      const trimmedText =
+        (fetchedQuestion?.questionText ?? '')
+          .trim() || 'No question available';
       this.questionToDisplay = trimmedText;
 
       /* DEFER header update until Angular has already rendered the new QA */
       setTimeout(() => {                               // ← 1 macrotask delay
         console.trace('[TRACE] questionToDisplay$.next firing', this.questionToDisplay);
-        this.questionToDisplay$.next(trimmedText);
+        this.questionToDisplaySubject.next(trimmedText);
       });
       this.questionTextLoaded = true;
   
