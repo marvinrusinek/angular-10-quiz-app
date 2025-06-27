@@ -7,6 +7,7 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
@@ -29,7 +30,10 @@ export class QuizDataService implements OnDestroy {
   private isContentAvailableSubject = new BehaviorSubject<boolean>(false);
   public isContentAvailable$: Observable<boolean> = this.isContentAvailableSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private quizService: QuizService,
+    private http: HttpClient
+  ) {
     this.loadQuizzesData();
   }
 
@@ -213,7 +217,7 @@ export class QuizDataService implements OnDestroy {
     }
 
     // Avoid out-of-bounds look-ups (index == length ⇒ end of quiz)
-    const maxIndex = this.getTotalQuestionCount(quizId) - 1;   // helper returns length
+    const maxIndex = this.quizService.getTotalQuestionsCount(quizId) - 1; // helper returns length
     if (questionIndex < 0 || questionIndex > maxIndex) {
       console.warn(`[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`);
       return of(null);
