@@ -20,14 +20,9 @@
       <ng-content></ng-content>
       
       <codelab-quiz-question
-        [questionPayload]="questionPayload"
         [question]="questionPayload?.question"
         [options]="questionPayload?.options"
         [explanation]="questionPayload?.explanation"
-        
-        [questionData]="combined.question"
-        
-        
         [displayState$]="displayState$"
         [shouldRenderOptions]="shouldRenderOptions"
         (answer)="selectedAnswer($event)"
