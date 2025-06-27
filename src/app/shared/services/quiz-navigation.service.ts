@@ -158,7 +158,7 @@ export class QuizNavigationService {
       : 0;
     if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
 
-    const targetIndex = currentIndex + offset;
+    const targetIndex = currentIndex + offset; // ← 0-based
 
     // Block if going out of bounds
     if (targetIndex < 0) {
