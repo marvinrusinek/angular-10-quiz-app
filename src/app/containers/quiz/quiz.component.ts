@@ -344,27 +344,51 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isContentAvailable$ = this.quizDataService.isContentAvailable$;
   }
 
-  //Handle Arrow Right / Enter globally
-  @HostListener('window:keydown.ArrowRight', ['$event'])
-  @HostListener('window:keydown.Enter',      ['$event'])
-  onGlobalKey(event: KeyboardEvent): void {
-  
-    // if “Next” is visible, use it first
-    if (!this.shouldHideNextButton) {
-      event.preventDefault();
-      this.advanceToNextQuestion();
-      return;
+  @HostListener('window:keydown', ['$event'])
+  async onGlobalKey(event: KeyboardEvent): Promise<void> {
+    // Ignore keystrokes originating in text inputs / textareas
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') { return; }
+
+    switch (event.key) {
+      // Arrow Right & Enter  → advance forward
+      case 'ArrowRight':
+      case 'Enter': {
+        // “Next” button visible? — go to next question
+        if (!this.shouldHideNextButton) {
+          event.preventDefault();
+          await this.advanceToNextQuestion();
+          return;
+        }
+
+        // Otherwise, “Show Results” visible? — go to results
+        if (!this.shouldHideShowResultsButton) {
+          event.preventDefault();
+          this.advanceToResults();
+          return;
+        }
+
+        // Any other state: do nothing
+        break;
+      }
+
+      // Arrow Left  ←  – move to previous question
+      case 'ArrowLeft': {
+        const idx = this.quizService.getCurrentQuestionIndex(); // 0-based
+        if (idx > 0) {
+          event.preventDefault();
+          await this.advanceToPreviousQuestion();
+        } else {
+          console.warn('[⛔] Already at first question — cannot go back');
+        }
+        break;
+      }
+
+      default:
+        // ignore other keys
+        break;
     }
-    
-    // otherwise, if “Show Results” is visible, use that
-    if (!this.shouldHideShowResultsButton) {
-      event.preventDefault();
-      this.advanceToResults();
-      return;
-    }
-    
-     // any other state: do nothing
-  }  
+  }
 
   @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
