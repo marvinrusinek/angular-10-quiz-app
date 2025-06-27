@@ -3979,7 +3979,7 @@ export class QuizQuestionComponent
             return;
           }
   
-          // Existing validity check (unchanged)
+          // Existing validity check
           if (!question.options?.length) {
             console.error(
               `[waitForQuestionData] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`
