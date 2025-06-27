@@ -372,8 +372,6 @@ export class QuizStateService {
     quizId: string,
     index: number
   ): void {
-    console.log("EMITQA");
-
     if (!question?.options?.length) {
       console.warn('[❌ emitQA] Question or options missing', { question });
       return;
