@@ -28,6 +28,7 @@
           [shouldRenderOptions]="shouldRenderOptions"
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
+          (nextButtonState)="nextButtonStateService.updateAndSyncNextButtonState($event)"
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
