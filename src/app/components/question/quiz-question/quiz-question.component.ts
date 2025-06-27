@@ -1259,7 +1259,6 @@ export class QuizQuestionComponent
       }
     });
   }
-  
 
   private setQuestionFirst(index: number): void {
     if (!this.questionsArray || this.questionsArray.length === 0) {
@@ -1305,10 +1304,6 @@ export class QuizQuestionComponent
 
     // Force explanation update for correct question
     setTimeout(() => {
-      console.log(
-        `[setQuestionFirst] 🔍 FORCING updateExplanationText for Q${questionIndex}`
-      );
-
       // Explicitly pass questionIndex to avoid shifting
       this.updateExplanationIfAnswered(questionIndex, question);
 
