@@ -6,15 +6,18 @@ export class QuizDisplayService {
   private questionToDisplaySubject = new BehaviorSubject<string | null>(null);
   readonly questionToDisplay$      = this.questionToDisplaySubject.asObservable();
 
-  clearQuestionText(): void {
-    this.questionToDisplaySubject.next(null);          // or '' if you prefer
+  // Clear UI instantly so the old question never flashes
+  private clearQuestionText(): void {
+    this.questionToDisplaySubject.next(null);  // pushes a blank so UI empties instantly
   }
 
-  setQuestionText(raw?: string | null): void {
+  // Push the trimmed final text or a fallback
+  private setQuestionText(raw: string | null | undefined): void {
     const trimmed =
       (raw ?? '')
         .trim() || 'No question available';
 
     this.questionToDisplaySubject.next(trimmed);
+    this.questionToDisplay = trimmed;
   }
 }
