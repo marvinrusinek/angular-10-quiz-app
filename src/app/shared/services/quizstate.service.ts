@@ -6,6 +6,13 @@ import { Option } from '../../shared/models/Option.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
+interface QAPayload {
+  quizId: string;
+  index : number; // 0-based
+  question: QuizQuestion;
+  options : Option[];
+  selectionMessage: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class QuizStateService {
@@ -64,11 +71,7 @@ export class QuizStateService {
   private qaSubject = new ReplaySubject<{ question: QuizQuestion; options: Option[] }>(1);
   // public qa$ = this.qaSubject.asObservable();
 
-  private qaSub = new ReplaySubject<{
-    question: QuizQuestion;
-    options:  Option[];
-    selectionMessage: string;
-  }>(1);
+  private qaSub = new ReplaySubject<QAPayload>(1);
   qa$ = this.qaSub.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
