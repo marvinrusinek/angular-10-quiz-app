@@ -160,11 +160,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   displayVariables: { question: string; explanation: string };
   displayText = '';
 
-  // questionToDisplay$ = new BehaviorSubject<string>('');
-  questionToDisplay$: Observable<string> = this.quizStateService.qa$.pipe(
-    map(qa => qa ? qa.question.questionText.trim() : ''), // '' while loading
+  questionToDisplay$ = new BehaviorSubject<string>('');
+  /* questionToDisplay$: Observable<string> = this.quizStateService.qa$.pipe(
+    map(qa => qa ? qa.question.questionText.trim() : ''),
     distinctUntilChanged()
-  );
+  ); */
 
   private isLoading = false;
   private isQuizLoaded = false; // tracks if the quiz data has been loaded
@@ -455,14 +455,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
       
       // Emit the header text after qa arrived → header & options same frame
-      //this.questionToDisplay$.next(question.questionText.trim());
+      this.questionToDisplay$.next(question.questionText.trim());
 
       this.qaToDisplay = { question, options };
       this.selectionMessage = selectionMessage;
-
-      // this.displayText = question.questionText;
-      // this.questionToDisplay$.next(question.questionText.trim());
-      this.questionTextForHeader = question.questionText.trim();
 
       // Show explanation only if answered
       const answered =
@@ -3459,7 +3455,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       /* DEFER header update until Angular has already rendered the new QA */
       setTimeout(() => {                               // ← 1 macrotask delay
         console.trace('[TRACE] questionToDisplay$.next firing', this.questionToDisplay);
-        // this.questionToDisplay$.next(trimmedText);
+        this.questionToDisplay$.next(trimmedText);
       });
       this.questionTextLoaded = true;
   
