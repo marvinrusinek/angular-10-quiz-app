@@ -618,7 +618,7 @@ export class QuizQuestionLoaderService {
       ); */
 
       this.quizStateService.emitQA(
-        safeQuestion,        // ✅ now used
+        safeQuestion,
         finalOpts,
         msg,
         currentQuizId,
