@@ -167,9 +167,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected initializeQuestion(): void {
-    const opts = this.question?.options;
-
-    if (opts && opts.length) {
+    if (this.question?.options?.length) {
       this.initializeOptions();
       this.optionsInitialized = true;
       this.questionChange.emit(this.question); // emit the question change
@@ -208,7 +206,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   } */
   protected initializeOptions(): void {
-    if (!this.question || !this.question.options) {
+    if (!this.question?.options?.length) {
       console.error('initializeOptions - Invalid question or options', {
         question: this.question
       });
