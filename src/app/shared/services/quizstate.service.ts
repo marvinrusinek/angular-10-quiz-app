@@ -365,7 +365,13 @@ export class QuizStateService {
     this.quizQuestionCreated = false;
   }
 
-  emitQA(question: QuizQuestion, selectionMessage: string): void {
+  emitQA(
+    question: QuizQuestion,
+    options: Option[],
+    selectionMessage: string,
+    quizId: string,
+    index: number
+  ): void {
     console.log("EMITQA");
 
     if (!question?.options?.length) {
@@ -391,8 +397,10 @@ export class QuizStateService {
   
     // Emit the complete QA object as a single payload
     this.qaSub.next({
-      question: updatedQuestion,
-      options: normalizedOptions,
+      quizId,
+      index,
+      question,
+      options,
       selectionMessage
     });
   }
