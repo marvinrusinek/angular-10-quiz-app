@@ -1192,7 +1192,7 @@ export class QuizQuestionComponent
 
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      const rawParam   = params.get('questionIndex');
+      const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
   
       console.log('[📦 Route param received]', { rawParam, parsed: parsedParam });
@@ -1209,23 +1209,19 @@ export class QuizQuestionComponent
       console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
   
       try {
-        /* ───────────────────────────────────────────────────────────
-           Sync state **before** loadQuestion() so it sees the
-           correct 0-based index.  (Moved this.currentQuestionIndex up)
-        ─────────────────────────────────────────────────────────── */
-        this.currentQuestionIndex = zeroBasedIndex;           // 👈 moved earlier
+        // Sync state before loadQuestion() so it sees the correct 0-based index.
+        this.currentQuestionIndex = zeroBasedIndex;
         this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
   
-        // ✅ Load the question using correct index
-        const loaded = await this.loadQuestion();             // now uses new index
+        // Load the question using correct index
+        const loaded = await this.loadQuestion(); // now uses new index
         if (!loaded) {
           console.error(`[handleRouteChanges] ❌ Failed to load data for Q${questionIndex}`);
           return;
         }
   
-        // ✅ Reset form and assign question
+        // Reset form and assign question
         this.resetForm();
-        /* currentQuestionIndex already set above */
   
         this.currentQuestion = this.questionsArray?.[zeroBasedIndex];
         if (!this.currentQuestion) {
@@ -1233,10 +1229,7 @@ export class QuizQuestionComponent
           return;
         }
   
-        // ✅ Log correct question
-        console.log(`[✅ Q${questionIndex}] currentQuestion:`, this.currentQuestion.questionText);
-  
-        // ✅ Prepare options
+        // Prepare options
         const originalOptions = this.currentQuestion.options ?? [];
         this.optionsToDisplay = originalOptions.map((opt) => ({
           ...opt,
@@ -1251,7 +1244,7 @@ export class QuizQuestionComponent
           console.log(`[✅ Q${questionIndex}] optionsToDisplay:`, this.optionsToDisplay);
         }
   
-        // ✅ Handle explanation if previously answered
+        // Handle explanation if previously answered
         const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
         if (isAnswered) {
           await this.fetchAndUpdateExplanationText(zeroBasedIndex);
