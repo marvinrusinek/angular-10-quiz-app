@@ -210,57 +210,71 @@ export class QuizDataService implements OnDestroy {
     );
   }
 
-  fetchQuizQuestionByIdAndIndex(quizId: string, questionIndex: number): Observable<QuizQuestion | null> {
+  fetchQuizQuestionByIdAndIndex(
+    quizId: string,
+    questionIndex: number
+  ): Observable<QuizQuestion | null> {
+  
     if (!quizId) {
-      console.error("Quiz ID is required but not provided.");
+      console.error('Quiz ID is required but not provided.');
       return of(null);
     }
-
-    // Clamp requests to valid range
-    const totalQuestionsRaw = this.quizService.getTotalQuestionsCount(quizId);
-    const totalQuestions = typeof totalQuestionsRaw === 'number'
-      ? totalQuestionsRaw
-      : (totalQuestionsRaw as any)?.value; 
-
-    if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
-      console.error(
-        `[fetchQuizQuestionByIdAndIndex] ❌ Invalid totalQuestions (${totalQuestionsRaw}) for quiz ${quizId}`
-      );
-      return of(null);
-    }
-
-    const maxIndex = totalQuestions - 1;
-
-    if (questionIndex < 0 || questionIndex > maxIndex) {
-      console.warn(
-        `[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`
-      );
-      return of(null);
-    }
-
-    return this.getQuestionAndOptions(quizId, questionIndex).pipe(
-      switchMap(result => {
-        if (!result) {
-          console.error(`Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index ${questionIndex}`);
+  
+    // Get the total-question count
+    return this.quizService.getTotalQuestionsCount(quizId).pipe(
+      take(1),
+      switchMap(totalQuestions => {
+        // Index-bounds guard now that we have the number
+        if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
+          console.error(
+            `[fetchQuizQuestionByIdAndIndex] ❌ Invalid totalQuestions (${totalQuestions}) for quiz ${quizId}`
+          );
           return of(null);
         }
-
-        const [question, options] = result;
-        if (!question || !options) {
-          console.error('Received incomplete data from getQuestionAndOptions:', result);
+  
+        const maxIndex = totalQuestions - 1;
+        if (questionIndex < 0 || questionIndex > maxIndex) {
+          console.warn(
+            `[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`
+          );
           return of(null);
         }
-
-        question.options = options;
-        return of(question);
+  
+        // Fall through to existing tuple-fetch logic
+        return this.getQuestionAndOptions(quizId, questionIndex).pipe(
+          switchMap(result => {
+            if (!result) {
+              console.error(
+                `Expected a tuple with QuizQuestion and Options from getQuestionAndOptions but received null for index ${questionIndex}`
+              );
+              return of(null);
+            }
+  
+            const [question, options] = result;
+            if (!question || !options) {
+              console.error(
+                'Received incomplete data from getQuestionAndOptions:',
+                result
+              );
+              return of(null);
+            }
+  
+            question.options = options;
+            return of(question);
+          })
+        );
       }),
-      catchError((error) => {
-        console.error('Error getting quiz question:', error);
-        return throwError(() => new Error('An error occurred while fetching data: ' + error.message));
-      }),
-      distinctUntilChanged()
+      // Unchanged operators
+      distinctUntilChanged(),
+      catchError(err => {
+        console.error('Error getting quiz question:', err);
+        return throwError(
+          () => new Error('An error occurred while fetching data: ' + err.message)
+        );
+      })
     );
   }
+  
 
   async fetchQuestionAndOptionsFromAPI(quizId: string, currentQuestionIndex: number): Promise<[QuizQuestion, Option[]] | null> {
     try {
