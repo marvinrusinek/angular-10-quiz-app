@@ -21,9 +21,9 @@
         <ng-content></ng-content>
         
         <codelab-quiz-question
-          [question]="qa?.question"
-          [options]="qa?.options"
-          [explanation]="qa?.explanation"
+          [question]="qa.question"
+          [options]="qa.options"
+          [explanation]="qa.explanation"
           [displayState$]="displayState$"
           [shouldRenderOptions]="shouldRenderOptions"
           (answer)="selectedAnswer($event)"
