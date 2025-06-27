@@ -3971,7 +3971,16 @@ export class QuizQuestionComponent
       .pipe(
         take(1),
         switchMap(async (question) => {
-          if (!question || !question.options?.length) {
+          if (!question) {
+            console.warn(
+              `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — redirecting to /results`
+            );
+            await this.router.navigate(['/results']);
+            return;
+          }
+  
+          // Existing validity check (unchanged)
+          if (!question.options?.length) {
             console.error(
               `[waitForQuestionData] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`
             );
