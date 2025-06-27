@@ -3356,6 +3356,11 @@ export class QuizQuestionComponent
     allCorrectSelected: boolean,
     option: SelectedOption
   ): Promise<void> {
+    if (!this.currentQuestion) {
+      console.error('[handleCorrectnessOutcome] currentQuestion is null');
+      return;
+    }
+
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       await this.handleMultipleAnswerTimerLogic(option);
     }
