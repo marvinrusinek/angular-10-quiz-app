@@ -170,8 +170,9 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     const opts = this.question?.options;
 
     if (opts && opts.length) {
-      this.questionChange.emit(this.question); // emit the question change
+      this.initializeOptions();
       this.optionsInitialized = true;
+      this.questionChange.emit(this.question); // emit the question change
     } else {
       console.error(
         'Initial question input is undefined in initializeQuestion'
