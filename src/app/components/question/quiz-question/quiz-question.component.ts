@@ -1995,6 +1995,12 @@ export class QuizQuestionComponent
         return;
       }
 
+      if (this.currentQuestionIndex === this.questionsArray.length) {
+        console.log('[loadQuestion] End of quiz → /results');
+        await this.router.navigate(['/results']);
+        return;                                   // stop; don’t fall through to throw
+      }
+
       // Validate current index
       if (
         this.currentQuestionIndex < 0 ||
