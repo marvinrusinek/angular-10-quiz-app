@@ -216,10 +216,23 @@ export class QuizDataService implements OnDestroy {
       return of(null);
     }
 
-    // Avoid out-of-bounds look-ups (index == length ⇒ end of quiz)
-    const maxIndex = this.quizService.getTotalQuestionsCount(quizId) - 1; // helper returns length
+    // Clamp requests to valid range
+    const totalQuestionsRaw = this.quizService.getTotalQuestionsCount(quizId);
+    const totalQuestions = Number(totalQuestionsRaw); // coerce to number
+
+    if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
+      console.error(
+        `[fetchQuizQuestionByIdAndIndex] ❌ Invalid totalQuestions (${totalQuestionsRaw}) for quiz ${quizId}`
+      );
+      return of(null);
+    }
+
+    const maxIndex = totalQuestions - 1;
+
     if (questionIndex < 0 || questionIndex > maxIndex) {
-      console.warn(`[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`);
+      console.warn(
+        `[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`
+      );
       return of(null);
     }
 
