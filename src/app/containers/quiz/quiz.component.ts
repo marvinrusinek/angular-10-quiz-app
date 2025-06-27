@@ -452,6 +452,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       takeUntil(this.destroy$)
     )
     .subscribe(({ question, options, selectionMessage }) => {
+      const effectiveQuizId = this.quizId || this.quizService.quizId;
+      if (question.quizId !== effectiveQuizId) {
+        console.warn('[⚠️ Skipping mismatched QA payload]', {
+          currentQuizId: effectiveQuizId,
+          incomingQuizId: question.quizId,
+        });
+        return; // skip rendering for the wrong quiz
+      }
+      
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
       
       // Emit the header text after qa arrived → header & options same frame
