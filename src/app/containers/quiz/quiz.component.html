@@ -51,9 +51,7 @@
             <button
               type="button"
               mat-icon-button
-              routerLinkActive="active"
               (click)="advanceToPreviousQuestion()"
-              (window:keydown.ArrowLeft)="advanceToPreviousQuestion()"
               matTooltip="&laquo; Previous Question"
               matTooltipPosition="above"
               aria-label="Previous Question"
@@ -66,7 +64,6 @@
             <button
               type="button"
               mat-icon-button
-              routerLinkActive="active"
               (click)="restartQuiz()"
               matTooltip="Restart Quiz"
               matTooltipPosition="above"
@@ -82,8 +79,6 @@
               #nextButton="matTooltip"
               mat-icon-button
               (click)="advanceToNextQuestion()"
-              (window:keydown.ArrowRight)="advanceToNextQuestion()"
-              (window:keydown.Enter)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
               [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
@@ -98,12 +93,9 @@
             <button
               type="submit"
               mat-raised-button
-              routerLinkActive="active"
               disableRipple="true"
               *ngIf="isLastQuestion"
               (click)="advanceToResults()"
-              (window:keydown.Enter)="advanceToResults()"
-              (window:keydown.ArrowRight)="advanceToResults()"
               class="btn btn-outline-primary"
               aria-label="Show Results"
             >

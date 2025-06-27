@@ -344,6 +344,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isContentAvailable$ = this.quizDataService.isContentAvailable$;
   }
 
+  // ⌨Handle Arrow Right / Enter globally
+  @HostListener('window:keydown.ArrowRight', ['$event'])
+  @HostListener('window:keydown.Enter',      ['$event'])
+  onGlobalKey(event: KeyboardEvent): void {
+  
+    // if “Next” is visible, use it first
+    if (!this.shouldHideNextButton) {
+      event.preventDefault();
+      this.advanceToNextQuestion();
+      return;
+    }
+    
+    // otherwise, if “Show Results” is visible, use that
+    if (!this.shouldHideShowResultsButton) {
+      event.preventDefault();
+      this.advanceToResults();
+      return;
+    }
+    
+     // any other state: do nothing
+  }  
+
   @HostListener('window:focus', ['$event'])
   onTabFocus(event: FocusEvent): void {
     // Subscribe to restoreStateSubject for handling state restoration
