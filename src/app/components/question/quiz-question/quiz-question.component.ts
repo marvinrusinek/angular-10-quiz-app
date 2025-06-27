@@ -3973,50 +3973,48 @@ export class QuizQuestionComponent
     ) {
       this.currentQuestionIndex = 0;
     }
-
+  
     this.quizService
       .getQuestionByIndex(this.currentQuestionIndex)
       .pipe(
         take(1),
         switchMap(async (question) => {
+          /* ── Handle "index == length" → /results ── */
           if (!question) {
             console.warn(
               `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — redirecting to /results`
             );
-          }
-
-          // Attempt absolute navigation to /results and swallow failures
-          try {
-            await this.router.navigateByUrl('/results');
-          } catch (navErr) {
-            console.error(
-              '[waitForQuestionData] Navigation to /results failed:',
-              navErr
-            );
-          }
-          return;
+            try {
+              await this.router.navigateByUrl('/results');
+            } catch (navErr) {
+              console.error(
+                '[waitForQuestionData] Navigation to /results failed:',
+                navErr
+              );
+            }
+            return; // stop further processing
           }
   
-          // Existing validity check
+          /* ── Existing validity check ── */
           if (!question.options?.length) {
             console.error(
               `[waitForQuestionData] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`
             );
             return;
           }
-
+  
           this.currentQuestion = question;
-
+  
           // Now set the new options after clearing
           this.optionsToDisplay = [...question.options];
-
+  
           // Explicitly type options as `Option[]`
           this.quizService
             .getCurrentOptions(this.currentQuestionIndex)
             .pipe(take(1))
             .subscribe((options: Option[]) => {
               this.optionsToDisplay = Array.isArray(options) ? options : []; // ensure it's an array
-
+  
               // Apply feedback immediately if an option was already selected
               const previouslySelectedOption = this.optionsToDisplay.find(
                 (opt) => opt.selected
@@ -4025,7 +4023,7 @@ export class QuizQuestionComponent
                 this.applyOptionFeedback(previouslySelectedOption);
               }
             });
-
+  
           this.initializeForm();
           this.questionForm.updateValueAndValidity();
           window.scrollTo(0, 0);
