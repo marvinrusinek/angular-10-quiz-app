@@ -212,6 +212,13 @@ export class QuizDataService implements OnDestroy {
       return of(null);
     }
 
+    // Avoid out-of-bounds look-ups (index == length ⇒ end of quiz)
+    const maxIndex = this.getTotalQuestionCount(quizId) - 1;   // helper returns length
+    if (questionIndex < 0 || questionIndex > maxIndex) {
+      console.warn(`[fetchQuizQuestionByIdAndIndex] Index ${questionIndex} out of range (0-${maxIndex}).`);
+      return of(null);
+    }
+
     return this.getQuestionAndOptions(quizId, questionIndex).pipe(
       switchMap(result => {
         if (!result) {
