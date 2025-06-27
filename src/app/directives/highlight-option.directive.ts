@@ -30,11 +30,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() selectedOptionHistory: number[] = [];
   private areAllCorrectAnswersSelected = false;
 
-  private get paintTarget(): HTMLElement {
-    // host is <label>, its first element child is the flex box
-    return this.el.nativeElement.firstElementChild as HTMLElement ?? this.el.nativeElement;
-  }
-
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
@@ -51,30 +46,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    const optionBindingChanged = changes['optionBinding'];
-    const isSelectedChanged = changes['isSelected'];
-    const resetChanged = changes['appHighlightReset'];
-  
-    // Check explicitly for relevant changes
-    if ((optionBindingChanged || isSelectedChanged || resetChanged) && this.optionBinding) {
-      console.log('[🧩 HighlightOptionDirective] ngOnChanges triggered', {
-        optionId: this.optionBinding.option?.optionId,
-        isSelected: this.isSelected,
-        hasOptionBindingChanged: !!optionBindingChanged,
-        hasIsSelectedChanged: !!isSelectedChanged,
-        hasResetChanged: !!resetChanged
-      });
-  
-      // Update the directive instance reference
-      this.optionBinding.directiveInstance = this;
-  
-      // Apply updated highlighting logic
-      this.updateHighlight();
-    } else {
-      console.log('[🛑 HighlightOptionDirective] ngOnChanges — no relevant changes detected');
-    }
-  } */
   ngOnChanges(changes: SimpleChanges): void {
     // Determine whether any inputs relevant to highlighting changed
     const optionBindingChanged = changes['optionBinding'] || changes['option'];
