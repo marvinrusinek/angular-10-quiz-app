@@ -52,6 +52,12 @@ export interface LoadedQuestionData {
   explanation: string;
 }
 
+interface QAEvent {
+  question: QuizQuestion;
+  options : Option[];
+  selectionMessage?: string;
+}
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
@@ -440,6 +446,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    // DEBUG — log every raw QA payload with derived id+index
+    this.quizStateService.qa$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((qa: QAEvent) => {
+        const quizId = this.quizId || this.quizService.quizId;
+        const index  = this.quizService.getCurrentQuestionIndex();  // 0-based
+        console.log('[QA]', {
+          quizId,
+          index,
+          text: qa?.question?.questionText
+        });
+      });
+
     // Assign question + options together when ready
     this.quizStateService.qa$
     .pipe(
