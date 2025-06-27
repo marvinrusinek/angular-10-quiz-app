@@ -18,6 +18,5 @@ export class QuizDisplayService {
         .trim() || 'No question available';
 
     this.questionToDisplaySubject.next(trimmed);
-    this.questionToDisplay = trimmed;
   }
 }
