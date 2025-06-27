@@ -211,6 +211,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnChanges(): void {
+    console.log('[🧠 ContentComponent Received]', this.questionText);
     /** Run only when the new questionText arrives */
     if (!!this.questionText && !this.questionRendered.getValue()) {
       this.questionRendered.next(true);
