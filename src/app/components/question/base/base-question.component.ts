@@ -321,7 +321,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         return isDefined;
       })
     ).subscribe({
-      next: (currentQuestion: QuizQuestion) => {
+      next: (currentQuestion: QuizQuestion | null | undefined) => {
         this.question = currentQuestion;
         this.initializeOptions(); // Initialize options if needed
       },
