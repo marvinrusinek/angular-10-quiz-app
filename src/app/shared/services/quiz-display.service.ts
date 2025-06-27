@@ -7,12 +7,12 @@ export class QuizDisplayService {
   readonly questionToDisplay$      = this.questionToDisplaySubject.asObservable();
 
   // Clear UI instantly so the old question never flashes
-  private clearQuestionText(): void {
+  public clearQuestionText(): void {
     this.questionToDisplaySubject.next(null);  // pushes a blank so UI empties instantly
   }
 
   // Push the trimmed final text or a fallback
-  private setQuestionText(raw: string | null | undefined): void {
+  public setQuestionText(raw: string | null | undefined): void {
     const trimmed =
       (raw ?? '')
         .trim() || 'No question available';
