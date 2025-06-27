@@ -11,14 +11,14 @@
       
       <ng-container *ngIf="qa">
         <!-- the question and options -->
+
+        <ng-content></ng-content>
         
         <codelab-quiz-content
           [questionText]="qa.question.questionText" 
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
         ></codelab-quiz-content>
-        
-        <ng-content></ng-content>
         
         <codelab-quiz-question
           [question]="qa.question"
