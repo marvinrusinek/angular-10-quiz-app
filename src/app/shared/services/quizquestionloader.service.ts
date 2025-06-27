@@ -12,7 +12,6 @@ import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
-import { QuizInitializationService } from './quiz-initialization.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
 import { RenderStateService } from './render-state.service';
@@ -78,15 +77,14 @@ export class QuizQuestionLoaderService {
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
+    private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    // private quizInitializationService: QuizInitializationService,
     private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
     private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
-    private nextButtonStateService: NextButtonStateService,
     private selectedOptionService: SelectedOptionService,
     private quizStateService: QuizStateService
   ) {}
@@ -356,7 +354,13 @@ export class QuizQuestionLoaderService {
                            /* answered? */ false
                          );
       
-        this.quizStateService.emitQA(this.currentQuestion, selMsg);
+        this.quizStateService.emitQA(
+          this.currentQuestion!,
+          clonedOptions,
+          selMsg,
+          this.quizService.quizId!,
+          questionIndex
+        );
       }
   
       // this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
@@ -609,8 +613,7 @@ export class QuizQuestionLoaderService {
         options: finalOpts
       }));
 
-      const effectiveQuizId =
-        this.quizService.quizId || this.getQuizIdFromRoute();
+      const effectiveQuizId = this.quizService.quizId;
   
       /* ─── 6. Emit the trio ONCE  (question now guaranteed to carry opts) */
       this.quizStateService.emitQA(
