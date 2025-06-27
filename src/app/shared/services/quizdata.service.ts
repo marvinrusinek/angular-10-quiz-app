@@ -218,7 +218,9 @@ export class QuizDataService implements OnDestroy {
 
     // Clamp requests to valid range
     const totalQuestionsRaw = this.quizService.getTotalQuestionsCount(quizId);
-    const totalQuestions = Number(totalQuestionsRaw); // coerce to number
+    const totalQuestions = typeof totalQuestionsRaw === 'number'
+      ? totalQuestionsRaw
+      : (totalQuestionsRaw as any)?.value; 
 
     if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
       console.error(
