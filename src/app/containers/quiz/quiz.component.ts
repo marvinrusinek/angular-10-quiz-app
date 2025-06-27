@@ -403,11 +403,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     )
     .subscribe(({ question, options, selectionMessage }) => {
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
+      
+      // Emit the header text after qa arrived → header & options same frame
+      this.questionToDisplay$.next(question.questionText.trim());
 
       this.qaToDisplay = { question, options };
       this.selectionMessage = selectionMessage;
 
-      // this.displayText    = question.questionText;
+      // this.displayText = question.questionText;
       // this.questionToDisplay$.next(question.questionText.trim());
       this.questionTextForHeader = question.questionText.trim();
 
