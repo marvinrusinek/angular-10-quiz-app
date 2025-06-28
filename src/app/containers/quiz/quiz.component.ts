@@ -24,6 +24,7 @@ import { QuizQuestionComponent } from '../../components/question/quiz-question/q
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizDisplayService } from '../../shared/services/quiz-display.service';
 import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
 import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../shared/services/quizstate.service';
@@ -252,6 +253,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizDisplayService: QuizDisplayService,
     private quizInitializationService: QuizInitializationService,
     private quizNavigationService: QuizNavigationService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
@@ -996,6 +998,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
   // REMOVE!!
   private resetQuestionState(): void {
+    // wipe heading immediately so old text can’t flash 
+    this.quizDisplayService.clearQuestionText(); 
+    
     // Clear local UI state
     this.questionInitialized = false; // block during reset
     this.isAnswered = false;
