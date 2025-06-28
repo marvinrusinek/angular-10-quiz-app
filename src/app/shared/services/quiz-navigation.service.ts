@@ -213,7 +213,7 @@ export class QuizNavigationService {
     // EARLY EXIT: already beyond last question → /results
     const lastIndex = currentQuiz.questions.length - 1;
     if (targetIndex > lastIndex) {
-      await this.router.navigate(['/results']);
+      await this.router.navigate(['/results', effectiveQuizId]);
       return;
     }
   
