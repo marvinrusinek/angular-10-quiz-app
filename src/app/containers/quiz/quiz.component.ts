@@ -999,7 +999,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // REMOVE!!
   private resetQuestionState(): void {
     // wipe heading immediately so old text can’t flash 
-    this.quizDisplayService.clearQuestionText(); 
+    this.quizDisplayService.clearQuestionText();
+    
+    // Remove stale question so template can’t render old text
+    this.currentQuestion = null; 
     
     // Clear local UI state
     this.questionInitialized = false; // block during reset
