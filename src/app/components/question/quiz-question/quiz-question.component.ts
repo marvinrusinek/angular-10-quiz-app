@@ -1788,8 +1788,8 @@ export class QuizQuestionComponent
 
       if (this.currentQuestionIndex === this.questionsArray.length) {
         console.log('[loadQuestion] End of quiz → /results');
-        await this.router.navigate(['/results']);
-        return;                                   // stop; don’t fall through to throw
+        await this.router.navigate(['/results', this.quizId]);
+        return;
       }
 
       // Validate current index
