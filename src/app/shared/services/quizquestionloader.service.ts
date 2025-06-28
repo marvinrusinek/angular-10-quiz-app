@@ -12,6 +12,7 @@ import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
+import { QuizDisplayService } from './quiz-display.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
 import { RenderStateService } from './render-state.service';
@@ -80,6 +81,7 @@ export class QuizQuestionLoaderService {
     private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizDisplayService: QuizDisplayService,
     private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
@@ -194,6 +196,8 @@ export class QuizQuestionLoaderService {
 
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {    
     console.log('[📥 fetchAndSetQuestionData CALLED]', questionIndex);
+    this.quizDisplayService.clearQuestionText();
+
     // ───── Reset state flags ─────
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
