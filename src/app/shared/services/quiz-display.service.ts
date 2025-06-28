@@ -8,6 +8,7 @@ export class QuizDisplayService {
 
   // Clear UI instantly so the old question never flashes
   public clearQuestionText(): void {
+    console.log('[HDG] clear');
     this.questionToDisplaySubject.next(null);  // pushes a blank so UI empties instantly
   }
 
@@ -16,7 +17,7 @@ export class QuizDisplayService {
     const trimmed =
       (raw ?? '')
         .trim() || 'No question available';
-    console.log('[📢 heading emit]', trimmed);
+    console.log('[HDG] set:', trimmed);
     this.questionToDisplaySubject.next(trimmed);
   }
 }

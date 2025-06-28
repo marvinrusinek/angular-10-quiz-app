@@ -262,6 +262,7 @@ export class QuizQuestionLoaderService {
       }); */
 
       const trimmedText = fetchedQuestion.questionText.trim();
+      this.questionToDisplay = trimmedText;
       this.quizDisplayService.setQuestionText(trimmedText);
 
       this.questionTextLoaded = true;
