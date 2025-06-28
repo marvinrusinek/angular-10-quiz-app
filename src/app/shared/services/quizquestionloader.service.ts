@@ -274,7 +274,7 @@ export class QuizQuestionLoaderService {
       };
       this.currentQuestion = { ...this.question };
 
-      // Emit the heading once, right here
+      // Emit the heading once
       const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       this.quizDisplayService.setQuestionText(trimmedText);
