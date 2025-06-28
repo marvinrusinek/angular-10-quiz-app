@@ -3956,7 +3956,7 @@ export class QuizQuestionComponent
   }
 
   private async waitForQuestionData(): Promise<void> {
-    /* ── Clamp obviously bad incoming values (negative / NaN) ── */
+    // Clamp bad incoming values (negative / NaN)
     if (
       !Number.isInteger(this.currentQuestionIndex) ||
       this.currentQuestionIndex < 0
@@ -3969,27 +3969,22 @@ export class QuizQuestionComponent
       .pipe(
         take(1),
         switchMap(async (question) => {
-          /* ─────────────────────────────────────────────────────────────
-             If the service returns `null`, we’re beyond the data range.
-             Instead of jumping to /results, clamp to the last real
-             question and let the UI show it.
-          ───────────────────────────────────────────────────────────── */
           if (!question) {
             console.warn(
               `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — clamping to last question`
             );
   
-            /* 1️⃣  Get the total-question count (single emission) */
-            const total = await firstValueFrom(
+            // Get the total-question count (single emission)
+            const total: number = await firstValueFrom(
               this.quizService
-                .getTotalQuestionsCount(this.quizService.quizId) // Observable<number>
+                .getTotalQuestionsCount(this.quizService.quizId)
                 .pipe(take(1))
             );
   
-            const lastIndex = Math.max(0, total - 1);          // never negative
+            const lastIndex = Math.max(0, total - 1);
             this.currentQuestionIndex = lastIndex;
   
-            /* 2️⃣  Re-query for the clamped index */
+            // Re-query for the clamped index
             question = await firstValueFrom(
               this.quizService
                 .getQuestionByIndex(this.currentQuestionIndex)
@@ -4000,11 +3995,11 @@ export class QuizQuestionComponent
               console.error(
                 '[waitForQuestionData] Still no question after clamping — aborting.'
               );
-              return; // give up; something is wrong with the data layer
+              return;
             }
           }
   
-          /* ── Existing validity check ── */
+          // Existing validity check
           if (!question.options?.length) {
             console.error(
               `[waitForQuestionData] ❌ Invalid question data or options missing for index: ${this.currentQuestionIndex}`
