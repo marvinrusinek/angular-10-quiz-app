@@ -16,7 +16,7 @@ export class QuizDisplayService {
     const trimmed =
       (raw ?? '')
         .trim() || 'No question available';
-
+    console.log('[📢 heading emit]', trimmed);
     this.questionToDisplaySubject.next(trimmed);
   }
 }
