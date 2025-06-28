@@ -1496,7 +1496,7 @@ export class QuizQuestionComponent
         console.info(
           '[initializeComponent] Reached end of quiz, navigating to /results'
         );
-        await this.router.navigate(['/results']);
+        await this.router.navigate(['/results', quizId]);
         return;
       }
 
