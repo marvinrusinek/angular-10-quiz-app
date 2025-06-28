@@ -1470,7 +1470,7 @@ export class QuizQuestionComponent
   private async initializeComponent(): Promise<void> {
     try {
       const quizId = this.quizService.getCurrentQuizId();
-
+  
       // Ensure questions are loaded before proceeding
       if (!this.questionsArray || this.questionsArray.length === 0) {
         if (!quizId) {
@@ -1479,7 +1479,7 @@ export class QuizQuestionComponent
           );
           return;
         }
-
+  
         this.questionsArray = await this.quizService.fetchQuizQuestions(quizId);
         if (!this.questionsArray || this.questionsArray.length === 0) {
           console.error(
@@ -1492,19 +1492,20 @@ export class QuizQuestionComponent
           this.questionsArray
         );
       }
-
-      // Ensure the current question index is valid
-      if (
-        this.currentQuestionIndex < 0 ||
-        this.currentQuestionIndex >= this.questionsArray.length
-      ) {
-        console.error(
-          '[initializeComponent] Invalid currentQuestionIndex:',
-          this.currentQuestionIndex
-        );
-        return;
+  
+      /* ─────────── Clamp currentQuestionIndex to valid range ─────────── */
+      if (this.currentQuestionIndex < 0) {
+        this.currentQuestionIndex = 0;                                   // floor
       }
-
+      const lastIndex = this.questionsArray.length - 1;
+      if (this.currentQuestionIndex > lastIndex) {
+        console.warn(
+          `[initializeComponent] Index ${this.currentQuestionIndex} out of range — clamping to last question (${lastIndex}).`
+        );
+        this.currentQuestionIndex = lastIndex;                           // cap
+      }
+      /* ───────────────────────────────────────────────────────────────── */
+  
       // Set the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
       if (!this.currentQuestion) {
@@ -1517,17 +1518,15 @@ export class QuizQuestionComponent
         );
         return;
       }
-
+  
       console.info(
         '[initializeComponent] Current question set:',
         this.currentQuestion
       );
-
+  
       // Generate feedback for the current question
       try {
-        this.feedbackText = await this.generateFeedbackText(
-          this.currentQuestion
-        );
+        this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
         console.info(
           '[initializeComponent] Feedback text generated for the first question:',
           this.feedbackText
@@ -1540,10 +1539,7 @@ export class QuizQuestionComponent
         this.feedbackText = 'Unable to generate feedback.';
       }
     } catch (error) {
-      console.error(
-        '[initializeComponent] Error during initialization:',
-        error
-      );
+      console.error('[initializeComponent] Error during initialization:', error);
     }
   }
 
