@@ -2193,6 +2193,8 @@ export class QuizService implements OnDestroy {
     if (currentQuizData) {
       this.quizData = _.cloneDeep([currentQuizData]);
       this.questions = currentQuizData.questions;
+
+      this.setCurrentQuestionIndex(0);
     } else {
       this.quizData = null;
       this.questions = [];
