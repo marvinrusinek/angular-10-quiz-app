@@ -3960,6 +3960,7 @@ export class QuizQuestionComponent
   }
 
   private async waitForQuestionData(): Promise<void> {
+    /* ── Clamp obviously bad incoming values (negative / NaN) ── */
     if (
       !Number.isInteger(this.currentQuestionIndex) ||
       this.currentQuestionIndex < 0
@@ -3972,25 +3973,39 @@ export class QuizQuestionComponent
       .pipe(
         take(1),
         switchMap(async (question) => {
-          /* ── Handle "index == length" → /results ── */
+          /* ─────────────────────────────────────────────────────────────
+             If the service returns `null`, we’re beyond the data range.
+             Instead of jumping to /results, clamp to the last real
+             question and let the UI show it.
+          ───────────────────────────────────────────────────────────── */
           if (!question) {
             console.warn(
-              `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — redirecting to /results`
+              `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — clamping to last question`
             );
-            try {
-              const quizId =
-                this.quizId || 
-                this.quizService.quizId || 
-                this.quizService.getCurrentQuizId();
-
-              await this.router.navigate(['/results', quizId]);
-            } catch (navErr) {
+  
+            /* 1️⃣  Get the total-question count (single emission) */
+            const total = await firstValueFrom(
+              this.quizService
+                .getTotalQuestionsCount(this.quizService.quizId) // Observable<number>
+                .pipe(take(1))
+            );
+  
+            const lastIndex = Math.max(0, total - 1);          // never negative
+            this.currentQuestionIndex = lastIndex;
+  
+            /* 2️⃣  Re-query for the clamped index */
+            question = await firstValueFrom(
+              this.quizService
+                .getQuestionByIndex(this.currentQuestionIndex)
+                .pipe(take(1))
+            );
+  
+            if (!question) {
               console.error(
-                '[waitForQuestionData] Navigation to /results failed:',
-                navErr
+                '[waitForQuestionData] Still no question after clamping — aborting.'
               );
+              return; // give up; something is wrong with the data layer
             }
-            return; // stop further processing
           }
   
           /* ── Existing validity check ── */
