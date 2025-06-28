@@ -1469,9 +1469,10 @@ export class QuizQuestionComponent
 
   private async initializeComponent(): Promise<void> {
     try {
+      const quizId = this.quizService.getCurrentQuizId();
+
       // Ensure questions are loaded before proceeding
       if (!this.questionsArray || this.questionsArray.length === 0) {
-        const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) {
           console.error(
             '[initializeComponent] No active quiz ID found. Aborting initialization.'
@@ -1490,14 +1491,6 @@ export class QuizQuestionComponent
           '[initializeComponent] Questions array successfully fetched:',
           this.questionsArray
         );
-      }
-
-      if (this.currentQuestionIndex === this.questionsArray.length) {
-        console.info(
-          '[initializeComponent] Reached end of quiz, navigating to /results'
-        );
-        await this.router.navigate(['/results', quizId]);
-        return;
       }
 
       // Ensure the current question index is valid
