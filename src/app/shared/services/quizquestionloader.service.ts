@@ -243,10 +243,12 @@ export class QuizQuestionLoaderService {
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
       ]);
   
-      if (!fetchedQuestion?.questionText?.trim() || !Array.isArray(fetchedOptions) || fetchedOptions.length === 0) {
-        console.error(`[❌ Q${questionIndex}] Missing question or options`);
+      if (!fetchedQuestion?.questionText?.trim()
+          || !Array.isArray(fetchedOptions)
+          || fetchedOptions.length === 0) {
+        console.warn('[TRACE] early-exit: missing data');
         return false;
-      }
+      } 
   
       // ───── Explanation & display setup ─────
       this.explanationTextService.setResetComplete(false);
