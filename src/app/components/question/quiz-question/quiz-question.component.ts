@@ -3978,7 +3978,12 @@ export class QuizQuestionComponent
               `[waitForQuestionData] Index ${this.currentQuestionIndex} out of range — redirecting to /results`
             );
             try {
-              await this.router.navigateByUrl('/results');
+              const quizId =
+                this.quizId || 
+                this.quizService.quizId || 
+                this.quizService.getCurrentQuizId();
+
+              await this.router.navigate(['/results', quizId]);
             } catch (navErr) {
               console.error(
                 '[waitForQuestionData] Navigation to /results failed:',
