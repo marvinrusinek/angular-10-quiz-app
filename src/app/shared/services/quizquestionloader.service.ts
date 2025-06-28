@@ -252,18 +252,6 @@ export class QuizQuestionLoaderService {
       this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
-  
-      /* const trimmedText = fetchedQuestion.questionText.trim();
-      this.questionToDisplay = trimmedText;
-      
-      setTimeout(() => { // ← 1 macrotask delay
-        console.trace('[TRACE] questionToDisplay$.next after QA');
-        this.questionToDisplay$.next(trimmedText);
-      }); */
-
-      const trimmedText = fetchedQuestion.questionText.trim();
-      this.questionToDisplay = trimmedText;
-      this.quizDisplayService.setQuestionText(trimmedText);
 
       this.questionTextLoaded = true;
   
@@ -285,6 +273,11 @@ export class QuizQuestionLoaderService {
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
+
+      // Emit the heading once, right here
+      const trimmedText = fetchedQuestion.questionText.trim();
+      this.questionToDisplay = trimmedText;
+      this.quizDisplayService.setQuestionText(trimmedText);
   
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
