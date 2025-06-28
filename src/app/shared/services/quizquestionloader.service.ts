@@ -253,13 +253,16 @@ export class QuizQuestionLoaderService {
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
   
-      const trimmedText = fetchedQuestion.questionText.trim();
+      /* const trimmedText = fetchedQuestion.questionText.trim();
       this.questionToDisplay = trimmedText;
       
       setTimeout(() => { // ← 1 macrotask delay
         console.trace('[TRACE] questionToDisplay$.next after QA');
         this.questionToDisplay$.next(trimmedText);
-      });
+      }); */
+
+      const trimmedText = fetchedQuestion.questionText.trim();
+      this.quizDisplayService.setQuestionText(trimmedText);
 
       this.questionTextLoaded = true;
   
