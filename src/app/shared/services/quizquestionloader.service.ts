@@ -194,32 +194,29 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {    
+  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
     console.log('[📥 fetchAndSetQuestionData CALLED]', questionIndex);
-
-    // ───── Reset state flags ─────
-    this.questionTextLoaded = false;
-    this.hasOptionsLoaded = false;
-    this.shouldRenderOptions = false;
-    this.isLoading = true;
+  
+    /* ─── Reset state flags ─── */
+    this.questionTextLoaded   = false;
+    this.hasOptionsLoaded     = false;
+    this.shouldRenderOptions  = false;
+    this.isLoading            = true;
     if (this.quizQuestionComponent) this.quizQuestionComponent.renderReady = true;
   
     try {
-      // ───── Safety checks ─────
+      /* ─── Safety checks ─── */
       if (
         typeof questionIndex !== 'number' ||
-        isNaN(questionIndex) ||
-        questionIndex < 0 ||
+        isNaN(questionIndex)             ||
+        questionIndex < 0               ||
         questionIndex >= this.totalQuestions
       ) {
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-      if (questionIndex === this.totalQuestions - 1) {
-        console.log(`[🔚 Last Question] Q${questionIndex}`);
-      }
   
-      // ───── Reset local & explanation state ─────
+      /* ─── Reset local & explanation state ─── */
       this.currentQuestion = null;
       this.resetQuestionState();
       this.resetQuestionDisplayState();
@@ -228,7 +225,7 @@ export class QuizQuestionLoaderService {
       this.resetComplete = false;
       await new Promise(res => setTimeout(res, 30));
   
-      // ───── Answered state & parallel fetch ─────
+      /* ─── Answered state & parallel fetch ─── */
       const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
       if (isAnswered) {
         this.quizStateService.setAnswered(true);
@@ -248,20 +245,24 @@ export class QuizQuestionLoaderService {
         console.warn('[TRACE] early-exit: missing data');
         return false;
       }
-
-      // Setup options, state, etc.
-      this.optionsToDisplay = fetchedOptions;
-      this.currentQuestion = fetchedQuestion;
-
-      // Set the heading text after options and question are loaded
-      const trimmed = fetchedQuestion.questionText.trim();
-      this.quizDisplayService.setQuestionText(trimmed, 'LOADER');
   
-      // ───── Explanation & display setup ─────
+      /* ─── ①  PUSH OPTIONS FIRST ─── */
+      this.optionsToDisplay = fetchedOptions;
+      this.currentQuestion  = fetchedQuestion;
+  
+      /* ─── ②  HEADING IN MICRO-TASK ─── */
+      const trimmedHeading = fetchedQuestion.questionText.trim();
+      Promise.resolve().then(() => {
+        this.quizDisplayService.setQuestionText(trimmedHeading);  // emit once
+        this.cdRef.markForCheck();                                // OnPush refresh
+        this.questionTextLoaded = true;                           // flag after heading
+      });
+  
+      /* ─── Explanation & display setup ─── */
       this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
-
+  
       this.questionTextLoaded = true;
   
       // ───── Hydrate and clone options ─────
@@ -380,6 +381,7 @@ export class QuizQuestionLoaderService {
       return false;
     }
   }
+  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
