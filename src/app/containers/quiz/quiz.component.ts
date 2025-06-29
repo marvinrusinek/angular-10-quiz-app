@@ -1250,65 +1250,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /******* initialize route parameters functions *********/
-  /* private subscribeToRouteParams(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        distinctUntilChanged((prev, curr) =>
-          prev.get('questionIndex') === curr.get('questionIndex') &&
-          prev.get('quizId') === curr.get('quizId')
-        )
-      )
-      .subscribe(async (params: ParamMap) => {
-        const quizId = params.get('quizId') ?? '';
-        const indexParam = params.get('questionIndex');
-        const index = Number(indexParam) - 1;
-  
-        if (!quizId || isNaN(index) || index < 0) {
-          console.error('[❌ Invalid route params]', { quizId, indexParam });
-          return;
-        }
-  
-        // Update indices before async calls
-        this.quizId = quizId;
-        this.currentQuestionIndex = index;
-        this.quizService.quizId = quizId;
-        this.quizService.setCurrentQuestionIndex(index);
-  
-        try {
-          const currentQuiz: Quiz = await firstValueFrom(
-            this.quizDataService.getQuiz(quizId).pipe(
-              filter(q => !!q && Array.isArray(q.questions)),
-              take(1)
-            )
-          );
-          if (!currentQuiz) {
-            console.error('[❌ Failed to fetch quiz with quizId]', quizId);
-            return;
-          }
-  
-          const totalQuestions = currentQuiz.questions.length;
-          const question = currentQuiz.questions[index];
-          if (!question) {
-            console.error('[❌ No question at index]', { index });
-            return;
-          }
-
-          this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-  
-          this.currentQuestion = question;
-          this.optionsToDisplay = await this.quizService.getOptionsForQuestion(question);
-          this.resetComponentState?.();
-
-          this.quizQuestionLoaderService.loadQA(index);
-  
-          // Progress Bar
-          this.progressBarService.updateProgress(index, totalQuestions);
-          localStorage.setItem('savedQuestionIndex', index.toString());
-        } catch (err) {
-          console.error('[❌ Error in paramMap subscribe]', err);
-        }
-      });
-  } */
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -1327,9 +1268,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
   
-        /* ─── A. Wipe every headline stream BEFORE any async work ─────────── */
-        this.quizQuestionLoaderService.resetHeadlineStreams();   // clears QA, header, expl.
-        this.cdRef.markForCheck();                               // instant blank / loading view
+        // Wipe every headline stream BEFORE any async work
+        this.quizQuestionLoaderService.resetHeadlineStreams(); // clears QA, header, expl.
+        this.cdRef.markForCheck();
         /* ──────────────────────────────────────────────────────────────────── */
   
         // Update indices (local + services) before async calls
@@ -1339,7 +1280,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.setCurrentQuestionIndex(index);
   
         try {
-          /* fetch current quiz meta (unchanged) */
+          // Fetch current quiz meta (unchanged)
           const currentQuiz: Quiz = await firstValueFrom(
             this.quizDataService.getQuiz(quizId).pipe(
               filter(q => !!q && Array.isArray(q.questions)),
@@ -1358,15 +1299,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
           }
   
-          /* ─── B. Fetch + emit the new question once ─────────────────────── */
+          // B. Fetch + emit the new question once
           await this.quizQuestionLoaderService.loadQA(index);
           this.cdRef.markForCheck();
           /* ────────────────────────────────────────────────────────────────── */
   
-          /* local state still needed elsewhere in the component  */
+          // Local state still needed elsewhere in the component
           this.currentQuestion = question;
   
-          /* Progress Bar */
+          // Progress Bar
           this.progressBarService.updateProgress(index, totalQuestions);
           localStorage.setItem('savedQuestionIndex', index.toString());
   
@@ -1375,8 +1316,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
       });
   }
-  
-  
   
   private resetComponentState(): void {
     // Reset any UI state / option lists / flags here
@@ -1388,7 +1327,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setLoading(false);
     this.quizStateService.setNavigating(false);
   }
-  
   
   private async initializeRouteParams(): Promise<void> {
     // *Ensure questions are loaded before processing route parameters**
