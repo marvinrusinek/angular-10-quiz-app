@@ -265,11 +265,12 @@ export class QuizQuestionLoaderService {
       this.optionsToDisplay = fetchedOptions;
       this.currentQuestion  = fetchedQuestion;
 
-      this.optionsReady.next(true); // flag list ready
+      this.optionsReadySubject.next(true); // flag list ready
 
       Promise.resolve().then(() => {
-        this.quizDisplayService.setQuestionText(fetchedQuestion.questionText.trim());
-        this.headingReady.next(true);      // ✅ flag heading ready
+        const trimmed = fetchedQuestion.questionText.trim();
+        this.quizDisplayService.setQuestionText(trimmed);
+        this.headingReadySubject.next(true);
       });
   
       /* ─── ②  HEADING IN MICRO-TASK ─── */
