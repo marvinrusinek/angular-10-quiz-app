@@ -248,7 +248,15 @@ export class QuizQuestionLoaderService {
           || fetchedOptions.length === 0) {
         console.warn('[TRACE] early-exit: missing data');
         return false;
-      } 
+      }
+
+      // Setup options, state, etc.
+      this.optionsToDisplay = fetchedOptions;
+      this.currentQuestion = fetchedQuestion;
+
+      // Set the heading text after options and question are loaded
+      const trimmed = fetchedQuestion.questionText.trim();
+      this.quizDisplayService.setQuestionText(trimmed);
   
       // ───── Explanation & display setup ─────
       this.explanationTextService.setResetComplete(false);
