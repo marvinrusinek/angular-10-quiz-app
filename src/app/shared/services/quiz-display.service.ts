@@ -19,7 +19,7 @@ export class QuizDisplayService {
   }
 
   // Push the trimmed final text or a fallback
-  ssetQuestionText(text: string | null | undefined, tag = 'UNKNOWN'): void {
+  setQuestionText(text: string | null | undefined, tag = 'UNKNOWN'): void {
     const trimmed = (text ?? '').trim() || 'No question available';
     console.log('[HDG-SET]', tag, '→', trimmed);
 
