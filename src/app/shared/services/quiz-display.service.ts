@@ -13,11 +13,18 @@ export class QuizDisplayService {
   }
 
   // Push the trimmed final text or a fallback
-  public setQuestionText(raw: string | null | undefined): void {
-    const trimmed =
-      (raw ?? '')
-        .trim() || 'No question available';
-    console.log('[HDG] set:', trimmed);
-    this.questionToDisplaySubject.next(trimmed);
+  setQuestionText(text: string | null | undefined): void {
+    const trimmed = (text ?? '').trim();
+
+    if (!trimmed) {
+      console.warn(
+        '[⚠️ setQuestionText] Empty or invalid question text received:',
+        text
+      );
+      this.questionToDisplaySubject.next('No question available');
+    } else {
+      console.log('[HDG] set:', trimmed);
+      this.questionToDisplaySubject.next(trimmed);
+    }
   }
 }
