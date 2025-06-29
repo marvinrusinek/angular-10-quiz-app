@@ -3,6 +3,12 @@
     <span [innerHTML]="combinedText"></span>
   </ng-container>
 </h3>-->
+
+<!-- Main body: use combinedText$ for explanation & correct-count -->
+<h3 class="main-content" *ngIf="combinedText$ | async as combinedText">
+<span [innerHTML]="combinedText"></span>
+</h3>
+
 <ng-container
   *ngIf="quizDisplayService.questionToDisplay$ | async as txt; else headingSkeleton">
   <h3 question-content class="fade-in">
@@ -15,7 +21,3 @@
   <div style="min-height:2.5rem"></div>
 </ng-template>
 
-<!-- Main body: use combinedText$ for explanation & correct-count -->
-<h3 class="main-content" *ngIf="combinedText$ | async as body">
-  <span [innerHTML]="body"></span>
-</h3>
