@@ -778,9 +778,6 @@ export class QuizQuestionComponent
           // Batch update state
           this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
   
-          // Allow Angular to paint
-          this.cdRef.detectChanges();
-  
           // Flip visibility on next animation frame
           requestAnimationFrame(() => {
             this.internalBufferReady = true;
