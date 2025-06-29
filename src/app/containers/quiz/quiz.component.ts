@@ -247,6 +247,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   qaToDisplay?: { question: QuizQuestion; options: Option[] };
 
+  private headingReady = new BehaviorSubject<boolean>(false);
+  private optionsReady = new BehaviorSubject<boolean>(false);
+
+  isQAReady$ = combineLatest([this.headingReady, this.optionsReady]).pipe(
+    map(([h, o]) => h && o),
+    distinctUntilChanged()
+  );
+
   private readonly questionSubject = new BehaviorSubject<QuizQuestion | null>(null);
   private readonly optionsSubject = new BehaviorSubject<Option[] | null>(null);
 
