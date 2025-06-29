@@ -22,6 +22,11 @@ import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
+export interface QAPayload {
+  heading: string;      // trimmed question text
+  options: Option[];    // hydrated options
+}
+
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
   private quizQuestionComponent!: QuizQuestionComponent;
@@ -74,6 +79,9 @@ export class QuizQuestionLoaderService {
 
   public readonly isLoading$   = new BehaviorSubject<boolean>(false); // true while a question is being fetched
   private currentLoadAbortCtl  = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
+
+  private qaSubject = new BehaviorSubject<QAPayload | null>(null);
+  readonly qa$ = this.qaSubject.asObservable();
 
   /* ── readiness flags ── */
   private headingReadySubject = new BehaviorSubject<boolean>(false);
@@ -209,7 +217,7 @@ export class QuizQuestionLoaderService {
 
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> { 
     /* ── early blank & flag reset ── */
-    this.quizDisplayService.clearQuestionText();
+    // this.quizDisplayService.clearQuestionText();
     this.resetQAFlags();
 
     /* ─── Reset state flags ─── */
@@ -267,18 +275,24 @@ export class QuizQuestionLoaderService {
 
       this.optionsReadySubject.next(true); // flag list ready
 
-      Promise.resolve().then(() => {
+      const payload: QAPayload = {
+        heading: fetchedQuestion.questionText.trim(),
+        options: fetchedOptions
+      };
+      this.qaSubject.next(payload);
+
+      /* Promise.resolve().then(() => {
         const trimmed = fetchedQuestion.questionText.trim();
         this.quizDisplayService.setQuestionText(trimmed);
         this.headingReadySubject.next(true);
-      });
+      }); */
   
       /* ─── ②  HEADING IN MICRO-TASK ─── */
-      const trimmedHeading = fetchedQuestion.questionText.trim();
+      /* const trimmedHeading = fetchedQuestion.questionText.trim();
       Promise.resolve().then(() => {
         this.quizDisplayService.setQuestionText(trimmedHeading);  // emit once
         this.questionTextLoaded = true;                           // flag after heading
-      });
+      }); */
   
       /* ─── Explanation & display setup ─── */
       this.explanationTextService.setResetComplete(false);
@@ -403,7 +417,6 @@ export class QuizQuestionLoaderService {
       return false;
     }
   }
-  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
