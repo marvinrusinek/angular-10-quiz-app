@@ -268,8 +268,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
       ) => {
-        const explanation = explanationText?.trim();
         const question = questionText?.trim();
+        const explanation = (explanationText ?? '').trim();
         const correct = (correctText ?? '').trim();
 
         const showExplanation =
