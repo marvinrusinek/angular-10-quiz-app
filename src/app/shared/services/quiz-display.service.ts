@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class QuizDisplayService {
@@ -8,7 +9,7 @@ export class QuizDisplayService {
 
   readonly heading$ = this.questionToDisplaySubject
   .pipe(
-    tap(v => console.log('[HDG-STREAM]', v)),   // ← add this
+    tap(v => console.log('[HDG-STREAM]', v))
   );
 
   // Clear UI instantly so the old question never flashes
