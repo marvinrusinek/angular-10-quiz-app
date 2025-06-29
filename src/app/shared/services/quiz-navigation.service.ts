@@ -107,12 +107,10 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
-    this.quizDisplayService.clearQuestionText();
     await this.navigateWithOffset(1);
   }
   
   public async advanceToPreviousQuestion(): Promise<void> {
-    this.quizDisplayService.clearQuestionText();
     await this.navigateWithOffset(-1);
   }
 

@@ -6,6 +6,11 @@ export class QuizDisplayService {
   private questionToDisplaySubject = new BehaviorSubject<string | null>(null);
   readonly questionToDisplay$ = this.questionToDisplaySubject.asObservable();
 
+  readonly heading$ = this.questionToDisplaySubject
+  .pipe(
+    tap(v => console.log('[HDG-STREAM]', v)),   // ← add this
+  );
+
   // Clear UI instantly so the old question never flashes
   public clearQuestionText(): void {
     console.log('[HDG] clear');
@@ -15,7 +20,7 @@ export class QuizDisplayService {
   // Push the trimmed final text or a fallback
   setQuestionText(text: string | null | undefined): void {
     const trimmed = (text ?? '').trim() || 'No question available';
-    
+
     if (!trimmed) {
       console.warn(
         '[⚠️ setQuestionText] Empty or invalid question text received:',
