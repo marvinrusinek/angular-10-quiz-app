@@ -54,7 +54,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
-  questionText = '';
 
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
