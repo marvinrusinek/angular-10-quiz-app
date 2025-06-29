@@ -207,9 +207,11 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
-    console.log('[📥 fetchAndSetQuestionData CALLED]', questionIndex);
-  
+  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> { 
+    /* ── early blank & flag reset ── */
+    this.quizDisplayService.clearQuestionText();
+    this.resetQAFlags();
+
     /* ─── Reset state flags ─── */
     this.questionTextLoaded   = false;
     this.hasOptionsLoaded     = false;
@@ -670,5 +672,11 @@ export class QuizQuestionLoaderService {
       mode: 'question',
       answered: false
     });
+  }
+
+  /** Call at the very start of every new load */
+  private resetQAFlags(): void {
+    this.headingReadySubject.next(false);
+    this.optionsReadySubject.next(false);
   }
 }
