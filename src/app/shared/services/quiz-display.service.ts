@@ -19,8 +19,9 @@ export class QuizDisplayService {
   }
 
   // Push the trimmed final text or a fallback
-  setQuestionText(text: string | null | undefined): void {
+  ssetQuestionText(text: string | null | undefined, tag = 'UNKNOWN'): void {
     const trimmed = (text ?? '').trim() || 'No question available';
+    console.log('[HDG-SET]', tag, '→', trimmed);
 
     if (!trimmed) {
       console.warn(
@@ -29,7 +30,7 @@ export class QuizDisplayService {
       );
       this.questionToDisplaySubject.next('No question available');
     } else {
-      console.log('[HDG] set:', trimmed);
+      // console.log('[HDG] set:', trimmed);
       this.questionToDisplaySubject.next(trimmed);
     }
   }
