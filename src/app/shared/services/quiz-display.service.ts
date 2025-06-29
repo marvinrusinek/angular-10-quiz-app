@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class QuizDisplayService {
   private questionToDisplaySubject = new BehaviorSubject<string | null>(null);
-  readonly questionToDisplay$      = this.questionToDisplaySubject.asObservable();
+  readonly questionToDisplay$ = this.questionToDisplaySubject.asObservable();
 
   // Clear UI instantly so the old question never flashes
   public clearQuestionText(): void {
