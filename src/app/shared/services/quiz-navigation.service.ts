@@ -157,7 +157,7 @@ export class QuizNavigationService {
 
   private async navigateWithOffset(offset: number): Promise<void> {
     // Instantly blank the UI heading so the old text can’t flash
-    this.quizDisplayService.clearQuestionText();
+    // this.quizDisplayService.clearQuestionText();
 
     const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
     let currentIndex = routeParams

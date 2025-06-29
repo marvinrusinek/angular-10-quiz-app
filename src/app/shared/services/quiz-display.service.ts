@@ -13,8 +13,8 @@ export class QuizDisplayService {
   );
 
   // Clear UI instantly so the old question never flashes
-  public clearQuestionText(): void {
-    console.log('[HDG] clear');
+  public clearQuestionText(tag: string = ''): void {
+    console.log('[HDG-CLR]', tag);
     this.questionToDisplaySubject.next(null);  // pushes a blank so UI empties instantly
   }
 
