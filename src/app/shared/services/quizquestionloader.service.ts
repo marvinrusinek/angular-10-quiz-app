@@ -342,7 +342,6 @@ export class QuizQuestionLoaderService {
   
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
-      this.quizStateService.setQuestionText(trimmedText);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
       if (
