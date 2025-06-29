@@ -51,18 +51,6 @@ export class SelectedOptionService {
   ) {
     console.log(`[SelectedOptionService] Instance ID: ${this.instanceId}`);
   }
-
-  setQuestionText(text: string): void {
-    const trimmed = (text ?? '').trim();
-  
-    if (!trimmed) {
-      console.warn('[⚠️ setQuestionText] Empty or invalid question text received:', text);
-      this.questionTextSubject.next('No question available');
-    } else {
-      console.log('[✅ setQuestionText] Emitting question text:', trimmed);
-      this.questionTextSubject.next(trimmed);
-    }
-  }
   
   // potentially remove...
   /* get currentSelectedState(): boolean {
