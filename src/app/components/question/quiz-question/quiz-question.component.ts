@@ -799,7 +799,6 @@ export class QuizQuestionComponent
           this.finalRenderReady = true;
           this.renderReady = true;
           this.renderReadySubject.next(true);
-          this.cdRef.detectChanges();
         }
       }, 150);
   
