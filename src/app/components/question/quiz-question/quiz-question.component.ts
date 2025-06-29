@@ -1525,10 +1525,6 @@ export class QuizQuestionComponent
         '[initializeComponent] Current question set:',
         this.currentQuestion
       );
-
-      this.quizDisplayService.setQuestionText(
-        this.currentQuestion.questionText.trim()
-      );
   
       // Generate feedback for the current question
       try {
