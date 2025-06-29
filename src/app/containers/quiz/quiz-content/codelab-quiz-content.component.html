@@ -4,20 +4,9 @@
   </ng-container>
 </h3>-->
 
-<!-- Main body: use combinedText$ for explanation & correct-count -->
-<h3 class="main-content" *ngIf="combinedText$ | async as combinedText">
-<span [innerHTML]="combinedText"></span>
-</h3>
-
-<ng-container
-  *ngIf="quizDisplayService.questionToDisplay$ | async as txt; else headingSkeleton">
-  <h3 question-content class="fade-in">
-    <span [innerHTML]="txt"></span>
-  </h3>
+<ng-container *ngIf="quizDisplayService.heading$ | async as txt; else headingSkeleton">
+  <h3 question-content><span [innerHTML]="txt"></span></h3>
+  <!-- options list lives here -->
 </ng-container>
 
-<ng-template #headingSkeleton>
-  <!-- keeps layout stable while loading -->
-  <div style="min-height:2.5rem"></div>
-</ng-template>
 
