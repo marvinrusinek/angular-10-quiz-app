@@ -498,6 +498,8 @@ export class QuizQuestionLoaderService {
   }
 
   public resetQuestionState(): void {
+    this.quizDisplayService.clearQuestionText('resetQuestionState');
+
     // Clear local UI state
     this.questionInitialized = false; // block during reset
     this.isAnswered = false;
