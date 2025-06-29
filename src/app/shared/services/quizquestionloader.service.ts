@@ -255,7 +255,7 @@ export class QuizQuestionLoaderService {
 
       // Set the heading text after options and question are loaded
       const trimmed = fetchedQuestion.questionText.trim();
-      this.quizDisplayService.setQuestionText(trimmed);
+      this.quizDisplayService.setQuestionText(trimmed, 'LOADER');
   
       // ───── Explanation & display setup ─────
       this.explanationTextService.setResetComplete(false);
