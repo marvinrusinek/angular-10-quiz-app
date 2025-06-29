@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { combineLatest } from 'rxjs';
-import { catchError, filter, take } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { Option } from '../models/Option.model';
@@ -74,6 +74,14 @@ export class QuizQuestionLoaderService {
 
   public readonly isLoading$   = new BehaviorSubject<boolean>(false); // true while a question is being fetched
   private currentLoadAbortCtl  = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
+
+  private headingReady = new BehaviorSubject<boolean>(false);
+  private optionsReady = new BehaviorSubject<boolean>(false);
+
+  isQAReady$ = combineLatest([this.headingReady, this.optionsReady]).pipe(
+    map(([h, o]) => h && o),
+    distinctUntilChanged()
+  );
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -249,12 +257,18 @@ export class QuizQuestionLoaderService {
       /* ─── ①  PUSH OPTIONS FIRST ─── */
       this.optionsToDisplay = fetchedOptions;
       this.currentQuestion  = fetchedQuestion;
+
+      this.optionsReady.next(true); // flag list ready
+
+      Promise.resolve().then(() => {
+        this.quizDisplayService.setQuestionText(fetchedQuestion.questionText.trim());
+        this.headingReady.next(true);      // ✅ flag heading ready
+      });
   
       /* ─── ②  HEADING IN MICRO-TASK ─── */
       const trimmedHeading = fetchedQuestion.questionText.trim();
       Promise.resolve().then(() => {
         this.quizDisplayService.setQuestionText(trimmedHeading);  // emit once
-        this.cdRef.markForCheck();                                // OnPush refresh
         this.questionTextLoaded = true;                           // flag after heading
       });
   
