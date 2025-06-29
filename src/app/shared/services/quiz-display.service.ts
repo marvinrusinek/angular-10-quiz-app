@@ -14,8 +14,8 @@ export class QuizDisplayService {
 
   // Push the trimmed final text or a fallback
   setQuestionText(text: string | null | undefined): void {
-    const trimmed = (text ?? '').trim();
-
+    const trimmed = (text ?? '').trim() || 'No question available';
+    
     if (!trimmed) {
       console.warn(
         '[⚠️ setQuestionText] Empty or invalid question text received:',
