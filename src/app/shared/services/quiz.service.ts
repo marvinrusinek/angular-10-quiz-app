@@ -2185,7 +2185,7 @@ export class QuizService implements OnDestroy {
   }
 
   resetQuestions(): void {
-    this.quizDisplayService.clearQuestionText();
+    this.quizDisplayService.clearQuestionText('resetQuestions');
 
     let currentQuizData = this.quizInitialState.find(
       (quiz) => quiz.quizId === this.quizId
