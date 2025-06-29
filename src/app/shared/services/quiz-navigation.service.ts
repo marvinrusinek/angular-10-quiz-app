@@ -234,10 +234,6 @@ export class QuizNavigationService {
       });
   
       if (navSuccess) {
-        // Push the new heading immediately
-        /* const nextQuestion = currentQuiz.questions[targetIndex];
-        this.quizDisplayService.setQuestionText(nextQuestion?.questionText); */
-
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
   
