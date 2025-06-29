@@ -270,19 +270,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ) => {
         const explanation = explanationText?.trim();
         const question = questionText?.trim();
+        const correct     = (correctText   ?? '').trim();
 
         const showExplanation =
           state.mode === 'explanation' &&
-          !!explanation &&
+          explanation &&
           shouldDisplayExplanation === true;
 
         if (showExplanation) {
-          console.log('[📢 Showing EXPLANATION]');
           return explanation; // render explanation once
         }
 
         // Otherwise show question (+ correct count if present)
-        return correctText?.trim()
+        return correct
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
       }),
