@@ -663,7 +663,7 @@ export class QuizQuestionLoaderService {
   resetHeadlineStreams(): void {
     this.questionToDisplay$.next(''); // clears question text
     this.explanationTextService.explanationText$.next(''); // clears explanation
-    this.quizStateService.clearQA(); // clears question + options
+    this.clearQA(); // clears question + options
     this.quizStateService.setDisplayState({  // force “question” mode
       mode: 'question',
       answered: false
