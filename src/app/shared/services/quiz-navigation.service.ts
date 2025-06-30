@@ -371,8 +371,4 @@ export class QuizNavigationService {
   private getQuizId(): string | null {
     return this.quizId || null;
   }
-
-  triggerAnimation(): void {
-    this.animationState$.next('animationStarted');
-  }
 }
