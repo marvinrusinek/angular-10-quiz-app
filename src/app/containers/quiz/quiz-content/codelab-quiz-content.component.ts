@@ -9,7 +9,6 @@ import { QuestionType } from '../../../shared/models/question-type.enum';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
-import { QuizDisplayService } from '../../../shared/services/quiz-display.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
@@ -101,7 +100,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private quizDisplayService: QuizDisplayService,
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
