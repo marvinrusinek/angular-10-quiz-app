@@ -11,7 +11,6 @@ import { NextButtonStateService } from './next-button-state.service';
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
-import { QuizDisplayService } from './quiz-display.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { TimerService } from './timer.service';
@@ -65,7 +64,6 @@ export class QuizNavigationService {
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private quizDisplayService: QuizDisplayService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
@@ -156,9 +154,6 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
-    // Instantly blank the UI heading so the old text can’t flash
-    // this.quizDisplayService.clearQuestionText();
-
     const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
     let currentIndex = routeParams
       ? parseInt(routeParams.get('questionIndex') ?? '', 10) - 1
