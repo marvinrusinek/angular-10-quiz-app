@@ -215,6 +215,7 @@ export class QuizQuestionLoaderService {
 
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> { 
     /* ── early flag reset ── */
+    this.clearQA();
     this.resetQAFlags();
 
     /* ─── Reset state flags ─── */
