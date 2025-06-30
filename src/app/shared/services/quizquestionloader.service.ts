@@ -213,31 +213,32 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> { 
-    /* ── early flag reset ── */
-    this.clearQA();
-    this.resetQAFlags();
+  /**
+    * Fetch a question + its options and emit a single payload so the
+    * heading and list paint in the same change-detection pass (no flicker).
+  */
+  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    /* ── 1. Blank heading + list instantly ── */
+    this.clearQA();                                 // pushes {heading:null, options:[]}
 
-    /* ─── Reset state flags ─── */
+    /* ── 2. Reset per-question flags ── */
     this.questionTextLoaded   = false;
     this.hasOptionsLoaded     = false;
     this.shouldRenderOptions  = false;
     this.isLoading            = true;
     if (this.quizQuestionComponent) this.quizQuestionComponent.renderReady = true;
-  
+
     try {
-      /* ─── Safety checks ─── */
+      /* ── 3. Guard against bad index ── */
       if (
-        typeof questionIndex !== 'number' ||
-        isNaN(questionIndex)             ||
-        questionIndex < 0               ||
-        questionIndex >= this.totalQuestions
+        typeof questionIndex !== 'number' || isNaN(questionIndex) ||
+        questionIndex < 0 || questionIndex >= this.totalQuestions
       ) {
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-  
-      /* ─── Reset local & explanation state ─── */
+
+      /* ── 4. Reset local UI & explanation state ── */
       this.currentQuestion = null;
       this.resetQuestionState();
       this.resetQuestionDisplayState();
@@ -245,89 +246,60 @@ export class QuizQuestionLoaderService {
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
       await new Promise(res => setTimeout(res, 30));
-  
-      /* ─── Answered state & parallel fetch ─── */
+
+      /* ── 5. Answered flag and parallel fetch ── */
       const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
       if (isAnswered) {
         this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true, true);
         this.nextButtonStateService.syncNextButtonState();
       }
-  
-      console.log('[⏳ Starting parallel fetch for question and options]');
+
+      console.log('[⏳] Fetching question + options …');
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
-        firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
+        firstValueFrom(
+          this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
+        )
       ]);
-  
-      if (!fetchedQuestion?.questionText?.trim()
-          || !Array.isArray(fetchedOptions)
-          || fetchedOptions.length === 0) {
+
+      if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
         console.warn('[TRACE] early-exit: missing data');
         return false;
       }
-  
-      /* ─── ①  PUSH OPTIONS FIRST ─── */
-      this.optionsToDisplay = fetchedOptions;
-      this.currentQuestion  = fetchedQuestion;
 
-      this.optionsReadySubject.next(true); // flag list ready
-
-      const heading = fetchedQuestion.questionText.trim(); // single source of truth
-      const payload: QAPayload = {
-        heading: fetchedQuestion.questionText.trim(),
-        options: fetchedOptions
-      };
-      this.qaSubject.next(payload);
-  
-      /* ─── Explanation & display setup ─── */
-      this.explanationTextService.setResetComplete(false);
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.explanationText$.next('');
-  
-      this.questionTextLoaded = true;
-  
-      // ───── Hydrate and clone options ─────
-      const hydratedOptions = fetchedOptions.map((opt, idx) => ({
+      /* ── 6. Hydrate & clone options BEFORE emitting ── */
+      const hydrated = fetchedOptions.map((opt, i) => ({
         ...opt,
-        optionId: opt.optionId ?? idx,
-        correct: opt.correct ?? false,
-        feedback: opt.feedback ?? `The correct options are: ${opt.text}`
+        optionId : opt.optionId ?? i,
+        correct  : opt.correct  ?? false,
+        feedback : opt.feedback ?? `The correct options are: ${opt.text}`
       }));
-      const finalOptions = this.quizService.assignOptionActiveStates(hydratedOptions, false);
-      const clonedOptions = structuredClone?.(finalOptions) || JSON.parse(JSON.stringify(finalOptions));
-  
-      // ───── Assign to component state ─────
-      this.question = {
-        questionText: fetchedQuestion.questionText,
-        explanation: fetchedQuestion.explanation ?? '',
-        options: clonedOptions,
-        type: fetchedQuestion.type ?? QuestionType.SingleAnswer
-      };
-      this.currentQuestion = { ...this.question };
+      const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
+      const clonedOptions = structuredClone?.(finalOptions)
+                          ?? JSON.parse(JSON.stringify(finalOptions));
+
+      /* ── 7. Assign component state (for other logic) ── */
+      this.optionsToDisplay = clonedOptions;
+      this.currentQuestion  = fetchedQuestion;
 
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
       } else {
-        requestAnimationFrame(() => {
-          this.pendingOptions = clonedOptions;
-          console.log('[⏳ Pending options queued until component ready]');
-        });
+        requestAnimationFrame(() => (this.pendingOptions = clonedOptions));
       }
 
-      setTimeout(() => {
-        if (isAnswered) {
-          const explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
-          this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
-          this.explanationToDisplay = explanationText;
-          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-        }
-      }, 100);
-  
-      this.hasOptionsLoaded = true;
-      this.shouldRenderOptions = true;
-  
-      // ───── Explanation or selection setup ─────
+      /* ── 8. Emit ONE payload → heading + FINAL options ── */
+      const heading = fetchedQuestion.questionText.trim();
+      const payload: QAPayload = { heading, options: clonedOptions };
+      this.qaSubject.next(payload);                      // ← single emission
+
+      /* ── 9. Explanation / display / timer logic (unchanged) ── */
+      this.explanationTextService.setResetComplete(false);
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.explanationText$.next('');
+
+      /* build explanation text & timer handling */
       let explanationText = '';
       if (isAnswered) {
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
@@ -335,74 +307,62 @@ export class QuizQuestionLoaderService {
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        const expectedMessage = this.selectionMessageService.determineSelectionMessage(
-          questionIndex,
-          this.totalQuestions,
-          false
+        const expectedMsg = this.selectionMessageService.determineSelectionMessage(
+          questionIndex, this.totalQuestions, false
         );
-        const currentMessage = this.selectionMessageService.getCurrentMessage();
-  
-        if (currentMessage !== expectedMessage) {
-          setTimeout(() => {
-            this.selectionMessageService.updateSelectionMessage(expectedMessage);
-          }, 100);
+        if (this.selectionMessageService.getCurrentMessage() !== expectedMsg) {
+          setTimeout(() => this.selectionMessageService.updateSelectionMessage(expectedMsg), 100);
         }
-  
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
-  
-      // ───── Set additional state ─────
+
+      /* ── 10. Down-stream state updates (unchanged) ── */
       this.setQuestionDetails(heading, finalOptions, explanationText);
-      this.currentQuestionIndex = questionIndex;
-      this.explanationToDisplay = explanationText;
-      // this.shouldRenderQuestionComponent = false;
-  
+      this.currentQuestionIndex  = questionIndex;
+      this.explanationToDisplay  = explanationText;
+
       this.questionPayload = {
-        question: this.currentQuestion!,
-        options: clonedOptions,
+        question   : this.currentQuestion!,
+        options    : clonedOptions,
         explanation: explanationText
       };
       this.shouldRenderQuestionComponent = true;
       this.questionPayloadReadySource.next(true);
-  
+
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
-      if (
-        fetchedQuestion?.questionText?.trim() &&
-        Array.isArray(clonedOptions) && clonedOptions.length > 0
-      ) {
-        // Build the selection message synchronously
-        const selMsg = this.selectionMessageService
-                         .determineSelectionMessage(
-                           questionIndex,
-                           this.totalQuestions,
-                           /* answered? */ false
-                         );
-      
+      /* emitQA remains as in your original logic */
+      if (heading && clonedOptions.length) {
+        const selMsg = this.selectionMessageService.determineSelectionMessage(
+          questionIndex, this.totalQuestions, false
+        );
         this.quizStateService.emitQA(
-          this.currentQuestion!,
-          clonedOptions,
-          selMsg,
-          this.quizService.quizId!,
-          questionIndex
+          this.currentQuestion!, clonedOptions, selMsg,
+          this.quizService.quizId!, questionIndex
         );
       }
-  
-      // this.quizStateService.emitQA(fetchedQuestion!, fetchedOptions);
 
+      /* any additional combined streams or checks you already have */
       this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
-  
-      this.resetComplete = true;
+
+      /* ── 11. Final flags ── */
+      this.questionTextLoaded   = true;
+      this.hasOptionsLoaded     = true;
+      this.shouldRenderOptions  = true;
+      this.resetComplete        = true;
+
       return true;
-    } catch (error) {
-      console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
+
+    } catch (err) {
+      console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, err);
       return false;
     }
   }
+  
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
