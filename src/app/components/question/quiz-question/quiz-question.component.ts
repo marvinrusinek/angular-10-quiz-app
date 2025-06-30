@@ -24,7 +24,6 @@ import { AnswerTrackingService } from '../../../shared/services/answer-tracking.
 import { FeedbackService } from '../../../shared/services/feedback.service';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
-import { QuizDisplayService } from '../../../shared/services/quiz-display.service';
 import { QuizNavigationService } from '../../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
@@ -263,7 +262,6 @@ export class QuizQuestionComponent
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
-    protected quizDisplayService: QuizDisplayService,
     protected quizNavigationService: QuizNavigationService,
     protected quizStateService: QuizStateService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
