@@ -105,10 +105,14 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
+    this.quizQuestionLoaderService.clearQA();
+    this.triggerAnimation();
     await this.navigateWithOffset(1);
   }
   
   public async advanceToPreviousQuestion(): Promise<void> {
+    this.quizQuestionLoaderService.clearQA();
+    this.triggerAnimation();
     await this.navigateWithOffset(-1);
   }
 
@@ -366,5 +370,9 @@ export class QuizNavigationService {
 
   private getQuizId(): string | null {
     return this.quizId || null;
+  }
+
+  triggerAnimation(): void {
+    this.animationState$.next('animationStarted');
   }
 }
