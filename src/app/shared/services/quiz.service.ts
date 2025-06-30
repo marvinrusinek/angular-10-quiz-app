@@ -21,8 +21,6 @@ import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.mod
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
-import { QuizDisplayService } from '../../shared/services/quiz-display.service';
-
 
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
@@ -212,7 +210,6 @@ export class QuizService implements OnDestroy {
 
   constructor(
     private explanationTextService: ExplanationTextService,
-    private quizDisplayService: QuizDisplayService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private http: HttpClient
@@ -2185,8 +2182,6 @@ export class QuizService implements OnDestroy {
   }
 
   resetQuestions(): void {
-    this.quizDisplayService.clearQuestionText('resetQuestions');
-
     let currentQuizData = this.quizInitialState.find(
       (quiz) => quiz.quizId === this.quizId
     );
