@@ -273,6 +273,7 @@ export class QuizQuestionLoaderService {
 
       this.optionsReadySubject.next(true); // flag list ready
 
+      const heading = fetchedQuestion.questionText.trim(); // single source of truth
       const payload: QAPayload = {
         heading: fetchedQuestion.questionText.trim(),
         options: fetchedOptions
@@ -351,7 +352,7 @@ export class QuizQuestionLoaderService {
       }
   
       // ───── Set additional state ─────
-      this.setQuestionDetails(trimmedText, finalOptions, explanationText);
+      this.setQuestionDetails(heading, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
       // this.shouldRenderQuestionComponent = false;
