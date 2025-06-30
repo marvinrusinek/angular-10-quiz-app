@@ -677,6 +677,6 @@ export class QuizQuestionLoaderService {
   }
 
   clearQA(): void {
-    this.qaSub.next(null); // push a null sentinel
+    this.qaSubject.next({ heading: null, options: [] });
   }
 }
