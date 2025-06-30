@@ -12,7 +12,6 @@ import { FeedbackService } from './feedback.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
-import { QuizDisplayService } from './quiz-display.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
 import { RenderStateService } from './render-state.service';
@@ -102,7 +101,6 @@ export class QuizQuestionLoaderService {
     private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private quizDisplayService: QuizDisplayService,
     private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
@@ -216,8 +214,7 @@ export class QuizQuestionLoaderService {
   }
 
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> { 
-    /* ── early blank & flag reset ── */
-    // this.quizDisplayService.clearQuestionText();
+    /* ── early flag reset ── */
     this.resetQAFlags();
 
     /* ─── Reset state flags ─── */
@@ -280,19 +277,6 @@ export class QuizQuestionLoaderService {
         options: fetchedOptions
       };
       this.qaSubject.next(payload);
-
-      /* Promise.resolve().then(() => {
-        const trimmed = fetchedQuestion.questionText.trim();
-        this.quizDisplayService.setQuestionText(trimmed);
-        this.headingReadySubject.next(true);
-      }); */
-  
-      /* ─── ②  HEADING IN MICRO-TASK ─── */
-      /* const trimmedHeading = fetchedQuestion.questionText.trim();
-      Promise.resolve().then(() => {
-        this.quizDisplayService.setQuestionText(trimmedHeading);  // emit once
-        this.questionTextLoaded = true;                           // flag after heading
-      }); */
   
       /* ─── Explanation & display setup ─── */
       this.explanationTextService.setResetComplete(false);
@@ -530,8 +514,6 @@ export class QuizQuestionLoaderService {
   }
 
   public resetQuestionState(): void {
-    this.quizDisplayService.clearQuestionText('resetQuestionState');
-
     // Clear local UI state
     this.questionInitialized = false; // block during reset
     this.isAnswered = false;
