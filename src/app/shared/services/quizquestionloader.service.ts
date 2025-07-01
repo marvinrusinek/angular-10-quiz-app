@@ -299,6 +299,7 @@ export class QuizQuestionLoaderService {
       /* ── 8. Emit ONE payload → heading + FINAL options ── */
       const heading = fetchedQuestion.questionText.trim();
       this.qaSubject.next({ heading, options: clonedOptions });   // single emission
+      console.log('[QA-EMIT]', questionIndex, clonedOptions.map(o => o.text));
 
       /* ── 9. Explanation / display / timer logic (unchanged) ── */
       this.explanationTextService.setResetComplete(false);
