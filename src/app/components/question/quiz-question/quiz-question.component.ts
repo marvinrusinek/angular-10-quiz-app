@@ -790,6 +790,8 @@ export class QuizQuestionComponent
           }
 
           /* swap reference so OnPush sees a NEW array */
+          this.optionsToDisplay = [];
+          this.cdRef.detectChanges();
           this.optionsToDisplay = [...newOptions];
           console.log('[QQC APPLIED]', this.optionsToDisplay.map(o => o.text));
 
