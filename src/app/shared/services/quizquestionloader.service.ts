@@ -291,8 +291,7 @@ export class QuizQuestionLoaderService {
 
       /* ── 8. Emit ONE payload → heading + FINAL options ── */
       const heading = fetchedQuestion.questionText.trim();
-      const payload: QAPayload = { heading, options: clonedOptions };
-      this.qaSubject.next(payload);                      // ← single emission
+      this.qaSubject.next({ heading, options: clonedOptions });   // single emission
 
       /* ── 9. Explanation / display / timer logic (unchanged) ── */
       this.explanationTextService.setResetComplete(false);
