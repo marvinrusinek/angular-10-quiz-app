@@ -281,6 +281,8 @@ export class QuizQuestionLoaderService {
       const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
       const clonedOptions = structuredClone?.(finalOptions)
                           ?? JSON.parse(JSON.stringify(finalOptions));
+      // Emit once with final values
+      this.qaSubject.next({ heading: fetchedQuestion.questionText.trim(), options: clonedOptions });
 
       /* ── 7. Assign component state (for other logic) ── */
       this.optionsToDisplay = clonedOptions;
