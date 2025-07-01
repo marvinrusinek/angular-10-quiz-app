@@ -761,6 +761,8 @@ export class QuizQuestionComponent
     const incoming = JSON.stringify(newOptions);
     const current  = JSON.stringify(this.optionsToDisplay);
 
+    console.log('[QQC RECEIVED]', newOptions.map(o => o.text));
+
     if (incoming !== current) {
       /* ── 0. Block render while we swap lists ── */
       this.renderReadySubject.next(false);
@@ -789,6 +791,7 @@ export class QuizQuestionComponent
 
           /* swap reference so OnPush sees a NEW array */
           this.optionsToDisplay = [...newOptions];
+          console.log('[QQC APPLIED]', this.optionsToDisplay.map(o => o.text));
 
           /* ── 3. Flip visibility next frame ── */
           requestAnimationFrame(() => {
