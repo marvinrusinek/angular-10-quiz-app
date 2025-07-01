@@ -263,10 +263,8 @@ export class QuizQuestionLoaderService {
       console.log('[⏳] Fetching question + options …');
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
-        firstValueFrom(
-          this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
-        )
-      ]);
+        firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
+      ]) as [QuizQuestion, Option[]];
 
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
         console.warn('[TRACE] early-exit: missing data');
