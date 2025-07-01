@@ -782,7 +782,6 @@ export class QuizQuestionComponent
             this.finalRenderReady = true;
             this.renderReady = true;               // mark ready internally
             this.renderReadySubject.next(true);    // notify observers
-            this.cdRef.detectChanges();
           });
         });
       }, 0);
