@@ -758,6 +758,7 @@ export class QuizQuestionComponent
 
   /** Safely replace the option list when navigating to a new question */
   public updateOptionsSafely(newOptions: Option[]): void {
+    console.log('B-CHILD received →', newOptions.map(o => o.text));
     const incoming = JSON.stringify(newOptions);
     const current  = JSON.stringify(this.optionsToDisplay);
 
