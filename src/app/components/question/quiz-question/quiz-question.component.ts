@@ -756,51 +756,69 @@ export class QuizQuestionComponent
     console.log(`${context} ✅ Set optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
   }
 
+  /** Safely replace the option list when navigating to a new question */
   public updateOptionsSafely(newOptions: Option[]): void {
     const incoming = JSON.stringify(newOptions);
-    const current = JSON.stringify(this.optionsToDisplay);
-  
+    const current  = JSON.stringify(this.optionsToDisplay);
+
     if (incoming !== current) {
+      /* ── 0. Block render while we swap lists ── */
       this.renderReadySubject.next(false);
       this.internalBufferReady = false;
-      this.finalRenderReady = false;
-  
+      this.finalRenderReady    = false;
+
+      /* ── 1. Clear previous highlight / form flags BEFORE we clone ── */
+      newOptions.forEach(o => {
+        o.selected  = false;
+        o.highlight = false;
+        o.showIcon  = false;
+      });
+      /* If you keep a reactive form, rebuild it now */
+      this.questionForm = new FormGroup({});
+      newOptions.forEach(o =>
+        this.questionForm.addControl(`opt_${o.optionId}`, new FormControl(false))
+      );
+
+      /* ── 2. Batch the visual swap ── */
       setTimeout(() => {
         requestAnimationFrame(() => {
           const latest = JSON.stringify(newOptions);
           if (latest !== this.lastSerializedOptions) {
-            // Track the last serialized set to avoid stale updates
-            this.lastSerializedOptions = latest;
+            this.lastSerializedOptions = latest;      // track for stale-guard
           }
-  
-          // Batch update state
-          this.optionsToDisplay = [...newOptions]; // clone to avoid mutation
-  
-          // Flip visibility on next animation frame
+
+          /* swap reference so OnPush sees a NEW array */
+          this.optionsToDisplay = [...newOptions];
+
+          /* ── 3. Flip visibility next frame ── */
           requestAnimationFrame(() => {
             this.internalBufferReady = true;
-            this.finalRenderReady = true;
-            this.renderReady = true;               // mark ready internally
-            this.renderReadySubject.next(true);    // notify observers
+            this.finalRenderReady    = true;
+            this.renderReady         = true;
+            this.renderReadySubject.next(true);
+
+            /* force CD in case parent doesn’t trigger it */
+            this.cdRef.markForCheck();
           });
         });
       }, 0);
-  
-      // Fallback after 150ms in case hydration hangs
+
+      /* ── 4. Fallback: guarantee ready after 150 ms ── */
       setTimeout(() => {
         if (!this.finalRenderReady || this.optionsToDisplay.length === 0) {
           console.warn('[🛠️ Fallback triggered in updateOptionsSafely]');
           this.finalRenderReady = true;
-          this.renderReady = true;
+          this.renderReady      = true;
           this.renderReadySubject.next(true);
+          this.cdRef.markForCheck();
         }
       }, 150);
-  
+
     } else {
-      // Fallback trigger in case options didn't change but still need refresh
+      /* No option change but render was not ready → force refresh */
       if (!this.finalRenderReady) {
         this.finalRenderReady = true;
-        this.renderReady = true;
+        this.renderReady      = true;
         this.renderReadySubject.next(true);
         this.cdRef.detectChanges();
       }
