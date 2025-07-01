@@ -669,6 +669,11 @@ export class QuizQuestionLoaderService {
   }
 
   clearQA(): void {
-    this.qaSubject.next({ heading: null, options: [] });
+    this.qaSubject.next({
+      heading: '',
+      options: [],
+      explanation: '',
+      question: null as unknown as QuizQuestion
+    });
   }
 }
