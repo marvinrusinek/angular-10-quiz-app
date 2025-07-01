@@ -1275,6 +1275,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.setCurrentQuestionIndex(index);
   
         try {
+          /* Let the loader fetch question + options and emit payload */
+          const ok = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+          if (!ok) {
+            console.warn('[🚫 Loader early-exit] Q', index);
+            return;
+          }
+
           // Fetch current quiz meta (unchanged)
           const currentQuiz: Quiz = await firstValueFrom(
             this.quizDataService.getQuiz(quizId).pipe(

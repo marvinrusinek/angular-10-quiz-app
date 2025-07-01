@@ -218,6 +218,7 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    console.log('[LOADER] entered with index', questionIndex);
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     if (this.quizQuestionComponent) {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
