@@ -284,8 +284,20 @@ export class QuizQuestionLoaderService {
       const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
       const clonedOptions = structuredClone?.(finalOptions)
                           ?? JSON.parse(JSON.stringify(finalOptions));
+
+      const questionWithOptions: QuizQuestion = {
+        ...fetchedQuestion,
+        options: clonedOptions  // updated list travels inside question
+      };
+      
       // Emit once with final values
-      this.qaSubject.next({ heading: fetchedQuestion.questionText.trim(), options: clonedOptions });
+      // this.qaSubject.next({ heading: fetchedQuestion.questionText.trim(), options: clonedOptions });
+      this.qaSubject.next({
+        heading: fetchedQuestion.questionText.trim(),
+        options: clonedOptions,
+        explanation: fetchedQuestion.explanation?.trim() ?? '',
+        question: questionWithOptions
+      });
 
       /* ── 7. Assign component state (for other logic) ── */
       this.optionsToDisplay = clonedOptions;
@@ -303,11 +315,6 @@ export class QuizQuestionLoaderService {
       const heading = fetchedQuestion.questionText.trim();
 
       /* ── embed the fresh options in the question object ── */
-      const questionWithOptions: QuizQuestion = {
-        ...fetchedQuestion,
-        options: clonedOptions  // updated list travels inside question
-      };
-
       const payload: QAPayload = {
         heading,
         options: clonedOptions,           // list for [options] binding
