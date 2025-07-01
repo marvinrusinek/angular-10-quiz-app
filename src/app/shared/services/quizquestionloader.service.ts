@@ -22,8 +22,10 @@ import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
 export interface QAPayload {
-  heading: string;      // trimmed question text
-  options: Option[];    // hydrated options
+  heading: string;       // trimmed question text
+  options: Option[];     // hydrated options
+  explanation: string;   // optional explanation text
+  question: QuizQuestion; // the full question object with updated options
 }
 
 @Injectable({ providedIn: 'root' })
@@ -299,7 +301,19 @@ export class QuizQuestionLoaderService {
 
       /* ── 8. Emit ONE payload → heading + FINAL options ── */
       const heading = fetchedQuestion.questionText.trim();
-      const payload: QAPayload = { heading, options: clonedOptions };
+
+      /* ── embed the fresh options in the question object ── */
+      const questionWithOptions: QuizQuestion = {
+        ...fetchedQuestion,
+        options: clonedOptions  // updated list travels inside question
+      };
+
+      const payload: QAPayload = {
+        heading,
+        options: clonedOptions,           // list for [options] binding
+        explanation: fetchedQuestion.explanation ?? '',
+        question: questionWithOptions     // object for [question] binding
+      };
       this.qaSubject.next(payload);
       console.log('[QA-EMIT]', questionIndex, clonedOptions.map(o => o.text));
 
