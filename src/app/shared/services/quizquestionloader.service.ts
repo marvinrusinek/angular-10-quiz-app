@@ -218,6 +218,11 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    /* ── 0.  Fully reset child component (highlights, form, flags) ── */
+    if (this.quizQuestionComponent) {
+      await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+    }
+
     /* ── 1. Blank heading + list instantly ── */
     this.clearQA();                                 // pushes {heading:null, options:[]}
 
@@ -284,8 +289,10 @@ export class QuizQuestionLoaderService {
       this.currentQuestion  = fetchedQuestion;
 
       if (this.quizQuestionComponent) {
+        // push the cloned list into the child component
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
       } else {
+        // Child not yet created → queue the list for next tick
         requestAnimationFrame(() => (this.pendingOptions = clonedOptions));
       }
 
