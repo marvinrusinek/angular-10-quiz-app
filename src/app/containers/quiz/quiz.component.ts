@@ -1276,11 +1276,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         try {
           /* Let the loader fetch question + options and emit payload */
-          const ok = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-          if (!ok) {
-            console.warn('[🚫 Loader early-exit] Q', index);
-            return;
-          }
+          await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
 
           // Fetch current quiz meta (unchanged)
           const currentQuiz: Quiz = await firstValueFrom(
@@ -1294,8 +1290,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return;
           }
   
-          const totalQuestions = currentQuiz.questions.length;
-          const question       = currentQuiz.questions[index];
+          const totalQuestions = currentQuiz.questions.length ?? 0;
+          const question = currentQuiz.questions[index] ?? null;
           if (!question) {
             console.error('[❌ No question at index]', { index });
             return;
