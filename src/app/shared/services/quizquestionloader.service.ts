@@ -43,6 +43,9 @@ export class QuizQuestionLoaderService {
   questionInitialized = false;
   explanationToDisplay = '';
 
+  public activeQuizId!: string;
+  public totalQuestions = 0;
+
   showFeedbackForOption: { [key: number]: boolean } = {};
 
   selectedOptions: Option[] = [];
