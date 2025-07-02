@@ -1301,6 +1301,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('[❌ Failed to fetch quiz with quizId]', quizId);
             return;
           }
+          // Cache it in the service
+          this.quizService.setCurrentQuiz(currentQuiz);
 
           // Set loader context
           this.quizQuestionLoaderService.activeQuizId = quizId;
