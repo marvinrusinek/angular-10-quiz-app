@@ -296,7 +296,7 @@ export class QuizQuestionLoaderService {
         heading: fetchedQuestion.questionText.trim(),
         options: clonedOptions,
         explanation: fetchedQuestion.explanation?.trim() ?? '',
-        question: questionWithOptions
+        question: fetchedQuestion
       });
 
       /* ── 7. Assign component state (for other logic) ── */
