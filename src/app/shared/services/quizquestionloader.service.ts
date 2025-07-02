@@ -277,7 +277,7 @@ export class QuizQuestionLoaderService {
       console.log('[LOADER] RAW fetchedOptions  →', fetchedOptions);
 
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
-        console.warn('[TRACE] early-exit: missing data');
+        console.warn('[LOADER ⚠️] early-exit – missing data for Q', index);
         return false;
       }
 
