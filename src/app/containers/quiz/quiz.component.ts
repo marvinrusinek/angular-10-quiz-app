@@ -584,6 +584,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
+
+    /* if the loader queued options before the child existed, apply them now */
+    if (this.quizQuestionLoaderService.pendingOptions?.length) {
+      const opts = this.quizQuestionLoaderService.pendingOptions;
+      this.quizQuestionLoaderService.pendingOptions = null;            // clear the queue
+
+      console.log('[BRIDGE] applying queued options', opts.map(o => o.text));
+
+      /* push into child */
+      this.quizQuestionComponent.updateOptionsSafely(opts);
+      this.quizQuestionComponent.optionsToDisplay = [...opts];
+    }
     
     setTimeout(() => {
       if (this.quizQuestionComponent?.renderReady$) {
@@ -598,7 +610,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
           });
       }
-    }, 0);    
+    }, 0);
   }      
     
   initializeDisplayVariables(): void {
