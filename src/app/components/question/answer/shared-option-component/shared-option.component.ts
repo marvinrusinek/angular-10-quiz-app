@@ -299,13 +299,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    if (changes['optionsToDisplay']) {
+      console.log('[SOC ✅] optionsToDisplay changed →',
+                  this.optionsToDisplay.map(o => o.text));
+    }
 
     /* ── 1.  Handle NEW options list ────────────────────────────── */
     if (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
         this.optionsToDisplay.length) {
-      console.log('[SOC ✅] optionsToDisplay changed →',
-          this.optionsToDisplay.map(o => o.text));
     
       /** A.  Always rebuild bindings for the fresh array  */
       this.freezeOptionBindings = false;          // unlock
