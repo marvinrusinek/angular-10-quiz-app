@@ -164,6 +164,10 @@ export class QuizNavigationService {
 
     const targetIndex = currentIndex + offset; // ← 0-based
 
+    console.log('[NAV ▶] navigateWithOffset', offset,
+            '| current index =', currentIndex,
+            '| target =', targetIndex);
+
     // Block if going out of bounds
     if (targetIndex < 0) {
       console.warn('[⛔] Already at first question, cannot go back.');
