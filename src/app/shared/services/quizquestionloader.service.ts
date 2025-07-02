@@ -311,6 +311,7 @@ export class QuizQuestionLoaderService {
       if (this.quizQuestionComponent) {
         // push the cloned list into the child component
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
+        this.quizQuestionComponent.options = [...clonedOptions];
       } else {
         // Child not yet created → queue the list for next tick
         requestAnimationFrame(() => (this.pendingOptions = clonedOptions));
