@@ -1303,7 +1303,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
   
           this.quizQuestionLoaderService.activeQuizId = quizId;
-          this.quizQuestionLoaderService.totalQuestions = currentQuiz.questions.length;
+
+          const totalQuestions = currentQuiz.questions.length;
+          this.quizQuestionLoaderService.totalQuestions = totalQuestions;        
 
           // Let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
