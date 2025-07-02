@@ -326,9 +326,11 @@ export class QuizQuestionComponent
 
     this.quizQuestionLoaderService.options$
       .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
-      .subscribe((opts) => {
-        console.log('[QQC] Options received:', opts.map(o => o.text));
+      .subscribe((opts: Option[]) => {
+        console.log('[QQC ✅] Options received for new Q:', opts.map(o => o.text));
         this.optionsToDisplay = [...opts];
+        this.freezeOptionBindings = false; // force rebuild
+        this.generateOptionBindings();     // this should reflect new options
       });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
