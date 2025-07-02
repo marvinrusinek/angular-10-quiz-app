@@ -1290,9 +1290,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizService.setCurrentQuestionIndex(index);
   
         try {
-          /* Let the loader fetch question + options and emit payload */
-          await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-
           // Fetch current quiz meta (unchanged)
           const currentQuiz: Quiz = await firstValueFrom(
             this.quizDataService.getQuiz(quizId).pipe(
@@ -1307,7 +1304,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
           this.quizQuestionLoaderService.activeQuizId = quizId;
           this.quizQuestionLoaderService.totalQuestions = currentQuiz.questions.length;
+
+          // Let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+
+          await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;
           if (!question) {
