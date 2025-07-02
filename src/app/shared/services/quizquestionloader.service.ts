@@ -309,12 +309,13 @@ export class QuizQuestionLoaderService {
       this.currentQuestion  = fetchedQuestion;
 
       if (this.quizQuestionComponent) {
-        // push the cloned list into the child component
+        console.log('[✅ Loader] Updating options in child for Q', this.currentQuestionIndex);
+        console.log('[✅ New options]', clonedOptions.map(o => o.text));
+      
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
-        this.quizQuestionComponent.options = [...clonedOptions];
-        this.cdRef.markForCheck();
+        this.quizQuestionComponent.optionsToDisplay = [...clonedOptions];
       } else {
-        // Child not yet created → queue the list for next tick
+        console.warn('[⏳ Loader] Child not ready — queuing options for next tick');
         requestAnimationFrame(() => (this.pendingOptions = clonedOptions));
       }
 
