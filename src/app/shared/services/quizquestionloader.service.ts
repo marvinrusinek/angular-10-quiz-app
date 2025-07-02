@@ -293,6 +293,13 @@ export class QuizQuestionLoaderService {
                           ?? JSON.parse(JSON.stringify(finalOptions));
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
 
+      if (clonedOptions.length) {
+        console.log('[LOADER ✅] emitting', clonedOptions.map(o => o.text));
+        this.optionsStream$.next(clonedOptions);    // BehaviourSubject / Subject
+      } else {
+        console.warn('[LOADER ⚠️] clonedOptions empty – nothing emitted');
+      }
+
       const questionWithOptions: QuizQuestion = {
         ...fetchedQuestion,
         options: clonedOptions  // updated list travels inside question
