@@ -341,6 +341,10 @@ export class QuizService implements OnDestroy {
     return this.activeQuiz;
   }
 
+  setCurrentQuiz(q: Quiz): void {
+    this.currentQuizSubject.next(q);
+  }
+
   getCurrentQuiz(): Observable<Quiz | undefined> {
     if (this.activeQuiz) {
       return of(this.activeQuiz);
