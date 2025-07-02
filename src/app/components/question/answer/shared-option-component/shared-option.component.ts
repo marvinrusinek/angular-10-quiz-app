@@ -21,7 +21,6 @@ import { UserPreferenceService } from '../../../../shared/services/user-preferen
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
-
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
@@ -36,7 +35,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
-  @Input() optionsToDisplay: Option[] = [];
+  @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
   @Input() selectedOption: Option | null = null;
@@ -304,10 +303,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
         this.optionsToDisplay.length) {
-  
-      console.log('[🔁 optionsToDisplay changed]',
-                  this.optionsToDisplay.map(o => o.text));
-  
+      console.log('[SOC] optionsToDisplay changed →',
+              this.optionsToDisplay.map(o => o.text));
+    
       /** A.  Always rebuild bindings for the fresh array  */
       this.freezeOptionBindings = false;          // unlock
       this.initializeOptionBindings();            // clears old refs
