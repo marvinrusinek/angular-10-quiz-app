@@ -2315,7 +2315,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           /* ── Fetch the options for that same question ──────────────── */
           try {
-            const options = await firstValueFrom(
+            const options: Option[] = await firstValueFrom(
               this.quizService.getOptions(this.currentQuestionIndex).pipe(take(1))
             );
 
