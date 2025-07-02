@@ -58,6 +58,7 @@ interface QAEvent {
   selectionMessage?: string;
 }
 
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
