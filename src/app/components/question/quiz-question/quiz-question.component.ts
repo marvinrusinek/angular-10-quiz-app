@@ -473,13 +473,22 @@ export class QuizQuestionComponent
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
 
-    this.quizQuestionLoaderService.options$
+    /* this.quizQuestionLoaderService.options$
       .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
       .subscribe((opts: Option[]) => {
         console.log('[QQC ✅] options for new Q →', opts.map(o => o.text));
         this.currentOptions = [...opts];
         this.cdRef.detectChanges();
-      });
+      }); */
+      this.loader.options$
+        .subscribe(opts => {
+          // NEW array reference
+          const fresh = [...opts];
+      
+          // Use the REAL input name you just confirmed
+          this.currentOptions = fresh;   // parent’s public field
+          this.cdRef.detectChanges();    // run CD now
+        });
   
     // Hydrate from payload
     this.payloadSubject
