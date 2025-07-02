@@ -293,13 +293,37 @@ export class QuizQuestionLoaderService {
       }
 
       console.log('[⏳] Fetching question + options …');
-      const [fetchedQuestion, fetchedOptions] = await Promise.all([
+      /* const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
       ]) as [QuizQuestion, Option[]];
 
-      console.log('[LOADER] RAW fetchedQuestion →', fetchedQuestion);
-      console.log('[LOADER] RAW fetchedOptions  →', fetchedOptions);
+      console.log('[LOADER RAW] fetchedQuestion →',
+            fetchedQuestion?.questionText);
+      console.log('[LOADER RAW] fetchedOptions  →',
+            Array.isArray(fetchedOptions) ? fetchedOptions.map(o => o.text) : fetchedOptions); */
+      
+      let fetchedQuestion: QuizQuestion | null = null;
+      let fetchedOptions : Option[] | null = null;
+            
+      try {
+        fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
+      } catch (err) {
+        console.error('[LOADER ❌] fetchQuestionDetails failed for Q', questionIndex, err);
+      }
+            
+      try {
+        fetchedOptions = await firstValueFrom(
+          this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
+        );
+      } catch (err) {
+        console.error('[LOADER ❌] getCurrentOptions failed for Q', questionIndex, err);
+      }
+
+      console.log('[LOADER RAW] fetchedQuestion →',
+            fetchedQuestion?.questionText);
+      console.log('[LOADER RAW] fetchedOptions  →',
+            Array.isArray(fetchedOptions) ? fetchedOptions.map(o => o.text) : fetchedOptions);
 
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
         console.warn('[LOADER ⚠️] early-exit – missing data for Q', questionIndex);
