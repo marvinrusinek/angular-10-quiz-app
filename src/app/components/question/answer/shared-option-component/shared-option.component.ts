@@ -1923,7 +1923,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.markRenderReady();
   } */
-  private generateOptionBindings(): void {
+  public generateOptionBindings(): void {
     console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
