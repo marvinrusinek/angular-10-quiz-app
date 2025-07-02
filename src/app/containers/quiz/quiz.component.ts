@@ -1293,7 +1293,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Fetch current quiz meta (unchanged)
           const currentQuiz: Quiz = await firstValueFrom(
             this.quizDataService.getQuiz(quizId).pipe(
-              filter(q => !!q && Array.isArray(q.questions)),
+              filter((q): q is Quiz => !!q && Array.isArray(q.questions)),
               take(1)
             )
           );
@@ -1301,13 +1301,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('[❌ Failed to fetch quiz with quizId]', quizId);
             return;
           }
-  
+
+          // Set loader context
           this.quizQuestionLoaderService.activeQuizId = quizId;
 
           const totalQuestions = currentQuiz.questions.length;
           this.quizQuestionLoaderService.totalQuestions = totalQuestions;        
 
-          // Let the loader fetch question + options and emit payload
+          // Now let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
 
           await this.quizQuestionLoaderService.loadQA(index);
