@@ -762,6 +762,7 @@ export class QuizQuestionComponent
     const incoming = JSON.stringify(newOptions);
     const current  = JSON.stringify(this.optionsToDisplay);
 
+    console.log('B-QQC   →', this.optionsToDisplay.map(o => o.text))
     console.log('[QQC RECEIVED]', newOptions.map(o => o.text));
 
     if (incoming !== current) {
@@ -3787,9 +3788,16 @@ export class QuizQuestionComponent
     this.showExplanationChange.emit(false);
 
     // Reset feedback
-    this.showFeedbackForOption = {};
-    this.isFeedbackApplied = false;
-
+    setTimeout(() => {
+      if (this.sharedOptionComponent) {
+        this.sharedOptionComponent.freezeOptionBindings = false;
+        this.sharedOptionComponent.showFeedbackForOption = {};
+        this.isFeedbackApplied = false;
+      } else {
+        console.warn('[⚠️] sharedOptionComp still undefined after navigation');
+      }
+    }, 0);
+    
     // Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
