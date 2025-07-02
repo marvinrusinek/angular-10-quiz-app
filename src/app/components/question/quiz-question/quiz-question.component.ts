@@ -324,15 +324,6 @@ export class QuizQuestionComponent
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
 
-    this.quizQuestionLoaderService.options$
-      .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
-      .subscribe((opts: Option[]) => {
-        console.log('[QQC ✅] Options received for new Q:', opts.map(o => o.text));
-        this.optionsToDisplay = [...opts];
-        this.sharedOptionComponent.freezeOptionBindings = false; // force rebuild
-        this.sharedOptionComponent.generateOptionBindings();     // this should reflect new options
-      });
-
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
@@ -481,6 +472,15 @@ export class QuizQuestionComponent
   
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
+
+    this.quizQuestionLoaderService.options$
+      .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
+      .subscribe((opts: Option[]) => {
+        console.log('[QQC ✅] Options received for new Q:', opts.map(o => o.text));
+        this.optionsToDisplay = [...opts];
+        this.sharedOptionComponent.freezeOptionBindings = false; // force rebuild
+        this.sharedOptionComponent.generateOptionBindings();     // this should reflect new options
+      });
   
     // Hydrate from payload
     this.payloadSubject
