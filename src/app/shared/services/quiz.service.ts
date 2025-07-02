@@ -434,21 +434,37 @@ export class QuizService implements OnDestroy {
     this.optionsSubject.next(options); // emit to options$
   }
 
+  // Return a sanitized array of options for the given question index.
   getOptions(index: number): Observable<Option[]> {
     return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
+      // 🆕  Trace whether the quiz data was actually loaded
+      tap((question) => {
+        console.log(
+          '[getOptions 🟢] quizLoaded =', !!question,
+          '| index =', index
+        );
+      }),
       map((question) => {
-        const options = question?.options ?? [];
-        return this.sanitizeOptions(options); // ensure options are properly structured
+        // 🆕  Guard: if no question or options → log and return []
+        if (!question || !Array.isArray(question.options)) {
+          console.warn(`[getOptions ⚠️] Q${index} has no options; returning []`);
+          return [];
+        }
+
+        // Existing logic – sanitize structure
+        return this.sanitizeOptions(question.options);
       }),
       catchError((error) => {
         console.error(
           `Error fetching options for question index ${index}:`,
           error
         );
+        // Keep the observable alive with an empty array fallback
         return of([]);
       })
     );
   }
+
 
   getOptionsForQuestion(question: QuizQuestion): Promise<Option[]> {
     return Promise.resolve(question.options ?? []);
