@@ -475,7 +475,7 @@ export class QuizQuestionComponent
 
     this.quizQuestionLoaderService.options$
       .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
-      .subscribe((opts) => {
+      .subscribe((opts: Option[]) => {
         console.log('[QQC ✅] options for new Q →', opts.map(o => o.text));
 
         // deliver a BRAND-NEW array reference
