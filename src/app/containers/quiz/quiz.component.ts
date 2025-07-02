@@ -2269,47 +2269,49 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log('Current question:', this.currentQuestion);
         console.log('Options with correct property:', this.options);
   
-        // ✅ Wait for quiz to be fully loaded before continuing
         this.quizService.getCurrentQuiz().pipe(
           filter((quiz): quiz is Quiz => !!quiz),
           take(1)
-        ).subscribe((quiz) => {
-          // Fetch next question and options
-          this.quizService.getNextQuestion(this.currentQuestionIndex).then((nextQuestion) => {
-            if (nextQuestion) {
-              console.log('Next question:', nextQuestion);
+        ).subscribe(async () => {
+
+          /* ── Fetch the current question by index ───────────────────── */
+          try {
+            const question = await firstValueFrom(
+              this.quizService.getQuestionByIndex(this.currentQuestionIndex).pipe(take(1))
+            );
+
+            if (question) {
+              console.log('Current question:', question);
             } else {
-              console.warn('No next question available.');
+              console.warn('No question found at index', this.currentQuestionIndex);
             }
-          }).catch((error) => {
-            console.error('Error fetching next question:', error);
-          });
-  
-          this.quizService.getNextOptions(this.currentQuestionIndex).then((nextOptions) => {
-            if (nextOptions) {
-              // Ensure next options have the `correct` property explicitly set
-              const updatedNextOptions = nextOptions.map(option => ({
-                ...option,
-                correct: option.correct ?? false, // Default `correct` to false if undefined
+          } catch (err) {
+            console.error('Error fetching question:', err);
+          }
+
+          /* ── Fetch the options for that same question ──────────────── */
+          try {
+            const options = await firstValueFrom(
+              this.quizService.getOptions(this.currentQuestionIndex).pipe(take(1))
+            );
+
+            if (options && options.length) {
+              const updatedOptions = options.map(opt => ({
+                ...opt,
+                correct: opt.correct ?? false
               }));
-              console.log('Next options with correct property:', updatedNextOptions);
+              console.log('Options with correct property:', updatedOptions);
             } else {
-              console.warn('No next options available.');
+              console.warn('No options found at index', this.currentQuestionIndex);
             }
-          }).catch((error) => {
-            console.error('Error fetching next options:', error);
-          });
+          } catch (err) {
+            console.error('Error fetching options:', err);
+          }
         });
-  
-      } else {
-        console.warn('No questions available for this quiz.');
-        this.currentQuestion = null;
-        this.options = [];
       }
     });
   }
   
-
   // Function to load all questions for the current quiz
   private loadQuizQuestionsForCurrentQuiz(): void {
     this.isQuizDataLoaded = false;
