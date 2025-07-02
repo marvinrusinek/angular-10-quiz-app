@@ -240,6 +240,12 @@ export class QuizQuestionLoaderService {
     this.isLoading            = true;
     if (this.quizQuestionComponent) this.quizQuestionComponent.renderReady = true;
 
+    if (!this.totalQuestions || this.totalQuestions === 0) {
+      this.totalQuestions = await firstValueFrom(
+        this.quizService.getAllQuestions().pipe(take(1), map(qs => qs.length))
+      );
+    }
+
     try {
       /* ── 3. Guard against bad index ── */
       if (
