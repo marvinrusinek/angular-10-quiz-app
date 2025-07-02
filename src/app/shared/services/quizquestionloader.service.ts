@@ -243,7 +243,7 @@ export class QuizQuestionLoaderService {
     try {
       console.log('[LOADER] getAllQuestions length →', this.totalQuestions);
       if (this.totalQuestions === undefined || this.totalQuestions === 0) {
-        this.totalQuestions = await firstValueFrom(
+        const len = this.totalQuestions = await firstValueFrom(
           this.quizService.getAllQuestions().pipe(take(1), map(qs => qs.length))
         );
 
