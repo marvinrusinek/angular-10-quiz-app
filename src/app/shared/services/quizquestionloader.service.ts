@@ -62,7 +62,6 @@ export class QuizQuestionLoaderService {
   isAnswered = false;
   isAnswered$: Observable<boolean>;
   
-  totalQuestions = 0;
   shouldRenderQuestionComponent = false;
   resetComplete = false;
 
