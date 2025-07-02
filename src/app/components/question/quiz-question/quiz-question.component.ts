@@ -480,7 +480,7 @@ export class QuizQuestionComponent
         this.currentOptions = [...opts];
         this.cdRef.detectChanges();
       }); */
-      this.loader.options$
+      this.quizQuestionLoaderService.options$
         .subscribe(opts => {
           // NEW array reference
           const fresh = [...opts];
