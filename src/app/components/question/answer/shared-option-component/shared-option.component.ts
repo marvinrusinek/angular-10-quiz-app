@@ -402,32 +402,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.selectedOptionHistory.push(selectedId);
       console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
     }
-
+  
     // Walk every binding and update its flags
     this.optionBindings.forEach(b => {
       const id          = b.option.optionId;
       const everClicked = this.selectedOptionHistory.includes(id); // in history?
       const isCurrent   = id === selectedId;                       // just clicked?
-
+  
       // This single line is what removed the 2-click lag
       b.option.highlight = everClicked;        // highlight if EVER clicked
       b.option.showIcon  = everClicked;        // icon if EVER clicked
       /* --------------------------------------------------------------------- */
-
-      b.isSelected       = isCurrent;          // radio / checkbox selected
-      b.option.selected  = isCurrent;
-
+  
+      b.isSelected      = isCurrent;           // radio / checkbox selected
+      b.option.selected = isCurrent;
+  
+      /* 🔒 guard: make sure showFeedbackForOption is always an object */
+      if (typeof b.showFeedbackForOption !== 'object' || b.showFeedbackForOption == null) {
+        b.showFeedbackForOption = {};          // reset placeholder map
+      }
+  
       // Feedback only for the latest click
       b.showFeedbackForOption[id] = isCurrent;
-
+  
       // repaint row synchronously
       b.directiveInstance?.paintNow();
     });
-
+  
     // Flush to DOM
     this.cdRef.detectChanges();
   }
-
 
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
