@@ -97,6 +97,9 @@ export class QuizQuestionLoaderService {
     distinctUntilChanged()
   );
 
+  private optionsStream$ = new BehaviorSubject<Option[]>([]);
+  options$ = this.optionsStream$.asObservable();
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -392,6 +395,8 @@ export class QuizQuestionLoaderService {
       this.hasOptionsLoaded     = true;
       this.shouldRenderOptions  = true;
       this.resetComplete        = true;
+
+      this.optionsStream$.next(clonedOptions);
 
       return true;
 
