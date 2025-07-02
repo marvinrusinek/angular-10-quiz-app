@@ -1163,7 +1163,6 @@ export class QuizService implements OnDestroy {
       )
     );
   }
-  
 
   getPreviousQuestion(
     questionIndex: number
