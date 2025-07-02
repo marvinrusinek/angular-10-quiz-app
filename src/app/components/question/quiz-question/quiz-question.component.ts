@@ -477,12 +477,8 @@ export class QuizQuestionComponent
       .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
       .subscribe((opts: Option[]) => {
         console.log('[QQC ✅] options for new Q →', opts.map(o => o.text));
-
-        // deliver a BRAND-NEW array reference
         this.currentOptions = [...opts];
-
-        // OnPush component?  mark it dirty:
-        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       });
   
     // Hydrate from payload
