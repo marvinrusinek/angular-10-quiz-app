@@ -475,11 +475,14 @@ export class QuizQuestionComponent
 
     this.quizQuestionLoaderService.options$
       .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
-      .subscribe((opts: Option[]) => {
-        console.log('[QQC ✅] Options received for new Q:', opts.map(o => o.text));
-        this.optionsToDisplay = [...opts];
-        this.sharedOptionComponent.freezeOptionBindings = false; // force rebuild
-        this.sharedOptionComponent.generateOptionBindings();     // this should reflect new options
+      .subscribe((opts) => {
+        console.log('[QQC ✅] options for new Q →', opts.map(o => o.text));
+
+        // deliver a BRAND-NEW array reference
+        this.currentOptions = [...opts];
+
+        // OnPush component?  mark it dirty:
+        this.cdRef.markForCheck();
       });
   
     // Hydrate from payload
