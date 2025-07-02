@@ -12,10 +12,5 @@
     <div *ngIf="isLoading" class="loading-spinner" aria-label="Loading">
       <!-- Enable spinner -->
     </div>
-
-    <app-shared-option
-      [optionsToDisplay]="loader.options$ | async"
-      (optionSelected)="onOptionSelected($event)">
-    </app-shared-option>
   </form>
 </ng-container>

@@ -26,6 +26,7 @@ import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizNavigationService } from '../../../shared/services/quiz-navigation.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
+import { QuizQuestionLoaderService } from '../../../shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { DynamicComponentService } from '../../../shared/services/dynamic-component.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
@@ -264,6 +265,7 @@ export class QuizQuestionComponent
     protected quizDataService: QuizDataService,
     protected quizNavigationService: QuizNavigationService,
     protected quizStateService: QuizStateService,
+    protected quizQuestionLoaderService: QuizQuestionLoaderService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected answerTrackingService: AnswerTrackingService,
     protected dynamicComponentService: DynamicComponentService,
@@ -321,6 +323,13 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
+
+    this.quizQuestionLoaderService.options$
+      .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
+      .subscribe((opts) => {
+        console.log('[QQC] Options received:', opts.map(o => o.text));
+        this.optionsToDisplay = [...opts];
+      });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
