@@ -1304,6 +1304,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           }
   
           const totalQuestions = currentQuiz.questions.length ?? 0;
+          this.quizQuestionLoaderService.totalQuestions = totalQuestions;
+          
           const question = currentQuiz.questions[index] ?? null;
           if (!question) {
             console.error('[❌ No question at index]', { index });
