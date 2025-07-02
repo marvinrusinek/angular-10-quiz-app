@@ -1261,6 +1261,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private subscribeToRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
+        tap(p => console.log('[ROUTE 📦] paramMap emitted →',
+                              p.get('questionIndex'))),
         distinctUntilChanged((prev, curr) =>
           prev.get('questionIndex') === curr.get('questionIndex') &&
           prev.get('quizId') === curr.get('quizId')
