@@ -231,7 +231,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
 
     console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
@@ -297,7 +297,56 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } else {
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
+  } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+
+    /* ── 1.  Handle NEW options list ────────────────────────────── */
+    if (changes['optionsToDisplay'] &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length) {
+  
+      console.log('[🔁 optionsToDisplay changed]',
+                  this.optionsToDisplay.map(o => o.text));
+  
+      /** A.  Always rebuild bindings for the fresh array  */
+      this.freezeOptionBindings = false;          // unlock
+      this.initializeOptionBindings();            // clears old refs
+      this.generateOptionBindings();              // builds new list
+  
+      /** B.  Reset per-option feedback map safely       */
+      if (typeof this.showFeedbackForOption !== 'object' ||
+          !this.showFeedbackForOption) {
+        this.showFeedbackForOption = {};          // keep shared ref
+      } else {
+        Object.keys(this.showFeedbackForOption).forEach(
+          k => delete this.showFeedbackForOption[k]
+        );
+      }
+  
+      /** C.  Force OnPush view refresh                  */
+      this.cdRef.markForCheck();
+    }
+  
+    /* ── 2.  Handle NEW question object ─────────────────────────── */
+    if (changes['currentQuestion'] &&
+        this.currentQuestion?.questionText?.trim()) {
+  
+      console.log('[🔁 currentQuestion changed] →',
+                  this.currentQuestion.questionText.trim());
+  
+      // clear selection & history
+      this.selectedOption          = null;
+      this.selectedOptionHistory   = [];
+      this.lastFeedbackOptionId    = -1;
+      this.highlightedOptionIds.clear();
+    }
+  
+    /* ── 3.  Background-reset toggle ────────────────────────────── */
+    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
+      this.resetState();  // your existing full reset
+    }
   }
+  
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
@@ -1830,7 +1879,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
   
-  private generateOptionBindings(): void {
+  /* private generateOptionBindings(): void {
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
@@ -1851,7 +1900,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    // Build fresh bindings using retained selection                                 state
+    // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
@@ -1875,7 +1924,67 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
 
     this.markRenderReady();
+  } */
+  private generateOptionBindings(): void {
+    console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
+    // Guard: don't allow reassignment after user click
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    // Guard: no options available
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    // Map current selections (if any)
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    /* ── 🔑  NEW: create a fresh shared feedback map for this question ── */
+    const freshShowMap: Record<number, boolean> = {};
+    this.showFeedbackForOption = freshShowMap;      // store for updateSelections
+    console.log('[MAP] fresh reference', freshShowMap);
+  
+    // Build fresh bindings using retained selection state
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected =
+        existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
+      // Always persist highlight for selected options
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+  
+      // Build binding as before
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      /* attach the FRESH map so every binding shares the same reference */
+      binding.showFeedbackForOption = freshShowMap;
+  
+      return binding;
+    });
+  
+    this.updateHighlighting();
+  
+    // Mark view ready after DOM settles
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        this.viewReady    = true;
+        console.log('[✅ optionsReady & viewReady set]');
+      });
+    }, 100);
+  
+    this.markRenderReady();
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
