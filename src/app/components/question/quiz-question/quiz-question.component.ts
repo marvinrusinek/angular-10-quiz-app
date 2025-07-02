@@ -329,8 +329,8 @@ export class QuizQuestionComponent
       .subscribe((opts: Option[]) => {
         console.log('[QQC ✅] Options received for new Q:', opts.map(o => o.text));
         this.optionsToDisplay = [...opts];
-        this.freezeOptionBindings = false; // force rebuild
-        this.generateOptionBindings();     // this should reflect new options
+        this.sharedOptionComponent.freezeOptionBindings = false; // force rebuild
+        this.sharedOptionComponent.generateOptionBindings();     // this should reflect new options
       });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
