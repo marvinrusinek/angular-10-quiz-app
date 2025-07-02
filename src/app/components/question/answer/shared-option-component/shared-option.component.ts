@@ -304,8 +304,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
         this.optionsToDisplay.length) {
-      console.log('[SOC] optionsToDisplay changed →',
-              this.optionsToDisplay.map(o => o.text));
+      console.log('[SOC ✅] optionsToDisplay changed:', this.optionsToDisplay.map(o => o.text));
     
       /** A.  Always rebuild bindings for the fresh array  */
       this.freezeOptionBindings = false;          // unlock
