@@ -220,6 +220,7 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    console.log('[LOADER] called with index', questionIndex);
     console.log('[LOADER] entered with index', questionIndex);
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     if (this.quizQuestionComponent) {
@@ -269,6 +270,9 @@ export class QuizQuestionLoaderService {
         firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
       ]) as [QuizQuestion, Option[]];
 
+      console.log('[LOADER] RAW fetchedQuestion →', fetchedQuestion);
+      console.log('[LOADER] RAW fetchedOptions  →', fetchedOptions);
+
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
         console.warn('[TRACE] early-exit: missing data');
         return false;
@@ -284,6 +288,7 @@ export class QuizQuestionLoaderService {
       const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
       const clonedOptions = structuredClone?.(finalOptions)
                           ?? JSON.parse(JSON.stringify(finalOptions));
+      console.log('A-LOADER →', clonedOptions.map(o => o.text));
 
       const questionWithOptions: QuizQuestion = {
         ...fetchedQuestion,
@@ -406,7 +411,7 @@ export class QuizQuestionLoaderService {
       const trimmedText = questionText.trim();
   
       // Fetch and validate options
-      const options = await this.quizService.getNextOptions(questionIndex);
+      const options = await this.quizService.getOptions(questionIndex);
       if (!Array.isArray(options) || options.length === 0) {
         console.error(`[❌ Q${questionIndex}] No valid options`);
         throw new Error(`No options found for Q${questionIndex}`);
