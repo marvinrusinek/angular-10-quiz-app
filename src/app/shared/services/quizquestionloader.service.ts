@@ -50,7 +50,7 @@ export class QuizQuestionLoaderService {
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
   public hasOptionsLoaded = false;
   public shouldRenderOptions = false;
-  private pendingOptions: Option[] | null = null;
+  public pendingOptions: Option[] | null = null;
   
   public hasContentLoaded = false;
   public isLoading = false;
