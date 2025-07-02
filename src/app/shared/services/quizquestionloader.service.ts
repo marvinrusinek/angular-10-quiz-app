@@ -225,6 +225,12 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    console.log(
+      '[LOADER ⬅] index', questionIndex,
+      '| activeQuizId =', this.activeQuizId,
+      '| totalQuestions =', this.totalQuestions
+    );
+    
     console.log('[LOADER] called with index', questionIndex);
     console.log('[LOADER] entered with index', questionIndex);
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
