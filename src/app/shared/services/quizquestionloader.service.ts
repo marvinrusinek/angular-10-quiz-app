@@ -244,18 +244,19 @@ export class QuizQuestionLoaderService {
 
     try {
       console.log('[LOADER] getAllQuestions length →', this.totalQuestions);
-      if (this.totalQuestions === undefined || this.totalQuestions === 0) {
-        const len = this.totalQuestions = await firstValueFrom(
-          this.quizService.getAllQuestions().pipe(take(1), map(qs => qs.length))
-        );
-
-        // Only replace if we really found a positive length
-        if (len > 0) {
-          this.totalQuestions = len;
-          console.log('[LOADER] fetched length →', len);
+      if (!this.totalQuestions || this.totalQuestions === 0) {
+        if (!this.activeQuizId) {
+          console.error('[LOADER] activeQuizId missing — cannot fetch length');
         } else {
-          console.warn('[LOADER] getAllQuestions returned 0 – keeping previous value:',
-          this.totalQuestions);
+          this.totalQuestions = await firstValueFrom(
+            this.quizDataService
+              .getQuestionsForQuiz(this.activeQuizId)
+              .pipe(
+                take(1),
+                map(qs => qs.length)
+              )
+          );
+          console.log('[LOADER] fetched length for', this.activeQuizId, '→', this.totalQuestions);
         }
       }
 
