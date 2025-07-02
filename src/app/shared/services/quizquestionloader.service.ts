@@ -293,6 +293,8 @@ export class QuizQuestionLoaderService {
                           ?? JSON.parse(JSON.stringify(finalOptions));
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
 
+      this.optionsStream$.next(clonedOptions);
+
       const questionWithOptions: QuizQuestion = {
         ...fetchedQuestion,
         options: clonedOptions  // updated list travels inside question
@@ -395,8 +397,6 @@ export class QuizQuestionLoaderService {
       this.hasOptionsLoaded     = true;
       this.shouldRenderOptions  = true;
       this.resetComplete        = true;
-
-      this.optionsStream$.next(clonedOptions);
 
       return true;
 
