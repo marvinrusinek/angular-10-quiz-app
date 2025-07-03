@@ -1950,8 +1950,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.markRenderReady();
   } */
   public generateOptionBindings(): void {
-
-    /* 1 ▸ Replace this.optionsToDisplay with this.optionBindings  */
+    // Replace this.optionsToDisplay with this.optionBindings
     console.log('C-SOC →', this.optionBindings.map(b => b.option.text));
   
     // Guard: no reassignment while frozen
@@ -1974,23 +1973,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    /* ── 🔑  NEW: create a fresh shared feedback map for this question ── */
+    // Create a fresh shared feedback map for this question
     const freshShowMap: Record<number, boolean> = {};
-    this.showFeedbackForOption = freshShowMap;      // store for updateSelections
+    this.showFeedbackForOption = freshShowMap;  // store for updateSelections
     console.log('[MAP] fresh reference', freshShowMap);
   
     // Build fresh bindings using retained selection state
-    this.optionBindings = this.optionBindings.map((binding, idx) => {   /* ← */
+    this.optionBindings = this.optionBindings.map((binding, idx) => {
       const option = binding.option;            // convenience
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
   
-      // highlights …
+      // Highlights
       if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
   
-      // rebuild binding
+      // Rebuild binding
       const newBinding = this.getOptionBindings(option, idx, isSelected);
       newBinding.showFeedbackForOption = freshShowMap;
       return newBinding;
@@ -2014,8 +2013,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.markRenderReady();
   }
-  
-  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
