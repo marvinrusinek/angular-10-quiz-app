@@ -335,11 +335,17 @@ export class QuizQuestionLoaderService {
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
   
       /* ── 7. **ASSIGN** new array references _before_ any emits ── */
-      this.optionsToDisplay = clonedOptions;          // 👈 brand-new array
+      this.optionsToDisplay = [...clonedOptions];          // 👈 brand-new array
       this.currentQuestion  = { ...fetchedQuestion, options: clonedOptions };
+
+      console.log(
+        '[DBG QQC] question', this.currentQuestionIndex,
+        '| array ref →', this.optionsToDisplay,
+        '| first text →', this.optionsToDisplay?.[0]?.text
+      );
   
       /* ── 8. Wake up OnPush view once the new refs are in place ── */
-      this.cdRef.markForCheck();                      // 👈 added
+      // this.cdRef.markForCheck();                      // 👈 added
   
       /* ── 9. Now emit the data downstream ── */
       this.optionsStream$.next(clonedOptions);
