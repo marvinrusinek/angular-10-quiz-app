@@ -731,7 +731,7 @@ export class QuizQuestionLoaderService {
     });
   }
 
-  /** Call at the very start of every new load */
+  // Call at the very start of every new load
   private resetQAFlags(): void {
     this.headingReadySubject.next(false);
     this.optionsReadySubject.next(false);
