@@ -115,8 +115,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
   onDestroy$ = new Subject<void>();
 
-  trackByQuestionScoped = (_: number, binding: OptionBindings): string =>
-    `${this.questionIndex}-${binding.option?.optionId ?? _}`;
+  trackByQuestionScoped = (_: number, b: OptionBindings): string => {
+    const key = `${this.quizId}-${this.questionIndex}-${b.option?.optionId ?? _}`;
+    console.log('[TRACK]', key);
+    return key;
+  };
 
   constructor(
     private explanationTextService: ExplanationTextService,
