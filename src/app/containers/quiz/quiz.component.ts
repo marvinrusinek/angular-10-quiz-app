@@ -58,14 +58,13 @@ interface QAEvent {
   selectionMessage?: string;
 }
 
-
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizService, QuizDataService, UserPreferenceService]
+  providers: [UserPreferenceService]
 })
 export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
@@ -275,6 +274,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
+    console.log('[QUIZ SERVICE ID] (QuizComponent)', quizService);
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.renderReady = false;
     }
@@ -1312,7 +1312,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           // Now let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-
           await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;
@@ -1320,10 +1319,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('[❌ No question at index]', { index });
             return;
           }
-  
-          // B. Fetch + emit the new question once
-          await this.quizQuestionLoaderService.loadQA(index);
-          this.cdRef.markForCheck();
           /* ────────────────────────────────────────────────────────────────── */
   
           // Local state still needed elsewhere in the component
