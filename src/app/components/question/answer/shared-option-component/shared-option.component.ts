@@ -35,6 +35,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
+  @Input() questionIndex!: number;
   @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -113,6 +114,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
   onDestroy$ = new Subject<void>();
+
+  trackByQuestionScoped = (_: number, binding: OptionBindings): string =>
+  `${this.questionIndex}-${binding.option?.optionId ?? _}`;
 
   constructor(
     private explanationTextService: ExplanationTextService,
