@@ -89,7 +89,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   hasUserClickedOnce = false;
   firstClickOccurred = false;
 
-  isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
   private optionsRestored = false; // tracks if options are restored
@@ -298,9 +297,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    /* if (changes['optionBinding'] && changes['optionBinding'].currentValue) {
+      const opt = changes['optionBinding'].currentValue.option;
+      console.log('[DBG SOC] new option obj →', opt.optionId, opt.text);
+    } */
+    // Detect question change
+    if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
+      // ── NEW: unblock and wipe per-question state ──
+      this.freezeOptionBindings = false;
+      this.highlightedOptionIds.clear();
+      this.optionBindings = [];
+
+      // Re-generate fresh bindings for the new question
+      this.generateOptionBindings();
+    }
+
     if (changes['optionsToDisplay']) {
       console.log('[SOC ✅] optionsToDisplay changed →',
                   this.optionsToDisplay.map(o => o.text));
+      this.setOptionBindingsIfChanged(changes['optionsToDisplay'].currentValue);
+      const opts = changes['optionsToDisplay'].currentValue;
+      console.log(
+        '[DBG QQC] (ngOnChanges) question', this.quizService.currentQuestionIndex,
+        '| array ref →', opts,
+        '| first text →', opts?.[0]?.text
+      );
     }
 
     /* ── 1.  Handle NEW options list ────────────────────────────── */
