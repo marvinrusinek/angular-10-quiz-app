@@ -260,6 +260,11 @@ export class QuizQuestionComponent
 
   private destroy$: Subject<void> = new Subject<void>();
 
+  trackByQuestionScoped = (
+    _: number,
+    binding: OptionBindings
+  ): string => `${this.currentQuestionIndex}-${binding.option?.optionId ?? _}`;
+
   constructor(
     protected quizService: QuizService,
     protected quizDataService: QuizDataService,
