@@ -17,6 +17,7 @@ import { TimerService } from './timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
+
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -237,6 +238,8 @@ export class QuizNavigationService {
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
+
+        await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
   
         this.selectedOptionService.setAnswered(false);
         this.quizStateService.setAnswered(false);
