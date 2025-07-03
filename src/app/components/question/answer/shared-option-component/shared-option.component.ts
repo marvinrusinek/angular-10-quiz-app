@@ -37,6 +37,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() currentQuestion: QuizQuestion;
   @Input() questionIndex!: number;
   @Input() optionsToDisplay!: Option[];
+  @Input() optionBindings: OptionBindings[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
   @Input() selectedOption: Option | null = null;
@@ -57,7 +58,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private finalRenderReadySub?: Subscription;
 
   private optionBindingsInitialized = false;
-  optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
     options: [],
