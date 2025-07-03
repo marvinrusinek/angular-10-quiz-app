@@ -130,6 +130,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private fb: FormBuilder
   ) {
     console.log('[🧩 SharedOptionComponent] constructed');
+    console.log('[CTOR SOC]');
   }
 
   ngOnInit(): void {
