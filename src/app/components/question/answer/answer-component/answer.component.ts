@@ -80,8 +80,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       /* 🔑 deep-clone so it’s ALWAYS a new reference */
       const cloned = structuredClone
-        ? structuredClone(this.optionsToDisplay)
-        : JSON.parse(JSON.stringify(this.optionsToDisplay));
+        ? structuredClone(changes['optionsToDisplay'].currentValue)
+        : JSON.parse(JSON.stringify(changes['optionsToDisplay'].currentValue));
     
       /* build bindings from the cloned list */
       this.optionBindings = cloned.map((opt, idx) => ({
