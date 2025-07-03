@@ -302,7 +302,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log("MY NGONCHANGES TEST");
+    console.log('MY NGONCHANGES TEST');
+  
     /* Detect question change ─────────────────────────────────────── */
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       // ── NEW: unblock and wipe per-question state ──
@@ -310,51 +311,49 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.highlightedOptionIds.clear();
       this.optionBindings = [];
   
-      // Re-generate fresh bindings for the new question
-      this.generateOptionBindings();
+      // ⛔ Do NOT rebuild here — we’ll rebuild when the NEW option array arrives
     }
   
     if (changes['optionBindings']) {
+      console.log(
+        '[SOC]', this.questionIndex,
+        changes['optionBindings'].currentValue,
+        changes['optionBindings'].currentValue?.[0]?.option?.text
+      );
       console.log(
         '[LOG-SOC]', this.questionIndex,
         '| ref', changes['optionBindings'].currentValue,
         '| first', changes['optionBindings'].currentValue?.[0]?.option?.text
       );
-      console.log('[SOC ✅] optionBindings changed →',
-                  (changes['optionBindings'].currentValue as OptionBindings[])
-                    .map(b => b.option.text));
-  
-      this.setOptionBindingsIfChanged(changes['optionBindings'].currentValue);
-      const opts = changes['optionBindings'].currentValue;
       console.log(
-        '[DBG SOC] (ngOnChanges) question', this.quizService.currentQuestionIndex,
-        '| array ref →', opts,
-        '| first text →', opts?.[0]?.option?.text
+        '[SOC ✅] optionBindings changed →',
+        (changes['optionBindings'].currentValue as OptionBindings[])
+          .map(b => b.option.text)
       );
-    }
   
-    /* ── 1. Handle NEW option list ───────────────────────────────── */
-    if (changes['optionBindings'] &&
-        Array.isArray(this.optionBindings) &&
-        this.optionBindings.length) {
+      /* ── 1. Handle NEW option list ─────────────────────────────── */
+      if (Array.isArray(changes['optionBindings'].currentValue) &&
+          changes['optionBindings'].currentValue.length) {
   
-      /** A. Always rebuild bindings for the fresh array  */
-      this.freezeOptionBindings = false;          // unlock
-      this.initializeOptionBindings();            // clears old refs
-      this.generateOptionBindings();              // builds new list
+        /** A. Always rebuild bindings for the fresh array           */
+        this.freezeOptionBindings = false;          // unlock
+        this.initializeOptionBindings();            // clears old refs
+        this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
+        this.generateOptionBindings();              // builds new list
   
-      /** B. Reset per-option feedback map safely        */
-      if (typeof this.showFeedbackForOption !== 'object' ||
-          !this.showFeedbackForOption) {
-        this.showFeedbackForOption = {};          // keep shared ref
-      } else {
-        Object.keys(this.showFeedbackForOption).forEach(
-          k => delete this.showFeedbackForOption[k]
-        );
+        /** B. Reset per-option feedback map safely                  */
+        if (typeof this.showFeedbackForOption !== 'object' ||
+            !this.showFeedbackForOption) {
+          this.showFeedbackForOption = {};          // keep shared ref
+        } else {
+          Object.keys(this.showFeedbackForOption).forEach(
+            k => delete this.showFeedbackForOption[k]
+          );
+        }
+  
+        /** C. Force OnPush view refresh                            */
+        this.cdRef.markForCheck();
       }
-  
-      /** C. Force OnPush view refresh                   */
-      this.cdRef.markForCheck();
     }
   
     /* ── 2. Handle NEW question object ───────────────────────────── */
@@ -371,12 +370,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.highlightedOptionIds.clear();
     }
   
-    /* ── 3. Background-reset toggle ──────────────────────────────── */
+    /* ── 3. Background-reset toggle ─────────────────────────────── */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();  // your existing full reset
     }
   }
-  
 
   ngAfterViewInit(): void {
     console.log('form value:', this.form.value);
