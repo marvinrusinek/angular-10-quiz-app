@@ -337,7 +337,7 @@ export class QuizQuestionLoaderService {
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
   
       /* ── 7. **ASSIGN** new array references _before_ any emits ── */
-      this.optionsToDisplay = [...clonedOptions];          // 👈 brand-new array
+      this.optionsToDisplay = [...clonedOptions];
       this.currentQuestion  = { ...fetchedQuestion, options: clonedOptions };
 
       console.log(
