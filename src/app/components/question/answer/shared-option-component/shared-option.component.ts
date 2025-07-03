@@ -1980,7 +1980,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Build fresh bindings using retained selection state
     this.optionBindings = this.optionBindings.map((binding, idx) => {
-      const option = binding.option;            // convenience
+      const option = binding.option;
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
   
