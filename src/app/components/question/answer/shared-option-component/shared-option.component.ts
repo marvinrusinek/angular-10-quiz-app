@@ -301,44 +301,43 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    /* if (changes['optionBinding'] && changes['optionBinding'].currentValue) {
-      const opt = changes['optionBinding'].currentValue.option;
-      console.log('[DBG SOC] new option obj →', opt.optionId, opt.text);
-    } */
-    // Detect question change
+
+    /* Detect question change ─────────────────────────────────────── */
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       // ── NEW: unblock and wipe per-question state ──
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
       this.optionBindings = [];
-
+  
       // Re-generate fresh bindings for the new question
       this.generateOptionBindings();
     }
-
-    if (changes['optionsToDisplay']) {
-      console.log('[SOC ✅] optionsToDisplay changed →',
-                  this.optionsToDisplay.map(o => o.text));
-      this.setOptionBindingsIfChanged(changes['optionsToDisplay'].currentValue);
-      const opts = changes['optionsToDisplay'].currentValue;
+  
+    if (changes['optionBindings']) {
+      console.log('[SOC ✅] optionBindings changed →',
+                  (changes['optionBindings'].currentValue as OptionBindings[])
+                    .map(b => b.option.text));
+  
+      this.setOptionBindingsIfChanged(changes['optionBindings'].currentValue);
+      const opts = changes['optionBindings'].currentValue;
       console.log(
-        '[DBG QQC] (ngOnChanges) question', this.quizService.currentQuestionIndex,
+        '[DBG SOC] (ngOnChanges) question', this.quizService.currentQuestionIndex,
         '| array ref →', opts,
-        '| first text →', opts?.[0]?.text
+        '| first text →', opts?.[0]?.option?.text
       );
     }
-
-    /* ── 1.  Handle NEW options list ────────────────────────────── */
-    if (changes['optionsToDisplay'] &&
-        Array.isArray(this.optionsToDisplay) &&
-        this.optionsToDisplay.length) {
-    
-      /** A.  Always rebuild bindings for the fresh array  */
+  
+    /* ── 1. Handle NEW option list ───────────────────────────────── */
+    if (changes['optionBindings'] &&
+        Array.isArray(this.optionBindings) &&
+        this.optionBindings.length) {
+  
+      /** A. Always rebuild bindings for the fresh array  */
       this.freezeOptionBindings = false;          // unlock
       this.initializeOptionBindings();            // clears old refs
       this.generateOptionBindings();              // builds new list
   
-      /** B.  Reset per-option feedback map safely       */
+      /** B. Reset per-option feedback map safely        */
       if (typeof this.showFeedbackForOption !== 'object' ||
           !this.showFeedbackForOption) {
         this.showFeedbackForOption = {};          // keep shared ref
@@ -348,11 +347,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         );
       }
   
-      /** C.  Force OnPush view refresh                  */
+      /** C. Force OnPush view refresh                   */
       this.cdRef.markForCheck();
     }
   
-    /* ── 2.  Handle NEW question object ─────────────────────────── */
+    /* ── 2. Handle NEW question object ───────────────────────────── */
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
   
@@ -360,13 +359,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
                   this.currentQuestion.questionText.trim());
   
       // clear selection & history
-      this.selectedOption          = null;
-      this.selectedOptionHistory   = [];
-      this.lastFeedbackOptionId    = -1;
+      this.selectedOption        = null;
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId  = -1;
       this.highlightedOptionIds.clear();
     }
   
-    /* ── 3.  Background-reset toggle ────────────────────────────── */
+    /* ── 3. Background-reset toggle ──────────────────────────────── */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();  // your existing full reset
     }
