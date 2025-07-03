@@ -4,6 +4,7 @@
 ></app-shared-option>-->
 <app-shared-option 
   [optionBinding]="option"
+  [questionIndex]="currentQuestionIndex"
   [config]="sharedOptionConfig"
   [isNavigatingBackwards]="isNavigatingBackwards"
   (optionClicked)="onOptionClicked($event)"

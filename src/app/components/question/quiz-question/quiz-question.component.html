@@ -13,4 +13,10 @@
       <!-- Enable spinner -->
     </div>
   </form>
+
+  <app-answer
+    [optionsToDisplay]="optionsToDisplay"
+    [currentQuestionIndex]="currentQuestionIndex"
+    (optionClicked)="onOptionClicked($event)">
+  </app-answer>
 </ng-container>
