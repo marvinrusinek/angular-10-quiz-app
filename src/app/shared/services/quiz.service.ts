@@ -21,7 +21,6 @@ import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = 0;
@@ -202,6 +201,8 @@ export class QuizService implements OnDestroy {
 
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
+
+  private static instance = 0;
 
   correctSound: Howl | undefined;
   incorrectSound: Howl | undefined;
