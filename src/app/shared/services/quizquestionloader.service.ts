@@ -479,7 +479,7 @@ export class QuizQuestionLoaderService {
       if (!Array.isArray(options) || options.length === 0) {
         console.error(`[❌ Q${questionIndex}] No valid options`);
         throw new Error(`No options found for Q${questionIndex}`);
-      }
+      } 
     
       // Fetch explanation text
       let explanation = 'No explanation available';
@@ -502,6 +502,13 @@ export class QuizQuestionLoaderService {
         explanation,
         type
       };
+
+      this.qaSubject.next({
+        heading     : question.questionText ?? 'No question',
+        options     : [...question.options],
+        explanation : question.explanation ?? 'No explanation available',
+        question    : question
+      });
   
       // Sync type with service
       this.quizDataService.setQuestionType(question);
