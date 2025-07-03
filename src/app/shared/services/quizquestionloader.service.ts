@@ -330,8 +330,10 @@ export class QuizQuestionLoaderService {
         showIcon : false
       }));
       const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
-      const clonedOptions = structuredClone?.(finalOptions)
-                          ?? JSON.parse(JSON.stringify(finalOptions));
+      const clonedOptions: Option[] =
+        typeof structuredClone === 'function'
+          ? structuredClone(finalOptions)
+          : JSON.parse(JSON.stringify(finalOptions)); 
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
   
       /* ── 7. **ASSIGN** new array references _before_ any emits ── */
