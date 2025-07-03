@@ -301,7 +301,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-
+    console.log("MY NGONCHANGES TEST");
     /* Detect question change ─────────────────────────────────────── */
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       // ── NEW: unblock and wipe per-question state ──
@@ -314,6 +314,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     if (changes['optionBindings']) {
+      console.log(
+        '[LOG-SOC]', this.questionIndex,
+        '| ref', changes['optionBindings'].currentValue,
+        '| first', changes['optionBindings'].currentValue?.[0]?.option?.text
+      );
       console.log('[SOC ✅] optionBindings changed →',
                   (changes['optionBindings'].currentValue as OptionBindings[])
                     .map(b => b.option.text));
