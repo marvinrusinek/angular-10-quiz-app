@@ -1950,16 +1950,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.markRenderReady();
   } */
   public generateOptionBindings(): void {
-    console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
-    // Guard: don't allow reassignment after user click
+
+    /* 1 ▸ Replace this.optionsToDisplay with this.optionBindings  */
+    console.log('C-SOC →', this.optionBindings.map(b => b.option.text));
+  
+    // Guard: no reassignment while frozen
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
       return;
     }
   
     // Guard: no options available
-    if (!this.optionsToDisplay?.length) {
-      console.warn('[⚠️ No options to display]');
+    if (!this.optionBindings?.length) {
+      console.warn('[⚠️ No optionBindings to display]');
       return;
     }
   
@@ -1977,23 +1980,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[MAP] fresh reference', freshShowMap);
   
     // Build fresh bindings using retained selection state
-    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+    this.optionBindings = this.optionBindings.map((binding, idx) => {   /* ← */
+      const option = binding.option;            // convenience
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
   
-      // Always persist highlight for selected options
+      // highlights …
       if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
       }
   
-      // Build binding as before
-      const binding = this.getOptionBindings(option, idx, isSelected);
-  
-      /* attach the FRESH map so every binding shares the same reference */
-      binding.showFeedbackForOption = freshShowMap;
-  
-      return binding;
+      // rebuild binding
+      const newBinding = this.getOptionBindings(option, idx, isSelected);
+      newBinding.showFeedbackForOption = freshShowMap;
+      return newBinding;
     });
+  
+    console.log(
+      '[SOC 🆕] qIdx', this.questionIndex,
+      '| built', this.optionBindings.map(b => b.option.text)
+    );
   
     this.updateHighlighting();
   
@@ -2008,6 +2014,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.markRenderReady();
   }
+  
   
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
