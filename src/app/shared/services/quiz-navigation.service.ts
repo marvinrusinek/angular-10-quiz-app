@@ -17,7 +17,6 @@ import { TimerService } from './timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
   animationState$ = new BehaviorSubject<AnimationState>('none');
