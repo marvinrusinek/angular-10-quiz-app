@@ -1903,52 +1903,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   }
   
-  /* private generateOptionBindings(): void {
-    // Guard: don't allow reassignment after user click
-    if (this.freezeOptionBindings) {
-      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
-      return;
-    }
-  
-    // Guard: no options available
-    if (!this.optionsToDisplay?.length) {
-      console.warn('[⚠️ No options to display]');
-      return;
-    }
-  
-    // Map current selections (if any)
-    const existingSelectionMap = new Map(
-      (this.optionBindings ?? []).map(binding => [
-        binding.option.optionId,
-        binding.isSelected
-      ])
-    );
-  
-    // Build fresh bindings using retained selection state
-    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      const isSelected =
-        existingSelectionMap.get(option.optionId) ?? !!option.selected;
-
-      // Always persist highlight for selected options
-      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
-        option.highlight = true;
-      }
-    
-      return this.getOptionBindings(option, idx, isSelected);
-    });
-    this.updateHighlighting();
-  
-    // Mark view ready after DOM settles
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        this.optionsReady = true;
-        this.viewReady = true;
-        console.log('[✅ optionsReady & viewReady set]');
-      });
-    }, 100);
-
-    this.markRenderReady();
-  } */
   public generateOptionBindings(): void {
     // Replace this.optionsToDisplay with this.optionBindings
     console.log('C-SOC →', this.optionBindings.map(b => b.option.text));
