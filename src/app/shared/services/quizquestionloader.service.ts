@@ -234,6 +234,7 @@ export class QuizQuestionLoaderService {
     console.log('[LOADER] called with index', questionIndex);
     console.log('[LOADER] entered with index', questionIndex);
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
+    this.resetQuestionState();
     if (this.quizQuestionComponent) {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
     }
@@ -277,7 +278,6 @@ export class QuizQuestionLoaderService {
 
       /* ── 4. Reset local UI & explanation state ── */
       this.currentQuestion = null;
-      this.resetQuestionState();
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
@@ -365,7 +365,7 @@ export class QuizQuestionLoaderService {
 
       /* ── 7. Assign component state (for other logic) ── */
       this.optionsToDisplay = clonedOptions;
-      this.currentQuestion  = fetchedQuestion;
+      this.currentQuestion  = { ...fetchedQuestion, options: clonedOptions };
 
       if (this.quizQuestionComponent) {
         console.log('[✅ Loader] Updating options in child for Q', this.currentQuestionIndex);
