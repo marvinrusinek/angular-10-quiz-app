@@ -73,6 +73,34 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+      /* Re-create a fresh optionBindings array every time the parent
+      hands us a new optionsToDisplay reference.  */
+      if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
+
+        /* 🔑 deep-clone so it’s ALWAYS a new reference */
+        const cloned = structuredClone
+          ? structuredClone(this.optionsToDisplay)
+          : JSON.parse(JSON.stringify(this.optionsToDisplay));
+    
+        /* build bindings from the cloned list */
+        this.optionBindings = cloned.map((opt, idx) => ({
+          option: opt,
+          index : idx,
+          isSelected: !!opt.selected,
+          isCorrect : opt.correct ?? false,
+          /* any other binding fields you need */
+        }));
+    
+        console.log(
+          '[ANS ✅] qIdx', this.quizService.currentQuestionIndex,
+          '| new ref →', this.optionBindings,
+          '| first text →', this.optionBindings[0]?.option?.text
+        );
+    
+        /* OnPush?  markForCheck */
+        this.cdRef?.markForCheck();
+      }
+
     if (changes.questionData) {
       console.log('AnswerComponent - questionData changed:', changes.questionData.currentValue);
     }
