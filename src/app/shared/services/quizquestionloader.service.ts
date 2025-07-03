@@ -224,31 +224,31 @@ export class QuizQuestionLoaderService {
    * Fetch a question + its options and emit a single payload so the
    * heading and list paint in the same change-detection pass (no flicker).
    */
-  async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+   async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
     console.log(
       '[LOADER ⬅] index', questionIndex,
       '| activeQuizId =', this.activeQuizId,
       '| totalQuestions =', this.totalQuestions
     );
-    
     console.log('[LOADER] called with index', questionIndex);
     console.log('[LOADER] entered with index', questionIndex);
+  
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
     if (this.quizQuestionComponent) {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
     }
-
+  
     /* ── 1. Blank heading + list instantly ── */
-    this.clearQA();                                 // pushes {heading:null, options:[]}
-
+    this.clearQA();                                  // pushes {heading:null, options:[]}
+  
     /* ── 2. Reset per-question flags ── */
-    this.questionTextLoaded   = false;
-    this.hasOptionsLoaded     = false;
-    this.shouldRenderOptions  = false;
-    this.isLoading            = true;
+    this.questionTextLoaded  = false;
+    this.hasOptionsLoaded    = false;
+    this.shouldRenderOptions = false;
+    this.isLoading           = true;
     if (this.quizQuestionComponent) this.quizQuestionComponent.renderReady = true;
-
+  
     try {
       console.log('[LOADER] getAllQuestions length →', this.totalQuestions);
       if (!this.totalQuestions || this.totalQuestions === 0) {
@@ -258,32 +258,31 @@ export class QuizQuestionLoaderService {
           this.totalQuestions = await firstValueFrom(
             this.quizDataService
               .getQuestionsForQuiz(this.activeQuizId)
-              .pipe(
-                take(1),
-                map(qs => qs.length)
-              )
+              .pipe(take(1), map(qs => qs.length))
           );
           console.log('[LOADER] fetched length for', this.activeQuizId, '→', this.totalQuestions);
         }
       }
-
+  
       /* ── 3. Guard against bad index ── */
       if (
-        typeof questionIndex !== 'number' || isNaN(questionIndex) ||
-        questionIndex < 0 || questionIndex >= this.totalQuestions
+        typeof questionIndex !== 'number' ||
+        isNaN(questionIndex) ||
+        questionIndex < 0 ||
+        questionIndex >= this.totalQuestions
       ) {
         console.warn(`[❌ Invalid index: Q${questionIndex}]`);
         return false;
       }
-
+  
       /* ── 4. Reset local UI & explanation state ── */
-      this.currentQuestion = null;
+      // (Removed duplicate resetQuestionState; we already did this in step 0)
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
       await new Promise(res => setTimeout(res, 30));
-
+  
       /* ── 5. Answered flag and parallel fetch ── */
       const isAnswered = this.selectedOptionService.isQuestionAnswered(questionIndex);
       if (isAnswered) {
@@ -291,27 +290,17 @@ export class QuizQuestionLoaderService {
         this.selectedOptionService.setAnswered(true, true);
         this.nextButtonStateService.syncNextButtonState();
       }
-
+  
       console.log('[⏳] Fetching question + options …');
-      /* const [fetchedQuestion, fetchedOptions] = await Promise.all([
-        this.fetchQuestionDetails(questionIndex),
-        firstValueFrom(this.quizService.getCurrentOptions(questionIndex).pipe(take(1)))
-      ]) as [QuizQuestion, Option[]];
-
-      console.log('[LOADER RAW] fetchedQuestion →',
-            fetchedQuestion?.questionText);
-      console.log('[LOADER RAW] fetchedOptions  →',
-            Array.isArray(fetchedOptions) ? fetchedOptions.map(o => o.text) : fetchedOptions); */
-      
       let fetchedQuestion: QuizQuestion | null = null;
-      let fetchedOptions : Option[] | null = null;
-            
+      let fetchedOptions : Option[]       | null = null;
+  
       try {
         fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
       } catch (err) {
         console.error('[LOADER ❌] fetchQuestionDetails failed for Q', questionIndex, err);
       }
-            
+  
       try {
         fetchedOptions = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
@@ -319,84 +308,56 @@ export class QuizQuestionLoaderService {
       } catch (err) {
         console.error('[LOADER ❌] getCurrentOptions failed for Q', questionIndex, err);
       }
-
-      console.log('[LOADER RAW] fetchedQuestion →',
-            fetchedQuestion?.questionText);
-      console.log('[LOADER RAW] fetchedOptions  →',
-            Array.isArray(fetchedOptions) ? fetchedOptions.map(o => o.text) : fetchedOptions);
-
+  
+      console.log('[LOADER RAW] fetchedQuestion →', fetchedQuestion?.questionText);
+      console.log(
+        '[LOADER RAW] fetchedOptions  →',
+        Array.isArray(fetchedOptions) ? fetchedOptions.map(o => o.text) : fetchedOptions
+      );
+  
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
         console.warn('[LOADER ⚠️] early-exit – missing data for Q', questionIndex);
         return false;
       }
-
+  
       /* ── 6. Hydrate & clone options BEFORE emitting ── */
       const hydrated = fetchedOptions.map((opt, i) => ({
         ...opt,
         optionId : opt.optionId ?? i,
         correct  : opt.correct  ?? false,
-        feedback : opt.feedback ?? `The correct options are: ${opt.text}`
+        feedback : opt.feedback ?? `The correct options are: ${opt.text}`,
+        selected : false,          // ensure fresh UI flags
+        showIcon : false
       }));
       const finalOptions  = this.quizService.assignOptionActiveStates(hydrated, false);
       const clonedOptions = structuredClone?.(finalOptions)
                           ?? JSON.parse(JSON.stringify(finalOptions));
       console.log('A-LOADER →', clonedOptions.map(o => o.text));
-
-      if (clonedOptions.length) {
-        console.log('[LOADER ✅] emitting', clonedOptions.map(o => o.text));
-        this.optionsStream$.next(clonedOptions);    // BehaviourSubject / Subject
-      } else {
-        console.warn('[LOADER ⚠️] clonedOptions empty – nothing emitted');
-      }
-
-      const questionWithOptions: QuizQuestion = {
-        ...fetchedQuestion,
-        options: clonedOptions  // updated list travels inside question
-      };
-      
-      // Emit once with final values
-      // this.qaSubject.next({ heading: fetchedQuestion.questionText.trim(), options: clonedOptions });
-      this.qaSubject.next({
-        heading: fetchedQuestion.questionText.trim(),
-        options: clonedOptions,
-        explanation: fetchedQuestion.explanation?.trim() ?? '',
-        question: fetchedQuestion
-      });
-
-      /* ── 7. Assign component state (for other logic) ── */
-      this.optionsToDisplay = clonedOptions;
+  
+      /* ── 7. **ASSIGN** new array references _before_ any emits ── */
+      this.optionsToDisplay = clonedOptions;          // 👈 brand-new array
       this.currentQuestion  = { ...fetchedQuestion, options: clonedOptions };
-
-      if (this.quizQuestionComponent) {
-        console.log('[✅ Loader] Updating options in child for Q', this.currentQuestionIndex);
-        console.log('[✅ New options]', clonedOptions.map(o => o.text));
-      
-        this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
-        this.quizQuestionComponent.optionsToDisplay = [...clonedOptions];
-      } else {
-        console.warn('[⏳ Loader] Child not ready — queuing options for next tick');
-        requestAnimationFrame(() => (this.pendingOptions = clonedOptions));
-      }
-
-      /* ── 8. Emit ONE payload → heading + FINAL options ── */
-      const heading = fetchedQuestion.questionText.trim();
-
-      /* ── embed the fresh options in the question object ── */
+  
+      /* ── 8. Wake up OnPush view once the new refs are in place ── */
+      this.cdRef.markForCheck();                      // 👈 added
+  
+      /* ── 9. Now emit the data downstream ── */
+      this.optionsStream$.next(clonedOptions);
+  
       const payload: QAPayload = {
-        heading,
-        options: clonedOptions,           // list for [options] binding
-        explanation: fetchedQuestion.explanation ?? '',
-        question: questionWithOptions     // object for [question] binding
+        heading    : fetchedQuestion.questionText.trim(),
+        options    : clonedOptions,
+        explanation: fetchedQuestion.explanation?.trim() ?? '',
+        question   : this.currentQuestion
       };
       this.qaSubject.next(payload);
       console.log('[QA-EMIT]', questionIndex, clonedOptions.map(o => o.text));
-
-      /* ── 9. Explanation / display / timer logic (unchanged) ── */
+  
+      /* ── 10. Explanation / display / timer logic (unchanged) ── */
       this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
-
-      /* build explanation text & timer handling */
+  
       let explanationText = '';
       if (isAnswered) {
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
@@ -412,12 +373,16 @@ export class QuizQuestionLoaderService {
         }
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
-
-      /* ── 10. Down-stream state updates (unchanged) ── */
-      this.setQuestionDetails(heading, finalOptions, explanationText);
-      this.currentQuestionIndex  = questionIndex;
-      this.explanationToDisplay  = explanationText;
-
+  
+      /* ── 11. Down-stream state updates (unchanged) ── */
+      this.setQuestionDetails(
+        fetchedQuestion.questionText.trim(),
+        finalOptions,
+        explanationText
+      );
+      this.currentQuestionIndex = questionIndex;
+      this.explanationToDisplay = explanationText;
+  
       this.questionPayload = {
         question   : this.currentQuestion!,
         options    : clonedOptions,
@@ -425,13 +390,12 @@ export class QuizQuestionLoaderService {
       };
       this.shouldRenderQuestionComponent = true;
       this.questionPayloadReadySource.next(true);
-
+  
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
-      /* emitQA remains as in your original logic */
-      if (heading && clonedOptions.length) {
+  
+      if (payload.heading && clonedOptions.length) {
         const selMsg = this.selectionMessageService.determineSelectionMessage(
           questionIndex, this.totalQuestions, false
         );
@@ -440,28 +404,27 @@ export class QuizQuestionLoaderService {
           this.quizService.quizId!, questionIndex
         );
       }
-
-      /* any additional combined streams or checks you already have */
+  
       this.setupCombinedQuestionStream();
       await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
-
-      /* ── 11. Final flags ── */
+  
+      /* ── 12. Final flags ── */
       this.questionTextLoaded   = true;
       this.hasOptionsLoaded     = true;
       this.shouldRenderOptions  = true;
       this.resetComplete        = true;
-
+  
+      // emit one last time so late subscribers have data
       this.optionsStream$.next(clonedOptions);
-
+  
       return true;
-
+  
     } catch (err) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, err);
       return false;
     }
   }
-
 
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
     try {
