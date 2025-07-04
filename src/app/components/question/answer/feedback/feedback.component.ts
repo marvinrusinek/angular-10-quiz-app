@@ -66,7 +66,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
     return isCorrect ? 'correct-message' : 'wrong-message';
   }
 
-  private updateDisplayMessage(): void {
+  /* private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
       const prefix = this.determineFeedbackPrefix();
@@ -76,5 +76,26 @@ export class FeedbackComponent implements OnInit, OnChanges {
       this.displayMessage = '';
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
     }
-  } 
+  } */
+  private updateDisplayMessage(): void {
+    if (this.feedbackConfig) {
+      console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
+  
+      const prefix = this.determineFeedbackPrefix();
+  
+      /* 🔑 NEW — guarantee non-empty text */
+      const feedbackText = this.feedbackConfig.feedback?.trim();
+      const body =
+        feedbackText && feedbackText.length > 0
+          ? feedbackText                                      // use supplied text
+          : (this.feedbackConfig.selectedOption?.correct      // fallback
+                ? 'Great job! That answer is correct.'
+                : 'Not quite — see the explanation above.');
+  
+      this.displayMessage = `${prefix}${body}`;
+    } else {
+      this.displayMessage = '';
+      console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
+    }
+  }  
 }
