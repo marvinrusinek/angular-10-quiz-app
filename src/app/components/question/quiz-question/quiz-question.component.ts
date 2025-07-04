@@ -2535,8 +2535,10 @@ export class QuizQuestionComponent
       newConfigs[id] = {
         ...prev,
         showFeedback  : true,
-        selectedOption: option
-      }
+        selectedOption: option,
+        feedback      : option.feedback ||
+                  (option.correct ? 'Correct.' : 'See explanation above.')
+      } as Partial<FeedbackProps>;
       
       // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
