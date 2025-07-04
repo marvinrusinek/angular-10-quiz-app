@@ -38,6 +38,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
+  @Input() optionsToDisplay!: Option[];
   @Input() optionBindings: OptionBindings[];
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -85,9 +86,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
        hands us a new optionsToDisplay reference.  */
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       /* 🔑 deep-clone so it’s ALWAYS a new reference */
-      const cloned = structuredClone
-        ? structuredClone(changes['optionsToDisplay'].currentValue)
-        : JSON.parse(JSON.stringify(changes['optionsToDisplay'].currentValue));
+      const cloned: Option[] =
+        typeof structuredClone === 'function'
+          ? structuredClone(this.optionsToDisplay)          // ← modern browsers
+          : JSON.parse(JSON.stringify(this.optionsToDisplay)); 
     
       /* build bindings from the cloned list */
       this.optionBindings = cloned.map((opt, idx) => ({
@@ -95,9 +97,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         index : idx,
         isSelected: !!opt.selected,
         isCorrect : opt.correct ?? false,
-        showFeedback: false,
-        feedback: opt.feedback ?? 'No feedback available'
-      }));
+        showFeedback: true,
+        feedback: opt.feedback ?? 'No feedback available',
+        highlight: !!opt.highlight
+      } as unknown as OptionBindings));
     
       console.log(
         '[ANS ✅] qIdx', this.quizService.currentQuestionIndex,
