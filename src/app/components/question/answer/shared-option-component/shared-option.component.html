@@ -77,7 +77,6 @@
       <!-- Feedback block (outside the checkbox) -->
         <div *ngIf="showFeedbackForOption[b.option.optionId]" class="feedback-wrapper">
           <codelab-quiz-feedback
-            *ngIf="b.option.optionId === lastFeedbackOptionId"
             [feedbackConfig]="feedbackConfigs[b.option.optionId]"
           ></codelab-quiz-feedback>
         </div>
