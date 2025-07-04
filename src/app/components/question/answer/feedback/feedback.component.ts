@@ -83,7 +83,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
   
       const prefix = this.determineFeedbackPrefix();
   
-      /* 🔑 NEW — guarantee non-empty text */
+      // 🔑 NEW — guarantee non-empty text
       const feedbackText = this.feedbackConfig.feedback?.trim();
       const body =
         feedbackText && feedbackText.length > 0
@@ -97,5 +97,5 @@ export class FeedbackComponent implements OnInit, OnChanges {
       this.displayMessage = '';
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
     }
-  }  
+  }
 }

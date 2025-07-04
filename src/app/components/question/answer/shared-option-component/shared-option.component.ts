@@ -1,6 +1,9 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { firstValueFrom, Observable, Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -9,13 +12,15 @@ import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { QuestionType } from '../../../../shared/models/question-type.enum';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
+import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
+import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
+
 
 @Component({
   selector: 'app-shared-option',
@@ -26,16 +31,12 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>;
-  @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>;
-  @ViewChild(forwardRef(() => QuizQuestionComponent), { static: false })
-  quizQuestionComponent!: QuizQuestionComponent;
-  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
+  @Input() quizQuestionComponent!: QuizQuestionComponent;
+  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
-  @Output() optionChanged = new EventEmitter<Option>();
+  @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
-  @Input() questionIndex!: number;
-  @Input() optionsToDisplay: Option[] = [];
+  @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
   @Input() selectedOption: Option | null = null;
@@ -50,6 +51,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ) => void;
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
+  @Input() isNavigatingBackwards: boolean = false;
+  @Input() finalRenderReady$: Observable<boolean> | null = null;
+  public finalRenderReady = false;
+  private finalRenderReadySub?: Subscription;
+
+  private optionBindingsInitialized = false;
   optionBindings: OptionBindings[] = [];
   feedbackBindings: FeedbackProps[] = [];
   feedbackConfig: FeedbackProps = {
@@ -63,55 +70,133 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   };
   currentFeedbackConfig: FeedbackProps;
   // feedbackConfigs: FeedbackProps[] = [];
-  feedbackConfigs: Record<number, Partial<FeedbackProps>> = {};
+  public feedbackConfigs: { [key: number]: FeedbackProps } = {};
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
-  // lastSelectedOptionIndex: number | null = null;
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
+  private lastFeedbackQuestionIndex = -1;
+  lastFeedbackOptionId = -1;
+  secondToLastFeedbackOptionId = -1;
+  highlightedOptionIds: Set<number> = new Set();
+  lastSelectedOptionId: number = -1;
+  lastFeedbackAnchorOptionId: number = -1;
+  visitedOptionIds: Set<number> = new Set();
+  lastSelectionId: number = -1;
+  secondLastSelectionId: number = -1;
+  hasUserClickedOnce = false;
+  firstClickOccurred = false;
+
   isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
   private optionsRestored = false; // tracks if options are restored
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
-  private viewInitialized = false;
+  viewInitialized = false;
   viewReady = false;
-  private lastSelectedOptionMap: Map<number, number> = new Map(); // optionId -> timestamp
   optionsReady = false;
-  private lastClickedOptionId: number | null = null;
-  private lastClickTimestamp: number | null = null;
+  renderReady = false;
+  displayReady = false;
+  showOptions = false;
+  lastClickedOptionId: number | null = null;
+  lastClickTimestamp: number | null = null;
   hasUserClicked = false;
-  private freezeOptionBindings = false;
+  freezeOptionBindings = false;
   private selectedOptionMap: Map<number, boolean> = new Map();
-  highlightedOptionIds: Set<number> = new Set();
   selectedOptionHistory: number[] = [];
-  lastFeedbackOptionId = -1;
-
-  trackByQuestionScoped = (_: number, binding: OptionBindings): string => {
-    const key = `${this.questionIndex}-${binding.option?.optionId ?? _}`;
-    console.log('[TRACK]', key);  // debug: see keys per navigation
-    return key;
-  };
+  form!: FormGroup;
+  lastFeedbackOptionMap: { [questionIndex: number]: number } = {};
 
   optionTextStyle = { color: 'black' };
 
+  private click$ = new Subject<{ b: OptionBindings; i: number }>();
+  onDestroy$ = new Subject<void>();
+
   constructor(
+    private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
+    private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
-    private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone
-  ) {}
+    private ngZone: NgZone,
+    private fb: FormBuilder
+  ) {
+    console.log('[🧩 SharedOptionComponent] constructed');
+  }
 
   ngOnInit(): void {
-    this.initializeOptionBindings();
     this.initializeFromConfig();
+
+    // Ensure rendering flags are set based on data availability
+    this.renderReady = this.optionsToDisplay?.length > 0;
+    //this.canDisplayOptions = this.optionsToDisplay?.length > 0;
+
+    // Delay rendering until all setup is confirmed
+    setTimeout(() => {
+      this.initializeDisplay();
+    });
+
+    if (!this.optionBindings || this.optionBindings.length === 0) {
+      console.log('[🚀 Calling initializeOptionBindings()]');
+      this.initializeOptionBindings();
+    } else {
+      console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
+    }
+
+    setTimeout(() => {
+      this.initializeOptionBindings();
+      this.renderReady = this.optionsToDisplay?.length > 0;
+      // this.canDisplayOptions = this.optionsToDisplay?.length > 0;
+  
+      this.cdRef.detectChanges();
+      console.log('[✅ Flags Updated - Triggering Render]');
+    }, 100);
+    console.log(`[🔍 optionBindings]:`, this.optionBindings);
+
+    // Always synchronize to ensure data consistency
+    this.synchronizeOptionBindings();
+
+    if (this.finalRenderReady$) {
+      this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
+        this.finalRenderReady = ready;
+        this.cdRef.detectChanges(); // ensure UI updates
+      });
+    }
+
+    this.form = this.fb.group({
+      selectedOptionId: [null, Validators.required]
+    });
+  
+    // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
+    this.form.get('selectedOptionId')!.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((id: number) => this.updateSelections(id));
+
+    // React to a click triggered manually, emitting the binding and index for the row the user clicked.
+    this.click$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(({ b, i }) => {
+        // Update form control immediately
+        this.form
+          .get('selectedOptionId')
+          ?.setValue(b.option.optionId, { emitEvent: false });
+
+        // Visuals + feedback in ONE call
+        this.updateOptionAndUI(
+          b,
+          i,
+          { value: b.option.optionId } as MatRadioChange
+        );
+
+        // Flush once
+        this.cdRef.detectChanges();
+      });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
 
@@ -120,9 +205,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     this.ensureOptionIds();
 
+    if (this.selectedOption) {
+      console.log('[🔍 Option Data]', {
+        optionId: this.selectedOption.optionId,
+        feedback: this.selectedOption.feedback,
+        correct: this.selectedOption.correct,
+        fullOption: this.selectedOption
+      });
+    } else {
+      console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
+    }
+
     this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
 
-    console.log('Received config:', this.config);
     if (
       this.config &&
       this.config.optionsToDisplay &&
@@ -136,9 +231,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  /* ngOnChanges(changes: SimpleChanges): void {
-    const incomingConfig: SharedOptionConfig | undefined =
-      changes.config?.currentValue;
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    const incomingConfig: SharedOptionConfig | undefined = changes.config?.currentValue;
+
+    console.log('[✅ Q2 OPTIONS]', incomingConfig?.optionsToDisplay?.map(o => o.text));
 
     if (incomingConfig) {
       const qTxt   = incomingConfig.currentQuestion?.questionText ?? '[–]';
@@ -152,7 +248,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const questionChanged = incomingQText !== currentQText;
     const optsMissing = !this.optionsToDisplay?.length;
 
-    if (incomingConfig && (configChanged || questionChanged || optsMissing)) {
+    let incomingIndex = -1;
+    const incomingText = incomingConfig?.currentQuestion?.questionText?.trim();
+
+    try {
+      const allQuestions = await firstValueFrom(this.quizService.getAllQuestions()); // ✅ unwrap Observable
+      incomingIndex = allQuestions.findIndex(q => q.questionText.trim() === incomingText);
+    } catch (err) {
+      console.warn('[❌ Failed to get all questions]', err);
+    }
+
+    if (
+      incomingConfig &&
+      (configChanged || questionChanged || optsMissing) &&
+      incomingIndex === this.quizService.getCurrentQuestionIndex()
+    ) {
       console.log('[🔁 Reinit] Forcing reinit due to config / question / missing opts');
       this.currentQuestion = { ...incomingConfig.currentQuestion };
       this.initializeFromConfig();
@@ -164,109 +274,115 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.handleQuestionChange(changes.currentQuestion);
     }
 
-    if (changes.optionsToDisplay) {
-      this.initializeOptionBindings(); // resets optionBindings
+    if (changes.optionsToDisplay && incomingConfig?.optionsToDisplay?.length) {
+      console.log('[🔁 Regenerating optionBindings for new options]');
+      this.optionsToDisplay = [...incomingConfig.optionsToDisplay]; // ensure it's set
+      this.initializeOptionBindings(); // resets bindings
+      this.generateOptionBindings();   // builds new bindings
       this.initializeFeedbackBindings(); // resets feedback
-      this.generateOptionBindings(); // fills optionBindings
     }
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
     }
+
+    // DEBUG: Log selected option if available
+    if (this.selectedOption) {
+      console.log('[🔍 SOC selectedOption]', {
+        optionId: this.selectedOption.optionId,
+        text: this.selectedOption.text,
+        correct: this.selectedOption.correct,
+        feedback: this.selectedOption.feedback
+      });
+    } else {
+      console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
+    }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    /* Detect question change ───────────────────────────────────── */
-    if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
-      this.freezeOptionBindings = false;
-      this.highlightedOptionIds.clear();
-      this.optionBindings = [];
+    if (changes['optionsToDisplay']) {
+      console.log('[SOC ✅] optionsToDisplay changed →',
+                  this.optionsToDisplay.map(o => o.text));
     }
+
+    /* ── 1.  Handle NEW options list ────────────────────────────── */
+    if (changes['optionsToDisplay'] &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length) {
+    
+      /** A.  Always rebuild bindings for the fresh array  */
+      this.freezeOptionBindings = false;          // unlock
+      this.initializeOptionBindings();            // clears old refs
+      this.generateOptionBindings();              // builds new list
   
-    /* ── Handle NEW option list ─────────────────────────────────── */
-    if (changes['optionBindings'] &&
-        Array.isArray(changes['optionBindings'].currentValue) &&
-        changes['optionBindings'].currentValue.length) {
-  
-      /* A. rebuild bindings */
-      this.freezeOptionBindings = false;
-      this.initializeOptionBindings();
-      this.optionBindings = changes['optionBindings'].currentValue;
-      this.generateOptionBindings();
-      this.optionsReady = true;
-  
-      /* B. create fresh per-question maps */
-      this.showFeedbackForOption = {};
-      this.feedbackConfigs = {};
-  
-      for (const b of this.optionBindings) {
-        const id = b.option.optionId ?? b.index;
-      
-        this.showFeedbackForOption[id] = true;        // wrapper always renders
-      
-        const fallback =
-          b.option.feedback?.trim() && b.option.feedback.trim().length
-            ? b.option.feedback.trim()
-            : (b.option.correct
-                 ? 'Great job — that answer is correct.'
-                 : 'Not quite — see the explanation.');
-      
-        this.feedbackConfigs[id] = {
-          showFeedback  : true,                       //  ← ALWAYS TRUE
-          selectedOption: b.option,
-          feedback      : fallback
-        };
+      /** B.  Reset per-option feedback map safely       */
+      if (typeof this.showFeedbackForOption !== 'object' ||
+          !this.showFeedbackForOption) {
+        this.showFeedbackForOption = {};          // keep shared ref
+      } else {
+        Object.keys(this.showFeedbackForOption).forEach(
+          k => delete this.showFeedbackForOption[k]
+        );
       }
   
-      this.cdRef.markForCheck();    // OnPush refresh
+      /** C.  Force OnPush view refresh                  */
+      this.cdRef.markForCheck();
     }
   
-    /* Handle NEW question object ───────────────────────────────── */
+    /* ── 2.  Handle NEW question object ─────────────────────────── */
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
   
-      this.selectedOption        = null;
-      this.selectedOptionHistory = [];
-      this.lastFeedbackOptionId  = -1;
+      console.log('[🔁 currentQuestion changed] →',
+                  this.currentQuestion.questionText.trim());
+  
+      // clear selection & history
+      this.selectedOption          = null;
+      this.selectedOptionHistory   = [];
+      this.lastFeedbackOptionId    = -1;
       this.highlightedOptionIds.clear();
     }
   
-    /* Background-reset toggle ──────────────────────────────────── */
+    /* ── 3.  Background-reset toggle ────────────────────────────── */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
-      this.resetState();
+      this.resetState();  // your existing full reset
     }
   }
   
 
   ngAfterViewInit(): void {
+    console.log('form value:', this.form.value);
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
-      this.generateOptionBindings();
+      // this.generateOptionBindings();
     }
   
     this.viewInitialized = true;
     this.viewReady = true;
-    console.log('[✅ View ready]');
-  }
 
-  private handleNativeChange = (event: Event): void => {
-    const input = event.target as HTMLInputElement;
-    const idAttr = input?.dataset?.optionId;
-  
-    const optionId = idAttr ? parseInt(idAttr, 10) : -1;
-    const checked = input.checked;
-  
-    console.warn('[🖲️ Native input change fired!]', { optionId, checked });
-  
-    const optionBinding = this.optionBindings?.[optionId];
-    if (!optionBinding) {
-      console.warn('[❌ No matching option binding for input]', { optionId });
-      return;
-    }
-  
-    this.updateOptionAndUI(optionBinding, optionId, {
-      checked
-    } as MatCheckboxChange); // or MatRadioChange if you prefer
-  };  
+    const radioGroup = document.querySelector('mat-radio-group');
+    console.log('[🔥 AfterViewInit - Radio Group Exists]', !!radioGroup);
+
+    const radioButtons = document.querySelectorAll('mat-radio-button');
+    console.log('[🔥 AfterViewInit - Radio Buttons Count]', radioButtons.length);
+
+    setTimeout(() => {
+      const radioGroup = document.querySelector('mat-radio-group');
+      console.log('[⏳ Delayed Check - Radio Group Exists]', !!radioGroup);
+    
+      const radioButtons = document.querySelectorAll('mat-radio-button');
+      console.log('[⏳ Delayed Check - Radio Buttons Count]', radioButtons.length);
+    
+      if (radioGroup) {
+        radioGroup.addEventListener('click', (event) => {
+          console.log('[🖱️ Native Click Detected]', event);
+        });
+    
+        radioGroup.addEventListener('change', (event) => {
+          console.log('[🔄 Native Change Detected]', event);
+        });
+      }
+    }, 100);
+  }
 
   ngAfterViewChecked(): void {
     if (this.hasBoundQuizComponent) return;
@@ -290,6 +406,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     this.hasBoundQuizComponent = true;
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+    this.finalRenderReadySub?.unsubscribe();
   }
   
   // Handle visibility changes to restore state
@@ -317,33 +439,51 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     } catch (error) {
       console.error('[SharedOptionComponent] Error during visibility change handling:', error);
     }
-  }
+  } 
 
-  @HostListener('change', ['$event'])
-  onNativeChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const optionId = this.getOptionIdFromInput(input);
-    const checked = input.checked;
+  /**
+   * Push the newly‐clicked option into history, then synchronize every binding’s
+   * visual state (selected, highlight, icon, feedback) in one synchronous pass.
+   */
+   private updateSelections(selectedId: number): void {
 
-    console.warn('[🖲️ Native change]', { optionId, checked });
-
-    const optionBinding = this.optionBindings.find(o => o.option.optionId === optionId);
-    if (!optionBinding) {
-      console.warn('[⛔ No matching binding found for input change]');
-      return;
+    // History
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+      console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
     }
-
-    this.updateOptionAndUI(optionBinding, this.optionBindings.indexOf(optionBinding), {
-      checked
-    } as MatCheckboxChange);
-  }
-
-  private getOptionIdFromInput(input: HTMLInputElement): number {
-    const id = input?.getAttribute('data-option-id');
-    return id ? parseInt(id, 10) : -1;
-  }
   
-  private ensureOptionsToDisplay(): void {
+    // Walk every binding and update its flags
+    this.optionBindings.forEach(b => {
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id); // in history?
+      const isCurrent   = id === selectedId;                       // just clicked?
+  
+      // This single line is what removed the 2-click lag
+      b.option.highlight = everClicked;        // highlight if EVER clicked
+      b.option.showIcon  = everClicked;        // icon if EVER clicked
+      /* --------------------------------------------------------------------- */
+  
+      b.isSelected      = isCurrent;           // radio / checkbox selected
+      b.option.selected = isCurrent;
+  
+      /* 🔒 guard: make sure showFeedbackForOption is always an object */
+      if (typeof b.showFeedbackForOption !== 'object' || b.showFeedbackForOption == null) {
+        b.showFeedbackForOption = {};          // reset placeholder map
+      }
+  
+      // Feedback only for the latest click
+      b.showFeedbackForOption[id] = isCurrent;
+  
+      // repaint row synchronously
+      b.directiveInstance?.paintNow();
+    });
+  
+    // Flush to DOM
+    this.cdRef.detectChanges();
+  }
+
+  /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
       if (this.currentQuestion?.options) {
@@ -357,7 +497,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         console.error('[SharedOptionComponent] No options available in the current question.');
       }
     }
-  }
+  } */
+  private ensureOptionsToDisplay(): void {
+    const fallbackOptions = this.currentQuestion?.options;
+  
+    if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
+      return; // already populated, no need to proceed
+    }
+  
+    if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
+      this.optionsToDisplay = fallbackOptions.map((option) => ({
+        ...option,
+        active: option.active ?? true,
+        feedback: option.feedback ?? undefined,
+        showIcon: option.showIcon ?? false
+      }));
+      console.log('[SharedOptionComponent] Restored optionsToDisplay from currentQuestion.options');
+    } else {
+      console.warn('[SharedOptionComponent] No valid options available to restore.');
+      this.optionsToDisplay = [];
+    }
+  }  
 
   private restoreOptionsToDisplay(): void {
     // Use a flag to prevent multiple restorations
@@ -387,15 +547,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Restore options with proper states
       this.optionsToDisplay = this.currentQuestion.options.map(option => ({
         ...option,
-        active: option.active ?? true, // Default to true
-        feedback: option.feedback ?? 'No feedback available.', // Restore feedback
-        showIcon: option.showIcon ?? false, // Preserve icon state
-        selected: option.selected ?? false, // Restore selection state
-        highlight: option.highlight ?? option.selected // Restore highlight state
+        active: option.active ?? true, // default to true
+        feedback: option.feedback ?? 'No feedback available.', // restore feedback
+        showIcon: option.showIcon ?? false, // preserve icon state
+        selected: option.selected ?? false, // restore selection state
+        highlight: option.highlight ?? option.selected // restore highlight state
       }));
 
       // Synchronize bindings
-      this.synchronizeOptionBindings();
+      // this.synchronizeOptionBindings();
 
       // Mark as restored
       this.optionsRestored = true;
@@ -417,7 +577,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private synchronizeOptionBindings(): void {
     if (!this.optionsToDisplay?.length) {
       console.warn('[synchronizeOptionBindings] No options to synchronize.');
-    
+  
       const hasSelection = this.optionBindings?.some(opt => opt.isSelected);
       if (!hasSelection) {
         if (this.freezeOptionBindings) return;
@@ -425,117 +585,77 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       } else {
         console.warn('[🛡️ Skipped clearing optionBindings in sync — selection exists]');
       }
-    
+  
       return;
     }
-
+  
     const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-
+    console.log('[🔍 synchronizeOptionBindings] isMultipleAnswer:', isMultipleAnswer);
+  
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
-
+  
+    console.log('[🔍 Existing Selection Map]', existingSelectionMap);
+  
     if (this.freezeOptionBindings) {
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
   
-    this.optionBindings = this.optionsToDisplay.map(option => {
-      // Restore highlight for previously selected options
-      if (this.highlightedOptionIds.has(option.optionId)) {
-        option.highlight = true;
-      }
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = option.selected ?? false;
+      const isCorrect = option.correct ?? false;
     
       return {
-        type: isMultipleAnswer ? 'multiple' : 'single',
-        option: option,
-        feedback: option.feedback ?? 'No feedback available.',
-        isSelected: existingSelectionMap.get(option.optionId) ?? !!option.selected,
-        active: option.active ?? true,
-        appHighlightOption: option.highlight,
-        isCorrect: !!option.correct,
+        option,
+        index: idx,
+        isSelected,
+        isCorrect,
         showFeedback: false,
-        showFeedbackForOption: {},
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: { [idx]: false },
         highlightCorrectAfterIncorrect: false,
-        allOptions: [...this.optionsToDisplay],
-        appHighlightInputType: isMultipleAnswer ? 'checkbox' : 'radio',
-        appHighlightReset: false,
+        highlightIncorrect: isSelected && !isCorrect,
+        highlightCorrect: isSelected && isCorrect,
+        styleClass: isSelected ? 'highlighted' : '',
         disabled: false,
-        ariaLabel: `Option ${option.text}`,
+        type: this.type ?? 'single',
+        appHighlightOption: isSelected,
+        appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+        allOptions: [...this.optionsToDisplay],
+        appHighlightReset: false,
+        ariaLabel: `Option ${idx + 1}`,
         appResetBackground: false,
         optionsToDisplay: [...this.optionsToDisplay],
-        checked: existingSelectionMap.get(option.optionId) ?? option.selected ?? false,
-        change: () => {}
+        checked: isSelected,
+        change: () => {},
+        active: true
       };
-    });
+    });        
+  
+    // Apply highlighting after reassignment
     this.updateHighlighting();
-    setTimeout(() => {
-      this.cdRef.detectChanges(); // ensure the DOM updates
-    }, 0);    
-    // this.attachNativeChangeListeners();
-    console.warn('[🧨 optionBindings REASSIGNED]', {
-      stackTrace: new Error().stack
-    });    
+  
+    console.warn('[🧨 optionBindings REASSIGNED]', JSON.stringify(this.optionBindings, null, 2));
   }
 
-  private syncOptionInputState(): void {
-    setTimeout(() => {
-      const radioInputs = this.radioButtons?.toArray() || [];
-      const checkboxInputs = this.checkboxes?.toArray() || [];
+  onRadioClick(binding: OptionBindings, index: number): void {
+    console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
   
-      const allInputs = [...radioInputs, ...checkboxInputs];
+    const selectedOption = {
+      option: {
+        optionId: binding.option.optionId,
+        questionIndex: this.quizService.currentQuestionIndex,
+        text: binding.option.text
+      },
+      index,
+      checked: true
+    };
   
-      allInputs.forEach((elRef: ElementRef) => {
-        console.log('[🔍 native element]', elRef.nativeElement);
-
-        const input = elRef.nativeElement.querySelector('input');
-        console.log('[🔍 input inside element]', input);
-
-        if (input) {
-          if (input.checked) {
-            input.focus();     // 🔍 Ensure it's focused
-            input.click();     // 🖱️ Force click if needed
-          }
-        }
-      });
-  
-      console.log('[🎯 Inputs synchronized]');
-    }, 100); // delay to allow DOM to settle
-  }  
-
-  private attachNativeChangeListeners(): void {
-    setTimeout(() => {
-      const radioElements = this.radioButtons?.toArray() || [];
-      const checkboxElements = this.checkboxes?.toArray() || [];
-      const allElements = [...radioElements, ...checkboxElements];
-  
-      allElements.forEach((elRef: ElementRef) => {
-        const nativeInput = elRef.nativeElement.querySelector('input');
-        if (nativeInput) {
-          // Prevent duplicate bindings if re-rendered
-          nativeInput.removeEventListener('change', this.handleNativeChange);
-          nativeInput.addEventListener('change', this.handleNativeChange);
-        }
-      });
-  
-      console.log('[🧠 Native input listeners attached]');
-    }, 100); // Delay ensures DOM is rendered and inputs exist
+    this.optionClicked.emit(selectedOption);
+    this.quizQuestionComponent.onOptionClicked(selectedOption);
   }
 
-  /* onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    console.warn('[📡 MatRadioChange]', { index, value: event.value });
-  
-    // Prevent double change bug: skip if already selected
-    if (optionBinding.isSelected === true) {
-      console.warn('[⚠️ Skipping redundant radio event]');
-      return;
-    }
-  
-    this.updateOptionAndUI(optionBinding, index, {
-      checked: true,
-      source: {} as MatRadioButton,
-      value: optionBinding.option.optionId
-    } as MatRadioChange);    
-  } */
   onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
     requestAnimationFrame(() => {
       if (optionBinding.isSelected === true) {
@@ -552,8 +672,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    console.warn('[📡 MatCheckboxChange]', { index, checked: event.checked });
-  
     // Prevent double change bug
     if (optionBinding.isSelected === event.checked) {
       console.warn('[⚠️ Skipping redundant checkbox event]');
@@ -563,85 +681,78 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateOptionAndUI(optionBinding, index, event);
   }
 
-  onMatLabelClicked(optionBinding: OptionBindings, index: number, event: MouseEvent): void {
-    const target = event.target as HTMLElement;
+  handleClick(optionBinding: OptionBindings, index: number): void {
+    console.log('[🖱️ handleClick]', {
+      questionIndex: this.quizService.currentQuestionIndex,
+      optionId: optionBinding.option.optionId
+    });
   
-    // 🛑 Skip if native input was clicked (Angular Material already handles it)
-    if (target.tagName === 'INPUT' || target.closest('input')) {
-      return;
+    // If already selected, skip UI update but still emit to trigger feedback
+    const alreadySelected = optionBinding.option.selected;
+    if (alreadySelected) {
+      console.warn('[⚠️ Option already selected - skipping UI update but emitting for feedback]');
+    } else {
+      const simulatedEvent: MatRadioChange = {
+        source: {
+          value: optionBinding.option.optionId,
+          checked: true
+        } as unknown as MatRadioButton,
+        value: optionBinding.option.optionId
+      };
+  
+      this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     }
   
-    // ✅ Only act if the option isn't selected yet
-    if (!optionBinding.isSelected) {
-      console.warn('[🧪 Synthetic click triggered on label]');
+    // Always emit — ensures feedback logic runs even if option was already selected
+    this.optionClicked.emit({
+      option: optionBinding.option as SelectedOption,
+      index,
+      checked: true
+    });
   
-      const inputEl = (event.currentTarget as HTMLElement).querySelector('input');
-      if (inputEl) {
-        // NOTE: Dispatching only click here — Material will handle change propagation
-        inputEl.click();
-      }
-  
-      // Fallback: if click does not propagate, call updateOptionAndUI manually
-      setTimeout(() => {
-        if (!optionBinding.isSelected) {
-          console.warn('[⚠️ Fallback triggered — manually invoking update]');
-          this.updateOptionAndUI(optionBinding, index, { checked: true } as MatCheckboxChange);
-        }
-      }, 50);
-    }
+    // Optional: move finalizeAfterClick here if needed
+    // this.quizQuestionComponent?.finalizeAfterClick(optionBinding.option as SelectedOption, index);
   }
 
-  onNativeRadioChanged(optionBinding: OptionBindings, index: number, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
+  handleChange(optionBinding: OptionBindings, index: number): void {
+    console.log('[🖱️ handleChange] Option Clicked:', optionBinding.option.optionId);
   
-    if (optionBinding.isSelected === checked) return;
+    const simulatedEvent: MatRadioChange = {
+      source: {
+        value: optionBinding.option.optionId,
+        checked: true,
+        disabled: false,
+        name: 'radioOption' // ensure this matches the form control name
+      } as unknown as MatRadioButton,
+      value: optionBinding.option.optionId,
+    };
   
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
-  }
-  
-  onNativeCheckboxChanged(optionBinding: OptionBindings, index: number, event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
-  
-    if (optionBinding.isSelected === checked) return;
-  
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
-  }
+    this.updateOptionAndUI(optionBinding, index, simulatedEvent);
 
-  onNativeOptionChanged(
-    optionBinding: OptionBindings,
-    index: number,
-    event: Event
-  ): void {
-    const input = event.target as HTMLInputElement;
-    const checked = input.checked;
-  
-    if (optionBinding.isSelected === checked) return;
-  
-    this.updateOptionAndUI(optionBinding, index, { checked } as any);
+    this.optionClicked.emit({
+      option: optionBinding.option as SelectedOption,
+      index,
+      checked: true
+    });
   }
-  
 
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
-        option.highlight = true; // Highlight selected options
+        option.highlight = true; // highlight selected options
       }
     }  
   }
   
   initializeFromConfig(): void {
-    const last = (console as any).lastOptionClicked;
-    if (last) {
-      console.warn(`[🕵️‍♂️ initializeFromConfig triggered AFTER click]`, {
-        timeSinceClick: Date.now() - last.time,
-        optionId: last.optionId
-      });
+    console.log('[🚀 initializeFromConfig] Initialization process started.');
+  
+    if (this.freezeOptionBindings) {
+      console.warn('[🛡️ initializeFromConfig] Skipping initialization - option bindings frozen.');
+      return;
     }
-
-    // Full reset ─- clear bindings, selection, flags
-    if (this.freezeOptionBindings) return;
+  
+    // Full reset
     this.optionBindings = [];
     this.selectedOption = null;
     this.selectedOptionIndex = -1;
@@ -652,54 +763,110 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionsRestored = false;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-
-    // GUARD ─ config or options missing
+  
+    console.log('[🔄 State Reset Completed]');
+  
+    // GUARD - Config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-
-    if (this.optionBindings?.some(opt => opt.isSelected)) {
-      console.warn('[🛡️ initializeFromConfig skipped — selection already exists]');
+  
+    console.log('[✅ Config detected]', this.config);
+  
+    // Assign current question
+    this.currentQuestion = this.config.currentQuestion;
+    console.log('[🔍 Current Question Assigned]:', this.currentQuestion);
+  
+    // Validate currentQuestion before proceeding
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+      console.error('[🚨 initializeFromConfig] Invalid or missing currentQuestion options.');
       return;
     }
-
-    this.currentQuestion = this.config.currentQuestion;
-    this.optionsToDisplay = [...this.config.optionsToDisplay];
-
-    // Generate/patch feedback for every option
-    const correctOpts = this.optionsToDisplay.filter(o => o.correct);
-    const fallbackFeedback =
-      this.feedbackService.generateFeedbackForOptions(correctOpts, this.optionsToDisplay) ?? 'No feedback available.';
-
-    const existingSelectionMap = new Map(
-      (this.optionsToDisplay ?? []).map(opt => [opt.optionId, opt.selected])
-    );
-
-    // Ensure IDs/flags/feedback are present on every option
-    this.optionsToDisplay = this.optionsToDisplay.map((opt, idx) => ({
-      ...opt,
-      optionId: opt.optionId ?? idx,
-      correct: opt.correct ?? false,
-      feedback: opt.feedback ?? fallbackFeedback,
-      selected: existingSelectionMap.get(opt.optionId) ?? false,
-      active: true,
-      showIcon: false
-    }));
-
+  
+    console.log('[🔄 Populating optionsToDisplay...');
+    
+    // Populate optionsToDisplay with structured data
+    this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => {
+      const processedOption = {
+        ...opt,
+        optionId: opt.optionId ?? idx,
+        correct: opt.correct ?? false,
+        feedback: typeof opt.feedback === 'string' ? opt.feedback.trim() : '',
+        selected: opt.selected ?? false,
+        active: true,
+        showIcon: false
+      };
+      
+      console.log(`[✅ Option Processed - ID ${processedOption.optionId}]:`, processedOption);
+      return processedOption;
+    });
+  
+    console.log('[✅ optionsToDisplay Populated]:', this.optionsToDisplay);
+  
+    if (!this.optionsToDisplay.length) {
+      console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after processing.');
+      return;
+    }
+  
+    // Determine question type based on options
+    console.log('[🔄 Determining question type...');
+    this.type = this.determineQuestionType(this.currentQuestion);
+    console.log(`[✅ Final Type Determined]: ${this.type}`);
+  
     // Initialize bindings and feedback maps
-    this.initializeOptionBindings(); // creates this.optionBindings
-
-    const qType = this.currentQuestion?.type || QuestionType.SingleAnswer;
-    this.type = this.convertQuestionType(qType);
-
-    this.showFeedback = this.config.showFeedback || false;
-    this.showFeedbackForOption = this.config.showFeedbackForOption || {};
-    this.correctMessage = this.config.correctMessage || '';
-    this.highlightCorrectAfterIncorrect = this.config.highlightCorrectAfterIncorrect || false;
-    this.shouldResetBackground = this.config.shouldResetBackground || false;
-
-    this.initializeFeedbackBindings(); // builds per‑option feedbackConfig map
+    console.log('[🔄 Initializing option bindings...');
+    this.setOptionBindingsIfChanged(this.optionsToDisplay);
+  
+    console.log('[🔄 Initializing feedback bindings...');
+    this.initializeFeedbackBindings();
+  
+    console.log('[🔄 Finalizing option population...');
+    this.finalizeOptionPopulation();
+  
+    console.log('[✅ initializeFromConfig] Initialization complete.');
+  }
+  
+  private setOptionBindingsIfChanged(newOptions: Option[]): void {
+    if (!newOptions?.length) return;
+  
+    const incomingIds = newOptions.map(o => o.optionId).join(',');
+    const existingIds = this.optionBindings?.map(b => b.option.optionId).join(',');
+  
+    if (incomingIds !== existingIds || !this.optionBindings?.length) {
+      const newBindings: OptionBindings[] = newOptions.map((option, idx) => ({
+        option,
+        index: idx,
+        isSelected: !!option.selected,
+        isCorrect: option.correct ?? false,
+        showFeedback: false,
+        feedback: option.feedback ?? 'No feedback available',
+        showFeedbackForOption: false,
+        highlightCorrectAfterIncorrect: false,
+        highlightIncorrect: false,
+        highlightCorrect: false,
+        styleClass: '',
+        disabled: false,
+        type: this.type ?? 'single',
+        appHighlightOption: false,
+        appHighlightInputType: '',
+        allOptions: this.optionsToDisplay ?? []
+      })) as unknown as OptionBindings[];
+  
+      this.optionBindings = newBindings;
+    } else {
+      this.optionBindings?.forEach((binding, idx) => {
+        const updated = newOptions[idx];
+        binding.option = updated;
+        binding.isSelected = !!updated.selected;
+        binding.isCorrect = updated.correct ?? false;
+      });
+    }
+  
+    // Immediate update instead of deferring
+    this.optionsReady = true;
+    this.showOptions = true;
+    this.cdRef.detectChanges();
   }
 
   private handleQuestionChange(change: SimpleChange): void {
@@ -707,7 +874,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
     // Reset the component state
     this.resetState();
-    this.initializeOptionBindings();
+    // this.initializeOptionBindings();
   
     // Check if this is not the first change (i.e., we're navigating between questions)
     if (!change.firstChange) {
@@ -735,16 +902,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   
     if (this.currentQuestion && this.currentQuestion.type) {
-      this.type = this.convertQuestionType(this.currentQuestion.type);
+      this.type = this.determineQuestionType(this.currentQuestion.type);
     }
   
     this.updateHighlighting();
     this.cdRef.detectChanges();
   }
 
-  getOptionContext(optionBinding: OptionBindings, idx: number) {
+  /* getOptionContext(optionBinding: OptionBindings, idx: number) {
     return { option: optionBinding.option, idx: idx };
+  } */
+  getOptionContext(optionBinding: OptionBindings, index: number) {
+    return { optionBinding, index };
   }
+  
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
@@ -756,6 +927,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedback: optionBinding.showFeedback,
       showFeedbackForOption: optionBinding.showFeedbackForOption,
       highlightCorrectAfterIncorrect: optionBinding.highlightCorrectAfterIncorrect,
+      highlightIncorrect: optionBinding.highlightIncorrect,
+      highlightCorrect: optionBinding.highlightCorrect,
       type: optionBinding.type,
       checked: optionBinding.isSelected,
       disabled: optionBinding.disabled,
@@ -766,7 +939,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       allOptions: optionBinding.allOptions,
       appHighlightInputType: optionBinding.appHighlightInputType,
       appHighlightReset: optionBinding.appHighlightReset,
-      appResetBackground: optionBinding.appResetBackground
+      appResetBackground: optionBinding.appResetBackground,
+      index: optionBinding.index
     };
   }
 
@@ -784,7 +958,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // Ensure feedback is enabled
+    if (!this.showFeedback) return ''; // ensure feedback is enabled
   
     // Return 'close' if feedback explicitly marks it incorrect
     if (option.feedback === 'x') return 'close';
@@ -803,368 +977,245 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return option.showIcon === true;
   }
 
-  /* updateOptionAndUI(
+  public updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    
+    if (this.lastFeedbackQuestionIndex !== currentIndex) {
+      console.log('[♻️ New question detected — clearing feedback state]', {
+        prev: this.lastFeedbackQuestionIndex,
+        current: currentIndex
+      });
+    
+      this.feedbackConfigs = {};
+      this.showFeedbackForOption = {};
+      this.lastFeedbackOptionId = -1;
+      this.lastFeedbackQuestionIndex = currentIndex;
+    } 
+  
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+    const checked =
+      'checked' in event ? (event as MatCheckboxChange).checked : true;
   
-    const lastSetAt = this.lastSelectedOptionMap.get(optionId);
-  
-    // 🚫 Skip redundant back-to-back events (usually false after true)
-    if (
-      typeof lastSetAt === 'number' &&
-      now - lastSetAt < 150 &&
-      checked === false
-    ) {
-      console.warn('[⛔ Suppressed redundant false event]', { optionId, index, now });
+    // Block re-click on already selected option
+    if (optionBinding.option.selected && checked === true) {
+      console.warn('[🔒 Already selected — skipping update]', optionId);
       return;
     }
-
-
-    const clickedAt = Date.now();
-
-    console.warn('[🧪 OPTION CLICKED]', {
-      optionId: optionBinding.option.optionId,
-      clickedAt
-    });
   
-    (console as any).lastOptionClicked = {
-      clickedAt,
-      optionId: optionBinding.option.optionId
-    };
-  
-    // Delay to check overwrite
-    setTimeout(() => {
-      console.log('[🕵️ isSelected AFTER 150ms]', {
-        optionId: optionBinding.option.optionId,
-        isSelected: optionBinding.isSelected
-      });
-    }, 150);
-
-    if (!this.viewInitialized) {
-      console.warn('[⏳ Blocked: View not fully initialized]');
-      return;
-    }
-
-    // Defer until the checked state is updated
-    requestAnimationFrame(() => {
-      const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
-      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
-
-      if (checked === optionBinding.isSelected) {
-        console.warn('[⚠️ Skipping redundant update — already selected]', { index });
-        return;
-      }
-
-      // Assign BEFORE logging
-      optionBinding.isSelected = checked;
-      this.lastSelectedOptionMap.set(optionId, now);
-
-      console.warn('[✅ SET isSelected]', {
-        optionId,
-        index,
-        checked,
-        isSelected: optionBinding.isSelected
-      });
-
-      (console as any).lastSelectedOptionId = optionBinding.option.optionId;
-      (console as any).lastSetSelectedAt = Date.now();
-  
-      setTimeout(() => {
-        console.log(`[⏳ Delayed isSelected check]`, {
-          index,
-          isSelected: optionBinding.isSelected
-        });
-      }, 100);
-
-      if (!this.isValidOptionBinding(optionBinding)) return;    
-    
-      this.ngZone.run(() => {
-        try {
-          const selectedOption = optionBinding.option as SelectedOption;
-          const optionId = this.getOptionId(selectedOption, index);
-          const questionIndex = this.quizService.currentQuestionIndex;
-    
-          // Update selected options map
-          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-    
-          // Immediate state updates
-          this.selectedOptionService.setOptionSelected(true);
-    
-          // Check if the option state changes correctly
-          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-    
-          // Update the active state of options
-          this.updateOptionActiveStates(optionBinding);
-    
-          // Update feedback and apply attributes
-          this.updateFeedbackState(optionId);
-          this.applyOptionAttributes(optionBinding, event);
-    
-          // Emit the event to notify other components of the selection
-          this.emitOptionSelectedEvent(optionBinding, index, checked);
-    
-          // Finalize state update
-          this.finalizeOptionSelection(optionBinding, checked);
-    
-          // Allow browser to settle before change detection
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              this.cdRef.detectChanges(); // ensure UI reflects the changes
-            }, 0);
-          });
-        } catch (error) {
-          console.error('[❌ updateOptionAndUI error]', error);
-        }
-      });
-    });
-  } */
-  /* updateOptionAndUI(
-    optionBinding: OptionBindings,
-    index: number,
-    event: MatCheckboxChange | MatRadioChange
-  ): void {
-    const optionId = optionBinding.option.optionId;
-    const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-
-    // 🚫 Block back-to-back toggle with same option in < 150ms
+    // Block rapid duplicate unselect toggle
     if (
       this.lastClickedOptionId === optionId &&
       this.lastClickTimestamp &&
       now - this.lastClickTimestamp < 150 &&
       checked === false
     ) {
-      console.warn('[⛔ Blocked duplicate false event]', { optionId });
+      console.warn('[⛔ Duplicate false event]', optionId);
       return;
     }
-
-    // Record latest valid interaction
+  
     this.lastClickedOptionId = optionId;
     this.lastClickTimestamp = now;
+    this.freezeOptionBindings ??= true;
+    this.hasUserClicked = true;
   
-    // Delay to check overwrite
-    setTimeout(() => {
-      console.log('[🕵️ isSelected AFTER 150ms]', {
-        optionId,
-        isSelected: optionBinding.isSelected
-      });
-    }, 150);
+    console.log(`[📍 Current Question Index]: ${this.quizService.currentQuestionIndex}`);
   
-    if (!this.viewInitialized) {
-      console.warn('[⏳ Blocked: View not fully initialized]');
-      return;
-    }
-  
-    // Defer until the checked state is updated
-    requestAnimationFrame(() => {
-      const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
-      const lastSetAt = this.lastSelectedOptionMap.get(optionId);
-      const now = Date.now();
-  
-      // 🚫 Skip redundant back-to-back events (usually false after true)
-      if (
-        typeof lastSetAt === 'number' &&
-        now - lastSetAt < 150 &&
-        checked === false
-      ) {
-        console.warn('[⛔ Suppressed redundant false event]', { optionId, index, now });
-        return;
-      }
-  
-      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
-  
-      if (checked === optionBinding.isSelected) {
-        console.warn('[⚠️ Skipping redundant update — already selected]', { index });
-        return;
-      }
-  
-      // Assign BEFORE logging
-      optionBinding.isSelected = checked;
-      this.lastSelectedOptionMap.set(optionId, now);
-  
-      console.warn('[✅ SET isSelected]', {
-        optionId,
-        index,
-        checked,
-        isSelected: optionBinding.isSelected
-      });
-  
-      (console as any).lastSelectedOptionId = optionBinding.option.optionId;
-      (console as any).lastSetSelectedAt = now;
-  
-      setTimeout(() => {
-        console.log(`[⏳ Delayed isSelected check]`, {
-          index,
-          isSelected: optionBinding.isSelected
-        });
-      }, 100);
-  
-      if (!this.isValidOptionBinding(optionBinding)) return;
-  
-      this.ngZone.run(() => {
-        try {
-          const selectedOption = optionBinding.option as SelectedOption;
-          const questionIndex = this.quizService.currentQuestionIndex;
-  
-          // Update selected options map
-          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-  
-          // Immediate state updates
-          this.selectedOptionService.setOptionSelected(true);
-  
-          // Check if the option state changes correctly
-          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-          // Update the active state of options
-          this.updateOptionActiveStates(optionBinding);
-  
-          // Update feedback and apply attributes
-          this.updateFeedbackState(optionId);
-          this.applyOptionAttributes(optionBinding, event);
-  
-          // Emit the event to notify other components of the selection
-          this.emitOptionSelectedEvent(optionBinding, index, checked);
-  
-          // Finalize state update
-          this.finalizeOptionSelection(optionBinding, checked);
-  
-          // Allow browser to settle before change detection
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              this.cdRef.detectChanges(); // ensure UI reflects the changes
-            }, 0);
-          });
-        } catch (error) {
-          console.error('[❌ updateOptionAndUI error]', error);
-        }
-      });
+    // Apply selection state
+    optionBinding.option.selected = checked;
+    console.log('[🧪 Q2 FEEDBACK CHECK]', {
+      optionId,
+      feedbackRaw: optionBinding.option.feedback,
+      questionIndex: this.quizService.currentQuestionIndex,
+      optionText: optionBinding.option.text
     });
-  } */
-  updateOptionAndUI(
-    optionBinding: OptionBindings,
-    index: number,
-    event: MatCheckboxChange | MatRadioChange
-  ): void {
-    console.log("UPDATE TEST");
-    const optionId = optionBinding.option.optionId;
-    const now = Date.now();
-    const checked = (event as MatCheckboxChange).checked ?? (event as MatRadioChange).value;
+    
+    optionBinding.isSelected = checked;
+    optionBinding.option.showIcon = checked;
+    this.selectedOptionMap.set(optionId, checked);
   
-    // ✅ Freeze option bindings on first click
-    if (!this.freezeOptionBindings) {
-      this.freezeOptionBindings = true;
-      console.warn('[🧊 OptionBindings frozen after first selection]');
-    }
-  
-    // 🚫 Block rapid toggle (false after true in <150ms)
-    if (
-      this.lastClickedOptionId === optionId &&
-      this.lastClickTimestamp &&
-      now - this.lastClickTimestamp < 150 &&
-      checked === false
-    ) {
-      console.warn('[⛔ Blocked duplicate false event]', { optionId });
-      return;
-    }
-  
-    this.lastClickedOptionId = optionId;
-    this.lastClickTimestamp = now;
-  
-    if (!this.viewInitialized) {
-      console.warn('[⏳ Blocked: View not fully initialized]');
-      return;
-    }
-  
-    // ✅ Schedule update in next frame
-    requestAnimationFrame(() => {
-      console.log('[🖱️ updateOptionAndUI (after frame)]', { checked, optionBinding });
+    console.log('[✅ isSelected updated]:', optionBinding.isSelected);
+    console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
 
-      // 🔒 Prevent re-click on already selected option
-      if (optionBinding.option.selected && checked === true) {
-        console.warn('[🔒 Already selected — skipping]', optionId);
-        return;
-      }
+    this.showFeedback = true;
+    console.log('[✅ showFeedback set to true]');
+    
+    // Track selection history
+    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+    if (!isAlreadyVisited) {
+      this.selectedOptionHistory.push(optionId);
+      this.lastFeedbackOptionId = optionId;
+      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
+    } else {
+      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
+    }
+
+    // Reset all feedback visibility
+    Object.keys(this.showFeedbackForOption).forEach((key) => {
+      this.showFeedbackForOption[+key] = false;
+    });
+ 
+    // Update showFeedback flag for current option
+    this.showFeedbackForOption[optionId] = true;
+    this.lastFeedbackOptionId = optionId;
   
-      // Set selected and highlight states together
-      optionBinding.isSelected = checked;
-      optionBinding.option.selected = checked;
+    // Build feedback config for current option
+    this.feedbackConfigs = {
+      ...this.feedbackConfigs,
+      [optionId]: {
+        feedback: optionBinding.option.feedback?.trim() || 'No feedback available',
+        showFeedback: true,
+        options: this.optionsToDisplay,
+        question: this.currentQuestion,
+        selectedOption: optionBinding.option,
+        correctMessage: optionBinding.option.feedback?.trim() || '',
+        idx: index
+      }
+    };    
+    console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
+    console.log('[🧪 Final feedbackConfigs]', JSON.stringify(this.feedbackConfigs, null, 2));
+
+    this.forceHighlightRefresh(optionId);
+  
+    // Iterate through ALL optionBindings and sync selected state + feedback
+    this.optionBindings.forEach((binding) => {
+      const id = binding.option.optionId;
+      const isSelected =
+        this.selectedOptionMap.get(id) === true ||
+        this.selectedOptionHistory.includes(id);
+  
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+  
+      // Ensure feedback shows for every selected option
+      this.showFeedbackForOption[id] = isSelected;
+  
+      // Build missing feedback config
+      const optionId = optionBinding.option.optionId;
+      const isCorrect = binding.option.correct === true;
+      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+      const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+
+      console.log('[🧠 Dynamic Feedback Generated]', {
+        dynamicFeedback,
+        correctOptions: correctOptions.map(o => o.text),
+        currentIndex: currentIndex,
+        optionId
+      });      
+
+      this.feedbackConfigs[optionId] = {
+        feedback: dynamicFeedback,
+        showFeedback: true,
+        options: this.optionsToDisplay,
+        question: this.currentQuestion,
+        selectedOption: optionBinding.option,
+        correctMessage: dynamicFeedback,
+        idx: index
+      };
+
+      this.showFeedbackForOption[optionId] = true;
+      this.lastFeedbackOptionId = optionId;
       
-      if (checked) {
-        this.highlightedOptionIds.add(optionId);
-        optionBinding.option.highlight = true;
-        optionBinding.option.showIcon = true;
-        this.showFeedbackForOption[optionId] = true;
-        this.updateFeedbackState(optionId); // sync immediately
-        this.showFeedback = true;
-      } else {
-        this.highlightedOptionIds.delete(optionId);
-        optionBinding.option.highlight = false;
-        optionBinding.option.showIcon = false;
-        this.showFeedbackForOption[optionId] = false;
-        this.updateFeedbackState(optionId); // remove if unchecked
+  
+      // Refresh highlight for each option
+      if (binding.directiveInstance) {
+        binding.directiveInstance.paintNow?.();
       }
-
-      this.lastSelectedOptionIndex = index;
-      this.selectedOptionMap.set(optionId, checked);
-      this.hasUserClicked = true;
-
-      // Step 2: Ensure highlight + icon are painted
-      this.forceHighlightRefresh(optionId);
-      this.cdRef.detectChanges();
-
-      // Enforce single-answer behavior if needed
-      if (this.type === 'single') {
-        this.enforceSingleSelection(optionBinding);
-      }
-  
-      if (!this.isValidOptionBinding(optionBinding)) return;
-  
-      this.ngZone.run(() => {
-        try {
-          const selectedOption = optionBinding.option as SelectedOption;
-          const questionIndex = this.quizService.currentQuestionIndex;
-  
-          // ✅ Update quiz state and service
-          this.selectedOptionService.addSelectedOptionIndex(questionIndex, optionId);
-          this.selectedOptionService.setOptionSelected(true);
-  
-          if (!this.handleOptionState(optionBinding, optionId, index, checked)) return;
-  
-          // ✅ UI-related updates
-          this.updateOptionActiveStates(optionBinding);
-          this.showFeedback = true;
-          this.applyOptionAttributes(optionBinding, event);
-  
-          // ✅ Notify components
-          this.emitOptionSelectedEvent(optionBinding, index, checked);
-          this.finalizeOptionSelection(optionBinding, checked);
-  
-          // ✅ Final UI sync
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              this.cdRef.detectChanges();
-            }, 0);
-          });
-        } catch (error) {
-          console.error('[❌ updateOptionAndUI error]', error);
-        }
-      });
     });
+  
+    // Apply highlight and feedback for this specific option again
+    this.applyHighlighting(optionBinding);
+    this.applyFeedback(optionBinding);
+  
+    // Enforce single-answer logic
+    if (this.type === 'single') {
+      this.enforceSingleSelection(optionBinding);
+    }
+  
+    // Sync explanation and navigation state
+    console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
+    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
+
+    console.log('[🧪 FINAL FEEDBACK CHECK Q2]', {
+      questionIndex: this.quizService.getCurrentQuestionIndex(),
+      feedbackConfigs: this.feedbackConfigs,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
+    });    
+  
+    // Final UI change detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Final State Update for Option ${optionId}]`);
   }
   
+  private applyHighlighting(optionBinding: OptionBindings): void {
+    const optionId = optionBinding.option.optionId;
+    console.log(`[🎯 Applying Highlighting for Option ${optionId}]`);
   
-  /* private enforceSingleSelection(selectedBinding: OptionBindings): void {
+    const isSelected = optionBinding.isSelected;
+    const isCorrect = optionBinding.isCorrect;
+  
+    // Set highlight flags (can be used by directive or other logic)
+    optionBinding.highlightCorrect = isSelected && isCorrect;
+    optionBinding.highlightIncorrect = isSelected && !isCorrect;
+  
+    // Apply style class used in [ngClass] binding
+    if (isSelected) {
+      optionBinding.styleClass = isCorrect ? 'highlight-correct' : 'highlight-incorrect';
+    } else {
+      optionBinding.styleClass = '';
+    }
+  
+    console.log(`[✅ Highlighting state set]`, {
+      optionId,
+      isSelected,
+      isCorrect,
+      styleClass: optionBinding.styleClass,
+    });
+  
+    // Direct DOM fallback (for defensive rendering, optional)
+    const optionElement = document.querySelector(`[data-option-id="${optionId}"]`);
+    if (optionElement) {
+      optionElement.classList.remove('highlight-correct', 'highlight-incorrect');
+      if (isSelected) {
+        optionElement.classList.add(isCorrect ? 'highlight-correct' : 'highlight-incorrect');
+      }
+      console.log(`[✅ DOM class applied for Option ${optionId}]`);
+    } else {
+      console.warn(`[⚠️ DOM element not found for Option ${optionId}]`);
+    }
+  }
+  
+  private applyFeedback(optionBinding: OptionBindings): void {
+    console.log(`[📝 Applying Feedback for Option ${optionBinding.option.optionId}]`);
+  
+    const feedbackProps: FeedbackProps = {
+      feedback: optionBinding.option.feedback ?? 'No feedback available',
+      showFeedback: true,
+      options: this.optionsToDisplay,
+      question: this.currentQuestion,
+      selectedOption: optionBinding.option,
+      correctMessage: optionBinding.option.feedback ?? 'No feedback available',
+      idx: optionBinding.index
+    };
+  
+    this.feedbackConfigs[optionBinding.option.optionId] = feedbackProps;
+  
+    console.log(`[✅ Feedback Applied for Option ${optionBinding.option.optionId}]`, feedbackProps);
+  }  
+  
+  private enforceSingleSelection(selectedBinding: OptionBindings): void {
     this.optionBindings.forEach(binding => {
       const isTarget = binding === selectedBinding;
   
       if (!isTarget && binding.isSelected) {
         binding.isSelected = false;
+        binding.option.selected = false;
   
         // Preserve feedback state for previously selected option
         const id = binding.option.optionId;
@@ -1172,89 +1223,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.updateFeedbackState(id);
       }
     });
-  } */
-  private enforceSingleSelection(selectedBinding: OptionBindings): void {
-    this.optionBindings.forEach(binding => {
-      if (binding !== selectedBinding) {
-        binding.isSelected = false;
-        binding.option.selected = false;
-      }
-    });
-  }  
-
-  private isValidOptionBinding(optionBinding: OptionBindings): boolean {
-    if (!optionBinding || !optionBinding.option) {
-      console.error('Option is undefined in updateOptionAndUI:', optionBinding);
-      return false;
-    }
-    return true;
-  }
-
-  private getOptionId(option: SelectedOption, index: number): number {
-    if (typeof option.optionId === 'number') {
-      return option.optionId;
-    }
-    console.warn(`Invalid or missing optionId. Falling back to index: ${index}`);
-    return index;
-  }
-
-  private handleOptionState(
-    optionBinding: OptionBindings,
-    optionId: number,
-    index: number,
-    checked: boolean
-  ): boolean {
-    if (optionBinding.isSelected) {
-      console.log('Option already selected:', optionBinding.option);
-      return false;
-    }
-  
-    console.log(`Handling option click for ID: ${optionId}`);
-    this.handleOptionClick(optionBinding.option as SelectedOption, index, checked);
-  
-    optionBinding.isSelected = true;
-    optionBinding.option.selected = checked;
-    optionBinding.option.highlight = true; // ✅ Add this line to trigger highlight
-  
-    this.selectedOptionIndex = index;
-    this.selectedOptionId = optionId;
-    this.selectedOption = optionBinding.option;
-    this.isOptionSelected = true;
-  
-    return true;
-  }
-
-  private updateOptionActiveStates(optionBinding: OptionBindings): void {
-    const selectedOption = optionBinding.option as SelectedOption;
-
-    if (!selectedOption) {
-      console.warn('[updateOptionActiveStates] No selected option found.');
-      return;
-    }
-
-    // Check if the selected option is correct
-    if (selectedOption.correct) {
-      console.log('[updateOptionActiveStates] Correct option selected:', selectedOption);
-
-      for (const opt of this.currentQuestion.options) {
-        if (!opt.correct) {
-          opt.active = false; // deactivate incorrect options
-          opt.highlight = true; // highlight as greyed-out
-        } else {
-          opt.active = true; // ensure correct options remain active
-        }
-      }
-    } else {
-      console.log('[updateOptionActiveStates] Selected option is not correct:', selectedOption);
-    }
-
-    // Update `optionsToDisplay` to trigger change detection
-    this.optionsToDisplay = [...this.currentQuestion.options]; 
-
-    // Trigger Angular's change detection
-    this.cdRef.detectChanges();
-
-    console.log('[updateOptionActiveStates] Updated options state:', this.optionsToDisplay);
   }
 
   private updateFeedbackState(optionId: number): void {
@@ -1266,79 +1234,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption[optionId] = true;
   }
 
-  private applyOptionAttributes(
-    optionBinding: OptionBindings,
-    event: MatCheckboxChange | MatRadioChange
-  ): void {
-    const attributes = this.getOptionAttributes(optionBinding);
-  
-    const nativeElement =
-      'source' in event && event.source?._elementRef
-        ? event.source._elementRef.nativeElement
-        : null;
-  
-    if (!nativeElement) {
-      console.warn('[⚠️ applyOptionAttributes] Could not resolve native element for event:', event);
-      return;
-    }
-  
-    this.applyAttributes(nativeElement, attributes);
-    nativeElement.setAttribute('aria-label', optionBinding.ariaLabel);
-  }
-
-  private emitOptionSelectedEvent(optionBinding: OptionBindings, index: number, checked: boolean): void {
-    if (!optionBinding?.option) {
-      console.warn('[SharedOptionComponent] ⚠️ Cannot emit event — invalid option');
-      return;
-    }
-  
-    const eventData = {
-      option: {
-        ...optionBinding.option,
-        questionIndex: this.quizService.getCurrentQuestionIndex()
-      },
-      index,
-      checked
-    };
-  
-    console.log('[SharedOptionComponent] 🚀 Emitting optionSelected:', eventData);
-    this.optionSelected.emit(eventData);
-  }
-
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
+    this.selectedOptionService.isAnsweredSubject.next(true);
     this.updateHighlighting();
-    // this.selectedOptionService.isAnsweredSubject.next(true);
     this.cdRef.detectChanges();
   }
 
-  /* updateHighlighting(): void {
-    if (!this.highlightDirectives?.length) return;
-  
-    let index = 0;
-    for (const directive of this.highlightDirectives) {
-      const binding = this.optionBindings[index];
-  
-      if (!binding) {
-        console.warn(`No binding found for index ${index}`);
-        index++;
-        continue;
-      }
-  
-      directive.isSelected = binding.isSelected;
-      directive.isCorrect = binding.option.correct;
-      directive.showFeedback = this.showFeedback && 
-                               this.showFeedbackForOption[binding.option.optionId ?? index];
-      directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
-  
-      // Only show the icon for selected options if feedback is enabled
-      binding.option.showIcon = binding.isSelected && this.showFeedback;
-  
-      directive.updateHighlight();
-      index++;
-    }
-  } */
   updateHighlighting(): void {
-    if (!this.highlightDirectives?.length) return;
+    console.log(`[🎯 updateHighlighting] Starting at ${Date.now()}`);
+  
+    if (!this.highlightDirectives?.length) {
+      console.warn('[❌ updateHighlighting] No highlightDirectives available.');
+      return;
+    }
+
+    const questionIndex = this.quizService.getCurrentQuestionIndex();
   
     this.highlightDirectives.forEach((directive, index) => {
       const binding = this.optionBindings[index];
@@ -1349,26 +1259,106 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       const option = binding.option;
   
-      // Sync all state flags to directive
+      console.log(`[🛠️ Applying Highlight - Option ${option.optionId} - Index ${index} at ${Date.now()}`);
+  
+      // Sync state flags to directive
       directive.option = option;
       directive.isSelected = binding.isSelected || !!option.selected;
       directive.isCorrect = !!option.correct;
-      directive.showFeedback = this.showFeedback &&
-                               this.showFeedbackForOption[option.optionId ?? index];
+      directive.showFeedback = this.showFeedbackForOption[option.optionId] ?? false;
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
-      // Force option to retain highlight if previously selected
-      if (binding.isSelected || option.selected || option.highlight) {
-        option.highlight = true;
-      }
-  
-      // Icon shows for selected options
+      // Apply highlight and icon state
+      option.highlight = binding.isSelected || option.selected || option.highlight;
       option.showIcon = directive.isSelected && this.showFeedback;
   
-      // Trigger directive to apply highlight immediately
+      console.log(`[✅ Highlight Applied - Option ${option.optionId}] at ${Date.now()}`);
+  
+      // Trigger directive update
       directive.updateHighlight();
     });
+  
+    console.log(`[✅ updateHighlighting Complete] at ${Date.now()}`);
+  
+    // Immediately trigger explanation text and navigation update
+    this.emitExplanationAndSyncNavigation(questionIndex);
   }
+
+  private renderAllStates(optionId: number, questionIndex: number): void {
+    console.log(`[🔥 renderAllStates] Triggered for Q${questionIndex}, Option ${optionId}`);
+  
+    const selectedOption = this.optionsToDisplay?.find(opt => opt.optionId === optionId);
+  
+    if (!selectedOption) {
+      console.warn(`[⚠️ No matching option found for ID: ${optionId}`);
+      return;
+    }
+  
+    console.log(`[✅ Selected Option Found]:`, selectedOption);
+  
+    // Highlighting and Icons
+    this.highlightDirectives.forEach((directive, index) => {
+      const binding = this.optionBindings[index];
+      if (!binding) return;
+  
+      directive.option = binding.option;
+      directive.isSelected = binding.isSelected || !!binding.option.selected;
+      directive.isCorrect = !!binding.option.correct;
+      directive.showFeedback = this.showFeedbackForOption[binding.option.optionId] ?? false;
+  
+      directive.updateHighlight();
+    });
+  
+    console.log('[✅ Highlighting and Icons Updated]');
+  
+    // Emit Explanation Text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Confirm Explanation Emission
+    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
+  
+    if (explanationText !== emittedText) {
+      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
+    }
+  
+    // Enable Next Button
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  
+    // Immediate Change Detection
+    this.cdRef.detectChanges();
+    console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
+  }  
+
+  private emitExplanationAndSyncNavigation(questionIndex: number): void {
+    console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex}`);
+  
+    // Fetch explanation text
+    const entry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.log(`[📤 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
+  
+    // Emit explanation text
+    this.explanationTextService.setExplanationText(explanationText);
+  
+    // Confirm emission
+    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
+    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
+  
+    // Check for mismatch
+    if (explanationText !== emittedText) {
+      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
+    }
+  
+    // Sync Next Button State
+    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
+    this.nextButtonStateService.syncNextButtonState();
+  }  
 
   private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
@@ -1379,19 +1369,83 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     let found = false;
   
     for (const directive of this.highlightDirectives) {
-      if (directive.option?.optionId === optionId) {
-        directive.updateHighlight();
+      if (directive.optionBinding?.option?.optionId === optionId) {
+        const binding = this.optionBindings.find(
+          b => b.option.optionId === optionId
+        );
+  
+        if (!binding) {
+          console.warn('[⚠️ No binding found to sync with directive for]', optionId);
+          continue;
+        }
+  
+        // Sync critical directive inputs from the current binding
+        directive.option = binding.option;
+        directive.isSelected = binding.isSelected;
+        directive.isCorrect = binding.option.correct ?? false;
+        directive.showFeedback = this.showFeedbackForOption[optionId] ?? false;
+  
+        // Ensure highlight flag is enabled for this refresh
+        directive.option.highlight = true;
+  
+        // Defer update to after current rendering phase
+        this.ngZone.runOutsideAngular(() => {
+          requestAnimationFrame(() => {
+            this.ngZone.run(() => {
+              directive.updateHighlight();  // trigger directive update
+              this.cdRef.detectChanges();   // flush DOM changes cleanly
+            });
+          });
+        });
+  
         found = true;
+        break; // stop after first match
       }
     }
   
-    if (found) {
-      console.log('[✨ Highlight refresh triggered]', optionId);
-    } else {
-      console.warn('[⚠️ No matching directive for optionId]', optionId);
+    if (!found) {
+      console.warn('[⚠️ No matching directive found for optionId]', optionId);
     }
   }
 
+  private forceExplanationRefresh(questionIndex: number): void {
+    console.log('[⚡️ forceExplanationRefresh] Triggered for Q' + questionIndex);
+  
+    const explanationText = this.explanationTextService.formattedExplanations[questionIndex]?.explanation?.trim();
+    
+    if (!explanationText) {
+      console.warn(`[⚠️ No explanation found for Q${questionIndex}]`);
+      return;
+    }
+  
+    // Update explanation text immediately
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[✅ Explanation text set for Q${questionIndex}]`, explanationText);
+  
+    // Force immediate DOM update
+    this.cdRef.detectChanges();
+  }  
+
+  private immediateExplanationUpdate(questionIndex: number): void {
+    console.log('[⚡️ immediateExplanationUpdate] Triggered for Q' + questionIndex);
+  
+    const explanationEntry = this.explanationTextService.formattedExplanations[questionIndex];
+    const explanationText = explanationEntry?.explanation?.trim() ?? 'No explanation available';
+  
+    console.log(`[✅ Explanation text determined for Q${questionIndex}]`, explanationText);
+  
+    // Emit to observable immediately
+    this.explanationTextService.formattedExplanationSubject.next(explanationText);
+    console.log(`[📤 Explanation text emitted to observable for Q${questionIndex}]`);
+  
+    // Set explanation text directly in state
+    this.explanationTextService.setExplanationText(explanationText);
+    console.log(`[📥 Explanation text set in state for Q${questionIndex}]`);
+  
+    // Trigger immediate change detection after both actions
+    this.cdRef.detectChanges();
+  }
+  
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
     // Validate the option object immediately
     if (!option || typeof option !== 'object') {
@@ -1404,6 +1458,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Set last selected index for feedback targeting
     this.lastSelectedOptionIndex = index;
+
+    // Emit the explanation update event
+    this.explanationUpdate.emit(index);
   
     // Safely access optionId, or fallback to index
     const optionId = this.quizService.getSafeOptionId(clonedOption, index);
@@ -1452,10 +1509,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       },
       index,
       checked: true
-    });   
-  
-    // Trigger change detection
-    this.triggerChangeDetection();
+    });
   
     // Call external click handlers
     await this.safeCallOptionClickHandlers(clonedOption, index, checked);
@@ -1523,39 +1577,113 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showIconForOption[optionId] = option.selected;
   }
 
-  private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+  /* private displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+    if (!option) return;
+  
+    // Set the last option selected (used to show only one feedback block)
+    this.lastFeedbackOptionId = option.optionId;
+  
+    // Ensure feedback visibility state is updated
     this.showFeedback = true;
     this.showFeedbackForOption[optionId] = true;
   
+    // Retrieve the hydrated option data
     const hydratedOption = this.optionsToDisplay?.[index];
     if (!hydratedOption) {
       console.warn('[⚠️ FeedbackGen] No option found at index', index);
       return;
     }
-
+  
+    // Construct SelectedOption object
     const selectedOption: SelectedOption = {
       ...hydratedOption,
       selected: true,
       questionIndex: this.quizService.currentQuestionIndex
     };
+  
+    // Store the config using optionId as the key (not index!)
+    this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
 
-    this.feedbackConfig = this.generateFeedbackConfig(selectedOption, index);
-    this.feedbackConfig[index] = this.currentFeedbackConfig;
-  
-    console.log('Feedback configuration after update:', {
-      currentFeedbackConfig: this.currentFeedbackConfig,
-      feedbackConfig: this.feedbackConfig,
-    });
-  
+    console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
+
+    // Force Angular to re-render
+    queueMicrotask(() => this.cdRef.detectChanges());
+   
+    // Update the answered state
     this.selectedOptionService.updateAnsweredState();
   
-    console.log('Answered state after feedback update:', {
-      isAnswered: this.selectedOptionService.isAnsweredSubject.getValue(),
-      selectedOptions: this.selectedOptionService.selectedOptionsMap,
+    console.log('[✅ displayFeedbackForOption]', {
+      optionId,
+      feedback: this.currentFeedbackConfig.feedback,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      selectedOptions: this.selectedOptionService.selectedOptionsMap
     });
-  }  
-
-  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+  } */
+  displayFeedbackForOption(option: SelectedOption, index: number, optionId: number): void {
+    if (!option) return;
+  
+    // Confirm feedback function is triggered
+    const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    console.log('[🚨 Feedback Fired]', { currentQuestionIndex });
+    this.lastFeedbackOptionMap[currentQuestionIndex] = optionId;
+  
+    // Set the last option selected (used to show only one feedback block)
+    this.lastFeedbackOptionId = option.optionId;
+  
+    // Ensure feedback visibility state is updated
+    this.showFeedback = true;
+    this.showFeedbackForOption[optionId] = true;
+  
+    // Log that we're emitting answered=true for this question
+    console.log('[🔥 Q2 setAnswered call]', {
+      questionIndex: currentQuestionIndex,
+      value: true
+    });
+    this.selectedOptionService.setAnswered(true, true);
+  
+    // Verify we retrieved a valid hydrated option
+    const hydratedOption = this.optionsToDisplay?.[index];
+    if (!hydratedOption) {
+      console.warn('[⚠️ FeedbackGen] No option found at index', index);
+      return;
+    }
+  
+    // Construct SelectedOption object
+    const selectedOption: SelectedOption = {
+      ...hydratedOption,
+      selected: true,
+      questionIndex: currentQuestionIndex,
+      feedback: hydratedOption.feedback ?? ''
+    };
+  
+    // Confirm feedback config is generated properly
+    this.currentFeedbackConfig = this.generateFeedbackConfig(selectedOption, index);
+    this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
+  
+    console.log('[🧪 Storing Feedback Config]', {
+      optionId,
+      feedbackConfig: this.feedbackConfigs[optionId]
+    });
+  
+    // Force Angular to re-render
+    queueMicrotask(() => this.cdRef.detectChanges());
+  
+    // Update the answered state
+    this.selectedOptionService.updateAnsweredState();
+  
+    // Final debug state
+    console.log('[✅ displayFeedbackForOption]', {
+      optionId,
+      feedback: this.currentFeedbackConfig.feedback,
+      showFeedbackForOption: this.showFeedbackForOption,
+      lastFeedbackOptionId: this.lastFeedbackOptionId,
+      selectedOptions: this.selectedOptionService.selectedOptionsMap
+    });
+  }
+  
+  /* generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     const correctMessage = this.feedbackService.setCorrectMessage(
       this.optionsToDisplay?.filter(o => o.correct),
       this.optionsToDisplay
@@ -1570,20 +1698,57 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       options: this.optionsToDisplay ?? [],
       question: this.currentQuestion ?? null
     };
+
+    console.log('[🧪 Option Feedback]', option.feedback);
+  
+    return config;
+  } */
+  generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+    if (!option) {
+      console.warn('[⚠️ generateFeedbackConfig] option is null or undefined');
+      return {
+        selectedOption: null,
+        correctMessage: '',
+        feedback: 'Feedback unavailable.',
+        showFeedback: false,
+        idx: selectedIndex,
+        options: this.optionsToDisplay ?? [],
+        question: this.currentQuestion ?? null
+      };
+    }
+  
+    const correctMessage = this.feedbackService.setCorrectMessage(
+      this.optionsToDisplay?.filter(o => o.correct),
+      this.optionsToDisplay
+    );
+  
+    const isCorrect = option.correct ?? false;
+    const rawFeedback = option.feedback?.trim();
+    
+    const finalFeedback = rawFeedback
+      ? `${isCorrect ? "You're right! " : "That's wrong. "}${rawFeedback}`
+      : `${isCorrect ? "You're right! " : "That's wrong. "}${correctMessage || "No feedback available."}`;
+  
+    const config: FeedbackProps = {
+      selectedOption: option,
+      correctMessage,
+      feedback: finalFeedback,
+      showFeedback: true,
+      idx: selectedIndex,
+      options: this.optionsToDisplay ?? [],
+      question: this.currentQuestion ?? null
+    };
+  
+    console.log('[🧪 generateFeedbackConfig]', {
+      optionId: option.optionId,
+      isCorrect,
+      rawFeedback,
+      correctMessage,
+      finalFeedback
+    });
   
     return config;
   }
-
-  private triggerChangeDetection(): void {
-    this.config.showFeedback = true;
-    this.config.showExplanation = true;
-    this.config.isAnswerCorrect = this.selectedOption?.correct ?? false;
-    this.config.showCorrectMessage = this.selectedOption?.correct ?? false;
-  
-    this.cdRef.detectChanges();
-    console.log('Change detection triggered');
-  }
-
 
   handleBackwardNavigationOptionClick(option: Option, index: number): void {
     const optionBinding = this.optionBindings[index];
@@ -1649,6 +1814,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateHighlighting();
   }
 
+  public resetUIForNewQuestion(): void {
+    this.hasUserClicked = false;
+    this.highlightedOptionIds.clear();
+    this.selectedOptionMap.clear();
+    this.showFeedbackForOption = {};
+    this.lastFeedbackOptionId = -1;
+    this.lastSelectedOptionId = -1;
+    this.selectedOptionHistory = [];
+    this.feedbackConfigs = [];
+    this.iconVisibility = [];
+  }  
+
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
       return '';
@@ -1663,39 +1840,47 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   getOptionBindings(option: Option, idx: number, isSelected: boolean = false): OptionBindings {
+    console.log(`[🔍 getOptionBindings] Called for Option ${option.optionId}`);
+    console.log(`[🔍 optionsToDisplay]:`, this.optionsToDisplay);
+  
+    // Calculate the type based on the number of correct options
+    const correctOptionsCount = this.optionsToDisplay?.filter(opt => opt.correct).length ?? 0;
+    const type = correctOptionsCount > 1 ? 'multiple' : 'single';
+  
+    console.log(`[🔍 Correct Options Count: ${correctOptionsCount}]`);
+    console.log(`[✅ Determined Type: ${type}]`);
+  
     return {
       option: {
         ...option,
         feedback: option.feedback
       },
+      index: idx,
       feedback: option.feedback,
       isCorrect: option.correct,
       showFeedback: this.showFeedback,
       showFeedbackForOption: this.showFeedbackForOption,
       highlightCorrectAfterIncorrect: this.highlightCorrectAfterIncorrect,
+      highlightIncorrect: isSelected && !option.correct,
+      highlightCorrect: isSelected && !!option.correct,
       allOptions: this.optionsToDisplay,
       type: this.type,
       appHighlightOption: false,
-      appHighlightInputType: this.type === 'multiple' ? 'checkbox' : 'radio',
+      appHighlightInputType: type === 'multiple' ? 'checkbox' : 'radio',
       appHighlightReset: this.shouldResetBackground,
       appResetBackground: this.shouldResetBackground,
       optionsToDisplay: this.optionsToDisplay,
       isSelected: this.isSelectedOption(option),
       active: option.active,
-      change: (element: MatCheckbox | MatRadioButton) => this.handleOptionClick(option as SelectedOption, idx, element.checked),
+      change: (element: MatCheckbox | MatRadioButton) =>
+        this.handleOptionClick(option as SelectedOption, idx, element.checked),
       disabled: option.selected,
       ariaLabel: 'Option ' + (idx + 1),
       checked: this.isSelectedOption(option)
     };
   }
-
-  private generateOptionBindings(): void {
-    // ALWAYS unlock as soon as we enter with a fresh payload
-    this.freezeOptionBindings = false;
-
-    console.log('[GEN] called. optionBindings length =',
-    this.optionBindings?.length);
-
+  
+  /* private generateOptionBindings(): void {
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
@@ -1730,21 +1915,77 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
     this.updateHighlighting();
   
-    console.log('[🔁 Option bindings generated]', {
-      texts: this.optionBindings.map(b => b.option.text),
-      selected: this.optionBindings.map(b => b.isSelected)
-    });
-  
-    // ✅ Mark view ready after DOM settles
+    // Mark view ready after DOM settles
     setTimeout(() => {
       this.ngZone.run(() => {
         this.optionsReady = true;
         this.viewReady = true;
-        this.cdRef.detectChanges();
         console.log('[✅ optionsReady & viewReady set]');
       });
     }, 100);
+
+    this.markRenderReady();
+  } */
+  public generateOptionBindings(): void {
+    console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
+    // Guard: don't allow reassignment after user click
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    // Guard: no options available
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    // Map current selections (if any)
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [
+        binding.option.optionId,
+        binding.isSelected
+      ])
+    );
+  
+    /* ── 🔑  NEW: create a fresh shared feedback map for this question ── */
+    const freshShowMap: Record<number, boolean> = {};
+    this.showFeedbackForOption = freshShowMap;      // store for updateSelections
+    console.log('[MAP] fresh reference', freshShowMap);
+  
+    // Build fresh bindings using retained selection state
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected =
+        existingSelectionMap.get(option.optionId) ?? !!option.selected;
+  
+      // Always persist highlight for selected options
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+  
+      // Build binding as before
+      const binding = this.getOptionBindings(option, idx, isSelected);
+  
+      /* attach the FRESH map so every binding shares the same reference */
+      binding.showFeedbackForOption = freshShowMap;
+  
+      return binding;
+    });
+  
+    this.updateHighlighting();
+  
+    // Mark view ready after DOM settles
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        this.viewReady    = true;
+        console.log('[✅ optionsReady & viewReady set]');
+      });
+    }, 100);
+  
+    this.markRenderReady();
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
@@ -1777,93 +2018,73 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     };
   
     return feedbackProps;
-  }  
+  }
 
   initializeOptionBindings(): void {
-    console.log(`[🧪 Binding Init] currentQuestion:`, this.currentQuestion?.questionText);
-    console.log(`[🧪 Binding Init] optionsToDisplay:`, this.optionsToDisplay);
-
-    // Fetch the current question by index
-    this.quizService.getQuestionByIndex(this.quizService.currentQuestionIndex).subscribe({
-      next: (question) => {
-        if (!question) {
-          console.error('[initializeOptionBindings] No current question found. Aborting initialization.');
-          return;
-        }
-
-        if (this.optionBindings?.some(o => o.isSelected)) {
-          console.warn('[🛡️ Skipped initializeOptionBindings — selection already exists]');
-          return;
-        }
+    console.log('[🚀 initializeOptionBindings STARTED]');
   
-        this.currentQuestion = question;
-        console.log('[initializeOptionBindings] Current question:', this.currentQuestion);
+    if (this.optionBindingsInitialized) {
+      console.warn('[🛑 Already initialized]');
+      return;
+    }
   
-        // Retrieve correct options for the current question
-        const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+    this.optionBindingsInitialized = true;
   
-        if (!correctOptions || correctOptions.length === 0) {
-          console.warn('[initializeOptionBindings] No correct options defined. Skipping feedback generation.');
-          return;
-        }
+    const options = this.optionsToDisplay;
   
-        console.log('[initializeOptionBindings] Correct options:', correctOptions);
+    if (!options?.length) {
+      console.warn('[⚠️ No options available]');
+      this.optionBindingsInitialized = false;
+      return;
+    }
   
-        // Ensure optionsToDisplay is defined and populated
-        console.log('[optionBindings]', this.optionBindings);
-        if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-          console.warn('[initializeOptionBindings] No options to display. Skipping option bindings initialization.');
-          return;
-        }
+    this.processOptionBindings();
+  }  
+
+  private processOptionBindings(): void {  
+    const options = this.optionsToDisplay ?? [];
   
-        // Map optionsToDisplay to initialize optionBindings
-        const existingSelectionMap = new Map(
-          (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
-        );
+    if (!options.length) {
+      console.warn('[⚠️ processOptionBindings] No options to process. Exiting.');
+      this.optionBindingsInitialized = false;
+      return;
+    }
+  
+    const existingSelectionMap = new Map(
+      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
+    );
+  
+    if (this.freezeOptionBindings) {
+      console.warn('[💣 ABORTED optionBindings reassignment after user click]');
+      return;
+    }
+  
+    const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+    const feedbackSentence =
+      this.feedbackService.generateFeedbackForOptions(correctOptions, options) ||
+      'No feedback available.';
 
-        if (this.freezeOptionBindings) {
-          throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
-        }
+    this.optionBindings = options.map((option, idx) => {
+      option.feedback = feedbackSentence;
 
-        this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-          const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay) ?? 'No feedback available.';
-          option.feedback = feedbackMessage;
-        
-          const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
-          const optionBinding = this.getOptionBindings(option, idx, isSelected);
+      const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
+      const binding    = this.getOptionBindings(option, idx, isSelected);
 
-          // Highlight selected or previously highlighted options
-          if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
-            option.highlight = true;
-          }
-        
-          return optionBinding;
-        });
-        this.updateHighlighting();
-        setTimeout(() => {
-          this.cdRef.detectChanges(); // ensure the DOM updates
-        }, 0);        
-        // this.attachNativeChangeListeners();
-        console.warn('[🧨 optionBindings REASSIGNED]', {
-          stackTrace: new Error().stack
-        });        
-
-        setTimeout(() => {
-          this.ngZone.run(() => {
-            this.optionsReady = true;
-            console.log('[🟢 optionsReady = true]');
-          });
-        }, 100); // Delay rendering to avoid event fire during init
-
-        this.viewReady = true;
-        this.cdRef.detectChanges();
-
-        console.log('[initializeOptionBindings] Final option bindings:', this.optionBindings);
-      },
-      error: (err) => {
-        console.error('[initializeOptionBindings] Error fetching current question:', err);
-      },
+      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+        option.highlight = true;
+      }
+      return binding;
     });
+
+    this.updateHighlighting();
+  
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+      });
+    }, 100);
+  
+    this.viewReady = true;
   }
 
   initializeFeedbackBindings(): void { 
@@ -1875,7 +2096,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.feedbackBindings = this.optionBindings.map((optionBinding, idx) => {
       if (!optionBinding || !optionBinding.option) {
         console.warn(`Option binding at index ${idx} is null or undefined. Using default feedback properties.`);
-        return this.getDefaultFeedbackProps(idx); // Return default values when binding is invalid
+        return this.getDefaultFeedbackProps(idx); // return default values when binding is invalid
       }
   
       const feedbackBinding = this.getFeedbackBindings(optionBinding.option, idx);
@@ -1920,34 +2141,115 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
   
   shouldShowIcon(option: Option): boolean {
+    if (!option || typeof option !== 'object') return false;
+    
     const id = option.optionId;
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
+  /* shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return optionId === this.lastFeedbackOptionId;
+  } */
+  /* shouldShowFeedback(index: number): boolean {
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return this.showFeedbackForOption?.[optionId] === true;
+  } */
   shouldShowFeedback(index: number): boolean {
-    const config = this.feedbackConfigs?.[index];
-    const isLastSelected = index === this.lastSelectedOptionIndex;
-  
-    return !!(isLastSelected && config?.showFeedback && config?.feedback);
+    const optionId = this.optionBindings?.[index]?.option?.optionId;
+    return (
+      this.showFeedback &&
+      optionId !== undefined &&
+      this.showFeedbackForOption?.[optionId] === true &&
+      !!this.optionBindings?.[index]?.option?.feedback
+    );
   }
-  
+ 
   isAnswerCorrect(): boolean {
     return this.selectedOption && this.selectedOption.correct;
   }
 
-  trackByOption(item: Option, index: number): number {
-    return item.optionId;
+  get canDisplayOptions(): boolean {
+    return (
+      !!this.form &&
+      !!this.renderReady &&
+      this.showOptions &&
+      Array.isArray(this.optionBindings) &&
+      this.optionBindings.length > 0 &&
+      this.optionBindings.every(b => !!b.option)
+    );
   }
 
-  convertQuestionType(type: QuestionType): 'single' | 'multiple' {
-    switch (type) {
-      case QuestionType.SingleAnswer:
-        return 'single';
-      case QuestionType.MultipleAnswer:
-        return 'multiple';
-      default:
-        console.warn(`Unexpected question type: ${type}. Defaulting to 'single'.`);
-        return 'single';
+  private initializeDisplay(): void {
+    if (
+      this.form &&
+      this.optionBindings?.length > 0 &&
+      this.optionsToDisplay?.length > 0
+    ) {
+      this.renderReady = true;
+      this.viewReady = true;
+      this.displayReady = true;
+      this.cdRef.detectChanges(); // flush view
+    } else {
+      console.warn('[🛑 Display init skipped — not ready]');
     }
+  }
+
+  private markRenderReady(): void {
+    if (this.optionBindings?.length && this.optionsToDisplay?.length) {
+      this.ngZone.run(() => {
+        this.renderReady = true;
+        this.cdRef.detectChanges();
+      });
+    }
+  }
+
+  trackByOptionId(index: number, binding: OptionBindings): number {
+    return binding.option?.optionId ?? index;
+  }
+
+  private determineQuestionType(input: QuizQuestion | QuestionType): 'single' | 'multiple' {
+    if (typeof input === 'number') {
+      console.log(`[🔍 determineQuestionType] Received QuestionType enum: ${input}`);
+      return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
+    }
+  
+    if (typeof input === 'object' && Array.isArray(input.options)) {
+      const correctOptionsCount = input.options.filter(opt => opt.correct).length;
+      console.log(`[🔍 determineQuestionType] Correct Options Count: ${correctOptionsCount}`);
+  
+      if (correctOptionsCount > 1) {
+        return 'multiple';
+      }
+      if (correctOptionsCount === 1) {
+        return 'single';
+      }
+    }
+  
+    console.warn(`[⚠️ determineQuestionType] No valid options or input detected. Defaulting to 'single'.`);
+    return 'single';
+  }
+  
+  private finalizeOptionPopulation(): void {
+    console.log('[🚀 finalizeOptionPopulation] Checking optionsToDisplay...');
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[🚨 No options to display. Skipping type determination.');
+      return;
+    }
+  
+    console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
+  
+    // Determine type based on the populated options
+    const calculatedType = this.determineQuestionType(this.currentQuestion);
+    console.log(`[🔍 Calculated Type]: ${calculatedType}`);
+  
+    this.type = calculatedType;
+  
+    console.log(`[🔍 Final Option Type Check]: ${this.type}`);
+  }
+
+  isLastSelectedOption(option: Option): boolean {
+    return this.lastSelectedOptionId === option.optionId;
   }
 }
