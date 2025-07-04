@@ -200,22 +200,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       /*  showFeedbackForOption – simple boolean map */
       this.showFeedbackForOption = {};
-      this.optionBindings.forEach(b =>
-        this.showFeedbackForOption[b.option.optionId] = true          // always true
-      );
-  
-      /*  feedbackConfigs – one object per optionId  */
-      this.feedbackConfigs = {};                                      // fresh map
+      this.feedbackConfigs = [];
+      
       this.optionBindings.forEach(b => {
-        this.feedbackConfigs[b.option.optionId] = {
-          showFeedback  : true,                                       // always true
+        const id = b.option.optionId ?? b.index;
+    
+        /* every option gets feedback immediately */
+        this.showFeedbackForOption[id] = true;
+    
+        this.feedbackConfigs[id] = {
+          showFeedback  : true,
           selectedOption: b.option,
+          feedback      : b.option.feedback || 
+                          'No feedback available',
+          correctMessage: '',
           options       : [],
           question      : this.currentQuestion!,
-          correctMessage: '',
-          feedback      : '',
           idx           : b.index
-        } as Partial<FeedbackProps>;
+        } as FeedbackProps;
       });
   
       /* C. Force OnPush view refresh */
