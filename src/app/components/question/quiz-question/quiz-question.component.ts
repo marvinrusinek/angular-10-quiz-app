@@ -2504,6 +2504,7 @@ export class QuizQuestionComponent
   
       // Mark answered for guard & enable Next button
       this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setButtonEnabled(true);
       this.enableNextButton();
 
       // Update the binding list so highlight + feedback sync
