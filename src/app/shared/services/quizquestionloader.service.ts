@@ -290,6 +290,8 @@ export class QuizQuestionLoaderService {
         this.selectedOptionService.setAnswered(true, true);
         this.nextButtonStateService.syncNextButtonState();
       }
+
+      console.log('[LOADER] fetchOptions for quiz', this.activeQuizId, 'index', questionIndex);
   
       console.log('[⏳] Fetching question + options …');
       let fetchedQuestion: QuizQuestion | null = null;
@@ -305,6 +307,8 @@ export class QuizQuestionLoaderService {
         fetchedOptions = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         );
+        console.log('[LOADER] fetchedOptions length =',
+                  Array.isArray(fetchedOptions) ? fetchedOptions.length : 'null');
       } catch (err) {
         console.error('[LOADER ❌] getCurrentOptions failed for Q', questionIndex, err);
       }

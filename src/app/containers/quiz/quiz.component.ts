@@ -1314,13 +1314,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           // Now let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
-
-          console.log(
-            '[LOADER-OPTIONS]',
-            index,
-            this.quizQuestionLoaderService.optionsToDisplay?.map(o => o.text)
-          );
-
           await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;
