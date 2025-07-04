@@ -2585,6 +2585,10 @@ export class QuizQuestionComponent
 
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.setExplanationText(explanationText);
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
