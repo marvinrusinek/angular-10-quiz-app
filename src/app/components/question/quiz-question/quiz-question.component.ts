@@ -2517,20 +2517,18 @@ export class QuizQuestionComponent
       Object.keys(this.showFeedbackForOption ?? {}).forEach(
         k => (this.showFeedbackForOption[+k] = false)
       );
-      Object.entries(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
-        ([id, cfg]) => this.sharedOptionComponent.feedbackConfigs[+id] = {
-          ...cfg,
-          showFeedback: false
-        }
+      Object.values(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
+        cfg => cfg && (cfg.showFeedback = false)
       );
 
       // Enable feedback for the option just clicked
       this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
 
-      if (this.sharedOptionComponent.feedbackConfigs?.[bindingToUpdate.option.optionId]) {
+      const cfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
+      if (cfg) {
         this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
-          ...this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId],
-          showFeedback: true
+          ...cfg,
+          showFeedback: true            // new object -> OnPush detects change
         };
       }
 
