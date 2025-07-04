@@ -2529,19 +2529,19 @@ export class QuizQuestionComponent
       const id   = option.optionId;
       const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
 
-      const newConfigs: Record<number, FeedbackProps> = {
-        ...this.sharedOptionComponent.feedbackConfigs               // clone old array
-      ];
+      const newConfigs: Record<number, Partial<FeedbackProps>> = {
+        ...this.sharedOptionComponent.feedbackConfigs
+      };
       newConfigs[id] = {
         ...prev,
         showFeedback  : true,
         selectedOption: option
-      } as FeedbackProps;
+      }
       
-      /* assign the brand-new object back */
+      // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
 
-      /* mark last-feedback id (if you still use it) */
+      // Mark last-feedback id
       this.sharedOptionComponent.lastFeedbackOptionId = id;
 
       /*  🔍  DEBUG  -------------------------------------------------- */
