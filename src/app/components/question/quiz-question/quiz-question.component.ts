@@ -2526,11 +2526,20 @@ export class QuizQuestionComponent
       // Enable feedback for the option just clicked
       this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
 
-      const oldCfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
-      this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
-        ...oldCfg,
-        showFeedback: true
-      };
+      if (this.sharedOptionComponent.feedbackConfigs?.[bindingToUpdate.option.optionId]) {
+        this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
+          ...this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId],
+          showFeedback: true
+        };
+      }
+
+      /*  🔍  DEBUG  -------------------------------------------------- */
+      console.log('[QQC] showFeedbackForOption map →',
+            JSON.stringify(this.showFeedbackForOption, null, 2));
+
+      console.log('[QQC] feedbackConfigs[id] →',
+            this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId]);
+      /*  ------------------------------------------------------------ */
 
       this.sharedOptionComponent.lastFeedbackOptionId =
         bindingToUpdate.option.optionId;
