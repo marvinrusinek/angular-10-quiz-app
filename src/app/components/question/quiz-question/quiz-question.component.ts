@@ -2544,7 +2544,7 @@ export class QuizQuestionComponent
         [id]: true
       };
 
-      /* const newConfigs: Record<number, Partial<FeedbackProps>> = {
+      const newConfigs: Record<number, Partial<FeedbackProps>> = {
         ...this.sharedOptionComponent.feedbackConfigs
       };
       newConfigs[id] = {
@@ -2553,7 +2553,7 @@ export class QuizQuestionComponent
         selectedOption: option,
         feedback      : option.feedback ||
                   (option.correct ? 'Correct.' : 'See explanation above.')
-      } as Partial<FeedbackProps>; */
+      } as Partial<FeedbackProps>;
       
       // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
@@ -2574,6 +2574,9 @@ export class QuizQuestionComponent
         console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
         return;
       }
+
+      const expl =
+  this.currentQuestion?.explanation?.trim() || 'No explanation available';
   
       const lockedState: LockedState = {
         index: lockedIndex,
@@ -2581,14 +2584,15 @@ export class QuizQuestionComponent
         snapshot: lockedSnapshot,
         timestamp: lockedTimestamp
       };
-      this.emitExplanationIfValid(explanationText, lockedState);
+      this.emitExplanationIfValid(expl, lockedState);
 
       this.explanationTextService.setShouldDisplayExplanation(true);
-      this.explanationTextService.setExplanationText(explanationText);
+      this.explanationTextService.setExplanationText(expl);
       this.quizStateService.setDisplayState({
         mode: 'explanation',
         answered: true
       });
+      this.cdRef.markForCheck();
   
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);

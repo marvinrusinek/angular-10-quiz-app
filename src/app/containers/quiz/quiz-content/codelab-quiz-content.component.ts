@@ -221,38 +221,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  /* private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$,
-      this.questionToDisplay$,
-      this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$,
-      this.explanationTextService.resetComplete$
-    ]).pipe(
-      debounceTime(30),
-      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, resetComplete]) => {
-        const explanation = explanationText?.trim();
-        const question = questionText?.trim();
-  
-        const showExplanation =
-          state.mode === 'explanation' &&
-          !!explanation &&
-          shouldDisplayExplanation === true &&
-          resetComplete === true;
-  
-        if (showExplanation) {
-          console.log('[📢 Showing EXPLANATION]');
-          return explanation;
-        }
-  
-        return correctText?.trim()
-          ? `${question} <span class="correct-count">${correctText}</span>`
-          : question;
-      }),
-      distinctUntilChanged()
-    );
-  } */
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
