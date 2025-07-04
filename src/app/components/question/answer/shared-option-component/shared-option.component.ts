@@ -209,17 +209,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.generateOptionBindings();              // builds new list
         this.optionsReady = true;
   
-        /** B. Reset per-option feedback map safely                  */
+        /** B. Reset per-option feedback map safely  */
         if (typeof this.showFeedbackForOption !== 'object' ||
             !this.showFeedbackForOption) {
-          this.showFeedbackForOption = {};          // keep shared ref
+          this.showFeedbackForOption = {}; // keep shared ref
         } else {
           Object.keys(this.showFeedbackForOption).forEach(
             k => delete this.showFeedbackForOption[k]
           );
         }
   
-        /** C. Force OnPush view refresh                            */
+        /** C. Force OnPush view refresh */
         this.cdRef.markForCheck();
       }
     }
