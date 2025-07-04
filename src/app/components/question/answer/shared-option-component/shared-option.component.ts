@@ -62,7 +62,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     idx: -1
   };
   currentFeedbackConfig: FeedbackProps;
-  feedbackConfigs: FeedbackProps[] = [];
+  // feedbackConfigs: FeedbackProps[] = [];
+  feedbackConfigs: Record<number, FeedbackProps> = {};
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   isSubmitted = false;
@@ -174,75 +175,62 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('MY NGONCHANGES TEST');
-  
-    /* Detect question change ─────────────────────────────────────── */
+    /* Detect question change ───────────────────────────────────── */
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
-      // ── NEW: unblock and wipe per-question state ──
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
       this.optionBindings = [];
     }
   
-    /* ── 1. Handle NEW option list ─────────────────────────────── */
+    /* ── Handle NEW option list ─────────────────────────────────── */
     if (changes['optionBindings'] &&
         Array.isArray(changes['optionBindings'].currentValue) &&
         changes['optionBindings'].currentValue.length) {
   
-      /* A. Always rebuild bindings for the fresh array */
-      this.freezeOptionBindings = false;          // unlock
-      this.initializeOptionBindings();            // clears old refs
-      this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
-      this.generateOptionBindings();              // builds new list
+      /* A. rebuild bindings */
+      this.freezeOptionBindings = false;
+      this.initializeOptionBindings();
+      this.optionBindings = changes['optionBindings'].currentValue;
+      this.generateOptionBindings();
       this.optionsReady = true;
   
-      /* B. Re-create per-question maps  ─────────────────────────── */
-  
-      /*  showFeedbackForOption – simple boolean map */
+      /* B. create fresh per-question maps */
       this.showFeedbackForOption = {};
-      this.feedbackConfigs = [];
-      
+      this.feedbackConfigs = {};   // 👈 map, not array
+  
       this.optionBindings.forEach(b => {
         const id = b.option.optionId ?? b.index;
-    
-        /* every option gets feedback immediately */
-        this.showFeedbackForOption[id] = true;
-    
+  
+        /* feedback wrapper map */
+        this.showFeedbackForOption[id] = true;        //  feedback always visible
+  
+        /* map consumed by <codelab-quiz-feedback>         */
         this.feedbackConfigs[id] = {
           showFeedback  : true,
           selectedOption: b.option,
-          feedback      : b.option.feedback || 
-                          'No feedback available',
-          correctMessage: '',
-          options       : [],
-          question      : this.currentQuestion!,
-          idx           : b.index
-        } as FeedbackProps;
+          feedback      : b.option.feedback ?? ''
+        } as Partial<FeedbackProps>;
       });
   
-      /* C. Force OnPush view refresh */
-      this.cdRef.markForCheck();
+      this.cdRef.markForCheck();    // OnPush refresh
     }
   
-    /* ── 2. Handle NEW question object ───────────────────────────── */
+    /* Handle NEW question object ───────────────────────────────── */
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
   
-      console.log('[🔁 currentQuestion changed] →',
-                  this.currentQuestion.questionText.trim());
-  
-      // clear selection & history
       this.selectedOption        = null;
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
       this.highlightedOptionIds.clear();
     }
   
-    /* ── 3. Background-reset toggle ─────────────────────────────── */
+    /* Background-reset toggle ──────────────────────────────────── */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
-      this.resetState();  // your existing full reset
+      this.resetState();
     }
   }
+  
 
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
