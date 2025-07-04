@@ -182,8 +182,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
       this.optionBindings = [];
-  
-      // ⛔ Do NOT rebuild here — we’ll rebuild when the NEW option array arrives
     }
   
     if (changes['optionBindings']) {
@@ -207,7 +205,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       if (Array.isArray(changes['optionBindings'].currentValue) &&
           changes['optionBindings'].currentValue.length) {
   
-        /** A. Always rebuild bindings for the fresh array           */
+        // Always rebuild bindings for the fresh array
         this.freezeOptionBindings = false;          // unlock
         this.initializeOptionBindings();            // clears old refs
         this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
@@ -216,18 +214,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
         this.showFeedbackForOption = {};
         this.optionBindings.forEach(b => this.showFeedbackForOption[b.option.optionId] = false);
-  
-        /** B. Reset per-option feedback map safely  */
-        if (typeof this.showFeedbackForOption !== 'object' ||
-            !this.showFeedbackForOption) {
-          this.showFeedbackForOption = {}; // keep shared ref
-        } else {
-          Object.keys(this.showFeedbackForOption).forEach(
-            k => delete this.showFeedbackForOption[k]
-          );
-        }
-  
-        /** C. Force OnPush view refresh */
+
         this.cdRef.markForCheck();
       }
     }
