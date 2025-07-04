@@ -1272,6 +1272,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const quizId = params.get('quizId') ?? '';
         const indexParam = params.get('questionIndex');
         const index = Number(indexParam) - 1;
+
+        console.log('[ROUTE-PARAMS]', { quizId, indexParam, zeroBased: index });
   
         if (!quizId || isNaN(index) || index < 0) {
           console.error('[❌ Invalid route params]', { quizId, indexParam });
@@ -1308,10 +1310,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizQuestionLoaderService.activeQuizId = quizId;
 
           const totalQuestions = currentQuiz.questions.length;
-          this.quizQuestionLoaderService.totalQuestions = totalQuestions;        
+          this.quizQuestionLoaderService.totalQuestions = totalQuestions;
 
           // Now let the loader fetch question + options and emit payload
           await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+
+          console.log(
+            '[LOADER-OPTIONS]',
+            index,
+            this.quizQuestionLoaderService.optionsToDisplay?.map(o => o.text)
+          );
+
           await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;

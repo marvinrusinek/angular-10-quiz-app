@@ -338,6 +338,8 @@ export class QuizQuestionLoaderService {
   
       /* ── 7. **ASSIGN** new array references _before_ any emits ── */
       this.optionsToDisplay = clonedOptions;
+      console.log('[LOADER-OPTIONS]', questionIndex,
+  clonedOptions.map(o => o.text));
       this.currentQuestion  = { ...fetchedQuestion, options: clonedOptions };
 
       console.log(
@@ -425,7 +427,7 @@ export class QuizQuestionLoaderService {
   
       // emit one last time so late subscribers have data
       this.optionsStream$.next(clonedOptions);
-  
+
       return true;
   
     } catch (err) {
