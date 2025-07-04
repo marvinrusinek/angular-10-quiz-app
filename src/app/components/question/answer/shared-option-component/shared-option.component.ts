@@ -190,16 +190,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         changes['optionBindings'].currentValue,
         changes['optionBindings'].currentValue?.[0]?.option?.text
       );
-      console.log(
-        '[LOG-SOC]', this.questionIndex,
-        '| ref', changes['optionBindings'].currentValue,
-        '| first', changes['optionBindings'].currentValue?.[0]?.option?.text
-      );
-      console.log(
-        '[SOC ✅] optionBindings changed →',
-        (changes['optionBindings'].currentValue as OptionBindings[])
-          .map(b => b.option.text)
-      );
   
       /* ── 1. Handle NEW option list ─────────────────────────────── */
       if (Array.isArray(changes['optionBindings'].currentValue) &&
@@ -211,10 +201,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
         this.generateOptionBindings();              // builds new list
         this.optionsReady = true;
-
+  
+        /* recreate per-question feedback map */
         this.showFeedbackForOption = {};
-        this.optionBindings.forEach(b => this.showFeedbackForOption[b.option.optionId] = false);
-
+        this.optionBindings.forEach(b =>
+          this.showFeedbackForOption[b.option.optionId] = false
+        );
+  
+        // per-question feedbackConfig map
+        this.feedbackConfigs = [];
+        this.optionBindings.forEach(b => {
+          this.feedbackConfigs[b.option.optionId] = {
+            showFeedback: false,
+            selectedOption: b.option,
+            options: [],
+            question: this.currentQuestion!,
+            correctMessage: '',
+            feedback: '',
+            idx: b.index
+          }
+        });
+  
         this.cdRef.markForCheck();
       }
     }
