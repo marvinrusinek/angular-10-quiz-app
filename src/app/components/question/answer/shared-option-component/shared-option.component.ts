@@ -93,7 +93,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   trackByQuestionScoped = (_: number, binding: OptionBindings): string => {
     const key = `${this.questionIndex}-${binding.option?.optionId ?? _}`;
-    console.log('[TRACK]', key);          // 🔍 debug: see keys per navigation
+    console.log('[TRACK]', key);  // debug: see keys per navigation
     return key;
   };
 

@@ -68,6 +68,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
+
     await this.initializeAnswerConfig();
     this.initializeSharedOptionConfig();
 
