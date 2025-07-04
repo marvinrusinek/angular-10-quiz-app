@@ -2514,43 +2514,35 @@ export class QuizQuestionComponent
         this.updateOptionBinding(bindingToUpdate);
       }
 
-      // Reset all feedback flags for this question */
-      /* Object.keys(this.showFeedbackForOption ?? {}).forEach(
-        k => (this.showFeedbackForOption[+k] = false)
-      );
-      Object.values(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
-        cfg => cfg && (cfg.showFeedback = false)
-      ); */
+    /* ----------------------------------------------------------
+       3.  🔑 Create NEW feedback maps (no in-place mutation)
+    ---------------------------------------------------------- */
 
-      // Enable feedback for the option just clicked
-      this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
+      /* 3-a. showFeedbackForOption map */
+      const newShowMap: Record<number, boolean> = {
+        ...this.showFeedbackForOption,
+        [option.optionId]: true           // clicked option → true
+      };
+      this.showFeedbackForOption = newShowMap;
 
-      const id   = bindingToUpdate.option.optionId;
+      /* 3-b. feedbackConfigs map (was array; keep array shape) */
+      const id   = option.optionId;
       const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
-      
-      const newConfigs = [ ...this.sharedOptionComponent.feedbackConfigs ];   // clone old array
-      newConfigs[id] = {                                                     // replace just this index
+
+      const newConfigs: Record<number, FeedbackProps> = {
+        ...this.sharedOptionComponent.feedbackConfigs               // clone old array
+      ];
+      newConfigs[id] = {
         ...prev,
         showFeedback  : true,
-        selectedOption: bindingToUpdate.option
+        selectedOption: option
       } as FeedbackProps;
+      
+      /* assign the brand-new object back */
+      this.sharedOptionComponent.feedbackConfigs = newConfigs;
 
-      this.sharedOptionComponent.feedbackConfigs = newConfigs;               // ⚠️ assign NEW array
-
+      /* mark last-feedback id (if you still use it) */
       this.sharedOptionComponent.lastFeedbackOptionId = id;
-
-
-      const oldCfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
-      if (oldCfg) {
-        this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
-          ...oldCfg,
-          showFeedback: true            // new object → OnPush detects change
-        };
-      }
-
-      this.cdRef.markForCheck();
-
-      this.sharedOptionComponent.lastFeedbackOptionId = bindingToUpdate.option.optionId;
 
       /*  🔍  DEBUG  -------------------------------------------------- */
       console.log('[QQC] showFeedbackForOption map →',
