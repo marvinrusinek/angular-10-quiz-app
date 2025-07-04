@@ -204,6 +204,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
         /* recreate per-question feedback map */
         this.showFeedbackForOption = {};
+        this.feedbackConfigs = [];
         this.optionBindings.forEach(b =>
           this.showFeedbackForOption[b.option.optionId] = !!b.showFeedback
         );
@@ -211,6 +212,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         /* per-question feedbackConfig map */
         this.feedbackConfigs = [];
         this.optionBindings.forEach(b => {
+          /* all rows get feedback immediately */
+          this.showFeedbackForOption[b.option.optionId] = true;
+          
           this.feedbackConfigs[b.option.optionId] = {
             showFeedback  : !!b.showFeedback,
             selectedOption: b.option,
