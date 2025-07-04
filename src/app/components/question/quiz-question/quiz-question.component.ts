@@ -2511,6 +2511,22 @@ export class QuizQuestionComponent
         bindingToUpdate.showFeedback = true;
         this.updateOptionBinding(bindingToUpdate);
       }
+
+      // Reset all feedback flags for this question */
+      Object.keys(this.showFeedbackForOption ?? {}).forEach(
+        k => (this.showFeedbackForOption[+k] = false)
+      );
+      Object.values(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
+        cfg => (cfg.showFeedback = false)
+      );
+
+      // Enable feedback for the option just clicked */
+      this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
+      if (this.sharedOptionComponent.feedbackConfigs?.[bindingToUpdate.option.optionId]) {
+        this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId].showFeedback = true;
+      }
+
+      this.sharedOptionComponent.lastFeedbackOptionId = bindingToUpdate.option.optionId;
   
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
