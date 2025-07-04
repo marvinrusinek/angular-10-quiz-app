@@ -2514,22 +2514,20 @@ export class QuizQuestionComponent
         this.updateOptionBinding(bindingToUpdate);
       }
 
-    /* ----------------------------------------------------------
-       3.  🔑 Create NEW feedback maps (no in-place mutation)
-    ---------------------------------------------------------- */
-
-      /* 3-a. showFeedbackForOption map */
+       // Create NEW feedback maps (no in-place mutation)
+    
+      // * 3-a. showFeedbackForOption map
       const newShowMap: Record<number, boolean> = {
         ...this.showFeedbackForOption,
         [option.optionId]: true           // clicked option → true
       };
       this.showFeedbackForOption = newShowMap;
 
-      /* 3-b. feedbackConfigs map (was array; keep array shape) */
+      // 3-b. feedbackConfigs map (was array; keep array shape)
       const id   = option.optionId;
       const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
 
-      /* NEW map reference */
+      // NEW map reference
       this.sharedOptionComponent.feedbackConfigs = {
         ...this.sharedOptionComponent.feedbackConfigs,
         [id]: {
@@ -2544,7 +2542,7 @@ export class QuizQuestionComponent
         [id]: true
       };
 
-      /* const newConfigs: Record<number, Partial<FeedbackProps>> = {
+      const newConfigs: Record<number, Partial<FeedbackProps>> = {
         ...this.sharedOptionComponent.feedbackConfigs
       };
       newConfigs[id] = {
@@ -2553,7 +2551,7 @@ export class QuizQuestionComponent
         selectedOption: option,
         feedback      : option.feedback ||
                   (option.correct ? 'Correct.' : 'See explanation above.')
-      } as Partial<FeedbackProps>; */
+      } as Partial<FeedbackProps>;
       
       // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
@@ -2561,13 +2559,12 @@ export class QuizQuestionComponent
       // Mark last-feedback id
       this.sharedOptionComponent.lastFeedbackOptionId = id;
 
-      /*  🔍  DEBUG  -------------------------------------------------- */
       console.log('[QQC] showFeedbackForOption map →',
             JSON.stringify(this.showFeedbackForOption, null, 2));
 
       console.log('[QQC] feedbackConfigs[id] →',
             this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId]);
-      /*  ------------------------------------------------------------ */
+  
   
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
