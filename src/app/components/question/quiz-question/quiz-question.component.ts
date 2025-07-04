@@ -2529,7 +2529,22 @@ export class QuizQuestionComponent
       const id   = option.optionId;
       const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
 
-      const newConfigs: Record<number, Partial<FeedbackProps>> = {
+      /* NEW map reference */
+      this.sharedOptionComponent.feedbackConfigs = {
+        ...this.sharedOptionComponent.feedbackConfigs,
+        [id]: {
+          ...prev,
+          showFeedback: true,
+          selectedOption: option
+        }
+      };
+
+      this.showFeedbackForOption = {
+        ...this.showFeedbackForOption,
+        [id]: true
+      };
+
+      /* const newConfigs: Record<number, Partial<FeedbackProps>> = {
         ...this.sharedOptionComponent.feedbackConfigs
       };
       newConfigs[id] = {
@@ -2538,7 +2553,7 @@ export class QuizQuestionComponent
         selectedOption: option,
         feedback      : option.feedback ||
                   (option.correct ? 'Correct.' : 'See explanation above.')
-      } as Partial<FeedbackProps>;
+      } as Partial<FeedbackProps>; */
       
       // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
