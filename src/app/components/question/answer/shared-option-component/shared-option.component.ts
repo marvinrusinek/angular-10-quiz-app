@@ -1692,6 +1692,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   private generateOptionBindings(): void {
+    // ALWAYS unlock as soon as we enter with a fresh payload
+    this.freezeOptionBindings = false;
+
+    console.log('[GEN] called. optionBindings length =',
+    this.optionBindings?.length);
+
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
