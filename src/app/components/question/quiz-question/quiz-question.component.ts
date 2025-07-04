@@ -2514,23 +2514,24 @@ export class QuizQuestionComponent
       }
 
       // Reset all feedback flags for this question */
-      Object.keys(this.showFeedbackForOption ?? {}).forEach(
+      /* Object.keys(this.showFeedbackForOption ?? {}).forEach(
         k => (this.showFeedbackForOption[+k] = false)
       );
       Object.values(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
         cfg => cfg && (cfg.showFeedback = false)
-      );
+      ); */
 
       // Enable feedback for the option just clicked
       this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
-
-      const cfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
-      if (cfg) {
+      const oldCfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
+      if (oldCfg) {
         this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
-          ...cfg,
-          showFeedback: true            // new object -> OnPush detects change
+          ...oldCfg,
+          showFeedback: true            // new object → OnPush detects change
         };
       }
+
+      this.sharedOptionComponent.lastFeedbackOptionId = bindingToUpdate.option.optionId;
 
       /*  🔍  DEBUG  -------------------------------------------------- */
       console.log('[QQC] showFeedbackForOption map →',
@@ -2539,9 +2540,6 @@ export class QuizQuestionComponent
       console.log('[QQC] feedbackConfigs[id] →',
             this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId]);
       /*  ------------------------------------------------------------ */
-
-      this.sharedOptionComponent.lastFeedbackOptionId =
-        bindingToUpdate.option.optionId;
   
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
