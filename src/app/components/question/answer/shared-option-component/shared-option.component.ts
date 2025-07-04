@@ -201,13 +201,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
       
-        this.showFeedbackForOption[id] = true;  // wrapper always visible
+        /* Always set wrapper flag to true */
+        this.showFeedbackForOption[id] = true;
+      
+        /* Always provide text, even when option.feedback is empty */
+        const fallback =
+          b.option.correct
+            ? 'Good job – that is correct.'
+            : 'Not quite – review the explanation above.';
       
         this.feedbackConfigs[id] = {
-          showFeedback  : true,                 // inner component always visible
+          showFeedback  : true,                        // always true
           selectedOption: b.option,
-          feedback      : b.option.feedback?.trim() ||
-                          (b.option.correct ? 'Correct.' : 'Incorrect.')
+          feedback      : b.option.feedback?.trim() || fallback
         };
       }
   
