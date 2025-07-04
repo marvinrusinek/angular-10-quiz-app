@@ -216,14 +216,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           this.showFeedbackForOption[b.option.optionId] = true;
           
           this.feedbackConfigs[b.option.optionId] = {
-            showFeedback  : !!b.showFeedback,
+            showFeedback  : true,
             selectedOption: b.option,
             options       : [],
             question      : this.currentQuestion!,
             correctMessage: '',
             feedback      : '',
             idx           : b.index
-          };
+          } as FeedbackProps;
         });
   
         /* trigger view refresh (OnPush) */
