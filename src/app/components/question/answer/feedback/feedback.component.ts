@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
+import { FeedbackService } from '../../../../shared/services/feedback.service';
 
 @Component({
   selector: 'codelab-quiz-feedback',
@@ -14,7 +15,9 @@ export class FeedbackComponent implements OnInit, OnChanges {
   feedbackPrefix: string;
   displayMessage = '';
 
-  constructor(private cdRef: ChangeDetectorRef) {}
+  constructor(
+    private feedbackService: FeedbackService,
+    private cdRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.updateFeedback();
@@ -77,7 +80,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
     }
   } */
-  private updateDisplayMessage(): void {
+  /* private updateDisplayMessage(): void {
     if (this.feedbackConfig) {
       console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
   
@@ -97,5 +100,33 @@ export class FeedbackComponent implements OnInit, OnChanges {
       this.displayMessage = '';
       console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
     }
+  } */
+  private updateDisplayMessage(): void {
+    if (!this.feedbackConfig) {
+      this.displayMessage = '';
+      return;
+    }
+  
+    const prefix = this.determineFeedbackPrefix();
+  
+    /* If feedback text already present, use it ------------------- */
+    const supplied = this.feedbackConfig.feedback?.trim();
+    if (supplied) {
+      this.displayMessage = `${prefix}${supplied}`;
+      return;
+    }
+  
+    /* Otherwise generate it via the service ---------------------- */
+    const opts       = this.feedbackConfig.options ?? [];
+    const correct    = this.feedbackConfig.correctOptions ??
+                       opts.filter(o => o.correct);
+  
+    const sentence = this.feedbackService.generateFeedbackForOptions(
+      correct,
+      opts
+    );
+  
+    this.displayMessage = `${prefix}${sentence}`;
   }
+  
 }
