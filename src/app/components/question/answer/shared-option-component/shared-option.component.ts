@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 
@@ -28,7 +28,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @ViewChildren(MatRadioButton, { read: ElementRef }) radioButtons!: QueryList<ElementRef>;
   @ViewChildren(MatCheckbox, { read: ElementRef }) checkboxes!: QueryList<ElementRef>;
-  @ViewChild(QuizQuestionComponent, { static: false })
+  @ViewChild(forwardRef(() => QuizQuestionComponent), { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
@@ -126,7 +126,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  /* ngOnChanges(changes: SimpleChanges): void {
     const incomingConfig: SharedOptionConfig | undefined =
       changes.config?.currentValue;
 
@@ -162,6 +162,80 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     if (changes.shouldResetBackground && this.shouldResetBackground) {
       this.resetState();
+    }
+  } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.log('MY NGONCHANGES TEST');
+  
+    /* Detect question change ─────────────────────────────────────── */
+    if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
+      // ── NEW: unblock and wipe per-question state ──
+      this.freezeOptionBindings = false;
+      this.highlightedOptionIds.clear();
+      this.optionBindings = [];
+  
+      // ⛔ Do NOT rebuild here — we’ll rebuild when the NEW option array arrives
+    }
+  
+    if (changes['optionBindings']) {
+      console.log(
+        '[SOC]', this.questionIndex,
+        changes['optionBindings'].currentValue,
+        changes['optionBindings'].currentValue?.[0]?.option?.text
+      );
+      console.log(
+        '[LOG-SOC]', this.questionIndex,
+        '| ref', changes['optionBindings'].currentValue,
+        '| first', changes['optionBindings'].currentValue?.[0]?.option?.text
+      );
+      console.log(
+        '[SOC ✅] optionBindings changed →',
+        (changes['optionBindings'].currentValue as OptionBindings[])
+          .map(b => b.option.text)
+      );
+  
+      /* ── 1. Handle NEW option list ─────────────────────────────── */
+      if (Array.isArray(changes['optionBindings'].currentValue) &&
+          changes['optionBindings'].currentValue.length) {
+  
+        /** A. Always rebuild bindings for the fresh array           */
+        this.freezeOptionBindings = false;          // unlock
+        this.initializeOptionBindings();            // clears old refs
+        this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
+        this.generateOptionBindings();              // builds new list
+  
+        /** B. Reset per-option feedback map safely                  */
+        if (typeof this.showFeedbackForOption !== 'object' ||
+            !this.showFeedbackForOption) {
+          this.showFeedbackForOption = {};          // keep shared ref
+        } else {
+          Object.keys(this.showFeedbackForOption).forEach(
+            k => delete this.showFeedbackForOption[k]
+          );
+        }
+  
+        /** C. Force OnPush view refresh                            */
+        this.cdRef.markForCheck();
+      }
+    }
+  
+    /* ── 2. Handle NEW question object ───────────────────────────── */
+    if (changes['currentQuestion'] &&
+        this.currentQuestion?.questionText?.trim()) {
+  
+      console.log('[🔁 currentQuestion changed] →',
+                  this.currentQuestion.questionText.trim());
+  
+      // clear selection & history
+      this.selectedOption        = null;
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId  = -1;
+      this.highlightedOptionIds.clear();
+    }
+  
+    /* ── 3. Background-reset toggle ─────────────────────────────── */
+    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
+      this.resetState();  // your existing full reset
     }
   }
 
