@@ -298,23 +298,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[❌ SOC] selectedOption is undefined in ngOnChanges');
     }
   } */
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['optionsToDisplay']) {
       console.log('[SOC ✅] optionsToDisplay changed →',
                   this.optionsToDisplay.map(o => o.text));
     }
 
-    /* ── 1.  Handle NEW options list ────────────────────────────── */
+    // ── 1.  Handle NEW options list ──────────────────────────────
     if (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
         this.optionsToDisplay.length) {
     
-      /** A.  Always rebuild bindings for the fresh array  */
+      // A.  Always rebuild bindings for the fresh array
       this.freezeOptionBindings = false;          // unlock
       this.initializeOptionBindings();            // clears old refs
       this.generateOptionBindings();              // builds new list
   
-      /** B.  Reset per-option feedback map safely       */
+      // B.  Reset per-option feedback map safely
       if (typeof this.showFeedbackForOption !== 'object' ||
           !this.showFeedbackForOption) {
         this.showFeedbackForOption = {};          // keep shared ref
@@ -324,7 +324,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         );
       }
   
-      /** C.  Force OnPush view refresh                  */
+      // C.  Force OnPush view refresh                  
       this.cdRef.markForCheck();
     }
 
@@ -333,7 +333,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.processOptionBindings();  // regenerates sentence
     }
   
-    /* ── 2.  Handle NEW question object ─────────────────────────── */
+    // ── 2.  Handle NEW question object 
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
   
@@ -347,9 +347,70 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.highlightedOptionIds.clear();
     }
   
-    /* ── 3.  Background-reset toggle ────────────────────────────── */
+    // ── 3.  Background-reset toggle 
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();  // your existing full reset
+    }
+  } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    /* Detect question change ───────────────────────────────────── */
+    if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
+      this.freezeOptionBindings = false;
+      this.highlightedOptionIds.clear();
+      this.optionBindings = [];
+    }
+  
+    /* ── Handle NEW option list ─────────────────────────────────── */
+    if (changes['optionBindings'] &&
+        Array.isArray(changes['optionBindings'].currentValue) &&
+        changes['optionBindings'].currentValue.length) {
+  
+      /* A. rebuild bindings */
+      this.freezeOptionBindings = false;
+      this.initializeOptionBindings();
+      this.optionBindings = changes['optionBindings'].currentValue;
+      this.generateOptionBindings();
+      this.optionsReady = true;
+  
+      /* B. create fresh per-question maps */
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+  
+      for (const b of this.optionBindings) {
+        const id = b.option.optionId ?? b.index;
+      
+        this.showFeedbackForOption[id] = true;        // wrapper always renders
+      
+        const fallback =
+          b.option.feedback?.trim() && b.option.feedback.trim().length
+            ? b.option.feedback.trim()
+            : (b.option.correct
+                 ? 'Great job — that answer is correct.'
+                 : 'Not quite — see the explanation.');
+      
+        this.feedbackConfigs[id] = {
+          showFeedback  : true,                       //  ← ALWAYS TRUE
+          selectedOption: b.option,
+          feedback      : fallback
+        };
+      }
+  
+      this.cdRef.markForCheck();    // OnPush refresh
+    }
+  
+    /* Handle NEW question object ───────────────────────────────── */
+    if (changes['currentQuestion'] &&
+        this.currentQuestion?.questionText?.trim()) {
+  
+      this.selectedOption        = null;
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId  = -1;
+      this.highlightedOptionIds.clear();
+    }
+  
+    /* Background-reset toggle ──────────────────────────────────── */
+    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
+      this.resetState();
     }
   }
   
