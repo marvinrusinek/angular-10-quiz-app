@@ -240,9 +240,6 @@ export class QuizNavigationService {
 
         await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
   
-        // this.selectedOptionService.setAnswered(false);
-        // this.quizStateService.setAnswered(false);
-  
         this.notifyNavigationSuccess();
         this.notifyNavigatingBackwards();
         this.notifyResetExplanation();
