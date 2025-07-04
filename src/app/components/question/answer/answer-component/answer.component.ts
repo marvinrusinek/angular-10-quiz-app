@@ -2,11 +2,13 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, E
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
+import { Option } from '../../../../shared/models/Option.model';
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
 import { QuizQuestion } from '../../../../shared/models/QuizQuestion.model';
 import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { DynamicComponentService } from '../../../../shared/services/dynamic-component.service';
+import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
@@ -34,11 +36,13 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }>();
   @Input() isNavigatingBackwards: boolean = false;
   quizQuestionComponentOnOptionClicked: (option: SelectedOption, index: number) => void;
+  @Input() currentQuestionIndex!: number;
+  @Input() quizId!: string;
+  @Input() optionBindings: OptionBindings[];
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   sharedOptionConfig: SharedOptionConfig;
-  optionBindings: OptionBindings[] = [];
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
   type: 'single' | 'multiple'; // store the type (single/multiple answer)
@@ -50,6 +54,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
+    protected feedbackService: FeedbackService,
     protected nextButtonStateService: NextButtonStateService,
     protected quizService: QuizService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
@@ -58,7 +63,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     protected fb: FormBuilder,
     protected cdRef: ChangeDetectorRef
   ) {
-    super(fb, dynamicComponentService, quizService, quizStateService, selectedOptionService, cdRef);
+    super(fb, dynamicComponentService, feedbackService, quizService, quizStateService, selectedOptionService, cdRef);
   }
 
   async ngOnInit(): Promise<void> {
@@ -253,5 +258,17 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     // Trigger change detection to update the UI
     this.cdRef.detectChanges();
-  }  
+  }
+
+  override async loadDynamicComponent(
+    _question: QuizQuestion,
+    _options: Option[],
+    _questionIndex: number
+  ): Promise<void> {
+    // AnswerComponent doesn't load dynamic children, so we
+    // simply fulfill the contract and return a resolved promise.
+    return;
+    // If the base implementation does something essential, call:
+    // return super.loadDynamicComponent(_question, _options, _questionIndex);
+  }
 }
