@@ -184,51 +184,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionBindings = [];
     }
   
-    if (changes['optionBindings']) {
-      console.log(
-        '[SOC]', this.questionIndex,
-        changes['optionBindings'].currentValue,
-        changes['optionBindings'].currentValue?.[0]?.option?.text
+    /* ── 1. Handle NEW option list ─────────────────────────────── */
+    if (changes['optionBindings'] &&
+        Array.isArray(changes['optionBindings'].currentValue) &&
+        changes['optionBindings'].currentValue.length) {
+  
+      /* A. Always rebuild bindings for the fresh array */
+      this.freezeOptionBindings = false;          // unlock
+      this.initializeOptionBindings();            // clears old refs
+      this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
+      this.generateOptionBindings();              // builds new list
+      this.optionsReady = true;
+  
+      /* B. Re-create per-question maps  ─────────────────────────── */
+  
+      /*  showFeedbackForOption – simple boolean map */
+      this.showFeedbackForOption = {};
+      this.optionBindings.forEach(b =>
+        this.showFeedbackForOption[b.option.optionId] = true          // always true
       );
   
-      /* ── 1. Handle NEW option list ─────────────────────────────── */
-      if (Array.isArray(changes['optionBindings'].currentValue) &&
-          changes['optionBindings'].currentValue.length) {
+      /*  feedbackConfigs – one object per optionId  */
+      this.feedbackConfigs = {};                                      // fresh map
+      this.optionBindings.forEach(b => {
+        this.feedbackConfigs[b.option.optionId] = {
+          showFeedback  : true,                                       // always true
+          selectedOption: b.option,
+          options       : [],
+          question      : this.currentQuestion!,
+          correctMessage: '',
+          feedback      : '',
+          idx           : b.index
+        } as Partial<FeedbackProps>;
+      });
   
-        // Always rebuild bindings for the fresh array
-        this.freezeOptionBindings = false;          // unlock
-        this.initializeOptionBindings();            // clears old refs
-        this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
-        this.generateOptionBindings();              // builds new list
-        this.optionsReady = true;
-  
-        /* recreate per-question feedback map */
-        this.showFeedbackForOption = {};
-        this.feedbackConfigs = [];
-        this.optionBindings.forEach(b =>
-          this.showFeedbackForOption[b.option.optionId] = !!b.showFeedback
-        );
-  
-        /* per-question feedbackConfig map */
-        this.feedbackConfigs = [];
-        this.optionBindings.forEach(b => {
-          /* all rows get feedback immediately */
-          this.showFeedbackForOption[b.option.optionId] = true;
-          
-          this.feedbackConfigs[b.option.optionId] = {
-            showFeedback  : true,
-            selectedOption: b.option,
-            options       : [],
-            question      : this.currentQuestion!,
-            correctMessage: '',
-            feedback      : '',
-            idx           : b.index
-          } as FeedbackProps;
-        });
-  
-        /* trigger view refresh (OnPush) */
-        this.cdRef.markForCheck();
-      }
+      /* C. Force OnPush view refresh */
+      this.cdRef.markForCheck();
     }
   
     /* ── 2. Handle NEW question object ───────────────────────────── */
@@ -250,7 +241,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();  // your existing full reset
     }
   }
-  
 
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
