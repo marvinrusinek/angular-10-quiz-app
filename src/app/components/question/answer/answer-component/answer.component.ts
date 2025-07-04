@@ -94,7 +94,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         index : idx,
         isSelected: !!opt.selected,
         isCorrect : opt.correct ?? false,
-        /* any other binding fields you need */
+        showFeedback: false,
+        feedback: opt.feedback ?? 'No feedback available'
       }));
     
       console.log(
