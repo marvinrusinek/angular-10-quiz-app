@@ -327,6 +327,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       /** C.  Force OnPush view refresh                  */
       this.cdRef.markForCheck();
     }
+
+    // Rebuild whenever a NEW array or a NEW index arrives
+    if (changes['optionBindings'] || changes['questionIndex']) {
+      this.processOptionBindings();  // regenerates sentence
+    }
   
     /* ── 2.  Handle NEW question object ─────────────────────────── */
     if (changes['currentQuestion'] &&
