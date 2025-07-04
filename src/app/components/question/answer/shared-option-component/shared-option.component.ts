@@ -205,23 +205,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         /* recreate per-question feedback map */
         this.showFeedbackForOption = {};
         this.optionBindings.forEach(b =>
-          this.showFeedbackForOption[b.option.optionId] = false
+          this.showFeedbackForOption[b.option.optionId] = !!b.showFeedback   // 🔑 CHANGED
         );
   
-        // per-question feedbackConfig map
-        this.feedbackConfigs = [];
+        /* per-question feedbackConfig map */
+        this.feedbackConfigs = {};                                            // 🔑 CHANGED
         this.optionBindings.forEach(b => {
           this.feedbackConfigs[b.option.optionId] = {
-            showFeedback: false,
+            showFeedback  : !!b.showFeedback,                                 // 🔑 NEW
             selectedOption: b.option,
-            options: [],
-            question: this.currentQuestion!,
+            options       : [],
+            question      : this.currentQuestion!,
             correctMessage: '',
-            feedback: '',
-            idx: b.index
-          }
+            feedback      : '',
+            idx           : b.index
+          };
         });
   
+        /* trigger view refresh (OnPush) */
         this.cdRef.markForCheck();
       }
     }
@@ -245,6 +246,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();  // your existing full reset
     }
   }
+  
 
   ngAfterViewInit(): void {
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
