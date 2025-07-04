@@ -198,19 +198,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption = {};
       this.feedbackConfigs = {};   // 👈 map, not array
   
-      this.optionBindings.forEach(b => {
+      for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
-  
-        /* feedback wrapper map */
-        this.showFeedbackForOption[id] = true;        //  feedback always visible
-  
-        /* map consumed by <codelab-quiz-feedback>         */
+      
+        this.showFeedbackForOption[id] = true;           // wrapper *ngIf* always true
+      
+        const fallback =
+          b.option.correct
+            ? 'Good job — that is correct.'
+            : `The correct answer${b.option.type === 'multiple' ? 's are' : ' is'} highlighted above.`;
+      
         this.feedbackConfigs[id] = {
-          showFeedback  : true,
+          showFeedback  : true,                          // inner component always shows
           selectedOption: b.option,
-          feedback      : b.option.feedback ?? ''
-        } as Partial<FeedbackProps>;
-      });
+          feedback      : b.option.feedback?.trim() || fallback   // ← GUARANTEED TEXT
+        };
+      }
   
       this.cdRef.markForCheck();    // OnPush refresh
     }
