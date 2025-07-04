@@ -2502,7 +2502,19 @@ export class QuizQuestionComponent
       this.setAnsweredAndDisplayState();
       this.cdRef.detectChanges();
   
+      // Mark answered for guard & enable Next button
+      this.selectedOptionService.setAnswered(true);
       this.enableNextButton();
+
+      // Update the binding list so highlight + feedback sync
+      const bindingToUpdate = this.optionBindings.find(
+        b => b.option.optionId === option.optionId
+      );
+      if (bindingToUpdate) {
+        bindingToUpdate.isSelected   = true;
+        bindingToUpdate.showFeedback = true;
+        this.updateOptionBinding(bindingToUpdate);
+      }
   
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
@@ -2526,6 +2538,13 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
     }
+  }
+
+  /** Utility: replace the changed binding & keep a fresh array ref */
+  private updateOptionBinding(binding: OptionBindings): void {
+    this.optionBindings = this.optionBindings.map(b =>
+      b.option.optionId === binding.option.optionId ? binding : b
+    );
   }
 
   private performInitialSelectionFlow(event: any, option: SelectedOption): void {
