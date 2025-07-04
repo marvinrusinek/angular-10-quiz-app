@@ -101,6 +101,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         feedback: opt.feedback ?? 'No feedback available',
         highlight: !!opt.highlight
       } as unknown as OptionBindings));
+
+      console.log('[ANS] Q', this.currentQuestionIndex,
+  '→ first opt text:', this.optionBindings[0]?.option?.text,
+  '| arrayRef =', this.optionBindings);
     
       console.log(
         '[ANS ✅] qIdx', this.quizService.currentQuestionIndex,
@@ -264,6 +268,74 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     // Trigger change detection to update the UI
     this.cdRef.detectChanges();
+  }
+
+  /** Rebuild optionBindings from the latest optionsToDisplay. */
+  private rebuildOptionBindings(): void {
+    if (!this.optionsToDisplay?.length) {
+      this.optionBindings = [];
+      return;
+    }
+  
+    /* deep-clone so EVERY question gets new objects & new array */
+    const cloned: Option[] =
+      typeof structuredClone === 'function'
+        ? structuredClone(this.optionsToDisplay)
+        : JSON.parse(JSON.stringify(this.optionsToDisplay));
+  
+    /* build fresh bindings (all with new object refs) */
+    this.optionBindings = cloned.map((opt, idx) =>
+      this.buildFallbackBinding(opt, idx)
+    );
+  
+    /* now that optionBindings exists, patch allOptions / optionsToDisplay refs */
+    this.optionBindings.forEach(b => {
+      b.allOptions       = cloned;
+      b.optionsToDisplay = cloned;
+    });
+  
+    console.log('[ANS] rebuilt bindings for Q', this.currentQuestionIndex,
+                '| first text:', this.optionBindings[0]?.option?.text);
+  
+    this.cdRef.markForCheck();           // OnPush view refresh
+  }
+
+  /** Builds a minimal but type-complete binding when no helper exists */
+  private buildFallbackBinding(opt: Option, idx: number): OptionBindings {
+    return {
+      /* core data -------------------------------------------------- */
+      option      : opt,
+      index       : idx,
+      isSelected  : !!opt.selected,
+      isCorrect   : opt.correct ?? false,
+
+      /* feedback always starts visible so every row shows text ----- */
+      showFeedback: true,
+      feedback    : opt.feedback?.trim() ||
+                    (opt.correct
+                      ? 'Great job — that answer is correct.'
+                      : 'Not quite — see the explanation above.'),
+      highlight   : !!opt.highlight,
+
+      /* required interface props – sane defaults ------------------- */
+      showFeedbackForOption         : {},
+      appHighlightOption            : false,
+      highlightCorrectAfterIncorrect: false,
+      highlightIncorrect            : false,
+      highlightCorrect              : false,
+      styleClass                    : '',
+      disabled                      : false,
+      type                          : 'single',
+      appHighlightInputType         : 'radio',   // satisfies the union type
+      allOptions                    : [],        // will be replaced below
+      appHighlightReset             : false,
+      ariaLabel                     : `Option ${idx + 1}`,
+      appResetBackground            : false,
+      optionsToDisplay              : [],        // will be replaced below
+      checked                       : !!opt.selected,
+      change                        : () => {},
+      active                        : true
+    } as OptionBindings;
   }
 
   override async loadDynamicComponent(
