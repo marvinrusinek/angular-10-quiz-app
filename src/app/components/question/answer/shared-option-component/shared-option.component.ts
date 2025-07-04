@@ -34,6 +34,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionChanged = new EventEmitter<Option>();
   @Input() currentQuestion: QuizQuestion;
+  @Input() questionIndex!: number;
   @Input() optionsToDisplay: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -88,6 +89,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   highlightedOptionIds: Set<number> = new Set();
   selectedOptionHistory: number[] = [];
   lastFeedbackOptionId = -1;
+
+  trackByQuestionScoped = (_: number, binding: OptionBindings): string => {
+    const key = `${this.questionIndex}-${binding.option?.optionId ?? _}`;
+    console.log('[TRACK]', key);          // 🔍 debug: see keys per navigation
+    return key;
+  };
 
   optionTextStyle = { color: 'black' };
 
