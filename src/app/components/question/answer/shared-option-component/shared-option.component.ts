@@ -211,12 +211,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.freezeOptionBindings = false;          // unlock
         this.initializeOptionBindings();            // clears old refs
         this.optionBindings = changes['optionBindings'].currentValue; // swap in new ref
+        this.generateOptionBindings();              // builds new list
+        this.optionsReady = true;
 
         this.showFeedbackForOption = {};
         this.optionBindings.forEach(b => this.showFeedbackForOption[b.option.optionId] = false);
-
-        this.generateOptionBindings();              // builds new list
-        this.optionsReady = true;
   
         /** B. Reset per-option feedback map safely  */
         if (typeof this.showFeedbackForOption !== 'object' ||
