@@ -2516,17 +2516,24 @@ export class QuizQuestionComponent
       Object.keys(this.showFeedbackForOption ?? {}).forEach(
         k => (this.showFeedbackForOption[+k] = false)
       );
-      Object.values(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
-        cfg => (cfg.showFeedback = false)
+      Object.entries(this.sharedOptionComponent.feedbackConfigs ?? {}).forEach(
+        ([id, cfg]) => this.sharedOptionComponent.feedbackConfigs[+id] = {
+          ...cfg,
+          showFeedback: false
+        }
       );
 
-      // Enable feedback for the option just clicked */
+      // Enable feedback for the option just clicked
       this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
-      if (this.sharedOptionComponent.feedbackConfigs?.[bindingToUpdate.option.optionId]) {
-        this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId].showFeedback = true;
-      }
 
-      this.sharedOptionComponent.lastFeedbackOptionId = bindingToUpdate.option.optionId;
+      const oldCfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
+      this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
+        ...oldCfg,
+        showFeedback: true
+      };
+
+      this.sharedOptionComponent.lastFeedbackOptionId =
+        bindingToUpdate.option.optionId;
   
       const explanationText = await this.updateExplanationText(lockedIndex);
       if (requestId !== this.explanationRequestId) {
