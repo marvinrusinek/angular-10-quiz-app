@@ -12,6 +12,7 @@ import { Utils } from '../../../shared/utils/utils';
 import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { LockedState } from '../../../shared/models/LockedState.model';
+import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
 import { QuestionPayload } from '../../../shared/models/QuestionPayload.model';
@@ -2523,6 +2524,22 @@ export class QuizQuestionComponent
 
       // Enable feedback for the option just clicked
       this.showFeedbackForOption[bindingToUpdate.option.optionId] = true;
+
+      const id   = bindingToUpdate.option.optionId;
+      const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
+      
+      const newConfigs = [ ...this.sharedOptionComponent.feedbackConfigs ];   // clone old array
+      newConfigs[id] = {                                                     // replace just this index
+        ...prev,
+        showFeedback  : true,
+        selectedOption: bindingToUpdate.option
+      } as FeedbackProps;
+
+      this.sharedOptionComponent.feedbackConfigs = newConfigs;               // ⚠️ assign NEW array
+
+      this.sharedOptionComponent.lastFeedbackOptionId = id;
+
+
       const oldCfg = this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId];
       if (oldCfg) {
         this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId] = {
@@ -2530,6 +2547,8 @@ export class QuizQuestionComponent
           showFeedback: true            // new object → OnPush detects change
         };
       }
+
+      this.cdRef.markForCheck();
 
       this.sharedOptionComponent.lastFeedbackOptionId = bindingToUpdate.option.optionId;
 
