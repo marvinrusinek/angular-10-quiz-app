@@ -356,7 +356,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
+
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
       this.optionBindings = [];
+
+      this.processOptionBindings();
+      this.cdRef.markForCheck();
     }
   
     /* ── Handle NEW option list ─────────────────────────────────── */
