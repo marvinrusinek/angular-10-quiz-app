@@ -128,7 +128,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -137,10 +137,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id = opt.optionId;
   
-    /* const isChosen =
+    // const isChosen =
       this.isSelected ||
       opt.selected ||
-      this.selectedOptionHistory?.includes(id); */
+      this.selectedOptionHistory?.includes(id);
     const isChosen =
       this.isSelected || opt.selected || opt.highlight;
     
@@ -187,7 +187,68 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
-  }  
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const opt = this.optionBinding.option;
+    const id  = opt.optionId;
+  
+    /* highlight only if user selected this row in THIS question */
+    const isChosen =
+      this.isSelected || opt.selected || opt.highlight;
+  
+    const container = this.el.nativeElement as HTMLElement;
+    if (!(container instanceof HTMLElement)) {
+      console.warn('[❌ container is not an HTMLElement]');
+      return;
+    }
+  
+    const isCorrect = this.isCorrect ?? false;
+  
+    /* ── 1.  Row is selected ───────────────────────────────────── */
+    if (isChosen) {
+      const color = isCorrect ? '#43f756' : '#ff0000';
+  
+      this.setBackgroundColor(container, color);
+      this.renderer.removeClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'pointer');
+      this.setPointerEvents(container, 'auto');
+  
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      queueMicrotask(() => this.cdRef.detectChanges());
+      return;
+    }
+  
+    /* ── 2.  Row is inactive / disabled ────────────────────────── */
+    if (!isCorrect && opt.active === false) {
+      const color = '#a3a3a3';
+  
+      this.setBackgroundColor(container, color);
+      this.renderer.addClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'not-allowed');
+      this.setPointerEvents(container, 'none');
+  
+      opt.showIcon = false;
+      this.showFeedbackForOption[id] = false;
+      return;
+    }
+  
+    /* ── 3.  Neutral state (no highlight) ──────────────────────── */
+    this.renderer.removeStyle(container, 'background-color');  // 🔑 clear old paint
+    this.renderer.removeClass(container, 'deactivated-option');
+    this.renderer.setStyle(container, 'cursor', 'pointer');
+    this.setPointerEvents(container, 'auto');
+  
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
+  }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
