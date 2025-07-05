@@ -1841,7 +1841,11 @@ export class QuizQuestionComponent
 
         this.optionsToDisplay = cloned;  // new reference
         this.currentQuestionIndex = lockedIndex; // keep index in sync
-        this.rebuildOptionBindings?.();
+
+        if (this.sharedOptionComponent?.initializeOptionBindings) {
+          this.sharedOptionComponent.initializeOptionBindings();
+        }
+
         this.cdRef.markForCheck();
       });
 
