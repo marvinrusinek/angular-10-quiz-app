@@ -522,7 +522,7 @@ export class QuizQuestionLoaderService {
     console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId);
 
     /* ── 0. FAST-PATH  ─────────────────────────────────────────────── */
-    const cachedQuiz = this.quizService.getCurrentQuiz?.();
+    const cachedQuiz: Quiz = this.quizService.getCurrentQuiz?.();
     if (cachedQuiz?.questions?.length) {
       const cachedQ = cachedQuiz.questions[questionIndex];
       if (cachedQ) {
