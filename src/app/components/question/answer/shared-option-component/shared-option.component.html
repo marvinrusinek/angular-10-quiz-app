@@ -22,6 +22,7 @@
               trackBy: trackByQuestionScoped
             "
             class="option-container"
+            [attr.data-key]="questionVersion"
           >
             <mat-radio-button
               appHighlightOption
@@ -60,7 +61,7 @@
         </mat-radio-group>
 
         <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
-        <div *ngIf="type === 'multiple'" class="options-group options" [attr.data-key]="questionVersion">
+        <div *ngIf="type === 'multiple'" class="options-group options">
           <div
             *ngFor="
               let b of optionBindings;
@@ -68,6 +69,7 @@
               trackBy: trackByQuestionScoped
             "
             class="option-container"
+            [attr.data-key]="questionVersion"
           >
             <label class="option-row multiple-option">
               <mat-checkbox
