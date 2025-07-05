@@ -2521,16 +2521,23 @@ export class QuizQuestionComponent
         [id]: true
       };
 
-      const newConfigs: Record<number, Partial<FeedbackProps>> = {
-        ...this.sharedOptionComponent.feedbackConfigs
+      const newConfigs: { [key: number]: FeedbackProps } = {
+        ...(this.sharedOptionComponent.feedbackConfigs || {})
       };
+      Object.keys(newConfigs).forEach(k => (newConfigs[+k].showFeedback = false));
       newConfigs[id] = {
-        ...prevCfg,
+        ...newConfigs[id],
         showFeedback  : true,
         selectedOption: option,
-        feedback      : option.feedback ||
-                  (option.correct ? 'Correct.' : 'See explanation above.')
-      } as Partial<FeedbackProps>;
+        options       : this.optionBindings.map(b => b.option),
+        question      : this.currentQuestion!,
+        correctMessage: '',
+        feedback      : option.feedback?.trim() ||
+                        (option.correct
+                         ? 'Correct.'
+                         : 'See explanation above.'),
+        idx: bindingToUpdate.index
+      };
       
       // Assign the brand-new object back
       this.sharedOptionComponent.feedbackConfigs = newConfigs;
