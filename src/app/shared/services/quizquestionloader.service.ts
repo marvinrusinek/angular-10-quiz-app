@@ -6,6 +6,7 @@ import { catchError, distinctUntilChanged, filter, map, take } from 'rxjs/operat
 import { QuestionType } from '../models/question-type.enum';
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
+import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
 import { FeedbackService } from './feedback.service';
@@ -522,12 +523,13 @@ export class QuizQuestionLoaderService {
     console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId);
 
     /* ── 0. FAST-PATH  ─────────────────────────────────────────────── */
-    const cachedQuiz: Quiz = this.quizService.getCurrentQuiz?.();
+    // const cachedQuiz: Quiz = this.quizService.getCurrentQuiz?.();
+    const cachedQuiz: Quiz | null = this.quizService.activeQuiz;
     if (cachedQuiz?.questions?.length) {
       const cachedQ = cachedQuiz.questions[questionIndex];
       if (cachedQ) {
         console.log('[FETCH-Q] (cached) hit for index', questionIndex);
-        return cachedQ;                             // ⬅️  early return
+        return cachedQ;
       }
     }
 
