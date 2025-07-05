@@ -2184,9 +2184,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
       return binding;
     });
-
-    this.updateHighlighting();
+    
     this.updateSelections(-1);
+    this.updateHighlighting();
   
     setTimeout(() => {
       this.ngZone.run(() => {
