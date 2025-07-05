@@ -2481,17 +2481,48 @@ export class QuizQuestionComponent
       this.showFeedbackForOption = newShowMap;
 
       /* 3-b. feedbackConfigs map (was array; keep array shape) */
+      if (!this.sharedOptionComponent) {
+        console.warn('[QQC] ViewChild <app-shared-option> not yet available');
+        return;                                    // bail early, no child to update
+      }
+      
+      if (!this.sharedOptionComponent.feedbackConfigs) {
+        this.sharedOptionComponent.feedbackConfigs = {};   // create fresh map
+      }
+
       const id   = option.optionId;
-      const prev = this.sharedOptionComponent.feedbackConfigs[id] ?? {};
+      const prevCfg = this.sharedOptionComponent.feedbackConfigs[id] as
+        | Partial<FeedbackProps>
+        | undefined;
 
       /* NEW map reference */
-      this.sharedOptionComponent.feedbackConfigs = {
+      /* this.sharedOptionComponent.feedbackConfigs = {
         ...this.sharedOptionComponent.feedbackConfigs,
         [id]: {
           ...prev,
           showFeedback: true,
           selectedOption: option
         }
+      }; */
+      const fullCfg: FeedbackProps = {
+        // keep any existing fields
+        ...(prevCfg as Partial<FeedbackProps>),
+        // guarantee required properties
+        showFeedback  : true,
+        selectedOption: option,
+        options       : this.optionBindings.map(b => b.option),
+        question      : this.currentQuestion!,
+        correctMessage: '',
+        feedback      : prevCfg.feedback ?? '',     // keep existing or ''
+        idx           : bindingToUpdate.index       // or whatever index you track
+      };
+      
+      /* ------------------------------------------------------------------
+         Assign NEW map reference so OnPush detects the change
+      ------------------------------------------------------------------- */
+      this.sharedOptionComponent.feedbackConfigs = {
+        ...this.sharedOptionComponent.feedbackConfigs,
+        [id]: fullCfg
       };
 
       this.showFeedbackForOption = {
