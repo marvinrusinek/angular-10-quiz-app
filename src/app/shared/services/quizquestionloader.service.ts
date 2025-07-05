@@ -249,17 +249,23 @@ export class QuizQuestionLoaderService {
     this.activeQuizId       = routeQuizId;
     this.quizService.quizId = routeQuizId;
 
-    const questions$ =
-    this.quizDataService.getQuestionsForQuiz(this.activeQuizId);
+    // NOW fetch the correct array every time
+    if (this.questionsArray.length === 0) {
+      this.questionsArray =
+        await firstValueFrom(
+          this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
+        );
+    }
 
-    const quizArray = await firstValueFrom(questions$);
-    const q = quizArray?.[questionIndex];
+    const q = this.questionsArray[questionIndex];
     const opts = q?.options ?? [];
 
     if (!q || !opts.length) {
       console.error('[Loader] ❌ Missing data for', this.activeQuizId, 'Q', questionIndex);
       return false;
     }
+
+    console.log('[LOADER QA]', index, opts.map(o => o.text));
   
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
