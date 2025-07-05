@@ -130,8 +130,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     console.log('[🧩 SharedOptionComponent] constructed');
 
     this.form = this.fb.group({
-      selectedOptionId: [null]
+      selectedOptionId: [null, Validators.required]
     });
+  
+    // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
+    this.form.get('selectedOptionId')!.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((id: number) => this.updateSelections(id));
   }
 
   ngOnInit(): void {
@@ -172,15 +177,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.cdRef.detectChanges(); // ensure UI updates
       });
     }
-
-    this.form = this.fb.group({
-      selectedOptionId: [null, Validators.required]
-    });
-  
-    // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
-    this.form.get('selectedOptionId')!.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((id: number) => this.updateSelections(id));
 
     // React to a click triggered manually, emitting the binding and index for the row the user clicked.
     this.click$
