@@ -265,7 +265,7 @@ export class QuizQuestionLoaderService {
       return false;
     }
 
-    console.log('[LOADER QA]', index, opts.map(o => o.text));
+    console.log('[LOADER QA]', questionIndex, opts.map(o => o.text));
   
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
