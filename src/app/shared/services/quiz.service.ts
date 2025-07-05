@@ -21,11 +21,10 @@ import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = 0;
-  activeQuiz: Quiz;
+  activeQuiz: Quiz | undefined;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
