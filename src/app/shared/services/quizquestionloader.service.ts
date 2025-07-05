@@ -104,6 +104,9 @@ export class QuizQuestionLoaderService {
   private optionsStream$ = new BehaviorSubject<Option[]>([]);
   options$ = this.optionsStream$.asObservable();
 
+  lastQuizId: string | null = null;
+  questionsArray: QuizQuestion[] = [];
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -234,6 +237,12 @@ export class QuizQuestionLoaderService {
     if (!routeQuizId) {
       console.error('[Loader] ❌ No quizId in route.');
       return false;
+    }
+
+    // Reset cache when the quiz changes ──────────────────── */
+    if (this.lastQuizId !== routeQuizId) {
+      this.questionsArray = [];
+      this.lastQuizId = routeQuizId;
     }
 
     // Overwrite any stale value
