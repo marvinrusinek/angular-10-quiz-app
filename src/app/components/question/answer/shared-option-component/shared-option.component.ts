@@ -1388,7 +1388,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
       // Apply highlight and icon state
-      option.highlight = binding.isSelected || option.selected || option.highlight;
+      /* option.highlight = binding.isSelected || option.selected || option.highlight;
+      option.showIcon = directive.isSelected && this.showFeedback; */
+      option.highlight = binding.isSelected || option.selected;
       option.showIcon = directive.isSelected && this.showFeedback;
   
       console.log(`[✅ Highlight Applied - Option ${option.optionId}] at ${Date.now()}`);
