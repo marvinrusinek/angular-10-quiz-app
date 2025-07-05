@@ -237,8 +237,8 @@ export class QuizQuestionLoaderService {
     }
 
     // Overwrite any stale value
-    this.activeQuizId           = quizIdFromRoute;
-    this.quizService.quizId     = quizIdFromRoute;
+    this.activeQuizId       = routeQuizId;
+    this.quizService.quizId = routeQuizId;
   
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
