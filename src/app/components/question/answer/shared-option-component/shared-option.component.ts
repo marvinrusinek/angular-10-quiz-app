@@ -377,12 +377,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       });
 
       this.freezeOptionBindings = false;
-      this.highlightedOptionIds.clear();
 
       // Clear current bindings & feedback maps
-      this.optionBindings = [];
+      this.highlightedOptionIds.clear();
       this.showFeedbackForOption = {};
       this.feedbackConfigs = {};
+      this.optionBindings = [];
       
       // Build fresh bindings that start completely neutral
       this.processOptionBindings();
