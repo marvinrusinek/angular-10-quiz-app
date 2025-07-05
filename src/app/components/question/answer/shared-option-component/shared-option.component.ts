@@ -357,29 +357,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
 
-      // Clear flags on the raw options array
-      this.optionsToDisplay?.forEach(o => {
-        o.selected  = false;
-        o.highlight = false;
-      });
-
-      // Force a DOM update so old highlight classes disappear
-      this.cdRef.detectChanges();
-
-      // Deep-clone to ensure a NEW reference for Angular
-      if (this.optionsToDisplay) {
-        this.optionsToDisplay = typeof structuredClone === 'function'
-          ? structuredClone(this.optionsToDisplay)
-          : JSON.parse(JSON.stringify(this.optionsToDisplay));
-      }
+      /* 🔑 NEW – wipe click-history & current selection */
+      this.selectedOptionHistory = [];
+      this.selectedOption        = null;
+      this.lastFeedbackOptionId  = -1;
 
       // Clear current bindings & feedback maps
+      this.optionBindings = [];
       this.showFeedbackForOption = {};
       this.feedbackConfigs = {};
-      this.optionBindings = [];
-
-      // Rebuild fresh bindings for the new question
+      
       this.processOptionBindings();
+
+      /* Repaint once with “nothing selected” */
+      this.updateSelections(-1);
       this.cdRef.markForCheck();
     }
   
@@ -2184,7 +2175,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
       return binding;
     });
-    
+
     this.updateSelections(-1);
     this.updateHighlighting();
   
