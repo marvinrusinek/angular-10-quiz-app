@@ -2497,8 +2497,11 @@ export class QuizQuestionComponent
       /* 3-b. feedbackConfigs map (was array; keep array shape) */
       if (!this.sharedOptionComponent) {
         console.warn('[QQC] ViewChild <app-shared-option> not yet available');
-        return;                                    // bail early, no child to update
+        return;  // bail early, no child to update
       }
+
+      /* 1.  Reset wrapper map (used by *ngIf in template) */
+      this.showFeedbackForOption = {};
       
       if (!this.sharedOptionComponent.feedbackConfigs) {
         this.sharedOptionComponent.feedbackConfigs = {};   // create fresh map
