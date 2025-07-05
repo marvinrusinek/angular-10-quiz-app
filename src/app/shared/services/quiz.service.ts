@@ -24,7 +24,7 @@ import { ExplanationTextService } from '../../shared/services/explanation-text.s
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = 0;
-  activeQuiz: Quiz | undefined;
+  activeQuiz: Quiz | null;
   quiz: Quiz = QUIZ_DATA[this.currentQuestionIndex];
   quizInitialState: Quiz[] = _.cloneDeep(QUIZ_DATA);
   private quizId$: BehaviorSubject<string | null> = new BehaviorSubject(null);
@@ -343,6 +343,7 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuiz(q: Quiz): void {
+    this.activeQuiz = q;
     this.currentQuizSubject.next(q);
   }
 
@@ -353,13 +354,13 @@ export class QuizService implements OnDestroy {
   
     const quiz = Array.isArray(this.quizData)
       ? this.quizData.find((quiz) => quiz.quizId === this.quizId)
-      : undefined;
+      : null;
   
     if (!quiz) {
       console.warn(`No quiz found for quizId: ${this.quizId}`);
     }
   
-    return of(quiz);
+    return of(quiz ?? null);
   }
   
   getCurrentQuizId(): string {
