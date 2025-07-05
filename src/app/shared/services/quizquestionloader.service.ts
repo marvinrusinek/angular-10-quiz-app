@@ -242,7 +242,7 @@ export class QuizQuestionLoaderService {
     }
   
     /* ── 1. Blank heading + list instantly ── */
-    this.clearQA();                                  // pushes {heading:null, options:[]}
+    this.clearQA();  // pushes {heading: null, options:[]}
   
     /* ── 2. Reset per-question flags ── */
     this.questionTextLoaded  = false;
