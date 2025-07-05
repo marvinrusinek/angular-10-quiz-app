@@ -239,7 +239,7 @@ export class QuizQuestionLoaderService {
 
     // Ensure we’re using the quizId that’s in the current URL
     const quizIdFromRoute =
-    this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
 
     if (!quizIdFromRoute) {
       console.error('[Loader] ❌ No quizId in route - cannot load question.');
