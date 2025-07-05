@@ -1835,17 +1835,21 @@ export class QuizQuestionComponent
           this.currentQuestion.questionText?.trim() || '';
 
         // Hand a BRAND-NEW array & bindings to the child
-        const cloned = typeof structuredClone === 'function'
-        ? structuredClone(this.optionsToDisplay)          // deep clone
-        : JSON.parse(JSON.stringify(this.optionsToDisplay));
+        const cloned = 
+          typeof structuredClone === 'function'
+            ? structuredClone(this.optionsToDisplay)          // deep clone
+            : JSON.parse(JSON.stringify(this.optionsToDisplay));
 
         this.optionsToDisplay = cloned;  // new reference
+        this.cdRef.detectChanges(); 
+
+        // finally update the route index (triggers the key change)
         this.currentQuestionIndex = lockedIndex; // keep index in sync
 
         if (this.sharedOptionComponent) {
           this.sharedOptionComponent.initializeOptionBindings();
         }
-
+        
         this.cdRef.markForCheck();
       });
 
