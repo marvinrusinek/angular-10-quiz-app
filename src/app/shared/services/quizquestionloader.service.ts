@@ -520,10 +520,7 @@ export class QuizQuestionLoaderService {
    *  ✅ Keeps all your validation / type-detection logic and emits QA.
    */
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId);
-
     /* ── 0. FAST-PATH  ─────────────────────────────────────────────── */
-    // const cachedQuiz: Quiz = this.quizService.getCurrentQuiz?.();
     const cachedQuiz: Quiz | null = this.quizService.activeQuiz;
     if (cachedQuiz?.questions?.length) {
       const cachedQ = cachedQuiz.questions[questionIndex];
