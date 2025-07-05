@@ -488,7 +488,6 @@ export class QuizQuestionComponent
       
           // Use the REAL input name you just confirmed
           this.currentOptions = fresh;   // parent’s public field
-          this.cdRef.detectChanges();    // run CD now
         });
   
     // Hydrate from payload
