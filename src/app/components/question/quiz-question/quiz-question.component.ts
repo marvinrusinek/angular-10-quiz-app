@@ -2495,15 +2495,6 @@ export class QuizQuestionComponent
         | Partial<FeedbackProps>
         | undefined;
 
-      /* NEW map reference */
-      /* this.sharedOptionComponent.feedbackConfigs = {
-        ...this.sharedOptionComponent.feedbackConfigs,
-        [id]: {
-          ...prev,
-          showFeedback: true,
-          selectedOption: option
-        }
-      }; */
       const fullCfg: FeedbackProps = {
         // keep any existing fields
         ...(prevCfg as Partial<FeedbackProps>),
@@ -2513,8 +2504,8 @@ export class QuizQuestionComponent
         options       : this.optionBindings.map(b => b.option),
         question      : this.currentQuestion!,
         correctMessage: '',
-        feedback      : prevCfg.feedback ?? '',     // keep existing or ''
-        idx           : bindingToUpdate.index       // or whatever index you track
+        feedback      : prevCfg.feedback ?? '',
+        idx           : bindingToUpdate.index
       };
       
       /* ------------------------------------------------------------------
