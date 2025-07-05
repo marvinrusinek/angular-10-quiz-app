@@ -238,8 +238,7 @@ export class QuizQuestionLoaderService {
     console.log('[LOADER] entered with index', questionIndex);
 
     // Ensure we’re using the quizId that’s in the current URL
-    const quizIdFromRoute =
-      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    const quizIdFromRoute = this.router.routerState.snapshot.root.firstChild?.params['quizId'];
 
     if (!quizIdFromRoute) {
       console.error('[Loader] ❌ No quizId in route - cannot load question.');
@@ -312,7 +311,7 @@ export class QuizQuestionLoaderService {
   
       console.log('[⏳] Fetching question + options …');
       let fetchedQuestion: QuizQuestion | null = null;
-      let fetchedOptions : Option[]       | null = null;
+      let fetchedOptions: Option[] | null = null;
   
       try {
         console.log('[STEP] about to fetchQuestionDetails', questionIndex);
@@ -327,6 +326,7 @@ export class QuizQuestionLoaderService {
         fetchedOptions = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         );
+        console.log("MY FETCHED OPTIONS", fetchedOptions);
         console.log('[STEP] fetchedOptions len', fetchedOptions?.length);
         console.log('[LOADER] fetchedOptions length =',
                   Array.isArray(fetchedOptions) ? fetchedOptions.length : 'null');
