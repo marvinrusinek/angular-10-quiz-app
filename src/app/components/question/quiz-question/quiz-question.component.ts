@@ -1828,11 +1828,21 @@ export class QuizQuestionComponent
           active: true,
           feedback: undefined,
           showIcon: false,
-          selected: false,
+          selected: false
         }));
 
         this.questionToDisplay =
           this.currentQuestion.questionText?.trim() || '';
+
+        // Hand a BRAND-NEW array & bindings to the child
+        const cloned = typeof structuredClone === 'function'
+        ? structuredClone(this.optionsToDisplay)          // deep clone
+        : JSON.parse(JSON.stringify(this.optionsToDisplay));
+
+        this.optionsToDisplay = cloned;  // new reference
+        this.currentQuestionIndex = lockedIndex; // keep index in sync
+        this.rebuildOptionBindings?.();
+        this.cdRef.markForCheck();
       });
 
       // Abort after UI update

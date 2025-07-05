@@ -447,7 +447,9 @@ export class QuizQuestionLoaderService {
         '| first option =',
         this.optionsToDisplay?.[0]?.text,
         '| arrayRef =', this.optionsToDisplay
-      );      
+      );
+      
+      console.log('[DONE]', questionIndex, this.optionsToDisplay?.[0]?.text, this.optionsToDisplay);
 
       return true;
   
