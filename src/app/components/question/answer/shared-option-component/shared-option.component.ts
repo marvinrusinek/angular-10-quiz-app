@@ -370,6 +370,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // HARD RESET radio/checkbox value
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
 
+      (this.optionsToDisplay ?? []).forEach(opt => {
+        opt.highlight = false;
+        opt.selected  = false;
+        opt.showIcon  = false;
+      });
+
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
 
@@ -378,6 +384,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption = {};
       this.feedbackConfigs = {};
       
+      // Build fresh bindings that start completely neutral
       this.processOptionBindings();
 
       // Repaint once with “nothing selected”
