@@ -397,7 +397,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           idx           : b.index
         };
       }
-  
+
+      this.processOptionBindings();
       this.cdRef.markForCheck();
     }
   
