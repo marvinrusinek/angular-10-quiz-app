@@ -54,7 +54,7 @@ export interface LoadedQuestionData {
 
 interface QAEvent {
   question: QuizQuestion;
-  options : Option[];
+  options: Option[];
   selectionMessage?: string;
 }
 
