@@ -137,10 +137,12 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id = opt.optionId;
   
-    const isChosen =
+    /* const isChosen =
       this.isSelected ||
       opt.selected ||
-      this.selectedOptionHistory?.includes(id);
+      this.selectedOptionHistory?.includes(id); */
+    const isChosen =
+      this.isSelected || opt.selected || opt.highlight;
     
     const container = this.el.nativeElement as HTMLElement;
     if (!(container instanceof HTMLElement)) {
