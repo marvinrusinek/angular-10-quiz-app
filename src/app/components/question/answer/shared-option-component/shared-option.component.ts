@@ -1136,8 +1136,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
-
-    this.updateSelections(-1);
   
     console.log('[✅ isSelected updated]:', optionBinding.isSelected);
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
@@ -1252,6 +1250,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Final UI change detection
     this.cdRef.detectChanges();
     console.log(`[✅ Final State Update for Option ${optionId}]`);
+
+    this.updateSelections(-1);
   }
   
   private applyHighlighting(optionBinding: OptionBindings): void {
