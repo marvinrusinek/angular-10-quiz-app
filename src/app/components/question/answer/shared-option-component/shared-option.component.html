@@ -1,4 +1,4 @@
-<ng-container
+<ng-container [attr.data-qv]="questionVersion"
   *ngIf="optionsToDisplay?.length > 0; else noOptions"
   [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
   [style.minHeight]="'1rem'">
