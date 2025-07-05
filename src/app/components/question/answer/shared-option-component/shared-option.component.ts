@@ -2138,7 +2138,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const feedbackSentence =
       this.feedbackService.generateFeedbackForOptions(correctOptions, options) ||
       'No feedback available.';
-    console.log('[SOC] Q', this.questionIndex, '→ feedback:', feedbackSentence);
 
     this.optionBindings = options.map((option, idx) => {
       option.feedback = feedbackSentence;
