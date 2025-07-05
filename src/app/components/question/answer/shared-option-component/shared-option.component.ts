@@ -53,6 +53,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() selectedOptionIndex: number | null = null;
   @Input() isNavigatingBackwards: boolean = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
+
+  questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
 
@@ -114,6 +116,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   optionTextStyle = { color: 'black' };
 
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
+
+  trackByQuestionScoped = (_: number, b: OptionBindings) =>
+  `${this.questionVersion}-${b.option.optionId}`;
+
   onDestroy$ = new Subject<void>();
 
   constructor(
@@ -354,6 +360,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // Detect question change 
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
+      this.questionVersion++;
       this.freezeOptionBindings = false;
       this.highlightedOptionIds.clear();
 
