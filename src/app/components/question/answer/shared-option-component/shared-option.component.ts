@@ -358,6 +358,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // QUESTION INDEX CHANGED
     // Detect question change 
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       this.questionVersion++;

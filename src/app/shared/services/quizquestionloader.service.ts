@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { combineLatest } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, take } from 'rxjs/operators';
@@ -115,7 +116,8 @@ export class QuizQuestionLoaderService {
     private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private selectedOptionService: SelectedOptionService,
-    private quizStateService: QuizStateService
+    private quizStateService: QuizStateService,
+    private router: Router
   ) {}
 
   async loadQuestionContents(questionIndex: number): Promise<void> {
@@ -234,6 +236,19 @@ export class QuizQuestionLoaderService {
     );
     console.log('[LOADER] called with index', questionIndex);
     console.log('[LOADER] entered with index', questionIndex);
+
+    // Ensure we’re using the quizId that’s in the current URL
+    const quizIdFromRoute =
+    this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+
+    if (!quizIdFromRoute) {
+      console.error('[Loader] ❌ No quizId in route - cannot load question.');
+      return false;
+    }
+
+    // Overwrite any stale value
+    this.activeQuizId           = quizIdFromRoute;
+    this.quizService.quizId     = quizIdFromRoute;
   
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
@@ -448,6 +463,9 @@ export class QuizQuestionLoaderService {
         this.optionsToDisplay?.[0]?.text,
         '| arrayRef =', this.optionsToDisplay
       );
+
+      console.log('[LOADER QA]', questionIndex,
+            finalOptions.map(o => o.text));
       
       console.log('[DONE]', questionIndex, this.optionsToDisplay?.[0]?.text, this.optionsToDisplay);
 
