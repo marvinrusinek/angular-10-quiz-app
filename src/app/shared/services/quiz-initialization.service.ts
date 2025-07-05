@@ -1028,7 +1028,6 @@ export class QuizInitializationService {
 
     try {
       // Apply feedback to options through QuizQuestionComponent
-      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
       this.showFeedback = true; // enable feedback display
 
       console.log(

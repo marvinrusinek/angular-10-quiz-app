@@ -1804,7 +1804,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.quizQuestionComponent?.applyOptionFeedback(previouslySelectedOption);
           } else {
             console.log('[loadQuestionByRouteIndex] ℹ️ No previously selected option. Applying feedback to all.');
-            this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
           }
         }, 50);
       }, 150);
@@ -2098,8 +2097,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       // Apply feedback to options through QuizQuestionComponent
-      // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-      this.showFeedback = true; // Enable feedback display
+      this.showFeedback = true; // enable feedback display
   
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
@@ -2868,16 +2866,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Force Angular to recognize the new options
         this.cdRef.detectChanges();
-
-        // Apply feedback for the first question after options are fully assigned
-        setTimeout(() => {
-          //if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-          //  console.log('[initializeFirstQuestion] ✅ Applying feedback for first question...');
-            // this.quizQuestionComponent?.applyOptionFeedbackToAllOptions();
-          //} else {
-          //  console.warn('[initializeFirstQuestion] ❌ Skipping applyOptionFeedbackToAllOptions because optionsToDisplay is empty.');
-          //}
-        }, 100);
 
         // Call checkIfAnswered() to track answered state
         setTimeout(() => {
