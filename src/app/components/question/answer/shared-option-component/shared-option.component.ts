@@ -1082,8 +1082,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-
-    this.updateSelections(-1);
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       console.log('[♻️ New question detected — clearing feedback state]', {
@@ -1138,6 +1136,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
     this.selectedOptionMap.set(optionId, checked);
+
+    this.updateSelections(-1);
   
     console.log('[✅ isSelected updated]:', optionBinding.isSelected);
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
