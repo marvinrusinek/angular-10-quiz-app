@@ -404,9 +404,6 @@ export class QuizQuestionComponent
 
       this.populateOptionsToDisplay();
 
-      (window as any).applyFeedback = () =>
-        this.applyOptionFeedbackToAllOptions();
-
       // Initialize display mode subscription for reactive updates
       this.initializeDisplayModeSubscription();
 
@@ -720,7 +717,6 @@ export class QuizQuestionComponent
               console.warn(
                 '[onVisibilityChange] ⚠️ No previously selected option found after reload. Applying feedback to all options.'
               );
-              this.applyOptionFeedbackToAllOptions();
             }
 
             // Generate feedback text after reloading the question
@@ -1344,7 +1340,6 @@ export class QuizQuestionComponent
       this.lastProcessedQuestionIndex !== questionIndex ||
       questionIndex === 0
     ) {
-      this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = questionIndex;
     }
 
@@ -1393,51 +1388,12 @@ export class QuizQuestionComponent
     );
 
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
-      this.applyOptionFeedbackToAllOptions();
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
       console.debug(
         '[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.'
       );
     }
-  }
-
-  public async applyOptionFeedbackToAllOptions(): Promise<void> {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.error(
-        `[applyOptionFeedbackToAllOptions] ❌ optionsToDisplay is EMPTY at start. Skipping feedback processing.`
-      );
-      return;
-    }
-
-    const localOptionsToDisplay = [...this.optionsToDisplay]; // Local copy
-    const localCorrectOptions = localOptionsToDisplay.filter(
-      (option) => option.correct
-    );
-    if (localCorrectOptions.length === 0) {
-      console.warn(
-        `[applyOptionFeedbackToAllOptions] ❌ No correct options available.`
-      );
-      return;
-    }
-
-    const feedbackMessage = this.feedbackService.generateFeedbackForOptions(
-      localCorrectOptions,
-      localOptionsToDisplay
-    );
-    if (!feedbackMessage || feedbackMessage.trim() === '') {
-      console.warn(
-        `[applyOptionFeedbackToAllOptions] ❌ Empty feedback message.`
-      );
-      return;
-    }
-
-    this.optionsToDisplay = localOptionsToDisplay.map((option) => ({
-      ...option,
-      feedback: feedbackMessage,
-      showIcon: option.correct || option.selected,
-      highlight: option.selected,
-    }));
   }
 
   // Method to conditionally update the explanation when the question is answered
