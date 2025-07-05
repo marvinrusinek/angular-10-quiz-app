@@ -361,13 +361,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Detect question change 
     if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
       this.questionVersion++;
-      this.freezeOptionBindings = false;
-      this.highlightedOptionIds.clear();
 
-      /* 🔑 NEW – wipe click-history & current selection */
+      // Wipe click-history & current selection
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
+
+      // HARD RESET radio/checkbox value
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+
+      this.freezeOptionBindings = false;
+      this.highlightedOptionIds.clear();
 
       // Clear current bindings & feedback maps
       this.optionBindings = [];
@@ -376,27 +380,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       
       this.processOptionBindings();
 
-      /* 🟡 hard-reset every row’s visual state */
-      for (const b of this.optionBindings) {
-        /* binding-level flags */
-        b.highlightIncorrect           = false;
-        b.highlightCorrect             = false;
-        b.highlightCorrectAfterIncorrect = false;
-        b.appHighlightOption           = false;
-      
-        /* option-level flag */
-        b.option.highlight             = false;
-        b.option.selected              = false;
-      
-        /* feedback flags */
-        b.showFeedback                 = false;
-        b.showFeedbackForOption        = {};
-      
-        /* force the directive to re-apply classes */
-        b.directiveInstance?.paintNow();
-      }
-
-      /* Repaint once with “nothing selected” */
+      // Repaint once with “nothing selected”
       this.updateSelections(-1);
       this.cdRef.markForCheck();
     }
