@@ -2097,6 +2097,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   initializeOptionBindings(): void {
     console.log('[🚀 initializeOptionBindings STARTED]');
+    console.log('[SOC] init bindings', this.quizService.currentQuestionIndex);
   
     if (this.optionBindingsInitialized) {
       console.warn('[🛑 Already initialized]');
@@ -2116,7 +2117,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.processOptionBindings();
   }  
 
-  private processOptionBindings(): void {  
+  private processOptionBindings(): void {
+    console.log(
+      '[SOC] processOptionBindings → qIdx',
+      this.quizService.currentQuestionIndex,
+      '| first row text =',
+      this.optionBindings[0]?.option?.text
+    );
+
     const options = this.optionsToDisplay ?? [];
   
     if (!options.length) {
