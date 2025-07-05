@@ -756,7 +756,9 @@ export class QuizQuestionLoaderService {
     try {
       /* ─── 1. Fetch the question skeleton ─────────────────────────────── */
       const q = await firstValueFrom(
-        this.quizService.getQuestionByIndex(index)
+        this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
+          map(questions => questions[index])
+        )
       );
       if (!q) {
         console.error('[loadQA] null question for Q', index);
@@ -767,7 +769,7 @@ export class QuizQuestionLoaderService {
       let opts = q.options ?? [];
       if (opts.length === 0) {
         // Fetch options separately when they’re not embedded in the question
-        opts = await firstValueFrom(this.quizService.getOptions(index));
+        opts = await firstValueFrom(this.quizService.getOptionsForQuiz(this.activeQuizId, index));
         console.log('[DEBUG] fetched options in loadQA', opts.length);
         if (opts.length === 0) {
           console.error('[loadQA] no options for Q', index);
