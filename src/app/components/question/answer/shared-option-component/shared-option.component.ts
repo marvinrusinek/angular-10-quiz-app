@@ -369,7 +369,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       
       this.processOptionBindings();
 
-      /* 🟡  hard-reset every row’s visual state */
+      /* 🟡 hard-reset every row’s visual state */
       for (const b of this.optionBindings) {
         /* binding-level flags */
         b.highlightIncorrect           = false;
@@ -377,7 +377,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         b.highlightCorrectAfterIncorrect = false;
         b.appHighlightOption           = false;
       
-        /* option-level flag (used by your CSS directive) */
+        /* option-level flag */
         b.option.highlight             = false;
         b.option.selected              = false;
       
