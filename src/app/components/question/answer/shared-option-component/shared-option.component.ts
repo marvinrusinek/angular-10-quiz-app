@@ -414,11 +414,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.showFeedbackForOption[id] = true;
       
         const fallback =
-          b.option.feedback?.trim() && b.option.feedback.trim().length
-            ? b.option.feedback.trim()
-            : (b.option.correct
-                 ? 'Great job — that answer is correct.'
-                 : 'Not quite — see the explanation.');
+        b.option.feedback?.trim() || (b.option.correct
+            ? 'Great job — that answer is correct.'
+            : 'Not quite — see the explanation.');
       
         this.feedbackConfigs[id] = {
           showFeedback  : true,
