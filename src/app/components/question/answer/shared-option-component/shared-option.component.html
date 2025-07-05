@@ -13,6 +13,7 @@
           *ngIf="type === 'single'"
           class="options-group options"
           formControlName="selectedOptionId"
+          [attr.data-key]="questionVersion"
         >
           <div
             *ngFor="
@@ -59,7 +60,7 @@
         </mat-radio-group>
 
         <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
-        <div *ngIf="type === 'multiple'" class="options-group options">
+        <div *ngIf="type === 'multiple'" class="options-group options" [attr.data-key]="questionVersion">
           <div
             *ngFor="
               let b of optionBindings;
