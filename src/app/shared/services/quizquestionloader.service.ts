@@ -239,7 +239,7 @@ export class QuizQuestionLoaderService {
       return false;
     }
 
-    // Reset cache when the quiz changes ──────────────────── */
+    // Reset cache when the quiz changes
     if (this.lastQuizId !== routeQuizId) {
       this.questionsArray = [];
       this.lastQuizId = routeQuizId;
