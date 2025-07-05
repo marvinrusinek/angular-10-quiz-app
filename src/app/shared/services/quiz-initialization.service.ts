@@ -1170,7 +1170,7 @@ export class QuizInitializationService {
                     adjustedIndex
                   );
 
-                  return []; // dummy observable to satisfy return type
+                  return of(question);
                 })
               );
             }),
