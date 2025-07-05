@@ -378,7 +378,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
       
-        this.showFeedbackForOption[id] = true;        // wrapper always renders
+        this.showFeedbackForOption[id] = true;
       
         const fallback =
           b.option.feedback?.trim() && b.option.feedback.trim().length
@@ -388,13 +388,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
                  : 'Not quite — see the explanation.');
       
         this.feedbackConfigs[id] = {
-          showFeedback  : true,                       //  ← ALWAYS TRUE
+          showFeedback  : true,
           selectedOption: b.option,
-          feedback      : fallback
+          feedback      : fallback,
+          options       : this.optionBindings.map(x => x.option),
+          question      : this.currentQuestion!,
+          correctMessage: '',
+          idx           : b.index
         };
       }
   
-      this.cdRef.markForCheck();    // OnPush refresh
+      this.cdRef.markForCheck();
     }
   
     /* Handle NEW question object ───────────────────────────────── */
