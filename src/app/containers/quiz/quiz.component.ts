@@ -3918,5 +3918,5 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       console.warn('[⏳ Waiting for both question and options to be ready]');
     }
-  }  
+  }
 }
