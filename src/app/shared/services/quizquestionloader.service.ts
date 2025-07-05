@@ -228,20 +228,11 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
    async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
-    console.log('[LOADER-ENTER]', questionIndex); 
-    console.log(
-      '[LOADER ⬅] index', questionIndex,
-      '| activeQuizId =', this.activeQuizId,
-      '| totalQuestions =', this.totalQuestions
-    );
-    console.log('[LOADER] called with index', questionIndex);
-    console.log('[LOADER] entered with index', questionIndex);
-
     // Ensure we’re using the quizId that’s in the current URL
-    const quizIdFromRoute = this.router.routerState.snapshot.root.firstChild?.params['quizId'];
-
-    if (!quizIdFromRoute) {
-      console.error('[Loader] ❌ No quizId in route - cannot load question.');
+    const routeQuizId =
+      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    if (!routeQuizId) {
+      console.error('[Loader] ❌ No quizId in route.');
       return false;
     }
 
