@@ -5,6 +5,7 @@ import {
   EMPTY,
   firstValueFrom,
   forkJoin,
+  from,
   merge, 
   Observable,
   of,
@@ -1152,25 +1153,22 @@ export class QuizInitializationService {
               this.initializeQuizState();
 
               return this.quizService.getQuestionByIndex(adjustedIndex).pipe(
-                switchMap(async (question) => {
+                switchMap((question: QuizQuestion | null) => {
                   if (!question) {
                     console.error('[Route Init] ❌ No question returned.');
-                    return EMPTY;
+                    return EMPTY;                                   // still OK
                   }
-
+                
                   this.quizService.setCurrentQuestion(question);
                   this.currentQuiz = this.quizService.getActiveQuiz();
-
+                
                   console.log(
                     '[✅ Route Init] Question and state set. Now resetting UI and navigating...'
                   );
 
-                  // ✅ Safe to trigger UI reset now
-                  await this.quizNavigationService.resetUIAndNavigate(
-                    adjustedIndex
-                  );
-
-                  return of(question);
+                  return from(
+                    this.quizNavigationService.resetUIAndNavigate(adjustedIndex)
+                  ).pipe(map(() => question));
                 })
               );
             }),
