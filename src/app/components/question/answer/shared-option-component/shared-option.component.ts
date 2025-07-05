@@ -166,7 +166,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       console.log('[✅ Flags Updated - Triggering Render]');
     }, 100);
-    console.log(`[🔍 optionBindings]:`, this.optionBindings);
 
     // Always synchronize to ensure data consistency
     this.synchronizeOptionBindings();

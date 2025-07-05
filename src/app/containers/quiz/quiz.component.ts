@@ -274,7 +274,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
-    console.log('[QUIZ SERVICE ID] (QuizComponent)', quizService);
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.renderReady = false;
     }
