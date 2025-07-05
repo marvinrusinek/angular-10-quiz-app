@@ -2576,8 +2576,7 @@ export class QuizQuestionComponent
         return;
       }
 
-      const expl =
-  this.currentQuestion?.explanation?.trim() || 'No explanation available';
+      const expl = this.currentQuestion?.explanation?.trim() || 'No explanation available';
   
       const lockedState: LockedState = {
         index: lockedIndex,
