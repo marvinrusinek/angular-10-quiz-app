@@ -239,6 +239,18 @@ export class QuizQuestionLoaderService {
     // Overwrite any stale value
     this.activeQuizId       = routeQuizId;
     this.quizService.quizId = routeQuizId;
+
+    const questions$ =
+    this.quizDataService.getQuestionsForQuiz(this.activeQuizId);
+
+    const quizArray = await firstValueFrom(questions$);
+    const q = quizArray?.[questionIndex];
+    const opts = q?.options ?? [];
+
+    if (!q || !opts.length) {
+      console.error('[Loader] ❌ Missing data for', this.activeQuizId, 'Q', questionIndex);
+      return false;
+    }
   
     /* ── 0.  Fully reset child component (highlights, form, flags) ── */
     this.resetQuestionState();
