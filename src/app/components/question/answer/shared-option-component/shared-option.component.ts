@@ -369,6 +369,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       
       this.processOptionBindings();
 
+      /* 🟡  hard-reset every row’s visual state */
+      for (const b of this.optionBindings) {
+        /* binding-level flags */
+        b.highlightIncorrect           = false;
+        b.highlightCorrect             = false;
+        b.highlightCorrectAfterIncorrect = false;
+        b.appHighlightOption           = false;
+      
+        /* option-level flag (used by your CSS directive) */
+        b.option.highlight             = false;
+        b.option.selected              = false;
+      
+        /* feedback flags */
+        b.showFeedback                 = false;
+        b.showFeedbackForOption        = {};
+      
+        /* force the directive to re-apply classes */
+        b.directiveInstance?.paintNow();
+      }
+
       /* Repaint once with “nothing selected” */
       this.updateSelections(-1);
       this.cdRef.markForCheck();
