@@ -1082,6 +1082,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
+
+    this.updateSelections(-1);
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       console.log('[♻️ New question detected — clearing feedback state]', {
@@ -2184,6 +2186,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
 
     this.updateHighlighting();
+    this.updateSelections(-1);
   
     setTimeout(() => {
       this.ngZone.run(() => {
