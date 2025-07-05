@@ -225,6 +225,7 @@ export class QuizQuestionLoaderService {
    * heading and list paint in the same change-detection pass (no flicker).
    */
    async loadQuestionAndOptions(questionIndex: number): Promise<boolean> {
+    console.log('[LOADER-ENTER]', questionIndex); 
     console.log(
       '[LOADER ⬅] index', questionIndex,
       '| activeQuizId =', this.activeQuizId,
@@ -298,15 +299,19 @@ export class QuizQuestionLoaderService {
       let fetchedOptions : Option[]       | null = null;
   
       try {
+        console.log('[STEP] about to fetchQuestionDetails', questionIndex);
         fetchedQuestion = await this.fetchQuestionDetails(questionIndex);
+        console.log('[STEP] fetchedQuestion OK', !!fetchedQuestion);
       } catch (err) {
         console.error('[LOADER ❌] fetchQuestionDetails failed for Q', questionIndex, err);
       }
   
       try {
+        console.log('[STEP] about to getCurrentOptions', questionIndex);
         fetchedOptions = await firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         );
+        console.log('[STEP] fetchedOptions len', fetchedOptions?.length);
         console.log('[LOADER] fetchedOptions length =',
                   Array.isArray(fetchedOptions) ? fetchedOptions.length : 'null');
       } catch (err) {
@@ -446,12 +451,14 @@ export class QuizQuestionLoaderService {
       return true;
   
     } catch (err) {
+      console.error('[LOADER-ERROR] Q', questionIndex, err);
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, err);
       return false;
     }
   }
 
-  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {  
+  /* private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> { 
+    console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId); 
     try {
       // Fetch and validate question text
       const questionText = await firstValueFrom(this.quizService.getQuestionTextForIndex(questionIndex));
@@ -505,7 +512,84 @@ export class QuizQuestionLoaderService {
       console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
       throw error;
     }
+  } */
+  /** Load a single QuizQuestion for the active quiz.
+   *  ✅ Tries the quiz already cached in QuizService first (synchronous).
+   *  ✅ Falls back to the full async path only if the cache is missing.
+   *  ✅ Keeps all your validation / type-detection logic and emits QA.
+   */
+  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
+    console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId);
+
+    /* ── 0. FAST-PATH  ─────────────────────────────────────────────── */
+    const cachedQuiz = this.quizService.getCurrentQuiz?.();
+    if (cachedQuiz?.questions?.length) {
+      const cachedQ = cachedQuiz.questions[questionIndex];
+      if (cachedQ) {
+        console.log('[FETCH-Q] (cached) hit for index', questionIndex);
+        return cachedQ;                             // ⬅️  early return
+      }
+    }
+
+    /* ── 1. ORIGINAL ASYNC PATH  ──────────────────────────────────── */
+    try {
+      // 1-A. Fetch & validate question text
+      const questionText = await firstValueFrom(
+        this.quizService.getQuestionTextForIndex(questionIndex)
+      );
+      if (!questionText?.trim()) {
+        throw new Error(`Invalid question text for index ${questionIndex}`);
+      }
+      const trimmedText = questionText.trim();
+
+      // 1-B. Fetch & validate options
+      const options = await this.quizService.getOptions(questionIndex);
+      if (!Array.isArray(options) || options.length === 0) {
+        throw new Error(`No options found for Q${questionIndex}`);
+      }
+
+      // 1-C. Fetch explanation (if service ready)
+      let explanation = 'No explanation available';
+      if (this.explanationTextService.explanationsInitialized) {
+        const fetched = await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+        );
+        explanation = fetched?.trim() || explanation;
+      } else {
+        console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
+      }
+
+      // 1-D. Determine question type
+      const correctCount = options.filter(opt => opt.correct).length;
+      const type = correctCount > 1
+        ? QuestionType.MultipleAnswer
+        : QuestionType.SingleAnswer;
+
+      // 1-E. Assemble the question object
+      const question: QuizQuestion = {
+        questionText : trimmedText,
+        options,
+        explanation,
+        type
+      };
+
+      /* 1-F. Emit QA payload for downstream bindings */
+      this.qaSubject.next({
+        heading    : question.questionText,
+        options    : [...question.options],
+        explanation: question.explanation,
+        question
+      });
+
+      /* 1-G. Sync type with data-service cache */
+      this.quizDataService.setQuestionType(question);
+      return question;
+    } catch (error) {
+      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
+      throw error;                                   // propagate to loader
+    }
   }
+
 
   public setQuestionDetails(
     questionText: string,
