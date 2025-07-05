@@ -2449,6 +2449,7 @@ export class QuizQuestionComponent
     checked: boolean;
   }): Promise<void> {
     console.log('[CLICK HANDLER]', 'QQC');
+  
     const option = event.option;
     if (!option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
@@ -2458,22 +2459,21 @@ export class QuizQuestionComponent
     const lockedTimestamp = Date.now();
     this.latestOptionClickTimestamp = lockedTimestamp;
   
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedText = this.currentQuestion?.questionText?.trim() || '';
+    const lockedIndex   = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const lockedText    = this.currentQuestion?.questionText?.trim() || '';
     const lockedSnapshot = structuredClone(this.currentQuestion);
-    const requestId = ++this.explanationRequestId;
+    const requestId      = ++this.explanationRequestId;
   
     try {
+      /* Initial selection flow + enable Next button --------------------- */
       this.performInitialSelectionFlow(event, option);
       this.setAnsweredAndDisplayState();
-      this.cdRef.detectChanges();
-  
-      // Mark answered for guard & enable Next button
       this.selectedOptionService.setAnswered(true);
       this.nextButtonStateService.setButtonEnabled(true);
       this.enableNextButton();
-
-      // Update the binding list so highlight + feedback sync
+      this.cdRef.detectChanges();
+  
+      /* Update binding for highlight / selection ------------------------ */
       const bindingToUpdate = this.optionBindings.find(
         b => b.option.optionId === option.optionId
       );
@@ -2482,101 +2482,52 @@ export class QuizQuestionComponent
         bindingToUpdate.showFeedback = true;
         this.updateOptionBinding(bindingToUpdate);
       }
-
-    /* ----------------------------------------------------------
-       3.  🔑 Create NEW feedback maps (no in-place mutation)
-    ---------------------------------------------------------- */
-
-      /* 3-a. showFeedbackForOption map */
-      const newShowMap: Record<number, boolean> = {
-        ...this.showFeedbackForOption,
-        [option.optionId]: true           // clicked option → true
-      };
-      this.showFeedbackForOption = newShowMap;
-
-      /* 3-b. feedbackConfigs map (was array; keep array shape) */
+  
+      /* ──────────────────────────────────────────────────────────────
+         START ▶ keep feedback ONLY for the row you just clicked
+      ────────────────────────────────────────────────────────────── */
       if (!this.sharedOptionComponent) {
         console.warn('[QQC] ViewChild <app-shared-option> not yet available');
-        return;  // bail early, no child to update
+        return;                                   // bail early
       }
-
-      /* 1.  Reset wrapper map (used by *ngIf in template) */
-      this.showFeedbackForOption = {};
-      
-      if (!this.sharedOptionComponent.feedbackConfigs) {
-        this.sharedOptionComponent.feedbackConfigs = {};   // create fresh map
-      }
-
-      const id   = option.optionId;
-      const prevCfg = this.sharedOptionComponent.feedbackConfigs[id] as
-        | Partial<FeedbackProps>
-        | undefined;
-
-      const fullCfg: FeedbackProps = {
-        // keep any existing fields
-        ...(prevCfg as Partial<FeedbackProps>),
-        // guarantee required properties
-        showFeedback  : true,
-        selectedOption: option,
-        options       : this.optionBindings.map(b => b.option),
-        question      : this.currentQuestion!,
-        correctMessage: '',
-        feedback      : prevCfg.feedback ?? '',
-        idx           : bindingToUpdate.index
-      };
-      
-      /* ------------------------------------------------------------------
-         Assign NEW map reference so OnPush detects the change
-      ------------------------------------------------------------------- */
-      this.sharedOptionComponent.feedbackConfigs = {
-        ...this.sharedOptionComponent.feedbackConfigs,
-        [id]: fullCfg
-      };
-
-      this.showFeedbackForOption = {
-        ...this.showFeedbackForOption,
-        [id]: true
-      };
-
-      const newConfigs: { [key: number]: FeedbackProps } = {
-        ...(this.sharedOptionComponent.feedbackConfigs || {})
-      };
-      Object.keys(newConfigs).forEach(k => (newConfigs[+k].showFeedback = false));
-      newConfigs[id] = {
-        ...newConfigs[id],
-        showFeedback  : true,
-        selectedOption: option,
-        options       : this.optionBindings.map(b => b.option),
-        question      : this.currentQuestion!,
-        correctMessage: '',
-        feedback      : option.feedback?.trim() ||
-                        (option.correct
-                         ? 'Correct.'
-                         : 'See explanation above.'),
-        idx: bindingToUpdate.index
-      };
-      
-      // Assign the brand-new object back
-      this.sharedOptionComponent.feedbackConfigs = newConfigs;
-
-      // Mark last-feedback id
-      this.sharedOptionComponent.lastFeedbackOptionId = id;
-
-      /*  🔍  DEBUG  -------------------------------------------------- */
-      console.log('[QQC] showFeedbackForOption map →',
-            JSON.stringify(this.showFeedbackForOption, null, 2));
-
-      console.log('[QQC] feedbackConfigs[id] →',
-            this.sharedOptionComponent.feedbackConfigs[bindingToUpdate.option.optionId]);
-      /*  ------------------------------------------------------------ */
   
-      const explanationText = await this.updateExplanationText(lockedIndex);
-      if (requestId !== this.explanationRequestId) {
-        console.warn('[🛑 Explanation request outdated]', { requestId, latest: this.explanationRequestId });
-        return;
+      /* 1. Reset maps */
+      this.showFeedbackForOption = {};
+      const newConfigs: { [key: number]: FeedbackProps } = {};
+      for (const b of this.optionBindings) {
+        const id = b.option.optionId ?? b.index;
+        newConfigs[id] = {
+          ...this.sharedOptionComponent.feedbackConfigs[id],
+          showFeedback  : false,
+          selectedOption: b.option,
+          options       : this.optionBindings.map(x => x.option),
+          question      : this.currentQuestion!,
+          correctMessage: '',
+          feedback      : b.option.feedback ?? '',
+          idx           : b.index
+        } as FeedbackProps;
       }
-
-      const expl = this.currentQuestion?.explanation?.trim() || 'No explanation available';
+  
+      /* 2. Enable only clicked row */
+      const id = option.optionId;
+      this.showFeedbackForOption[id] = true;
+      newConfigs[id].showFeedback    = true;
+      newConfigs[id].selectedOption  = option;
+  
+      /* 3. Swap map reference so OnPush detects */
+      this.sharedOptionComponent.feedbackConfigs = newConfigs;
+      this.sharedOptionComponent.lastFeedbackOptionId = id;
+  
+      /* 4. Trigger view refresh */
+      this.sharedOptionComponent.cdRef.markForCheck();
+      this.cdRef.markForCheck();
+      /* ──────────────────────────────────────────────────────────────
+         END ◀
+      ────────────────────────────────────────────────────────────── */
+  
+      /* Explanation pane ------------------------------------------------ */
+      const expl = this.currentQuestion?.explanation?.trim() ||
+                   'No explanation available';
   
       const lockedState: LockedState = {
         index: lockedIndex,
@@ -2585,19 +2536,19 @@ export class QuizQuestionComponent
         timestamp: lockedTimestamp
       };
       this.emitExplanationIfValid(expl, lockedState);
-
-      this.explanationTextService.setShouldDisplayExplanation(true);
+  
       this.explanationTextService.setExplanationText(expl);
-      this.quizStateService.setDisplayState({
-        mode: 'explanation',
-        answered: true
-      });
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.cdRef.markForCheck();
   
+      /* Any remaining post-click logic --------------------------------- */
       await this.processSelectedOption(option, event.index, event.checked);
       await this.finalizeAfterClick(option, event.index);
+  
     } catch (error) {
       console.error('[onOptionClicked] ❌ Error:', error);
+  
     }
   }
 
