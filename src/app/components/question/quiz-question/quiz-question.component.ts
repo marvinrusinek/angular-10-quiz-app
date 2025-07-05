@@ -1842,7 +1842,7 @@ export class QuizQuestionComponent
         this.optionsToDisplay = cloned;  // new reference
         this.currentQuestionIndex = lockedIndex; // keep index in sync
 
-        if (this.sharedOptionComponent?.initializeOptionBindings) {
+        if (this.sharedOptionComponent) {
           this.sharedOptionComponent.initializeOptionBindings();
         }
 
