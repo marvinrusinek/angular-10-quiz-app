@@ -320,7 +320,11 @@ export class QuizQuestionLoaderService {
       );
   
       if (!fetchedQuestion?.questionText?.trim() || !fetchedOptions?.length) {
-        console.warn('[LOADER ⚠️] early-exit – missing data for Q', questionIndex);
+        console.warn(
+          '[LOADER ⚠️] early-exit – missing data for Q', questionIndex,
+          '| hasQuestion =', !!fetchedQuestion,
+          '| optionsLen  =', fetchedOptions?.length ?? 0
+        );
         return false;
       }
   
@@ -431,6 +435,13 @@ export class QuizQuestionLoaderService {
   
       // emit one last time so late subscribers have data
       this.optionsStream$.next(clonedOptions);
+
+      console.log(
+        '[LOADER-DONE] Q', questionIndex,
+        '| first option =',
+        this.optionsToDisplay?.[0]?.text,
+        '| arrayRef =', this.optionsToDisplay
+      );      
 
       return true;
   
