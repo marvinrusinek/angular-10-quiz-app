@@ -2525,7 +2525,7 @@ export class QuizQuestionComponent
         ...this.sharedOptionComponent.feedbackConfigs
       };
       newConfigs[id] = {
-        ...prev,
+        ...prevCfg,
         showFeedback  : true,
         selectedOption: option,
         feedback      : option.feedback ||
