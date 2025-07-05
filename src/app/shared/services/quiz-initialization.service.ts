@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
   BehaviorSubject,
+  combineLatest,
   EMPTY,
   firstValueFrom,
   forkJoin,
@@ -14,7 +15,6 @@ import {
 } from 'rxjs';
 import {
   catchError,
-  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
