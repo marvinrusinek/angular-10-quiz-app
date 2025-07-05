@@ -471,6 +471,16 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  getOptionsForQuiz(quizId: string, questionIndex: number): Observable<Option[]> {
+    return this.quizDataService.getQuestionsForQuiz(quizId).pipe(
+      map(qs => qs[questionIndex]?.options ?? []),
+      catchError(err => {
+        console.error('[QuizService] getOptionsForQuiz error', err);
+        return of([]);
+      })
+    );
+  }
+
   /* sanitizeOptions(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
       console.warn('⚠️ [sanitizeOptions] Options is not an array.');
