@@ -347,19 +347,94 @@ export class QuizQuestionLoaderService {
     });
   }
 
-  /* 6. Explanation, timers, flags – original logic lifted verbatim */
+  // Explanation, timers, flags – original logic lifted verbatim */
+  /** Runs AFTER we have emitted the QA payload. Handles
+   *  explanation, timers, downstream state, and final flags. */
   private async postEmitUpdates(
-    q: QuizQuestion, opts: Option[], idx: number): Promise<void> {
+    q: QuizQuestion,
+    opts: Option[],
+    idx: number
+  ): Promise<void> {
 
-    // (unchanged logic – timers, selection message, final flags)
-    /* … copy your existing step-10 / step-11 / step-12 code here … */
+    /* Explanation text + timers */
+    const isAnswered = this.selectedOptionService.isQuestionAnswered(idx);
 
+    this.explanationTextService.setResetComplete(false);
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.explanationText$.next('');
+
+    let explanationText = '';
+    if (isAnswered) {
+      explanationText =
+        q.explanation?.trim() || 'No explanation available';
+      this.explanationTextService
+          .setExplanationTextForQuestionIndex(idx, explanationText);
+
+      this.quizStateService.setDisplayState({
+        mode: 'explanation',
+        answered: true
+      });
+      this.timerService.isTimerRunning = false;
+    } else {
+      /* selection message for unanswered question */
+      const selMsg = this.selectionMessageService
+        .determineSelectionMessage(idx, this.totalQuestions, false);
+
+      if (this.selectionMessageService.getCurrentMessage() !== selMsg) {
+        setTimeout(() =>
+          this.selectionMessageService.updateSelectionMessage(selMsg), 100);
+      }
+      this.timerService.startTimer(this.timerService.timePerQuestion);
+    }
+
+    /* Down-stream state updates */
+    this.setQuestionDetails(
+      q.questionText.trim(),
+      opts,
+      explanationText
+    );
+
+    this.currentQuestionIndex = idx;
+    this.explanationToDisplay = explanationText;
+
+    this.questionPayload = {
+      question   : { ...q, options: opts },
+      options    : opts,
+      explanation: explanationText
+    };
+    this.shouldRenderQuestionComponent = true;
+    this.questionPayloadReadySource.next(true);
+
+    this.quizService.setCurrentQuestion({ ...q, options: opts });
+    this.quizService.setCurrentQuestionIndex(idx);
+    this.quizStateService.updateCurrentQuestion({ ...q, options: opts });
+
+    if (q.questionText && opts.length) {
+      const selMsg = this.selectionMessageService
+        .determineSelectionMessage(idx, this.totalQuestions, false);
+
+      this.quizStateService.emitQA(
+        { ...q, options: opts },   // question object
+        opts,                      // options list
+        selMsg,                    // selection message
+        this.quizService.quizId!,  // quiz id (non-null assertion)
+        idx                        // question index
+      );
+    }
+
+    /* combined streams / async checks */
+    this.setupCombinedQuestionStream();
+    await this.loadQuestionContents(idx);
+    await this.quizService.checkIfAnsweredCorrectly();
+
+    /* Final flags */
     this.questionTextLoaded   = true;
     this.hasOptionsLoaded     = true;
     this.shouldRenderOptions  = true;
     this.resetComplete        = true;
 
-    this.optionsStream$.next(opts);       // final emit for late subs
+    /* final emit so late subscribers have data */
+    this.optionsStream$.next(opts);
   }
 
   /* private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> { 
