@@ -53,8 +53,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() selectedOptionIndex: number | null = null;
   @Input() isNavigatingBackwards: boolean = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
-
-  questionVersion = 0;  // increments every time questionIndex changes
+  @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
 
@@ -2199,6 +2198,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
+    console.log('[Correct IDs]', correctOptions.map(o => o.optionId));
+    
     const feedbackSentence =
       this.feedbackService.generateFeedbackForOptions(correctOptions, options) ||
       'No feedback available.';
