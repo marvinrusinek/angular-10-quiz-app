@@ -53,6 +53,7 @@ export class QuizQuestionLoaderService {
   selectedOptions: Option[] = [];
   optionsToDisplay: Option[] = [];
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
+  optionBindingsSrc: Option[] = [];
   public hasOptionsLoaded = false;
   public shouldRenderOptions = false;
   public pendingOptions: Option[] | null = null;
