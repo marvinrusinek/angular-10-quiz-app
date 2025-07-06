@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../../../shared/models/Option.model';
@@ -59,6 +59,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
   public quizQuestionComponentLoaded = new EventEmitter<void>();
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     protected dynamicComponentService: DynamicComponentService,
@@ -157,7 +159,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   }
   
-
   ngAfterViewInit(): void {  
     if (this.viewContainerRefs) {
       this.viewContainerRefs?.changes.subscribe((refs) => {
@@ -169,6 +170,11 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
   
     this.cdRef.detectChanges(); // ensure change detection runs
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
