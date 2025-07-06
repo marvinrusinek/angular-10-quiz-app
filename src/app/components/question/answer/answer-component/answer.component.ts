@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
@@ -16,6 +16,7 @@ import { QuizStateService } from '../../../../shared/services/quizstate.service'
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { BaseQuestionComponent } from '../../../../components/question/base/base-question.component';
 import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
+import { SharedOptionComponent } from '../../../../components/question/answer/shared-option-component/shared-option.component';
 
 @Component({
   selector: 'codelab-question-answer',
@@ -26,6 +27,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @ViewChildren('dynamicAnswerContainer', { read: ViewContainerRef })
   viewContainerRefs!: QueryList<ViewContainerRef>;
   viewContainerRef!: ViewContainerRef;
+  @ViewChild(SharedOptionComponent)
+  sharedOptionComponent!: SharedOptionComponent;
   @Output() componentLoaded = new EventEmitter<QuizQuestionComponent>();
   quizQuestionComponent: QuizQuestionComponent | undefined;
   @Output() optionSelected = new EventEmitter<{option: SelectedOption, index: number, checked: boolean}>();
@@ -121,6 +124,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
       /* wake the OnPush CD cycle */
       this.cdRef.markForCheck();
+      this.sharedOptionComponent?.triggerViewRefresh();
     }
   
     /* optional extra logging */
