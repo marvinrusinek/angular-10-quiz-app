@@ -2485,7 +2485,6 @@ export class QuizQuestionComponent
         bindingToUpdate.isSelected   = true;
         bindingToUpdate.showFeedback = true;
         this.updateOptionBinding(bindingToUpdate);
-
         bindingToUpdate.directiveInstance?.updateHighlight();
       }
   
@@ -2500,8 +2499,10 @@ export class QuizQuestionComponent
       /* 1. Reset maps */
       this.showFeedbackForOption = {};
       const newConfigs: { [key: number]: FeedbackProps } = {};
+
       for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
+
         newConfigs[id] = {
           ...this.sharedOptionComponent.feedbackConfigs[id],
           showFeedback  : false,
@@ -2529,7 +2530,6 @@ export class QuizQuestionComponent
       this.sharedOptionComponent.lastFeedbackOptionId = id;
   
       /* 4. Trigger view refresh */
-      this.sharedOptionComponent.cdRef.markForCheck();
       this.cdRef.markForCheck();
       /* ──────────────────────────────────────────────────────────────
          END ◀
