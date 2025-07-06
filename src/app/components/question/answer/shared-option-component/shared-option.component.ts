@@ -395,15 +395,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // fresh bindings – neutral state
       this.optionBindings = [];
       this.processOptionBindings();
+
+      this.cdRef.detectChanges();
   
       // guarantee every directive paints a clean slate
-      for (const b of this.optionBindings) {
-        b.isSelected           = false;
-        b.option.selected      = false;
-        b.option.highlight     = false;
-        b.option.showIcon      = false;
-        b.directiveInstance?.updateHighlight();   // repaint immediately
-      }
+      queueMicrotask(() => {
+        for (const b of this.optionBindings) {
+          b.isSelected = b.option.selected = b.option.highlight = false;
+          b.option.showIcon = false;
+          b.directiveInstance?.updateHighlight();
+        }
+      });
   
       // repaint with “nothing selected”
       this.updateSelections(-1);
@@ -570,47 +572,53 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
    * Push the newly‐clicked option into history, then synchronize every binding’s
    * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
-   private updateSelections(selectedId: number): void {
-    /* ⛔ Ignore the late -1 repaint once user has clicked */
+   /** Re-sync selection, highlight & icon state for every row */
+  private updateSelections(selectedId: number): void {
+
+    /* ⛔ Ignore the late “-1” repaint once the user has already clicked */
     if (selectedId === -1 && this.selectedOptionHistory.length) {
-      return;  // user already interacted
+      return;
     }
 
-    // History
+    /* ------------------------------------------------------------------
+      1️⃣  HARD-RESET every row first  – icon / highlight / selection
+    ------------------------------------------------------------------- */
+    this.optionBindings.forEach(b => {
+      b.isSelected          = false;
+      b.option.selected     = false;
+      b.option.highlight    = false;
+      b.option.showIcon     = false;      //  ← clear icon on *all* rows
+      b.showFeedbackForOption = {};       //  fresh empty map
+    });
+
+    /* Keep a simple “last-clicked” history (optional) */
     if (!this.selectedOptionHistory.includes(selectedId)) {
       this.selectedOptionHistory.push(selectedId);
-      console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
     }
-  
-    // Walk every binding and update its flags
-    this.optionBindings.forEach(b => {
-      const id          = b.option.optionId;
-      const everClicked = this.selectedOptionHistory.includes(id); // in history?
-      const isCurrent   = id === selectedId;                       // just clicked?
-  
-      // This single line is what removed the 2-click lag
-      b.option.highlight = everClicked;        // highlight if EVER clicked
-      b.option.showIcon  = everClicked;        // icon if EVER clicked
-      /* --------------------------------------------------------------------- */
-  
-      b.isSelected      = isCurrent;           // radio / checkbox selected
-      b.option.selected = isCurrent;
-  
-      /* 🔒 guard: make sure showFeedbackForOption is always an object */
-      if (typeof b.showFeedbackForOption !== 'object' || b.showFeedbackForOption == null) {
-        b.showFeedbackForOption = {};          // reset placeholder map
-      }
-  
-      // Feedback only for the latest click
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      // repaint row synchronously
-      b.directiveInstance?.paintNow();
-    });
-  
-    // Flush to DOM
+
+    /* ------------------------------------------------------------------
+      2️⃣  Flip flags *only* for the row the user just clicked
+    ------------------------------------------------------------------- */
+    const clicked = this.optionBindings.find(
+      b => b.option.optionId === selectedId
+    );
+    if (clicked) {
+      clicked.isSelected               = true;
+      clicked.option.selected          = true;
+      clicked.option.highlight         = true;
+      clicked.option.showIcon          = true;         //  icon ON for this row
+      clicked.showFeedbackForOption[selectedId] = true;
+    }
+
+    /* ------------------------------------------------------------------
+      3️⃣  Force every directive to repaint immediately
+    ------------------------------------------------------------------- */
+    this.optionBindings.forEach(b => b.directiveInstance?.updateHighlight());
+
+    /* Flush to the DOM (OnPush) */
     this.cdRef.detectChanges();
   }
+
 
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
