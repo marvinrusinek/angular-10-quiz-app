@@ -100,13 +100,13 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
   
       /* 1️⃣  deep-clone so it’s ALWAYS a brand-new object graph       */
-      const cloned: Option[] =
+      /* const cloned: Option[] =
         typeof structuredClone === 'function'
           ? structuredClone(this.optionsToDisplay)           // modern runtimes
-          : JSON.parse(JSON.stringify(this.optionsToDisplay)); // fallback
+          : JSON.parse(JSON.stringify(this.optionsToDisplay)); // fallback */
   
       /* 2️⃣  build bindings from the cloned list                     */
-      this.optionBindings = cloned.map((opt, idx) => ({
+      /* this.optionBindings = cloned.map((opt, idx) => ({
         option      : opt,
         index       : idx,
         isSelected  : !!opt.selected,
@@ -120,7 +120,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         '[ANS] Q', this.currentQuestionIndex,
         '→ first opt text:', this.optionBindings[0]?.option?.text,
         '| arrayRef =', this.optionBindings
-      );
+      ); */
   
       /* wake the OnPush CD cycle */
       this.cdRef.markForCheck();
