@@ -533,7 +533,7 @@ export class QuizQuestionLoaderService {
     this.resetComplete        = true;
 
     /* final emit so late subscribers have data */
-    this.optionsStream$.next(opts);
+    this.optionsStream$.next([...opts]);
   }
 
   /* private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> { 
