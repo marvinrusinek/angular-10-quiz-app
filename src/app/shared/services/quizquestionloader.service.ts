@@ -870,4 +870,29 @@ export class QuizQuestionLoaderService {
       question: null as unknown as QuizQuestion
     });
   }
+
+  private async getQuestionsForActiveQuiz(): Promise<QuizQuestion[]> {
+    const quizId =
+      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    if (!quizId) throw new Error('No quizId in route');
+
+    if (quizId !== this.lastQuizId) {
+      this.questionsArray = [];
+      this.lastQuizId = quizId;
+    }
+
+    if (this.questionsArray.length === 0) {
+      this.questionsArray =
+        await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
+    }
+
+    this.activeQuizId       = quizId;
+    this.quizService.quizId = quizId;
+    this.quizService.setCurrentQuiz({
+      quizId,
+      questions: this.questionsArray
+    });
+
+    return this.questionsArray;
+  }
 }
