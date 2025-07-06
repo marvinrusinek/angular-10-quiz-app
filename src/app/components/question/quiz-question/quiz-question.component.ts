@@ -1849,7 +1849,7 @@ export class QuizQuestionComponent
         if (this.sharedOptionComponent) {
           this.sharedOptionComponent.initializeOptionBindings();
         }
-        
+
         this.cdRef.markForCheck();
       });
 
@@ -2485,6 +2485,8 @@ export class QuizQuestionComponent
         bindingToUpdate.isSelected   = true;
         bindingToUpdate.showFeedback = true;
         this.updateOptionBinding(bindingToUpdate);
+
+        bindingToUpdate.directiveInstance?.updateHighlight();
       }
   
       /* ──────────────────────────────────────────────────────────────
@@ -2510,6 +2512,10 @@ export class QuizQuestionComponent
           feedback      : b.option.feedback ?? '',
           idx           : b.index
         } as FeedbackProps;
+
+        if (b !== bindingToUpdate) {
+          b.directiveInstance?.updateHighlight();
+        }
       }
   
       /* 2. Enable only clicked row */
