@@ -2399,4 +2399,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   isLastSelectedOption(option: Option): boolean {
     return this.lastSelectedOptionId === option.optionId;
   }
+
+  public triggerViewRefresh(): void {
+    this.cdRef.markForCheck();
+  }
 }
