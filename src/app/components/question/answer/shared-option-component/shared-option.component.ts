@@ -362,7 +362,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const questionChanged = changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged = changes['optionsToDisplay'];
 
-    if (questionChanged || optionsChanged) {
+    if ((questionChanged || optionsChanged) &&
+    this.optionsToDisplay?.length) {
       this.questionVersion++;
 
       /* ── hard-reset per-row flags ── */
