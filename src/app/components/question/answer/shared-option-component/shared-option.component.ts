@@ -361,9 +361,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.log('[CHILD] got version →', this.questionVersion);
     }
   
-    /* ───────────────────────────────────────────────────────────────
-       1.  QUESTION INDEX (or options list) changed
-    ─────────────────────────────────────────────────────────────── */
+    // QUESTION INDEX (or options list) changed
     const questionChanged =
       changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged   = changes['optionsToDisplay'];
@@ -371,34 +369,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
   
-      /* ── 1-A. hard-reset per-row flags ─────────────────────────── */
+      // hard-reset per-row flags
       (this.optionsToDisplay ?? []).forEach(opt => {
         opt.highlight = false;
         opt.selected  = false;
         opt.showIcon  = false;
       });
   
-      /* wipe click-history & current selection */
+      // wipe click-history & current selection
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
   
-      /* wipe state maps */
+      // wipe state maps
       this.highlightedOptionIds.clear();
       this.freezeOptionBindings = false;
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
   
-      /* HARD-RESET radio / checkbox */
+      // HARD-RESET radio/checkbox
       this.form
         .get('selectedOptionId')
         ?.setValue(null, { emitEvent: false });
   
-      /* fresh bindings – neutral state */
+      // fresh bindings – neutral state
       this.optionBindings = [];
       this.processOptionBindings();
   
-      /* 🔑 NEW: guarantee every directive paints a clean slate */
+      // guarantee every directive paints a clean slate
       for (const b of this.optionBindings) {
         b.isSelected           = false;
         b.option.selected      = false;
@@ -407,27 +405,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         b.directiveInstance?.updateHighlight();   // repaint immediately
       }
   
-      /* repaint with “nothing selected” */
+      // repaint with “nothing selected”
       this.updateSelections(-1);
       this.cdRef.markForCheck();
     }
   
-    /* ───────────────────────────────────────────────────────────────
-       2.  NEW optionBindings reference came in
-    ─────────────────────────────────────────────────────────────── */
+    // NEW optionBindings reference came in
     if (
       changes['optionBindings'] &&
       Array.isArray(changes['optionBindings'].currentValue) &&
       changes['optionBindings'].currentValue.length
     ) {
-      /* 2-A. rebuild bindings */
+      // rebuild bindings
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
       this.generateOptionBindings();
       this.optionsReady = true;
   
-      /* 2-B. build fresh feedback maps */
+      // build fresh feedback maps
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
   
@@ -456,9 +452,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.markForCheck();
     }
   
-    /* ───────────────────────────────────────────────────────────────
-       3.  NEW question object arrived
-    ─────────────────────────────────────────────────────────────── */
+    // NEW question object arrived
     if (
       changes['currentQuestion'] &&
       this.currentQuestion?.questionText?.trim()
@@ -469,15 +463,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.highlightedOptionIds.clear();
     }
   
-    /* ───────────────────────────────────────────────────────────────
-       4.  Manual background-reset
-    ─────────────────────────────────────────────────────────────── */
+    // Manual background-reset
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
   }
-  
-  
 
   ngAfterViewInit(): void {
     if (this.form) {
