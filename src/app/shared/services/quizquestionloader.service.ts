@@ -258,7 +258,7 @@ export class QuizQuestionLoaderService {
     this.currentQuestionIndex = index;
 
     const explanation =
-      q.explanation?.trim() || 'No explanation available';0
+      q.explanation?.trim() || 'No explanation available';
 
     /* 5. emit downstream */
     this.emitQaPayload(q, cloned, index, explanation);
@@ -412,10 +412,10 @@ export class QuizQuestionLoaderService {
   ): void {
 
     /* A. Streams for the template */
-    this.optionsStream$.next(options);
+    this.optionsStream$.next([...options]);
     this.qaSubject.next({
       heading    : question.questionText.trim(),
-      options,
+      options    : [...options],
       explanation,
       question
     });
