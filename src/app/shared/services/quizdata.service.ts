@@ -152,27 +152,40 @@ export class QuizDataService implements OnDestroy {
     return throwError(() => new Error(error.message));
   }
 
+  /** Return a brand-new array of questions with fully-cloned options. */
   getQuestionsForQuiz(quizId: string): Observable<QuizQuestion[]> {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
-        if (!quiz.questions) {
+        if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
-        return quiz.questions.map((question, index) => ({
+
+        // Deep-clone every question and option
+        return quiz.questions.map((question) => ({
           ...question,
-          options: question.options.map((option, optIndex) => ({
-            ...option,
-            optionId: optIndex, // Ensure optionId is set
-            correct: option.correct ?? false // Default correct to false if undefined
-          })),
+          options: question.options.map((option, idx) => {
+            const base: Option = typeof structuredClone === 'function'
+              ? structuredClone(option)
+              : { ...option };
+
+            return {
+              ...base,
+              optionId : idx,
+              correct  : base.correct ?? false,
+              selected : false,
+              highlight: false,
+              showIcon : false,
+            } as Option;
+          }),
         }));
       }),
       catchError(error => {
-        console.error('Error fetching questions for quiz:', error);
-        return of([]);
+        console.error('[QuizDataService] getQuestionsForQuiz:', error);
+        // Rethrow so upstream callers see the failure
+        return throwError(() => error);
       })
     );
   }
