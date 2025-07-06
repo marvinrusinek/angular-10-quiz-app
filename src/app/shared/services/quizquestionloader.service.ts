@@ -338,16 +338,45 @@ export class QuizQuestionLoaderService {
   }
 
   /* 3. Fetch a single question + its options */
-  private async fetchQuestionAndOptions(index: number)
-    : Promise<{ q: QuizQuestion|null; opts: Option[] }> {
-
-    if (!this.questionsArray.length) {
+  private async fetchQuestionAndOptions(
+    index: number
+  ): Promise<{ q: QuizQuestion | null; opts: Option[] }> {
+  
+    // Which quiz is in the URL right now?
+    const quizId =
+      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    if (!quizId) {
+      console.error('[Loader] ❌ No quizId in route');
+      return { q: null, opts: [] };
+    }
+  
+    // Reset cache if user switched quizzes
+    if (quizId !== this.lastQuizId) {
+      this.questionsArray = [];  // discard stale TypeScript list
+      this.lastQuizId     = quizId;
+    }
+  
+    // Re-fetch if cache empty
+    if (this.questionsArray.length === 0) {
       this.questionsArray = await firstValueFrom(
-        this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
+        this.quizDataService.getQuestionsForQuiz(quizId)
       );
     }
+  
+    // Keep other services in sync
+    this.activeQuizId       = quizId;
+    this.quizService.quizId = quizId;
+  
+    // (optional) hydrate the full quiz so downstream code has metadata
+    const fullQuiz: Quiz = await firstValueFrom(
+      this.quizDataService.getQuiz(quizId).pipe(take(1))
+    );
+    this.quizService.setCurrentQuiz({ ...fullQuiz, questions: this.questionsArray });
+  
+    // Return the requested question + options
     const q    = this.questionsArray[index] ?? null;
     const opts = q?.options ?? [];
+  
     console.log('[LOADER QA]', index, opts.map(o => o.text));
     return { q, opts };
   }
@@ -869,38 +898,5 @@ export class QuizQuestionLoaderService {
       explanation: '',
       question: null as unknown as QuizQuestion
     });
-  }
-
-  private async getQuestionsForActiveQuiz(): Promise<QuizQuestion[]> {
-    const quizId =
-      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
-    if (!quizId) throw new Error('No quizId in route');
-  
-    /* wipe cache if quiz changed */
-    if (quizId !== this.lastQuizId) {
-      this.questionsArray = [];
-      this.lastQuizId = quizId;
-    }
-  
-    if (this.questionsArray.length === 0) {
-      this.questionsArray =
-        await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
-    }
-  
-    /* 🔸 grab the full quiz so we have all required fields */
-    const fullQuiz: Quiz = await firstValueFrom(
-      this.quizDataService.getQuiz(quizId).pipe(take(1))
-    );
-  
-    /* overwrite its questions with the normalised array */
-    this.quizService.setCurrentQuiz({
-      ...fullQuiz,
-      questions: this.questionsArray  // keep the hydrated list
-    });
-  
-    this.activeQuizId       = quizId;
-    this.quizService.quizId = quizId;
-  
-    return this.questionsArray;
   }
 }
