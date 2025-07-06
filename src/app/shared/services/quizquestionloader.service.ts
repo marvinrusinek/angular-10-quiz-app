@@ -24,9 +24,9 @@ import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
 export interface QAPayload {
-  heading: string;       // trimmed question text
-  options: Option[];     // hydrated options
-  explanation: string;   // optional explanation text
+  heading: string;        // trimmed question text
+  options: Option[];      // hydrated options
+  explanation: string;    // optional explanation text
   question: QuizQuestion; // the full question object with updated options
 }
 
