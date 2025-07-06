@@ -252,8 +252,11 @@ export class QuizQuestionLoaderService {
     this.optionsToDisplay = cloned;
     this.currentQuestionIndex = index;
 
+    const explanation =
+      q.explanation?.trim() || 'No explanation available';0
+
     /* 5. emit downstream */
-    this.emitQaPayload(q, cloned, index);
+    this.emitQaPayload(q, cloned, index, explanation);
 
     /* 6. explanation / timers / final flags */
     await this.postEmitUpdates(q, cloned, index);
