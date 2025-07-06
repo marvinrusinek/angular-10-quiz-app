@@ -124,7 +124,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
       /* wake the OnPush CD cycle */
       this.cdRef.markForCheck();
-      this.sharedOptionComponent?.triggerViewRefresh();
+      this.sharedOptionComponent?.forceRefresh();
     }
   
     /* optional extra logging */
