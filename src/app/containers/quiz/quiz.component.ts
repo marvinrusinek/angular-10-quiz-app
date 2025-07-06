@@ -90,6 +90,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   question$!: Observable<[QuizQuestion, Option[]]>;
   questions$: Observable<QuizQuestion[]>;
   questionPayload: QuestionPayload | null = null;
+  questionVersion = 0;
   questionTextForHeader = '';
   currentQuestion$: Observable<QuizQuestion | null> = 
     this.quizStateService.currentQuestion$.pipe(startWith(null));
@@ -3203,15 +3204,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
-    // this.quizQuestionLoaderService.clearQA();
-    await this.quizNavigationService.advanceToNextQuestion();
-  }  
+  
+    try {
+      await this.quizNavigationService.advanceToNextQuestion();
+      this.questionVersion++;
+      this.cdRef.markForCheck();
+    } catch (err) {
+      console.error('[Next] navigation failed', err);
+    }
+  }
   
   public async advanceToPreviousQuestion(): Promise<void> {
     this.triggerAnimation();
-    // this.quizQuestionLoaderService.clearQA();
-    await this.quizNavigationService.advanceToPreviousQuestion();
-  }  
+  
+    try {
+      await this.quizNavigationService.advanceToPreviousQuestion();
+      this.questionVersion++;
+      this.cdRef.markForCheck();
+    } catch (err) {
+      console.error('[Prev] navigation failed', err);
+    }
+  }
 
   // REMOVE!!
   advanceToResults(): void {
