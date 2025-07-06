@@ -249,8 +249,7 @@ export class QuizQuestionLoaderService {
     /* 4. hydrate, clone, assign */
     const cloned = this.hydrateAndClone(opts);
     this.currentQuestion  = { ...q, options: cloned };
-    // this.optionsToDisplay = cloned;
-    this.optionsToDisplay = opts.map(o => ({ ...o }));
+    this.optionsToDisplay = cloned;
     
     console.log('[UI FEED]', index, this.optionsToDisplay.map(o => o.text));
     this.currentQuestionIndex = index;
