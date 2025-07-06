@@ -91,23 +91,17 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe(opts => {
-        /* ① hand the child a **new array instance** */
-        this.optionsToDisplay = [...opts];
+        this.optionsToDisplay = [...opts];  // hand the child a new array instance
 
-        /* ② bump the view-key so the child view is recreated */
+        // bump the view-key so the child view is recreated
         this.questionVersion++;
 
-        /* ③ wake OnPush change-detection */
-        this.cdRef.markForCheck();
-
-        console.log('[PARENT] set options →',
-                    this.optionsToDisplay.map(o => o.text),
-                    '| version', this.questionVersion);
+        this.cdRef.markForCheck();;
       });
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    /* let BaseQuestionComponent do its work first */
+    // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
   
     /* ──────────────────────────────────────────────────────────────
