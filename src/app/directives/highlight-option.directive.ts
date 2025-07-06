@@ -221,7 +221,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       opt.showIcon = true;
       this.showFeedbackForOption[id] = true;
   
-      queueMicrotask(() => this.cdRef.detectChanges());
       return;
     }
   
