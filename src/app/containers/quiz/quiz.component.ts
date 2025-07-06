@@ -3208,6 +3208,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     try {
       await this.quizNavigationService.advanceToNextQuestion();
       this.questionVersion++;
+      console.log('[PARENT] version →', this.questionVersion);
       this.cdRef.markForCheck();
     } catch (err) {
       console.error('[Next] navigation failed', err);

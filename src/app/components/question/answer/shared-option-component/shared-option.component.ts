@@ -53,7 +53,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   @Input() selectedOptionIndex: number | null = null;
   @Input() isNavigatingBackwards: boolean = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
-  questionVersion = 0;  // increments every time questionIndex changes
+  @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
 
@@ -357,6 +357,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.log('[SOC] got version →', this.questionVersion);
+
     // QUESTION INDEX CHANGED
     // Detect question change 
     const questionChanged = changes['questionIndex'] && !changes['questionIndex'].firstChange;
