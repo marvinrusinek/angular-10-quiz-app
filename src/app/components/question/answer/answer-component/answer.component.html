@@ -1,12 +1,12 @@
 <app-shared-option 
-  [optionBindings]="optionBindingsSrc"
   [optionsToDisplay]="optionsToDisplay"
+  [optionBindings]="optionBindingsSrc"
   [questionIndex]="currentQuestionIndex"
+  [questionVersion]="questionVersion"
   [quizId]="quizId"
   [config]="sharedOptionConfig"
   [showFeedbackForOption]="showFeedbackForOption"
   [isNavigatingBackwards]="isNavigatingBackwards"
   (optionClicked)="onOptionClicked($event)"
   [attr.data-key]="currentQuestionIndex"
-  [questionVersion]="questionVersion"
 ></app-shared-option>
