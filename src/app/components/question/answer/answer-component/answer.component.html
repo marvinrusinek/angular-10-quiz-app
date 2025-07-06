@@ -1,4 +1,5 @@
 <app-shared-option 
+  *ngIf="optionsToDisplay?.length"
   [optionsToDisplay]="optionsToDisplay"
   [optionBindings]="optionBindingsSrc"
   [questionIndex]="currentQuestionIndex"
