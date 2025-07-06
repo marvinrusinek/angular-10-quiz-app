@@ -2403,4 +2403,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   public triggerViewRefresh(): void {
     this.cdRef.markForCheck();
   }
+
+  public forceRefresh(): void {
+    setTimeout(() => this.cdRef.detectChanges());
+  }
 }
