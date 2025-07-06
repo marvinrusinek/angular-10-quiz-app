@@ -93,7 +93,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       this.questionVersion++;
 
       /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
-      this.optionBindingsSrc = [...this.optionsToDisplay];   // ← added line
+      // this.optionBindingsSrc = [...this.optionsToDisplay];
+      this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
   
       /* 1️⃣  deep-clone so it’s ALWAYS a brand-new object graph       */
       const cloned: Option[] =
