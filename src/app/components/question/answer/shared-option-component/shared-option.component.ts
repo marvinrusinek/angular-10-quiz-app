@@ -397,13 +397,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.processOptionBindings();
   
       // guarantee every directive paints a clean slate
-      for (const b of this.optionBindings) {
-        b.isSelected           = false;
-        b.option.selected      = false;
-        b.option.highlight     = false;
-        b.option.showIcon      = false;
-        b.directiveInstance?.updateHighlight();   // repaint immediately
-      }
+      this.optionBindings.forEach(b => {
+        // wipe the option flags (these feed *ngIf in the template)
+        b.option.selected  = false;
+        b.option.highlight = false;
+        b.option.showIcon  = false;
+      
+        // ALSO overwrite the directive inputs before repainting
+        if (b.directiveInstance) {
+          b.directiveInstance.isSelected   = false;
+          b.directiveInstance.showFeedback = false;   // if you have this input
+          // repaint now – the directive will hide the icon
+          b.directiveInstance.updateHighlight();
+        }
+      });
   
       // repaint with “nothing selected”
       this.updateSelections(-1);
