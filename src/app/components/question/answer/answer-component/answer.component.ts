@@ -81,46 +81,52 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    /* let BaseQuestionComponent do its work first */
     await super.ngOnChanges?.(changes);
-
-    /* Re-create a fresh optionBindings array every time the parent
-       hands us a new optionsToDisplay reference.  */
+  
+    /* ──────────────────────────────────────────────────────────────
+       Parent just handed us a NEW optionsToDisplay reference
+    ────────────────────────────────────────────────────────────── */
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
-      /* 🔑 deep-clone so it’s ALWAYS a new reference */
+      /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
+      this.optionBindingsSrc = [...this.optionsToDisplay];   // ← added line
+  
+      /* 1️⃣  deep-clone so it’s ALWAYS a brand-new object graph       */
       const cloned: Option[] =
         typeof structuredClone === 'function'
-          ? structuredClone(this.optionsToDisplay)          // ← modern browsers
-          : JSON.parse(JSON.stringify(this.optionsToDisplay)); 
-    
-      /* build bindings from the cloned list */
+          ? structuredClone(this.optionsToDisplay)           // modern runtimes
+          : JSON.parse(JSON.stringify(this.optionsToDisplay)); // fallback
+  
+      /* 2️⃣  build bindings from the cloned list                     */
       this.optionBindings = cloned.map((opt, idx) => ({
-        option: opt,
-        index : idx,
-        isSelected: !!opt.selected,
-        isCorrect : opt.correct ?? false,
+        option      : opt,
+        index       : idx,
+        isSelected  : !!opt.selected,
+        isCorrect   : opt.correct ?? false,
         showFeedback: true,
-        feedback: opt.feedback ?? 'No feedback available',
-        highlight: !!opt.highlight
+        feedback    : opt.feedback ?? 'No feedback available',
+        highlight   : !!opt.highlight
       } as unknown as OptionBindings));
-
-      console.log('[ANS] Q', this.currentQuestionIndex,
-  '→ first opt text:', this.optionBindings[0]?.option?.text,
-  '| arrayRef =', this.optionBindings);
-    
+  
       console.log(
-        '[ANS ✅] qIdx', this.quizService.currentQuestionIndex,
-        '| new ref →', this.optionBindings,
-        '| first text →', this.optionBindings[0]?.option?.text
+        '[ANS] Q', this.currentQuestionIndex,
+        '→ first opt text:', this.optionBindings[0]?.option?.text,
+        '| arrayRef =', this.optionBindings
       );
-    
-      /* OnPush?  markForCheck */
-      this.cdRef?.markForCheck();
+  
+      /* wake the OnPush CD cycle */
+      this.cdRef.markForCheck();
     }
-
+  
+    /* optional extra logging */
     if (changes.questionData) {
-      console.log('AnswerComponent - questionData changed:', changes.questionData.currentValue);
+      console.log(
+        'AnswerComponent - questionData changed:',
+        changes.questionData.currentValue
+      );
     }
   }
+  
 
   ngAfterViewInit(): void {  
     if (this.viewContainerRefs) {
