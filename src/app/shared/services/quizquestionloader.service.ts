@@ -251,6 +251,7 @@ export class QuizQuestionLoaderService {
     this.currentQuestion  = { ...q, options: cloned };
     // this.optionsToDisplay = cloned;
     this.optionsToDisplay = opts.map(o => ({ ...o }));
+    
     console.log('[UI FEED]', index, this.optionsToDisplay.map(o => o.text));
     this.currentQuestionIndex = index;
 

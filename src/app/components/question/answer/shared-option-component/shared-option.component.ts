@@ -2194,6 +2194,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
+    if (!this.currentQuestion) {
+      return;
+    }
+
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
     const feedbackSentence =
       this.feedbackService.generateFeedbackForOptions(correctOptions, options) ||
