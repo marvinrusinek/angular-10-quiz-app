@@ -558,6 +558,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
    * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
    private updateSelections(selectedId: number): void {
+    /* ⛔ Ignore the late -1 repaint once user has clicked */
+    if (selectedId === -1 && this.selectedOptionHistory.length) {
+      return;  // user already interacted
+    }
 
     // History
     if (!this.selectedOptionHistory.includes(selectedId)) {
