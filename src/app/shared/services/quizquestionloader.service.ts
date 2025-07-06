@@ -393,9 +393,12 @@ export class QuizQuestionLoaderService {
       correct : o.correct ?? false,
       feedback: o.feedback ?? `The correct option is: ${o.text}`,
       selected: false,
-      showIcon: false,
+      highlight: false,
+      showIcon: false
     }));
+
     const active = this.quizService.assignOptionActiveStates(hydrated, false);
+
     return typeof structuredClone === 'function'
           ? structuredClone(active)
           : JSON.parse(JSON.stringify(active));
