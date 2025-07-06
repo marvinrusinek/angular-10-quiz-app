@@ -103,7 +103,7 @@ export class QuizQuestionLoaderService {
     distinctUntilChanged()
   );
 
-  private optionsStream$ = new BehaviorSubject<Option[]>([]);
+  optionsStream$ = new BehaviorSubject<Option[]>([]);
   options$ = this.optionsStream$.asObservable();
 
   lastQuizId: string | null = null;
