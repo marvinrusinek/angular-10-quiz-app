@@ -40,6 +40,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @Input() quizId!: string;
   @Input() optionsToDisplay!: Option[];
   @Input() optionBindings: OptionBindings[];
+  optionBindingsSrc: Option[] = [];
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
