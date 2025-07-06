@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Option } from '../../../../shared/models/Option.model';
 import { OptionBindings } from '../../../../shared/models/OptionBindings.model';
@@ -11,6 +12,7 @@ import { DynamicComponentService } from '../../../../shared/services/dynamic-com
 import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizQuestionLoaderService } from '../../../../shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from '../../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
@@ -63,6 +65,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     protected feedbackService: FeedbackService,
     protected nextButtonStateService: NextButtonStateService,
     protected quizService: QuizService,
+    protected quizQuestionLoaderService: QuizQuestionLoaderService,
     protected quizQuestionManagerService: QuizQuestionManagerService,
     protected quizStateService: QuizStateService,
     protected selectedOptionService: SelectedOptionService,
@@ -82,6 +85,23 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion);
       this.type = isMultipleAnswer ? 'multiple' : 'single';
     });
+
+    this.quizQuestionLoaderService.optionsStream$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(opts => {
+        /* ① hand the child a **new array instance** */
+        this.optionsToDisplay = [...opts];
+
+        /* ② bump the view-key so the child view is recreated */
+        this.questionVersion++;
+
+        /* ③ wake OnPush change-detection */
+        this.cdRef.markForCheck();
+
+        console.log('[PARENT] set options →',
+                    this.optionsToDisplay.map(o => o.text),
+                    '| version', this.questionVersion);
+      });
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
