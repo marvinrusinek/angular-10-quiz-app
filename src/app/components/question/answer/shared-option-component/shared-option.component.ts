@@ -357,10 +357,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('[SOC] got version →', this.questionVersion);
-
     if (changes['questionVersion']) {
-      console.log('[CHILD] got version →', this.questionVersion);      // 🟢 #2
+      console.log('[CHILD] got version →', this.questionVersion);
     }
 
     // QUESTION INDEX CHANGED
@@ -383,14 +381,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
-
-      (this.optionsToDisplay ?? []).forEach(opt => {
-        opt.highlight = false;
-        opt.selected  = false;
-        opt.showIcon  = false;
-      });
-
-      this.freezeOptionBindings = false;
 
       // Clear current bindings & feedback maps
       this.highlightedOptionIds.clear();
