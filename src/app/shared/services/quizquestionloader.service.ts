@@ -875,24 +875,32 @@ export class QuizQuestionLoaderService {
     const quizId =
       this.router.routerState.snapshot.root.firstChild?.params['quizId'];
     if (!quizId) throw new Error('No quizId in route');
-
+  
+    /* wipe cache if quiz changed */
     if (quizId !== this.lastQuizId) {
       this.questionsArray = [];
       this.lastQuizId = quizId;
     }
-
+  
     if (this.questionsArray.length === 0) {
       this.questionsArray =
         await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
     }
-
+  
+    /* 🔸 grab the full quiz so we have all required fields */
+    const fullQuiz: Quiz = await firstValueFrom(
+      this.quizDataService.getQuiz(quizId).pipe(take(1))
+    );
+  
+    /* overwrite its questions with the normalised array */
+    this.quizService.setCurrentQuiz({
+      ...fullQuiz,
+      questions: this.questionsArray  // keep the hydrated list
+    });
+  
     this.activeQuizId       = quizId;
     this.quizService.quizId = quizId;
-    this.quizService.setCurrentQuiz({
-      quizId,
-      questions: this.questionsArray
-    });
-
+  
     return this.questionsArray;
   }
 }
