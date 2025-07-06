@@ -366,6 +366,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (questionChanged || optionsChanged) {
       this.questionVersion++;
 
+      /* ── hard-reset per-row flags ── */
+      (this.optionsToDisplay ?? []).forEach(opt => {
+        opt.highlight = false;
+        opt.selected  = false;
+        opt.showIcon  = false;
+      });
+
       // Wipe click-history & current selection
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
