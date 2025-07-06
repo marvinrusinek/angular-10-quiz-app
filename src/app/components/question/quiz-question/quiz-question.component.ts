@@ -2448,120 +2448,112 @@ export class QuizQuestionComponent
   }
 
   public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
+    option : SelectedOption | null;
+    index  : number;
     checked: boolean;
   }): Promise<void> {
-    console.log('[CLICK HANDLER]', 'QQC');
-  
-    const option = event.option;
-    if (!option) {
+    if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
   
-    const lockedTimestamp = Date.now();
-    this.latestOptionClickTimestamp = lockedTimestamp;
-  
-    const lockedIndex   = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const lockedText    = this.currentQuestion?.questionText?.trim() || '';
-    const lockedSnapshot = structuredClone(this.currentQuestion);
-    const requestId      = ++this.explanationRequestId;
-  
     try {
-      /* Initial selection flow + enable Next button --------------------- */
-      this.performInitialSelectionFlow(event, option);
-      this.setAnsweredAndDisplayState();
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setButtonEnabled(true);
-      this.enableNextButton();
-      this.cdRef.detectChanges();
+      // basic selection → next button, flags, detectChanges
+      this.handleCoreSelection(event);
   
-      /* Update binding for highlight / selection ------------------------ */
-      const bindingToUpdate = this.optionBindings.find(
-        b => b.option.optionId === option.optionId
-      );
-      if (bindingToUpdate) {
-        bindingToUpdate.isSelected   = true;
-        bindingToUpdate.showFeedback = true;
-        this.updateOptionBinding(bindingToUpdate);
-        bindingToUpdate.directiveInstance?.updateHighlight();
-      }
+      // highlight row & mark binding
+      this.markBindingSelected(event.option);
   
-      /* ──────────────────────────────────────────────────────────────
-         START ▶ keep feedback ONLY for the row you just clicked
-      ────────────────────────────────────────────────────────────── */
-      if (!this.sharedOptionComponent) {
-        console.warn('[QQC] ViewChild <app-shared-option> not yet available');
-        return;                                   // bail early
-      }
+      // feedback only under the row just clicked
+      this.refreshFeedbackFor(event.option);
   
-      /* 1. Reset maps */
-      this.showFeedbackForOption = {};
-      const newConfigs: { [key: number]: FeedbackProps } = {};
-
-      for (const b of this.optionBindings) {
-        const id = b.option.optionId ?? b.index;
-
-        newConfigs[id] = {
-          ...this.sharedOptionComponent.feedbackConfigs[id],
-          showFeedback  : false,
-          selectedOption: b.option,
-          options       : this.optionBindings.map(x => x.option),
-          question      : this.currentQuestion!,
-          correctMessage: '',
-          feedback      : b.option.feedback ?? '',
-          idx           : b.index
-        } as FeedbackProps;
-
-        if (b !== bindingToUpdate) {
-          b.directiveInstance?.updateHighlight();
-        }
-      }
+      // explanation panel
+      this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
-      /* 2. Enable only clicked row */
-      const id = option.optionId;
-      this.showFeedbackForOption[id] = true;
-      newConfigs[id].showFeedback    = true;
-      newConfigs[id].selectedOption  = option;
-  
-      /* 3. Swap map reference so OnPush detects */
-      this.sharedOptionComponent.feedbackConfigs = newConfigs;
-      this.sharedOptionComponent.lastFeedbackOptionId = id;
-  
-      /* 4. Trigger view refresh */
-      this.cdRef.markForCheck();
-      /* ──────────────────────────────────────────────────────────────
-         END ◀
-      ────────────────────────────────────────────────────────────── */
-  
-      /* Explanation pane ------------------------------------------------ */
-      const expl = this.currentQuestion?.explanation?.trim() ||
-                   'No explanation available';
-  
-      const lockedState: LockedState = {
-        index: lockedIndex,
-        text: lockedText,
-        snapshot: lockedSnapshot,
-        timestamp: lockedTimestamp
-      };
-      this.emitExplanationIfValid(expl, lockedState);
-  
-      this.explanationTextService.setExplanationText(expl);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.cdRef.markForCheck();
-  
-      /* Any remaining post-click logic --------------------------------- */
-      await this.processSelectedOption(option, event.index, event.checked);
-      await this.finalizeAfterClick(option, event.index);
-  
-    } catch (error) {
-      console.error('[onOptionClicked] ❌ Error:', error);
-  
+      // remaining async tasks
+      await this.postClickTasks(event.option, event.index, event.checked);
+    } catch (err) {
+      console.error('[onOptionClicked] ❌ Error:', err);
     }
   }
 
+  private handleCoreSelection(
+    ev: { option: SelectedOption; index: number; checked: boolean }
+  ): void {
+    this.performInitialSelectionFlow(ev, ev.option);
+    this.setAnsweredAndDisplayState();
+  
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setButtonEnabled(true);
+    this.enableNextButton();
+    this.cdRef.detectChanges();
+  }
+  
+ 
+  // mark the binding & repaint highlight
+  private markBindingSelected(opt: Option): void {
+    const b = this.optionBindings.find(x => x.option.optionId === opt.optionId);
+    if (!b) return;
+  
+    b.isSelected = true;
+    b.showFeedback = true;
+    this.updateOptionBinding(b);
+    b.directiveInstance?.updateHighlight();
+  }
+  
+  // Keep feedback only for the clicked row
+  private refreshFeedbackFor(opt: Option): void {
+    if (!this.sharedOptionComponent) {
+      console.warn('[QQC] <app-shared-option> not ready');
+      return;
+    }
+  
+    this.sharedOptionComponent.lastFeedbackOptionId = opt.optionId;
+
+    const cfg: FeedbackProps = {
+      ...this.sharedOptionComponent.feedbackConfigs[opt.optionId],
+      showFeedback  : true,
+      selectedOption: opt,
+      options       : this.optionBindings.map(b => b.option),
+      question      : this.currentQuestion!,
+      feedback      : opt.feedback ?? '',
+      idx           : this.optionBindings.find(b => b.option.optionId === opt.optionId)?.index ?? 0,
+      correctMessage: ''
+    };
+  
+    this.sharedOptionComponent.feedbackConfigs = {
+      ...this.sharedOptionComponent.feedbackConfigs,
+      [opt.optionId]: cfg
+    };
+  
+    this.cdRef.markForCheck();
+  }
+  
+  // Emit / display explanation
+  private showExplanationLocked(snapshot: QuizQuestion, qIdx: number): void {
+    const expl = snapshot.explanation?.trim() || 'No explanation available';
+    this.emitExplanationIfValid(expl, {
+      index: qIdx,
+      text: snapshot.questionText?.trim() || '',
+      snapshot: structuredClone(snapshot),
+      timestamp: Date.now()
+    });
+  
+    this.explanationTextService.setExplanationText(expl);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  }
+  
+  // Any async follow-ups
+  private async postClickTasks(
+    opt: SelectedOption,
+    idx: number,
+    checked: boolean
+  ): Promise<void> {
+    await this.processSelectedOption(opt, idx, checked);
+    await this.finalizeAfterClick(opt, idx);
+  }
+  
   /** Utility: replace the changed binding & keep a fresh array ref */
   private updateOptionBinding(binding: OptionBindings): void {
     this.optionBindings = this.optionBindings.map(b =>
