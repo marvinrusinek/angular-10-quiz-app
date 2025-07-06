@@ -94,6 +94,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       /* ⚡ bump version so trackBy generates new keys */
       this.questionVersion++;
+      console.log('[PARENT] bumped version →', this.questionVersion);
 
       /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
       // this.optionBindingsSrc = [...this.optionsToDisplay];
