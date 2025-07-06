@@ -360,16 +360,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // QUESTION INDEX CHANGED
     // Detect question change 
-    if (changes['questionIndex'] && !changes['questionIndex'].firstChange) {
+    const questionChanged = changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged = changes['optionsToDisplay'];
+
+    if (questionChanged || optionsChanged) {
       this.questionVersion++;
 
       // Wipe click-history & current selection
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
-
-      // HARD RESET radio/checkbox value
-      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
 
       (this.optionsToDisplay ?? []).forEach(opt => {
         opt.highlight = false;
@@ -381,8 +381,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       // Clear current bindings & feedback maps
       this.highlightedOptionIds.clear();
+      this.freezeOptionBindings = false;
       this.showFeedbackForOption = {};
       this.feedbackConfigs = {};
+      
+      // HARD RESET radio/checkbox value
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+
       this.optionBindings = [];
       
       // Build fresh bindings that start completely neutral
