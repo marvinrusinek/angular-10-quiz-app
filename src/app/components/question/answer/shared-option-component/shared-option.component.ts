@@ -360,76 +360,87 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (changes['questionVersion']) {
       console.log('[CHILD] got version →', this.questionVersion);
     }
-
-    // QUESTION INDEX CHANGED
-    // Detect question change 
-    const questionChanged = changes['questionIndex'] && !changes['questionIndex'].firstChange;
-    const optionsChanged = changes['optionsToDisplay'];
-
-    if ((questionChanged || optionsChanged) &&
-    this.optionsToDisplay?.length) {
+  
+    /* ───────────────────────────────────────────────────────────────
+       1.  QUESTION INDEX (or options list) changed
+    ─────────────────────────────────────────────────────────────── */
+    const questionChanged =
+      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged   = changes['optionsToDisplay'];
+  
+    if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
-
-      /* ── hard-reset per-row flags ── */
+  
+      /* ── 1-A. hard-reset per-row flags ─────────────────────────── */
       (this.optionsToDisplay ?? []).forEach(opt => {
         opt.highlight = false;
         opt.selected  = false;
         opt.showIcon  = false;
       });
-
-      // Wipe click-history & current selection
+  
+      /* wipe click-history & current selection */
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
-
-      // Clear current bindings & feedback maps
+  
+      /* wipe state maps */
       this.highlightedOptionIds.clear();
       this.freezeOptionBindings = false;
       this.showFeedbackForOption = {};
-      this.feedbackConfigs = {};
-      
-      // HARD RESET radio/checkbox value
-      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
-
+      this.feedbackConfigs       = {};
+  
+      /* HARD-RESET radio / checkbox */
+      this.form
+        .get('selectedOptionId')
+        ?.setValue(null, { emitEvent: false });
+  
+      /* fresh bindings – neutral state */
       this.optionBindings = [];
-      
-      // Build fresh bindings that start completely neutral
       this.processOptionBindings();
-
-      console.log('[SOC] optionBindings received', this.optionBindings.map(o => o.option.text));
-
-
-      // Repaint once with “nothing selected”
+  
+      /* 🔑 NEW: guarantee every directive paints a clean slate */
+      for (const b of this.optionBindings) {
+        b.isSelected           = false;
+        b.option.selected      = false;
+        b.option.highlight     = false;
+        b.option.showIcon      = false;
+        b.directiveInstance?.updateHighlight();   // repaint immediately
+      }
+  
+      /* repaint with “nothing selected” */
       this.updateSelections(-1);
       this.cdRef.markForCheck();
     }
   
-    /* ── Handle NEW option list ─────────────────────────────────── */
-    if (changes['optionBindings'] &&
-        Array.isArray(changes['optionBindings'].currentValue) &&
-        changes['optionBindings'].currentValue.length) {
-  
-      /* A. rebuild bindings */
+    /* ───────────────────────────────────────────────────────────────
+       2.  NEW optionBindings reference came in
+    ─────────────────────────────────────────────────────────────── */
+    if (
+      changes['optionBindings'] &&
+      Array.isArray(changes['optionBindings'].currentValue) &&
+      changes['optionBindings'].currentValue.length
+    ) {
+      /* 2-A. rebuild bindings */
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
       this.generateOptionBindings();
       this.optionsReady = true;
   
-      /* B. create fresh per-question maps */
+      /* 2-B. build fresh feedback maps */
       this.showFeedbackForOption = {};
-      this.feedbackConfigs = {};
+      this.feedbackConfigs       = {};
   
       for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
-      
-        this.showFeedbackForOption[id] = true;
-      
+  
         const fallback =
-        b.option.feedback?.trim() || (b.option.correct
+          b.option.feedback?.trim() ||
+          (b.option.correct
             ? 'Great job — that answer is correct.'
             : 'Not quite — see the explanation.');
-      
+  
+        this.showFeedbackForOption[id] = true;
         this.feedbackConfigs[id] = {
           showFeedback  : true,
           selectedOption: b.option,
@@ -437,29 +448,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
           options       : this.optionBindings.map(x => x.option),
           question      : this.currentQuestion!,
           correctMessage: '',
-          idx           : b.index
+          idx           : b.index,
         };
       }
-
+  
       this.processOptionBindings();
       this.cdRef.markForCheck();
     }
   
-    /* Handle NEW question object ───────────────────────────────── */
-    if (changes['currentQuestion'] &&
-        this.currentQuestion?.questionText?.trim()) {
-  
+    /* ───────────────────────────────────────────────────────────────
+       3.  NEW question object arrived
+    ─────────────────────────────────────────────────────────────── */
+    if (
+      changes['currentQuestion'] &&
+      this.currentQuestion?.questionText?.trim()
+    ) {
       this.selectedOption        = null;
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
       this.highlightedOptionIds.clear();
     }
   
-    /* Background-reset toggle ──────────────────────────────────── */
+    /* ───────────────────────────────────────────────────────────────
+       4.  Manual background-reset
+    ─────────────────────────────────────────────────────────────── */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
   }
+  
   
 
   ngAfterViewInit(): void {
