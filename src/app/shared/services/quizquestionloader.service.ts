@@ -295,14 +295,42 @@ export class QuizQuestionLoaderService {
   }
 
   /* 2. Do all the big UI resets you already have */
-  private async resetUiForNewQuestion(i: number): Promise<void> {
-    this.resetQuestionState();
+  /** Clears forms, timers, messages, and child-component state so the
+ *  next question starts with a clean slate.  Call BEFORE you fetch data. */
+  private async resetUiForNewQuestion(index: number): Promise<void> {
+
+    // 0. Parent-level reset
+    this.resetQuestionState();                        // your existing helper
+
+    // 1. Child component reset
     if (this.quizQuestionComponent) {
-      await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+      await this.quizQuestionComponent
+                .resetQuestionStateBeforeNavigation();
     }
-    this.clearQA();
-    this.questionTextLoaded = this.hasOptionsLoaded = false;
-    this.shouldRenderOptions = this.isLoading = true;
+
+    // 2. Blank out the QA streams so the view flashes “loading…”
+    this.clearQA();                                   // { heading:null, options:[] }
+
+    // 3. Per-question flags
+    this.questionTextLoaded  = false;
+    this.hasOptionsLoaded    = false;
+    this.shouldRenderOptions = false;
+    this.isLoading           = true;
+
+    // 4. Explanation / selection messages
+    this.explanationTextService.resetExplanationState();
+    this.selectionMessageService.updateSelectionMessage('');
+    this.resetComplete = false;
+
+    // 5. Force a small delay so the DOM can repaint
+    await new Promise(res => setTimeout(res, 30));
+
+    // 6. If the previous question was answered, update guards
+    if (this.selectedOptionService.isQuestionAnswered(index)) {
+      this.quizStateService.setAnswered(true);
+      this.selectedOptionService.setAnswered(true, true);
+      this.nextButtonStateService.syncNextButtonState();
+    }
   }
 
   /* 3. Fetch a single question + its options */
@@ -337,15 +365,49 @@ export class QuizQuestionLoaderService {
   }
 
   /* 5. Push options + heading downstream */
-  private emitQaPayload(q: QuizQuestion, opts: Option[], idx: number): void {
-    this.optionsStream$.next(opts);
+  /** Emits heading, options, and explanation through the BehaviourSubjects
+ *  and updates every downstream service in one place. */
+  private emitQaPayload(
+    question   : QuizQuestion,
+    options    : Option[],
+    index      : number,
+    explanation: string
+  ): void {
+
+    /* A. Streams for the template */
+    this.optionsStream$.next(options);
     this.qaSubject.next({
-      heading    : q.questionText.trim(),
-      options    : opts,
-      explanation: q.explanation?.trim() ?? '',
-      question   : { ...q, options: opts }
+      heading    : question.questionText.trim(),
+      options,
+      explanation,
+      question
     });
+
+    /* B. State shared across services / components */
+    this.setQuestionDetails(question.questionText.trim(), options, explanation);
+    this.currentQuestionIndex = index;
+    this.explanationToDisplay = explanation;
+    this.questionPayload = { question, options, explanation };
+    this.shouldRenderQuestionComponent = true;
+    this.questionPayloadReadySource.next(true);
+
+    /* C. Push into QuizService + QuizStateService */
+    this.quizService.setCurrentQuestion(question);
+    this.quizService.setCurrentQuestionIndex(index);
+    this.quizStateService.updateCurrentQuestion(question);
+
+    /* D. Broadcast QA for any external listener (progress bar, etc.) */
+    const selMsg = this.selectionMessageService
+      .determineSelectionMessage(index, this.totalQuestions, false);
+    this.quizStateService.emitQA(
+      question,
+      options,
+      selMsg,
+      this.quizService.quizId!,
+      index
+    );
   }
+
 
   // Explanation, timers, flags – original logic lifted verbatim */
   /** Runs AFTER we have emitted the QA payload. Handles
