@@ -41,6 +41,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @Input() optionsToDisplay!: Option[];
   @Input() optionBindings: OptionBindings[];
   optionBindingsSrc: Option[] = [];
+  questionVersion = 0;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
@@ -88,6 +89,9 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
        Parent just handed us a NEW optionsToDisplay reference
     ────────────────────────────────────────────────────────────── */
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
+      /* ⚡ bump version so trackBy generates new keys */
+      this.questionVersion++;
+
       /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
       this.optionBindingsSrc = [...this.optionsToDisplay];   // ← added line
   
