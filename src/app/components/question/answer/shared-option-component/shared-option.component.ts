@@ -727,18 +727,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if (selectedId === -1 && this.selectedOptionHistory.length) { return; }
   
     this.optionBindings.forEach(b => {
-      const id        = b.option.optionId;
-      const isCurrent = id === selectedId;
-  
-      b.isSelected      = isCurrent;         // the **one** checked radio/checkbox
-      b.option.selected = isCurrent;
-      b.option.highlight= isCurrent;         // colour only current row
-      b.option.showIcon = isCurrent;         // icon only current row
-  
-      /* feedback map mirrors the same rule */
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      b.directiveInstance?.updateHighlight();  // repaint
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id);
+      const isCurrent   = id === selectedId;
+    
+      /* colours ------------------------------------------------------ */
+      b.option.highlight = everClicked;          // every row ever clicked stays coloured
+      b.isSelected       = isCurrent;            // radio / checkbox state
+      b.option.selected  = isCurrent;
+    
+      /* icon & feedback – only the latest click ---------------------- */
+      b.option.showIcon              = isCurrent;
+      b.showFeedbackForOption[id]    = isCurrent;
+    
+      b.directiveInstance?.updateHighlight();
     });
   
     this.cdRef.detectChanges();              // flush DOM
