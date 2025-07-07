@@ -368,10 +368,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
-      this.clearAllRowFlags();                   // ✅ wipe old bindings
-      this.debugDump('after clearAllRowFlags');
-      /* ★ force an immediate CD so old icons vanish */
-      this.cdRef.detectChanges();
+    
+      this.fullyResetRows();                 // ★ single point of truth
+      this.debugDump('after fullyResetRows');
+    
+      // also nuke per-question state maps
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId  = -1;
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs       = {};
+    
+      // clear reactive form without emitting
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+    
+      // rebuild bindings from the *new* options list
+      this.optionBindings = [];
+      this.processOptionBindings();
+    
+      /* two stacked change-detections → guarantees clean slate paint */
+      this.cdRef.detectChanges();   // clears old DOM paint
+      this.updateSelections(-1);    // no row selected
+      this.cdRef.detectChanges();   // paints pristine rows
     }
   
     /* ------------ NEW optionBindings array came in -------------- */
@@ -2678,5 +2695,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
 
     this.cdRef.detectChanges();
+  }
+
+  /* ------------------------------------------------------------------
+   Hard-reset every row (flags + visual DOM) for a brand-new question
+  ------------------------------------------------------------------- */
+  private fullyResetRows(): void {
+    // zero every binding flag …
+    for (const b of this.optionBindings) {
+      b.isSelected           = false;
+      b.option.selected      = false;
+      b.option.highlight     = false;
+      b.option.showIcon      = false;
+      b.showFeedbackForOption[b.option.optionId] = false;
+    }
+
+    // … and force every directive to repaint *now*
+    this.highlightDirectives?.forEach(d => {
+      d.isSelected  = false;
+      d.updateHighlight();
+    });
   }
 }
