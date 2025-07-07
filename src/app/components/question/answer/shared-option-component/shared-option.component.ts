@@ -724,7 +724,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();              // flush DOM
   } */
-  private updateSelections(selectedId: number): void {
+  /* private updateSelections(selectedId: number): void {
     // keep a unique history for “ever-clicked”
     if (!this.selectedOptionHistory.includes(selectedId) && selectedId !== -1) {
       this.selectedOptionHistory.push(selectedId);
@@ -735,17 +735,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const everClicked = this.selectedOptionHistory.includes(id);
       const isCurrent   = id === selectedId;
   
-      /** highlight every row that has EVER been chosen in this question */
+      // highlight every row that has EVER been chosen in this question
       b.option.highlight = everClicked;
   
-      /** icon only on the row that was JUST clicked */
+      // icon only on the row that was JUST clicked
       b.option.showIcon  = isCurrent;
   
-      /** native control */
+      // native control
       b.isSelected       = isCurrent;
       b.option.selected  = isCurrent;
   
-      /** feedback map – only the current row is true */
+      // feedback map – only the current row is true
       if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
       b.showFeedbackForOption[id] = isCurrent;
   
@@ -753,7 +753,47 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();
+  } */
+  /** Call exactly once after *each* user click. */
+  private updateSelections(selectedId: number): void {
+    /* ignore the synthetic “-1 repaint” that runs right after question load */
+    if (selectedId === -1) {
+      this.cdRef.detectChanges();
+      return;
+    }
+
+    /* remember every id that has ever been clicked in THIS question */
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+
+    this.optionBindings.forEach(b => {
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id);
+      const isCurrent   = id === selectedId;
+
+      /*  colour stays ON for anything ever clicked */
+      b.option.highlight = everClicked;
+
+      /*  icon only on the row that was *just* clicked */
+      b.option.showIcon  = isCurrent;
+
+      /*  native control state */
+      b.isSelected       = isCurrent;
+      b.option.selected  = isCurrent;
+
+      /*  feedback – only current row is true */
+      if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
+      b.showFeedbackForOption[id] = isCurrent;
+
+      /*  repaint row */
+      b.directiveInstance?.updateHighlight();
+    });
+
+    this.cdRef.detectChanges();
   }
+
+
   
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
