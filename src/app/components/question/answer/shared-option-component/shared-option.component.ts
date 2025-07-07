@@ -367,50 +367,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionsChanged   = changes['optionsToDisplay'];
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
-      // FULL hard-reset of rows from the previous question
-      this.clearAllRowFlags();
-      this.resetRowVisuals();
-  
-      // hard-reset per-row flags
-      (this.optionsToDisplay ?? []).forEach(opt => {
-        opt.highlight = false;
-        opt.selected  = false;
-        opt.showIcon  = false;
-      });
-  
-      // wipe click-history & current selection
+      // wipe every visual + state flag from the **previous** question
+      this.resetRowVisuals();          // does all the heavy lifting
+    
+      // now rebuild the bindings for the NEW question
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
-  
-      // wipe state maps
+    
       this.highlightedOptionIds.clear();
-      this.freezeOptionBindings = false;
+      this.freezeOptionBindings  = false;
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
-  
-      // HARD-RESET radio/checkbox
-      this.form
-        .get('selectedOptionId')
-        ?.setValue(null, { emitEvent: false });
-  
-      // fresh bindings – neutral state
-      this.optionBindings = [];
-      this.processOptionBindings();
-
-      // wipe every flag on the new bindings
-      this.optionBindings.forEach(b => {
-        b.isSelected        = false;
-        b.option.selected   = false;
-        b.option.highlight  = false;
-        b.option.showIcon   = false;
-      });
-
-      // force the directive to repaint the neutral state
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-
-      // repaint with “nothing selected”
-      this.updateSelections(-1);
+    
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+    
+      this.optionBindings = [];      // discard old list
+      this.processOptionBindings();  // create neutral bindings
+    
+      // tell Angular to render the fresh state
       this.cdRef.markForCheck();
     }
   
