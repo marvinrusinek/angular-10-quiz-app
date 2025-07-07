@@ -793,7 +793,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
 
-
+  private debugDump(label: string): void {
+    console.log(`\n========= ${label} =========`);
+    this.optionBindings.forEach(b => {
+      console.log(
+        `row ${b.index}`,
+        {
+          highlight : b.option.highlight,
+          showIcon  : b.option.showIcon,
+          selected  : b.option.selected,
+          isSelected: b.isSelected
+        }
+      );
+    });
+  }
   
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
