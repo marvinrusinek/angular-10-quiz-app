@@ -188,7 +188,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -197,7 +197,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id  = opt.optionId;
   
-    /* highlight only if user selected this row in THIS question */
+    // highlight only if user selected this row in THIS question
     const isChosen =
       this.isSelected || opt.selected || opt.highlight;
   
@@ -246,7 +246,73 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
+  } */
+  updateHighlight(): void {
+
+    /* ──────────────────────────────────────────────────────────────
+       0.  Guard clauses
+    ────────────────────────────────────────────────────────────── */
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+  
+    const opt = this.optionBinding.option;
+    const id  = opt.optionId;
+    const container = this.el.nativeElement as HTMLElement;
+  
+    if (!(container instanceof HTMLElement)) {
+      console.warn('[❌ container is not an HTMLElement]');
+      return;
+    }
+  
+    const isCorrect = this.isCorrect ?? false;
+  
+    /* ──────────────────────────────────────────────────────────────
+       1.  ALWAYS start from a blank visual state
+           (wipe previous background / icon from earlier question)
+    ────────────────────────────────────────────────────────────── */
+    this.renderer.removeStyle(container, 'background-color');   // clear old paint
+    this.renderer.removeClass(container, 'deactivated-option');
+    this.renderer.setStyle(container, 'cursor', 'pointer');
+    this.setPointerEvents(container, 'auto');
+  
+    opt.highlight  = false;
+    opt.showIcon   = false;
+    this.showFeedbackForOption[id] = false;
+  
+    /* ──────────────────────────────────────────────────────────────
+       2.  Decide if THIS row should now be highlighted / disabled
+    ────────────────────────────────────────────────────────────── */
+    const isChosen = this.isSelected || opt.selected || opt.highlight;
+  
+    // 2-a.  Row is selected  ➜ paint red / green
+    if (isChosen) {
+      const color = isCorrect ? '#43f756' : '#ff0000';
+  
+      this.setBackgroundColor(container, color);
+      opt.highlight = true;
+      opt.showIcon  = true;
+      this.showFeedbackForOption[id] = true;
+  
+      return;
+    }
+  
+    // 2-b.  Row is inactive  ➜ grey + no pointer events
+    if (!isCorrect && opt.active === false) {
+      const color = '#a3a3a3';
+  
+      this.setBackgroundColor(container, color);
+      this.renderer.addClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'not-allowed');
+      this.setPointerEvents(container, 'none');
+  
+      return;
+    }
+  
+    /* 2-c. Neutral row – nothing more to do (it’s already blank) */
   }
+  
   
 
   private highlightCorrectAnswers(): void {
