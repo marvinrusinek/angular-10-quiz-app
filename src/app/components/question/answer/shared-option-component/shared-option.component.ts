@@ -1531,8 +1531,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Final UI change detection
     this.cdRef.detectChanges();
     console.log(`[✅ Final State Update for Option ${optionId}]`);
-
-    this.updateSelections(-1);
   }
   
   private applyHighlighting(optionBinding: OptionBindings): void {
