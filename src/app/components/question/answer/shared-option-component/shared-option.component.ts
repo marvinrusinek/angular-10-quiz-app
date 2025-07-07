@@ -834,6 +834,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
 
     this.debugDump(`after updateSelections(${selectedId})`);
+
+    console.log('[🔍 AFTER CLICK – Option State Table]');
+    console.table(
+      this.optionBindings.map(b => ({
+        id   : b.option.optionId,
+        sel  : b.option.selected,
+        hi   : b.option.highlight,
+        icon : b.option.showIcon
+      }))
+    );
   }
 
   private debugDump(label: string): void {
