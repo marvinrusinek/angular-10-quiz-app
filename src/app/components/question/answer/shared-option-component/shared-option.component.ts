@@ -1363,9 +1363,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     
-    /* ask each directive to repaint once – keeps colours/icons in sync */
-    this.highlightDirectives?.forEach(d => d.updateHighlight());
-    
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       console.log('[♻️ New question detected — clearing feedback state]', {
         prev: this.lastFeedbackQuestionIndex,
