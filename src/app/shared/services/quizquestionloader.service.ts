@@ -390,8 +390,8 @@ export class QuizQuestionLoaderService {
     const hydrated = opts.map((o, i) => ({
       ...o,
       optionId: o.optionId ?? i,
-      correct : o.correct ?? false,
-      feedback: o.feedback ?? `The correct option is: ${o.text}`,
+      correct : !!o.correct ?? false,
+      feedback : o.feedback ?? '',
       selected: false,
       highlight: false,
       showIcon: false
