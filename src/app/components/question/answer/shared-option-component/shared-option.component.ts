@@ -357,51 +357,56 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    /* version bump → child trackBy */
     if (changes['questionVersion']) {
       console.log('[CHILD] got version →', this.questionVersion);
     }
   
-    // QUESTION INDEX (or options list) changed
+    /* ------------ QUESTION (or options list) changed ------------ */
     const questionChanged =
-      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+          changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged   = changes['optionsToDisplay'];
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
-      this.clearAllRowFlags();
+      this.clearAllRowFlags();                   // ✅ wipe old bindings
       this.debugDump('after clearAllRowFlags');
+      /* ★ force an immediate CD so old icons vanish */
+      this.cdRef.detectChanges();
     }
   
-    // NEW optionBindings reference came in
-    if (
-      changes['optionBindings'] &&
-      Array.isArray(changes['optionBindings'].currentValue) &&
-      changes['optionBindings'].currentValue.length
-    ) {
-      // rebuild bindings
+    /* ------------ NEW optionBindings array came in -------------- */
+    if (changes['optionBindings'] &&
+        Array.isArray(changes['optionBindings'].currentValue) &&
+        changes['optionBindings'].currentValue.length) {
+  
+      /* A. rebuild fresh bindings */
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
-      this.generateOptionBindings();
+      this.generateOptionBindings();             // ← produces brand-new objects
+  
+      /* ★ NOW, before any directive paints, zero out the row flags */
+      this.optionBindings.forEach(b => {
+        b.isSelected         = false;
+        b.option.selected    = false;
+        b.option.highlight   = false;
+        b.option.showIcon    = false;
+      });
+  
       this.optionsReady = true;
   
-      // build fresh feedback maps
+      /* B. rebuild per-question maps */
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
   
       for (const b of this.optionBindings) {
         const id = b.option.optionId ?? b.index;
-
+  
         this.showFeedbackForOption[id] = true;
   
-        /* const fallback =
-          b.option.feedback?.trim() ||
-          (b.option.correct
-            ? 'Great job — that answer is correct.'
-            : 'Not quite — see the explanation.'); */
-  
         this.feedbackConfigs[id] = {
-          showFeedback   : true,
+          showFeedback   : false,
           selectedOption : b.option,
           feedback       : b.option.feedback?.trim() ||
                            (b.option.correct
@@ -414,27 +419,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         };
       }
   
+      /* C. let SOC recompute directive state */
       this.processOptionBindings();
       this.debugDump('after processOptionBindings (fresh question)');
-      this.cdRef.markForCheck();
+  
+      /* ★ second immediate CD so neutral colours / no icons render */
+      this.cdRef.detectChanges();
     }
   
-    // NEW question object arrived
-    if (
-      changes['currentQuestion'] &&
-      this.currentQuestion?.questionText?.trim()
-    ) {
+    /* ------------ NEW question object (text) -------------------- */
+    if (changes['currentQuestion'] &&
+        this.currentQuestion?.questionText?.trim()) {
+  
       this.selectedOption        = null;
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
       this.highlightedOptionIds.clear();
     }
   
-    // Manual background-reset
+    /* ------------ background-reset ------------------------------ */
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
   }
+  
 
   ngAfterViewInit(): void {
     if (this.form) {
