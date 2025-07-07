@@ -368,6 +368,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
+
+      // FULL hard-reset of rows from the previous question
+      this.clearAllRowFlags();
   
       // hard-reset per-row flags
       (this.optionsToDisplay ?? []).forEach(opt => {
@@ -397,16 +400,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.processOptionBindings();
 
       this.cdRef.detectChanges();
-  
-      // guarantee every directive paints a clean slate
-      queueMicrotask(() => {
-        for (const b of this.optionBindings) {
-          b.isSelected = b.option.selected = b.option.highlight = false;
-          b.option.showIcon = false;
-          b.directiveInstance?.updateHighlight();
-        }
-      });
-  
+
       // repaint with “nothing selected”
       this.updateSelections(-1);
       this.cdRef.markForCheck();
@@ -572,51 +566,59 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
    * Push the newly‐clicked option into history, then synchronize every binding’s
    * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
-   /** Re-sync selection, highlight & icon state for every row */
-  private updateSelections(selectedId: number): void {
-
-    /* ⛔ Ignore the late “-1” repaint once the user has already clicked */
+   private updateSelections(selectedId: number): void {
+    /* ⛔ Ignore the late -1 repaint once user has clicked */
     if (selectedId === -1 && this.selectedOptionHistory.length) {
-      return;
+      return;  // user already interacted
     }
 
-    /* ------------------------------------------------------------------
-      1️⃣  HARD-RESET every row first  – icon / highlight / selection
-    ------------------------------------------------------------------- */
+    // History
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+      console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
+    }
+  
+    // Walk every binding and update its flags
+    this.optionBindings.forEach(b => {
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id); // in history?
+      const isCurrent   = id === selectedId;                       // just clicked?
+  
+      // This single line is what removed the 2-click lag
+      b.option.highlight = everClicked;        // highlight if EVER clicked
+      b.option.showIcon  = everClicked;        // icon if EVER clicked
+      /* --------------------------------------------------------------------- */
+  
+      b.isSelected      = isCurrent;           // radio / checkbox selected
+      b.option.selected = isCurrent;
+  
+      /* 🔒 guard: make sure showFeedbackForOption is always an object */
+      if (typeof b.showFeedbackForOption !== 'object' || b.showFeedbackForOption == null) {
+        b.showFeedbackForOption = {};          // reset placeholder map
+      }
+  
+      // Feedback only for the latest click
+      b.showFeedbackForOption[id] = isCurrent;
+  
+      // repaint row synchronously
+      b.directiveInstance?.paintNow();
+    });
+  
+    // Flush to DOM
+    this.cdRef.detectChanges();
+  }
+
+  /** 🔄 Wipe every per-row UI flag and force the directive to repaint */
+  private clearAllRowFlags(): void {
     this.optionBindings.forEach(b => {
       b.isSelected          = false;
       b.option.selected     = false;
       b.option.highlight    = false;
-      b.option.showIcon     = false;      //  ← clear icon on *all* rows
-      b.showFeedbackForOption = {};       //  fresh empty map
+      b.option.showIcon     = false;
+      b.showFeedback        = false;
+      b.showFeedbackForOption = {};
+      b.directiveInstance?.updateHighlight();   // repaint immediately
     });
-
-    /* Keep a simple “last-clicked” history (optional) */
-    if (!this.selectedOptionHistory.includes(selectedId)) {
-      this.selectedOptionHistory.push(selectedId);
-    }
-
-    /* ------------------------------------------------------------------
-      2️⃣  Flip flags *only* for the row the user just clicked
-    ------------------------------------------------------------------- */
-    const clicked = this.optionBindings.find(
-      b => b.option.optionId === selectedId
-    );
-    if (clicked) {
-      clicked.isSelected               = true;
-      clicked.option.selected          = true;
-      clicked.option.highlight         = true;
-      clicked.option.showIcon          = true;         //  icon ON for this row
-      clicked.showFeedbackForOption[selectedId] = true;
-    }
-
-    /* ------------------------------------------------------------------
-      3️⃣  Force every directive to repaint immediately
-    ------------------------------------------------------------------- */
-    this.optionBindings.forEach(b => b.directiveInstance?.updateHighlight());
-
-    /* Flush to the DOM (OnPush) */
-    this.cdRef.detectChanges();
   }
 
 
