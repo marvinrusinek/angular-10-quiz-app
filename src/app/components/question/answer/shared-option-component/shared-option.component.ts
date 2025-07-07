@@ -387,6 +387,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
       /* two stacked change-detections → guarantees clean slate paint */
       this.cdRef.detectChanges();   // clears old DOM paint
+
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
       this.cdRef.detectChanges();   // paints pristine rows
     }
@@ -441,6 +443,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       /* ★ second immediate CD so neutral colours / no icons render */
       this.cdRef.detectChanges();
+
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
   
     /* ------------ NEW question object (text) -------------------- */
@@ -451,6 +455,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
       this.highlightedOptionIds.clear();
+
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
   
     /* ------------ background-reset ------------------------------ */
@@ -2341,6 +2347,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   
     this.markRenderReady();
+
+    this.optionBindings.forEach((b, i) => {
+      const opt = b.option;
+    
+      // Ensure all options that were selected are properly flagged
+      if (opt.selected) {
+        opt.highlight = true;
+        opt.showIcon  = true; // optional, if you want icons for all selected rows
+        this.showFeedbackForOption[opt.optionId] = true;
+      }
+    });
   }
   
 
