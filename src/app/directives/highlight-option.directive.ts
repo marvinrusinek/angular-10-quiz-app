@@ -188,7 +188,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  /* updateHighlight(): void {
+  updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -197,7 +197,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id  = opt.optionId;
   
-    // highlight only if user selected this row in THIS question
+    /* highlight only if user selected this row in THIS question */
     const isChosen =
       this.isSelected || opt.selected || opt.highlight;
   
@@ -246,36 +246,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
-  } */
-  updateHighlight(): void {
-    if (!this.optionBinding?.option) { return; }
-  
-    const opt       = this.optionBinding.option;
-    const container = this.el.nativeElement as HTMLElement;
-    const isRowSel  = this.isSelected;          // 🔑 single source of truth
-    const isCorrect = this.isCorrect ?? false;
-  
-    /* selected row  ───────────────────────────────────────────── */
-    if (isRowSel) {
-      const color = isCorrect ? '#43f756' : '#ff0000';
-      this.setBackgroundColor(container, color);
-      this.renderer.removeClass(container, 'deactivated-option');
-      this.renderer.setStyle(container, 'cursor', 'pointer');
-      this.setPointerEvents(container, 'auto');
-  
-      opt.showIcon = true;
-      return;
-    }
-  
-    /* neutral row  ─────────────────────────────────────────────── */
-    this.renderer.removeStyle(container, 'background-color');
-    this.renderer.removeClass(container, 'deactivated-option');
-    this.renderer.setStyle(container, 'cursor', 'pointer');
-    this.setPointerEvents(container, 'auto');
-  
-    opt.showIcon = false;
   }
-  
   
 
   private highlightCorrectAnswers(): void {
