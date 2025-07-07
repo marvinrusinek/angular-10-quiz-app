@@ -702,9 +702,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // ── 3.  Flush to the DOM ──────────────────────────────────────
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedId: number): void {
-
-    /* Ignore the automatic -1 repaint once the user has interacted */
+  /* private updateSelections(selectedId: number): void {
+    // Ignore the automatic -1 repaint once the user has interacted
     if (selectedId === -1 && this.selectedOptionHistory.length) { return; }
   
     this.optionBindings.forEach(b => {
@@ -712,12 +711,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const everClicked = this.selectedOptionHistory.includes(id);
       const isCurrent   = id === selectedId;
     
-      /* colours ------------------------------------------------------ */
+      // colours
       b.option.highlight = everClicked;          // every row ever clicked stays coloured
       b.isSelected       = isCurrent;            // radio / checkbox state
       b.option.selected  = isCurrent;
     
-      /* icon & feedback – only the latest click ---------------------- */
+      // icon & feedback – only the latest click
       b.option.showIcon              = isCurrent;
       b.showFeedbackForOption[id]    = isCurrent;
     
@@ -725,6 +724,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   
     this.cdRef.detectChanges();              // flush DOM
+  } */
+  private updateSelections(selectedId: number): void {
+    // keep a unique history for “ever-clicked”
+    if (!this.selectedOptionHistory.includes(selectedId) && selectedId !== -1) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+  
+    this.optionBindings.forEach(b => {
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id);
+      const isCurrent   = id === selectedId;
+  
+      /** highlight every row that has EVER been chosen in this question */
+      b.option.highlight = everClicked;
+  
+      /** icon only on the row that was JUST clicked */
+      b.option.showIcon  = isCurrent;
+  
+      /** native control */
+      b.isSelected       = isCurrent;
+      b.option.selected  = isCurrent;
+  
+      /** feedback map – only the current row is true */
+      if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
+      b.showFeedbackForOption[id] = isCurrent;
+  
+      b.directiveInstance?.updateHighlight();
+    });
+  
+    this.cdRef.detectChanges();
   }
   
   /* private ensureOptionsToDisplay(): void {
