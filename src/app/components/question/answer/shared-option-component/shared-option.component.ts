@@ -2318,12 +2318,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      /* ── 0. start each option blank ── */
+      option.highlight = false;
+      option.showIcon  = false;
+
       const isSelected =
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
   
       // Always persist highlight for selected options
-      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
+      /* if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
         option.highlight = true;
+      } */
+      if (isSelected) {
+        option.highlight = true;
+        option.showIcon  = true;                  // <-- icon for every selected row
+        freshShowMap[option.optionId] = true;
       }
   
       // Build binding as before
@@ -2335,7 +2344,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return binding;
     });
   
-    this.updateHighlighting();
+    // this.updateHighlighting();
+    
+    // 🔑 repaint *once* with the freshly-set flags
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
   
     // Mark view ready after DOM settles
     setTimeout(() => {
@@ -2347,17 +2359,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   
     this.markRenderReady();
-
-    this.optionBindings.forEach((b, i) => {
-      const opt = b.option;
-    
-      // Ensure all options that were selected are properly flagged
-      if (opt.selected) {
-        opt.highlight = true;
-        opt.showIcon  = true; // optional, if you want icons for all selected rows
-        this.showFeedbackForOption[opt.optionId] = true;
-      }
-    });
   }
   
 
