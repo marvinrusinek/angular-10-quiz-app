@@ -2396,6 +2396,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // 🔁 Build fresh bindings
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected = !!option.selected; // trust Option.selected directly
+      const opt: Option = { ...option };
   
       // Enforce highlight + icon on selected options
       option.highlight = isSelected;
@@ -2411,7 +2412,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         freshShowMap[option.optionId] = false;
       }
   
-      const binding = this.getOptionBindings(option, idx, isSelected);
+      // const binding = this.getOptionBindings(option, idx, isSelected);
+      const binding = this.getOptionBindings(opt, idx, false);
       binding.showFeedbackForOption = freshShowMap;
   
       return binding;
