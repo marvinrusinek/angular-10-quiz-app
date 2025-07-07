@@ -397,6 +397,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionBindings = [];
       this.processOptionBindings();
 
+      // wipe every flag on the new bindings
+      this.optionBindings.forEach(b => {
+        b.isSelected        = false;
+        b.option.selected   = false;
+        b.option.highlight  = false;
+        b.option.showIcon   = false;
+      });
+
       // repaint with “nothing selected”
       this.updateSelections(-1);
       this.cdRef.markForCheck();
