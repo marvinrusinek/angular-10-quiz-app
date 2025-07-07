@@ -2584,23 +2584,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   /** Wipe *every* per-row flag then force each directive to repaint */
+  /**  Call once, right after you detect a new question or a new option list. */
   private clearAllRowFlags(): void {
+    /* wipe every binding */
     this.optionBindings.forEach(b => {
-      b.isSelected           = false;
-      b.option.selected      = false;
-      b.option.highlight     = false;
-      b.option.showIcon      = false;
+      b.isSelected            = false;
 
-      // also clear per-row feedback
+      // option-level UI flags
+      b.option.selected       = false;
+      b.option.highlight      = false;   // colour
+      b.option.showIcon       = false;   // ✔ / ✖ icon
+
+      // feedback maps
       if (b.showFeedbackForOption) {
-        Object.keys(b.showFeedbackForOption).forEach(k => b.showFeedbackForOption[+k] = false);
+        Object.keys(b.showFeedbackForOption)
+              .forEach(k => b.showFeedbackForOption[+k] = false);
       }
 
-      b.directiveInstance?.updateHighlight();   // 🔄 repaint immediately
+      /* repaint immediately */
+      b.directiveInstance?.updateHighlight();
     });
 
-    this.lastFeedbackOptionId = -1;
+    /* component-level state */
+    this.selectedOptionHistory = [];
+    this.lastFeedbackOptionId  = -1;
     this.showFeedbackForOption = {};
     this.feedbackConfigs       = {};
+
+    /* reset the reactive form’s value without firing events */
+    this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+
+    this.cdRef.detectChanges();
   }
 }
