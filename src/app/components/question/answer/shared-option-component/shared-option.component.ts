@@ -2554,4 +2554,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   public forceRefresh(): void {
     setTimeout(() => this.cdRef.detectChanges());
   }
+
+  // Force-wipe all rows – highlight, icon, selection & feedback
+  private resetRowVisuals(): void {
+    for (const b of this.optionBindings) {
+      // flags                     (data)
+      b.isSelected          = false;
+      b.option.selected     = false;
+      b.option.highlight    = false;
+      b.option.showIcon     = false;
+
+      // feedback maps            (ui state)
+      this.showFeedbackForOption[b.option.optionId] = false;
+
+      // directive repaint        (dom)
+      b.directiveInstance?.updateHighlight();
+    }
+
+    // ensure nothing is pre-selected in the reactive-form control
+    this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  }
 }
