@@ -188,7 +188,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
   } */
-  updateHighlight(): void {
+  /* updateHighlight(): void {
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -197,7 +197,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     const opt = this.optionBinding.option;
     const id  = opt.optionId;
   
-    /* highlight only if user selected this row in THIS question */
+    // highlight only if user selected this row in THIS question
     const isChosen =
       this.isSelected || opt.selected || opt.highlight;
   
@@ -209,7 +209,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     const isCorrect = this.isCorrect ?? false;
   
-    /* ── 1.  Row is selected ───────────────────────────────────── */
+    // ── 1.  Row is selected ───────────────────────────────────── 
     if (isChosen) {
       const color = isCorrect ? '#43f756' : '#ff0000';
   
@@ -224,7 +224,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    /* ── 2.  Row is inactive / disabled ────────────────────────── */
+    // ── 2.  Row is inactive / disabled ────────────────────────── 
     if (!isCorrect && opt.active === false) {
       const color = '#a3a3a3';
   
@@ -238,7 +238,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    /* ── 3.  Neutral state (no highlight) ──────────────────────── */
+    // ── 3.  Neutral state (no highlight) ────────────────────────
     this.renderer.removeStyle(container, 'background-color');  // 🔑 clear old paint
     this.renderer.removeClass(container, 'deactivated-option');
     this.renderer.setStyle(container, 'cursor', 'pointer');
@@ -246,7 +246,36 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     opt.showIcon = false;
     this.showFeedbackForOption[id] = false;
+  } */
+  updateHighlight(): void {
+    if (!this.optionBinding?.option) { return; }
+  
+    const opt       = this.optionBinding.option;
+    const container = this.el.nativeElement as HTMLElement;
+    const isRowSel  = this.isSelected;          // 🔑 single source of truth
+    const isCorrect = this.isCorrect ?? false;
+  
+    /* selected row  ───────────────────────────────────────────── */
+    if (isRowSel) {
+      const color = isCorrect ? '#43f756' : '#ff0000';
+      this.setBackgroundColor(container, color);
+      this.renderer.removeClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'pointer');
+      this.setPointerEvents(container, 'auto');
+  
+      opt.showIcon = true;
+      return;
+    }
+  
+    /* neutral row  ─────────────────────────────────────────────── */
+    this.renderer.removeStyle(container, 'background-color');
+    this.renderer.removeClass(container, 'deactivated-option');
+    this.renderer.setStyle(container, 'cursor', 'pointer');
+    this.setPointerEvents(container, 'auto');
+  
+    opt.showIcon = false;
   }
+  
   
 
   private highlightCorrectAnswers(): void {
