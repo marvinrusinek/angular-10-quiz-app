@@ -2382,7 +2382,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       option.showIcon  = isSelected;
   
       if (isSelected) {
+        option.highlight = true;
+        option.showIcon = true;
         freshShowMap[option.optionId] = true;
+      } else {
+        option.highlight = false;
+        option.showIcon = false;
+        freshShowMap[option.optionId] = false;
       }
   
       const binding = this.getOptionBindings(option, idx, isSelected);
@@ -2779,4 +2785,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       d.updateHighlight();
     });
   }
+
+  toggleSelectedOption(option: Option): void {
+    // Only toggle the clicked option
+    option.selected = !option.selected;
+  
+    // Clear highlight & showIcon for all other options
+    this.optionsToDisplay.forEach(o => {
+      if (o.optionId !== option.optionId && !o.selected) {
+        o.highlight = false;
+        o.showIcon = false;
+      }
+    });
+  
+    // Set flags for the clicked one
+    option.highlight = option.selected;
+    option.showIcon = option.selected;
+  }  
 }
