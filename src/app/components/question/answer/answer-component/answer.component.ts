@@ -88,6 +88,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       this.type = isMultipleAnswer ? 'multiple' : 'single';
     });
 
+    // displays the unique options to the UI
     this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe(opts => {

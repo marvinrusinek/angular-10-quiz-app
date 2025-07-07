@@ -617,13 +617,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Flush to DOM
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedId: number): void {
-    /* ⛔ Ignore the late -1 repaint once user has clicked */
+  /* private updateSelections(selectedId: number): void {
+    // Ignore the late -1 repaint once user has clicked
     if (selectedId === -1 && this.selectedOptionHistory.length) {
       return;  // user already interacted
     }
   
-    /* ── 0. HARD-RESET every row BEFORE doing anything else ───────── */
+    // ── 0. HARD-RESET every row BEFORE doing anything else ─────────
     for (const b of this.optionBindings) {
       b.isSelected           = false;
       b.option.selected      = false;
@@ -632,7 +632,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.showFeedbackForOption[b.option.optionId] = false;
       b.directiveInstance?.updateHighlight();   // ⬅ repaint immediately
     }
-    /* ─────────────────────────────────────────────────────────────── */
+
   
     // History
     if (!this.selectedOptionHistory.includes(selectedId)) {
@@ -644,7 +644,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const id        = b.option.optionId;
       const isCurrent = id === selectedId;   // just clicked?
   
-      /* highlight / icon only for the *current* click */
+      // highlight / icon only for the *current* click
       b.option.highlight = isCurrent;
       b.option.showIcon  = isCurrent;
   
@@ -660,8 +660,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Flush to DOM
     this.cdRef.detectChanges();
-  }
+  } */
+  private updateSelections(selectedId: number): void {
+
+    /* 0 — reset every row first */
+    this.optionBindings.forEach(b => {
+      b.isSelected           = false;
+      b.option.selected      = false;
+      b.option.highlight     = false;
+      b.option.showIcon      = false;
+      b.showFeedbackForOption[b.option.optionId] = false;
+      b.directiveInstance?.paintNow();
+    });
   
+    /* -1 is the “initial repaint”; nothing else to do */
+    if (selectedId === -1) {
+      this.cdRef.detectChanges();
+      return;
+    }
+  
+    /* 1 — mark ONLY the row that was just clicked */
+    const clicked = this.optionBindings.find(
+      x => x.option.optionId === selectedId
+    );
+    if (clicked) {
+      clicked.isSelected        = true;
+      clicked.option.selected   = true;
+      clicked.option.highlight  = true;
+      clicked.option.showIcon   = true;
+      clicked.showFeedbackForOption[selectedId] = true;
+      clicked.directiveInstance?.paintNow();
+    }
+  
+    this.cdRef.detectChanges();
+  }
 
   /** 🔄 Wipe every per-row UI flag and force the directive to repaint */
   private clearAllRowFlags(): void {
