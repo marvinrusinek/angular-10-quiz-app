@@ -405,6 +405,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         b.option.showIcon   = false;
       });
 
+      // force the directive to repaint the neutral state
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+
       // repaint with “nothing selected”
       this.updateSelections(-1);
       this.cdRef.markForCheck();
@@ -669,9 +672,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Flush to DOM
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedId: number): void {
+  /* private updateSelections(selectedId: number): void {
 
-    /* 0 — reset every row first */
+    // 0 — reset every row first
     this.optionBindings.forEach(b => {
       b.isSelected           = false;
       b.option.selected      = false;
@@ -681,13 +684,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.directiveInstance?.paintNow();
     });
   
-    /* -1 is the “initial repaint”; nothing else to do */
+    // -1 is the “initial repaint”; nothing else to do
     if (selectedId === -1) {
       this.cdRef.detectChanges();
       return;
     }
   
-    /* 1 — mark ONLY the row that was just clicked */
+    // 1 — mark ONLY the row that was just clicked
     const clicked = this.optionBindings.find(
       x => x.option.optionId === selectedId
     );
@@ -700,6 +703,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       clicked.directiveInstance?.paintNow();
     }
   
+    this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedId: number): void {
+    /* Ignore the –1 repaint once the user has already interacted */
+    if (selectedId === -1 && this.selectedOptionHistory.length) {
+      return;
+    }
+  
+    // ── 1.  Track click-history ───────────────────────────────────
+    if (!this.selectedOptionHistory.includes(selectedId)) {
+      this.selectedOptionHistory.push(selectedId);
+    }
+  
+    // ── 2.  Walk every binding ────────────────────────────────────
+    this.optionBindings.forEach(b => {
+      const id          = b.option.optionId;
+      const everClicked = this.selectedOptionHistory.includes(id);
+      const isCurrent   = id === selectedId;
+  
+      /* A.  highlight ALL ever-clicked rows */
+      b.option.highlight  = everClicked;
+  
+      /* B.  show icon ONLY on *this* click */
+      b.option.showIcon   = isCurrent;
+  
+      /* C.  radio / checkbox checked state */
+      b.isSelected        = isCurrent;
+      b.option.selected   = isCurrent;
+  
+      /* D.  feedback map – only current row gets feedback */
+      if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
+      b.showFeedbackForOption[id] = isCurrent;
+  
+      /* E.  repaint synchronously */
+      b.directiveInstance?.updateHighlight();
+    });
+  
+    // ── 3.  Flush to the DOM ──────────────────────────────────────
     this.cdRef.detectChanges();
   }
 
