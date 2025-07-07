@@ -1362,12 +1362,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-
-    const id = optionBinding.option.optionId;
-    const nowChecked = 'checked' in ev ? ev.checked : true;
-
-    // keep Set + row flags perfectly in-sync
-    this.syncSelectionVisuals(id, nowChecked);
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       console.log('[♻️ New question detected — clearing feedback state]', {
@@ -1533,9 +1527,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedbackForOption: this.showFeedbackForOption,
       lastFeedbackOptionId: this.lastFeedbackOptionId,
       displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
-    });
-
-    this.highlightDirectives?.forEach(d => d.updateHighlight());
+    });    
   
     // Final UI change detection
     this.cdRef.detectChanges();
@@ -2831,23 +2823,5 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         }
       }
     });
-  }
-
-  /** keeps Set in sync then pushes flags into every binding */
-  private syncSelectionVisuals(clickedId: number, nowChecked: boolean): void {
-    nowChecked
-      ? this.selectedIds.add(clickedId)
-      : this.selectedIds.delete(clickedId);
-
-    for (const b of this.optionBindings) {
-      const id  = b.option.optionId;
-      const on  = this.selectedIds.has(id);
-
-      b.isSelected        = on;
-      b.option.selected   = on;
-      b.option.highlight  = on;
-      b.option.showIcon   = on;          // show ✓ / ✗ only for rows that are ON
-      this.showFeedbackForOption[id] = on;
-    }
   }
 }
