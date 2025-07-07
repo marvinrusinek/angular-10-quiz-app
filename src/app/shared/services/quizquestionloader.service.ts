@@ -30,7 +30,6 @@ export interface QAPayload {
   question: QuizQuestion; // the full question object with updated options
 }
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
   private quizQuestionComponent!: QuizQuestionComponent;
