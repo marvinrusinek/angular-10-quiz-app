@@ -1362,21 +1362,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     event: MatCheckboxChange | MatRadioChange
   ): void {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
-
-    const id = optionBinding.option.optionId;
-    const nowChecked = 'checked' in event ? event.checked : true;
-
-    nowChecked ? this.selectedIds.add(id) : this.selectedIds.delete(id);
-
-    for (const b of this.optionBindings) {
-      const on = this.selectedIds.has(b.option.optionId);
-    
-      b.isSelected        = on;
-      b.option.selected   = on;
-      b.option.highlight  = on;
-      b.option.showIcon   = on;               // 🔑 icon appears only if ON
-      this.showFeedbackForOption[b.option.optionId] = on;
-    }
     
     /* ask each directive to repaint once – keeps colours/icons in sync */
     this.highlightDirectives?.forEach(d => d.updateHighlight());
