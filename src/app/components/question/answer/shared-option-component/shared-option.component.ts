@@ -1341,7 +1341,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
-    this.toggleSelectedOption(optionBinding.option);
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
@@ -1435,9 +1434,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         correctMessage: optionBinding.option.feedback?.trim() || '',
         idx: index
       }
-    };    
+    };
     console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
     console.log('[🧪 Final feedbackConfigs]', JSON.stringify(this.feedbackConfigs, null, 2));
+
+    this.toggleSelectedOption(optionBinding.option);
 
     this.forceHighlightRefresh(optionId);
   
