@@ -1414,6 +1414,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
 
     if (this.type === 'single') {            // radio-style questions only
+      this.selectedOptionMap.clear();
       this.optionBindings.forEach(b => {
         // wipe every row
         b.isSelected        = false;
@@ -1492,9 +1493,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Iterate through ALL optionBindings and sync selected state + feedback
     this.optionBindings.forEach((binding) => {
       const id = binding.option.optionId;
-      const isSelected =
+      /* const isSelected =
         this.selectedOptionMap.get(id) === true ||
-        this.selectedOptionHistory.includes(id);
+        this.selectedOptionHistory.includes(id); */
+      const isSelected = this.selectedOptionMap.get(id) === true;
   
       binding.isSelected = isSelected;
       binding.option.selected = isSelected;
