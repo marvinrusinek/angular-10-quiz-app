@@ -2289,7 +2289,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.markRenderReady();
   } */
-  public generateOptionBindings(): void {
+  /* public generateOptionBindings(): void {
     console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
     // Guard: don't allow reassignment after user click
     if (this.freezeOptionBindings) {
@@ -2311,14 +2311,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       ])
     );
   
-    /* ── 🔑  NEW: create a fresh shared feedback map for this question ── */
+    // ── 🔑  NEW: create a fresh shared feedback map for this question ──
     const freshShowMap: Record<number, boolean> = {};
     this.showFeedbackForOption = freshShowMap;      // store for updateSelections
     console.log('[MAP] fresh reference', freshShowMap);
   
     // Build fresh bindings using retained selection state
     this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      /* ── 0. start each option blank ── */
+      // ── 0. start each option blank ──
       option.highlight = false;
       option.showIcon  = false;
 
@@ -2326,9 +2326,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         existingSelectionMap.get(option.optionId) ?? !!option.selected;
   
       // Always persist highlight for selected options
-      /* if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
-        option.highlight = true;
-      } */
       if (isSelected) {
         option.highlight = true;
         option.showIcon  = true;                  // <-- icon for every selected row
@@ -2338,14 +2335,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // Build binding as before
       const binding = this.getOptionBindings(option, idx, isSelected);
   
-      /* attach the FRESH map so every binding shares the same reference */
+      // attach the FRESH map so every binding shares the same reference
       binding.showFeedbackForOption = freshShowMap;
   
       return binding;
     });
   
     // this.updateHighlighting();
-    
+
     // 🔑 repaint *once* with the freshly-set flags
     this.highlightDirectives?.forEach(d => d.updateHighlight());
   
@@ -2359,8 +2356,56 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   
     this.markRenderReady();
-  }
+  } */
+  public generateOptionBindings(): void {
+    console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
   
+    if (this.freezeOptionBindings) {
+      console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
+      return;
+    }
+  
+    if (!this.optionsToDisplay?.length) {
+      console.warn('[⚠️ No options to display]');
+      return;
+    }
+  
+    const freshShowMap: Record<number, boolean> = {};
+    this.showFeedbackForOption = freshShowMap;
+  
+    // 🔁 Build fresh bindings
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
+      const isSelected = !!option.selected; // trust Option.selected directly
+  
+      // Enforce highlight + icon on selected options
+      option.highlight = isSelected;
+      option.showIcon  = isSelected;
+  
+      if (isSelected) {
+        freshShowMap[option.optionId] = true;
+      }
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+      binding.showFeedbackForOption = freshShowMap;
+  
+      return binding;
+    });
+  
+    this.updateHighlighting();
+  
+    // 🔁 Immediately repaint all rows after applying highlight flags
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
+  
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = true;
+        this.viewReady = true;
+        console.log('[✅ optionsReady & viewReady set]');
+      });
+    }, 100);
+  
+    this.markRenderReady();
+  }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
