@@ -367,26 +367,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionsChanged   = changes['optionsToDisplay'];
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
-      // wipe every visual + state flag from the **previous** question
-      this.resetRowVisuals();          // does all the heavy lifting
+
+      /* 1. bump version so <mat-radio-button> get destroyed/re-created */
+      this.questionVersion++;
     
-      // now rebuild the bindings for the NEW question
+      /* 2. wipe *all* visual flags from the previous question */
+      this.wipeRowFlags(this.optionBindings);
+    
+      /* 3. wipe per-question state (history, feedback maps, etc.) */
       this.selectedOptionHistory = [];
       this.selectedOption        = null;
       this.lastFeedbackOptionId  = -1;
-    
-      this.highlightedOptionIds.clear();
-      this.freezeOptionBindings  = false;
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
     
+      /* 4. force the reactive-form back to nothing */
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
     
-      this.optionBindings = [];      // discard old list
-      this.processOptionBindings();  // create neutral bindings
+      /* 5. rebuild neutral bindings for the new options array */
+      this.optionBindings = [];
+      this.processOptionBindings();
     
-      // tell Angular to render the fresh state
-      this.cdRef.markForCheck();
+      this.cdRef.markForCheck();              // OnPush refresh
     }
   
     // NEW optionBindings reference came in
@@ -681,8 +683,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.cdRef.detectChanges();
   } */
-  private updateSelections(selectedId: number): void {
-    /* Ignore the –1 repaint once the user has already interacted */
+  /* private updateSelections(selectedId: number): void {
+    // Ignore the –1 repaint once the user has already interacted
     if (selectedId === -1 && this.selectedOptionHistory.length) {
       return;
     }
@@ -698,27 +700,50 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const everClicked = this.selectedOptionHistory.includes(id);
       const isCurrent   = id === selectedId;
   
-      /* A.  highlight ALL ever-clicked rows */
+      // A.  highlight ALL ever-clicked rows
       b.option.highlight  = everClicked;
   
-      /* B.  show icon ONLY on *this* click */
+      // B.  show icon ONLY on *this* click
       b.option.showIcon   = isCurrent;
   
-      /* C.  radio / checkbox checked state */
+      // C.  radio / checkbox checked state
       b.isSelected        = isCurrent;
       b.option.selected   = isCurrent;
   
-      /* D.  feedback map – only current row gets feedback */
+      // D.  feedback map – only current row gets feedback
       if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
       b.showFeedbackForOption[id] = isCurrent;
   
-      /* E.  repaint synchronously */
+      // E.  repaint synchronously
       b.directiveInstance?.updateHighlight();
     });
   
     // ── 3.  Flush to the DOM ──────────────────────────────────────
     this.cdRef.detectChanges();
+  } */
+  private updateSelections(selectedId: number): void {
+
+    /* Ignore the automatic -1 repaint once the user has interacted */
+    if (selectedId === -1 && this.selectedOptionHistory.length) { return; }
+  
+    this.optionBindings.forEach(b => {
+      const id        = b.option.optionId;
+      const isCurrent = id === selectedId;
+  
+      b.isSelected      = isCurrent;         // the **one** checked radio/checkbox
+      b.option.selected = isCurrent;
+      b.option.highlight= isCurrent;         // colour only current row
+      b.option.showIcon = isCurrent;         // icon only current row
+  
+      /* feedback map mirrors the same rule */
+      b.showFeedbackForOption[id] = isCurrent;
+  
+      b.directiveInstance?.updateHighlight();  // repaint
+    });
+  
+    this.cdRef.detectChanges();              // flush DOM
   }
+  
 
   /** 🔄 Wipe every per-row UI flag and force the directive to repaint */
   private clearAllRowFlags(): void {
@@ -2549,5 +2574,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     // ensure nothing is pre-selected in the reactive-form control
     this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  }
+
+  private wipeRowFlags(arr: OptionBindings[]): void {
+    arr.forEach(b => {
+      b.isSelected        = false;
+      b.option.selected   = false;
+      b.option.highlight  = false;
+      b.option.showIcon   = false;
+      b.directiveInstance?.updateHighlight();      // repaint immediately
+    });
   }
 }
