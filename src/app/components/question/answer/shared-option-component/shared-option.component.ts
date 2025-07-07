@@ -369,6 +369,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
       this.clearAllRowFlags();
+      this.debugDump('after clearAllRowFlags');
     }
   
     // NEW optionBindings reference came in
@@ -414,6 +415,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
   
       this.processOptionBindings();
+      this.debugDump('after processOptionBindings (fresh question)');
       this.cdRef.markForCheck();
     }
   
@@ -791,6 +793,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
 
     this.cdRef.detectChanges();
+
+    this.debugDump(`after updateSelections(${selectedId})`);
   }
 
   private debugDump(label: string): void {
