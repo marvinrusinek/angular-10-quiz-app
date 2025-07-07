@@ -369,6 +369,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       // FULL hard-reset of rows from the previous question
       this.clearAllRowFlags();
+      this.resetRowVisuals();
   
       // hard-reset per-row flags
       (this.optionsToDisplay ?? []).forEach(opt => {
