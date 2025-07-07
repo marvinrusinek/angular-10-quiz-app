@@ -2564,10 +2564,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.option.highlight    = false;
       b.option.showIcon     = false;
 
-      // feedback maps            (ui state)
+      // feedback maps (UI state)
       this.showFeedbackForOption[b.option.optionId] = false;
 
-      // directive repaint        (dom)
+      // directive repaint (DOM)
       b.directiveInstance?.updateHighlight();
     }
 
