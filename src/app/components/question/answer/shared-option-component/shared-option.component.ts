@@ -75,6 +75,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   private readonly selectedIds = new Set<number>();
+  private readonly perQuestionHistory = new Set<number>();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
@@ -2834,6 +2835,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.option.showIcon      = false;
       b.showFeedbackForOption[b.option.optionId] = false;
     }
+
+    this.perQuestionHistory.clear();   // forget old clicks
 
     // … and force every directive to repaint *now*
     this.highlightDirectives?.forEach(d => {
