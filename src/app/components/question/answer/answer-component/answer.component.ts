@@ -92,10 +92,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       .pipe(takeUntil(this.destroy$))
       .subscribe(opts => {
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
-
-        // bump the view-key so the child view is recreated
-        this.questionVersion++;
-
         this.cdRef.markForCheck();;
       });
   }
@@ -108,10 +104,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
        Parent just handed us a NEW optionsToDisplay reference
     ────────────────────────────────────────────────────────────── */
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
-      /* ⚡ bump version so trackBy generates new keys */
-      this.questionVersion++;
-      console.log('[PARENT] bumped version →', this.questionVersion);
-
       /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
       // this.optionBindingsSrc = [...this.optionsToDisplay];
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
