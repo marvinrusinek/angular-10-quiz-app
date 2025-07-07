@@ -1412,10 +1412,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       questionIndex: this.quizService.currentQuestionIndex,
       optionText: optionBinding.option.text
     });
+
+    if (this.type === 'single') {            // radio-style questions only
+      this.optionBindings.forEach(b => {
+        // wipe every row
+        b.isSelected        = false;
+        b.option.selected   = false;
+        b.option.highlight  = false;
+        b.option.showIcon   = false;
     
-    optionBinding.isSelected = checked;
+        // hide any lingering feedback
+        if (b.showFeedbackForOption) {
+          b.showFeedbackForOption[b.option.optionId] = false;
+        }
+    
+        // repaint immediately so old colour/icon disappears
+        b.directiveInstance?.updateHighlight();
+      });
+    }
+    
+    /* optionBinding.isSelected = checked;
     optionBinding.option.showIcon = checked;
-    this.selectedOptionMap.set(optionId, checked);
+    this.selectedOptionMap.set(optionId, checked); */
+    optionBinding.isSelected = true;
+    optionBinding.option.selected = true;
+    optionBinding.option.highlight = true;
+    optionBinding.option.showIcon = true;
+    this.selectedOptionMap.set(optionId, true);
+
+    /* keep feedback only for this row */
+    this.showFeedbackForOption = { [optionId]: true }; // single-row map
+    this.lastFeedbackOptionId  = optionId;
   
     console.log('[✅ isSelected updated]:', optionBinding.isSelected);
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
@@ -1497,6 +1524,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         correctMessage: dynamicFeedback,
         idx: index
       };
+
+      // repaint the clicked row once more so new colour & icon appear
+      optionBinding.directiveInstance?.updateHighlight();
 
       this.showFeedbackForOption[optionId] = true;
       this.lastFeedbackOptionId = optionId;
