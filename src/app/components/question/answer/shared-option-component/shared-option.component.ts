@@ -91,7 +91,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   hasUserClickedOnce = false;
   firstClickOccurred = false;
 
-  isNavigatingBackwards = false;
   isOptionSelected = false;
   optionIconClass: string;
   private optionsRestored = false; // tracks if options are restored
