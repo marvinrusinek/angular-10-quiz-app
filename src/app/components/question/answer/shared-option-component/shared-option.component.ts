@@ -1533,7 +1533,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       showFeedbackForOption: this.showFeedbackForOption,
       lastFeedbackOptionId: this.lastFeedbackOptionId,
       displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
-    });    
+    });
+
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
   
     // Final UI change detection
     this.cdRef.detectChanges();
