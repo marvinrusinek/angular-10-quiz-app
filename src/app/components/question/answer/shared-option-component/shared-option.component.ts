@@ -567,6 +567,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
    * visual state (selected, highlight, icon, feedback) in one synchronous pass.
    */
    private updateSelections(selectedId: number): void {
+     /* 🔄 0.  HARD-RESET every row first  */
+    this.optionBindings.forEach(b => {
+      b.isSelected          = false;
+      b.option.selected     = false;
+      b.option.highlight    = false;
+      b.option.showIcon     = false;
+      b.showFeedback        = false;
+      b.showFeedbackForOption = {};
+    });
+
     /* ⛔ Ignore the late -1 repaint once user has clicked */
     if (selectedId === -1 && this.selectedOptionHistory.length) {
       return;  // user already interacted
