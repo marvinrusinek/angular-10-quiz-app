@@ -746,21 +746,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();              // flush DOM
   }
   
-
-  /** 🔄 Wipe every per-row UI flag and force the directive to repaint */
-  private clearAllRowFlags(): void {
-    this.optionBindings.forEach(b => {
-      b.isSelected          = false;
-      b.option.selected     = false;
-      b.option.highlight    = false;
-      b.option.showIcon     = false;
-      b.showFeedback        = false;
-      b.showFeedbackForOption = {};
-      b.directiveInstance?.updateHighlight();   // repaint immediately
-    });
-  }
-
-
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
       console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
@@ -2586,5 +2571,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.option.showIcon   = false;
       b.directiveInstance?.updateHighlight();      // repaint immediately
     });
+  }
+
+  /** Wipe *every* per-row flag then force each directive to repaint */
+  private clearAllRowFlags(): void {
+    this.optionBindings.forEach(b => {
+      b.isSelected           = false;
+      b.option.selected      = false;
+      b.option.highlight     = false;
+      b.option.showIcon      = false;
+
+      // also clear per-row feedback
+      if (b.showFeedbackForOption) {
+        Object.keys(b.showFeedbackForOption).forEach(k => b.showFeedbackForOption[+k] = false);
+      }
+
+      b.directiveInstance?.updateHighlight();   // 🔄 repaint immediately
+    });
+
+    this.lastFeedbackOptionId = -1;
+    this.showFeedbackForOption = {};
+    this.feedbackConfigs       = {};
   }
 }
