@@ -1341,6 +1341,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
+    this.toggleSelectedOption(optionBinding.option);
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
@@ -2786,20 +2787,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  toggleSelectedOption(option: Option): void {
-    // Only toggle the clicked option
-    option.selected = !option.selected;
-  
-    // Clear highlight & showIcon for all other options
+  /** Only (de)select the clicked option, leave others untouched */
+  private toggleSelectedOption(clicked: Option): void {
     this.optionsToDisplay.forEach(o => {
-      if (o.optionId !== option.optionId && !o.selected) {
-        o.highlight = false;
-        o.showIcon = false;
+      if (o.optionId === clicked.optionId) {
+        // toggle just this row
+        o.selected  = !o.selected;
+        o.highlight = o.selected;
+        o.showIcon  = o.selected;
+      } else {
+        // keep whatever selection state it already had
+        // BUT never bleed highlight/icon if *not* selected
+        if (!o.selected) {
+          o.highlight = false;
+          o.showIcon  = false;
+        }
       }
     });
-  
-    // Set flags for the clicked one
-    option.highlight = option.selected;
-    option.showIcon = option.selected;
-  }  
+  }
 }
