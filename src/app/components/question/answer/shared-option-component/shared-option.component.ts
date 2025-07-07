@@ -367,28 +367,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const optionsChanged   = changes['optionsToDisplay'];
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
-
-      /* 1. bump version so <mat-radio-button> get destroyed/re-created */
       this.questionVersion++;
-    
-      /* 2. wipe *all* visual flags from the previous question */
-      this.wipeRowFlags(this.optionBindings);
-    
-      /* 3. wipe per-question state (history, feedback maps, etc.) */
-      this.selectedOptionHistory = [];
-      this.selectedOption        = null;
-      this.lastFeedbackOptionId  = -1;
-      this.showFeedbackForOption = {};
-      this.feedbackConfigs       = {};
-    
-      /* 4. force the reactive-form back to nothing */
-      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
-    
-      /* 5. rebuild neutral bindings for the new options array */
-      this.optionBindings = [];
-      this.processOptionBindings();
-    
-      this.cdRef.markForCheck();              // OnPush refresh
+      this.clearAllRowFlags();
+      this.resetRowVisuals();
     }
   
     // NEW optionBindings reference came in
