@@ -390,6 +390,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
+      console.log('[🔍 Option State Table]');
+      console.table("check here", 
+        this.optionBindings.map(b => ({
+          id  : b.option.optionId,
+          sel : b.option.selected,
+          hi  : b.option.highlight,
+          ico : b.option.showIcon
+        }))
+      );
       this.cdRef.detectChanges();   // paints pristine rows
     }
   
