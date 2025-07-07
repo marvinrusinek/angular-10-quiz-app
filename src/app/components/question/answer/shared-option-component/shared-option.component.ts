@@ -369,7 +369,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
       this.clearAllRowFlags();
-      this.resetRowVisuals();
     }
   
     // NEW optionBindings reference came in
