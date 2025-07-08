@@ -1407,6 +1407,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Apply selection state
     optionBinding.option.selected = checked;
+
     console.log('[🧪 Q2 FEEDBACK CHECK]', {
       optionId,
       feedbackRaw: optionBinding.option.feedback,
@@ -1414,19 +1415,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       optionText: optionBinding.option.text
     });
 
+    this.perQuestionHistory.add(optionId);
+
     if (this.type === 'single') {            // radio-style questions only
       this.selectedOptionMap.clear();
       this.optionBindings.forEach(b => {
+        const id = b.option.optionId;
+        const shouldPaint = this.perQuestionHistory.has(id);
+
         // wipe every row
-        b.isSelected        = false;
-        b.option.selected   = false;
-        b.option.highlight  = false;
-        b.option.showIcon   = false;
+        b.isSelected        = shouldPaint;
+        b.option.selected   = shouldPaint;
+        b.option.highlight  = shouldPaint;
+        b.option.showIcon   = shouldPaint;
     
         // hide any lingering feedback
         if (b.showFeedbackForOption) {
           b.showFeedbackForOption[b.option.optionId] = false;
         }
+
+        this.showFeedbackForOption[id] = id === optionId;
     
         // repaint immediately so old colour/icon disappears
         b.directiveInstance?.updateHighlight();
@@ -2838,7 +2846,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     this.perQuestionHistory.clear();   // forget old clicks
 
-    // … and force every directive to repaint *now*
+    // force every directive to repaint *now*
     this.highlightDirectives?.forEach(d => {
       d.isSelected  = false;
       d.updateHighlight();
