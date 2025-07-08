@@ -94,7 +94,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       .pipe(takeUntil(this.destroy$))
       .subscribe(opts => {
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
-        this.cdRef.markForCheck();;
+        this.cdRef.markForCheck();
       });
   }
 
