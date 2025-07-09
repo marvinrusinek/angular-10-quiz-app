@@ -1305,19 +1305,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
-    if (!isAlreadyVisited) {
-      this.showFeedbackForOption = { [optionId]: true };
-      this.lastFeedbackOptionId = optionId;
+    if (alreadySelected || isAlreadyVisited) {
+      console.log('[↩️ Reselected existing option — preserving feedback anchor on previous option]');
+  
+      // Reset all feedback visibility
+      Object.keys(this.showFeedbackForOption).forEach(key => {
+        this.showFeedbackForOption[+key] = false;
+      });
+
+      // Keep feedback visible only on the last anchor
+      if (this.lastFeedbackOptionId !== -1) {
+        this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+
+        // Ensure config is still valid
+        const cfg = this.feedbackConfigs[this.lastFeedbackOptionId];
+        if (cfg) cfg.showFeedback = true;
+      }
+
+      this.cdRef.detectChanges();
+      return;  // 💥 EARLY EXIT
     } else {
       console.log('[↩️ Reslected existing option — keeping feedback under previous selection]');
       // Restore previous feedback only
       this.showFeedbackForOption = { [this.lastFeedbackOptionId]: true };
     }
-
-    // Reset all feedback visibility
-    Object.keys(this.showFeedbackForOption).forEach((key) => {
-      this.showFeedbackForOption[+key] = false;
-    });
  
     if (!alreadySelected) {
       // Update showFeedback flag for current option
