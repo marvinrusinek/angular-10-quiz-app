@@ -1444,7 +1444,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.option.showIcon = true;
     this.selectedOptionMap.set(optionId, true);
 
-    
+
     const moveFeedbackAnchor = (id: number): void => {
       // hide every prior feedback bubble
       Object.keys(this.showFeedbackForOption).forEach(k => {
@@ -1631,6 +1631,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       lastFeedbackOptionId: this.lastFeedbackOptionId,
       displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
     });    
+
+    // 🔁 Final pass — update visuals for all options
+    this.optionBindings.forEach(binding => {
+      const opt = binding.option;
+      const chosen = !!opt.selected;
+    
+      // Sync visual flags
+      opt.highlight = chosen;
+      opt.showIcon = chosen;
+    
+      // Force repaint
+      binding.directiveInstance?.updateHighlight();
+    });
   
     // Final UI change detection
     this.cdRef.detectChanges();
