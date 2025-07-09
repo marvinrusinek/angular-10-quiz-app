@@ -1444,6 +1444,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     optionBinding.option.showIcon = true;
     this.selectedOptionMap.set(optionId, true);
 
+    if (optionBinding.option.selected) {
+      // just jump straight to “focus feedback on this row” (no re-toggle)
+      moveFeedbackAnchor(optionBinding.option.optionId);
+      return;            // 🚫 nothing else mutates state
+    }
+    
+    // 2. First-time selection: mark .selected and proceed as normal
+    optionBinding.option.selected = true;
+    optionBinding.isSelected      = true;
+    
+    // … (whatever logic you already run – highlight, maps, etc.) …
+    
+    // 3. Always move the feedback anchor to the row that was *just* clicked
+    moveFeedbackAnchor(optionBinding.option.optionId);
+
+    const moveFeedbackAnchor = (id: number): void => {
+      // hide every prior feedback bubble
+      Object.keys(this.showFeedbackForOption).forEach(k => {
+        this.showFeedbackForOption[+k] = false;
+      });
+    
+      // show only on the clicked row
+      this.showFeedbackForOption[id] = true;
+      this.lastFeedbackOptionId      = id;
+    
+      // if you keep a configs map, make sure that row’s cfg has showFeedback=true
+      if (this.feedbackConfigs[id]) {
+        this.feedbackConfigs[id].showFeedback = true;
+      }
+    
+      // one change-detection pass so the template re-evaluates the *ngIf
+      this.cdRef.detectChanges();
+    };
+
     /* keep feedback only for this row */
     this.showFeedbackForOption = { [optionId]: true }; // single-row map
     this.lastFeedbackOptionId  = optionId;
