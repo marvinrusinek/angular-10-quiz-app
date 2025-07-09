@@ -1294,8 +1294,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.selectedOptionMap.set(optionId, true);
 
     /* keep feedback only for this row */
-    this.showFeedbackForOption = { [optionId]: true }; // single-row map
-    this.lastFeedbackOptionId  = optionId;
+    // this.showFeedbackForOption = { [optionId]: true }; // single-row map
+    // this.lastFeedbackOptionId  = optionId;
   
     console.log('[✅ isSelected updated]:', optionBinding.isSelected);
     console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
@@ -1306,11 +1306,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
     if (!isAlreadyVisited) {
-      this.selectedOptionHistory.push(optionId);
+      this.showFeedbackForOption = { [optionId]: true };
       this.lastFeedbackOptionId = optionId;
-      console.info('[🧠 New option selected — feedback anchor moved]', optionId);
     } else {
-      console.info('[📛 Revisited option — feedback anchor NOT moved]', optionId);
+      console.log('[↩️ Reslected existing option — keeping feedback under previous selection]');
+      // Restore previous feedback only
+      this.showFeedbackForOption = { [this.lastFeedbackOptionId]: true };
     }
 
     // Reset all feedback visibility
@@ -1385,8 +1386,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // repaint the clicked row once more so new colour & icon appear
       optionBinding.directiveInstance?.updateHighlight();
 
-      this.showFeedbackForOption[optionId] = true;
-      this.lastFeedbackOptionId = optionId;
+      // this.showFeedbackForOption[optionId] = true;
+      // this.lastFeedbackOptionId = optionId;
 
       Object.keys(this.showFeedbackForOption).forEach(k => {
         this.showFeedbackForOption[+k] = false;
