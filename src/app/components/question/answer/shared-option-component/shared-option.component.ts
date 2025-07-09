@@ -2928,7 +2928,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     /* 🔍 probe */
     console.table(this.optionBindings.map(b => ({
-      id : b.option.optionId,
+      idmarv : b.option.optionId,
       sel: b.option.selected
     })));
   }
