@@ -1204,29 +1204,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const checked =
       'checked' in event ? (event as MatCheckboxChange).checked : true;
 
-    // Guard: duplicate click on a row that is already selected
-    if (optionBinding.option.selected && checked === true) {
-      console.warn('[🔒 Already selected — skipping UI/state mutations]', optionId);
+    const alreadySelected = optionBinding.option.selected && checked === true;
+    if (alreadySelected) {
+      console.warn('[🔒 Already selected – short-circuit]', optionId);
 
-      /* keep the row’s own highlight & icon, but restore the feedback anchor
-        to whatever row was most-recently chosen *before* this redundant click */
-        if (this.lastFeedbackOptionId !== -1 &&
+      // keep this row’s own colour / icon, but…
+      if (this.lastFeedbackOptionId !== -1 &&
           this.lastFeedbackOptionId !== optionId) {
 
-        // hide every bubble
+        // …hide every bubble
         Object.keys(this.showFeedbackForOption).forEach(k => {
           this.showFeedbackForOption[+k] = false;
         });
 
-        // show it only on the genuine anchor row
+        // …and show it only on the genuine anchor row
         this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
 
-        // make sure the config for that row still has showFeedback=true
+        // make sure that row’s config still says showFeedback = true
         const cfg = this.feedbackConfigs[this.lastFeedbackOptionId];
         if (cfg) cfg.showFeedback = true;
 
-        // one CD pass so *ngIf re-evaluates
-        this.cdRef.detectChanges();
+        this.cdRef.detectChanges();   // one CD pass so the *ngIf runs
       }
 
       return;
