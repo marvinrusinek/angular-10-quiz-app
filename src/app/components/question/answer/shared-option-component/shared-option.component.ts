@@ -371,7 +371,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.questionVersion++;
     
       this.fullyResetRows();                 // ★ single point of truth
-      this.debugDump('after fullyResetRows');
     
       // also nuke per-question state maps
       this.selectedOptionHistory = [];
@@ -440,7 +439,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       /* C. let SOC recompute directive state */
       this.processOptionBindings();
-      this.debugDump('after processOptionBindings (fresh question)');
   
       /* ★ second immediate CD so neutral colours / no icons render */
       this.cdRef.detectChanges();
@@ -824,37 +822,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
 
     this.cdRef.detectChanges();
-
-    this.debugDump(`after updateSelections(${selectedId})`);
-  }
-
-  private debugDump(label: string): void {
-    console.log(`\n========= ${label} =========`);
-    this.optionBindings.forEach(b => {
-      console.log(
-        `row ${b.index}`,
-        {
-          highlight : b.option.highlight,
-          showIcon  : b.option.showIcon,
-          selected  : b.option.selected,
-          isSelected: b.isSelected
-        }
-      );
-    });
-  }
-
-  dumpMaps(
-    tag: string,
-    map: Map<number, boolean>,
-    hist: number[]
-  ) {
-    // Pretty table for the console
-    const obj: any = {};
-    map.forEach((v, k) => (obj[k] = v));
-    console.group(`[${tag}]  selectedOptionMap / history`);
-    console.table(obj);
-    console.log('history →', JSON.stringify(hist));
-    console.groupEnd();
   }
   
   /* private ensureOptionsToDisplay(): void {
