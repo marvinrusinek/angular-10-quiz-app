@@ -843,6 +843,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       );
     });
   }
+
+  dumpMaps(
+    tag: string,
+    map: Map<number, boolean>,
+    hist: number[]
+  ) {
+    // Pretty table for the console
+    const obj: any = {};
+    map.forEach((v, k) => (obj[k] = v));
+    console.group(`[${tag}]  selectedOptionMap / history`);
+    console.table(obj);
+    console.log('history →', JSON.stringify(hist));
+    console.groupEnd();
+  }
   
   /* private ensureOptionsToDisplay(): void {
     if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
@@ -2399,7 +2413,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.markRenderReady();
   } */
-  public generateOptionBindings(): void {
+  /* public generateOptionBindings(): void {
     console.log('C-SOC →', this.optionsToDisplay.map(o => o.text));
   
     if (this.freezeOptionBindings) {
@@ -2446,7 +2460,50 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }, 100);
   
     this.markRenderReady();
+  } */
+  private generateOptionBindings(): void {
+    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) {
+      return;        // guard – nothing to do
+    }
+  
+    // 1️⃣ fresh feedback‐visibility map shared by every binding
+    const freshShowMap: Record<number, boolean> = {};
+    this.showFeedbackForOption = freshShowMap;
+  
+    // 2️⃣ create brand‑new bindings from current Option[]
+    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      const id         = opt.optionId;
+      const wasChosen  = this.selectedOptionMap.get(id) === true ||
+                         this.selectedOptionHistory.includes(id);
+  
+      // — logic flags —
+      opt.selected  = wasChosen;
+  
+      // — UI flags —
+      opt.highlight = wasChosen;     // green / red background
+      opt.showIcon  = wasChosen;     // ✓ or ✗ icon
+  
+      // keep feedback map in sync
+      freshShowMap[id] = wasChosen;
+  
+      // build binding (getOptionBindings does the heavy lifting)
+      const binding = this.getOptionBindings(opt, idx, wasChosen);
+      binding.showFeedbackForOption = freshShowMap;
+      return binding;
+    });
+  
+    // 3️⃣ paint immediately with the final flags
+    this.cdRef.detectChanges();
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
+  
+    // 4️⃣ mark view ready after DOM settles (unchanged)
+    setTimeout(() => {
+      this.ngZone.run(() => {
+        this.optionsReady = this.viewReady = true;
+      });
+    }, 50);
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
