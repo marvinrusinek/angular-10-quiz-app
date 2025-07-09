@@ -2419,7 +2419,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.markRenderReady();
   } */
   public generateOptionBindings(): void {
-    console.log('C-SOC   →', this.optionsToDisplay.map(o => o.text));
+    console.log('C-SOC →', this.optionsToDisplay.map(o => o.text));
   
     if (this.freezeOptionBindings) {
       console.warn('[🛑 generateOptionBindings skipped — bindings are frozen]');
@@ -2434,29 +2434,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const freshShowMap: Record<number, boolean> = {};
     this.showFeedbackForOption = freshShowMap;
   
-    // 🔁 Build fresh bindings
-    // Iterate through ALL optionBindings and sync selected state + feedback
-    this.optionBindings.forEach(binding => {
-      const id = binding.option.optionId;
-
-      // Was this row ever selected in the **current** question?
+    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
       const isSelected =
-        this.selectedOptionMap.get(id) === true ||
-        this.selectedOptionHistory.includes(id);
-
-      /* ① – logic flags */
-      binding.isSelected        = isSelected;
-      binding.option.selected   = isSelected;
-
-      /* ② – visual flags (NEW) */
-      binding.option.highlight  = isSelected;   // colour □→🟩/🟥
-      binding.option.showIcon   = isSelected;   // show ✓ / ✗ icon
-
-      /* feedback visibility map */
-      this.showFeedbackForOption[id] = isSelected;
-
-      /* repaint the row immediately */
-      binding.directiveInstance?.updateHighlight();
+        this.selectedOptionMap.get(option.optionId) === true ||
+        this.selectedOptionHistory.includes(option.optionId);
+  
+      option.selected   = isSelected;
+      option.highlight  = isSelected;  // ✅ Show color
+      option.showIcon   = isSelected;  // ✅ Show ✓ or ✗
+  
+      freshShowMap[option.optionId] = isSelected;
+  
+      const binding = this.getOptionBindings(option, idx, isSelected);
+      binding.showFeedbackForOption = freshShowMap;
+  
+      return binding;
     });
   
     this.updateHighlighting();
