@@ -1299,7 +1299,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();
       return;
     } else {
-      console.log('[↩️ Reslected existing option — keeping feedback under previous selection]');
       // Restore previous feedback only
       this.showFeedbackForOption = { [this.lastFeedbackOptionId]: true };
     }
@@ -1338,7 +1337,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       if (id !== optionId) return;
 
       // Build missing feedback config
-      const isCorrect = binding.option.correct === true;
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
