@@ -247,7 +247,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
     
-      this.fullyResetRows();                 // ★ single point of truth
+      this.fullyResetRows();  // single point of truth
     
       // also nuke per-question state maps
       this.selectedOptionHistory = [];
@@ -2695,5 +2695,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       idmarv : b.option.optionId,
       sel: b.option.selected
     })));
+  }
+
+  private focusFeedbackOn(id: number): void {
+    // hide every bubble first
+    Object.keys(this.showFeedbackForOption).forEach(k => {
+      this.showFeedbackForOption[+k] = false;
+    });
+  
+    // show only on the requested row
+    this.showFeedbackForOption[id] = true;
+    this.lastFeedbackOptionId      = id;
+  
+    if (this.feedbackConfigs[id]) {
+      this.feedbackConfigs[id].showFeedback = true;
+    }
+  
+    // one CD pass → template *ngIf re-evaluates
+    this.cdRef.detectChanges();
   }
 }
