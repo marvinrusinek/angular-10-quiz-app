@@ -1553,24 +1553,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.enforceSingleSelection(optionBinding);
     }
 
+    console.info('[🎯 Highlight fix → applying to entire selection history]');
     this.selectedOptionHistory.forEach(id => {
-      const binding = this.optionBindings.find(b => b.option.optionId === id);
-      if (!binding) return;                // should not happen
-    
-      // logic flags
-      binding.isSelected      = true;
-      binding.option.selected = true;
-    
-      // visual flags 🔑
-      binding.option.highlight = true;
-      binding.option.showIcon  = true;
-    
-      // keep feedback visible if you want it
+      const b = this.optionBindings.find(x => x.option.optionId === id);
+      if (!b) return;
+
+      b.isSelected        = true;
+      b.option.selected   = true;
+      b.option.highlight  = true;
+      b.option.showIcon   = true;
       this.showFeedbackForOption[id] = true;
-    
-      // repaint immediately
-      binding.directiveInstance?.updateHighlight();
+      b.directiveInstance?.updateHighlight();
     });
+
+    console.table(
+      this.selectedOptionHistory.map(id => {
+        const b = this.optionBindings.find(x => x.option.optionId === id);
+        return {
+          id,
+          selected: b?.option.selected,
+          highlight: b?.option.highlight,
+          showIcon: b?.option.showIcon
+        };
+      })
+    );
+
   
     // Sync explanation and navigation state
     console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
