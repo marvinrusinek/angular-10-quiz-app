@@ -2501,7 +2501,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption = freshShowMap;
   
     // 2️⃣ create brand‑new bindings from current Option[]
-    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+    /* this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const id         = opt.optionId;
       const wasChosen  = this.selectedOptionMap.get(id) === true ||
                          this.selectedOptionHistory.includes(id);
@@ -2519,6 +2519,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       // build binding (getOptionBindings does the heavy lifting)
       const binding = this.getOptionBindings(opt, idx, wasChosen);
       binding.showFeedbackForOption = freshShowMap;
+      return binding;
+    }); */
+    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      const id = opt.optionId;
+      const wasSelected = this.selectedOptionMap.get(id) === true;
+    
+      opt.selected = wasSelected; // trust only this flag
+    
+      const binding = this.getOptionBindings({ ...opt }, idx, wasSelected);
+      binding.showFeedbackForOption = freshShowMap;
+      freshShowMap[id] = wasSelected;
+    
       return binding;
     });
   

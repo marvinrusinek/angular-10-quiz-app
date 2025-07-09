@@ -376,42 +376,69 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     // 2-c. Neutral row – nothing more to do (it’s already blank)
   } */
   updateHighlight(): void {
-    if (!this.optionBinding?.option) return;
-  
-    const opt  = this.optionBinding.option;
-    const host = this.el.nativeElement as HTMLElement;
-    if (!host) return;
-  
-    // 1️⃣ Reset
-    this.renderer.removeStyle(host, 'background-color');
-    this.renderer.removeClass(host, 'deactivated-option');
-    this.renderer.setStyle(host, 'cursor', 'pointer');
-    this.setPointerEvents(host, 'auto');
-  
-    const iconEl = host.querySelector('mat-icon');
-    if (iconEl) {
-      this.renderer.setStyle(iconEl, 'visibility', 'hidden'); // Always hide first
-    }
-  
-    // 2️⃣ Highlight if selected
-    if (opt.selected === true) {
-      const color = opt.correct ? '#43f756' : '#ff0000';
-      this.setBackgroundColor(host, color);
-      if (iconEl) {
-        this.renderer.setStyle(iconEl, 'visibility', 'visible');
-      }
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
     }
   
-    // 3️⃣ Disabled logic
-    if (!opt.correct && opt.active === false) {
-      const grey = '#a3a3a3';
-      this.setBackgroundColor(host, grey);
-      this.renderer.addClass(host, 'deactivated-option');
-      this.renderer.setStyle(host, 'cursor', 'not-allowed');
-      this.setPointerEvents(host, 'none');
+    const opt = this.optionBinding.option;
+    const id = opt.optionId;
+    const container = this.el.nativeElement as HTMLElement;
+  
+    if (!(container instanceof HTMLElement)) {
+      console.warn('[❌ container is not an HTMLElement]');
+      return;
     }
+  
+    const isCorrect = this.isCorrect ?? false;
+  
+    // ───── Reset visual state ─────
+    this.renderer.removeStyle(container, 'background-color');
+    this.renderer.removeClass(container, 'deactivated-option');
+    this.renderer.setStyle(container, 'cursor', 'pointer');
+    this.setPointerEvents(container, 'auto');
+  
+    // Always reset icon and feedback flags
+    opt.highlight = false;
+    opt.showIcon = false;
+    this.showFeedbackForOption[id] = false;
+  
+    const iconEl = container.querySelector('mat-icon');
+    if (iconEl) {
+      this.renderer.setStyle(iconEl, 'visibility', 'hidden');
+    }
+  
+    // ───── TRUST ONLY .selected ─────
+    if (opt.selected) {
+      const color = isCorrect ? '#43f756' : '#ff0000';
+  
+      this.setBackgroundColor(container, color);
+      opt.highlight = true;
+      opt.showIcon = true;
+      this.showFeedbackForOption[id] = true;
+  
+      if (iconEl) {
+        this.renderer.setStyle(iconEl, 'visibility', 'visible');
+      }
+  
+      return;
+    }
+  
+    // ───── Inactive row ─────
+    if (!isCorrect && opt.active === false) {
+      const color = '#a3a3a3';
+  
+      this.setBackgroundColor(container, color);
+      this.renderer.addClass(container, 'deactivated-option');
+      this.renderer.setStyle(container, 'cursor', 'not-allowed');
+      this.setPointerEvents(container, 'none');
+  
+      return;
+    }
+  
+    // Neutral state – no highlight
   }
+  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
