@@ -1349,29 +1349,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     // Iterate through ALL optionBindings and sync selected state + feedback
     this.optionBindings.forEach((binding) => {
       const id = binding.option.optionId;
-      /* const isSelected =
-        this.selectedOptionMap.get(id) === true ||
-        this.selectedOptionHistory.includes(id); */
       const isSelected = this.selectedOptionMap.get(id) === true;
+      const optionId = optionBinding.option.optionId;
   
       binding.isSelected = isSelected;
       binding.option.selected = isSelected;
-  
-      // Ensure feedback shows for every selected option
-      this.showFeedbackForOption[id] = isSelected;
-  
+
+      // Don't touch feedback if this is not the newly selected option
+      if (id !== optionId) return;
+
       // Build missing feedback config
-      const optionId = optionBinding.option.optionId;
       const isCorrect = binding.option.correct === true;
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
-
-      console.log('[🧠 Dynamic Feedback Generated]', {
-        dynamicFeedback,
-        correctOptions: correctOptions.map(o => o.text),
-        currentIndex: currentIndex,
-        optionId
-      });      
 
       this.feedbackConfigs[optionId] = {
         feedback: dynamicFeedback,
@@ -1383,27 +1373,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         idx: index
       };
 
+      this.showFeedbackForOption[optionId] = true;
+      this.lastFeedbackOptionId = optionId;
+
+      // Ensure feedback shows for every selected option
+      // this.showFeedbackForOption[id] = isSelected;
+
       // repaint the clicked row once more so new colour & icon appear
-      optionBinding.directiveInstance?.updateHighlight();
+      // optionBinding.directiveInstance?.updateHighlight();
 
-      // this.showFeedbackForOption[optionId] = true;
-      // this.lastFeedbackOptionId = optionId;
-
-      Object.keys(this.showFeedbackForOption).forEach(k => {
+      /* Object.keys(this.showFeedbackForOption).forEach(k => {
         this.showFeedbackForOption[+k] = false;
       });
-      this.showFeedbackForOption[optionId] = true;
-      this.lastFeedbackOptionId           = optionId;
       const cfg = this.feedbackConfigs[optionId];
       if (cfg) cfg.showFeedback = true;
     
-      this.cdRef.detectChanges();   // final paint
+      this.cdRef.detectChanges();   // final paint */
       
   
       // Refresh highlight for each option
-      if (binding.directiveInstance) {
+      /* if (binding.directiveInstance) {
         binding.directiveInstance.paintNow?.();
-      }
+      } */
     });
   
     // Apply highlight and feedback for this specific option again
