@@ -1318,23 +1318,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.showFeedbackForOption[+key] = false;
     });
  
-    // Update showFeedback flag for current option
-    this.showFeedbackForOption[optionId] = true;
-    this.lastFeedbackOptionId = optionId;
-  
-    // Build feedback config for current option
-    this.feedbackConfigs = {
-      ...this.feedbackConfigs,
-      [optionId]: {
-        feedback: optionBinding.option.feedback?.trim() || 'No feedback available',
-        showFeedback: true,
-        options: this.optionsToDisplay,
-        question: this.currentQuestion,
-        selectedOption: optionBinding.option,
-        correctMessage: optionBinding.option.feedback?.trim() || '',
-        idx: index
-      }
-    };
+    if (!alreadySelected) {
+      // Update showFeedback flag for current option
+      this.showFeedbackForOption = { [optionId]: true };
+      this.lastFeedbackOptionId = optionId;
+    
+      // Build feedback config for current option
+      this.feedbackConfigs = {
+        ...this.feedbackConfigs,
+        [optionId]: {
+          feedback: optionBinding.option.feedback?.trim() || 'No feedback available',
+          showFeedback: true,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          selectedOption: optionBinding.option,
+          correctMessage: optionBinding.option.feedback?.trim() || '',
+          idx: index
+        }
+      };
+    }
+
     console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
     console.log('[🧪 Final feedbackConfigs]', JSON.stringify(this.feedbackConfigs, null, 2));
 
