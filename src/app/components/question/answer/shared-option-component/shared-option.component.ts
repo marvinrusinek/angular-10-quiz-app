@@ -2940,4 +2940,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     });
   }
+
+  /** Ensure every binding’s option.selected matches the map / history */
+  private syncSelectedFlags(): void {
+    this.optionBindings.forEach(b => {
+      const id = b.option.optionId;
+      const chosen =
+        this.selectedOptionMap.get(id) === true ||
+        this.selectedOptionHistory.includes(id);
+
+      b.option.selected = chosen;   // ★ single source of truth
+      b.isSelected      = chosen;
+    });
+  }
 }
