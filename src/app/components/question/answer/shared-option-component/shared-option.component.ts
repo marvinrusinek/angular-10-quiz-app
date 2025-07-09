@@ -74,7 +74,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   clickedOptionIds: Set<number> = new Set();
   private readonly perQuestionHistory = new Set<number>();
   isSubmitted = false;
-  iconVisibility: boolean[] = []; // array to store visibility state of icons
+  iconVisibility: boolean[] = [];  // array to store visibility state of icons
   showIconForOption: { [optionId: number]: boolean } = {};
   lastSelectedOption: Option | null = null;
   lastSelectedOptionIndex = -1;
@@ -92,7 +92,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
   isOptionSelected = false;
   optionIconClass: string;
-  private optionsRestored = false; // tracks if options are restored
+  private optionsRestored = false;  // tracks if options are restored
   private hasBoundQuizComponent = false;
   private hasLoggedMissingComponent = false;
   viewInitialized = false;
