@@ -73,7 +73,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   public feedbackConfigs: { [key: number]: FeedbackProps } = {};
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
-  private readonly selectedIds = new Set<number>();
   private readonly perQuestionHistory = new Set<number>();
   isSubmitted = false;
   iconVisibility: boolean[] = []; // array to store visibility state of icons
@@ -843,7 +842,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       console.warn('[SharedOptionComponent] No valid options available to restore.');
       this.optionsToDisplay = [];
     }
-  }  
+  }
 
   private restoreOptionsToDisplay(): void {
     // Use a flag to prevent multiple restorations
