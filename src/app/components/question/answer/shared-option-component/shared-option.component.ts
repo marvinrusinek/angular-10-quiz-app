@@ -1554,7 +1554,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
 
     console.info('[🎯 Highlight fix → applying to entire selection history]');
-    this.selectedOptionHistory.forEach(id => {
+    /* this.selectedOptionHistory.forEach(id => {
       const b = this.optionBindings.find(x => x.option.optionId === id);
       if (!b) return;
 
@@ -1564,6 +1564,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.option.showIcon   = true;
       this.showFeedbackForOption[id] = true;
       b.directiveInstance?.updateHighlight();
+    }); */
+    this.selectedOptionHistory.forEach(id => {
+      const b = this.optionBindings.find(x => x.option.optionId === id);
+      b?.option && (b.option.selected = true);
     });
 
     console.table(

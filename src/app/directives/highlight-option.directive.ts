@@ -306,11 +306,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     // 2-c. Neutral row – nothing more to do (it’s already blank)
   } */
-  updateHighlight(): void {
-
-    /* ──────────────────────────────────────────────────────────────
-       0.  Guard clauses
-    ────────────────────────────────────────────────────────────── */
+  /* updateHighlight(): void {
+    // 0.  Guard clauses
     if (!this.optionBinding?.option) {
       console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
       return;
@@ -327,10 +324,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
     const isCorrect = this.isCorrect ?? false;
   
-    /* ──────────────────────────────────────────────────────────────
-       1.  ALWAYS start from a blank visual state
-           (wipe previous background / icon from earlier question)
-    ────────────────────────────────────────────────────────────── */
+    // ALWAYS start from a blank visual state
+    // (wipe previous background / icon from earlier question)
     this.renderer.removeStyle(container, 'background-color');      // clear old paint
     this.renderer.removeClass(container, 'deactivated-option');
     this.renderer.setStyle(container, 'cursor', 'pointer');
@@ -340,15 +335,13 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     opt.showIcon   = false;
     this.showFeedbackForOption[id] = false;
   
-    /* 🆕 Make absolutely sure any lingering <mat-icon> is hidden */
+    // Make absolutely sure any lingering <mat-icon> is hidden
     const iconEl = container.querySelector('mat-icon');
     if (iconEl) {
       this.renderer.setStyle(iconEl, 'visibility', 'hidden');      // 🆕 hide it
     }
   
-    /* ──────────────────────────────────────────────────────────────
-       2.  Decide if THIS row should now be highlighted / disabled
-    ────────────────────────────────────────────────────────────── */
+    Decide if THIS row should now be highlighted / disabled
     const isChosen = this.isSelected || opt.selected || opt.highlight;
   
     // 2-a.  Row is selected  ➜ paint red / green
@@ -360,7 +353,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       opt.showIcon  = true;
       this.showFeedbackForOption[id] = true;
   
-      /* 🆕 ensure icon is VISIBLE when it should be shown */
+      // ensure icon is VISIBLE when it should be shown
       if (iconEl) {
         this.renderer.setStyle(iconEl, 'visibility', 'visible');   // 🆕 show it
       }
@@ -368,7 +361,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    // 2-b.  Row is inactive  ➜ grey + no pointer events
+    // Row is inactive  ➜ grey + no pointer events
     if (!isCorrect && opt.active === false) {
       const color = '#a3a3a3';
   
@@ -380,8 +373,62 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       return;
     }
   
-    /* 2-c. Neutral row – nothing more to do (it’s already blank) */
+    // 2-c. Neutral row – nothing more to do (it’s already blank)
+  } */
+  updateHighlight(): void {
+
+    /* ────────────────────────────────────────────────────────────
+      0.  Guard clauses
+    ──────────────────────────────────────────────────────────── */
+    if (!this.optionBinding?.option) {
+      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
+      return;
+    }
+
+    const opt       = this.optionBinding.option;               // always trust THIS
+    const host      = this.el.nativeElement as HTMLElement;
+    if (!(host instanceof HTMLElement)) {
+      console.warn('[❌ host is not HTMLElement]');
+      return;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+      1.  Wipe ALL previous paint + icon visibility
+    ──────────────────────────────────────────────────────────── */
+    this.renderer.removeStyle(host, 'background-color');
+    this.renderer.removeClass(host, 'deactivated-option');
+    this.renderer.setStyle   (host, 'cursor', 'pointer');
+    this.setPointerEvents    (host, 'auto');
+
+    /* hide any existing <mat-icon> (one call, cheap & safe) */
+    const icon = host.querySelector('mat-icon');
+    if (icon) this.renderer.setStyle(icon, 'visibility', 'hidden');
+
+    /* ────────────────────────────────────────────────────────────
+      2.  Decide what to show for THIS row
+          🔑 sole source of truth →  opt.selected
+    ──────────────────────────────────────────────────────────── */
+    if (opt.selected === true) {                     // 2-a  selected row
+      const colour = opt.correct ? '#43f756' : '#ff0000';
+      this.setBackgroundColor(host, colour);
+
+      /* reveal ✓ / ✗ icon */
+      if (icon) this.renderer.setStyle(icon, 'visibility', 'visible');
+
+      return;                                        // done
+    }
+
+    if (opt.active === false && !opt.correct) {      // 2-b disabled row
+      this.setBackgroundColor(host, '#a3a3a3');
+      this.renderer.addClass(host, 'deactivated-option');
+      this.renderer.setStyle(host, 'cursor', 'not-allowed');
+      this.setPointerEvents(host, 'none');
+      return;
+    }
+
+    /* 2-c neutral row → keep it blank */
   }
+
   
   
   
