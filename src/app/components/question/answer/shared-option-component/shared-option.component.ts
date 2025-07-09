@@ -69,8 +69,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     idx: -1
   };
   currentFeedbackConfig: FeedbackProps;
-  // feedbackConfigs: FeedbackProps[] = [];
-  public feedbackConfigs: { [key: number]: FeedbackProps } = {};
+  feedbackConfigs: { [key: number]: FeedbackProps } = {};
   selectedOptions: Set<number> = new Set();
   clickedOptionIds: Set<number> = new Set();
   private readonly perQuestionHistory = new Set<number>();
