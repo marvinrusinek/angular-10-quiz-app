@@ -1634,14 +1634,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     // 🔁 Final pass — update visuals for all options
     this.optionBindings.forEach(binding => {
-      const opt = binding.option;
-      const chosen = !!opt.selected;
+      const chosen = this.selectedOptionMap.get(binding.option.optionId) === true;
     
-      // Sync visual flags
-      opt.highlight = chosen;
-      opt.showIcon = chosen;
+      binding.option.selected  = chosen;   // <-- the *only* truth we need
+      binding.isSelected       = chosen;   // (optional: keeps radio checked)
     
-      // Force repaint
+      // repaint row immediately
       binding.directiveInstance?.updateHighlight();
     });
   
