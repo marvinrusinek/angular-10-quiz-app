@@ -1188,11 +1188,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
-      console.log('[♻️ New question detected — clearing feedback state]', {
-        prev: this.lastFeedbackQuestionIndex,
-        current: currentIndex
-      });
-    
       this.feedbackConfigs = {};
       this.showFeedbackForOption = {};
       this.lastFeedbackOptionId = -1;
@@ -1246,21 +1241,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.freezeOptionBindings ??= true;
     this.hasUserClicked = true;
   
-    console.log(`[📍 Current Question Index]: ${this.quizService.currentQuestionIndex}`);
-  
     // Apply selection state
     optionBinding.option.selected = checked;
-
-    console.log('[🧪 Q2 FEEDBACK CHECK]', {
-      optionId,
-      feedbackRaw: optionBinding.option.feedback,
-      questionIndex: this.quizService.currentQuestionIndex,
-      optionText: optionBinding.option.text
-    });
-
     this.perQuestionHistory.add(optionId);
 
-    if (this.type === 'single') {            // radio-style questions only
+    if (this.type === 'single') {  // radio-style questions only
       this.selectedOptionMap.clear();
       this.optionBindings.forEach(b => {
         const id = b.option.optionId;
@@ -1279,29 +1264,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
         this.showFeedbackForOption[id] = id === optionId;
     
-        // repaint immediately so old colour/icon disappears
+        // repaint immediately so old color/icon disappears
         b.directiveInstance?.updateHighlight();
       });
     }
     
-    /* optionBinding.isSelected = checked;
-    optionBinding.option.showIcon = checked;
-    this.selectedOptionMap.set(optionId, checked); */
     optionBinding.isSelected = true;
     optionBinding.option.selected = true;
     optionBinding.option.highlight = true;
     optionBinding.option.showIcon = true;
     this.selectedOptionMap.set(optionId, true);
 
-    /* keep feedback only for this row */
-    // this.showFeedbackForOption = { [optionId]: true }; // single-row map
-    // this.lastFeedbackOptionId  = optionId;
-  
-    console.log('[✅ isSelected updated]:', optionBinding.isSelected);
-    console.log(`[✅ Option Selection Updated for ${optionId}] - Selected: ${checked}`);
-
     this.showFeedback = true;
-    console.log('[✅ showFeedback set to true]');
     
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
@@ -1323,7 +1297,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
 
       this.cdRef.detectChanges();
-      return;  // 💥 EARLY EXIT
+      return;
     } else {
       console.log('[↩️ Reslected existing option — keeping feedback under previous selection]');
       // Restore previous feedback only
@@ -1348,11 +1322,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       }
     }
 
-    console.log('[🧪 feedbackConfig]', this.feedbackConfigs[optionId]);
-    console.log('[🧪 Final feedbackConfigs]', JSON.stringify(this.feedbackConfigs, null, 2));
-
     this.toggleSelectedOption(optionBinding.option);
-
     this.forceHighlightRefresh(optionId);
   
     // Iterate through ALL optionBindings and sync selected state + feedback
@@ -1384,26 +1354,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.showFeedbackForOption[optionId] = true;
       this.lastFeedbackOptionId = optionId;
-
-      // Ensure feedback shows for every selected option
-      // this.showFeedbackForOption[id] = isSelected;
-
-      // repaint the clicked row once more so new colour & icon appear
-      // optionBinding.directiveInstance?.updateHighlight();
-
-      /* Object.keys(this.showFeedbackForOption).forEach(k => {
-        this.showFeedbackForOption[+k] = false;
-      });
-      const cfg = this.feedbackConfigs[optionId];
-      if (cfg) cfg.showFeedback = true;
-    
-      this.cdRef.detectChanges();   // final paint */
-      
-  
-      // Refresh highlight for each option
-      /* if (binding.directiveInstance) {
-        binding.directiveInstance.paintNow?.();
-      } */
     });
   
     // Apply highlight and feedback for this specific option again
@@ -1415,59 +1365,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.enforceSingleSelection(optionBinding);
     }
 
-    console.info('[🎯 Highlight fix → applying to entire selection history]');
-    /* this.selectedOptionHistory.forEach(id => {
-      const b = this.optionBindings.find(x => x.option.optionId === id);
-      if (!b) return;
-
-      b.isSelected        = true;
-      b.option.selected   = true;
-      b.option.highlight  = true;
-      b.option.showIcon   = true;
-      this.showFeedbackForOption[id] = true;
-      b.directiveInstance?.updateHighlight();
-    }); */
     this.selectedOptionHistory.forEach(id => {
       const b = this.optionBindings.find(x => x.option.optionId === id);
       b?.option && (b.option.selected = true);
     });
-    this.syncSelectedFlags();                         // ① set .selected for every row
+    this.syncSelectedFlags();  // set .selected for every row
     this.highlightDirectives?.forEach(d => d.updateHighlight());
-
-    console.table(
-      this.selectedOptionHistory.map(id => {
-        const b = this.optionBindings.find(x => x.option.optionId === id);
-        return {
-          id,
-          selected: b?.option.selected,
-          highlight: b?.option.highlight,
-          showIcon: b?.option.showIcon
-        };
-      })
-    );
-
   
     // Sync explanation and navigation state
-    console.log(`[📢 Emitting Explanation Text and Synchronizing Navigation for Q${this.quizService.currentQuestionIndex}]`);
-    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex);
+    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex)
 
-    console.log('[🧪 FINAL FEEDBACK CHECK Q2]', {
-      questionIndex: this.quizService.getCurrentQuestionIndex(),
-      feedbackConfigs: this.feedbackConfigs,
-      showFeedbackForOption: this.showFeedbackForOption,
-      lastFeedbackOptionId: this.lastFeedbackOptionId,
-      displayTarget: this.feedbackConfigs[this.lastFeedbackOptionId]?.feedback
-    });
-  
     // Final UI change detection
     this.cdRef.detectChanges();
-    console.log(`[✅ Final State Update for Option ${optionId}]`);
   }
   
   private applyHighlighting(optionBinding: OptionBindings): void {
     const optionId = optionBinding.option.optionId;
-    console.log(`[🎯 Applying Highlighting for Option ${optionId}]`);
-  
     const isSelected = optionBinding.isSelected;
     const isCorrect = optionBinding.isCorrect;
   
