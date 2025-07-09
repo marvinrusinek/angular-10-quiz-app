@@ -1210,7 +1210,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       /* keep the row’s own highlight & icon, but restore the feedback anchor
         to whatever row was most-recently chosen *before* this redundant click */
-      if (this.lastFeedbackOptionId !== -1) {
+        if (this.lastFeedbackOptionId !== -1 &&
+          this.lastFeedbackOptionId !== optionId) {
 
         // hide every bubble
         Object.keys(this.showFeedbackForOption).forEach(k => {
@@ -1385,6 +1386,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.showFeedbackForOption[optionId] = true;
       this.lastFeedbackOptionId = optionId;
+
+      Object.keys(this.showFeedbackForOption).forEach(k => {
+        this.showFeedbackForOption[+k] = false;
+      });
+      this.showFeedbackForOption[optionId] = true;
+      this.lastFeedbackOptionId           = optionId;
+      const cfg = this.feedbackConfigs[optionId];
+      if (cfg) cfg.showFeedback = true;
+    
+      this.cdRef.detectChanges();   // final paint
       
   
       // Refresh highlight for each option
