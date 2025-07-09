@@ -824,21 +824,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
   }
   
-  /* private ensureOptionsToDisplay(): void {
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn('[SharedOptionComponent] optionsToDisplay is empty. Attempting to restore...');
-      if (this.currentQuestion?.options) {
-        this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-          ...option,
-          active: option.active ?? true,
-          feedback: option.feedback ?? undefined,
-          showIcon: option.showIcon ?? false
-        }));
-      } else {
-        console.error('[SharedOptionComponent] No options available in the current question.');
-      }
-    }
-  } */
   private ensureOptionsToDisplay(): void {
     const fallbackOptions = this.currentQuestion?.options;
   
