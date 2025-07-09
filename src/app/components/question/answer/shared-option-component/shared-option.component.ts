@@ -127,8 +127,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private selectedOptionService: SelectedOptionService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private ngZone: NgZone
   ) {
     console.log('[🧩 SharedOptionComponent] constructed');
 
