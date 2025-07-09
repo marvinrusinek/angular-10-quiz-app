@@ -1208,7 +1208,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // Block re-click on already selected option
     if (optionBinding.option.selected && checked === true) {
-      this.focusFeedbackOn(optionId);
+      // this.focusFeedbackOn(optionId);
       return;
     }
   
