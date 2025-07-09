@@ -376,62 +376,42 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     // 2-c. Neutral row – nothing more to do (it’s already blank)
   } */
   updateHighlight(): void {
-
-    /* ────────────────────────────────────────────────────────────
-      0.  Guard clauses
-    ──────────────────────────────────────────────────────────── */
-    if (!this.optionBinding?.option) {
-      console.warn('[⚠️ HighlightOptionDirective] optionBinding is missing');
-      return;
-    }
-
-    const opt       = this.optionBinding.option;               // always trust THIS
-    const host      = this.el.nativeElement as HTMLElement;
-    if (!(host instanceof HTMLElement)) {
-      console.warn('[❌ host is not HTMLElement]');
-      return;
-    }
-
-    /* ────────────────────────────────────────────────────────────
-      1.  Wipe ALL previous paint + icon visibility
-    ──────────────────────────────────────────────────────────── */
+    if (!this.optionBinding?.option) return;
+  
+    const opt  = this.optionBinding.option;
+    const host = this.el.nativeElement as HTMLElement;
+    if (!host) return;
+  
+    // 1️⃣ Reset
     this.renderer.removeStyle(host, 'background-color');
     this.renderer.removeClass(host, 'deactivated-option');
-    this.renderer.setStyle   (host, 'cursor', 'pointer');
-    this.setPointerEvents    (host, 'auto');
-
-    /* hide any existing <mat-icon> (one call, cheap & safe) */
-    const icon = host.querySelector('mat-icon');
-    if (icon) this.renderer.setStyle(icon, 'visibility', 'hidden');
-
-    /* ────────────────────────────────────────────────────────────
-      2.  Decide what to show for THIS row
-          🔑 sole source of truth →  opt.selected
-    ──────────────────────────────────────────────────────────── */
-    if (opt.selected === true) {                     // 2-a  selected row
-      const colour = opt.correct ? '#43f756' : '#ff0000';
-      this.setBackgroundColor(host, colour);
-
-      /* reveal ✓ / ✗ icon */
-      if (icon) this.renderer.setStyle(icon, 'visibility', 'visible');
-
-      return;                                        // done
+    this.renderer.setStyle(host, 'cursor', 'pointer');
+    this.setPointerEvents(host, 'auto');
+  
+    const iconEl = host.querySelector('mat-icon');
+    if (iconEl) {
+      this.renderer.setStyle(iconEl, 'visibility', 'hidden'); // Always hide first
     }
-
-    if (opt.active === false && !opt.correct) {      // 2-b disabled row
-      this.setBackgroundColor(host, '#a3a3a3');
+  
+    // 2️⃣ Highlight if selected
+    if (opt.selected === true) {
+      const color = opt.correct ? '#43f756' : '#ff0000';
+      this.setBackgroundColor(host, color);
+      if (iconEl) {
+        this.renderer.setStyle(iconEl, 'visibility', 'visible');
+      }
+      return;
+    }
+  
+    // 3️⃣ Disabled logic
+    if (!opt.correct && opt.active === false) {
+      const grey = '#a3a3a3';
+      this.setBackgroundColor(host, grey);
       this.renderer.addClass(host, 'deactivated-option');
       this.renderer.setStyle(host, 'cursor', 'not-allowed');
       this.setPointerEvents(host, 'none');
-      return;
     }
-
-    /* 2-c neutral row → keep it blank */
   }
-
-  
-  
-  
 
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
