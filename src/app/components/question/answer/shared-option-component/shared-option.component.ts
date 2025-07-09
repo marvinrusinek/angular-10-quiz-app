@@ -2435,21 +2435,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.showFeedbackForOption = freshShowMap;
   
     // 🔁 Build fresh bindings
-    this.optionBindings = this.optionsToDisplay.map((option, idx) => {
-      const opt: Option = { ...option };
-      const isSelected = !!opt.selected; // trust Option.selected directly
-  
-      // Enforce highlight + icon on selected options
-      opt.highlight = isSelected;
-      opt.showIcon  = isSelected;
-
-      freshShowMap[opt.optionId] = isSelected;
-  
-      // const binding = this.getOptionBindings(option, idx, isSelected);
-      const binding = this.getOptionBindings(opt, idx, isSelected);
-      binding.showFeedbackForOption = freshShowMap;
-  
-      return binding;
+    this.optionBindings.forEach(binding => {
+      const id = binding.option.optionId;
+      const isSelected =
+        this.selectedOptionMap.get(id) === true ||
+        this.selectedOptionHistory.includes(id);
+    
+      /* ① — logic flags */
+      binding.isSelected        = isSelected;
+      binding.option.selected   = isSelected;
+    
+      /* 🔑 ② — add these two lines */
+      binding.option.highlight  = isSelected;   // ← force colour
+      binding.option.showIcon   = isSelected;   // ← force ✓∕✗ icon
+    
+      /* feedback map stays the same */
+      this.showFeedbackForOption[id] = isSelected;
+    
+      /* ... the rest of your code ... */
+    
+      // Re-paint the row immediately
+      binding.directiveInstance?.updateHighlight();
     });
   
     this.updateHighlighting();
