@@ -392,15 +392,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
-      console.log('[🔍 Option State Table]');
-      console.table("check here", 
-        this.optionBindings.map(b => ({
-          id  : b.option.optionId,
-          sel : b.option.selected,
-          hi  : b.option.highlight,
-          ico : b.option.showIcon
-        }))
-      );
       this.cdRef.detectChanges();   // paints pristine rows
     }
   
@@ -836,16 +827,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.cdRef.detectChanges();
 
     this.debugDump(`after updateSelections(${selectedId})`);
-
-    console.log('[🔍 AFTER CLICK – Option State Table]');
-    console.table(
-      this.optionBindings.map(b => ({
-        id   : b.option.optionId,
-        sel  : b.option.selected,
-        hi   : b.option.highlight,
-        icon : b.option.showIcon
-      }))
-    );
   }
 
   private debugDump(label: string): void {
