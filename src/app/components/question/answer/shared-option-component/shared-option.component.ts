@@ -2440,8 +2440,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const isSelected = !!opt.selected; // trust Option.selected directly
   
       // Enforce highlight + icon on selected options
-      option.highlight = isSelected;
-      option.showIcon  = isSelected;
+      opt.highlight = isSelected;
+      opt.showIcon  = isSelected;
 
       freshShowMap[opt.optionId] = isSelected;
   
