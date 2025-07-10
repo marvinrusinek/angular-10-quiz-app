@@ -233,9 +233,14 @@ export class QuizQuestionLoaderService {
     // quizId & cache handling
     if (!this.ensureRouteQuizId()) { return false; }
 
-    // Guard against bad index and fill totalQuestions
-    if (!await this.ensureQuestionCount() ||
-        !this.validateIndex(index)) { return false; }
+    // Index Validation and Count Fetch
+    const isCountValid = await this.ensureQuestionCount();
+    const isIndexValid = this.validateIndex(index);
+
+    if (!isCountValid || !isIndexValid) {
+      console.warn('[⚠️ Invalid index or quiz length]', { index });
+      return false;
+    }
 
     // UI reset for a new question
     await this.resetUiForNewQuestion(index);
@@ -244,7 +249,7 @@ export class QuizQuestionLoaderService {
     const { q, opts } = await this.fetchQuestionAndOptions(index);
     if (!q || !opts.length) { return false; }
 
-    // Hydrate, clone, assign
+    // Clone options and hydrate State
     const cloned = this.hydrateAndClone(opts);
     this.currentQuestion  = { ...q, options: cloned };
     this.optionsToDisplay = [...cloned];
@@ -252,10 +257,11 @@ export class QuizQuestionLoaderService {
     
     this.currentQuestionIndex = index;
 
+    // Explanation fallback
     const explanation =
       q.explanation?.trim() || 'No explanation available';
 
-    // Emit downstream
+    // Emit to observers downstream
     this.emitQaPayload(q, cloned, index, explanation);
 
     // Explanation / timers / final flags
@@ -374,7 +380,6 @@ export class QuizQuestionLoaderService {
     const q = this.questionsArray[index] ?? null;
     const opts = q?.options ?? [];
   
-    console.log('[LOADER QA]', index, opts.map(o => o.text));
     return { q, opts };
   }
 
