@@ -446,7 +446,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     // DEBUG — log every raw QA payload with derived id+index
-    this.quizStateService.qa$
+    /* this.quizStateService.qa$
       .pipe(takeUntil(this.destroy$))
       .subscribe((qa: QAEvent) => {
         const quizId = this.quizId || this.quizService.quizId;
@@ -456,7 +456,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           index,
           text: qa?.question?.questionText
         });
-      });
+      }); */
 
     // Assign question + options together when ready
     this.quizStateService.qa$
