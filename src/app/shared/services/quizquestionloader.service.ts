@@ -740,8 +740,6 @@ export class QuizQuestionLoaderService {
   }
 
   public async loadQA(index: number): Promise<boolean> {
-    console.log('[DEBUG] loadQA called for index', index);
-  
     // Clear stale question + options immediately
     this.resetHeadlineStreams();
   
@@ -785,8 +783,7 @@ export class QuizQuestionLoaderService {
         showIcon : !!o.showIcon,
         selected : !!o.selected,
         correct  : !!o.correct,
-        feedback : o.feedback
-              ?? `You're right! The correct answer is Option ${i + 1}.`
+        feedback : o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
   
       // ─── Synthesize the selection message ──────────────────────────
