@@ -7,8 +7,7 @@ export class SoundService {
 
   constructor() {
     this.sounds['correct'] = new Howl({ src: ['assets/sounds/correct.mp3'] });
-    this.sounds['wrong'] = new Howl({ src: ['assets/sounds/wrong.mp3'] });
-    this.sounds['click'] = new Howl({ src: ['assets/sounds/click.mp3'] });
+    this.sounds['wrong'] = new Howl({ src: ['assets/sounds/incorrect.mp3'] });
   }
 
   play(soundName: string): void {
