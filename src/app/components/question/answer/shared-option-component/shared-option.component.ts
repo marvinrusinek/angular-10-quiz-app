@@ -2456,14 +2456,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
   }
 
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return optionId === this.lastFeedbackOptionId;
-  } */
-  /* shouldShowFeedback(index: number): boolean {
-    const optionId = this.optionBindings?.[index]?.option?.optionId;
-    return this.showFeedbackForOption?.[optionId] === true;
-  } */
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return (
