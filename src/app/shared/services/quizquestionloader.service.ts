@@ -754,7 +754,7 @@ export class QuizQuestionLoaderService {
     this.explanationTextService.explanationText$.next('');
   
     try {
-      /* ─── 1. Fetch the question skeleton ─────────────────────────────── */
+      // ─── Fetch the question skeleton ───────────────────────────────
       const q = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
           map(questions => questions[index])
@@ -765,7 +765,7 @@ export class QuizQuestionLoaderService {
         return false;
       }
   
-      /* ─── 2. Ensure we have an options array ─────────────────────────── */
+      // ─── Ensure we have an options array ───────────────────────────
       let opts = q.options ?? [];
       if (opts.length === 0) {
         // Fetch options separately when they’re not embedded in the question
@@ -777,7 +777,7 @@ export class QuizQuestionLoaderService {
         }
       }
   
-      /* ─── 3. Normalise / add fallback feedback once ─────────────────── */
+      // ─── Normalize / add fallback feedback once ───────────────────
       const finalOpts = opts.map((o, i) => ({
         ...o,
         optionId : o.optionId ?? i,
@@ -789,11 +789,11 @@ export class QuizQuestionLoaderService {
               ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
   
-      /* ─── 4. Synthesize the selection message ────────────────────────── */
+      // ─── Synthesize the selection message ──────────────────────────
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
 
-      /* 5 ─── CLONE question & attach quizId + index ------------------------------------ */
+      // ─── CLONE question & attach quizId + index 
       const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
         ...q,
         options: finalOpts
@@ -801,7 +801,7 @@ export class QuizQuestionLoaderService {
 
       const effectiveQuizId = this.quizService.quizId;
   
-      /* ─── 6. Emit the trio ONCE  (question now guaranteed to carry opts) */
+      // Emit the trio ONCE (question now guaranteed to carry opts)
       this.quizStateService.emitQA(
         safeQuestion,
         finalOpts,
@@ -822,9 +822,9 @@ export class QuizQuestionLoaderService {
   }
 
   resetHeadlineStreams(): void {
-    this.questionToDisplay$.next(''); // clears question text
-    this.explanationTextService.explanationText$.next(''); // clears explanation
-    this.clearQA(); // clears question + options
+    this.questionToDisplay$.next('');  // clears question text
+    this.explanationTextService.explanationText$.next('');  // clears explanation
+    this.clearQA();  // clears question and options
     this.quizStateService.setDisplayState({  // force “question” mode
       mode: 'question',
       answered: false
