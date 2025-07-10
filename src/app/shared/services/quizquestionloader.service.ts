@@ -535,69 +535,13 @@ export class QuizQuestionLoaderService {
     this.optionsStream$.next([...opts]);
   }
 
-  /* private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> { 
-    console.log('[FETCH-Q] enter, index =', questionIndex, 'quizId =', this.activeQuizId); 
-    try {
-      // Fetch and validate question text
-      const questionText = await firstValueFrom(this.quizService.getQuestionTextForIndex(questionIndex));
-      if (!questionText || typeof questionText !== 'string' || !questionText.trim()) {
-        console.error(`[❌ Q${questionIndex}] Missing or invalid question text`);
-        throw new Error(`Invalid question text for index ${questionIndex}`);
-      }
-  
-      const trimmedText = questionText.trim();
-  
-      // Fetch and validate options
-      const options = await this.quizService.getOptions(questionIndex);
-      if (!Array.isArray(options) || options.length === 0) {
-        console.error(`[❌ Q${questionIndex}] No valid options`);
-        throw new Error(`No options found for Q${questionIndex}`);
-      } 
-    
-      // Fetch explanation text
-      let explanation = 'No explanation available';
-      if (this.explanationTextService.explanationsInitialized) {
-        const fetchedExplanation = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
-        );
-        explanation = fetchedExplanation?.trim() || 'No explanation available';
-      } else {
-        console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
-      }
-  
-      // Determine question type
-      const correctCount = options.filter(opt => opt.correct).length;
-      const type = correctCount > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
-  
-      const question: QuizQuestion = {
-        questionText: trimmedText,
-        options,
-        explanation,
-        type
-      };
-
-      this.qaSubject.next({
-        heading     : question.questionText ?? 'No question',
-        options     : [...question.options],
-        explanation : question.explanation ?? 'No explanation available',
-        question    : question
-      });
-  
-      // Sync type with service
-      this.quizDataService.setQuestionType(question);
-      return question;
-    } catch (error) {
-      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
-      throw error;
-    }
-  } */
   /** Load a single QuizQuestion for the active quiz.
-   *  ✅ Tries the quiz already cached in QuizService first (synchronous).
-   *  ✅ Falls back to the full async path only if the cache is missing.
-   *  ✅ Keeps all your validation / type-detection logic and emits QA.
+   *  Tries the quiz already cached in QuizService first (synchronous).
+   *  Falls back to the full async path only if the cache is missing.
+   *  Keeps all validation / type-detection logic and emits QA.
    */
   private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    /* ── 0. FAST-PATH  ─────────────────────────────────────────────── */
+    // ── FAST-PATH  ─────────────────────────────────────────────── 
     const cachedQuiz: Quiz | null = this.quizService.activeQuiz;
     if (cachedQuiz?.questions?.length) {
       const cachedQ = cachedQuiz.questions[questionIndex];
@@ -607,9 +551,9 @@ export class QuizQuestionLoaderService {
       }
     }
 
-    /* ── 1. ORIGINAL ASYNC PATH  ──────────────────────────────────── */
+    // ── ORIGINAL ASYNC PATH  ────────────────────────────────────
     try {
-      // 1-A. Fetch & validate question text
+      // Fetch and validate question text
       const questionText = await firstValueFrom(
         this.quizService.getQuestionTextForIndex(questionIndex)
       );
@@ -618,13 +562,13 @@ export class QuizQuestionLoaderService {
       }
       const trimmedText = questionText.trim();
 
-      // 1-B. Fetch & validate options
+      // Fetch and validate options
       const options = await this.quizService.getOptions(questionIndex);
       if (!Array.isArray(options) || options.length === 0) {
         throw new Error(`No options found for Q${questionIndex}`);
       }
 
-      // 1-C. Fetch explanation (if service ready)
+      // Fetch explanation (if service ready)
       let explanation = 'No explanation available';
       if (this.explanationTextService.explanationsInitialized) {
         const fetched = await firstValueFrom(
@@ -635,13 +579,13 @@ export class QuizQuestionLoaderService {
         console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
       }
 
-      // 1-D. Determine question type
+      // Determine question type
       const correctCount = options.filter(opt => opt.correct).length;
       const type = correctCount > 1
         ? QuestionType.MultipleAnswer
         : QuestionType.SingleAnswer;
 
-      // 1-E. Assemble the question object
+      // Assemble the question object
       const question: QuizQuestion = {
         questionText : trimmedText,
         options,
@@ -649,7 +593,7 @@ export class QuizQuestionLoaderService {
         type
       };
 
-      /* 1-F. Emit QA payload for downstream bindings */
+      // Emit QA payload for downstream bindings
       this.qaSubject.next({
         heading    : question.questionText,
         options    : [...question.options],
@@ -657,15 +601,14 @@ export class QuizQuestionLoaderService {
         question
       });
 
-      /* 1-G. Sync type with data-service cache */
+      // Sync type with data-service cache
       this.quizDataService.setQuestionType(question);
       return question;
     } catch (error) {
       console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
-      throw error;                                   // propagate to loader
+      throw error;  // propagate to loader
     }
   }
-
 
   public setQuestionDetails(
     questionText: string,
