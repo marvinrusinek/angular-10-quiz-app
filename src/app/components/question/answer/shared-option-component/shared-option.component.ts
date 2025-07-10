@@ -1270,7 +1270,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     }
     
     optionBinding.isSelected = true;
-    optionBinding.option.selected = true;
     optionBinding.option.highlight = true;
     optionBinding.option.showIcon = true;
     this.selectedOptionMap.set(optionId, true);
@@ -2584,7 +2583,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  /** Only (de)select the clicked option, leave others untouched */
+  // Only (de)select the clicked option, leave others untouched
   private toggleSelectedOption(clicked: Option): void {
     this.optionsToDisplay.forEach(o => {
       if (o.optionId === clicked.optionId) {
