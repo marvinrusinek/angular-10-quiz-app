@@ -338,7 +338,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  /* 3. Fetch a single question + its options */
+  // Fetch a single question and its options
   private async fetchQuestionAndOptions(
     index: number
   ): Promise<{ q: QuizQuestion | null; opts: Option[] }> {
@@ -368,21 +368,21 @@ export class QuizQuestionLoaderService {
     this.activeQuizId       = quizId;
     this.quizService.quizId = quizId;
   
-    // (optional) hydrate the full quiz so downstream code has metadata
+    // Hydrate the full quiz so downstream code has metadata
     const fullQuiz: Quiz = await firstValueFrom(
       this.quizDataService.getQuiz(quizId).pipe(take(1))
     );
     this.quizService.setCurrentQuiz({ ...fullQuiz, questions: this.questionsArray });
   
     // Return the requested question + options
-    const q    = this.questionsArray[index] ?? null;
+    const q = this.questionsArray[index] ?? null;
     const opts = q?.options ?? [];
   
     console.log('[LOADER QA]', index, opts.map(o => o.text));
     return { q, opts };
   }
 
-  /* 4. hydrate flags then deep-clone */
+  // Hydrate flags then deep-clone
   private hydrateAndClone(opts: Option[]): Option[] {
     const hydrated = opts.map((o, i) => ({
       ...o,
@@ -401,9 +401,9 @@ export class QuizQuestionLoaderService {
           : JSON.parse(JSON.stringify(active));
   }
 
-  /* 5. Push options + heading downstream */
-  /** Emits heading, options, and explanation through the BehaviourSubjects
- *  and updates every downstream service in one place. */
+  // Push options and heading downstream 
+  // Emits heading, options, and explanation through the BehaviourSubjects and 
+  // updates every downstream service in one place.
   private emitQaPayload(
     question   : QuizQuestion,
     options    : Option[],
@@ -411,7 +411,7 @@ export class QuizQuestionLoaderService {
     explanation: string
   ): void {
 
-    /* A. Streams for the template */
+    // Streams for the template
     this.optionsStream$.next([...options]);
     this.qaSubject.next({
       heading    : question.questionText.trim(),
@@ -420,7 +420,7 @@ export class QuizQuestionLoaderService {
       question
     });
 
-    /* B. State shared across services / components */
+    // State shared across services/components
     this.setQuestionDetails(question.questionText.trim(), options, explanation);
     this.currentQuestionIndex = index;
     this.explanationToDisplay = explanation;
@@ -428,12 +428,12 @@ export class QuizQuestionLoaderService {
     this.shouldRenderQuestionComponent = true;
     this.questionPayloadReadySource.next(true);
 
-    /* C. Push into QuizService + QuizStateService */
+    // Push into QuizService and QuizStateService
     this.quizService.setCurrentQuestion(question);
     this.quizService.setCurrentQuestionIndex(index);
     this.quizStateService.updateCurrentQuestion(question);
 
-    /* D. Broadcast QA for any external listener (progress bar, etc.) */
+    // Broadcast QA for any external listener (progressbar, etc.)
     const selMsg = this.selectionMessageService
       .determineSelectionMessage(index, this.totalQuestions, false);
     this.quizStateService.emitQA(
@@ -445,17 +445,16 @@ export class QuizQuestionLoaderService {
     );
   }
 
-
-  // Explanation, timers, flags – original logic lifted verbatim */
-  /** Runs AFTER we have emitted the QA payload. Handles
-   *  explanation, timers, downstream state, and final flags. */
+  // Explanation, timers, flags – original logic lifted verbatim
+  // Runs AFTER we have emitted the QA payload. Handles
+  // explanation, timers, downstream state, and final flags.
   private async postEmitUpdates(
     q: QuizQuestion,
     opts: Option[],
     idx: number
   ): Promise<void> {
 
-    /* Explanation text + timers */
+    // Explanation text and timers
     const isAnswered = this.selectedOptionService.isQuestionAnswered(idx);
 
     this.explanationTextService.setResetComplete(false);
@@ -475,7 +474,7 @@ export class QuizQuestionLoaderService {
       });
       this.timerService.isTimerRunning = false;
     } else {
-      /* selection message for unanswered question */
+      // selection message for unanswered question
       const selMsg = this.selectionMessageService
         .determineSelectionMessage(idx, this.totalQuestions, false);
 
@@ -486,7 +485,7 @@ export class QuizQuestionLoaderService {
       this.timerService.startTimer(this.timerService.timePerQuestion);
     }
 
-    /* Down-stream state updates */
+    // Down-stream state updates
     this.setQuestionDetails(
       q.questionText.trim(),
       opts,
@@ -521,18 +520,18 @@ export class QuizQuestionLoaderService {
       );
     }
 
-    /* combined streams / async checks */
+    // Combined streams/async checks
     this.setupCombinedQuestionStream();
     await this.loadQuestionContents(idx);
     await this.quizService.checkIfAnsweredCorrectly();
 
-    /* Final flags */
+    // Final flags
     this.questionTextLoaded   = true;
     this.hasOptionsLoaded     = true;
     this.shouldRenderOptions  = true;
     this.resetComplete        = true;
 
-    /* final emit so late subscribers have data */
+    // Final emit so late subscribers have data
     this.optionsStream$.next([...opts]);
   }
 
