@@ -1,23 +1,15 @@
 <!-- Show list only when we actually have options -->
-<ng-container
-  *ngIf="optionsToDisplay?.length > 0; else noOptions"
-  [attr.data-qv]="questionVersion"
-  [style.visibility]="finalRenderReady ? 'visible' : 'hidden'"
-  [style.minHeight]="'1rem'">
-
+<ng-container *ngIf="renderReady && optionsToDisplay?.length > 0; else noOptions">
   <form [formGroup]="form" class="options-form">
-  
+
     <!-- ─────────── SINGLE-ANSWER (radio) ─────────── -->
     <mat-radio-group
       *ngIf="type === 'single'"
       class="options-group options"
-      formControlName="selectedOptionId"
-      [attr.data-key]="questionVersion">
-
-      <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
-        class="option-container"
-        [attr.data-key]="questionVersion">
+      formControlName="selectedOptionId">
+      
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
+        class="option-container">
 
         <mat-radio-button
           appHighlightOption
@@ -56,14 +48,13 @@
 
     <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
     <div *ngIf="type === 'multiple'" class="options-group options">
-      <div
-        *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
-        class="option-container"
-        [attr.data-key]="questionVersion">
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
+        class="option-container">
 
         <label class="option-row multiple-option">
           <mat-checkbox
             appHighlightOption
+            [value]="b.option.optionId"
             [option]="b.option"
             [optionBinding]="b"
             [isSelected]="b.isSelected"
@@ -73,7 +64,6 @@
             [appHighlightInputType]="'checkbox'"
             [appHighlightReset]="shouldResetBackground"
             [checked]="b.option.selected"
-            [value]="b.option.optionId"
             (click)="handleClick(b, i)"
             (change)="updateOptionAndUI(b, i, $event)">
 
@@ -100,7 +90,7 @@
   </form>
 </ng-container>
 
-<!-- fallback when no options yet -->
+<!-- Fallback when no options yet -->
 <ng-template #noOptions>
-  <span style="min-height: 1rem;">Options not ready...</span>
+  <span>Options not ready...</span>
 </ng-template>
