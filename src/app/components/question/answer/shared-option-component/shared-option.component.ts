@@ -227,7 +227,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       console.log('[CHILD] got version →', this.questionVersion);
     }
   
-    // QUESTION (or options list) changed
+    // Question or options list changed
     const questionChanged =
           changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged   = changes['optionsToDisplay'];
@@ -243,7 +243,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
     
-      // clear reactive form without emitting
+      // Clear reactive form without emitting
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
     
       // Rebuild bindings from the *new* options list
