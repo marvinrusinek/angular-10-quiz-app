@@ -314,7 +314,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     // New question object (text)
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
-  
       this.selectedOption        = null;
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
@@ -380,7 +379,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   // Push the newly‐clicked option into history, then synchronize every binding’s
   // visual state (selected, highlight, icon, feedback) in one synchronous pass.
   private updateSelections(selectedId: number): void {
-    /* ignore the synthetic “-1 repaint” that runs right after question load */
+    // Ignore the synthetic “-1 repaint” that runs right after question load
     if (selectedId === -1) {
       this.cdRef.detectChanges();
       return;
@@ -396,21 +395,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       const everClicked = this.selectedOptionHistory.includes(id);
       const isCurrent   = id === selectedId;
 
-      // color stays ON for anything ever clicked
+      // Color stays ON for anything ever clicked
       b.option.highlight = everClicked;
 
-      // icon only on the row that was *just* clicked
+      // Icon only on the row that was just clicked
       b.option.showIcon  = isCurrent;
 
-      // native control state
+      // Native control state
       b.isSelected       = isCurrent;
       b.option.selected  = isCurrent;
 
-      // feedback – only current row is true
+      // Feedback – only current row is true
       if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
       b.showFeedbackForOption[id] = isCurrent;
 
-      // repaint row
+      // Repaint row
       b.directiveInstance?.updateHighlight();
     });
 
@@ -431,7 +430,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         feedback: option.feedback ?? undefined,
         showIcon: option.showIcon ?? false
       }));
-      console.log('[SharedOptionComponent] Restored optionsToDisplay from currentQuestion.options');
+      console.info('[SharedOptionComponent] Restored optionsToDisplay from currentQuestion.options');
     } else {
       console.warn('[SharedOptionComponent] No valid options available to restore.');
       this.optionsToDisplay = [];
