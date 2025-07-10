@@ -793,7 +793,7 @@ export class QuizQuestionLoaderService {
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
 
-      // ─── CLONE question & attach quizId + index 
+      // ─── CLONE question and attach quizId and index 
       const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
         ...q,
         options: finalOpts
