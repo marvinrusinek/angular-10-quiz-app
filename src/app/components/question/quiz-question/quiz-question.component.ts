@@ -37,6 +37,7 @@ import { ResetStateService } from '../../../shared/services/reset-state.service'
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../shared/services/selection-message.service';
 import { SharedVisibilityService } from '../../../shared/services/shared-visibility.service';
+import { SoundService } from '../../../shared/services/sound.service';
 import { TimerService } from '../../../shared/services/timer.service';
 import { UserPreferenceService } from '../../../shared/services/user-preference.service';
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
@@ -278,6 +279,7 @@ export class QuizQuestionComponent
     protected selectedOptionService: SelectedOptionService,
     protected selectionMessageService: SelectionMessageService,
     protected sharedVisibilityService: SharedVisibilityService,
+    protected soundService: SoundService,
     protected timerService: TimerService,
     protected userPreferenceService: UserPreferenceService,
     protected componentFactoryResolver: ComponentFactoryResolver,
