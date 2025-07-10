@@ -1278,7 +1278,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
-    
+
     if (!isAlreadyVisited) {
       this.selectedOptionHistory.push(optionId);
     }
@@ -1326,15 +1326,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
       const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
 
-      this.feedbackConfigs[optionId] = {
-        feedback: dynamicFeedback,
-        showFeedback: true,
-        options: this.optionsToDisplay,
-        question: this.currentQuestion,
-        selectedOption: optionBinding.option,
-        correctMessage: dynamicFeedback,
-        idx: index
-      };
+      if (!this.feedbackConfigs[optionId]) {
+        this.feedbackConfigs[optionId] = {
+          feedback: dynamicFeedback,
+          showFeedback: true,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          selectedOption: optionBinding.option,
+          correctMessage: dynamicFeedback,
+          idx: index
+        };
+      }
 
       this.showFeedbackForOption[optionId] = true;
       this.lastFeedbackOptionId = optionId;
