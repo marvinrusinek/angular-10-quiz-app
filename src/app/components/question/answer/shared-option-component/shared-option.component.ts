@@ -2564,9 +2564,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     setTimeout(() => this.cdRef.detectChanges());
   }
 
-  /* ------------------------------------------------------------------
-   Hard-reset every row (flags + visual DOM) for a brand-new question
-  ------------------------------------------------------------------- */
+  // Hard-reset every row (flags + visual DOM) for a brand-new question
   private fullyResetRows(): void {
     // zero every binding flag …
     for (const b of this.optionBindings) {
@@ -2605,7 +2603,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     });
   }
 
-  /** Ensure every binding’s option.selected matches the map / history */
+  // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
     this.optionBindings.forEach(b => {
       const id = b.option.optionId;
@@ -2614,14 +2612,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         this.selectedOptionHistory.includes(id);
   
       b.option.selected = chosen;
-      b.isSelected      = chosen;
+      b.isSelected = chosen;
     });
-  
-    /* 🔍 probe */
-    console.table(this.optionBindings.map(b => ({
-      idmarv : b.option.optionId,
-      sel: b.option.selected
-    })));
   }
 
   private focusFeedbackOn(id: number): void {
@@ -2632,7 +2624,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     // show only on the requested row
     this.showFeedbackForOption[id] = true;
-    this.lastFeedbackOptionId      = id;
+    this.lastFeedbackOptionId = id;
   
     if (this.feedbackConfigs[id]) {
       this.feedbackConfigs[id].showFeedback = true;
