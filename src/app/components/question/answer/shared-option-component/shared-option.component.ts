@@ -238,7 +238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     
       this.fullyResetRows();  // single point of truth
     
-      // also nuke per-question state maps
+      // Clear per-question state maps
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId  = -1;
       this.showFeedbackForOption = {};
@@ -247,11 +247,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       // clear reactive form without emitting
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
     
-      // rebuild bindings from the *new* options list
+      // Rebuild bindings from the *new* options list
       this.optionBindings = [];
       this.processOptionBindings();
     
-      // two stacked change-detections → guarantees clean slate paint
+      // Two stacked change-detections → guarantees clean slate paint
       this.cdRef.detectChanges();   // clears old DOM paint
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
@@ -259,7 +259,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.cdRef.detectChanges();   // paints pristine rows
     }
   
-    // NEW optionBindings array came in
+    // New optionBindings array came in
     if (changes['optionBindings'] &&
         Array.isArray(changes['optionBindings'].currentValue) &&
         changes['optionBindings'].currentValue.length) {
@@ -270,7 +270,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.optionBindings = changes['optionBindings'].currentValue;
       this.generateOptionBindings();  // produces brand-new objects
   
-      // NOW, before any directive paints, zero out the row flags
+      // Now, before any directive paints, zero out the row flags
       this.optionBindings.forEach(b => {
         b.isSelected         = false;
         b.option.selected    = false;
@@ -306,7 +306,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       // Let SOC recompute directive state
       this.processOptionBindings();
   
-      // second immediate CD so neutral colours / no icons render
+      // Second immediate CD so neutral colors / no icons render
       this.cdRef.detectChanges();
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
