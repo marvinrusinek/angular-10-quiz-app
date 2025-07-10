@@ -2137,8 +2137,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
   
   private finalizeOptionPopulation(): void {
-    console.log('[🚀 finalizeOptionPopulation] Checking optionsToDisplay...');
-  
     if (!this.optionsToDisplay?.length) {
       console.warn('[🚨 No options to display. Skipping type determination.');
       return;
@@ -2148,11 +2146,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     // Determine type based on the populated options
     const calculatedType = this.determineQuestionType(this.currentQuestion);
-    console.log(`[🔍 Calculated Type]: ${calculatedType}`);
-  
     this.type = calculatedType;
-  
-    console.log(`[🔍 Final Option Type Check]: ${this.type}`);
   }
 
   isLastSelectedOption(option: Option): boolean {
