@@ -115,7 +115,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
 
   trackByQuestionScoped = (_: number, b: OptionBindings) =>
-  `${this.questionVersion}-${b.option.optionId}`;
+    `${this.questionVersion}-${b.option.optionId}`;
 
   onDestroy$ = new Subject<void>();
 
@@ -130,8 +130,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     private fb: FormBuilder,
     private ngZone: NgZone
   ) {
-    console.log('[🧩 SharedOptionComponent] constructed');
-
     this.form = this.fb.group({
       selectedOptionId: [null, Validators.required]
     });
