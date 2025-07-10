@@ -272,7 +272,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
-      this.generateOptionBindings();             // ← produces brand-new objects
+      this.generateOptionBindings();  // produces brand-new objects
   
       // NOW, before any directive paints, zero out the row flags
       this.optionBindings.forEach(b => {
@@ -333,7 +333,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.resetState();
     }
   }
-  
 
   ngAfterViewInit(): void {
     if (this.form) {
@@ -344,7 +343,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     if (!this.optionBindings?.length && this.optionsToDisplay?.length) {
       console.warn('[⚠️ SOC] ngOnChanges not triggered, forcing optionBindings generation');
-      // this.generateOptionBindings();
     }
   
     this.viewInitialized = true;
