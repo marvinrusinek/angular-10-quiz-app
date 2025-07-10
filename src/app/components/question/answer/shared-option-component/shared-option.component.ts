@@ -91,8 +91,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   isOptionSelected = false;
   optionIconClass: string;
   private optionsRestored = false;  // tracks if options are restored
-  private hasBoundQuizComponent = false;
-  private hasLoggedMissingComponent = false;
   viewInitialized = false;
   viewReady = false;
   optionsReady = false;
