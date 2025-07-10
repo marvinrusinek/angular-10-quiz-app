@@ -156,7 +156,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       // this.canDisplayOptions = this.optionsToDisplay?.length > 0;
   
       this.cdRef.detectChanges();
-      console.log('[✅ Flags Updated - Triggering Render]');
     }, 100);
 
     // Always synchronize to ensure data consistency
@@ -378,230 +377,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   } 
 
-  /**
-   * Push the newly‐clicked option into history, then synchronize every binding’s
-   * visual state (selected, highlight, icon, feedback) in one synchronous pass.
-   */
-   /* private updateSelections(selectedId: number): void {
-     // HARD-RESET every row first
-    this.optionBindings.forEach(b => {
-      b.isSelected          = false;
-      b.option.selected     = false;
-      b.option.highlight    = false;
-      b.option.showIcon     = false;
-      b.showFeedback        = false;
-      b.showFeedbackForOption = {};
-    });
-
-    // Ignore the late -1 repaint once user has clicked
-    if (selectedId === -1 && this.selectedOptionHistory.length) {
-      return;  // user already interacted
-    }
-
-    // History
-    if (!this.selectedOptionHistory.includes(selectedId)) {
-      this.selectedOptionHistory.push(selectedId);
-      console.log('[🧠 selectedOptionHistory]', this.selectedOptionHistory);
-    }
-  
-    // Walk every binding and update its flags
-    this.optionBindings.forEach(b => {
-      const id          = b.option.optionId;
-      const everClicked = this.selectedOptionHistory.includes(id); // in history?
-      const isCurrent   = id === selectedId;                       // just clicked?
-  
-      // This single line is what removed the 2-click lag
-      b.option.highlight = everClicked;        // highlight if EVER clicked
-      b.option.showIcon  = everClicked;        // icon if EVER clicked
-      
-  
-      b.isSelected      = isCurrent;           // radio / checkbox selected
-      b.option.selected = isCurrent;
-  
-      // guard: make sure showFeedbackForOption is always an object
-      if (typeof b.showFeedbackForOption !== 'object' || b.showFeedbackForOption == null) {
-        b.showFeedbackForOption = {};          // reset placeholder map
-      }
-  
-      // Feedback only for the latest click
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      // repaint row synchronously
-      b.directiveInstance?.paintNow();
-    });
-  
-    // Flush to DOM
-    this.cdRef.detectChanges();
-  } */
-  /* private updateSelections(selectedId: number): void {
-    // Ignore the late -1 repaint once user has clicked
-    if (selectedId === -1 && this.selectedOptionHistory.length) {
-      return;  // user already interacted
-    }
-  
-    // ── 0. HARD-RESET every row BEFORE doing anything else ─────────
-    for (const b of this.optionBindings) {
-      b.isSelected           = false;
-      b.option.selected      = false;
-      b.option.highlight     = false;
-      b.option.showIcon      = false;
-      b.showFeedbackForOption[b.option.optionId] = false;
-      b.directiveInstance?.updateHighlight();   // ⬅ repaint immediately
-    }
-
-  
-    // History
-    if (!this.selectedOptionHistory.includes(selectedId)) {
-      this.selectedOptionHistory.push(selectedId);
-    }
-  
-    // Walk every binding and update its flags
-    this.optionBindings.forEach(b => {
-      const id        = b.option.optionId;
-      const isCurrent = id === selectedId;   // just clicked?
-  
-      // highlight / icon only for the *current* click
-      b.option.highlight = isCurrent;
-      b.option.showIcon  = isCurrent;
-  
-      b.isSelected      = isCurrent;
-      b.option.selected = isCurrent;
-  
-      // Feedback only for the latest click
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      // repaint row synchronously
-      b.directiveInstance?.updateHighlight();
-    });
-  
-    // Flush to DOM
-    this.cdRef.detectChanges();
-  } */
-  /* private updateSelections(selectedId: number): void {
-
-    // 0 — reset every row first
-    this.optionBindings.forEach(b => {
-      b.isSelected           = false;
-      b.option.selected      = false;
-      b.option.highlight     = false;
-      b.option.showIcon      = false;
-      b.showFeedbackForOption[b.option.optionId] = false;
-      b.directiveInstance?.paintNow();
-    });
-  
-    // -1 is the “initial repaint”; nothing else to do
-    if (selectedId === -1) {
-      this.cdRef.detectChanges();
-      return;
-    }
-  
-    // 1 — mark ONLY the row that was just clicked
-    const clicked = this.optionBindings.find(
-      x => x.option.optionId === selectedId
-    );
-    if (clicked) {
-      clicked.isSelected        = true;
-      clicked.option.selected   = true;
-      clicked.option.highlight  = true;
-      clicked.option.showIcon   = true;
-      clicked.showFeedbackForOption[selectedId] = true;
-      clicked.directiveInstance?.paintNow();
-    }
-  
-    this.cdRef.detectChanges();
-  } */
-  /* private updateSelections(selectedId: number): void {
-    // Ignore the –1 repaint once the user has already interacted
-    if (selectedId === -1 && this.selectedOptionHistory.length) {
-      return;
-    }
-  
-    // ── 1.  Track click-history ───────────────────────────────────
-    if (!this.selectedOptionHistory.includes(selectedId)) {
-      this.selectedOptionHistory.push(selectedId);
-    }
-  
-    // ── 2.  Walk every binding ────────────────────────────────────
-    this.optionBindings.forEach(b => {
-      const id          = b.option.optionId;
-      const everClicked = this.selectedOptionHistory.includes(id);
-      const isCurrent   = id === selectedId;
-  
-      // A.  highlight ALL ever-clicked rows
-      b.option.highlight  = everClicked;
-  
-      // B.  show icon ONLY on *this* click
-      b.option.showIcon   = isCurrent;
-  
-      // C.  radio / checkbox checked state
-      b.isSelected        = isCurrent;
-      b.option.selected   = isCurrent;
-  
-      // D.  feedback map – only current row gets feedback
-      if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      // E.  repaint synchronously
-      b.directiveInstance?.updateHighlight();
-    });
-  
-    // ── 3.  Flush to the DOM ──────────────────────────────────────
-    this.cdRef.detectChanges();
-  } */
-  /* private updateSelections(selectedId: number): void {
-    // Ignore the automatic -1 repaint once the user has interacted
-    if (selectedId === -1 && this.selectedOptionHistory.length) { return; }
-  
-    this.optionBindings.forEach(b => {
-      const id          = b.option.optionId;
-      const everClicked = this.selectedOptionHistory.includes(id);
-      const isCurrent   = id === selectedId;
-    
-      // colours
-      b.option.highlight = everClicked;          // every row ever clicked stays coloured
-      b.isSelected       = isCurrent;            // radio / checkbox state
-      b.option.selected  = isCurrent;
-    
-      // icon & feedback – only the latest click
-      b.option.showIcon              = isCurrent;
-      b.showFeedbackForOption[id]    = isCurrent;
-    
-      b.directiveInstance?.updateHighlight();
-    });
-  
-    this.cdRef.detectChanges();              // flush DOM
-  } */
-  /* private updateSelections(selectedId: number): void {
-    // keep a unique history for “ever-clicked”
-    if (!this.selectedOptionHistory.includes(selectedId) && selectedId !== -1) {
-      this.selectedOptionHistory.push(selectedId);
-    }
-  
-    this.optionBindings.forEach(b => {
-      const id          = b.option.optionId;
-      const everClicked = this.selectedOptionHistory.includes(id);
-      const isCurrent   = id === selectedId;
-  
-      // highlight every row that has EVER been chosen in this question
-      b.option.highlight = everClicked;
-  
-      // icon only on the row that was JUST clicked
-      b.option.showIcon  = isCurrent;
-  
-      // native control
-      b.isSelected       = isCurrent;
-      b.option.selected  = isCurrent;
-  
-      // feedback map – only the current row is true
-      if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
-      b.showFeedbackForOption[id] = isCurrent;
-  
-      b.directiveInstance?.updateHighlight();
-    });
-  
-    this.cdRef.detectChanges();
-  } */
-  /** Call exactly once after *each* user click. */
+  // Push the newly‐clicked option into history, then synchronize every binding’s
+  // visual state (selected, highlight, icon, feedback) in one synchronous pass.
   private updateSelections(selectedId: number): void {
     /* ignore the synthetic “-1 repaint” that runs right after question load */
     if (selectedId === -1) {
@@ -609,7 +386,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
 
-    /* remember every id that has ever been clicked in THIS question */
+    // Remember every id that has ever been clicked in this question
     if (!this.selectedOptionHistory.includes(selectedId)) {
       this.selectedOptionHistory.push(selectedId);
     }
@@ -619,21 +396,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       const everClicked = this.selectedOptionHistory.includes(id);
       const isCurrent   = id === selectedId;
 
-      /*  colour stays ON for anything ever clicked */
+      // color stays ON for anything ever clicked
       b.option.highlight = everClicked;
 
-      /*  icon only on the row that was *just* clicked */
+      // icon only on the row that was *just* clicked
       b.option.showIcon  = isCurrent;
 
-      /*  native control state */
+      // native control state
       b.isSelected       = isCurrent;
       b.option.selected  = isCurrent;
 
-      /*  feedback – only current row is true */
+      // feedback – only current row is true
       if (!b.showFeedbackForOption) { b.showFeedbackForOption = {}; }
       b.showFeedbackForOption[id] = isCurrent;
 
-      /*  repaint row */
+      // repaint row
       b.directiveInstance?.updateHighlight();
     });
 
@@ -644,7 +421,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const fallbackOptions = this.currentQuestion?.options;
   
     if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) {
-      return; // already populated, no need to proceed
+      return;  // already populated, no need to proceed
     }
   
     if (Array.isArray(fallbackOptions) && fallbackOptions.length > 0) {
@@ -689,15 +466,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       // Restore options with proper states
       this.optionsToDisplay = this.currentQuestion.options.map(option => ({
         ...option,
-        active: option.active ?? true, // default to true
-        feedback: option.feedback ?? 'No feedback available.', // restore feedback
-        showIcon: option.showIcon ?? false, // preserve icon state
-        selected: option.selected ?? false, // restore selection state
-        highlight: option.highlight ?? option.selected // restore highlight state
+        active: option.active ?? true,  // default to true
+        feedback: option.feedback ?? 'No feedback available.',  // restore feedback
+        showIcon: option.showIcon ?? false,  // preserve icon state
+        selected: option.selected ?? false,  // restore selection state
+        highlight: option.highlight ?? option.selected  // restore highlight state
       }));
-
-      // Synchronize bindings
-      // this.synchronizeOptionBindings();
 
       // Mark as restored
       this.optionsRestored = true;
@@ -737,8 +511,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const existingSelectionMap = new Map(
       (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
     );
-  
-    console.log('[🔍 Existing Selection Map]', existingSelectionMap);
   
     if (this.freezeOptionBindings) {
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
@@ -782,11 +554,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    console.log('[🖱️ handleClick]', {
-      questionIndex: this.quizService.currentQuestionIndex,
-      optionId: optionBinding.option.optionId
-    });
-  
     // If already selected, skip UI update but still emit to trigger feedback
     const alreadySelected = optionBinding.option.selected;
     if (alreadySelected) {
@@ -812,14 +579,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleChange(optionBinding: OptionBindings, index: number): void {
-    console.log('[🖱️ handleChange] Option Clicked:', optionBinding.option.optionId);
-  
     const simulatedEvent: MatRadioChange = {
       source: {
         value: optionBinding.option.optionId,
         checked: true,
         disabled: false,
-        name: 'radioOption' // ensure this matches the form control name
+        name: 'radioOption'  // ensure this matches the form control name
       } as unknown as MatRadioButton,
       value: optionBinding.option.optionId,
     };
@@ -836,7 +601,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   preserveOptionHighlighting(): void {
     for (const option of this.optionsToDisplay) {
       if (option.selected) {
-        option.highlight = true; // highlight selected options
+        option.highlight = true;  // highlight selected options
       }
     }  
   }
@@ -861,15 +626,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.currentQuestion = null;
     this.optionsToDisplay = [];
   
-    console.log('[🔄 State Reset Completed]');
+    console.info('[🔄 State Reset Completed]');
   
     // GUARD - Config or options missing
     if (!this.config || !this.config.optionsToDisplay?.length) {
       console.warn('[🧩 initializeFromConfig] Config missing or empty.');
       return;
     }
-  
-    console.log('[✅ Config detected]', this.config);
   
     // Assign current question
     this.currentQuestion = this.config.currentQuestion;
@@ -881,8 +644,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
   
-    console.log('[🔄 Populating optionsToDisplay...');
-    
     // Populate optionsToDisplay with structured data
     this.optionsToDisplay = this.currentQuestion.options.map((opt, idx) => {
       const processedOption = {
@@ -895,11 +656,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         showIcon: false
       };
       
-      console.log(`[✅ Option Processed - ID ${processedOption.optionId}]:`, processedOption);
       return processedOption;
     });
-  
-    console.log('[✅ optionsToDisplay Populated]:', this.optionsToDisplay);
   
     if (!this.optionsToDisplay.length) {
       console.warn('[🚨 initializeFromConfig] optionsToDisplay is empty after processing.');
@@ -907,21 +665,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   
     // Determine question type based on options
-    console.log('[🔄 Determining question type...');
     this.type = this.determineQuestionType(this.currentQuestion);
-    console.log(`[✅ Final Type Determined]: ${this.type}`);
   
     // Initialize bindings and feedback maps
-    console.log('[🔄 Initializing option bindings...');
     this.setOptionBindingsIfChanged(this.optionsToDisplay);
-  
-    console.log('[🔄 Initializing feedback bindings...');
     this.initializeFeedbackBindings();
   
-    console.log('[🔄 Finalizing option population...');
     this.finalizeOptionPopulation();
-  
-    console.log('[✅ initializeFromConfig] Initialization complete.');
   }
   
   private setOptionBindingsIfChanged(newOptions: Option[]): void {
@@ -1006,13 +756,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.cdRef.detectChanges();
   }
 
-  /* getOptionContext(optionBinding: OptionBindings, idx: number) {
-    return { option: optionBinding.option, idx: idx };
-  } */
   getOptionContext(optionBinding: OptionBindings, index: number) {
     return { optionBinding, index };
   }
-  
 
   getOptionAttributes(optionBinding: OptionBindings): OptionBindings {
     return {
@@ -1090,8 +836,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     const optionId = optionBinding.option.optionId;
     const now = Date.now();
-    const checked =
-      'checked' in event ? (event as MatCheckboxChange).checked : true;
+    const checked = 'checked' in event ? (event as MatCheckboxChange).checked : true;
 
     const alreadySelected = optionBinding.option.selected && checked === true;
     if (alreadySelected) {
