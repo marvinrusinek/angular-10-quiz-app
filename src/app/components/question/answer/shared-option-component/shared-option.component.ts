@@ -504,13 +504,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
   
-    const isMultipleAnswer = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-    console.log('[🔍 synchronizeOptionBindings] isMultipleAnswer:', isMultipleAnswer);
-  
-    const existingSelectionMap = new Map(
-      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
-    );
-  
     if (this.freezeOptionBindings) {
       throw new Error(`[💣 ABORTED optionBindings reassignment after user click]`);
     }
