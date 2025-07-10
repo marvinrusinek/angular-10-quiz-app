@@ -305,34 +305,32 @@ export class QuizQuestionLoaderService {
   /** Clears forms, timers, messages, and child-component state so the
  *  next question starts with a clean slate.  Call BEFORE you fetch data. */
   private async resetUiForNewQuestion(index: number): Promise<void> {
-
-    // 0. Parent-level reset
-    this.resetQuestionState();                        // your existing helper
-
-    // 1. Child component reset
+    // Parent-level reset
+    this.resetQuestionState();
+    
+    // Child component reset
     if (this.quizQuestionComponent) {
-      await this.quizQuestionComponent
-                .resetQuestionStateBeforeNavigation();
+      await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
     }
 
-    // 2. Blank out the QA streams so the view flashes “loading…”
-    this.clearQA();                                   // { heading:null, options:[] }
+    // Blank out the QA streams so the view flashes “loading…”
+    this.clearQA();
 
-    // 3. Per-question flags
+    // Per-question flags
     this.questionTextLoaded  = false;
     this.hasOptionsLoaded    = false;
     this.shouldRenderOptions = false;
     this.isLoading           = true;
 
-    // 4. Explanation / selection messages
+    // Explanation / selection messages
     this.explanationTextService.resetExplanationState();
     this.selectionMessageService.updateSelectionMessage('');
     this.resetComplete = false;
 
-    // 5. Force a small delay so the DOM can repaint
+    // Force a small delay so the DOM can repaint
     await new Promise(res => setTimeout(res, 30));
 
-    // 6. If the previous question was answered, update guards
+    // If the previous question was answered, update guards
     if (this.selectedOptionService.isQuestionAnswered(index)) {
       this.quizStateService.setAnswered(true);
       this.selectedOptionService.setAnswered(true, true);
