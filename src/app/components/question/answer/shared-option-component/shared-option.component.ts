@@ -365,6 +365,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
+    // Safe to assign handler now
+    /* this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
+      this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
+    }; */
+  
     this.hasBoundQuizComponent = true;
   }
 
@@ -802,48 +807,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.updateHighlighting();
   
     console.warn('[🧨 optionBindings REASSIGNED]', JSON.stringify(this.optionBindings, null, 2));
-  }
-
-  onRadioClick(binding: OptionBindings, index: number): void {
-    console.log('[🟢 onRadioClick] Option clicked:', { binding, index });
-  
-    const selectedOption = {
-      option: {
-        optionId: binding.option.optionId,
-        questionIndex: this.quizService.currentQuestionIndex,
-        text: binding.option.text
-      },
-      index,
-      checked: true
-    };
-  
-    this.optionClicked.emit(selectedOption);
-    this.quizQuestionComponent.onOptionClicked(selectedOption);
-  }
-
-  onMatRadioChanged(optionBinding: OptionBindings, index: number, event: MatRadioChange): void {
-    requestAnimationFrame(() => {
-      if (optionBinding.isSelected === true) {
-        console.warn('[⚠️ Skipping redundant radio event]');
-        return;
-      }
-  
-      this.updateOptionAndUI(optionBinding, index, {
-        checked: true,
-        source: event.source,
-        value: event.value
-      });
-    });
-  }
-  
-  onMatCheckboxChanged(optionBinding: OptionBindings, index: number, event: MatCheckboxChange): void {
-    // Prevent double change bug
-    if (optionBinding.isSelected === event.checked) {
-      console.warn('[⚠️ Skipping redundant checkbox event]');
-      return;
-    }
-  
-    this.updateOptionAndUI(optionBinding, index, event);
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
