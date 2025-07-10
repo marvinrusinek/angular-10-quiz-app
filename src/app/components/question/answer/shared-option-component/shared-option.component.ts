@@ -186,9 +186,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
         // Visuals + feedback in ONE call
         this.updateOptionAndUI(
-          b,
-          i,
-          { value: b.option.optionId } as MatRadioChange
+          b, i, { value: b.option.optionId } as MatRadioChange
         );
 
         // Flush once
