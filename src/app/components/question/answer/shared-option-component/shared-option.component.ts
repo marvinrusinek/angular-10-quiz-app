@@ -227,12 +227,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    /* version bump → child trackBy */
+    // Version bump → child trackBy
     if (changes['questionVersion']) {
       console.log('[CHILD] got version →', this.questionVersion);
     }
   
-    /* ------------ QUESTION (or options list) changed ------------ */
+    // QUESTION (or options list) changed
     const questionChanged =
           changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged   = changes['optionsToDisplay'];
@@ -255,7 +255,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.optionBindings = [];
       this.processOptionBindings();
     
-      /* two stacked change-detections → guarantees clean slate paint */
+      // two stacked change-detections → guarantees clean slate paint
       this.cdRef.detectChanges();   // clears old DOM paint
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
@@ -263,18 +263,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.cdRef.detectChanges();   // paints pristine rows
     }
   
-    /* ------------ NEW optionBindings array came in -------------- */
+    // NEW optionBindings array came in
     if (changes['optionBindings'] &&
         Array.isArray(changes['optionBindings'].currentValue) &&
         changes['optionBindings'].currentValue.length) {
   
-      /* A. rebuild fresh bindings */
+      // Rebuild fresh bindings
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
       this.generateOptionBindings();             // ← produces brand-new objects
   
-      /* ★ NOW, before any directive paints, zero out the row flags */
+      // NOW, before any directive paints, zero out the row flags
       this.optionBindings.forEach(b => {
         b.isSelected         = false;
         b.option.selected    = false;
@@ -284,7 +284,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
       this.optionsReady = true;
   
-      /* B. rebuild per-question maps */
+      // Rebuild per-question maps
       this.showFeedbackForOption = {};
       this.feedbackConfigs       = {};
   
@@ -307,16 +307,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
         };
       }
   
-      /* C. let SOC recompute directive state */
+      // Let SOC recompute directive state
       this.processOptionBindings();
   
-      /* ★ second immediate CD so neutral colours / no icons render */
+      // second immediate CD so neutral colours / no icons render
       this.cdRef.detectChanges();
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
   
-    /* ------------ NEW question object (text) -------------------- */
+    // New question object (text)
     if (changes['currentQuestion'] &&
         this.currentQuestion?.questionText?.trim()) {
   
@@ -328,7 +328,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
   
-    /* ------------ background-reset ------------------------------ */
+    // Background reset
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
