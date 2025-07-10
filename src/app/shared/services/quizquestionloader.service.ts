@@ -740,7 +740,7 @@ export class QuizQuestionLoaderService {
   }
 
   public async loadQA(index: number): Promise<boolean> {
-    // Clear stale question + options immediately
+    // Clear stale question and options immediately
     this.resetHeadlineStreams();
   
     // Abort any in-flight request
@@ -790,7 +790,7 @@ export class QuizQuestionLoaderService {
       const msg = this.selectionMessageService
                     .determineSelectionMessage(index, this.totalQuestions, false);
 
-      // ─── CLONE question and attach quizId and index 
+      // ─── Clone question and attach quizId and index 
       const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
         ...q,
         options: finalOpts
