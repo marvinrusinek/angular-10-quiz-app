@@ -227,48 +227,44 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  /**
-   * Fetch a question + its options and emit a single payload so the
-   * heading and list paint in the same change-detection pass (no flicker).
-   */
+  // Fetch a question + its options and emit a single payload so the
+  // heading and list paint in the same change-detection pass (no flicker).
   async loadQuestionAndOptions(index: number): Promise<boolean> {
-
-    /* 0. quizId & cache handling */
+    // quizId & cache handling
     if (!this.ensureRouteQuizId()) { return false; }
 
-    /* 1. guard against bad index and fill totalQuestions */
+    // Guard against bad index and fill totalQuestions
     if (!await this.ensureQuestionCount() ||
         !this.validateIndex(index)) { return false; }
 
-    /* 2. UI reset for a new question */
+    // UI reset for a new question
     await this.resetUiForNewQuestion(index);
 
-    /* 3. fetch question + options for this quiz */
+    // Fetch question and options for this quiz
     const { q, opts } = await this.fetchQuestionAndOptions(index);
     if (!q || !opts.length) { return false; }
 
-    /* 4. hydrate, clone, assign */
+    // Hydrate, clone, assign
     const cloned = this.hydrateAndClone(opts);
     this.currentQuestion  = { ...q, options: cloned };
     this.optionsToDisplay = [...cloned];
     this.optionBindingsSrc = [...cloned];
     
-    console.log('[UI FEED]', index, this.optionsToDisplay.map(o => o.text));
     this.currentQuestionIndex = index;
 
     const explanation =
       q.explanation?.trim() || 'No explanation available';
 
-    /* 5. emit downstream */
+    // Emit downstream
     this.emitQaPayload(q, cloned, index, explanation);
 
-    /* 6. explanation / timers / final flags */
+    // Explanation / timers / final flags
     await this.postEmitUpdates(q, cloned, index);
 
     return true;
   }
 
-  /* 0-A. Ensure quizId comes from the route & clear cache on change */
+  // Ensure quizId comes from the route and clear cache on change
   private ensureRouteQuizId(): boolean {
     const routeId =
       this.router.routerState.snapshot.root.firstChild?.params['quizId'];
@@ -283,27 +279,27 @@ export class QuizQuestionLoaderService {
     return true;
   }
 
-  /* 1-A. Fetch quiz length once per quiz */
+  // Fetch quiz length once per quiz
   private async ensureQuestionCount(): Promise<boolean> {
     if (this.totalQuestions) { return true; }
     const qs = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
     );
-    this.totalQuestions   = qs.length;
-    this.questionsArray   = qs;
+    this.totalQuestions = qs.length;
+    this.questionsArray = qs;
     return qs.length > 0;
   }
 
-  /* 1-B. Bounds check */
+  // Bounds check
   private validateIndex(i: number): boolean {
     const ok = Number.isInteger(i) && i >= 0 && i < this.totalQuestions;
     if (!ok) { console.warn('[Loader] bad index', i); }
     return ok;
   }
 
-  /* 2. Do all the big UI resets you already have */
-  /** Clears forms, timers, messages, and child-component state so the
- *  next question starts with a clean slate.  Call BEFORE you fetch data. */
+  // Do all the big UI resets
+  // Clears forms, timers, messages, and child-component state so the
+  // next question starts with a clean slate.  Call before fetching data.
   private async resetUiForNewQuestion(index: number): Promise<void> {
     // Parent-level reset
     this.resetQuestionState();
