@@ -2615,22 +2615,4 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       b.isSelected = chosen;
     });
   }
-
-  private focusFeedbackOn(id: number): void {
-    // hide every bubble first
-    Object.keys(this.showFeedbackForOption).forEach(k => {
-      this.showFeedbackForOption[+k] = false;
-    });
-  
-    // show only on the requested row
-    this.showFeedbackForOption[id] = true;
-    this.lastFeedbackOptionId = id;
-  
-    if (this.feedbackConfigs[id]) {
-      this.feedbackConfigs[id].showFeedback = true;
-    }
-  
-    // one CD pass → template *ngIf re-evaluates
-    this.cdRef.detectChanges();
-  }
 }
