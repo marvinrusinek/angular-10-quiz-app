@@ -1298,29 +1298,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
       this.cdRef.detectChanges();
       return;
-    } else {
-      // Restore previous feedback only
-      this.showFeedbackForOption = { [this.lastFeedbackOptionId]: true };
     }
  
     // Update showFeedback flag for current option
     this.showFeedbackForOption = { [optionId]: true };
     this.lastFeedbackOptionId = optionId;
     
-    // Build feedback config for current option
-    this.feedbackConfigs = {
-      ...this.feedbackConfigs,
-      [optionId]: {
-        feedback: optionBinding.option.feedback?.trim() || 'No feedback available',
-        showFeedback: true,
-        options: this.optionsToDisplay,
-        question: this.currentQuestion,
-        selectedOption: optionBinding.option,
-        correctMessage: optionBinding.option.feedback?.trim() || '',
-        idx: index
-      }
-    }
-
     this.toggleSelectedOption(optionBinding.option);
     this.forceHighlightRefresh(optionId);
   
@@ -1328,7 +1311,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.optionBindings.forEach((binding) => {
       const id = binding.option.optionId;
       const isSelected = this.selectedOptionMap.get(id) === true;
-      const optionId = optionBinding.option.optionId;
   
       binding.isSelected = isSelected;
       binding.option.selected = isSelected;
