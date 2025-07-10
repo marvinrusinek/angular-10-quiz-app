@@ -445,19 +445,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
-    // DEBUG — log every raw QA payload with derived id+index
-    /* this.quizStateService.qa$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((qa: QAEvent) => {
-        const quizId = this.quizId || this.quizService.quizId;
-        const index  = this.quizService.getCurrentQuestionIndex();  // 0-based
-        console.log('[QA]', {
-          quizId,
-          index,
-          text: qa?.question?.questionText
-        });
-      }); */
-
     // Assign question + options together when ready
     this.quizStateService.qa$
     .pipe(
@@ -466,7 +453,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         !!d.question &&
         Array.isArray(d.options) && d.options.length > 0
       ),
-      auditTime(0), // group sync emissions together
+      auditTime(0),  // group sync emissions together
       takeUntil(this.destroy$)
     )
     .subscribe(({ question, options, selectionMessage }) => {
@@ -476,7 +463,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           currentQuizId: effectiveQuizId,
           incomingQuizId: question.quizId,
         });
-        return; // skip rendering for the wrong quiz
+        return;  // skip rendering for the wrong quiz
       }
       
       console.log('[🧩 Q&A ready in QuizComponent]', { question, options });
@@ -562,39 +549,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
  
-
-  /* this.options$ = this.quizService.getCurrentOptions(this.currentQuestionIndex).pipe(
-      tap((options) => console.log('options$ emitted:::::', options)),
-      catchError((error) => {
-        console.error('Error in options$:', error);
-        return of([]); // Fallback to empty array
-      })
-    ); */
-
-    /* this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.options$]).pipe(
-      map(([question, options]) => {
-        console.log('isContentAvailable$ check:', { question, options });
-        return !!question && options?.length > 0;
-      }),
-      distinctUntilChanged(),
-      catchError((error) => {
-        console.error('Error in isContentAvailable$:', error);
-        return of(false);
-      }),
-      startWith(false)
-    ); */
-
   ngAfterViewInit(): void {
     this.loadQuestionContents(this.currentQuestionIndex);
 
-    /* if the loader queued options before the child existed, apply them now */
+    // If the loader queued options before the child existed, apply them now
     if (this.quizQuestionLoaderService.pendingOptions?.length) {
       const opts = this.quizQuestionLoaderService.pendingOptions;
-      this.quizQuestionLoaderService.pendingOptions = null;            // clear the queue
+      this.quizQuestionLoaderService.pendingOptions = null;   // clear the queue
 
       console.log('[BRIDGE] applying queued options', opts.map(o => o.text));
 
-      /* push into child */
+      // Push into child
       this.quizQuestionComponent.updateOptionsSafely(opts);
       this.quizQuestionComponent.optionsToDisplay = [...opts];
     }
@@ -608,7 +573,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.isQuizRenderReady$.next(isReady);
     
             if (isReady) {
-              this.renderStateService.setupRenderGateSync(); // this waits for question + options + child ready
+              this.renderStateService.setupRenderGateSync();  // this waits for question + options + child ready
             }
           });
       }
@@ -630,13 +595,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure questions are loaded
       if (!Array.isArray(this.questions) || this.questions.length === 0) {
         console.warn('Questions not loaded, calling loadQuizData...');
-        await this.loadQuizData(); // ensure loading before proceeding
+        await this.loadQuizData();  // ensure loading before proceeding
       }
 
       const totalQuestions = await firstValueFrom(this.quizService.getTotalQuestionsCount(this.quizId));
 
       if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex < totalQuestions) {
-        this.updateQuestionDisplay(currentIndex); // ensure question state is restored
+        this.updateQuestionDisplay(currentIndex);  // ensure question state is restored
       } else {
         console.warn('Invalid or out-of-range question index on visibility change.');
       }
