@@ -1278,6 +1278,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     
     // Track selection history
     const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+    
+    if (!isAlreadyVisited) {
+      this.selectedOptionHistory.push(optionId);
+    }
+
     if (alreadySelected || isAlreadyVisited) {
       console.log('[↩️ Reselected existing option — preserving feedback anchor on previous option]');
   
