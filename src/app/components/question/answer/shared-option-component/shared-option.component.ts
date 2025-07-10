@@ -18,7 +18,6 @@ import { NextButtonStateService } from '../../../../shared/services/next-button-
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
-import { QuizQuestionComponent } from '../../../../components/question/quiz-question/quiz-question.component';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
 @Component({
@@ -30,7 +29,6 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecked, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @Input() quizQuestionComponent!: QuizQuestionComponent;
   @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
@@ -347,30 +345,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
   
     this.viewInitialized = true;
     this.viewReady = true;
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.hasBoundQuizComponent) return;
-  
-    if (!this.quizQuestionComponent) {
-      setTimeout(() => this.ngAfterViewChecked(), 50);  // try again shortly
-      return;
-    }
-  
-    if (typeof this.quizQuestionComponent.onOptionClicked !== 'function') {
-      if (!this.hasLoggedMissingComponent) {
-        console.warn('[SharedOptionComponent] ❌ onOptionClicked is not a function');
-        this.hasLoggedMissingComponent = true;
-      }
-      return;
-    }
-  
-    // Safe to assign handler now
-    /* this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-      this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-    }; */
-  
-    this.hasBoundQuizComponent = true;
   }
 
   ngOnDestroy(): void {
@@ -837,9 +811,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       index,
       checked: true
     });
-  
-    // Optional: move finalizeAfterClick here if needed
-    // this.quizQuestionComponent?.finalizeAfterClick(optionBinding.option as SelectedOption, index);
   }
 
   handleChange(optionBinding: OptionBindings, index: number): void {
