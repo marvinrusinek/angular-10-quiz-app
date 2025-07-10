@@ -147,11 +147,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
     this.renderReady = this.optionsToDisplay?.length > 0;
     //this.canDisplayOptions = this.optionsToDisplay?.length > 0;
 
-    // Delay rendering until all setup is confirmed
-    setTimeout(() => {
-      this.initializeDisplay();
-    });
-
     if (!this.optionBindings || this.optionBindings.length === 0) {
       console.log('[🚀 Calling initializeOptionBindings()]');
       this.initializeOptionBindings();
@@ -170,6 +165,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
 
     // Always synchronize to ensure data consistency
     this.synchronizeOptionBindings();
+
+    this.initializeDisplay();
 
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
