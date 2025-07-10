@@ -365,11 +365,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       return;
     }
   
-    // Safe to assign handler now
-    this.quizQuestionComponentOnOptionClicked = (option: SelectedOption, index: number) => {
-      this.quizQuestionComponent.onOptionClicked({ option, index, checked: true });
-    };
-  
     this.hasBoundQuizComponent = true;
   }
 
@@ -1689,32 +1684,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewChecke
       index,
       checked: true
     });
-  
-    // Call external click handlers
-    await this.safeCallOptionClickHandlers(clonedOption, index, checked);
-  }
-
-  private async safeCallOptionClickHandlers(
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  ): Promise<void> {
-    console.log('Inside safeCallOptionClickHandlers:', { option, index, checked });
-  
-    const optionId = typeof option.optionId === 'number' ? option.optionId : index;
-    console.log(`Processing with Option ID: ${optionId}`);
-  
-    if (this.config?.onOptionClicked) {
-      console.log('Calling onOptionClicked from config...');
-      await this.config.onOptionClicked(option, index, checked);
-    } else {
-      console.warn('onOptionClicked function is not defined in the config.');
-    }
-  
-    if (typeof this.quizQuestionComponentOnOptionClicked === 'function') {
-      console.log('Calling quizQuestionComponentOnOptionClicked...');
-      this.quizQuestionComponentOnOptionClicked(option, index);
-    }
   }
   
   private shouldIgnoreClick(optionId: number): boolean {
