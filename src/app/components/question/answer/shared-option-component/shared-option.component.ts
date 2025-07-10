@@ -1720,6 +1720,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     // one paint pass
     this.cdRef.detectChanges();
     this.highlightDirectives?.forEach(d => d.updateHighlight());
+
+    // Mark render ready after bindings and paint are done
+    this.markRenderReady();
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
