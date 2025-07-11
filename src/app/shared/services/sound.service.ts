@@ -8,7 +8,7 @@ export class SoundService {
   constructor() {
     console.log('Loading sounds...');
     this.sounds['correct'] = new Howl({
-      src: [''],
+      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
       volume: 1.0,
       html5: true, // ✅ required for remote streaming
       onload: () => console.log('[✅ Loaded] correct.mp3'),
@@ -17,7 +17,7 @@ export class SoundService {
     });
     
     this.sounds['incorrect'] = new Howl({
-      src: ['http://marvinrusinek.com/sound-incorrect.mp3'],
+      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
       volume: 1.0,
       html5: true,
       onload: () => console.log('[✅ Loaded] incorrect.mp3'),
