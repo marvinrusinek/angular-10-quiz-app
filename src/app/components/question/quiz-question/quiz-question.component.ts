@@ -3238,15 +3238,13 @@ export class QuizQuestionComponent
   // Handles the outcome after checking if all correct answers are selected.
   private async handleCorrectnessOutcome(
     allCorrectSelected: boolean,
-    option: SelectedOption
+    option: SelectedOption,
+    wasPreviouslySelected: boolean
   ): Promise<void> {
     if (!this.currentQuestion) {
       console.error('[handleCorrectnessOutcome] currentQuestion is null');
       return;
     }
-
-    // Play sound based on correctness
-    this.playSoundForOption(option);
 
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       await this.handleMultipleAnswerTimerLogic(option);
@@ -3266,6 +3264,12 @@ export class QuizQuestionComponent
       // Ensure Next button is enabled
       this.answerSelected.emit(true);
       this.selectedOptionService.isAnsweredSubject.next(true);
+    }
+
+     // Play sound based on correctness
+     // Only play sound if this is a new selection
+     if (!wasPreviouslySelected) {
+      this.playSoundForOption(option);
     }
 
     // Ensure explanation text is preserved if not already set
@@ -4323,9 +4327,11 @@ export class QuizQuestionComponent
   
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
+
+      const wasPreviouslySelected = isOptionSelected ?? false;
   
       // Trigger explanation + next button logic
-      await this.handleCorrectnessOutcome(allCorrectSelected, this.selectedOption);
+      await this.handleCorrectnessOutcome(allCorrectSelected, this.selectedOption, wasPreviouslySelected);
     } catch (error) {
       console.error('[handleOptionClicked] Unhandled error:', error);
     }
