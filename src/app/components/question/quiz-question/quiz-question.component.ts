@@ -3245,7 +3245,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Play sound based on correctness (only after reaching this point)
+    // Play sound based on correctness
     this.playSoundForOption(option);
 
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
