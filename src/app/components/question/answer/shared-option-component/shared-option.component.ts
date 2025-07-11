@@ -589,11 +589,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       wasReselected: wasPreviouslySelected
     });
 
+    const wasSelected = optionBinding.option.selected ?? false;
+
     this.optionClicked.emit({
       option: clonedOption,
       index,
       checked: true,
-      wasReselected: wasPreviouslySelected
+      wasReselected: wasSelected
     });
   }
 
