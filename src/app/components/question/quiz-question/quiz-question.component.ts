@@ -2461,7 +2461,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    const { option, index, checked, wasReselected } = event;
+    const { option, index, checked, wasReselected = false } = event;
 
     try {
       // basic selection → next button, flags, detectChanges
@@ -2477,7 +2477,7 @@ export class QuizQuestionComponent
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
       // remaining async tasks
-      await this.postClickTasks(option, index, checked, wasReselected ?? false);
+      await this.postClickTasks(option, index, checked, wasReselected);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
