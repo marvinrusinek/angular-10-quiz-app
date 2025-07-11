@@ -3421,7 +3421,8 @@ export class QuizQuestionComponent
     index: number
   ): Promise<void> {
     // Capture .selected BEFORE anything mutates state
-    const wasPreviouslySelected = option.selected ?? false;
+    // IN finalizeSelection()
+    const wasPreviouslySelected = JSON.parse(JSON.stringify(option)).selected ?? false;
 
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
