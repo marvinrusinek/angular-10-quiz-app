@@ -3432,11 +3432,13 @@ export class QuizQuestionComponent
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
     );
+
     this.answerSelected.emit(true);
     
     await this.handleCorrectnessOutcome(true, option, wasPreviouslySelected);
     await this.processSelectedOption(option, index, true);
     await this.finalizeOptionSelection(option, index, questionState);
+    
     this.saveQuizState();
   }
 
