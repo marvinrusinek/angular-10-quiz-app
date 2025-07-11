@@ -562,21 +562,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         } as unknown as MatRadioButton,
         value: optionBinding.option.optionId
       };
+  
       this.reselectionDetected.emit(false);  // new selection
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
-      this.reselectionDetected.emit(true);  // emit reselection
+      this.reselectionDetected.emit(true);  // reselection detected
     }
   
-    // Always emit, but include wasReselected flag
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
-      checked: true,
-      wasReselected: alreadySelected
+      checked: true
     });
-  }
+  }  
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
