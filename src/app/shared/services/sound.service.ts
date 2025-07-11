@@ -34,14 +34,16 @@ export class SoundService {
     }
   
     console.log(`[🔊 Attempting to play sound: ${soundName}]`);
-    console.log('🔍 Howl object:', sound);
-    
     const id = sound.play();
   
-    // Howler event hooks
-    sound.once('play', () => console.log(`[✅ Sound "${soundName}" started playing]`));
-    sound.once('end', () => console.log(`[🎵 Sound "${soundName}" finished playing]`));
-    sound.once('loaderror', (_, err) => console.error(`[❌ Load error for "${soundName}"`, err));
-    sound.once('playerror', (_, err) => console.error(`[❌ Play error for "${soundName}"`, err));
-  }   
+    sound.once('play', () =>
+      console.log(`[✅ Sound "${soundName}" started playing]`)
+    );
+    sound.once('end', () =>
+      console.log(`[🎵 Sound "${soundName}" finished playing]`)
+    );
+    sound.once('playerror', (_, err) =>
+      console.error(`[❌ Play error for "${soundName}"]`, err)
+    );
+  }  
 }
