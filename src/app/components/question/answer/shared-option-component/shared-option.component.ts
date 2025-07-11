@@ -573,7 +573,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
-      checked: true
+      checked: true,
+      wasReselected: alreadySelected
     });
   }  
 
