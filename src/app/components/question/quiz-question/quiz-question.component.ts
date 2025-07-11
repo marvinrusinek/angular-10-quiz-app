@@ -2464,7 +2464,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    const { option, index, checked, wasReselected = false } = event;
+    const { option, index, checked, wasReselected } = event;
 
     console.log('[🧪 QQC] event.wasReselected:', wasReselected);
 
