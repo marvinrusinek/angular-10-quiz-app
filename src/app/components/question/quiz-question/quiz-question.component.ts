@@ -142,7 +142,7 @@ export class QuizQuestionComponent
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
-  private wasReselectedOption = false;
+  public wasReselected = false;
   options$: Observable<Option[]>;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
@@ -3269,7 +3269,7 @@ export class QuizQuestionComponent
 
      // Play sound based on correctness
      // Only play sound if this is a new selection
-     if (!wasPreviouslySelected) {
+     if (!this.wasReselected) {
       this.playSoundForOption(option);
     }
 
