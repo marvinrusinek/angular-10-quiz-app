@@ -574,8 +574,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       console.warn('[⚠️ Option already selected - skipping UI update]');
       // don't emit reselectionDetected again — already done above
     }
-  
-    // Always emit optionClicked — parent will use clonedOption to check prior state
+
     this.optionClicked.emit({
       option: clonedOption,
       index,
