@@ -3425,11 +3425,11 @@ export class QuizQuestionComponent
   ): Promise<void> {
     // Capture .selected BEFORE anything mutates state
     const wasPreviouslySelected = option.selected ?? false;
+    console.log('[🧪 finalizeSelection] wasPreviouslySelected:', wasPreviouslySelected);
 
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
     );
-
     this.answerSelected.emit(true);
     
     await this.handleCorrectnessOutcome(true, option, wasPreviouslySelected);
