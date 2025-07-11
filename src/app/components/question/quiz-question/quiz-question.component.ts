@@ -2458,17 +2458,12 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-    console.log('[📥 Option received]', event.option);
 
     const isCorrect = event.option.correct;
-    console.log('ISCORRECT:', isCorrect, 'typeof:', typeof isCorrect);
-
     // Play correct/incorrect sound
     if (isCorrect) {
-      console.log("CORRECT");
       this.soundService.play('correct');
     } else {
-      console.log("INCORRECT");
       this.soundService.play('incorrect');
     }
   
