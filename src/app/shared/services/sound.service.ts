@@ -8,7 +8,7 @@ export class SoundService {
   constructor() {
     console.log('Loading sounds...');
     this.sounds['correct'] = new Howl({
-      src: ['http://marvinrusinek.com/sound-correct.mp3'],
+      src: [''],
       volume: 1.0,
       html5: true, // ✅ required for remote streaming
       onload: () => console.log('[✅ Loaded] correct.mp3'),
