@@ -4,7 +4,7 @@
     (@changeRoute.done)="animationDoneHandler()"
   >
     <codelab-quiz-header></codelab-quiz-header>
-  
+
     <mat-card-content *ngIf="quizStateService.qa$ | async as qa; else loading">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
@@ -17,6 +17,9 @@
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
         ></codelab-quiz-content>
+
+        <button (click)="soundService.play('correct')">Play Correct Sound</button>
+
         
         <codelab-quiz-question
           [question]="qa.question"
@@ -30,18 +33,18 @@
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
-  
+
     <ng-template #errorTemplate>
       <p>Error loading question. Please try again.</p>
     </ng-template>
-  
+
     <mat-card-footer [ngClass]="cardFooterClass">
       <!-- instructions message -->
       <h5 class="instructions-message"
       *ngIf="selectionMessage$ | async as message">
         {{ message }}
       </h5>
-  
+
       <!-- paging -->
       <section class="paging">
         <mat-card-actions [class.last-question]="shouldApplyLastQuestionClass">
@@ -57,7 +60,7 @@
               <i class="material-icons">navigate_before</i>
             </button>
           </div>
-  
+
           <div class="restart-nav" [hidden]="shouldHideRestartNav">
             <button
               type="button"
@@ -70,7 +73,7 @@
               <i class="material-icons">replay</i>
             </button>
           </div>
-  
+
           <div class="next-question-nav" [hidden]="shouldHideNextButton">
             <button
               type="button"
@@ -104,7 +107,7 @@
           </div>
         </mat-card-actions>
       </section>
-  
+
       <!-- progress bar -->
       <section class="progress-bar">
         <ngb-progressbar
@@ -119,7 +122,7 @@
       </section>
     </mat-card-footer>
   </mat-card>
-  
+
   <ng-template #loading>
     <p>Loading quiz&hellip;</p>
   </ng-template>
