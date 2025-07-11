@@ -2454,11 +2454,14 @@ export class QuizQuestionComponent
     option : SelectedOption | null;
     index  : number;
     checked: boolean;
+    wasReselected?: boolean;
   }): Promise<void> {
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
+
+    const wasReselected = event.wasReselected ?? false;
   
     try {
       // basic selection → next button, flags, detectChanges
@@ -4336,11 +4339,6 @@ export class QuizQuestionComponent
   
       // Ensure the UI reflects the changes
       this.cdRef.markForCheck();
-
-      const wasPreviouslySelected = isOptionSelected ?? false;
-  
-      // Trigger explanation + next button logic
-      await this.handleCorrectnessOutcome(allCorrectSelected, this.selectedOption, wasPreviouslySelected);
     } catch (error) {
       console.error('[handleOptionClicked] Unhandled error:', error);
     }
