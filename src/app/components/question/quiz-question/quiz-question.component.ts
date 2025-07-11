@@ -3269,9 +3269,9 @@ export class QuizQuestionComponent
 
      // Play sound based on correctness
      // Only play sound if this is a new selection
-     if (!this.wasReselected) {
+     if (!wasPreviouslySelected) {
       this.playSoundForOption(option);
-    }
+     }
 
     // Ensure explanation text is preserved if not already set
     if (!this.explanationToDisplay || !this.explanationToDisplay.trim()) {
