@@ -2456,12 +2456,17 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    const wasPreviouslySelected = event.wasReselected ?? false;
+    console.log('[🧪 QQC] event.wasReselected:', wasPreviouslySelected);
+
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
 
     const { option, index, checked, wasReselected = false } = event;
+
+    console.log('[🧪 QQC] event.wasReselected:', wasReselected);
 
     try {
       // basic selection → next button, flags, detectChanges
@@ -2477,7 +2482,7 @@ export class QuizQuestionComponent
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
       // remaining async tasks
-      await this.postClickTasks(option, index, checked, wasReselected);
+      await this.postClickTasks(option, index, checked, wasPreviouslySelected);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
@@ -2694,7 +2699,7 @@ export class QuizQuestionComponent
   private async finalizeAfterClick(
     option: SelectedOption,
     index: number,
-    wasReselected: boolean
+    wasPreviouslySelected: boolean
   ): Promise<void> {
     console.log('[✅ finalizeAfterClick]', {
       index,
@@ -2704,7 +2709,9 @@ export class QuizQuestionComponent
 
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.markQuestionAsAnswered(lockedIndex);
-    await this.finalizeSelection(option, index, wasReselected);
+
+    console.log('[🧪 QQC] finalizeAfterClick wasPreviouslySelected:', wasPreviouslySelected);
+    await this.finalizeSelection(option, index, wasPreviouslySelected);
     this.optionSelected.emit({ option, index, checked: true });
     this.cdRef.markForCheck();
   }
