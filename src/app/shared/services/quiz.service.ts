@@ -1490,7 +1490,6 @@ export class QuizService implements OnDestroy {
   
       // Avoid unnecessary UI updates
       if (currentBadgeText === newBadgeText) {
-        console.log('[⏭️ Skipping duplicate badge update]:', newBadgeText);
         return;
       }
   
