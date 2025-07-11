@@ -556,7 +556,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
     // Check BEFORE mutation
-    const wasSelected = optionBinding.option.selected ?? false;
+    const wasSelected = optionBinding.option.selected === true;
     console.log('[🧪 SOC] wasPreviouslySelected (from .selected):', wasSelected);
   
     // Emit to QuizQuestionComponent
