@@ -2458,14 +2458,6 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-
-    // Play correct/incorrect sound
-    const isCorrect = event.option.correct;
-    if (isCorrect) {
-      this.soundService.play('correct');
-    } else {
-      this.soundService.play('incorrect');
-    }
   
     try {
       // basic selection → next button, flags, detectChanges
@@ -3252,6 +3244,9 @@ export class QuizQuestionComponent
       console.error('[handleCorrectnessOutcome] currentQuestion is null');
       return;
     }
+
+    // Play sound based on correctness (only after reaching this point)
+    this.playSoundForOption(option);
 
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       await this.handleMultipleAnswerTimerLogic(option);
@@ -5041,4 +5036,15 @@ export class QuizQuestionComponent
       );
     }
   }
+
+  private playSoundForOption(option: SelectedOption): void {
+    if (!option) return;
+  
+    const isCorrect = option.correct;
+    if (isCorrect) {
+      this.soundService.play('correct');
+    } else {
+      this.soundService.play('incorrect');
+    }
+  }  
 }
