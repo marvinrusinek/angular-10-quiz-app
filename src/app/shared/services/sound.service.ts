@@ -8,12 +8,12 @@ export class SoundService {
   constructor() {
     console.log('Loading sounds...');
     this.sounds['correct'] = new Howl({
-      src: ['https://stackblitz.com/files/angular-10-quiz-app/github/marvinrusinek/angular-9-quiz-app/master/src/assets/audio/sound-correct.mp3'],
+      src: ['../../assets/sounds/correct.mp3'],
       onloaderror: (id, err) => console.error('[❌ Load error]', err),
       onload: () => console.log('[✅ Loaded] correct.mp3')
     });
     this.sounds['incorrect'] = new Howl({
-      src: ['https://stackblitz.com/files/angular-10-quiz-app/github/marvinrusinek/angular-9-quiz-app/master/src/assets/audio/sound-incorrect.mp3'],
+      src: ['../../assets/sounds/incorrect.mp3'],
       onloaderror: (id, err) => console.error('[❌ Load error]', err),
       onload: () => console.log('[✅ Loaded] incorrect.mp3')
     });
