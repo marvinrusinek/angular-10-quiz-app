@@ -557,7 +557,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.log('[🧪 SOC] wasPreviouslySelected (from selectedOptionMap):', wasSelectedBeforeClick);
   
     this.optionClicked.emit({
-      option: { ...optionBinding.option },
+      option: {
+        ...optionBinding.option,
+        questionIndex: this.quizService.getCurrentQuestionIndex()
+      },
       index,
       checked: true,
       wasReselected: wasSelectedBeforeClick
