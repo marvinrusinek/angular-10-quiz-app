@@ -3416,11 +3416,15 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number
   ): Promise<void> {
+    // Capture .selected BEFORE anything mutates state
+    const wasPreviouslySelected = option.selected ?? false;
+
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
     );
+
     this.answerSelected.emit(true);
-    const wasPreviouslySelected = option.selected ?? false;
+    
     await this.handleCorrectnessOutcome(true, option, wasPreviouslySelected);
     await this.processSelectedOption(option, index, true);
     await this.finalizeOptionSelection(option, index, questionState);
