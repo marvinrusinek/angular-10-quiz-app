@@ -3730,8 +3730,6 @@ export class QuizQuestionComponent
     if (isCorrect) {
       this.timerService.stopTimer();
     }
-    // Handle audio playback based on whether the answer is correct
-    this.handleAudioPlayback(isCorrect);
   }
 
   private async processCurrentQuestion(
@@ -5012,8 +5010,6 @@ export class QuizQuestionComponent
       numberOfCorrectAnswers: numberOfCorrectAnswers,
     });
 
-    // this.quizService.playSound(isCorrect);
-
     return isCorrect;
   }
 
@@ -5044,134 +5040,5 @@ export class QuizQuestionComponent
         'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
       );
     }
-  }
-
-  /* playSound(selectedOption: Option): void {
-    if (!selectedOption) {
-      console.log('Selected option is undefined or null.');
-      return;
-    }
-  
-    console.log('Selected option:', selectedOption.text);
-  
-    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
-    if (!this.currentQuestion || !this.currentQuestion.options) {
-      console.log('Current question or options are undefined or null.');
-      return;
-    }
-  
-    // Directly play the sound based on the correctness of the selected option
-    if (selectedOption.correct) {
-      console.log('Selected option is correct, playing correct sound...');
-      this.quizService.correctSound?.play();
-    } else {
-      console.log('Selected option is incorrect, playing incorrect sound...');
-      this.quizService.incorrectSound?.play();
-    }
-  } */
-
-  /* playSound(selectedOption: Option): void {
-    if (!selectedOption) {
-      console.log('Selected option is undefined or null.');
-      return;
-    }
-  
-    console.log('Selected option:', selectedOption.text);
-  
-    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
-    if (!this.currentQuestion || !this.currentQuestion.options) {
-      console.log('Current question or options are undefined or null.');
-      return;
-    }
-  
-    const optionIndex = this.currentQuestion.options.findIndex(
-      (option) => option.text === selectedOption.text
-    );
-  
-    if (optionIndex === undefined || optionIndex === null) {
-      console.log('Option index is undefined or null');
-      return;
-    }
-  
-    console.log('Option index:', optionIndex);
-  
-    if (selectedOption.correct) {
-      console.log('Selected option is correct, playing sound...');
-      this.timerService.stopTimer((elapsedTime) => {
-        const sound = this.quizService.correctSound;
-        if (sound) {
-          console.dir(sound);
-          sound.play();
-        }
-      });
-    } else {
-      console.log('Selected option is incorrect, playing sound...');
-      this.timerService.stopTimer((elapsedTime) => {
-        const sound = this.quizService.incorrectSound;
-        if (sound) {
-          console.dir(sound);
-          sound.play();
-        }
-      });
-    }
-  } */
-
-  /* playSound(selectedOption: Option): void {
-    if (!selectedOption) {
-      console.log('Selected option is undefined or null.');
-      return;
-    }
-  
-    console.log('Selected option:', selectedOption.text);
-  
-    // Check if 'this.currentQuestion' and 'this.currentQuestion.options' are defined
-    if (!this.currentQuestion || !this.currentQuestion.options) {
-      console.log('Current question or options are undefined or null.');
-      return;
-    }
-  
-    const optionIndex = this.currentQuestion.options.findIndex(option => option.text === selectedOption.text);
-  
-    if (optionIndex === undefined || optionIndex === null) {
-      console.log('Option index is undefined or null');
-      return;
-    }
-  
-    console.log('Option index:', optionIndex);
-  
-    // Log the correctness and delegate sound playing to QuizService
-    if (selectedOption.correct) {
-      console.log('Selected option is correct, playing correct sound...');
-    } else {
-      console.log('Selected option is incorrect, playing incorrect sound...');
-    }
-  
-    // Stop timer and play sound based on correctness
-    this.timerService.stopTimer(() => {
-      this.quizService.playSoundForOption(selectedOption.correct);
-    });
-  } */
-
-  /* playSound(): void {
-    const audioUrl = 'http://www.marvinrusinek.com/sound-correct.mp3';  // Ensure this URL is absolutely correct
-    const audio = new Audio(audioUrl);
-    audio.play().then(() => {
-      console.log('Playback succeeded!');
-    }).catch(error => {
-      console.error('Playback failed:', error);
-    });
-  } */
-
-  handleAudioPlayback(isCorrect: boolean): void {
-    if (isCorrect) {
-      this.audioList = [...this.audioList, this.correctAudioSource];
-    } else {
-      this.audioList = [...this.audioList, this.incorrectAudioSource];
-    }
-
-    // Use a new array to trigger change detection
-    setTimeout(() => {
-      this.audioList = [];
-    }, 1000); // ensure audio has time to play before clearing
   }
 }
