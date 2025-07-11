@@ -576,7 +576,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       checked: true,
       wasReselected: alreadySelected
     });
-  }  
+  }
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
