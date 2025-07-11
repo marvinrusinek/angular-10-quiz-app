@@ -553,6 +553,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
   handleClick(optionBinding: OptionBindings, index: number): void {
     const wasPreviouslySelected = optionBinding.option.selected === true;
+    console.log('[🧪 SOC] wasPreviouslySelected:', wasPreviouslySelected);
   
     // Deep clone the option to preserve its state *before* mutation
     const clonedOption: SelectedOption = JSON.parse(JSON.stringify(optionBinding.option));
@@ -573,6 +574,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
+    
+    console.log('[🧪 SOC] optionClicked.emit payload:', {
+      option: clonedOption,
+      index,
+      checked: true,
+      wasReselected: wasPreviouslySelected
+    });
 
     this.optionClicked.emit({
       option: clonedOption,
