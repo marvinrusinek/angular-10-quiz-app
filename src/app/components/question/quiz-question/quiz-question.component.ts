@@ -2554,10 +2554,11 @@ export class QuizQuestionComponent
   private async postClickTasks(
     opt: SelectedOption,
     idx: number,
-    checked: boolean
+    checked: boolean,
+    wasReselected: boolean
   ): Promise<void> {
     await this.processSelectedOption(opt, idx, checked);
-    await this.finalizeAfterClick(opt, idx);
+    await this.finalizeAfterClick(opt, idx, wasReselected);
   }
   
   /** Utility: replace the changed binding & keep a fresh array ref */
@@ -2690,7 +2691,11 @@ export class QuizQuestionComponent
     }
   }
   
-  public finalizeAfterClick(option: SelectedOption, index: number): void {
+  private async finalizeAfterClick(
+    option: SelectedOption,
+    index: number,
+    wasReselected: boolean
+  ): Promise<void> {
     console.log('[✅ finalizeAfterClick]', {
       index,
       optionId: option.optionId,
@@ -2699,7 +2704,7 @@ export class QuizQuestionComponent
 
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     this.markQuestionAsAnswered(lockedIndex);
-    this.finalizeSelection(option, index);
+    await this.finalizeSelection(option, index, wasReselected);
     this.optionSelected.emit({ option, index, checked: true });
     this.cdRef.markForCheck();
   }
@@ -3421,13 +3426,9 @@ export class QuizQuestionComponent
 
   private async finalizeSelection(
     option: SelectedOption,
-    index: number
+    index: number,
+    wasPreviouslySelected: boolean
   ): Promise<void> {
-    // Capture .selected BEFORE anything mutates state
-    // const wasPreviouslySelected = option.selected ?? false;
-    const wasPreviouslySelected = { ...option }.selected ?? false;
-    console.log('[🧪 finalizeSelection] wasPreviouslySelected:', wasPreviouslySelected);
-
     const questionState = this.initializeQuestionState(
       this.currentQuestionIndex
     );
