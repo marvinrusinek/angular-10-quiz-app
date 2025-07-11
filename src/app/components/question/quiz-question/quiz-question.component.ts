@@ -2560,10 +2560,10 @@ export class QuizQuestionComponent
     opt: SelectedOption,
     idx: number,
     checked: boolean,
-    wasReselected: boolean
+    wasPreviouslySelected: boolean
   ): Promise<void> {
     await this.processSelectedOption(opt, idx, checked);
-    await this.finalizeAfterClick(opt, idx, wasReselected);
+    await this.finalizeAfterClick(opt, idx, wasPreviouslySelected);
   }
   
   /** Utility: replace the changed binding & keep a fresh array ref */
