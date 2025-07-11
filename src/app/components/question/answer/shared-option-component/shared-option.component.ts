@@ -552,9 +552,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    const wasSelectedBeforeClick = this.selectedOptionMap?.get(optionBinding.option.optionId) === true;
+    const wasPreviouslySelected = optionBinding.option.selected === true;
   
-    console.log('[🧪 SOC] wasPreviouslySelected (from selectedOptionMap):', wasSelectedBeforeClick);
+    console.log('[🧪 SOC] wasPreviouslySelected', wasPreviouslySelected);
   
     this.optionClicked.emit({
       option: {
@@ -563,10 +563,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       },
       index,
       checked: true,
-      wasReselected: wasSelectedBeforeClick
+      wasReselected: wasPreviouslySelected
     });
   
-    if (!wasSelectedBeforeClick) {
+    if (!wasPreviouslySelected) {
       const simulatedEvent: MatRadioChange = {
         source: {
           value: optionBinding.option.optionId,
