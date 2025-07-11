@@ -29,7 +29,12 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
 export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
-  @Output() optionClicked = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
+  @Output() optionClicked = new EventEmitter<{
+    option: SelectedOption;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
