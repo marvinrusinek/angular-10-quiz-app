@@ -2482,7 +2482,7 @@ export class QuizQuestionComponent
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
       // remaining async tasks
-      await this.postClickTasks(option, index, checked, wasPreviouslySelected);
+      await this.postClickTasks(option, index, checked, wasReselected);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
