@@ -552,20 +552,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    const now = Date.now();
-    if (now - this.lastClickTimestamp < 200) {
-      console.warn('[⏱️ Debounced duplicate click]');
-      return;
-    }
-    this.lastClickTimestamp = now;
-
-    const wasPreviouslySelected = optionBinding.option.selected === true;
-    console.log('[🧪 SOC] wasPreviouslySelected:', wasPreviouslySelected);
+    const wasPreviouslySelected = optionBinding.option.selected ?? false;
   
-    // Deep clone the option to preserve its state *before* mutation
-    const clonedOption: SelectedOption = JSON.parse(JSON.stringify(optionBinding.option));
-  
-    // Emit reselection info before updating UI
+    // Emit reselection flag separately
     this.reselectionDetected.emit(wasPreviouslySelected);
   
     if (!wasPreviouslySelected) {
@@ -576,21 +565,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         } as unknown as MatRadioButton,
         value: optionBinding.option.optionId
       };
-  
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
-
-    console.log('[🧪 SOC] optionClicked.emit payload:', {
-      option: clonedOption,
-      index,
-      checked: true,
-      wasReselected: wasPreviouslySelected
-    });
-
+  
+    // Emit actual option object (uncloned) with reselection flag
     this.optionClicked.emit({
-      option: clonedOption,
+      option: optionBinding.option as SelectedOption,  // no clone
       index,
       checked: true,
       wasReselected: wasPreviouslySelected
