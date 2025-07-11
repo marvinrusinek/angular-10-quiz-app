@@ -852,6 +852,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const checked = 'checked' in event ? (event as MatCheckboxChange).checked : true;
 
     const alreadySelected = optionBinding.option.selected && checked === true;
+
+    // Always set the selection state first
+    optionBinding.option.selected = checked;
+
     if (alreadySelected) {
       console.warn('[🔒 Already selected – short-circuit]', optionId);
 
