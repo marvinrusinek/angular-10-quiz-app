@@ -572,22 +572,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }  
 
   handleChange(optionBinding: OptionBindings, index: number): void {
+    const alreadySelected = optionBinding.option.selected;
+  
     const simulatedEvent: MatRadioChange = {
       source: {
         value: optionBinding.option.optionId,
         checked: true,
         disabled: false,
-        name: 'radioOption'  // ensure this matches the form control name
+        name: 'radioOption'
       } as unknown as MatRadioButton,
       value: optionBinding.option.optionId,
     };
   
     this.updateOptionAndUI(optionBinding, index, simulatedEvent);
-
+  
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
-      checked: true
+      checked: true,
+      wasReselected: alreadySelected
     });
   }
 
