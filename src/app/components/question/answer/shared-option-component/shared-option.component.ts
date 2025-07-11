@@ -555,12 +555,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const optionId = optionBinding.option.optionId;
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
-    // Safely read selection before any mutation happens
-    const wasPreviouslySelected = this.selectedOptionMap.get(optionId) === true;
+    // Check selected state before anything mutates it
+    const wasPreviouslySelected = !!optionBinding.option.selected;
+    console.log('[🧪 SOC] wasPreviouslySelected:', wasPreviouslySelected);
   
-    console.log('[🧪 SOC] wasPreviouslySelected (from selectedOptionMap):', wasPreviouslySelected);
-  
-    // Emit to parent BEFORE anything mutates the state
+    // Emit BEFORE any mutation
     this.optionClicked.emit({
       option: {
         ...optionBinding.option,
@@ -571,7 +570,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       wasReselected: wasPreviouslySelected,
     });
   
-    // Now update UI only if it was NOT previously selected
+    // Only update UI if this is a new selection
     if (!wasPreviouslySelected) {
       const simulatedEvent: MatRadioChange = {
         source: {
@@ -585,7 +584,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
-  }
+  }  
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
