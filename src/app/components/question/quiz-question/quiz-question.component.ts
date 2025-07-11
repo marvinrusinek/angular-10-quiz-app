@@ -142,6 +142,7 @@ export class QuizQuestionComponent
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
   selectedOption$ = new BehaviorSubject<Option>(null);
+  private wasReselectedOption = false;
   options$: Observable<Option[]>;
   currentOptions: Option[] | undefined;
   correctAnswers: number[] | undefined;
