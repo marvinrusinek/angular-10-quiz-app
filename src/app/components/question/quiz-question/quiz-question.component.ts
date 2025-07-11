@@ -2461,8 +2461,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    const wasReselected = event.wasReselected ?? false;
-  
+    const { option, index, checked } = event;
+
     try {
       // basic selection → next button, flags, detectChanges
       this.handleCoreSelection(event);
@@ -2477,7 +2477,7 @@ export class QuizQuestionComponent
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
       // remaining async tasks
-      await this.postClickTasks(event.option, event.index, event.checked);
+      await this.postClickTasks(option, index, checked);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
