@@ -552,6 +552,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
+    const now = Date.now();
+    if (now - this.lastClickTimestamp < 200) {
+      console.warn('[⏱️ Debounced duplicate click]');
+      return;
+    }
+    this.lastClickTimestamp = now;
+
     const wasPreviouslySelected = optionBinding.option.selected === true;
     console.log('[🧪 SOC] wasPreviouslySelected:', wasPreviouslySelected);
   
@@ -574,7 +581,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
-    
+
     console.log('[🧪 SOC] optionClicked.emit payload:', {
       option: clonedOption,
       index,
