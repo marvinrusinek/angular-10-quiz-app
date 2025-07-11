@@ -2459,8 +2459,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    const isCorrect = event.option.correct;
     // Play correct/incorrect sound
+    const isCorrect = event.option.correct;
     if (isCorrect) {
       this.soundService.play('correct');
     } else {
