@@ -555,29 +555,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const optionId = optionBinding.option.optionId;
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
-    // Check BEFORE mutation
-    const wasSelected = optionBinding.option.selected === true;
-    console.log('[🧪 SOC] wasPreviouslySelected (from .selected):', wasSelected);
+    // Safely read selection before any mutation happens
+    const wasPreviouslySelected = this.selectedOptionMap.get(optionId) === true;
   
-    // Emit to QuizQuestionComponent
+    console.log('[🧪 SOC] wasPreviouslySelected (from selectedOptionMap):', wasPreviouslySelected);
+  
+    // Emit to parent BEFORE anything mutates the state
     this.optionClicked.emit({
       option: {
         ...optionBinding.option,
-        questionIndex
+        questionIndex,
       },
       index,
       checked: true,
-      wasReselected: wasSelected
+      wasReselected: wasPreviouslySelected,
     });
   
-    // Now update UI only if it's a new selection
-    if (!wasSelected) {
+    // Now update UI only if it was NOT previously selected
+    if (!wasPreviouslySelected) {
       const simulatedEvent: MatRadioChange = {
         source: {
           value: optionBinding.option.optionId,
-          checked: true
+          checked: true,
         } as unknown as MatRadioButton,
-        value: optionBinding.option.optionId
+        value: optionBinding.option.optionId,
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);

@@ -2457,14 +2457,13 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {
     const wasPreviouslySelected = event.wasReselected ?? false;
-    console.log('[🧪 QQC] event.wasReselected:', wasPreviouslySelected);
+    const { option, index, checked, wasReselected } = event;
+    console.log('[🧪 QQC] event.wasReselected:', wasReselected);
 
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-
-    const { option, index, checked, wasReselected } = event;
 
     console.log('[🧪 QQC] event.wasReselected:', wasReselected);
 
