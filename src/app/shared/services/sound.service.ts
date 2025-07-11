@@ -21,6 +21,6 @@ export class SoundService {
       return;
     }
   
-    const id = sound.play();
+    sound.play();
   }  
 }
