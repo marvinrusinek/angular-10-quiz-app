@@ -3270,7 +3270,10 @@ export class QuizQuestionComponent
      // Play sound based on correctness
      // Only play sound if this is a new selection
      if (!wasPreviouslySelected) {
+      console.log('[🔊 Playing sound for new selection]');
       this.playSoundForOption(option);
+     } else {
+       console.log('[⏸️ No sound - reselection]');
      }
 
     // Ensure explanation text is preserved if not already set
