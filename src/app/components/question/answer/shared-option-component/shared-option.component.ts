@@ -552,10 +552,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    const alreadySelected = optionBinding.option.selected;
+    const alreadySelected = optionBinding.option.selected === true;
 
     const wasSelected = optionBinding.option.selected ?? false;
     const clonedOption: SelectedOption = JSON.parse(JSON.stringify(optionBinding.option));
+
+    // Emit this before updating the UI
+    this.reselectionDetected.emit(alreadySelected);
   
     if (!alreadySelected) {
       const simulatedEvent: MatRadioChange = {
@@ -566,7 +569,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         value: optionBinding.option.optionId
       };
   
-      this.reselectionDetected.emit(false);  // new selection
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
