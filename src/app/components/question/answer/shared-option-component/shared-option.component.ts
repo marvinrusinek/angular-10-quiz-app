@@ -855,6 +855,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
     // Always set the selection state first
     optionBinding.option.selected = checked;
+    console.log('[🧪 updateOptionAndUI] option.selected:', optionBinding.option.selected);
 
     if (alreadySelected) {
       console.warn('[🔒 Already selected – short-circuit]', optionId);
