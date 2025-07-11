@@ -36,6 +36,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     wasReselected?: boolean;
   }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
+  @Output() reselectionDetected = new EventEmitter<boolean>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay!: Option[];
