@@ -3420,7 +3420,8 @@ export class QuizQuestionComponent
       this.currentQuestionIndex
     );
     this.answerSelected.emit(true);
-    await this.handleCorrectnessOutcome(true, option);
+    const wasPreviouslySelected = option.selected ?? false;
+    await this.handleCorrectnessOutcome(true, option, wasPreviouslySelected);
     await this.processSelectedOption(option, index, true);
     await this.finalizeOptionSelection(option, index, questionState);
     this.saveQuizState();
