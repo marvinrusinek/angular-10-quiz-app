@@ -546,11 +546,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
-    // If already selected, skip UI update but still emit to trigger feedback
     const alreadySelected = optionBinding.option.selected;
-    if (alreadySelected) {
-      console.warn('[⚠️ Option already selected - skipping UI update but emitting for feedback]');
-    } else {
+  
+    if (!alreadySelected) {
       const simulatedEvent: MatRadioChange = {
         source: {
           value: optionBinding.option.optionId,
@@ -560,15 +558,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
+    } else {
+      console.warn('[⚠️ Option already selected - skipping UI update]');
     }
   
-    // Always emit — ensures feedback logic runs even if option was already selected
+    // Always emit, but include wasReselected flag
     this.optionClicked.emit({
       option: optionBinding.option as SelectedOption,
       index,
-      checked: true
+      checked: true,
+      wasReselected: alreadySelected
     });
-  }
+  }  
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const simulatedEvent: MatRadioChange = {
