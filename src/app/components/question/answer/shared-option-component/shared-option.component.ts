@@ -553,6 +553,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
   handleClick(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
+
+    const wasSelected = optionBinding.option.selected ?? false;
+    const clonedOption: SelectedOption = JSON.parse(JSON.stringify(optionBinding.option));
   
     if (!alreadySelected) {
       const simulatedEvent: MatRadioChange = {
@@ -571,15 +574,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   
     this.optionClicked.emit({
-      option: optionBinding.option as SelectedOption,
+      option: clonedOption,
       index,
       checked: true,
-      wasReselected: alreadySelected
+      wasReselected: wasSelected
     });
   }  
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
+    const wasSelected = optionBinding.option.selected ?? false;
+    const clonedOption: SelectedOption = JSON.parse(JSON.stringify(optionBinding.option));
   
     const simulatedEvent: MatRadioChange = {
       source: {
@@ -594,10 +599,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.updateOptionAndUI(optionBinding, index, simulatedEvent);
   
     this.optionClicked.emit({
-      option: optionBinding.option as SelectedOption,
+      option: clonedOption,
       index,
       checked: true,
-      wasReselected: alreadySelected
+      wasReselected: wasSelected
     });
   }
 
