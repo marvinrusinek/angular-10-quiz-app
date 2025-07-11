@@ -2461,7 +2461,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    const { option, index, checked } = event;
+    const { option, index, checked, wasReselected } = event;
 
     try {
       // basic selection → next button, flags, detectChanges
@@ -2477,7 +2477,7 @@ export class QuizQuestionComponent
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
       // remaining async tasks
-      await this.postClickTasks(option, index, checked);
+      await this.postClickTasks(option, index, checked, wasReselected ?? false);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
@@ -3424,7 +3424,8 @@ export class QuizQuestionComponent
     index: number
   ): Promise<void> {
     // Capture .selected BEFORE anything mutates state
-    const wasPreviouslySelected = option.selected ?? false;
+    // const wasPreviouslySelected = option.selected ?? false;
+    const wasPreviouslySelected = { ...option }.selected ?? false;
     console.log('[🧪 finalizeSelection] wasPreviouslySelected:', wasPreviouslySelected);
 
     const questionState = this.initializeQuestionState(
