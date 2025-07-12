@@ -5,6 +5,7 @@ import { Howl } from 'howler';
 export class SoundService {
   private sounds: Record<string, Howl> = {};
   private playedMap = new Map<number, Set<number>>();
+  private playedSoundOptions = new Set<string>();
 
   constructor() {
     this.sounds['correct'] = new Howl({
@@ -35,4 +36,8 @@ export class SoundService {
     if (!this.playedMap.has(qIdx)) this.playedMap.set(qIdx, new Set<number>());
     this.playedMap.get(qIdx)!.add(optId);
   }
+
+  public reset(): void {
+    this.playedSoundOptions.clear();
+  }  
 }
