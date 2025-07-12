@@ -63,6 +63,7 @@ export class SoundService {
   }
 
   play(soundName: string): void {
+    // Ensure audio context is active
     this.resumeAudioContextIfSuspended();  // ensure context is active
 
     const sound = this.sounds[soundName];
