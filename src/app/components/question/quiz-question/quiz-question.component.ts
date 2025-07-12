@@ -5058,13 +5058,17 @@ export class QuizQuestionComponent
   }
 
   private playSoundForOption(option: SelectedOption): void {
-    if (!option) return;
+    if (!option) {
+      console.warn('[⛔ No option passed to playSoundForOption]');
+      return;
+    }
   
     const isCorrect = option.correct;
-    if (isCorrect) {
-      this.soundService.play('correct');
-    } else {
-      this.soundService.play('incorrect');
-    }
+    console.log(`[🔊 playSoundForOption CALLED]`, {
+      optionId: option.optionId,
+      correct: isCorrect,
+    });
+
+    this.soundService.play(isCorrect ? 'correct' : 'incorrect');
   }  
 }
