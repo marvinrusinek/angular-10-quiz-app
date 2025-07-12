@@ -83,17 +83,17 @@ export class QuizQuestionLoaderService {
   isButtonEnabled = false;
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  public readonly isLoading$   = new BehaviorSubject<boolean>(false); // true while a question is being fetched
-  private currentLoadAbortCtl  = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
+  public readonly isLoading$   = new BehaviorSubject<boolean>(false);  // true while a question is being fetched
+  private currentLoadAbortCtl  = new AbortController();  // abort a stale fetch when the user clicks “Next” too fast
 
   private qaSubject = new BehaviorSubject<QAPayload | null>(null);
   readonly qa$ = this.qaSubject.asObservable();
 
-  /* ── readiness flags ── */
+  // ── readiness flags ──
   private headingReadySubject = new BehaviorSubject<boolean>(false);
   private optionsReadySubject = new BehaviorSubject<boolean>(false);
 
-  /** Emits true only when BOTH heading and options are ready */
+  // Emits true only when BOTH heading and options are ready
   readonly isQAReady$ = combineLatest([
     this.headingReadySubject,
     this.optionsReadySubject
