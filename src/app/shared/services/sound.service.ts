@@ -27,16 +27,6 @@ export class SoundService {
     });
   }
 
-  reloadAllSounds(): void {
-    this.sounds = {}; // Clear current sounds
-  
-    for (const [name, src] of Object.entries(this.sounds)) {
-      this.sounds[name] = new Howl({ src: [src] });
-    }
-  
-    console.log('[🔁 Sounds reloaded]');
-  }
-
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
     if (!option) return;
