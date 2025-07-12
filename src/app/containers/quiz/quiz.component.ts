@@ -3823,6 +3823,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.resetUI();
           this.resetOptionState();
           this.initializeFirstQuestion();
+
+          setTimeout(() => {
+            this.sharedOptionComponent?.generateOptionBindings?.();
+          }, 0);          
   
           // Sync index post-render
           this.quizService.setCurrentQuestionIndex(0);
