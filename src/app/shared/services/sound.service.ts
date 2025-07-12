@@ -51,6 +51,8 @@ export class SoundService {
   }
 
   play(soundName: string): void {
+    this.resumeAudioContextIfSuspended();  // ensure context is active
+
     const sound = this.sounds[soundName];
     if (!sound) {
       console.warn(`[❌ Sound "${soundName}" not found]`);
