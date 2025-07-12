@@ -9,10 +9,14 @@ export class SoundService {
 
   constructor() {
     this.sounds['correct'] = new Howl({
-      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3']
+      src: [
+        'https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'
+      ]
     });
     this.sounds['incorrect'] = new Howl({
-      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3']
+      src: [
+        'https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'
+      ]
     });
   }
 
