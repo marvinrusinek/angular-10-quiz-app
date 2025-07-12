@@ -279,24 +279,6 @@ export class QuizStateService {
   onRestoreQuestionState(): Observable<void> {
     return this.restoreStateSubject.asObservable();
   }
-
-  // not being used, potentially remove...
-  /* public shouldDisplayCorrectAnswersText(
-    question: QuizQuestion,
-    index: number
-  ): Observable<boolean> {
-    return combineLatest([
-      this.isAnswered$,
-      this.isMultipleAnswerQuestion(question),
-    ]).pipe(
-      map(([isAnswered, isMultipleAnswer]) => {
-        console.log(
-          `Question at index ${index} - Answered: ${isAnswered}, MultipleAnswer: ${isMultipleAnswer}`
-        );
-        return isAnswered && isMultipleAnswer;
-      })
-    );
-  } */
   
   clearSelectedOptions(): void {
     for (const [key, state] of this.questionStates.entries()) {
@@ -339,7 +321,7 @@ export class QuizStateService {
   }
 
   resetDisplayLock(): void {
-    this.displayExplanationLocked = false; // reset for new questions
+    this.displayExplanationLocked = false;  // reset for new questions
   }
 
   startLoading(): void {
