@@ -2461,6 +2461,11 @@ export class QuizQuestionComponent
       return;
     }
 
+    if (!this.currentQuestion) {
+      console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
+      return;
+    }
+
     const { option, index, checked, wasReselected } = event;
 
     try {
