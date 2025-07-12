@@ -103,7 +103,15 @@ export class SoundService {
     this.sounds = {};
     this.playedSoundOptions.clear();
     this.playedMap.clear();
-    this.initializeSounds();  // recreate fresh Howl instances
+
+    // Ensure audio context is resumed before recreating sounds
+    this.resumeAudioContextIfSuspended();
+
+    // Small delay to ensure audio context is ready
+    setTimeout(() => {
+      this.initializeSounds();  // recreate fresh Howl instances
+      console.log('[🔁 SoundService] Reset complete - sounds reinitialized');
+    }, 100);
   }
 
   resumeAudioContextIfSuspended(): void {
