@@ -27,12 +27,14 @@ export class SoundService {
     });
   }
 
-  public reloadAll(): void {
-    console.log('[🔁 SoundService] Reloading all sounds...');
-    Object.values(this.sounds).forEach(sound => {
-      sound.unload();  // clear audio buffer
-      sound.load();    // reload
-    });
+  reloadAllSounds(): void {
+    this.sounds = {}; // Clear current sounds
+  
+    for (const [name, src] of Object.entries(this.soundSources)) {
+      this.sounds[name] = new Howl({ src: [src] });
+    }
+  
+    console.log('[🔁 Sounds reloaded]');
   }
 
   // Play a sound only once per (questionIndex + optionId)
