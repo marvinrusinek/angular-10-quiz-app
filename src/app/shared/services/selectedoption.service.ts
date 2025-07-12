@@ -133,7 +133,7 @@ export class SelectedOptionService {
   }  
 
   clearSelection(): void {
-    this.isOptionSelectedSubject.next(false); // no option selected
+    this.isOptionSelectedSubject.next(false);  // no option selected
   }
 
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
@@ -153,7 +153,7 @@ export class SelectedOptionService {
         return;
       }
       console.error('Expected a single SelectedOption, but received an array:', option);
-      return; // exit early if the option is not valid
+      return;  // exit early if the option is not valid
     }
 
     if (this.isOptionAlreadySelected(option)) {
@@ -271,7 +271,7 @@ export class SelectedOptionService {
   
     // If selectedOptions is somehow not an array, log a warning
     console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
-    return false; // return false if selectedOptions is invalid
+    return false;  // return false if selectedOptions is invalid
   }  
 
   clearSelectedOption(): void {
@@ -391,11 +391,9 @@ export class SelectedOptionService {
   
     if (action === 'add') {
       options.push(option);
-      console.log(`[updateSelectedOptions] Added option to selectedOptionsMap:`, option);
     } else if (action === 'remove') {
       const idx = options.findIndex((opt) => opt.optionId === optionIndex);
       if (idx !== -1) options.splice(idx, 1);
-      console.log(`[updateSelectedOptions] Removed option from selectedOptionsMap:`, option);
     }
 
     this.selectedOptionsMap.set(questionIndex, options);
@@ -452,7 +450,6 @@ export class SelectedOptionService {
       // Validate if all correct answers are selected
       this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
         .then((allCorrectAnswersSelected) => {
-          console.log('[updateAnsweredState] Are All Correct Answers Selected:', allCorrectAnswersSelected);
           if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
             console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
             this.stopTimer$.next();
@@ -565,7 +562,7 @@ export class SelectedOptionService {
       .map((_, index) => ({
         optionId: index,
         text: `Default Option ${index + 1}`,
-        correct: index === 0, // default to the first option as correct
+        correct: index === 0,  // default to the first option as correct
         selected: false
       }));
     return defaultOptions;
