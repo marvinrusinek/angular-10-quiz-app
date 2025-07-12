@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
