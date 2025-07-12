@@ -80,13 +80,12 @@ export class SoundService {
       sound.unload();
     });
   
-    // Then clear the sound map and reinitialize
-    this.sounds = {};
+    // Then clear the sound map
     this.playedSoundOptions.clear();
-  
-    this.initializeSounds(); // recreate fresh Howl instances
-    this.resumeAudioContextIfSuspended(); // ensure audio context is ready
-  }  
+
+    this.sounds = {};
+    this.initializeSounds();  // recreate fresh Howl instances
+  }
 
   resumeAudioContextIfSuspended(): void {
     const ctx = (Howler as any).ctx as AudioContext;
