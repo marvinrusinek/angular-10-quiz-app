@@ -60,7 +60,6 @@ import { FeedbackService } from './shared/services/feedback.service';
 import { RenderStateService } from './shared/services/render-state.service';
 import { SelectedOptionService } from './shared/services/selectedoption.service';
 import { SelectionMessageService } from './shared/services/selection-message.service';
-import { SoundService } from './shared/services/sound.service';
 import { TimerService } from './shared/services/timer.service';
 import { ProgressBarService } from './shared/services/progress-bar.service';
 import { ResetBackgroundService } from './shared/services/reset-background.service';
@@ -149,7 +148,6 @@ import { QuizGuard } from './router/guards/quiz.guard';
     ResetStateService,
     SelectedOptionService,
     SelectionMessageService,
-    SoundService,
     TimerService,
     ProgressBarService,
     SharedVisibilityService
