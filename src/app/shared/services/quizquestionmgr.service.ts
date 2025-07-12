@@ -7,13 +7,12 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionManagerService {
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
+  private currentQuestionSubject = new BehaviorSubject<QuizQuestion | null>(null);
+  currentQuestion$ = this.currentQuestionSubject.asObservable();
 
   private shouldDisplayExplanationSubject = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSubject.asObservable();
 
-  private currentQuestionSubject: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   private explanationTextSubject: BehaviorSubject<string | null> =
     new BehaviorSubject<string | null>(null);
 
@@ -43,12 +42,11 @@ export class QuizQuestionManagerService {
   }
 
   updateCurrentQuestionDetail(question: QuizQuestion): void {
-    this.currentQuestion$.next(question);
     this.currentQuestionSubject.next(question);
 
     this.shouldDisplayNumberOfCorrectAnswers$ = combineLatest([
-      this.shouldDisplayExplanation$, // Observable<boolean>
-      this.currentQuestion$ // Observable<Question>
+      this.shouldDisplayExplanation$,  // Observable<boolean>
+      this.currentQuestion$            // Observable<Question>
     ]).pipe(
       map(([shouldExplain, question]) => {
         return !shouldExplain && this.isMultipleAnswerQuestion(question);
@@ -65,7 +63,7 @@ export class QuizQuestionManagerService {
     return numberOfCorrectAnswers;
   }
 
-  public isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
+  /* public isMultipleAnswerQuestion(question: QuizQuestion): Observable<boolean> {
     try {
       if (question && Array.isArray(question.options)) {
         const correctAnswersCount = question.options.filter(option => option.correct).length;
@@ -78,7 +76,12 @@ export class QuizQuestionManagerService {
       console.error('Error determining if it is a multiple-answer question:', error);
       return of(false);
     }
-  }
+  } */
+  public isMultipleAnswerQuestion(question: QuizQuestion | null): boolean {
+    if (!question?.options?.length) return false;
+    const correctCount = question.options.filter(o => o.correct).length;
+    return correctCount > 1;
+  }  
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
