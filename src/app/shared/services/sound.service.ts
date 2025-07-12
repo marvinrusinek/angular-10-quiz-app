@@ -82,6 +82,7 @@ export class SoundService {
   
     this.sounds = {};
     this.playedSoundOptions.clear();
+    this.playedMap.clear();
     this.initializeSounds();  // recreate fresh Howl instances
   }
 
