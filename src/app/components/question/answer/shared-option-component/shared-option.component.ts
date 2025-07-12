@@ -17,6 +17,7 @@ import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { SoundService } from '../../../../shared/services/sound.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
@@ -127,6 +128,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
+    private soundService: SoundService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
     private fb: FormBuilder,
@@ -564,8 +566,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
     // Check selected state before anything mutates it
-    const wasPreviouslySelected = !!optionBinding.option.selected;
-    console.log('[🧪 SOC] wasPreviouslySelected:', wasPreviouslySelected);
+    const wasPreviouslySelected = this.soundService.hasPlayed(questionIndex, optionId);
+    console.log('[🧪 SOC] wasPreviouslySelected (from soundService):', wasPreviouslySelected);
   
     // Emit BEFORE any mutation
     this.optionClicked.emit({
@@ -589,10 +591,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
+  
+      // Mark this option as having triggered sound for this question
+      this.soundService.markPlayed(questionIndex, optionId);
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
-  }  
+  }
 
   handleChange(optionBinding: OptionBindings, index: number): void {
     const alreadySelected = optionBinding.option.selected;
