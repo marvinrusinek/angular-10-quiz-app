@@ -577,7 +577,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       },
       index,
       checked: true,
-      wasReselected: wasPreviouslySelected,
+      wasReselected: wasPreviouslySelected
     });
   
     // Only update UI if this is a new selection
@@ -587,7 +587,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
           value: optionBinding.option.optionId,
           checked: true,
         } as unknown as MatRadioButton,
-        value: optionBinding.option.optionId,
+        value: optionBinding.option.optionId
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
