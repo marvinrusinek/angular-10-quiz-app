@@ -29,7 +29,16 @@ export class SoundService {
 
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
-    if (!option) return;
+    if (!option) {
+      console.warn('[🔇 playOnceForOption] No option provided');
+      return;
+    }
+
+    // Ensure questionIndex is valid (should be 0 after restart)
+    if (option.questionIndex === undefined || option.questionIndex === null) {
+      console.warn('[🔇 playOnceForOption] Invalid questionIndex:', option.questionIndex);
+      return;
+    }
 
     const key = `${option.questionIndex}-${option.optionId}`;
     if (this.playedSoundOptions.has(key)) {
@@ -51,7 +60,7 @@ export class SoundService {
 
     const sound = this.sounds[soundName];
     if (!sound) {
-      console.warn(`[❌ Sound "${soundName}" not found]`);
+      console.warn(`[❌ Sound "${soundName}" not found. Sounds may not be initialized yet.]`);
       return;
     }
     console.log(`[🔊 Playing "${soundName}"]`);
