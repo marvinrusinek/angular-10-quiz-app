@@ -31,13 +31,7 @@ export class NextButtonStateService {
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
-  ) {
-    console.log(`[NextButtonStateService] SelectedOptionService Instance ID: ${this.selectedOptionService['instanceId']}`);
-
-    this.isButtonEnabled$.subscribe(value => {
-      console.log('[🟢 isButtonEnabled$ EMIT]', value);
-    });
-  }
+  ) {}
 
   ngOnDestroy(): void {
     this.cleanupNextButtonStateStream();
@@ -49,9 +43,6 @@ export class NextButtonStateService {
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
     const isEnabled = isAnswered && !isLoading && !isNavigating;
-  
-    console.log('[🔁 syncNextButtonState]', { isAnswered, isLoading, isNavigating, isEnabled });
-  
     this.updateAndSyncNextButtonState(isEnabled);
   }
 
@@ -74,14 +65,6 @@ export class NextButtonStateService {
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-
-        console.log('[🧪 evaluateNextButtonState]', {
-          isAnswered,
-          isLoading,
-          isNavigating,
-          isEnabled
-        });
-
         this.updateAndSyncNextButtonState(isEnabled);
       });
   }
@@ -117,7 +100,7 @@ export class NextButtonStateService {
     this.ngZone.run(() => {
       this.isEnabled = enabled;
       this.isButtonEnabledSubject.next(enabled);
-      console.log(`[🟢 Button State] Enabled set to:`, enabled);
+
       this.nextButtonStyle = {
         opacity: enabled ? '1' : '0.5',
         'pointer-events': enabled ? 'auto' : 'none'
