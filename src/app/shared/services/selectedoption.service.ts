@@ -46,30 +46,7 @@ export class SelectedOptionService {
     return this.isNextButtonEnabledSubject.asObservable();
   }
 
-  constructor(
-    private ngZone: NgZone,
-  ) {
-    console.log(`[SelectedOptionService] Instance ID: ${this.instanceId}`);
-  }
-  
-  // potentially remove...
-  /* get currentSelectedState(): boolean {
-    return this.isOptionSelectedSubject.getValue();
-  } */
-
-  // probably remove...
-  /* saveState(): void {
-    localStorage.setItem('isAnswered', JSON.stringify(this.isAnsweredSubject.getValue()));
-  }
-
-  restoreState(): void {
-    const savedIsAnswered = localStorage.getItem('isAnswered');
-    if (savedIsAnswered !== null) {
-      const isAnswered = JSON.parse(savedIsAnswered);
-      console.log('Restoring isAnswered:', isAnswered);
-      this.isAnsweredSubject.next(isAnswered);
-    }
-  } */
+  constructor(private ngZone: NgZone) {}
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
@@ -77,8 +54,6 @@ export class SelectedOptionService {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
     }
-  
-    console.log('selectOption called with:', { optionId, questionIndex, text });
   
     const selectedOption: SelectedOption = { optionId, questionIndex, text };
   
@@ -92,14 +67,14 @@ export class SelectedOptionService {
       this.selectedOptionSubject.next(selectedOption);
   
       if (!isMultiSelect) {
-        this.isOptionSelectedSubject.next(true); // enable Next button for single-answer questions
+        this.isOptionSelectedSubject.next(true);  // enable Next button for single-answer questions
         this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
         this.setNextButtonEnabled(true);
       } else {
         this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
       }
   
-      console.log('Selected option emitted:', selectedOption);
+      console.info('Selected option emitted:', selectedOption);
     });
   }
 
@@ -111,7 +86,7 @@ export class SelectedOptionService {
     };
   
     this.selectedOptionSubject.next(deselectedOption);
-    this.isOptionSelectedSubject.next(false); // indicate that no option is selected
+    this.isOptionSelectedSubject.next(false);  // indicate that no option is selected
   }
 
   // Adds an option to the selectedOptionsMap
@@ -119,7 +94,7 @@ export class SelectedOptionService {
     // Check if option is valid
     if (!option) {
       console.error('Option is undefined. Cannot add it to selectedOptionsMap.');
-      return; // stop execution to prevent errors
+      return;  // stop execution to prevent errors
     }
 
     // Check if optionId is valid
@@ -151,9 +126,6 @@ export class SelectedOptionService {
     } else {
       this.selectedOptionsMap.delete(questionIndex);
     }
-
-    console.log('[removeOption] Option removed:', optionId);
-    console.log('[removeOption] Full selectedOptionsMap (AFTER update):', Array.from(this.selectedOptionsMap.entries()));
   }
 
   setNextButtonEnabled(enabled: boolean): void {
@@ -192,7 +164,7 @@ export class SelectedOptionService {
     this.ngZone.run(() => {
       this.selectedOption = option;
       this.selectedOptionSubject.next(option);
-      this.isOptionSelectedSubject.next(true); // ensure button enablement
+      this.isOptionSelectedSubject.next(true);  // ensure button enablement
     });
   }
 
@@ -285,8 +257,8 @@ export class SelectedOptionService {
   }
 
   isSelectedOption(option: Option): boolean {
-    const selectedOptions = this.getSelectedOptions(); // Updated to use getSelectedOptions()
-    const showFeedbackForOption = this.getShowFeedbackForOption(); // Get feedback data
+    const selectedOptions = this.getSelectedOptions();  // Updated to use getSelectedOptions()
+    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
   
     // Check if selectedOptions contains the current option
     if (Array.isArray(selectedOptions)) {
@@ -324,9 +296,9 @@ export class SelectedOptionService {
   // Observable to get the current option selected state
   isOptionSelected$(): Observable<boolean> {
     return this.selectedOption$.pipe(
-      startWith(this.selectedOptionSubject.getValue()), // emit the current state immediately when subscribed
-      map(option => option !== null), // determine if an option is selected
-      distinctUntilChanged() // emit only when the selection state changes
+      startWith(this.selectedOptionSubject.getValue()),  // emit the current state immediately when subscribed
+      map(option => option !== null),  // determine if an option is selected
+      distinctUntilChanged()  // emit only when the selection state changes
     );
   }  
 
@@ -361,17 +333,14 @@ export class SelectedOptionService {
     if (!existingOption) {
       const newOption: SelectedOption = {
         optionId: optionIndex,
-        questionIndex, // ensure the questionIndex is set correctly
-        text: `Option ${optionIndex + 1}`, // placeholder text, update if needed
-        correct: false, // default to false unless explicitly set elsewhere
-        selected: true // mark as selected since it's being added
+        questionIndex,  // ensure the questionIndex is set correctly
+        text: `Option ${optionIndex + 1}`,  // placeholder text, update if needed
+        correct: false,  // default to false unless explicitly set elsewhere
+        selected: true  // mark as selected since it's being added
       };
 
-      options.push(newOption); // add the new option
-      this.selectedOptionsMap.set(questionIndex, options); // update the map
-
-      console.log(`[addSelectedOptionIndex] Updated selectedOptionsMap:`, 
-        Array.from(this.selectedOptionsMap.entries()));
+      options.push(newOption);  // add the new option
+      this.selectedOptionsMap.set(questionIndex, options);  // update the map
     } else {
       console.log(`[addSelectedOptionIndex] Option ${optionIndex} already exists for questionIndex ${questionIndex}`);
     }
@@ -437,57 +406,6 @@ export class SelectedOptionService {
     }
   }
   
-  /* updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
-    try {
-      // Validate inputs
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.info('[updateAnsweredState] No options provided. Attempting fallback.');
-  
-        if (questionIndex < 0) {
-          questionIndex = this.getFallbackQuestionIndex();
-          if (questionIndex < 0) {
-            console.error('[updateAnsweredState] Invalid fallback question index:', questionIndex);
-            return;
-          }
-        }
-  
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
-        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-          if (this.selectedOptionsMap.size === 0) {
-            console.info('[updateAnsweredState] selectedOptionsMap is empty. Using default options without warning.');
-          } else if (!this.selectedOptionsMap.has(questionIndex)) {
-            console.warn(`[updateAnsweredState] No entry for questionIndex: ${questionIndex}. Using default options.`);
-          }
-          questionOptions = this.getDefaultOptions();
-        }
-      }
-  
-      // Final validation of options
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.error('[updateAnsweredState] Unable to proceed. No valid options available.');
-        return;
-      }
-  
-      // Determine answered state
-      const isAnswered = questionOptions.some((option) => option.selected);
-      this.isAnsweredSubject.next(isAnswered);
-  
-      // Validate if all correct answers are selected
-      this.areAllCorrectAnswersSelected(questionOptions, questionIndex)
-        .then((allCorrectAnswersSelected) => {
-          if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-            console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
-            this.stopTimer$.next();
-            this.stopTimerEmitted = true;
-          }
-        })
-        .catch((error) => {
-          console.error('[updateAnsweredState] Error checking correct answers:', error);
-        });
-    } catch (error) {
-      console.error('[updateAnsweredState] Unhandled error:', error);
-    }
-  } */
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
       // Validate inputs
@@ -527,11 +445,8 @@ export class SelectedOptionService {
         optionId: option.optionId ?? index + 1,
       }));
   
-      console.log('[updateAnsweredState] Validated Options:', validatedOptions);
-  
       // Determine answered state
       const isAnswered = validatedOptions.some((option) => option.selected);
-      console.log('[updateAnsweredState] Is Question Answered:', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
 
       // Validate if all correct answers are selected
@@ -553,8 +468,6 @@ export class SelectedOptionService {
   }
 
   private debugSelectedOptionsMap(): void {
-    console.log(' Current state of selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
-  
     if (this.selectedOptionsMap.size === 0) {
       console.warn('selectedOptionsMap is empty.');
     } else {
@@ -605,14 +518,6 @@ export class SelectedOptionService {
   
       // Validate that all correct options are selected
       const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
-  
-      console.log('[areAllCorrectAnswersSelected] Validation Details:', {
-        questionIndex,
-        correctOptionIds,
-        selectedOptionIds,
-        allCorrectSelected,
-      });
-  
       resolve(allCorrectSelected);
     });
   }
@@ -623,9 +528,6 @@ export class SelectedOptionService {
   }
 
   setAnswered(isAnswered: boolean, force = false): void {
-    console.log('[✅ setAnswered]', { isAnswered, force, current: this.isAnsweredSubject.getValue() });
-    console.log('[🧠 setAnswered] Incoming:', isAnswered, 'Current:', this.isAnsweredSubject.getValue(), 'Force:', force);
-
     const current = this.isAnsweredSubject.getValue();
     if (force || current !== isAnswered) {
       console.log('[🧪 EMIT CHECK] About to emit answered:', isAnswered);
