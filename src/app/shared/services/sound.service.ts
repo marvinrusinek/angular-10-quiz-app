@@ -46,6 +46,7 @@ export class SoundService {
       return;
     }
   
+    sound.stop();  // ensure it's reset
     sound.play();
   }
 
