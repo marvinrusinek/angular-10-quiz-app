@@ -1736,7 +1736,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     };
   }
   
-  private generateOptionBindings(): void {
+  public generateOptionBindings(): void {
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
   
     const showMap: Record<number, boolean> = {};
