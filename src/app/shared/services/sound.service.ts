@@ -89,6 +89,8 @@ export class SoundService {
 
   public reset(): void {
     console.log('[🔁 SoundService] Resetting...');
+    console.log('[🛠️ reset() called in SoundService]');  // TOP-LEVEL LOG
+    console.log('[🧼 playedSoundOptions before clear]', Array.from(this.playedSoundOptions));
   
     // Stop and unload all existing Howl instances FIRST
     Object.values(this.sounds).forEach((sound) => {
