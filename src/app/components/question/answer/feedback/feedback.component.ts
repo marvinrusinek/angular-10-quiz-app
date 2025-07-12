@@ -2,6 +2,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Input, OnInit, O
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
+import { QuizService } from '../../../../shared/services/quiz.service';
 
 @Component({
   selector: 'codelab-quiz-feedback',
@@ -17,6 +18,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
 
   constructor(
     private feedbackService: FeedbackService,
+    private quizService: QuizService,
     private cdRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -68,39 +70,7 @@ export class FeedbackComponent implements OnInit, OnChanges {
     const isCorrect = this.feedbackConfig?.selectedOption?.correct ?? false;
     return isCorrect ? 'correct-message' : 'wrong-message';
   }
-
-  /* private updateDisplayMessage(): void {
-    if (this.feedbackConfig) {
-      console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
-      const prefix = this.determineFeedbackPrefix();
-      const feedbackText = this.feedbackConfig.feedback ?? '';
-      this.displayMessage = `${prefix}${feedbackText}`;
-    } else {
-      this.displayMessage = '';
-      console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
-    }
-  } */
-  /* private updateDisplayMessage(): void {
-    if (this.feedbackConfig) {
-      console.log('[🧪 FeedbackComponent] feedbackConfig received:', this.feedbackConfig);
   
-      const prefix = this.determineFeedbackPrefix();
-  
-      // 🔑 NEW — guarantee non-empty text
-      const feedbackText = this.feedbackConfig.feedback?.trim();
-      const body =
-        feedbackText && feedbackText.length > 0
-          ? feedbackText                                      // use supplied text
-          : (this.feedbackConfig.selectedOption?.correct      // fallback
-                ? 'Great job! That answer is correct.'
-                : 'Not quite — see the explanation above.');
-  
-      this.displayMessage = `${prefix}${body}`;
-    } else {
-      this.displayMessage = '';
-      console.warn('[⚠️ updateDisplayMessage] feedbackConfig was undefined');
-    }
-  } */
   private updateDisplayMessage(): void {
     if (!this.feedbackConfig) {
       this.displayMessage = '';
@@ -109,17 +79,17 @@ export class FeedbackComponent implements OnInit, OnChanges {
   
     const prefix = this.determineFeedbackPrefix();
   
-    /* If feedback text already present, use it ------------------- */
+    // If feedback text already present, use it
     const supplied = this.feedbackConfig.feedback?.trim();
     if (supplied) {
       this.displayMessage = `${prefix}${supplied}`;
       return;
     }
   
-    /* Otherwise generate it via the service ---------------------- */
-    const opts       = this.feedbackConfig.options ?? [];
-    const correct    = this.feedbackConfig.correctOptions ??
-                       opts.filter(o => o.correct);
+    // Otherwise generate it via the service
+    const opts    = this.feedbackConfig.options ?? [];
+    const correct = this.quizService.correctOptions ??
+                    opts.filter(o => o.correct);
   
     const sentence = this.feedbackService.generateFeedbackForOptions(
       correct,
@@ -128,5 +98,4 @@ export class FeedbackComponent implements OnInit, OnChanges {
   
     this.displayMessage = `${prefix}${sentence}`;
   }
-  
 }
