@@ -13,8 +13,7 @@ export class QuizQuestionManagerService {
   private shouldDisplayExplanationSubject = new BehaviorSubject<boolean>(false);
   shouldDisplayExplanation$ = this.shouldDisplayExplanationSubject.asObservable();
 
-  private explanationTextSubject: BehaviorSubject<string | null> =
-    new BehaviorSubject<string | null>(null);
+  private explanationTextSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   selectedOption: Option | null = null;
   explanationText: string;
