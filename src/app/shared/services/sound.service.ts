@@ -15,7 +15,7 @@ export class SoundService {
     this.initializeSounds();
   }
 
-  private initializeSounds(): void {
+  initializeSounds(): void {
     this.sounds['correct'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
       html5: true
