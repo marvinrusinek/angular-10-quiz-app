@@ -3293,6 +3293,9 @@ export class QuizQuestionComponent
       console.log('[🔊 Playing sound for new selection]');
       option.questionIndex = this.currentQuestionIndex;
       // this.playSoundForOption(option);
+
+      console.log('[🎯 About to call playOnceForOption]');
+      console.log("PLAYONCE", { questionIndex: option.questionIndex, optionId: option.optionId });
       this.soundService.playOnceForOption(option);
      } else {
        console.log('[⏸️ No sound - reselection]');
