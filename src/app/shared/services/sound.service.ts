@@ -24,7 +24,7 @@ export class SoundService {
     this.sounds['incorrect'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
       html5: true
-    });
+    });  
   }
 
   // Play a sound only once per (questionIndex + optionId)
