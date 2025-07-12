@@ -80,10 +80,8 @@ export class SoundService {
       sound.unload();
     });
   
-    // Then clear the sound map
-    this.playedSoundOptions.clear();
-
     this.sounds = {};
+    this.playedSoundOptions.clear();
     this.initializeSounds();  // recreate fresh Howl instances
   }
 
