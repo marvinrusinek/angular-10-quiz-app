@@ -4290,6 +4290,11 @@ export class QuizQuestionComponent
     optionIndex: number
   ): Promise<void> {
     try {
+      if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
+        console.warn('[❌ handleOptionClicked] currentQuestion or options is null/invalid', currentQuestion);
+        return;
+      }
+      
       // Ensure optionId is assigned to all options in the current question
       currentQuestion.options = this.quizService.assignOptionIds(
         currentQuestion.options
