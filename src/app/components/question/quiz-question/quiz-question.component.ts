@@ -9,7 +9,6 @@ import { MatRadioButton } from '@angular/material/radio';
 
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Utils } from '../../../shared/utils/utils';
-import { AudioItem } from '../../../shared/models/AudioItem.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { LockedState } from '../../../shared/models/LockedState.model';
 import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
@@ -247,19 +246,6 @@ export class QuizQuestionComponent
   private latestExplanationRequestId = 0;
   private explanationRequestId = 0;
   private hasAutoAdvancedFromQ1 = false;
-
-  // Define audio list array
-  audioList: AudioItem[] = [];
-
-  // Correct and incorrect audio sources
-  correctAudioSource: AudioItem = {
-    url: '../../../../../../../assets/audio/sound-correct.mp3',
-    title: 'Correct Answer',
-  };
-  incorrectAudioSource: AudioItem = {
-    url: '../../../../../../../assets/audio/sound-incorrect.mp3',
-    title: 'Incorrect Answer',
-  };
 
   private destroy$: Subject<void> = new Subject<void>();
 
