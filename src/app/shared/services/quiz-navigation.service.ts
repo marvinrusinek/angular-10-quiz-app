@@ -162,11 +162,7 @@ export class QuizNavigationService {
       : 0;
     if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
 
-    const targetIndex = currentIndex + offset; // ← 0-based
-
-    console.log('[NAV ▶] navigateWithOffset', offset,
-            '| current index =', currentIndex,
-            '| target =', targetIndex);
+    const targetIndex = currentIndex + offset;  // 0-based
 
     // Block if going out of bounds
     if (targetIndex < 0) {
@@ -203,8 +199,6 @@ export class QuizNavigationService {
         take(1)
       )
     );
-
-    console.log('[DEBUG] quiz length', currentQuiz.questions.length);
 
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
@@ -293,7 +287,6 @@ export class QuizNavigationService {
       return false;
     }
   }
-  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
