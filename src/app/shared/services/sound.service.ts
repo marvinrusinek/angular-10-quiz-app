@@ -64,5 +64,13 @@ export class SoundService {
 
   public reset(): void {
     this.playedSoundOptions.clear();
-  }  
+  }
+
+  reloadAll(): void {
+    Object.values(this.sounds).forEach(sound => {
+      sound.unload(); // clears buffer and context
+      sound.load();   // re-initialize
+    });
+    console.log('[🔁 SoundService] Reloaded all sounds');
+  }
 }
