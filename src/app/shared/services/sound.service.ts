@@ -79,15 +79,18 @@ export class SoundService {
 
   public reset(): void {
     console.log('[🔁 SoundService] Resetting...');
-    
-    // Unload and reload each Howl instance
-    Object.values(this.sounds).forEach(sound => {
-      sound.unload();
-      sound.load();  // reinitializes the sound so it can be played again
-    });
   
-    this.playedSoundOptions?.clear?.();
-  }
+    // Stop and unload all Howl instances
+    for (const sound of Object.values(this.sounds)) {
+      sound.stop();
+      sound.unload();
+    }
+  
+    // Clear the sound map and reinitialize from scratch
+    this.sounds = {};
+    this.playedSoundOptions.clear();  // works if properly typed
+    this.initializeSounds();          // recreates the Howl instances
+  }  
 
   resumeAudioContextIfSuspended(): void {
     const ctx = (Howler as any).ctx as AudioContext;
