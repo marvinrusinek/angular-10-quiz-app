@@ -358,17 +358,15 @@ export class QuizStateService {
       feedback : typeof opt.feedback === 'string' ? opt.feedback.trim() : 'No feedback'
     }));
   
-    const updatedQuestion: QuizQuestion = {
-      ...question,
-      options: normalizedOptions
-    };
-  
     // Emit the complete QA object as a single payload
     this.qaSub.next({
       quizId,
       index,
-      question,
-      options,
+      question: {
+        ...question,
+        options: normalizedOptions
+      },
+      options: normalizedOptions,
       selectionMessage
     });
   }
