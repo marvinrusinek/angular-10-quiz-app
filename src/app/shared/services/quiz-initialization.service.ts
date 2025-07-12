@@ -1,30 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  EMPTY,
-  firstValueFrom,
-  forkJoin,
-  from,
-  merge, 
-  Observable,
-  of,
-  Subject,
-  Subscription
-} from 'rxjs';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  retry,
-  switchMap,
-  take,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, from, merge, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
