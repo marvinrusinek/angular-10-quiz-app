@@ -41,6 +41,7 @@ import { ProgressBarService } from '../../shared/services/progress-bar.service';
 import { ResetStateService } from '../../shared/services/reset-state.service';
 import { ResetBackgroundService } from '../../shared/services/reset-background.service';
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
+import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
@@ -270,6 +271,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private resetStateService: ResetStateService,
     private resetBackgroundService: ResetBackgroundService,
     private sharedVisibilityService: SharedVisibilityService,
+    private soundService: SoundService,
     private progressBarService: ProgressBarService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -3785,6 +3787,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   restartQuiz(): void {
     this.timerService.stopTimer?.();
+    this.soundService.reset();  // allow sounds to play again
 
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
