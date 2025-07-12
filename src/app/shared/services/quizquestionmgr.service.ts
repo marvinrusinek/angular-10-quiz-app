@@ -79,11 +79,6 @@ export class QuizQuestionManagerService {
       return of(false);
     }
   }
-  /* public isMultipleAnswerQuestion(question: QuizQuestion | null): boolean {
-    if (!question?.options?.length) return false;
-    const correctCount = question.options.filter(o => o.correct).length;
-    return correctCount > 1;
-  } */ 
 
   isSelectedOption(option: Option): boolean {
     return this.selectedOption === option;
