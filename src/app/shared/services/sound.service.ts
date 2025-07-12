@@ -79,10 +79,9 @@ export class SoundService {
     // Unload and reload each Howl instance
     Object.values(this.sounds).forEach(sound => {
       sound.unload();
-      sound.load(); // reinitializes the sound so it can be played again
+      sound.load();  // reinitializes the sound so it can be played again
     });
   
-    // If you're using a Set to track played options
     this.playedSoundOptions?.clear?.();
   }  
 }
