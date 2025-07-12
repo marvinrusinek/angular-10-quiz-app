@@ -115,14 +115,18 @@ export class SoundService {
   }
 
   resumeAudioContextIfSuspended(): void {
-    const ctx = (Howler as any).ctx as AudioContext;
-  
-    if (ctx && ctx.state === 'suspended') {
-      ctx.resume().then(() => {
-        console.log('[🔊 AudioContext resumed]');
-      }).catch(err => {
-        console.error('[❌ Failed to resume AudioContext]', err);
-      });
+    try {
+      const ctx = (Howler as any).ctx as AudioContext;
+    
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          console.log('[🔊 AudioContext resumed]');
+        }).catch(err => {
+          console.error('[❌ Failed to resume AudioContext]', err);
+        });
+      }
+    } catch (error) {
+      console.warn('[⚠️ Error accessing AudioContext]:', error);
     }
-  }  
+  }
 }
