@@ -30,12 +30,12 @@ export class SoundService {
   public reloadAll(): void {
     console.log('[🔁 SoundService] Reloading all sounds...');
     Object.values(this.sounds).forEach(sound => {
-      sound.unload(); // clear audio buffer
-      sound.load();   // reload
+      sound.unload();  // clear audio buffer
+      sound.load();    // reload
     });
   }
 
-  // Play a sound only once per (questionIndex + optionId) */
+  // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
     if (!option) return;
 
