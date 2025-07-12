@@ -41,13 +41,20 @@ export class SoundService {
     }
 
     const key = `${option.questionIndex}-${option.optionId}`;
+
+    // Check if we've already played sound for this option
     if (this.playedSoundOptions.has(key)) {
       console.log(`[🔇 Skipping sound for reselected option: ${key}]`);
       return;
     }
 
+    // Mark this option as having played sound
     this.playedSoundOptions.add(key);
+
+    // Determine which sound to play
     const soundName = option.correct ? 'correct' : 'incorrect';
+
+    // Play the sound
     this.play(soundName);
 
     console.log('[🧪 Sound Check]', { option });
