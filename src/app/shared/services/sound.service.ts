@@ -129,4 +129,12 @@ export class SoundService {
       console.warn('[⚠️ Error accessing AudioContext]:', error);
     }
   }
+
+  // Method to ensure sounds are ready after restart
+  ensureSoundsReady(): void {
+    if (!this.sounds['correct'] || !this.sounds['incorrect']) {
+      console.log('[🔁 Reinitializing sounds - they may have been cleared]');
+      this.initializeSounds();
+    }
+  }
 }
