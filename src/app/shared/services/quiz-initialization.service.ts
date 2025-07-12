@@ -42,6 +42,7 @@ export class QuizInitializationService {
   optionsToDisplay: Option[] = [];
   isOptionSelected = false;
   isCurrentQuestionAnswered = false;
+  isQuizDataLoaded = false;
 
   showFeedback = false;
 
