@@ -40,6 +40,10 @@ export class SoundService {
     this.playedSoundOptions.add(key);
     const soundName = option.correct ? 'correct' : 'incorrect';
     this.play(soundName);
+
+    console.log('[🧪 Sound Check]', { option });
+    console.log('[🧪 Key]', key);
+    console.log('[🧪 Already played?]', this.playedSoundOptions.has(key));
   }
 
   play(soundName: string): void {
