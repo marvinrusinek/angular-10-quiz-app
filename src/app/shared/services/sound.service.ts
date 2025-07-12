@@ -4,6 +4,7 @@ import { Howl } from 'howler';
 @Injectable({ providedIn: 'root' })
 export class SoundService {
   private sounds: Record<string, Howl> = {};
+  private playedMap = new Map<number, Set<number>>();
 
   constructor() {
     this.sounds['correct'] = new Howl({
@@ -22,5 +23,16 @@ export class SoundService {
     }
   
     sound.play();
-  }  
+  }
+
+  // true if we’ve already played a sound for this option
+  hasPlayed(qIdx: number, optId: number): boolean {
+    return this.playedMap.get(qIdx)?.has(optId) ?? false;
+  }
+
+  // mark that we’ve now played a sound
+  markPlayed(qIdx: number, optId: number): void {
+    if (!this.playedMap.has(qIdx)) this.playedMap.set(qIdx, new Set<number>());
+    this.playedMap.get(qIdx)!.add(optId);
+  }
 }
