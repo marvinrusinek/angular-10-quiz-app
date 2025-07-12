@@ -3777,7 +3777,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     this.timerService.stopTimer?.();
     this.soundService.reset();  // allow sounds to play again
-    this.soundService.reloadAll();
+    this.soundService.reloadAllSounds();
 
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();

@@ -30,7 +30,7 @@ export class SoundService {
   reloadAllSounds(): void {
     this.sounds = {}; // Clear current sounds
   
-    for (const [name, src] of Object.entries(this.soundSources)) {
+    for (const [name, src] of Object.entries(this.sounds)) {
       this.sounds[name] = new Howl({ src: [src] });
     }
   
