@@ -92,8 +92,12 @@ export class SoundService {
   
     // Stop and unload all existing Howl instances FIRST
     Object.values(this.sounds).forEach((sound) => {
-      sound.stop();
-      sound.unload();
+      try {
+        sound.stop();
+        sound.unload();
+      } catch (error) {
+        console.warn('[SoundService] Error stopping/unloading sound:', error);
+      }
     });
   
     this.sounds = {};
