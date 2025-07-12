@@ -40,16 +40,15 @@ export class QuizInitializationService {
 
   options: Option[] = [];
   optionsToDisplay: Option[] = [];
+  optionSelectedSubscription: Subscription;
   isOptionSelected = false;
+  selectionMessage: string;
+
   isCurrentQuestionAnswered = false;
   isQuizDataLoaded = false;
-
-  showFeedback = false;
-
   isNextButtonEnabled = false;
 
-  optionSelectedSubscription: Subscription;
-  selectionMessage: string;
+  showFeedback = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
