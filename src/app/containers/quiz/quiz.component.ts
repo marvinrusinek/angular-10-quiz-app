@@ -1011,6 +1011,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Clear both selection and answered state
     this.selectedOptionService.setOptionSelected(false);
     // this.selectedOptionService.setAnswered(false);
+
+    // Reset the actual options (visual + logical state)
+    if (this.questions?.length) {
+      this.questions.forEach(q => {
+        q.options?.forEach(opt => {
+          opt.selected = false;
+          opt.highlight = false;
+          opt.showIcon = false;
+        });
+      });
+    } else {
+      console.warn('[⚠️ resetOptionState] No questions available to reset options.');
+    }
   }
 
   ngOnDestroy(): void {
