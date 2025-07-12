@@ -206,7 +206,6 @@ export class QuizQuestionLoaderService {
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
         this.questionData = data.question ?? ({} as QuizQuestion);
-        this.renderStateService.tryRenderGate();
 
         // Trigger combined stream AFTER question + options are set
         // this.quizInitializationService.setupCombinedQuestionStream();
