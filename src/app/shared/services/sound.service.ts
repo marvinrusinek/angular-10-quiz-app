@@ -45,6 +45,7 @@ export class SoundService {
       console.warn(`[❌ Sound "${soundName}" not found]`);
       return;
     }
+    console.log(`[🔊 Playing "${soundName}"]`);
   
     sound.stop();  // ensure it's reset
     sound.play();
