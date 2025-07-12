@@ -34,12 +34,6 @@ export class SoundService {
       return;
     }
 
-    // Ensure questionIndex is valid (should be 0 after restart)
-    if (option.questionIndex === undefined || option.questionIndex === null) {
-      console.warn('[🔇 playOnceForOption] Invalid questionIndex:', option.questionIndex);
-      return;
-    }
-
     const key = `${option.questionIndex}-${option.optionId}`;
 
     // Check if we've already played sound for this option
