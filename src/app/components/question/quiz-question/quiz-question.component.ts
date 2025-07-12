@@ -2456,16 +2456,12 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    const wasPreviouslySelected = event.wasReselected ?? false;
-    const { option, index, checked, wasReselected } = event;
-    console.log('[🧪 QQC] event.wasReselected:', wasReselected);
-
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
 
-    console.log('[🧪 QQC] event.wasReselected:', wasReselected);
+    const { option, index, checked, wasReselected } = event;
 
     try {
       // basic selection → next button, flags, detectChanges
