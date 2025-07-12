@@ -12,15 +12,26 @@ export class SoundService {
   private playedSoundOptions = new Set<string>();
 
   constructor() {
+    this.initializeSounds();
+  }
+
+  private initializeSounds(): void {
     this.sounds['correct'] = new Howl({
-      src: [
-        'https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'
-      ]
+      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
+      html5: true
     });
+
     this.sounds['incorrect'] = new Howl({
-      src: [
-        'https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'
-      ]
+      src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
+      html5: true
+    });
+  }
+
+  public reloadAll(): void {
+    console.log('[🔁 SoundService] Reloading all sounds...');
+    Object.values(this.sounds).forEach(sound => {
+      sound.unload(); // clear audio buffer
+      sound.load();   // reload
     });
   }
 
@@ -64,13 +75,5 @@ export class SoundService {
 
   public reset(): void {
     this.playedSoundOptions.clear();
-  }
-
-  reloadAll(): void {
-    Object.values(this.sounds).forEach(sound => {
-      sound.unload(); // clears buffer and context
-      sound.load();   // re-initialize
-    });
-    console.log('[🔁 SoundService] Reloaded all sounds');
   }
 }
