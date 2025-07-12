@@ -447,6 +447,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    document.addEventListener('click', () => {
+      if (Howler.ctx && Howler.ctx.state === 'suspended') {
+        Howler.ctx.resume().then(() => {
+          console.log('[✅ AudioContext resumed]');
+        });
+      }
+    }, { once: true });
+    
     // Assign question + options together when ready
     this.quizStateService.qa$
     .pipe(
