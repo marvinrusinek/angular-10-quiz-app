@@ -9,7 +9,7 @@ export class SoundService {
   private playedMap = new Map<number, Set<number>>();
 
   // Track which (questionIndex, optionId) pairs played sound
-  private playedSoundOptions: Set<number> = new Set();
+  private playedSoundOptions: Set<string> = new Set();
 
   constructor() {
     this.initializeSounds();
