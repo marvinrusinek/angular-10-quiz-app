@@ -72,8 +72,13 @@ export class SoundService {
     }
     console.log(`[🔊 Playing "${soundName}"]`);
   
-    sound.stop();  // ensure it's reset
-    sound.play();
+    try {
+      console.log(`[🔊 Playing "${soundName}"]`);
+      sound.stop();  // ensure it's reset
+      sound.play();
+    } catch (error) {
+      console.error(`[❌ Error playing sound "${soundName}"]:`, error);
+    }
   }
 
   // True if already played a sound for this option
