@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Howl } from 'howler';
 
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
+
 @Injectable({ providedIn: 'root' })
 export class SoundService {
   private sounds: Record<string, Howl> = {};
   private playedMap = new Map<number, Set<number>>();
+
+  // Track which (questionIndex, optionId) pairs played sound
   private playedSoundOptions = new Set<string>();
 
   constructor() {
@@ -18,6 +22,21 @@ export class SoundService {
         'https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'
       ]
     });
+  }
+
+  // Play a sound only once per (questionIndex + optionId) */
+  playOnceForOption(option: SelectedOption): void {
+    if (!option) return;
+
+    const key = `${option.questionIndex}-${option.optionId}`;
+    if (this.playedSoundOptions.has(key)) {
+      console.log(`[🔇 Skipping sound for reselected option: ${key}]`);
+      return;
+    }
+
+    this.playedSoundOptions.add(key);
+    const soundName = option.correct ? 'correct' : 'incorrect';
+    this.play(soundName);
   }
 
   play(soundName: string): void {
