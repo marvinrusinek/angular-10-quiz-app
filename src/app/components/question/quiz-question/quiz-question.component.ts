@@ -2537,6 +2537,11 @@ export class QuizQuestionComponent
   
   // Emit / display explanation
   private showExplanationLocked(snapshot: QuizQuestion, qIdx: number): void {
+    if (!snapshot) {
+      console.warn('[⚠️ showExplanationLocked] snapshot is null. Skipping explanation setup.');
+      return;
+    }
+
     const expl = snapshot.explanation?.trim() || 'No explanation available';
     this.emitExplanationIfValid(expl, {
       index: qIdx,
@@ -4294,7 +4299,7 @@ export class QuizQuestionComponent
         console.warn('[❌ handleOptionClicked] currentQuestion or options is null/invalid', currentQuestion);
         return;
       }
-      
+
       // Ensure optionId is assigned to all options in the current question
       currentQuestion.options = this.quizService.assignOptionIds(
         currentQuestion.options
