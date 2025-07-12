@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -45,12 +45,14 @@ export class QuizQuestionManagerService {
     this.currentQuestionSubject.next(question);
 
     this.shouldDisplayNumberOfCorrectAnswers$ = combineLatest([
-      this.shouldDisplayExplanation$,  // Observable<boolean>
-      this.currentQuestion$            // Observable<Question>
+      this.shouldDisplayExplanation$,
+      this.currentQuestion$
     ]).pipe(
-      map(([shouldExplain, question]) => {
-        return !shouldExplain && this.isMultipleAnswerQuestion(question);
-      })
+      switchMap(([shouldExplain, question]) =>
+        this.isMultipleAnswerQuestion(question).pipe(
+          map((isMultiple) => !shouldExplain && isMultiple)
+        )
+      )
     );
   }
 
