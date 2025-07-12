@@ -3,16 +3,9 @@ import { BehaviorSubject, Observable, ReplaySubject, Subject, throwError } from 
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 import { Option } from '../../shared/models/Option.model';
+import { QAPayload } from '../../shared/models/QAPayload.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
-
-interface QAPayload {
-  quizId: string;
-  index : number; // 0-based
-  question: QuizQuestion;
-  options : Option[];
-  selectionMessage: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class QuizStateService {

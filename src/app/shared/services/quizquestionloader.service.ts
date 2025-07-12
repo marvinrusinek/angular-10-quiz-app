@@ -6,6 +6,7 @@ import { catchError, distinctUntilChanged, filter, map, take } from 'rxjs/operat
 
 import { QuestionType } from '../models/question-type.enum';
 import { Option } from '../models/Option.model';
+import { QAPayload } from '../../shared/models/QAPayload.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
@@ -22,13 +23,6 @@ import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
-
-export interface QAPayload {
-  heading: string;        // trimmed question text
-  options: Option[];      // hydrated options
-  explanation: string;    // optional explanation text
-  question: QuizQuestion; // the full question object with updated options
-}
 
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
