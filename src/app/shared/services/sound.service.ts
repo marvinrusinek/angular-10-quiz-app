@@ -81,6 +81,7 @@ export class SoundService {
     this.playedSoundOptions.clear();
   
     this.initializeSounds(); // recreate fresh Howl instances
+    this.resumeAudioContextIfSuspended(); // ensure audio context is ready
   }  
 
   resumeAudioContextIfSuspended(): void {

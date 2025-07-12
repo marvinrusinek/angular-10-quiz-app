@@ -3281,7 +3281,8 @@ export class QuizQuestionComponent
      // Only play sound if this is a new selection
      if (!wasPreviouslySelected) {
       console.log('[🔊 Playing sound for new selection]');
-      this.playSoundForOption(option);
+      // this.playSoundForOption(option);
+      this.soundService.playOnceForOption(option);
      } else {
        console.log('[⏸️ No sound - reselection]');
      }
