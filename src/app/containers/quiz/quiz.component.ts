@@ -3816,8 +3816,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             const firstQuestion = this.questions[0];
             if (firstQuestion) {
-              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
-
               firstQuestion.options = firstQuestion.options.map((opt, i) => ({
                 ...opt,
                 selected: false,
@@ -3825,7 +3823,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 highlight: false,
                 questionIndex: 0
               }));
-
+              
+              this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, firstQuestion.options);
 
               console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
