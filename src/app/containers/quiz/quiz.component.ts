@@ -3830,9 +3830,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   highlight: false,
                   showIcon: false
                 };
+
+                firstQuestion.options.forEach((opt, idx) => {
+                  console.log(`[🧪 ORIGINAL Q1 Option ${idx}]`, opt);
+                });
+                
                 console.log(`[🔁 Enriched Q1 Option ${idx}]`, enriched);
                 return enriched;
               });
+              enrichedOptions.forEach((opt, i) => {
+                console.log(`[🔍 Enriched Q1 Option ${i}]`, JSON.stringify(opt, null, 2));
+              });              
             
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
               this.quizQuestionComponent.loadOptionsForQuestion({ ...firstQuestion, options: enrichedOptions });
