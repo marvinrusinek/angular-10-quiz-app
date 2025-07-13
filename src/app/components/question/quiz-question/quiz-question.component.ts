@@ -3248,6 +3248,8 @@ export class QuizQuestionComponent
     option: SelectedOption,
     wasPreviouslySelected: boolean
   ): Promise<void> {
+    console.log('[🐞 handleCorrectnessTimer started]');
+
     if (!this.currentQuestion) {
       console.error('[handleCorrectnessOutcome] currentQuestion is null');
       return;
