@@ -2443,7 +2443,7 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {
     console.log('[🔥 onOptionClicked triggered]', event);
-
+    
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
@@ -3284,7 +3284,7 @@ export class QuizQuestionComponent
 
      // Play sound based on correctness
      // Only play sound if this is a new selection
-     if (!option.selected) {
+     if (!wasPreviouslySelected) {
       console.log('[🔊 Playing sound for new selection]');
     
       const enrichedOption: SelectedOption = {
