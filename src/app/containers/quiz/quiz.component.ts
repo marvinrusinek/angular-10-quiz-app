@@ -3838,7 +3838,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 console.log('[🔁 Forcing quizQuestionComponent reinitialization]');
 
                 // 🔁 Call your actual init method
-                this.initializeCurrentQuestion();
+                this.initializeCurrentQuestion?.();
               }
 
               // Generate bindings and clear sounds *after* everything is ready
