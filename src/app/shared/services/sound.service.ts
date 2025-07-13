@@ -38,13 +38,13 @@ export class SoundService {
     const alreadyPlayed = this.playedSoundOptions.has(key);
     console.log('[🧪 Key]', key, '[🧪 Already played?]', alreadyPlayed);
 
-    if (alreadyPlayed) return;
-
-    // Check if we've already played sound for this option
-    if (this.playedSoundOptions.has(key)) {
+    if (alreadyPlayed) {
       console.log(`[🔇 Skipping sound for reselected option: ${key}]`);
       return;
     }
+
+    // Mark this as played BEFORE or AFTER playing sound
+    this.playedSoundOptions.add(key);
 
     // Determine which sound to play
     const soundName = option.correct ? 'correct' : 'incorrect';
