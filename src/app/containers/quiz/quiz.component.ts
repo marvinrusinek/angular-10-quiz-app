@@ -3817,13 +3817,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             const firstQuestion = this.questions[0];
             if (firstQuestion) {
-              const enrichedOptions: SelectedOption[] = firstQuestion.options.map(opt => ({
-                ...opt,
-                questionIndex: 0,
-                selected: false,
-                highlight: false,
-                showIcon: false
-              }));
+              const enrichedOptions: SelectedOption[] = firstQuestion.options.map((opt, idx) => {
+                const enriched = {
+                  ...opt,
+                  questionIndex: 0,
+                  selected: false,
+                  highlight: false,
+                  showIcon: false
+                };
+                console.log(`[🔁 Enriched Q1 Option ${idx}]`, enriched);
+                return enriched;
+              });
             
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
               this.quizQuestionComponent.loadOptionsForQuestion({ ...firstQuestion, options: enrichedOptions });
