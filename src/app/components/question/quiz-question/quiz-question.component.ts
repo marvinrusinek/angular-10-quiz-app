@@ -314,6 +314,8 @@ export class QuizQuestionComponent
     console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
     console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
 
+    this.clearSoundFlagsForCurrentQuestion(this.currentQuestionIndex);
+
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
@@ -5075,5 +5077,9 @@ export class QuizQuestionComponent
     });
 
     this.soundService.play(isCorrect ? 'correct' : 'incorrect');
-  }  
+  }
+  
+  clearSoundFlagsForCurrentQuestion(index: number): void {
+    this.soundService.clearPlayedOptionsForQuestion(index);
+  }
 }
