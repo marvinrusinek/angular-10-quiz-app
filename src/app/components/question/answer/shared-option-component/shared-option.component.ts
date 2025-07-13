@@ -1743,15 +1743,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.showFeedbackForOption = showMap;
   
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
-      // trust .selected set by syncSelectedFlags / initial data
-      const chosen = false;
-  
-      // UI flags derived from .selected
-      opt.highlight = false;
-      opt.showIcon = false;
-  
-      const binding = this.getOptionBindings({ ...opt }, idx, chosen);
+      const enriched = {
+        ...opt,
+        questionIndex: opt.questionIndex ?? this.quizService.currentQuestionIndex
+      };
+    
+      const chosen = !!enriched.selected;
+    
+      const binding = this.getOptionBindings(enriched, idx, chosen);
       binding.showFeedbackForOption = this.showFeedbackForOption;
+    
       return binding;
     });
   
