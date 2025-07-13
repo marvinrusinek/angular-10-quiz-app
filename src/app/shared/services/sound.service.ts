@@ -29,21 +29,22 @@ export class SoundService {
 
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
-    if (!option) {
-      console.warn('[🔇 playOnceForOption] No option provided');
+    if (option.questionIndex == null || option.optionId == null) {
+      console.warn('[⚠️ playOnceForOption] Missing index or optionId', option);
       return;
     }
 
     const key = `${option.questionIndex}-${option.optionId}`;
+    const alreadyPlayed = this.playedSoundOptions.has(key);
+    console.log('[🧪 Key]', key, '[🧪 Already played?]', alreadyPlayed);
+
+    if (alreadyPlayed) return;
 
     // Check if we've already played sound for this option
     if (this.playedSoundOptions.has(key)) {
       console.log(`[🔇 Skipping sound for reselected option: ${key}]`);
       return;
     }
-
-    // Mark this option as having played sound
-    this.playedSoundOptions.add(key);
 
     // Determine which sound to play
     const soundName = option.correct ? 'correct' : 'incorrect';
