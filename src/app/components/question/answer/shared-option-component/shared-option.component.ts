@@ -1744,7 +1744,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       // trust .selected set by syncSelectedFlags / initial data
-      const chosen = !!opt.selected;
+      const chosen = false;
   
       // UI flags derived from .selected
       opt.highlight = chosen;
