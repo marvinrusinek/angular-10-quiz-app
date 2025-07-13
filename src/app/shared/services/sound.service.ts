@@ -33,10 +33,12 @@ export class SoundService {
       console.warn('[⚠️ playOnceForOption] Missing optionId', option);
       return;
     }
-  
+
     if (option.questionIndex == null) {
-      console.warn('[⚠️ playOnceForOption] Missing questionIndex — injecting 0', option);
-      option.questionIndex = 0; // fallback for Q1
+      console.error('[❌ playOnceForOption] MISSING questionIndex!', option);
+      option.questionIndex = 0;  // fallback for Q1
+    } else {
+      console.log('[✅ Valid questionIndex in option]', option.questionIndex);
     }
 
     console.log('[🧪 Option Before Sound]', option);
