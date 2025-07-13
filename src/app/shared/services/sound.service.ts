@@ -65,7 +65,7 @@ export class SoundService {
     console.log('[🧪 Already played?]', this.playedSoundOptions.has(key));
   }
 
-  play(soundName: string): void {
+  /* play(soundName: string): void {
     // Ensure audio context is active
     this.resumeAudioContextIfSuspended();  // ensure context is active
 
@@ -83,7 +83,26 @@ export class SoundService {
     } catch (error) {
       console.error(`[❌ Error playing sound "${soundName}"]:`, error);
     }
-  }
+  } */
+  play(soundName: string): void {
+    this.resumeAudioContextIfSuspended();  // ensure audio context is active
+  
+    const sound = this.sounds[soundName];
+    if (!sound) {
+      console.warn(`[❌ Sound "${soundName}" not found. Sounds may not be initialized yet.]`);
+      return;
+    }
+  
+    console.log(`[🔊 Attempting to play "${soundName}"]`);
+  
+    try {
+      sound.stop();  // stop any current playback
+      const soundId = sound.play();  // returns a numeric sound ID
+      console.log(`[✅ "${soundName}" triggered successfully with soundId: ${soundId}]`);
+    } catch (error) {
+      console.error(`[❌ Error playing sound "${soundName}"]:`, error);
+    }
+  }  
 
   // True if already played a sound for this option
   hasPlayed(qIdx: number, optId: number): boolean {

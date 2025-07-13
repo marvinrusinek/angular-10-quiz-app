@@ -3273,6 +3273,11 @@ export class QuizQuestionComponent
       this.selectedOptionService.isAnsweredSubject.next(true);
     }
 
+    console.log('[🧪 About to play sound]', {
+      questionIndex: this.currentQuestionIndex,
+      selectedOption: option
+    });    
+
      // Play sound based on correctness
      // Only play sound if this is a new selection
      if (!wasPreviouslySelected) {
