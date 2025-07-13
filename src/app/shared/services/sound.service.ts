@@ -34,6 +34,11 @@ export class SoundService {
       return;
     }
 
+    if (option.questionIndex == null) {
+      console.warn('[⚠️ Missing questionIndex — injecting 0]', option);
+      option.questionIndex = 0; // fallback for Q1
+    }
+
     const key = `${option.questionIndex}-${option.optionId}`;
     const alreadyPlayed = this.playedSoundOptions.has(key);
     console.log('[🧪 Key]', key, '[🧪 Already played?]', alreadyPlayed);
@@ -44,13 +49,14 @@ export class SoundService {
     }
 
     // Mark this as played BEFORE or AFTER playing sound
-    this.playedSoundOptions.add(key);
+    // this.playedSoundOptions.add(key);
 
     // Determine which sound to play
     const soundName = option.correct ? 'correct' : 'incorrect';
 
     // Play the sound
     this.play(soundName);
+    this.playedSoundOptions.add(key);
 
     console.log('[🧪 Sound Check]', { option });
     console.log('[🧪 Key]', key);
