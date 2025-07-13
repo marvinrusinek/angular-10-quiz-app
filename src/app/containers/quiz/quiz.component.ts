@@ -1289,7 +1289,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           } else {
             console.warn(`[❌ Failed to load Q${index}]`);
           }
-          
+
           await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;
@@ -3797,6 +3797,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[🎯 restartQuiz called]');
     this.soundService.reset();  // allow sounds to play again
     this.soundService.clearPlayedOptionsForQuestion(0);
+
+    // Delay clearing until the first question is loaded
+    setTimeout(() => {
+      this.soundService.clearPlayedOptionsForQuestion(0);
+    }, 100);  // short delay so question index is valid
+
     this.timerService.stopTimer?.();
 
     // Cleanup the previous stream before resetting
