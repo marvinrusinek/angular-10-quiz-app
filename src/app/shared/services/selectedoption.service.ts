@@ -555,6 +555,28 @@ export class SelectedOptionService {
   resetSelectedOption(): void {
     this.isOptionSelectedSubject.next(false);
   }
+
+  public resetSelectionState(): void {
+    console.log('[🧼 resetSelectionState()] called');
+  
+    // Clear tracked options
+    this.selectedOption = null;
+    this.selectedOptionsMap?.clear?.();
+  
+    // Clear observables
+    this.selectedOptionSubject?.next(null);
+    this.showFeedbackForOptionSubject?.next({});
+    this.isOptionSelectedSubject?.next(false);
+  
+    // Clear any custom state you might be using
+    // e.g., this.lastSelectedOption = null;
+    // e.g., this.answeredMap?.clear?.();
+  
+    // Optional: clear question-level selection state
+    // this.questionStateMap?.clear?.();
+  
+    console.log('[✅ Selection state fully reset]');
+  }  
   
   private getDefaultOptions(): Option[] {
     const defaultOptions = Array(4)
