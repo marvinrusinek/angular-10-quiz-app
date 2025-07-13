@@ -3832,6 +3832,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
               this.quizQuestionComponent.loadOptionsForQuestion({ ...firstQuestion, options: enrichedOptions });
 
+              setTimeout(() => {
+                this.quizQuestionComponent?.detectChanges?.(); // optional
+                this.sharedOptionComponent?.generateOptionBindings?.(); // ensures bindings are correct
+                console.log('[✅ Option bindings regenerated]');
+              }, 0);              
+
               console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
               this.soundService.clearPlayedOptionsForQuestion(0);
             } else {
