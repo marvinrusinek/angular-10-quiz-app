@@ -516,10 +516,8 @@ export class QuizQuestionComponent
     }
   
     const question = this.questionsArray[index];
-  
     if (question) {
       this.quizService.setCurrentQuestion(question);
-      this.loadOptionsForQuestion(question);
   
       setTimeout(() => {
         const explanationText = question.explanation || 'No explanation available';
@@ -1341,6 +1339,8 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
+    console.log('[✅ FINAL OPTIONS LOADED]', question.options);
+
     if (!question || !question.options?.length) {
       console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
       return;
@@ -3284,7 +3284,9 @@ export class QuizQuestionComponent
     console.log('[🧪 About to play sound]', {
       questionIndex: this.currentQuestionIndex,
       selectedOption: option
-    });    
+    });
+
+    console.log('[🧪 Option Selected Flag BEFORE click]', option.selected);
 
      // Play sound based on correctness
      // Only play sound if this is a new selection
