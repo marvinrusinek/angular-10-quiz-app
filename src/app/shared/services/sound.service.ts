@@ -141,4 +141,12 @@ export class SoundService {
       this.initializeSounds();
     }
   }
+
+  clearPlayedOptionsForQuestion(questionIndex: number): void {
+    const keysToDelete = [...this.playedSoundOptions].filter(key =>
+      key.startsWith(`${questionIndex}-`)
+    );
+    keysToDelete.forEach(key => this.playedSoundOptions.delete(key));
+    console.log(`[🔁 Cleared sound flags for Q${questionIndex}]`, keysToDelete);
+  }  
 }
