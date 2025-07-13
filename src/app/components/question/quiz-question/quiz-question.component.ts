@@ -311,9 +311,6 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    console.log('[🔄 ngOnInit] optionBindings:', this.optionBindings);
-    console.log('[🔄 ngOnInit] optionsToDisplay:', this.optionsToDisplay);
-
     this.clearSoundFlagsForCurrentQuestion(this.currentQuestionIndex);
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
