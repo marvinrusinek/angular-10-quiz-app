@@ -3833,9 +3833,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
               this.quizQuestionComponent.loadOptionsForQuestion({ ...firstQuestion, options: enrichedOptions });
 
-              // Reset current question index
+              // Set index immediately after loading Q1
               this.currentQuestionIndex = 0;
               this.quizService.setCurrentQuestionIndex(0);
+              console.log('[✅ Synced index after loading Q1]');
 
               // Wait for dynamic component to initialize properly
               setTimeout(() => {
