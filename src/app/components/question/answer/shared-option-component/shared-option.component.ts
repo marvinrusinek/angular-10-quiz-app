@@ -1747,12 +1747,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       const chosen = false;
   
       // UI flags derived from .selected
-      opt.highlight = chosen;
-      opt.showIcon  = chosen;
-      showMap[opt.optionId] = chosen;
+      opt.highlight = false;
+      opt.showIcon = false;
   
       const binding = this.getOptionBindings({ ...opt }, idx, chosen);
-      binding.showFeedbackForOption = showMap;
+      binding.showFeedbackForOption = this.showFeedbackForOption;
       return binding;
     });
   
