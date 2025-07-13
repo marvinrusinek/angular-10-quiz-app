@@ -3797,6 +3797,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[🎯 restartQuiz called]');
     this.selectedOptionService.resetSelectionState();
     setTimeout(() => {
+      console.log('[✅ Restart Phase] CurrentQuestionIndex:', this.quizService.currentQuestionIndex);
       this.selectedOptionService.logCurrentState?.(); // if you have a logger
     }, 0);
     this.soundService.reset();  // allow sounds to play again
@@ -3805,10 +3806,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
-  
-    // Reset current question index
-    this.currentQuestionIndex = 0;
-    this.quizService.setCurrentQuestionIndex(0);
   
     // Navigate to the first question
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
@@ -3835,6 +3832,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
               this.quizQuestionComponent.loadOptionsForQuestion({ ...firstQuestion, options: enrichedOptions });
+
+              // Reset current question index
+              this.currentQuestionIndex = 0;
+              this.quizService.setCurrentQuestionIndex(0);
 
               // Wait for dynamic component to initialize properly
               setTimeout(() => {
@@ -3898,11 +3899,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             setTimeout(() => {
               this.explanationTextService.triggerExplanationEvaluation();
             }, 10);
-  
+          
             // Start timer only after UI + logic settle
             this.timerService.startTimer(this.timerService.timePerQuestion);
             console.log('[QuizComponent] ✅ Timer restarted after quiz reset.');
-  
           }, 100); // delay for explanation logic/DOM to stabilize
         } catch (error) {
           console.error('❌ Error restarting quiz:', error);
