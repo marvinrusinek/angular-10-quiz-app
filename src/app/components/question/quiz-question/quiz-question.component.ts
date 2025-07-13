@@ -3289,7 +3289,7 @@ export class QuizQuestionComponent
 
     console.log('[🧪 Option Selected Flag BEFORE click]', option.selected);
 
-    const wasSelectedBeforeUpdate = this.selectedOptionService.wasOptionPreviouslySelected?.(option);
+    const wasSelectedBeforeUpdate = this.selectedOptionService.wasOptionPreviouslySelected(option);
 
     console.log('[🧪 wasPreviouslySelected DEBUG]', {
       optionId: option.optionId,
@@ -3302,14 +3302,14 @@ export class QuizQuestionComponent
     this.selectedOptionService.setSelectedOption(option);
 
     // 🧪 Check again after update (optional)
-    const isNowSelected = this.selectedOptionService.wasOptionPreviouslySelected?.(option);
+    const isNowSelected = this.selectedOptionService.wasOptionPreviouslySelected(option);
     console.log('[🧪 Option State AFTER update]', {
       isNowSelected
     });
 
      // Play sound based on correctness
      // Only play sound if this is a new selection
-     if (!wasSelectedBeforeUpdate) {
+     if (!wasPreviouslySelected) {
       console.log('[🔊 Playing sound for new selection]');
     
       const enrichedOption: SelectedOption = {
