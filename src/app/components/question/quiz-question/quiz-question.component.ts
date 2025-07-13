@@ -3277,6 +3277,8 @@ export class QuizQuestionComponent
      if (!wasPreviouslySelected) {
       console.log('[🔊 Playing sound for new selection]');
       option.questionIndex = this.currentQuestionIndex;
+      console.log('[🧪 CurrentQuestionIndex]', this.currentQuestionIndex);
+      console.log('[🧪 Option Before Sound]', option);
       // this.playSoundForOption(option);
 
       console.log('[🎯 About to call playOnceForOption]');

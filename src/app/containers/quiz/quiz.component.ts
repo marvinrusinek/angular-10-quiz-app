@@ -3797,10 +3797,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[🎯 restartQuiz called]');
     this.soundService.reset();  // allow sounds to play again
 
-    // Delay clearing until the first question is loaded
     setTimeout(() => {
+      console.log('[🧽 Forcing sound flag clear for Q0]');
       this.soundService.clearPlayedOptionsForQuestion(0);
-    }, 100);  // short delay so question index is valid
+    }, 100);
 
     this.timerService.stopTimer?.();
 
