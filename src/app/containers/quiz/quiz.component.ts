@@ -3796,12 +3796,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   restartQuiz(): void {
     console.log('[🎯 restartQuiz called]');
     this.soundService.reset();  // allow sounds to play again
-
-    setTimeout(() => {
-      console.log('[🧽 Forcing sound flag clear for Q0]');
-      this.soundService.clearPlayedOptionsForQuestion(0);
-    }, 100);
-
     this.timerService.stopTimer?.();
 
     // Cleanup the previous stream before resetting
@@ -3824,6 +3818,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (firstQuestion) {
               this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, firstQuestion.options);
+
+              console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
+              this.soundService.clearPlayedOptionsForQuestion(0);
             } else {
               console.error('❌ First question not found.');
             }
