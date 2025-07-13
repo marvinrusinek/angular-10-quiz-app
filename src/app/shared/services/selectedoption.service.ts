@@ -8,7 +8,6 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
-  private instanceId = Math.random();
   selectedOption: SelectedOption | SelectedOption[] = null;
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
