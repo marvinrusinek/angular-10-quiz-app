@@ -1284,6 +1284,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           // Now let the loader fetch question + options and emit payload
           const success = await this.quizQuestionLoaderService.loadQuestionAndOptions(index);
+          if (success) {
+            this.soundService.clearPlayedOptionsForQuestion(index); // 🔈 Clear after options are ready
+          } else {
+            console.warn(`[❌ Failed to load Q${index}]`);
+          }
+          
           await this.quizQuestionLoaderService.loadQA(index);
           
           const question = currentQuiz.questions[index] ?? null;
