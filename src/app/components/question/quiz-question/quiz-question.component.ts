@@ -311,7 +311,7 @@ export class QuizQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
-    this.clearSoundFlagsForCurrentQuestion(this.currentQuestionIndex);
+    this.clearSoundFlagsForCurrentQuestion(0);
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
