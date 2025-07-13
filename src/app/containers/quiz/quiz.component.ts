@@ -3795,11 +3795,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   restartQuiz(): void {
     console.log('[🎯 restartQuiz called]');
-    this.selectedOptionService.resetSelectionState();
+    this.selectedOptionService.clearSelectedOption();
+    this.selectedOptionService.clearSelection();
+    this.selectedOptionService.resetSelectionState?.();
+
     setTimeout(() => {
       console.log('[✅ Restart Phase] CurrentQuestionIndex:', this.quizService.currentQuestionIndex);
-      this.selectedOptionService.logCurrentState?.(); // if you have a logger
+      this.selectedOptionService.logCurrentState?.();
     }, 0);
+
     this.soundService.reset();  // allow sounds to play again
     this.soundService.clearPlayedOptionsForQuestion(0);
     this.timerService.stopTimer?.();
