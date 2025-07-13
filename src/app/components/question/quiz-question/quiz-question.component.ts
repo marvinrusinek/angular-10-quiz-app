@@ -2442,19 +2442,23 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    console.log('[🔥 onOptionClicked triggered]', event);
-    
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
 
+    const { option, index, checked, wasReselected } = event;
+
+    console.log('[🧪 Final Option State on Click]', {
+      option,
+      selected: option.selected,
+      wasPreviouslySelected: event.wasReselected
+    });
+
     if (!this.currentQuestion) {
       console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
       return;
     }
-
-    const { option, index, checked, wasReselected } = event;
 
     try {
       // basic selection → next button, flags, detectChanges
