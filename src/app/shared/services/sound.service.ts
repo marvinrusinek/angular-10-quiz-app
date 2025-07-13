@@ -29,42 +29,35 @@ export class SoundService {
 
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
-    if (option.optionId == null) {
-      console.warn('[⚠️ playOnceForOption] Missing optionId', option);
-      return;
-    }
+    const qIndex = option.questionIndex ?? -1;
+    const optId = option.optionId;
 
-    if (option.questionIndex == null) {
-      console.error('[❌ playOnceForOption] MISSING questionIndex!', option);
-      option.questionIndex = 0;  // fallback for Q1
-    } else {
-      console.log('[✅ Valid questionIndex in option]', option.questionIndex);
-    }
-
-    console.log('[🧪 Option Before Sound]', option);
-
+    const playedSet = this.playedMap.get(qIndex) ?? new Set<number>();
+    
     const key = `${option.questionIndex}-${option.optionId}`;
     const alreadyPlayed = this.playedSoundOptions.has(key);
-    console.log('[🧪 Key]', key, '[🧪 Already played?]', alreadyPlayed);
+    
+    console.log('[🧪 SOUND CHECK]', {
+      qIndex,
+      optId,
+      alreadyPlayed,
+      playedMap: Array.from(this.playedMap.entries())
+    });
 
     if (alreadyPlayed) {
-      console.log(`[🔇 Skipping sound for reselected option: ${key}]`);
+      console.log(`[⏸️ Sound already played for Q${qIndex}, Option ${optId}]`);
       return;
     }
-
-    // Mark this as played BEFORE or AFTER playing sound
-    // this.playedSoundOptions.add(key);
 
     // Determine which sound to play
     const soundName = option.correct ? 'correct' : 'incorrect';
 
     // Play the sound
     this.play(soundName);
-    this.playedSoundOptions.add(key);
 
-    console.log('[🧪 Sound Check]', { option });
-    console.log('[🧪 Key]', key);
-    console.log('[🧪 Already played?]', this.playedSoundOptions.has(key));
+    // Track that this option has been played
+    playedSet.add(optId);
+    this.playedMap.set(qIndex, playedSet);
   }
 
   /* play(soundName: string): void {
