@@ -32,16 +32,17 @@ export class SoundService {
     const qIndex = option.questionIndex ?? -1;
     const optId = option.optionId;
 
-    const playedSet = this.playedMap.get(qIndex) ?? new Set<number>();
-    
-    const key = `${option.questionIndex}-${option.optionId}`;
+    console.log('[📢 ENTER playOnceForOption]', { qIndex, optId, option });
+
+    const key = `${qIndex}-${optId}`;
     const alreadyPlayed = this.playedSoundOptions.has(key);
     
     console.log('[🧪 SOUND CHECK]', {
       qIndex,
       optId,
       alreadyPlayed,
-      playedMap: Array.from(this.playedMap.entries())
+      playedMap: Array.from(this.playedMap.entries()),
+      playedSoundOptions: Array.from(this.playedSoundOptions)
     });
 
     if (alreadyPlayed) {
@@ -49,15 +50,15 @@ export class SoundService {
       return;
     }
 
-    // Determine which sound to play
+    // Determine which sound to play and play the correct sound
     const soundName = option.correct ? 'correct' : 'incorrect';
-
-    // Play the sound
     this.play(soundName);
 
     // Track that this option has been played
+    const playedSet = this.playedMap.get(qIndex) ?? new Set<number>();
     playedSet.add(optId);
     this.playedMap.set(qIndex, playedSet);
+    this.playedSoundOptions.add(key);
   }
 
   /* play(soundName: string): void {
