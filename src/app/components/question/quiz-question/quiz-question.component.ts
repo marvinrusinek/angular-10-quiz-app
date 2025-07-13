@@ -2442,6 +2442,7 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    console.log('[🔥 onOptionClicked triggered]');
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
@@ -3288,9 +3289,27 @@ export class QuizQuestionComponent
 
     console.log('[🧪 Option Selected Flag BEFORE click]', option.selected);
 
+    const wasSelectedBeforeUpdate = this.selectedOptionService.wasOptionPreviouslySelected?.(option);
+
+    console.log('[🧪 wasPreviouslySelected DEBUG]', {
+      optionId: option.optionId,
+      questionIndex: option.questionIndex,
+      selectedOption: this.selectedOptionService.selectedOption,
+      selectedOptionsMap: this.selectedOptionService.selectedOptionsMap
+    });
+
+    // 💡 Update selection state
+    this.selectedOptionService.setSelectedOption(option);
+
+    // 🧪 Check again after update (optional)
+    const isNowSelected = this.selectedOptionService.wasOptionPreviouslySelected?.(option);
+    console.log('[🧪 Option State AFTER update]', {
+      isNowSelected
+    });
+
      // Play sound based on correctness
      // Only play sound if this is a new selection
-     if (!wasPreviouslySelected) {
+     if (!wasSelectedBeforeUpdate) {
       console.log('[🔊 Playing sound for new selection]');
     
       const enrichedOption: SelectedOption = {
