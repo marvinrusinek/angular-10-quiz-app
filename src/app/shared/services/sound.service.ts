@@ -39,6 +39,8 @@ export class SoundService {
       option.questionIndex = 0; // fallback for Q1
     }
 
+    console.log('[🧪 Option Before Sound]', option);
+
     const key = `${option.questionIndex}-${option.optionId}`;
     const alreadyPlayed = this.playedSoundOptions.has(key);
     console.log('[🧪 Key]', key, '[🧪 Already played?]', alreadyPlayed);
