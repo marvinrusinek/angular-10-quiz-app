@@ -1744,7 +1744,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const enriched = {
-        ...opt,
+        ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex
       };
     
