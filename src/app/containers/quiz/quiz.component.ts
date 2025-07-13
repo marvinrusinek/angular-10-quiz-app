@@ -3818,13 +3818,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             if (firstQuestion) {
               this.quizQuestionComponent.loadOptionsForQuestion(firstQuestion);
 
-              firstQuestion.options.forEach(opt => {
-                opt.selected = false;
-                opt.showIcon = false;
-                opt.highlight = false;
-                // Forcefully reset sound tracking property
-                (opt as any).questionIndex = 0;
-              });
+              firstQuestion.options = firstQuestion.options.map((opt, i) => ({
+                ...opt,
+                selected: false,
+                showIcon: false,
+                highlight: false,
+                questionIndex: 0
+              }));
 
               this.quizQuestionComponent.loadDynamicComponent(firstQuestion, firstQuestion.options);
 
