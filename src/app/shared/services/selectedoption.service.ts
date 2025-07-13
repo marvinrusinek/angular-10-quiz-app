@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
+import { distinctUntilChanged, map, startWith, take } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -601,4 +601,34 @@ export class SelectedOptionService {
     );
     return 0;
   }
+
+  public logCurrentState(): void {
+    console.log('[🔍 SelectedOptionService State Snapshot]');
+  
+    // For single-answer questions
+    console.log('selectedOption:', this.selectedOption);
+  
+    // For multiple-answer questions (if you’re tracking a map)
+    if (this.selectedOptionsMap) {
+      console.log('selectedOptionsMap:', Array.from(this.selectedOptionsMap.entries()));
+    }
+  
+    // Observables
+    this.selectedOptionSubject.pipe(take(1)).subscribe(value => {
+      console.log('selectedOptionSubject (latest):', value);
+    });
+  
+    this.showFeedbackForOptionSubject.pipe(take(1)).subscribe(value => {
+      console.log('showFeedbackForOptionSubject (latest):', value);
+    });
+  
+    this.isOptionSelectedSubject.pipe(take(1)).subscribe(value => {
+      console.log('isOptionSelectedSubject (latest):', value);
+    });
+  
+    // You can log any additional custom properties you're using
+    // Example:
+    // console.log('lastSelectedOption:', this.lastSelectedOption);
+    // console.log('answeredMap:', this.answeredMap);
+  }  
 }
