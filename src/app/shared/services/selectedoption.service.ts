@@ -618,7 +618,7 @@ export class SelectedOptionService {
     // console.log('answeredMap:', this.answeredMap);
   }
 
-  wasOptionPreviouslySelected(option: SelectedOption): boolean {
+  public wasOptionPreviouslySelected(option: SelectedOption): boolean {
     const qIndex = option.questionIndex;
     const optId = option.optionId;
   
