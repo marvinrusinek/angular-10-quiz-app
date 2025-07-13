@@ -29,13 +29,13 @@ export class SoundService {
 
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
-    if (option.questionIndex == null || option.optionId == null) {
-      console.warn('[⚠️ playOnceForOption] Missing index or optionId', option);
+    if (option.optionId == null) {
+      console.warn('[⚠️ playOnceForOption] Missing optionId', option);
       return;
     }
-
+  
     if (option.questionIndex == null) {
-      console.warn('[⚠️ Missing questionIndex — injecting 0]', option);
+      console.warn('[⚠️ playOnceForOption] Missing questionIndex — injecting 0', option);
       option.questionIndex = 0; // fallback for Q1
     }
 
