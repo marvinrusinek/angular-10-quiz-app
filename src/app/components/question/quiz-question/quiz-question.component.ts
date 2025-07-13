@@ -3282,17 +3282,25 @@ export class QuizQuestionComponent
      // Only play sound if this is a new selection
      if (!wasPreviouslySelected) {
       console.log('[🔊 Playing sound for new selection]');
-      option.questionIndex = this.currentQuestionIndex;
+    
+      const enrichedOption: SelectedOption = {
+        ...option,
+        questionIndex: this.currentQuestionIndex
+      };
+    
       console.log('[🧪 CurrentQuestionIndex]', this.currentQuestionIndex);
-      console.log('[🧪 Option Before Sound]', option);
-      // this.playSoundForOption(option);
-
+      console.log('[🧪 Enriched Option Before Sound]', enrichedOption);
+    
       console.log('[🎯 About to call playOnceForOption]');
-      console.log("PLAYONCE", { questionIndex: option.questionIndex, optionId: option.optionId });
-      this.soundService.playOnceForOption(option);
-     } else {
-       console.log('[⏸️ No sound - reselection]');
-     }
+      console.log('PLAYONCE', {
+        questionIndex: enrichedOption.questionIndex,
+        optionId: enrichedOption.optionId
+      });
+    
+      this.soundService.playOnceForOption(enrichedOption);
+    } else {
+      console.log('[⏸️ No sound - reselection]');
+    }    
 
     // Ensure explanation text is preserved if not already set
     if (!this.explanationToDisplay || !this.explanationToDisplay.trim()) {
