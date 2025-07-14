@@ -4100,16 +4100,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   restartQuiz(): void {
-    console.log('[🎯 restartQuiz called]');
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
     this.selectedOptionService.resetSelectionState?.();
 
     setTimeout(() => {
-      console.log(
-        '[✅ Restart Phase] CurrentQuestionIndex:',
-        this.quizService.currentQuestionIndex
-      );
       this.selectedOptionService.logCurrentState?.();
     }, 0);
 
@@ -4140,7 +4135,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                       questionIndex: 0,
                       selected: false,
                       highlight: false,
-                      showIcon: false,
+                      showIcon: false
                     };
 
                     firstQuestion.options.forEach((opt, idx) => {
@@ -4208,7 +4203,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             this.explanationTextService.unlockExplanation();
             this.explanationTextService.setShouldDisplayExplanation(false);
 
-            // Delay to ensure view + component fully initialize before updating explanation
+            // Delay to ensure view and component fully initialize before updating explanation
             setTimeout(async () => {
               await this.quizQuestionComponent?.updateExplanationText(0);
 
@@ -4229,8 +4224,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               }, 10);
 
               // Start timer only after UI + logic settle
-              this.timerService.startTimer(this.timerService.timePerQuestion); // reset timer after quiz reset
-            }, 100); // delay for explanation logic/DOM to stabilize
+              this.timerService.startTimer(this.timerService.timePerQuestion);  // reset timer after quiz reset
+            }, 100);  // delay for explanation logic/DOM to stabilize
           } catch (error) {
             console.error('❌ Error restarting quiz:', error);
           }
