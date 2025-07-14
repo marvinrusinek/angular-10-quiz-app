@@ -2109,7 +2109,7 @@ export class QuizQuestionComponent
                 console.error(
                   `Options are not properly defined for question: ${quizQuestion.questionText}`
                 );
-                quizQuestion.options = []; // initialize as an empty array to prevent further errors
+                quizQuestion.options = [];  // initialize as an empty array to prevent further errors
               }
             }
             return questions;
@@ -2119,17 +2119,13 @@ export class QuizQuestionComponent
           next: (questions: QuizQuestion[]) => {
             if (questions && questions.length > 0) {
               // Only set answered state if selectedOptions is not null or empty
-              const selectedOptions =
-                this.selectedOptionService.getSelectedOptions();
-              const hasAnswered =
-                Array.isArray(selectedOptions) && selectedOptions.length > 0;
+              const selectedOptions = this.selectedOptionService.getSelectedOptions();
+              const hasAnswered = Array.isArray(selectedOptions) && selectedOptions.length > 0;
 
               if (hasAnswered) {
                 this.selectedOptionService.setAnsweredState(true);
               } else {
-                console.log(
-                  'Skipping setAnsweredState(false) to avoid overwrite'
-                );
+                console.log('Skipping setAnsweredState(false) to avoid overwrite');
               }
             }
           },
@@ -2235,11 +2231,7 @@ export class QuizQuestionComponent
         }
       }
     } catch (fatalError) {
-      // Catch anything else unexpected (outside the normal flow)
-      console.error(
-        `Unexpected error during prepareQuestion for Q${index}:`,
-        fatalError
-      );
+      console.error(`Unexpected error during prepareQuestion for Q${index}:`, fatalError);
     }
   }
 
