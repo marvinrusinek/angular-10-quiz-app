@@ -13,4 +13,5 @@ export interface CombinedQuestionDataType {
   isNavigatingToPrevious: boolean;
   isExplanationDisplayed: boolean;
   formattedExplanation?: string;
+  selectionMessage: string;
 }

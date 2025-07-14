@@ -712,12 +712,12 @@ export class QuizQuestionLoaderService {
         const selectionMessage = this.selectionMessageService.getCurrentMessage();
   
         this.combinedQuestionDataSubject.next({
-          question: { 
+          currentQuestion: { 
             ...question,
             options
           },
           options,
-          heading: question.questionText ?? 'No question available',
+          questionText: question.questionText ?? 'No question available',
           explanation: question.explanation ?? 'No explanation available',
           selectionMessage
         });
