@@ -53,12 +53,6 @@ export interface LoadedQuestionData {
   explanation: string;
 }
 
-interface QAEvent {
-  question: QuizQuestion;
-  options: Option[];
-  selectionMessage?: string;
-}
-
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
