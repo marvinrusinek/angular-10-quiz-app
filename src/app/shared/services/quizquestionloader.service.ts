@@ -152,7 +152,7 @@ export class QuizQuestionLoaderService {
           )
         );
   
-        // All‑or‑nothing guard: require questionText + at least one option
+        // All‑or‑nothing guard: require questionText and at least one option
         if (
           !data.question?.questionText?.trim() ||
           !Array.isArray(data.options) ||
@@ -205,7 +205,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  // Fetch a question + its options and emit a single payload so the
+  // Fetch a question and its options and emit a single payload so the
   // heading and list paint in the same change-detection pass (no flicker).
   async loadQuestionAndOptions(index: number): Promise<boolean> {
     // quizId & cache handling
