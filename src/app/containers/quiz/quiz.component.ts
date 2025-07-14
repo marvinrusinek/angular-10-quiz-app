@@ -606,7 +606,7 @@ export class QuizComponent
     // If the loader queued options before the child existed, apply them now
     if (this.quizQuestionLoaderService.pendingOptions?.length) {
       const opts = this.quizQuestionLoaderService.pendingOptions;
-      this.quizQuestionLoaderService.pendingOptions = null; // clear the queue
+      this.quizQuestionLoaderService.pendingOptions = null;  // clear the queue
 
       console.log(
         '[BRIDGE] applying queued options',
@@ -627,7 +627,7 @@ export class QuizComponent
             this.isQuizRenderReady$.next(isReady);
 
             if (isReady) {
-              this.renderStateService.setupRenderGateSync(); // this waits for question + options + child ready
+              this.renderStateService.setupRenderGateSync();  // this waits for question + options + child ready
             }
           });
       }
