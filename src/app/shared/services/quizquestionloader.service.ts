@@ -578,12 +578,19 @@ export class QuizQuestionLoaderService {
         type
       };
 
+      const quizId = this.quizService.quizId ?? 'unknown-id';
+      const index = this.quizService.currentQuestionIndexSource.value ?? 0;
+      const selectionMessage = this.selectionMessageService.getCurrentMessage();
+
       // Emit QA payload for downstream bindings
       this.qaSubject.next({
+        quizId,
+        index,
         heading    : question.questionText,
         options    : [...question.options],
         explanation: question.explanation,
-        question
+        question,
+        selectionMessage
       });
 
       // Sync type with data-service cache
@@ -712,15 +719,17 @@ export class QuizQuestionLoaderService {
         const selectionMessage = this.selectionMessageService.getCurrentMessage();
   
         this.combinedQuestionDataSubject.next({
-          currentQuestion: { 
+          currentQuestion: {
             ...question,
             options
           },
           options,
           questionText: question.questionText ?? 'No question available',
           explanation: question.explanation ?? 'No explanation available',
-          selectionMessage
-        });
+          selectionMessage,
+          isNavigatingToPrevious: false,
+          isExplanationDisplayed: false
+        });        
       });
   }
 
@@ -814,10 +823,13 @@ export class QuizQuestionLoaderService {
 
   clearQA(): void {
     this.qaSubject.next({
+      quizId: '',
+      index: -1,
       heading: '',
       options: [],
       explanation: '',
-      question: null as unknown as QuizQuestion
+      question: null as unknown as QuizQuestion,
+      selectionMessage: ''
     });
   }
 }
