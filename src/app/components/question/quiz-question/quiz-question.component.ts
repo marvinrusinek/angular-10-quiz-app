@@ -3857,8 +3857,6 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(index: number): Promise<string> {
-    console.log(`[🔄 updateExplanationText] Fetching explanation for Q${index}`);
-  
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
