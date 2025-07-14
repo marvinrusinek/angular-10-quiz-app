@@ -1663,8 +1663,7 @@ export class QuizQuestionComponent
   
       if (isReady) {
         this.shouldRenderOptions = true; 
-        this._canRenderFinalOptions = true;   
-        console.log('[✅ Component is ready — options will be rendered]');
+        this._canRenderFinalOptions = true;
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
           optionBindings: instance.optionBindings?.length,
@@ -1783,7 +1782,7 @@ export class QuizQuestionComponent
         this.questionToDisplay =
           this.currentQuestion.questionText?.trim() || '';
 
-        // Hand a BRAND-NEW array & bindings to the child
+        // Hand a brand-new array & bindings to the child
         const cloned = 
           typeof structuredClone === 'function'
             ? structuredClone(this.optionsToDisplay)          // deep clone
@@ -1793,7 +1792,7 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges(); 
 
         // finally update the route index (triggers the key change)
-        this.currentQuestionIndex = lockedIndex; // keep index in sync
+        this.currentQuestionIndex = lockedIndex;  // keep index in sync
 
         if (this.sharedOptionComponent) {
           this.sharedOptionComponent.initializeOptionBindings();
@@ -1960,9 +1959,7 @@ export class QuizQuestionComponent
         (option) => option.correct
       );
       if (correctOptions.length === 0) {
-        console.info(
-          '[generateFeedbackText] No correct options found for the question.'
-        );
+        console.info('[generateFeedbackText] No correct options found for the question.');
         return 'No correct answers defined for this question.';
       }
 
@@ -1973,9 +1970,8 @@ export class QuizQuestionComponent
       );
 
       // Emit the feedback text
-      this.feedbackText =
-        feedbackText || 'No feedback generated for the current question.';
-      this.feedbackTextChange.emit(this.feedbackText); // Emit to notify listeners
+      this.feedbackText = feedbackText || 'No feedback generated for the current question.';
+      this.feedbackTextChange.emit(this.feedbackText);  // emit to notify listeners
 
       return this.feedbackText;
     } catch (error) {
@@ -2046,9 +2042,8 @@ export class QuizQuestionComponent
       questionText: this.question.questionText,
       explanationText: this.question.explanation || 'No explanation available',
       correctAnswersText: this.quizService.getCorrectAnswersAsString() || '',
-      options: this.options || [],
+      options: this.options || []
     };
-    console.log('Data initialized:', this.data);
   }
 
   private async initializeQuiz(): Promise<void> {
@@ -2058,13 +2053,10 @@ export class QuizQuestionComponent
     }
   
     this.initialized = true;
-    console.log('[✅ QQC initializeQuiz] Initializing questions and answers...');
   
     // Initialize selected questions and answers without affecting the index
     this.initializeSelectedQuiz();
     await this.initializeQuizQuestionsAndAnswers();
-  
-    console.info('[✅ QQC initializeQuiz] Questions and answers initialized.');
   }
 
   // might need later
@@ -4985,7 +4977,7 @@ export class QuizQuestionComponent
       return false;
     }
 
-    return true; // form is valid and option is selected
+    return true;  // form is valid and option is selected
   }
 
   private async processAnswer(
