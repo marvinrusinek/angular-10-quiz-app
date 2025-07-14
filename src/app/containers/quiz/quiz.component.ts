@@ -4161,8 +4161,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   });
                 enrichedOptions.forEach((opt, i) => {
                   console.log(
-                    `[🔍 Enriched Q1 Option ${i}]`,
-                    JSON.stringify(opt, null, 2)
+                    `[🔍 Enriched Q1 Option ${i}]`, JSON.stringify(opt, null, 2)
                   );
                 });
 
@@ -4172,7 +4171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 );
                 this.quizQuestionComponent.loadOptionsForQuestion({
                   ...firstQuestion,
-                  options: enrichedOptions,
+                  options: enrichedOptions
                 });
 
                 // Set index immediately after loading Q1
@@ -4248,15 +4247,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               }, 10);
 
               // Start timer only after UI + logic settle
-              this.timerService.startTimer(this.timerService.timePerQuestion);
-              console.log(
-                '[QuizComponent] ✅ Timer restarted after quiz reset.'
-              );
+              this.timerService.startTimer(this.timerService.timePerQuestion); // reset timer after quiz reset
             }, 100); // delay for explanation logic/DOM to stabilize
           } catch (error) {
             console.error('❌ Error restarting quiz:', error);
           }
-        }, 50); // small delay after navigation
+        }, 50);  // small delay after navigation
       })
       .catch((error) => {
         console.error('❌ Navigation error on restart:', error);
@@ -4264,11 +4260,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private tryRenderGate(): void {
-    if (
-      this.questionData &&
-      this.optionsToDisplay.length &&
-      this.finalRenderReady
-    ) {
+    if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
       this.renderGateSubject.next(true);
     } else {
       console.warn('[⛔ renderGate] Conditions not met');
