@@ -83,20 +83,7 @@ export class QuizQuestionLoaderService {
   private qaSubject = new BehaviorSubject<QAPayload | null>(null);
   readonly qa$ = this.qaSubject.asObservable();
 
-  // ── readiness flags ──
-  private headingReadySubject = new BehaviorSubject<boolean>(false);
-  private optionsReadySubject = new BehaviorSubject<boolean>(false);
-
-  // Emits true only when BOTH heading and options are ready
-  readonly isQAReady$ = combineLatest([
-    this.headingReadySubject,
-    this.optionsReadySubject
-  ]).pipe(
-    map(([h, o]) => h && o),
-    distinctUntilChanged()
-  );
-
-  optionsStream$ = new BehaviorSubject<Option[]>([]);
+  readonly optionsStream$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   options$ = this.optionsStream$.asObservable();
 
   lastQuizId: string | null = null;
@@ -820,12 +807,6 @@ export class QuizQuestionLoaderService {
       mode: 'question',
       answered: false
     });
-  }
-
-  // Call at the very start of every new load
-  private resetQAFlags(): void {
-    this.headingReadySubject.next(false);
-    this.optionsReadySubject.next(false);
   }
 
   clearQA(): void {
