@@ -2136,11 +2136,9 @@ export class QuizService implements OnDestroy {
       return -1;
     }
   
-    console.log(`🔍 [QuizService] Finding index for question:`, question.questionText);
-  
+    // Finding index for question
     const index = this.selectedQuiz.questions.findIndex(q => q.questionText === question.questionText);
   
-    console.log(`✅ [QuizService] Found question index:`, index);
     return index;
   }  
 
@@ -2268,7 +2266,7 @@ export class QuizService implements OnDestroy {
     return options.map((option, index) => ({
       ...option,
       // Assign optionId only if it's not a valid number
-      optionId: option.optionId ?? index + 1 // Use 1-based index for clarity
+      optionId: option.optionId ?? index + 1  // Use 1-based index for clarity
     }));
   }
 
@@ -2284,11 +2282,11 @@ export class QuizService implements OnDestroy {
     return options.map((opt, index) => ({
       ...opt,
       optionId: index, 
-      active: correctOptionSelected ? opt.correct : true, // keep only correct options active
-      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined, // add feedback for incorrect options
+      active: correctOptionSelected ? opt.correct : true,  // keep only correct options active
+      feedback: correctOptionSelected && !opt.correct ? 'x' : undefined,  // add feedback for incorrect options
       showIcon: correctOptionSelected
         ? opt.correct || opt.showIcon
-        : opt.showIcon // preserve icons for correct or previously shown
+        : opt.showIcon  // preserve icons for correct or previously shown
     }));
   }
 
@@ -2312,7 +2310,6 @@ export class QuizService implements OnDestroy {
 
     // Retrieve the last known question index
     const lastKnownIndex = this.getCurrentQuestionIndex();
-    console.log('[QuizService] 🔄 Last known question index:', lastKnownIndex);
 
     // Ensure the question index does NOT get reset to 0 or an incorrect value
     if (lastKnownIndex > 0) {
