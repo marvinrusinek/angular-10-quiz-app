@@ -1,11 +1,11 @@
-<ng-container *ngIf="combinedQuestionData$ | async as qa; else loading">
-  <mat-card
+<ng-container>
+  <mat-card *ngIf="isQuizReady; else loading"
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
   >
     <codelab-quiz-header></codelab-quiz-header>
 
-    <mat-card-content>
+    <mat-card-content *ngIf="quizStateService.qa$ | async as qa; else loading">
       <!-- the scoreboard -->
       <codelab-scoreboard></codelab-scoreboard>
       
