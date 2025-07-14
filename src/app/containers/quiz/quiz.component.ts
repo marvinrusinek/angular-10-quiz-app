@@ -1,48 +1,8 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostListener,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  EMPTY,
-  firstValueFrom,
-  forkJoin,
-  lastValueFrom,
-  merge,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-  throwError,
-} from 'rxjs';
-import {
-  auditTime,
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  retry,
-  shareReplay,
-  startWith,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -252,9 +212,7 @@ export class QuizComponent
   shouldDisplayCorrectAnswers = false;
   shouldRenderChild = false;
 
-  animationState$: BehaviorSubject<AnimationState> = new BehaviorSubject(
-    'none'
-  );
+  animationState$: BehaviorSubject<AnimationState> = new BehaviorSubject('none');
   unsubscribe$ = new Subject<void>();
   private destroy$ = new Subject<void>();
   audioAvailable = true;
