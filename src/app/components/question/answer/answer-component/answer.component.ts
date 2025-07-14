@@ -101,43 +101,17 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
   
-    /* ──────────────────────────────────────────────────────────────
-       Parent just handed us a NEW optionsToDisplay reference
-    ────────────────────────────────────────────────────────────── */
+    // Parent just handed us a new optionsToDisplay reference
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
-      /* 0️⃣  hand SharedOptionComponent its own fresh reference —— ⚡ NEW ⚡ */
-      // this.optionBindingsSrc = [...this.optionsToDisplay];
+      // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
   
-      /* 1️⃣  deep-clone so it’s ALWAYS a brand-new object graph       */
-      /* const cloned: Option[] =
-        typeof structuredClone === 'function'
-          ? structuredClone(this.optionsToDisplay)           // modern runtimes
-          : JSON.parse(JSON.stringify(this.optionsToDisplay)); // fallback */
-  
-      /* 2️⃣  build bindings from the cloned list                     */
-      /* this.optionBindings = cloned.map((opt, idx) => ({
-        option      : opt,
-        index       : idx,
-        isSelected  : !!opt.selected,
-        isCorrect   : opt.correct ?? false,
-        showFeedback: true,
-        feedback    : opt.feedback ?? 'No feedback available',
-        highlight   : !!opt.highlight
-      } as unknown as OptionBindings));
-  
-      console.log(
-        '[ANS] Q', this.currentQuestionIndex,
-        '→ first opt text:', this.optionBindings[0]?.option?.text,
-        '| arrayRef =', this.optionBindings
-      ); */
-  
-      /* wake the OnPush CD cycle */
+      // wake the OnPush CD cycle
       this.cdRef.markForCheck();
       this.sharedOptionComponent?.forceRefresh();
     }
   
-    /* optional extra logging */
+    // optional extra logging
     if (changes.questionData) {
       console.log(
         'AnswerComponent - questionData changed:',
