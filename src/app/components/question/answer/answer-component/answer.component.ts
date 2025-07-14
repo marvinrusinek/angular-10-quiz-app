@@ -106,12 +106,12 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
   
-      // wake the OnPush CD cycle
+      // Wake the OnPush CD cycle
       this.cdRef.markForCheck();
       this.sharedOptionComponent?.forceRefresh();
     }
   
-    // optional extra logging
+    // Extra logging
     if (changes.questionData) {
       console.log(
         'AnswerComponent - questionData changed:',
@@ -130,14 +130,13 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       console.error('viewContainerRefs is undefined or not initialized.');
     }
   
-    this.cdRef.detectChanges(); // ensure change detection runs
+    this.cdRef.detectChanges();  // ensure change detection runs
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 
   private handleViewContainerRef(): void {
     if (this.hasComponentLoaded) {
@@ -216,7 +215,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.syncNextButtonState();
 
-    const { option, index, checked } = event; // destructure the event object
+    const { option, index, checked } = event;  // destructure the event object
 
     console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
   
@@ -244,8 +243,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // Emit the option selected event
     this.optionClicked.emit(event);
     this.optionSelected.emit(event);
-    // this.optionSelected.emit({ option, index, checked });
-    console.log('AnswerComponent: optionSelected emitted', { option, index, checked });
   
     // Determine if an option is selected
     const isOptionSelected = this.type === 'single'
@@ -267,53 +264,49 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       }
     } else {
       this.selectedOptionService.clearSelectedOption();
-      console.log('AnswerComponent: SelectedOptionService cleared');
     }
   
     // Trigger change detection to update the UI
     this.cdRef.detectChanges();
   }
 
-  /** Rebuild optionBindings from the latest optionsToDisplay. */
+  // Rebuild optionBindings from the latest optionsToDisplay.
   private rebuildOptionBindings(): void {
     if (!this.optionsToDisplay?.length) {
       this.optionBindings = [];
       return;
     }
   
-    /* deep-clone so EVERY question gets new objects & new array */
+    // Deep-clone so every question gets new objects and new array
     const cloned: Option[] =
       typeof structuredClone === 'function'
         ? structuredClone(this.optionsToDisplay)
         : JSON.parse(JSON.stringify(this.optionsToDisplay));
   
-    /* build fresh bindings (all with new object refs) */
+    // Build fresh bindings (all with new object refs)
     this.optionBindings = cloned.map((opt, idx) =>
       this.buildFallbackBinding(opt, idx)
     );
   
-    /* now that optionBindings exists, patch allOptions / optionsToDisplay refs */
+    // Now that optionBindings exists, patch allOptions / optionsToDisplay refs
     this.optionBindings.forEach(b => {
       b.allOptions       = cloned;
       b.optionsToDisplay = cloned;
     });
   
-    console.log('[ANS] rebuilt bindings for Q', this.currentQuestionIndex,
-                '| first text:', this.optionBindings[0]?.option?.text);
-  
     this.cdRef.markForCheck();           // OnPush view refresh
   }
 
-  /** Builds a minimal but type-complete binding when no helper exists */
+  // Builds a minimal but type-complete binding when no helper exists
   private buildFallbackBinding(opt: Option, idx: number): OptionBindings {
     return {
-      /* core data -------------------------------------------------- */
+      // core data
       option      : opt,
       index       : idx,
       isSelected  : !!opt.selected,
       isCorrect   : opt.correct ?? false,
 
-      /* feedback always starts visible so every row shows text ----- */
+      // feedback always starts visible so every row shows text
       showFeedback: true,
       feedback    : opt.feedback?.trim() ||
                     (opt.correct
@@ -321,7 +314,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
                       : 'Not quite — see the explanation above.'),
       highlight   : !!opt.highlight,
 
-      /* required interface props – sane defaults ------------------- */
+      // required interface props
       showFeedbackForOption         : {},
       appHighlightOption            : false,
       highlightCorrectAfterIncorrect: false,
