@@ -25,44 +25,32 @@ export class RenderStateService {
   private renderGateSubject = new BehaviorSubject<boolean>(false);
   renderGate$ = this.renderGateSubject.asObservable();
 
-  constructor(
-    private quizService: QuizService
-  ) {}
+  constructor(private quizService: QuizService) {}
 
   public setupRenderGateSync(): void {
-    if (!this.quizQuestionComponent?.renderReady$) {
-      console.warn('[⚠️ setupRenderGateSync] quizQuestionComponent.renderReady$ not available');
-      return;
-    }
-  
-    this.quizQuestionComponent.renderReady$.pipe(
-      filter(Boolean),
-      take(1),
-      switchMap(() => {
-        return combineLatest([
-          this.quizService.currentQuestionIndex$,
-          this.quizService.questionData$,
-          this.optionsToDisplay$
-        ]).pipe(
-          filter(([index, question, options]) =>
-            !!question &&
-            Array.isArray(options) &&
-            options.length > 0 &&
-            question.questionIndex === index
-          ),
-          take(1)
-        );
-      }),
+    combineLatest([
+      this.quizService.currentQuestionIndex$,
+      this.quizService.questionData$,
+      this.optionsToDisplay$
+    ])
+    .pipe(
+      filter(([index, question, options]) =>
+        !!question &&
+        Array.isArray(options) &&
+        options.length > 0 &&
+        question.questionIndex === index
+      ),
+      take(1),  // only care about first render (Q1)
       tap(([index, question, options]) => {
         console.log('[✅ RenderGate Triggered]', { index, question, options });
         this.combinedQuestionDataSubject.next({ question, options });
-        this.renderGateSubject.next(true); // gets UI to render
+        this.renderGateSubject.next(true);  // tells template it's safe to render
       }),
       catchError(err => {
         console.error('[❌ RenderGateSync Error]', err);
         return of(null);
       })
-    ).subscribe();
-    
-  }
+    )
+    .subscribe();
+  }  
 }
