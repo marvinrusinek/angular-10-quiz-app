@@ -59,11 +59,9 @@ export interface LoadedQuestionData {
   styleUrls: ['./quiz.component.scss'],
   animations: [ChangeRouteAnimation.changeRoute],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [UserPreferenceService],
+  providers: [UserPreferenceService]
 })
-export class QuizComponent
-  implements OnInit, OnDestroy, OnChanges, AfterViewInit
-{
+export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
