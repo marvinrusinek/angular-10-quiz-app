@@ -177,6 +177,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isQuizRenderReady = false;
   public isQuizRenderReady$ = new BehaviorSubject<boolean>(false);
   private quizAlreadyInitialized = false;
+  private viewInitialized = false;
   questionInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
@@ -208,6 +209,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isContentAvailable$: Observable<boolean>;
   isContentInitialized = false;
   hasContentLoaded = false;
+  isQuizReady = false;
 
   badgeText$: Observable<string>;
   private hasInitializedBadge = false; // prevents duplicate updates
@@ -476,7 +478,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       }
 
-      this.renderReady = true;
+      this.isQuizReady = true;
       this.cdRef.markForCheck();
     });
 
@@ -676,7 +678,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.optionsToDisplay = [...updatedOptions];
         this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
-        this.syncQuestionAndOptionsDisplay();
   
         console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
   
@@ -3933,18 +3934,5 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   triggerAnimation(): void {
     this.animationState$.next('animationStarted');
-  }
-
-  private syncQuestionAndOptionsDisplay(): void {
-    if (
-      this.currentQuestion &&
-      Array.isArray(this.optionsToDisplay) &&
-      this.optionsToDisplay.length > 0
-    ) {
-      this.quizQuestionComponent.renderReady = true;
-      console.log('[✅ Rendered Q&A together]');
-    } else {
-      console.warn('[⏳ Waiting for both question and options to be ready]');
-    }
   }
 }
