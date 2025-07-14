@@ -275,7 +275,7 @@ export class QuizComponent
     answered: boolean;
   }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
 
@@ -322,7 +322,7 @@ export class QuizComponent
       if (isHidden) {
         // Pause updates here (if needed)
       } else {
-        this.handleVisibilityChange(); // resume updates
+        this.handleVisibilityChange();  // resume updates
       }
     });
 
@@ -371,7 +371,7 @@ export class QuizComponent
         if (!newQuestion) return;
 
         this.ngZone.run(() => {
-          this.currentQuestion = null; // force reset to clear stale UI
+          this.currentQuestion = null;  // force reset to clear stale UI
 
           setTimeout(() => {
             this.currentQuestion = { ...newQuestion };
@@ -421,7 +421,7 @@ export class QuizComponent
 
       // Arrow Left ← – move to previous question
       case 'ArrowLeft': {
-        const idx = this.quizService.getCurrentQuestionIndex(); // 0-based
+        const idx = this.quizService.getCurrentQuestionIndex();  // 0-based
         if (idx > 0) {
           event.preventDefault();
           await this.advanceToPreviousQuestion();
