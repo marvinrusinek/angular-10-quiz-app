@@ -659,7 +659,7 @@ export class QuizQuestionLoaderService {
 
   public resetQuestionState(): void {
     // Clear local UI state
-    this.questionInitialized = false; // block during reset
+    this.questionInitialized = false;  // block during reset
     this.isAnswered = false;
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
@@ -706,7 +706,7 @@ export class QuizQuestionLoaderService {
         filter(([question, options]) =>
           !!question && Array.isArray(options) && options.length > 0
         ),
-        take(1) // Only emit once per question load
+        take(1)  // only emit once per question load
       )
       .subscribe(([question, options]) => {
         const selectionMessage = this.selectionMessageService.getCurrentMessage();
@@ -738,7 +738,7 @@ export class QuizQuestionLoaderService {
   
     try {
       // ─── Fetch the question skeleton ───────────────────────────────
-      const q = await firstValueFrom(
+      const q: QuizQuestion = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
           map(questions => questions[index])
         )
@@ -753,7 +753,6 @@ export class QuizQuestionLoaderService {
       if (opts.length === 0) {
         // Fetch options separately when they’re not embedded in the question
         opts = await firstValueFrom(this.quizService.getOptionsForQuiz(this.activeQuizId, index));
-        console.log('[DEBUG] fetched options in loadQA', opts.length);
         if (opts.length === 0) {
           console.error('[loadQA] no options for Q', index);
           return false;
