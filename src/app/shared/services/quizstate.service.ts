@@ -61,11 +61,8 @@ export class QuizStateService {
   });
   public displayState$ = this.displayStateSubject.asObservable();
 
-  private qaSubject = new ReplaySubject<{ question: QuizQuestion; options: Option[] }>(1);
-  // public qa$ = this.qaSubject.asObservable();
-
-  private qaSub = new ReplaySubject<QAPayload>(1);
-  qa$ = this.qaSub.asObservable();
+  private qaSubject = new ReplaySubject<QAPayload>(1);
+  qa$ = this.qaSubject.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
@@ -352,7 +349,7 @@ export class QuizStateService {
     }));
   
     // Emit the complete QA object as a single payload
-    this.qaSub.next({
+    this.qaSubject.next({
       quizId,
       index,
       question: {
