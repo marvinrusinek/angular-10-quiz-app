@@ -168,7 +168,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   isQuizRenderReady = false;
   public isQuizRenderReady$ = new BehaviorSubject<boolean>(false);
   private quizAlreadyInitialized = false;
-  private viewInitialized = false;
   questionInitialized = false;
   questionTextLoaded = false;
   hasLoadingError = false;
