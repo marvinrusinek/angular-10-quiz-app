@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, filter, take, tap } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { QuizService } from './quiz.service';
-import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
 @Injectable({ providedIn: 'root' })
 export class RenderStateService {
-  private quizQuestionComponent: QuizQuestionComponent;
-
   public optionsToDisplay$ = new BehaviorSubject<Option[]>([]);
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
