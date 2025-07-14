@@ -43,7 +43,6 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
