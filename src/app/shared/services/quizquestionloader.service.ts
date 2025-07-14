@@ -712,7 +712,7 @@ export class QuizQuestionLoaderService {
         const selectionMessage = this.selectionMessageService.getCurrentMessage();
   
         this.combinedQuestionDataSubject.next({
-          question: {
+          question: { 
             ...question,
             options
           },
