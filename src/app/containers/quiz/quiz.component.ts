@@ -112,7 +112,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   disabled = true;
 
   selectedOptions: Option[] = [];
-  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null); // REMOVE!!
+  selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
   selectionMessage$: Observable<string>;
   private subs = new Subscription();
@@ -164,7 +164,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questionToDisplay$ = this.questionToDisplaySubject.asObservable();
 
   private isLoading = false;
-  private isQuizLoaded = false; // tracks if the quiz data has been loaded
+  private isQuizLoaded = false;  // tracks if the quiz data has been loaded
   private isQuizDataLoaded = false;
   isQuizRenderReady = false;
   public isQuizRenderReady$ = new BehaviorSubject<boolean>(false);
@@ -220,11 +220,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   currentQuestionAnswered = false;
 
-  private questionTextSubject = new BehaviorSubject<string>(''); // remove
-  public questionText$ = this.questionTextSubject.asObservable(); // remove
+  private questionTextSubject = new BehaviorSubject<string>('');
+  public questionText$ = this.questionTextSubject.asObservable();
 
-  private explanationTextSubject = new BehaviorSubject<string>(''); // remove
-  public explanationText$ = this.explanationTextSubject.asObservable(); // remove
+  private explanationTextSubject = new BehaviorSubject<string>('');
+  public explanationText$ = this.explanationTextSubject.asObservable();
 
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation';
@@ -305,7 +305,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       currentQuestionIndex: this.currentQuestionIndex,
       multipleAnswer: this.multipleAnswer,
       showFeedback: this.showFeedback,
-      selectionMessage: this.selectionMessage,
+      selectionMessage: this.selectionMessage
     };
 
     // Use debounceTime to delay emission of isOptionSelected$ to handle rapid selection
@@ -331,7 +331,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
           setTimeout(() => {
             this.currentQuestion = { ...newQuestion };
-          }, 10); // small delay to ensure UI resets properly
+          }, 10);  // small delay to ensure UI resets properly
         });
       },
       error: (err) =>
@@ -539,7 +539,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             }
 
             queueMicrotask(() => this.injectDynamicComponent());
-          }, 50); // wait for state restore
+          }, 50);  // wait for state restore
         });
       }
     });
@@ -605,7 +605,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Ensure questions are loaded
       if (!Array.isArray(this.questions) || this.questions.length === 0) {
         console.warn('Questions not loaded, calling loadQuizData...');
-        await this.loadQuizData(); // ensure loading before proceeding
+        await this.loadQuizData();  // ensure loading before proceeding
       }
 
       const totalQuestions = await firstValueFrom(
@@ -617,7 +617,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         currentIndex >= 0 &&
         currentIndex < totalQuestions
       ) {
-        this.updateQuestionDisplay(currentIndex); // ensure question state is restored
+        this.updateQuestionDisplay(currentIndex);  // ensure question state is restored
       } else {
         console.warn(
           'Invalid or out-of-range question index on visibility change.'
@@ -678,10 +678,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             explanation: explanation$,
           }).pipe(
             catchError((error) => {
-              console.error(
-                `[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`,
-                error
-              );
+              console.error(`[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`, error);
               return of({
                 question: null,
                 options: [],
@@ -697,9 +694,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           !Array.isArray(data.options) ||
           data.options.length === 0
         ) {
-          console.warn(
-            `[QuizComponent] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`
-          );
+          console.warn(`[QuizComponent] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`);
           this.isLoading = false;
           return;
         }
@@ -716,7 +711,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Apply the same feedback message to all options
         const updatedOptions = data.options.map((opt) => ({
           ...opt,
-          feedback: feedbackMessage,
+          feedback: feedbackMessage
         }));
 
         // Set values only after ensuring correct mapping
@@ -724,19 +719,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
 
-        console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
-
         this.questionData = data.question ?? ({} as QuizQuestion);
-        console.log('[📦 Calling tryRenderGate from loadQuestionContents]');
         this.tryRenderGate();
 
         this.isQuestionDisplayed = true;
         this.isLoading = false;
       } catch (error) {
-        console.error(
-          `[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`,
-          error
-        );
+        console.error(`[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`, error);
         this.isLoading = false;
       }
     } catch (error) {
