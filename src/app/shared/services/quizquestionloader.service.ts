@@ -189,9 +189,6 @@ export class QuizQuestionLoaderService {
   
         this.questionData = data.question ?? ({} as QuizQuestion);
 
-        // Trigger combined stream AFTER question + options are set
-        // this.quizInitializationService.setupCombinedQuestionStream();
-
         this.isQuestionDisplayed = true;
         this.isLoading = false;
       } catch (error) {
@@ -505,8 +502,6 @@ export class QuizQuestionLoaderService {
       );
     }
 
-    // Combined streams/async checks
-    this.setupCombinedQuestionStream();
     await this.loadQuestionContents(idx);
     await this.quizService.checkIfAnsweredCorrectly();
 
@@ -702,35 +697,6 @@ export class QuizQuestionLoaderService {
     this.questionToDisplay = '';
     this.explanationToDisplay = '';
     this.optionsToDisplay = [];
-  }
-
-  public setupCombinedQuestionStream(): void {
-    combineLatest([
-      this.quizService.currentQuestion$,  // Observable<QuizQuestion>
-      this.quizService.options$           // Observable<Option[]>
-    ])
-      .pipe(
-        filter(([question, options]) =>
-          !!question && Array.isArray(options) && options.length > 0
-        ),
-        take(1)  // only emit once per question load
-      )
-      .subscribe(([question, options]) => {
-        const selectionMessage = this.selectionMessageService.getCurrentMessage();
-  
-        this.combinedQuestionDataSubject.next({
-          currentQuestion: {
-            ...question,
-            options
-          },
-          options,
-          questionText: question.questionText ?? 'No question available',
-          explanation: question.explanation ?? 'No explanation available',
-          selectionMessage,
-          isNavigatingToPrevious: false,
-          isExplanationDisplayed: false
-        });        
-      });
   }
 
   public async loadQA(index: number): Promise<boolean> {
