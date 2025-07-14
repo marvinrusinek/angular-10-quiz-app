@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { combineLatest } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, take } from 'rxjs/operators';
+import { catchError, filter, map, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
+import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
 import { Option } from '../models/Option.model';
 import { QAPayload } from '../../shared/models/QAPayload.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
@@ -71,8 +72,7 @@ export class QuizQuestionLoaderService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
-  // private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
-  private combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionData | null>(null);
+  private combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionDataType | null>(null);
   public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
   isButtonEnabled = false;
