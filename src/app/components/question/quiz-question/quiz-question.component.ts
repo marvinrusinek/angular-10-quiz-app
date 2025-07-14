@@ -4182,7 +4182,7 @@ export class QuizQuestionComponent
     } else {
       // Clear explanation if question is unanswered and explanation isn't locked
       if (!this.explanationTextService.isExplanationLocked()) {
-        this.explanationTextService.setExplanationText(''); // also clear stored explanation
+        this.explanationTextService.setExplanationText('');  // also clear stored explanation
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.explanationTextService.setResetComplete(false);
       } else {
@@ -4265,7 +4265,7 @@ export class QuizQuestionComponent
   }
 
   shouldShowIcon(option: Option): boolean {
-    const selectedOptions = this.selectedOptionService.getSelectedOptions(); // retrieve all selected options
+    const selectedOptions = this.selectedOptionService.getSelectedOptions();  // retrieve all selected options
     const showFeedbackForOption =
       this.selectedOptionService.getShowFeedbackForOption();
 
@@ -4382,8 +4382,7 @@ export class QuizQuestionComponent
       }
 
       // Use the raw explanation as a fallback
-      let explanationText =
-        questionData.explanation ?? 'No explanation available';
+      let explanationText = questionData.explanation ?? 'No explanation available';
 
       // Process the explanation text
       const processedExplanation = await this.processExplanationText(
@@ -4466,8 +4465,7 @@ export class QuizQuestionComponent
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
-      this.explanationToDisplay =
-        'Explanation text not available when document is hidden.';
+      this.explanationToDisplay = 'Explanation text not available when document is hidden.';
       return this.explanationToDisplay;
     }
 
@@ -4543,9 +4541,7 @@ export class QuizQuestionComponent
         !this.questionsArray ||
         this.questionsArray.length === 0
       ) {
-        console.error(
-          'Failed to load questions or questions array is empty. Aborting explanation fetch.'
-        );
+        console.error('Failed to load questions or questions array is empty. Aborting explanation fetch.');
         return;
       }
 
@@ -4664,9 +4660,7 @@ export class QuizQuestionComponent
       }
 
       const explanation$ =
-        this.explanationTextService.getFormattedExplanationTextForQuestion(
-          questionIndex
-        );
+        this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       const explanationText = await firstValueFrom(explanation$);
 
       const trimmed = explanationText?.trim();
@@ -4679,10 +4673,7 @@ export class QuizQuestionComponent
 
       return trimmed;
     } catch (error) {
-      console.error(
-        `[getExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
-        error
-      );
+      console.error(`[getExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`, error);
       return 'Error loading explanation.';
     }
   }
@@ -4773,10 +4764,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private updateExplanationUI(
-    questionIndex: number,
-    explanationText: string
-  ): void {
+  private updateExplanationUI(questionIndex: number, explanationText: string): void {
     // Validate if questions are loaded and the array is non-empty
     if (!this.questionsArray || this.questionsArray.length === 0) {
       console.warn('Questions not loaded yet. Skipping explanation update.');
@@ -4911,10 +4899,8 @@ export class QuizQuestionComponent
 
     // Update the state to include the selected option and adjust the number of correct answers
     const selectedOptions = this.currentQuestion.selectedOptions || [];
-    selectedOptions.push(selectedOption); // Add the newly selected option
-    const numberOfCorrectAnswers = selectedOptions.filter(
-      (opt) => opt.correct
-    ).length;
+    selectedOptions.push(selectedOption);  // add the newly selected option
+    const numberOfCorrectAnswers = selectedOptions.filter((opt) => opt.correct).length;
 
     this.quizStateService.setQuestionState(quizId, questionId, {
       isAnswered: true,
@@ -4948,9 +4934,7 @@ export class QuizQuestionComponent
         selectedOptionsValue,
         this.options
       );
-      console.warn(
-        'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
-      );
+      console.warn('QuizQuestionComponent - ngOnChanges - Question is undefined after change.');
     }
   }
 
