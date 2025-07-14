@@ -448,7 +448,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
-    // Assign question + options together when ready
+    // Assign question and options together when ready
     this.quizStateService.qa$
     .pipe(
       filter(d =>

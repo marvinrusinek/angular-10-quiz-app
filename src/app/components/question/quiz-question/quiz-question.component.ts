@@ -2527,10 +2527,7 @@ export class QuizQuestionComponent
     this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
   }  
 
-  private emitExplanationIfValid(
-    explanationText: string,
-    lockedState: LockedState
-  ): void {
+  private emitExplanationIfValid(explanationText: string, lockedState: LockedState): void {
     const currentQuestion = this.currentQuestion;
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const currentText = currentQuestion?.questionText?.trim() || '';
@@ -2571,8 +2568,6 @@ export class QuizQuestionComponent
   }
   
   private async applyFeedbackIfNeeded(option: SelectedOption): Promise<void> {
-    console.log(`[📝 applyFeedbackIfNeeded] Triggered for Option ${option.optionId}`);
-  
     if (!this.optionsToDisplay?.length) {
       console.warn('[⚠️ applyFeedbackIfNeeded] Options not populated. Attempting to repopulate...');
       await new Promise((res) => setTimeout(res, 50));
@@ -2608,7 +2603,6 @@ export class QuizQuestionComponent
   
     // Ensure change detection
     this.cdRef.detectChanges();
-    console.log(`[✅ CD Applied after Feedback for Option ${option.optionId}]`);
   }
 
   handleSelectionMessageUpdate(): void {
