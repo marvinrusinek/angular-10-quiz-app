@@ -54,7 +54,6 @@ export class QuizQuestionComponent
 {
   @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
-
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
 
@@ -90,6 +89,7 @@ export class QuizQuestionComponent
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
+
   @Input() data: {
     questionText: string,
     explanationText?: string,
@@ -108,8 +108,7 @@ export class QuizQuestionComponent
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
-  @Input() multipleAnswer: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
+  @Input() multipleAnswer: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   @Input() explanationText: string | null;
   @Input() isOptionSelected = false;
   @Input() showFeedback = false;
