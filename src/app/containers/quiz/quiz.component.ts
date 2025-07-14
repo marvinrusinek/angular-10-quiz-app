@@ -102,6 +102,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   questionAndOptionsSubscription: Subscription;
   optionSelectedSubscription: Subscription;
   subscriptions: Subscription = new Subscription();
+  private subs = new Subscription();
   resources: Resource[];
   answers = [];
   answered = false;
@@ -114,7 +115,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   selectedOption$: BehaviorSubject<Option> = new BehaviorSubject<Option>(null);
   selectionMessage: string;
   selectionMessage$: Observable<string>;
-  private subs = new Subscription();
   isAnswered = false;
   correctAnswers: any[] = [];
   nextExplanationText = '';
