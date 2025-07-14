@@ -454,35 +454,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         !!d.question &&
         Array.isArray(d.options) && d.options.length > 0
       ),
-      auditTime(0),  // group sync emissions together
+      auditTime(0),
       takeUntil(this.destroy$)
     )
     .subscribe(({ question, options, selectionMessage }) => {
-      // Emit the header text after qa arrived → header & options same frame
+      this.qaToDisplay = { question, options };
+      this.selectionMessage = selectionMessage;
+
+      const answered = !!question.selectedOptionIds?.length || !!question.answer?.length;
+
       this.questionToDisplaySubject.next(
         (question?.questionText ?? '').trim() || 'No question available'
       );
 
-      this.qaToDisplay = { question, options };
-      this.selectionMessage = selectionMessage;
-
-      // Show explanation only if answered
-      const answered =
-        !!question.selectedOptionIds?.length || !!question.answer?.length;
       if (answered) {
-        // Push explanation first
         this.explanationTextService.explanationText$.next(
           question.explanation?.trim() ?? ''
         );
-        
-        // Flip mode on the next micro-task
         queueMicrotask(() => {
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         });
       }
 
-      this.cdRef.markForCheck(); // trigger UI update
+      this.renderReady = true;
+      this.cdRef.markForCheck();
     });
+
   
     this.setupQuiz();
     this.subscribeToRouteParams();
