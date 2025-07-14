@@ -3650,7 +3650,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async fetchAndSetQuestionData(
     questionIndex: number
   ): Promise<boolean> {
-    console.log('[🚩 ENTERED fetchAndSetQuestionData]', { questionIndex });
     // Reset loading state for options
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
@@ -3661,7 +3660,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-      /* ──────────────────────────  Safety Checks  ────────────────────────── */
+      // ──────────────────────────  Safety Checks  ──────────────────────────
       if (
         typeof questionIndex !== 'number' ||
         isNaN(questionIndex) ||
@@ -3675,7 +3674,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
 
-      /* ─────────────────────────  Reset Local State  ────────────────────── */
+      // ─────────────────────────  Reset Local State  ──────────────────────
       this.currentQuestion = null;
       this.resetQuestionState();
       this.resetQuestionDisplayState();
@@ -3687,7 +3686,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Tiny delay to clear any in‑flight bindings
       await new Promise((res) => setTimeout(res, 30));
 
-      /* ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─- */
+      // ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─-
       const isAnswered =
         this.selectedOptionService.isQuestionAnswered(questionIndex);
       console.log('[🧪 fetchAndSetQuestionData → isAnswered]', {
@@ -3722,7 +3721,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
 
-      /* ───────────────────  Process question text  ──────────── */
+      // ───────────────────  Process question text  ──────────── 
       this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
@@ -3731,18 +3730,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         (fetchedQuestion?.questionText ?? '').trim() || 'No question available';
       this.questionToDisplay = trimmedText;
 
-      /* DEFER header update until Angular has already rendered the new QA */
+      // Defer header update until Angular has already rendered the new QA
       setTimeout(() => {
-        // ← 1 macrotask delay
-        console.trace(
-          '[TRACE] questionToDisplay$.next firing',
-          this.questionToDisplay
-        );
+        // 1 macrotask delay
+        console.trace('[TRACE] questionToDisplay$.next firing', this.questionToDisplay);
         this.questionToDisplaySubject.next(trimmedText);
       });
       this.questionTextLoaded = true;
 
-      /* ───────── Hydrate & clone options ───────── */
+      // ───────── Hydrate and clone options ─────────
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
@@ -3757,7 +3753,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         structuredClone?.(finalOptions) ??
         JSON.parse(JSON.stringify(finalOptions));
 
-      /* ───────────────────  Assign into Component State  ──────────────── */
+      // ───────────────────  Assign into Component State  ──────────────── 
       this.question = {
         questionText: fetchedQuestion.questionText,
         explanation: fetchedQuestion.explanation ?? '',
@@ -3783,17 +3779,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let explanationText = '';
 
       if (isAnswered) {
-        // ✅ Already answered: restore explanation state + stop timer
-        explanationText =
-          fetchedQuestion.explanation?.trim() || 'No explanation available';
-        this.explanationTextService.setExplanationTextForQuestionIndex(
-          questionIndex,
-          explanationText
-        );
-        this.quizStateService.setDisplayState({
-          mode: 'explanation',
-          answered: true,
-        });
+        // Already answered: restore explanation state + stop timer
+        explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
+        this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
         // ❌ Not answered yet: show the correct selection message + start timer
@@ -3999,8 +3988,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async loadAndRouteToQuestion(index: number): Promise<boolean> {
-    console.log(`[🚀 loadAndRouteToQuestion] Initiated for Q${index}`);
-
     if (!this.isValidIndex(index)) return false;
 
     this.resetSharedUIState();
@@ -4015,7 +4002,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.injectDynamicComponent();
     this.updateBadgeText();
 
-    console.log(`[✅ loadAndRouteToQuestion] Completed for Q${index}`);
     return true;
   }
 
@@ -4082,8 +4068,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     const viewRef = this.quizQuestionComponent.dynamicAnswerContainer;
     if (!viewRef || viewRef.length) {
-      // already has a child → skip
-      return;
+      return;  // already has a child → skip
     }
 
     console.log('[🔄 Reinjection] Dynamic container was empty – reinjecting');
