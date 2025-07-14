@@ -3230,10 +3230,10 @@ export class QuizQuestionComponent
       selectedOptionsMap: this.selectedOptionService.selectedOptionsMap
     });
 
-    // 💡 Update selection state
+    // Update selection state
     this.selectedOptionService.setSelectedOption(option);
 
-    // 🧪 Check again after update (optional)
+    // Check again after update (optional)
     const isNowSelected = this.selectedOptionService.wasOptionPreviouslySelected(option);
     console.log('[🧪 Option State AFTER update]', {
       isNowSelected
@@ -3316,7 +3316,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    option.selected = !option.selected; // Toggle the selection state
+    option.selected = !option.selected;  // toggle the selection state
 
     // Update the feedback display state for this option
     this.showFeedbackForOption[option.optionId] = option.selected;
@@ -3381,9 +3381,7 @@ export class QuizQuestionComponent
         questionState
       );
     } else {
-      console.error(
-        `[markQuestionAsAnswered] ❌ Question state not found for Q${questionIndex}`
-      );
+      console.error(`[markQuestionAsAnswered] ❌ Question state not found for Q${questionIndex}`);
     }
 
     if (!this.quizStateService.isAnswered$) {
@@ -3434,7 +3432,7 @@ export class QuizQuestionComponent
         isAnswered: false,
         numberOfCorrectAnswers: 0,
         selectedOptions: [],
-        explanationDisplayed: false,
+        explanationDisplayed: false
       };
 
       // Store the newly created state
@@ -3469,7 +3467,6 @@ export class QuizQuestionComponent
       this.selectedOptions = [
         { ...option, questionIndex: this.currentQuestionIndex },
       ];
-      // this.selectedOption = { ...option, optionId: index + 1 };
       this.selectedOption = { ...option };
       this.showFeedback = true;
       this.showFeedbackForOption[option.optionId] = true;
@@ -3503,9 +3500,7 @@ export class QuizQuestionComponent
           this.displayExplanation = true;
         }
 
-        const correctOptions = questionData.options.filter(
-          (opt) => opt.correct
-        );
+        const correctOptions = questionData.options.filter((opt) => opt.correct);
         this.correctMessage = this.feedbackService.setCorrectMessage(
           correctOptions,
           this.optionsToDisplay
