@@ -6,7 +6,6 @@ import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map,
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
-import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuizStatus } from '../../shared/models/quiz-status.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { QuizData } from '../../shared/models/QuizData.model';
@@ -4140,10 +4139,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   );
                 });
 
-                this.quizQuestionComponent.loadDynamicComponent(
-                  firstQuestion,
-                  enrichedOptions
-                );
+                this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
                 this.quizQuestionComponent.loadOptionsForQuestion({
                   ...firstQuestion,
                   options: enrichedOptions
