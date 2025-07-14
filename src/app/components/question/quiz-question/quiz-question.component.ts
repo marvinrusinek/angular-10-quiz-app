@@ -2258,9 +2258,7 @@ export class QuizQuestionComponent
     isAnswered: boolean
   ): Promise<boolean> {
     const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(
-        this.currentQuestion
-      )
+      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
     );
 
     const newMessage = this.selectionMessageService.determineSelectionMessage(
@@ -2268,9 +2266,6 @@ export class QuizQuestionComponent
       this.totalQuestions,
       isAnswered
     );
-
-    console.log('Determined new message:', newMessage);
-    console.log('Current selection message:', this.selectionMessage);
 
     return this.selectionMessage !== newMessage;
   }
@@ -2386,7 +2381,6 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    console.log('[🔥 onOptionClicked triggered]');
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
@@ -2406,19 +2400,19 @@ export class QuizQuestionComponent
     }
 
     try {
-      // basic selection → next button, flags, detectChanges
+      // Basic selection → next button, flags, detectChanges
       this.handleCoreSelection(event);
   
-      // highlight row & mark binding
+      // Highlight row & mark binding
       this.markBindingSelected(event.option);
   
-      // feedback only under the row just clicked
+      // Feedback only under the row just clicked
       this.refreshFeedbackFor(event.option);
   
-      // explanation panel
+      // Explanation panel
       this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
   
-      // remaining async tasks
+      // Remaining async tasks
       await this.postClickTasks(option, index, checked, wasReselected);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
