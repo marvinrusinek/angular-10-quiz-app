@@ -452,7 +452,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.qa$
     .pipe(
       filter(d =>
-        !!d &&
         !!d.question &&
         Array.isArray(d.options) && d.options.length > 0
       ),
