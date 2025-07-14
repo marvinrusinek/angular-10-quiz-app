@@ -360,7 +360,9 @@ export class QuizStateService {
         options: normalizedOptions
       },
       options: normalizedOptions,
-      selectionMessage
-    });
+      selectionMessage,
+      heading: question.questionText ?? 'No question available',
+      explanation: question.explanation ?? 'No explanation available'
+    });    
   }
 }
