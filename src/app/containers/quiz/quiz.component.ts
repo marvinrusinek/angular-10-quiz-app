@@ -3535,26 +3535,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  /* remove probably 
-    public async advanceAndProcessNextQuestion(): Promise<void> {
-    try {
-      console.log('Advancing to the next question...');
-  
-      await this.quizQuestionComponent.fetchAndProcessCurrentQuestion();
-  
-      // Delay to allow Angular to update @Input bindings
-      setTimeout(async () => {
-        if (this.quizQuestionComponent?.loadDynamicComponent) {
-          console.log('[🧠 advanceAndProcessNextQuestion] Calling loadDynamicComponent after input update');
-        } else {
-          console.warn('[⚠️ advanceAndProcessNextQuestion] quizQuestionComponent is undefined or not ready');
-        }
-      }, 50); // allow inputs to settle before dynamic load
-    } catch (error) {
-      console.error('Error advancing to the next question:', error);
-    }
-  } */
-
   // REMOVE!!
   private handleQuizCompletion(): void {
     this.quizService.submitQuizScore(this.answers).subscribe(() => {
