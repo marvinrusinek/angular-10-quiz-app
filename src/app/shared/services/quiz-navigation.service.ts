@@ -71,9 +71,8 @@ export class QuizNavigationService {
     private router: Router
   ) {}
 
-  handleRouteParams(
-    params: ParamMap
-  ): Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+  handleRouteParams(params: ParamMap): 
+    Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = Number(params.get('questionIndex'));
   
@@ -120,7 +119,7 @@ export class QuizNavigationService {
       return;
     }
   
-    this.navigatingToResults = true; // prevent multiple clicks
+    this.navigatingToResults = true;  // prevent multiple clicks
   
     // Reset quiz state
     this.quizService.resetAll();
@@ -147,7 +146,7 @@ export class QuizNavigationService {
           console.error('Error during checkIfAnsweredCorrectly:', error);
         })
         .finally(() => {
-          this.navigatingToResults = false; // allow navigation again after the process
+          this.navigatingToResults = false;  // allow navigation again after the process
         });
     } else {
       console.warn('Quiz already marked as completed.');
@@ -205,7 +204,7 @@ export class QuizNavigationService {
       return;
     }
 
-    // EARLY EXIT: already beyond last question → /results
+    // Early Exit: already beyond last question, navigate to /results
     const lastIndex = currentQuiz.questions.length - 1;
     if (targetIndex > lastIndex) {
       await this.router.navigate(['/results', effectiveQuizId]);
@@ -334,7 +333,7 @@ export class QuizNavigationService {
 
   private handleQuizCompletion(): void {
     const quizId = this.quizService.quizId;
-    console.log('[📦 handleQuizCompletion] quizId =', quizId);
+    
     this.quizService.submitQuizScore(this.answers).subscribe({
       next: () => {
         console.log('[✅ Score submitted]');
