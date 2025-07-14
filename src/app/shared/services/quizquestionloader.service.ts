@@ -71,7 +71,8 @@ export class QuizQuestionLoaderService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
-  private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
+  // private combinedQuestionDataSubject = new BehaviorSubject<{ question: QuizQuestion; options: Option[] } | null>(null);
+  private combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionData | null>(null);
   public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
   isButtonEnabled = false;
@@ -395,10 +396,13 @@ export class QuizQuestionLoaderService {
     // Streams for the template
     this.optionsStream$.next([...options]);
     this.qaSubject.next({
-      heading    : question.questionText.trim(),
-      options    : [...options],
+      quizId: this.quizService.quizId,
+      index,
+      heading: question.questionText.trim(),
+      options: [...options],
       explanation,
-      question
+      question,
+      selectionMessage: this.selectionMessageService.getCurrentMessage()
     });
 
     // State shared across services/components
@@ -694,30 +698,30 @@ export class QuizQuestionLoaderService {
   }
 
   public setupCombinedQuestionStream(): void {
-    // Force re-creation of the stream per call
     combineLatest([
-      this.quizService.currentQuestion$,  // emits QuizQuestion
-      this.quizService.options$           // emits Option[]
+      this.quizService.currentQuestion$,  // Observable<QuizQuestion>
+      this.quizService.options$           // Observable<Option[]>
     ])
-    .pipe(
-      filter(([question, options]) =>
-        !!question &&
-        Array.isArray(options) &&
-        options.length > 0
-      ),
-      take(1) // emit only the first valid pair per question load
-    )
-    .subscribe(([question, options]) => {
-      console.log('[✅ Q&A in sync — emitting]', { question, options });
-      console.log('[📤 PRE-EMIT] About to emit combined Q&A', {
-        question,
-        options
+      .pipe(
+        filter(([question, options]) =>
+          !!question && Array.isArray(options) && options.length > 0
+        ),
+        take(1) // Only emit once per question load
+      )
+      .subscribe(([question, options]) => {
+        const selectionMessage = this.selectionMessageService.getCurrentMessage();
+  
+        this.combinedQuestionDataSubject.next({
+          question: {
+            ...question,
+            options
+          },
+          options,
+          heading: question.questionText ?? 'No question available',
+          explanation: question.explanation ?? 'No explanation available',
+          selectionMessage
+        });
       });
-      
-      this.combinedQuestionDataSubject.next({ question, options });
-      
-      console.log('[📤 POST-EMIT] Emitted combined Q&A');
-    });
   }
 
   public async loadQA(index: number): Promise<boolean> {
