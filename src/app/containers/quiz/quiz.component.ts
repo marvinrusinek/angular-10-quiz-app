@@ -484,7 +484,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           queueMicrotask(() => {
             this.quizStateService.setDisplayState({
               mode: 'explanation',
-              answered: true,
+              answered: true
             });
           });
         }
