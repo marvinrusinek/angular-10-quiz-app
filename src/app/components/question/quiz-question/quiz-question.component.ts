@@ -2432,7 +2432,7 @@ export class QuizQuestionComponent
   }
   
  
-  // mark the binding & repaint highlight
+  // Mark the binding and repaint highlight
   private markBindingSelected(opt: Option): void {
     const b = this.optionBindings.find(x => x.option.optionId === opt.optionId);
     if (!b) return;
@@ -2502,7 +2502,7 @@ export class QuizQuestionComponent
     await this.finalizeAfterClick(opt, idx, wasPreviouslySelected);
   }
   
-  /** Utility: replace the changed binding & keep a fresh array ref */
+  // Utility: replace the changed binding and keep a fresh array ref
   private updateOptionBinding(binding: OptionBindings): void {
     this.optionBindings = this.optionBindings.map(b =>
       b.option.optionId === binding.option.optionId ? binding : b
