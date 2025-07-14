@@ -1,5 +1,5 @@
 <ng-container>
-  <mat-card
+  <mat-card *ngIf="isQuizReady; else loading"
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
   >
