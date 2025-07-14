@@ -4261,10 +4261,7 @@ export class QuizQuestionComponent
     }
   }
 
-  private async handleOptionClicked(
-    currentQuestion: QuizQuestion,
-    optionIndex: number
-  ): Promise<void> {
+  private async handleOptionClicked(currentQuestion: QuizQuestion, optionIndex: number): Promise<void> {
     try {
       if (!currentQuestion || !Array.isArray(currentQuestion.options)) {
         console.warn('[❌ handleOptionClicked] currentQuestion or options is null/invalid', currentQuestion);
@@ -4513,12 +4510,12 @@ export class QuizQuestionComponent
   // Helper method to clear explanation
   resetExplanation(): void {
     // Reset local component state
-    this.displayExplanation = false; // hide explanation display
-    this.explanationToDisplay = ''; // clear local explanation text
+    this.displayExplanation = false;  // hide explanation display
+    this.explanationToDisplay = '';   // clear local explanation text
 
     // Emit cleared states to parent components
-    this.explanationToDisplayChange.emit(''); // inform parent: explanation cleared
-    this.showExplanationChange.emit(false); // inform parent: hide explanation
+    this.explanationToDisplayChange.emit('');  // inform parent: explanation cleared
+    this.showExplanationChange.emit(false);    // inform parent: hide explanation
 
     // Always reset the internal explanation text state
     this.explanationTextService.resetExplanationText();
@@ -4528,9 +4525,7 @@ export class QuizQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.setResetComplete(false);
     } else {
-      console.log(
-        '[🛡️ resetExplanation] Blocked explanation reset — lock is active.'
-      );
+      console.log('[🛡️ resetExplanation] Blocked explanation reset — lock is active.');
     }
   }
 
@@ -4599,9 +4594,7 @@ export class QuizQuestionComponent
     return this.explanationToDisplay;
   }
 
-  public async fetchAndSetExplanationText(
-    questionIndex: number
-  ): Promise<void> {
+  public async fetchAndSetExplanationText(questionIndex: number): Promise<void> {
     // Clear any previous explanation state
     this.resetExplanation();
 
@@ -4623,9 +4616,7 @@ export class QuizQuestionComponent
 
       // Check if the specified question index is valid in the array
       if (!this.questionsArray[questionIndex]) {
-        console.error(
-          `Questions array is not properly populated or invalid index: ${questionIndex}`
-        );
+        console.error(`Questions array is not properly populated or invalid index: ${questionIndex}`);
         return;
       }
 
@@ -4636,7 +4627,7 @@ export class QuizQuestionComponent
       const explanation$ = from(
         this.prepareAndSetExplanationText(questionIndex)
       ).pipe(
-        debounceTime(100) // Smooth out updates
+        debounceTime(100)  // smooth out updates
       );
 
       explanation$.subscribe({
@@ -4657,8 +4648,7 @@ export class QuizQuestionComponent
         },
         error: (error) => {
           console.error(
-            `Error fetching explanation for question ${questionIndex}:`,
-            error
+            `Error fetching explanation for question ${questionIndex}:`, error
           );
           this.handleExplanationError(questionIndex);
         },
@@ -4712,7 +4702,7 @@ export class QuizQuestionComponent
             if (question && question.questionText) {
               console.log(`Question loaded for index ${index}:`, question);
               subscription?.unsubscribe();
-              resolve(); // successfully loaded
+              resolve();  // successfully loaded
             } else {
               reject(new Error(`No valid question at index ${index}`));
             }
@@ -4724,7 +4714,7 @@ export class QuizQuestionComponent
           },
         });
       } catch (error) {
-        reject(error); // reject for unexpected error
+        reject(error);  // reject for unexpected error
       }
     });
   }
@@ -4762,10 +4752,8 @@ export class QuizQuestionComponent
     }
   }
 
-  private async processExplanationText(
-    questionData: QuizQuestion,
-    questionIndex: number
-  ): Promise<FormattedExplanation | null> {
+  private async processExplanationText(questionData: QuizQuestion, questionIndex: number): 
+    Promise<FormattedExplanation | null> {
     if (!questionData) {
       console.error(`Invalid question data for index ${questionIndex}`);
       return {
@@ -4810,7 +4798,7 @@ export class QuizQuestionComponent
       console.error('Error in processing explanation text:', error);
       return {
         questionIndex: questionIndex,
-        explanation: questionData.explanation || 'Error processing explanation',
+        explanation: questionData.explanation || 'Error processing explanation'
       };
     }
   }
@@ -4861,10 +4849,7 @@ export class QuizQuestionComponent
     }
 
     // Ensure the index is within valid bounds
-    const adjustedIndex = Math.max(
-      0,
-      Math.min(questionIndex, this.questionsArray.length - 1)
-    );
+    const adjustedIndex = Math.max(0, Math.min(questionIndex, this.questionsArray.length - 1));
     const currentQuestion = this.questionsArray[adjustedIndex];
 
     // Validate that the current question exists
@@ -4960,9 +4945,7 @@ export class QuizQuestionComponent
     return true;  // form is valid and option is selected
   }
 
-  private async processAnswer(
-    selectedOption: SelectedOption
-  ): Promise<boolean> {
+  private async processAnswer(selectedOption: SelectedOption): Promise<boolean> {
     if (
       !selectedOption ||
       !this.currentQuestion.options.find(
@@ -5014,9 +4997,7 @@ export class QuizQuestionComponent
     currentQuestionChange: SimpleChange,
     selectedOptionsChange: SimpleChange
   ): void {
-    const selectedOptionsValue = selectedOptionsChange
-      ? selectedOptionsChange.currentValue
-      : null;
+    const selectedOptionsValue = selectedOptionsChange ? selectedOptionsChange.currentValue : null;
 
     if (currentQuestionChange && this.currentQuestion) {
       // If current question has changed and is defined, handle the question change with selected options
