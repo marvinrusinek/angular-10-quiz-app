@@ -4077,7 +4077,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       !this.currentQuestion?.questionText ||
       !this.optionsToDisplay?.length
     ) {
-      return; // nothing to inject with
+      return;  // nothing to inject with
     }
 
     const viewRef = this.quizQuestionComponent.dynamicAnswerContainer;
@@ -4114,9 +4114,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizQuestionComponent.resetState();
       }
     } else {
-      console.warn(
-        '[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.'
-      );
+      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
     }
 
     // Reset visual selection state
@@ -4224,9 +4222,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 // Wait for dynamic component to initialize properly
                 setTimeout(() => {
                   if (this.quizQuestionComponent) {
-                    console.log(
-                      '[🔁 Forcing quizQuestionComponent reinitialization]'
-                    );
+                    console.log('[🔁 Forcing quizQuestionComponent reinitialization]');
 
                     this.initializeCurrentQuestion?.();
                   }
@@ -4234,15 +4230,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                   // Generate bindings and clear sounds after everything is ready
                   this.sharedOptionComponent?.generateOptionBindings?.();
 
-                  console.log(
-                    '[🧽 Clearing sound flags for Q0 AFTER full init]'
-                  );
+                  console.log('[🧽 Clearing sound flags for Q0 AFTER full init]');
                   this.soundService.clearPlayedOptionsForQuestion(0);
                 }, 0);
 
-                console.log(
-                  '[🧽 Clearing sound flags for Q0 AFTER options load]'
-                );
+                console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
                 this.soundService.clearPlayedOptionsForQuestion(0);
               } else {
                 console.error('❌ First question not found.');
