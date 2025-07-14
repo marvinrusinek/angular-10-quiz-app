@@ -3751,11 +3751,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       }
 
-      /* ───────── Flip “options loaded” flags together ───────── */
+      // ───────── Flip “options loaded” flags together ─────────
       this.hasOptionsLoaded = true;
       this.shouldRenderOptions = true;
 
-      /* ───────────  Explanation/Timer/Badge Logic  ───────── */
+      // ───────────  Explanation/Timer/Badge Logic  ─────────
       let explanationText = '';
 
       if (isAnswered) {
@@ -3805,7 +3805,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
-
       this.shouldRenderQuestionComponent = false;
 
       requestAnimationFrame(() => {
@@ -3833,10 +3832,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       return true;
     } catch (error) {
-      console.error(
-        `[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`,
-        error
-      );
+      console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
       return false;
     }
   }
@@ -3885,15 +3881,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Determine question type
       const correctCount = options.filter((opt) => opt.correct).length;
       const type =
-        correctCount > 1
-          ? QuestionType.MultipleAnswer
-          : QuestionType.SingleAnswer;
+        correctCount > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
 
       const question: QuizQuestion = {
         questionText: trimmedText,
         options,
         explanation,
-        type,
+        type
       };
 
       // Sync type with service
@@ -3921,8 +3915,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.optionsToDisplay = Array.isArray(options) ? options : [];
 
     // Set explanation fallback
-    this.explanationToDisplay =
-      explanationText?.trim() || 'No explanation available';
+    this.explanationToDisplay = explanationText?.trim() || 'No explanation available';
 
     // Emit latest values to any subscribers (template/UI)
     this.questionTextSubject.next(this.questionToDisplay);
@@ -3952,9 +3945,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (!this.explanationTextService.isExplanationLocked()) {
         this.explanationTextService.resetStateBetweenQuestions();
       } else {
-        console.warn(
-          '[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.'
-        );
+        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
       }
 
       this.optionsToDisplay = [];
@@ -3998,7 +3989,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private isValidIndex(index: number): boolean {
-    const valid =
+    const valid = 
       typeof index === 'number' && index >= 0 && index < this.totalQuestions;
     if (!valid) {
       console.warn(`[❌ Invalid index]: ${index}`);
