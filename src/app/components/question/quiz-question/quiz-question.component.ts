@@ -235,7 +235,6 @@ export class QuizQuestionComponent
   selectionMessageSubscription: Subscription = new Subscription();
 
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
-  // public renderReady$ = new BehaviorSubject<boolean>(false);
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
 
@@ -243,8 +242,6 @@ export class QuizQuestionComponent
 
   private _ready = new ReplaySubject<ViewContainerRef>(1);
   private latestOptionClickTimestamp = 0;
-  private latestExplanationRequestId = 0;
-  private explanationRequestId = 0;
   private hasAutoAdvancedFromQ1 = false;
 
   private destroy$: Subject<void> = new Subject<void>();
@@ -295,7 +292,7 @@ export class QuizQuestionComponent
     if (serialized !== this.lastSerializedPayload) {
       this.lastSerializedPayload = serialized;
       this._questionPayload = value;
-      this.questionPayloadSubject.next(value); // emit into stream
+      this.questionPayloadSubject.next(value);  // emit into stream
       this.hydrateFromPayload(value);
     }
   }
@@ -307,7 +304,7 @@ export class QuizQuestionComponent
   private resetUIForNewQuestion(): void {
     console.log('[QQC] ✅ Running resetUIForNewQuestion()');
     this.sharedOptionComponent?.resetUIForNewQuestion();
-    // Add any additional resets needed here
+    // add any additional resets needed here
   }
 
   async ngOnInit(): Promise<void> {
@@ -359,11 +356,9 @@ export class QuizQuestionComponent
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
       const questionIndex = Number(params.get('questionIndex'));
-      console.log('[🧭 Param change detected] Loading question index:', questionIndex);
     
       try {
         const question = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex));
-    
         if (!question) {
           console.warn(`[⚠️ No valid question returned for index ${questionIndex}]`);
           return;
@@ -372,7 +367,6 @@ export class QuizQuestionComponent
         // Set current index in service
         this.quizService.setCurrentQuestionIndex(questionIndex);
     
-        // Optional: call any other UI update logic here
         await this.loadQuestion();
     
       } catch (err) {
@@ -381,9 +375,8 @@ export class QuizQuestionComponent
     });
 
 
-    const routeIndex =
-      +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
-    this.currentQuestionIndex = routeIndex; // ensures correct index
+    const routeIndex = +this.activatedRoute.snapshot.paramMap.get('questionIndex') || 0;
+    this.currentQuestionIndex = routeIndex;  // ensures correct index
     this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1;
 
     try {
@@ -397,11 +390,11 @@ export class QuizQuestionComponent
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
-        auditTime(30), // batch rapid changes
+        auditTime(30),  // batch rapid changes
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         tap(() => {
           this.renderReady = false;
-          this.cdRef.detectChanges(); // trigger hide
+          this.cdRef.detectChanges();  // trigger hide
         }),
         tap((payload) => {
           // Consolidated hydration here
@@ -410,12 +403,12 @@ export class QuizQuestionComponent
           this.optionsToDisplay = [...options];
           this.explanationToDisplay = explanation?.trim() || '';
         }),
-        delay(16), // let DOM settle (~1 frame)
+        delay(16),  // let DOM settle (~1 frame)
         map(() => true),
         tap(() => {
           requestAnimationFrame(() => {
             this.renderReady = true;
-            this.cdRef.detectChanges(); // only show after next browser paint
+            this.cdRef.detectChanges();  // only show after next browser paint
           });
         })
       );
@@ -459,13 +452,6 @@ export class QuizQuestionComponent
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
 
-    /* this.quizQuestionLoaderService.options$
-      .pipe(filter((opts): opts is Option[] => Array.isArray(opts)))
-      .subscribe((opts: Option[]) => {
-        console.log('[QQC ✅] options for new Q →', opts.map(o => o.text));
-        this.currentOptions = [...opts];
-        this.cdRef.detectChanges();
-      }); */
       this.quizQuestionLoaderService.options$
         .pipe(
           filter(arr => Array.isArray(arr) && arr.length > 0) // skip empties
@@ -578,8 +564,7 @@ export class QuizQuestionComponent
       !!this.questionData?.questionText?.trim?.() ||
       !!this.currentQuestion?.questionText?.trim?.();
   
-    const hasValidOptions =
-      Array.isArray(this.options) && this.options.length > 0;
+    const hasValidOptions = Array.isArray(this.options) && this.options.length > 0;
   
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
@@ -639,8 +624,8 @@ export class QuizQuestionComponent
             this.optionsToDisplay = this.currentQuestion.options.map(
               (option, index) => ({
                 ...option,
-                optionId: option.optionId ?? index, // ensure optionId is properly assigned
-                correct: option.correct ?? false, // ensure `correct` property exists
+                optionId: option.optionId ?? index,  // ensure optionId is properly assigned
+                correct: option.correct ?? false,    // ensure `correct` property exists
               })
             );
           } else {
@@ -733,12 +718,11 @@ export class QuizQuestionComponent
 
   setOptionsToDisplay(): void {
     const context = '[setOptionsToDisplay]';
-  
     const sourceQuestion = this.currentQuestion || this.question;
   
     if (!sourceQuestion || !Array.isArray(sourceQuestion.options)) {
       console.warn(`${context} ❌ No valid currentQuestion or options. Skipping option assignment.`);
-      return; // ❗ Do not clear existing options
+      return;
     }
   
     const validOptions = sourceQuestion.options.filter(o => !!o && typeof o === 'object');
@@ -756,13 +740,10 @@ export class QuizQuestionComponent
       selected: false,
       highlighted: false
     }));
-  
-    console.log(`${context} ✅ Set optionsToDisplay:`, this.optionsToDisplay.map(o => o.text));
   }
 
-  /** Safely replace the option list when navigating to a new question */
+  // Safely replace the option list when navigating to a new question
   public updateOptionsSafely(newOptions: Option[]): void {
-    console.log('B-CHILD received →', newOptions.map(o => o.text));
     const incoming = JSON.stringify(newOptions);
     const current  = JSON.stringify(this.optionsToDisplay);
 
@@ -770,69 +751,67 @@ export class QuizQuestionComponent
     console.log('[QQC RECEIVED]', newOptions.map(o => o.text));
 
     if (incoming !== current) {
-      /* ── 0. Block render while we swap lists ── */
+      // Block render while we swap lists
       this.renderReadySubject.next(false);
       this.internalBufferReady = false;
       this.finalRenderReady    = false;
 
-      /* ── 1. Clear previous highlight / form flags BEFORE we clone ── */
+      // Clear previous highlight / form flags before we clone
       newOptions.forEach(o => {
         o.selected  = false;
         o.highlight = false;
         o.showIcon  = false;
       });
-      /* If you keep a reactive form, rebuild it now */
+      // Rebuild the reactive form
       this.questionForm = new FormGroup({});
       newOptions.forEach(o =>
         this.questionForm.addControl(`opt_${o.optionId}`, new FormControl(false))
       );
 
-      /* ── 2. Batch the visual swap ── */
+      // ── Batch the visual swap
       setTimeout(() => {
         requestAnimationFrame(() => {
           const latest = JSON.stringify(newOptions);
           if (latest !== this.lastSerializedOptions) {
-            this.lastSerializedOptions = latest;      // track for stale-guard
+            this.lastSerializedOptions = latest;  // track for stale-guard
           }
 
-          /* swap reference so OnPush sees a NEW array */
+          // Swap reference so OnPush sees a new array
           this.optionsToDisplay = [];
 
           this.optionsToDisplay = [...newOptions];
 
           this.cdRef.markForCheck();
 
-          console.log('[QQC APPLIED]', this.optionsToDisplay.map(o => o.text));
-
-          /* ── 3. Flip visibility next frame ── */
+          // Flip visibility next frame
           requestAnimationFrame(() => {
             this.internalBufferReady = true;
             this.finalRenderReady    = true;
             this.renderReady         = true;
             this.renderReadySubject.next(true);
 
-            /* force CD in case parent doesn’t trigger it */
+            // Force CD in case parent doesn’t trigger it
             this.cdRef.markForCheck();
           });
         });
       }, 0);
 
-      /* ── 4. Fallback: guarantee ready after 150 ms ── */
+      // Fallback: guarantee ready after 150 ms
       setTimeout(() => {
         if (!this.finalRenderReady || this.optionsToDisplay.length === 0) {
           console.warn('[🛠️ Fallback triggered in updateOptionsSafely]');
           this.finalRenderReady = true;
-          this.renderReady      = true;
+          this.renderReady = true;
           this.renderReadySubject.next(true);
           this.cdRef.markForCheck();
         }
       }, 150);
 
     } else {
-      /* No option change but render was not ready → force refresh */
+      // No option change but render was not ready so force refresh
       if (!this.finalRenderReady) {
         this.finalRenderReady = true;
-        this.renderReady      = true;
+        this.renderReady = true;
         this.renderReadySubject.next(true);
         this.cdRef.detectChanges();
       }
@@ -862,7 +841,7 @@ export class QuizQuestionComponent
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
     this.finalRenderReadySubject.next(false);
-    this.cdRef.detectChanges(); // hide UI during reset
+    this.cdRef.detectChanges();  // hide UI during reset
   
     requestAnimationFrame(() => {
       const { question, options, explanation } = payload;
@@ -876,7 +855,7 @@ export class QuizQuestionComponent
         this.renderReadySubject.next(true);
         this.finalRenderReady = true;
         this.finalRenderReadySubject.next(true);
-        this.cdRef.detectChanges(); // show when fully ready
+        this.cdRef.detectChanges();  // show when fully ready
       });
     });
   }
@@ -901,8 +880,8 @@ export class QuizQuestionComponent
     this.finalRenderReady = true;
     this.renderReady = true;
   
-    this.renderReadySubject.next(true); // triggers the stream
-    this.cdRef.detectChanges(); // optional, only if UI is not reacting
+    this.renderReadySubject.next(true);  // triggers the stream
+    this.cdRef.detectChanges();  // optional, only if UI is not reacting
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
@@ -1104,7 +1083,7 @@ export class QuizQuestionComponent
       .subscribe(() => {
         const paramIndex =
           this.activatedRoute.snapshot.paramMap.get('questionIndex');
-        const index = paramIndex ? +paramIndex : 0; // Fallback to 0 if param is missing or invalid
+        const index = paramIndex ? +paramIndex : 0;  // Fallback to 0 if param is missing or invalid
 
         // Check if questions are available to avoid out-of-bounds access
         if (!this.questions || this.questions.length === 0) {
@@ -1162,7 +1141,7 @@ export class QuizQuestionComponent
       .pipe(take(1), debounceTime(100))
       .subscribe((loaded) => {
         if (loaded) {
-          this.handleRouteChanges(); // handle route changes after questions are loaded
+          this.handleRouteChanges();  // handle route changes after questions are loaded
         } else {
           console.warn(
             'Questions are not loaded yet. Skipping explanation update.....'
@@ -1222,8 +1201,6 @@ export class QuizQuestionComponent
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
   
-      console.log('[📦 Route param received]', { rawParam, parsed: parsedParam });
-  
       // Ensure valid integer and convert to 0-based index
       let questionIndex = isNaN(parsedParam) ? 1 : parsedParam;
   
@@ -1233,7 +1210,6 @@ export class QuizQuestionComponent
       }
   
       const zeroBasedIndex = questionIndex - 1;
-      console.log('[🔁 Converted to 0-based index]:', zeroBasedIndex);
   
       try {
         // Sync state before loadQuestion() so it sees the correct 0-based index.
@@ -1430,11 +1406,11 @@ export class QuizQuestionComponent
   private handlePageVisibilityChange(isHidden: boolean): void {
     if (isHidden) {
       // Page is now hidden, so pause updates and clear/reset necessary subscriptions
-      this.isPaused = true; // updates are paused
+      this.isPaused = true;  // updates are paused
       this.clearDisplaySubscriptions();
     } else {
       // Page is now visible, so resume updates, reinitialize subscriptions, and refresh explanation text
-      this.isPaused = false; // updates are no longer paused
+      this.isPaused = false;  // updates are no longer paused
       this.prepareAndSetExplanationText(this.currentQuestionIndex);
     }
   }
@@ -1482,18 +1458,17 @@ export class QuizQuestionComponent
         );
       }
   
-      /* ─────────── Clamp currentQuestionIndex to valid range ─────────── */
+      // Clamp currentQuestionIndex to valid range
       if (this.currentQuestionIndex < 0) {
-        this.currentQuestionIndex = 0;                                   // floor
+        this.currentQuestionIndex = 0;  // floor
       }
       const lastIndex = this.questionsArray.length - 1;
       if (this.currentQuestionIndex > lastIndex) {
         console.warn(
           `[initializeComponent] Index ${this.currentQuestionIndex} out of range — clamping to last question (${lastIndex}).`
         );
-        this.currentQuestionIndex = lastIndex;                           // cap
+        this.currentQuestionIndex = lastIndex;  // cap
       }
-      /* ───────────────────────────────────────────────────────────────── */
   
       // Set the current question
       this.currentQuestion = this.questionsArray[this.currentQuestionIndex];
@@ -1502,7 +1477,7 @@ export class QuizQuestionComponent
           '[initializeComponent] Current question is missing after loading.',
           {
             currentQuestionIndex: this.currentQuestionIndex,
-            questionsArray: this.questionsArray,
+            questionsArray: this.questionsArray
           }
         );
         return;
@@ -1536,19 +1511,7 @@ export class QuizQuestionComponent
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
-    console.log('[📥 loadDynamicComponent START]', {
-      questionIndex: this.currentQuestionIndex,
-      question: question?.questionText,
-      optionsLength: options?.length,
-    });
-    
     try {  
-      console.log('[📥 loadDynamicComponent START]', {
-        question: question?.questionText,
-        optionsLength: options?.length,
-        currentIndex: this.currentQuestionIndex
-      });
-  
       // Guard –- missing question or options
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[⚠️ Early return A] Missing question or options', {
@@ -1575,14 +1538,12 @@ export class QuizQuestionComponent
         isMultipleAnswer = await firstValueFrom(
           this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
         );
-        console.log('[🔎 isMultipleAnswer]', isMultipleAnswer);
       } catch (err) {
         console.error('[❌ isMultipleAnswerQuestion failed]', err);
         console.warn('[⚠️ Early return D] Failed to get isMultipleAnswer');
         return;
       }
   
-      console.log('[🧹 Clearing container]');
       this.dynamicAnswerContainer.clear();
       await Promise.resolve();
   
