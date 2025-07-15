@@ -1339,6 +1339,7 @@ export class QuizService implements OnDestroy {
           explanation: '',
           formattedExplanation: formattedExplanation,
           isExplanationDisplayed: true,
+          selectionMessage: ''
         };
         this.combinedQuestionDataSubject.next(combinedQuestionData);
         this.combinedQuestionData$ = this.combinedQuestionDataSubject
@@ -1365,6 +1366,7 @@ export class QuizService implements OnDestroy {
           explanation: '',
           formattedExplanation: '',
           isExplanationDisplayed: false,
+          selectionMessage: ''
         };
         this.combinedQuestionDataSubject.next(defaultCombinedQuestionData);
         this.combinedQuestionData$ = this.combinedQuestionDataSubject
