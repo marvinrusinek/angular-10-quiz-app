@@ -2240,25 +2240,13 @@ export class QuizQuestionComponent
         this.selectionMessage = initialMessage;
       }
     } else {
-      const isAnswered = await this.isQuestionAnswered(
-        this.currentQuestionIndex
-      );
       this.clearSelection();
     }
-  }
-
-  private shouldUpdateMessageOnSelection(isSelected: boolean): boolean {
-    // Check if the current question is not the first one or if an option is selected
-    return this.currentQuestionIndex !== 0 || isSelected;
   }
 
   private async shouldUpdateMessageOnAnswer(
     isAnswered: boolean
   ): Promise<boolean> {
-    const isMultipleAnswer = await firstValueFrom(
-      this.quizQuestionManagerService.isMultipleAnswerQuestion(this.currentQuestion)
-    );
-
     const newMessage = this.selectionMessageService.determineSelectionMessage(
       this.currentQuestionIndex,
       this.totalQuestions,
