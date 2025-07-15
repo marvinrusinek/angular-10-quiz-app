@@ -796,9 +796,9 @@ export class QuizQuestionLoaderService {
       quizId: '',
       index: -1,
       heading: '',
+      question: null as unknown as QuizQuestion,
       options: [],
       explanation: '',
-      question: null as unknown as QuizQuestion,
       selectionMessage: ''
     });
   }
