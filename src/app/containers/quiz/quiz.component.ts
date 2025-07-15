@@ -999,7 +999,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
-    // Selection message + button state
+    // Selection message and button state
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
@@ -1009,11 +1009,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.quizStateService.isLoadingSubject.getValue(),
           this.quizStateService.isNavigatingSubject.getValue()
         );
-
-        console.log('[🧪 post-setSelectionMessage]', {
-          index: this.currentQuestionIndex,
-          current: this.selectionMessageService.getCurrentMessage(),
-        });
       }, 50);
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
@@ -1032,7 +1027,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.currentQuestion = null;
 
     // Clear local UI state
-    this.questionInitialized = false; // block during reset
+    this.questionInitialized = false;  // block during reset
     this.isAnswered = false;
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
