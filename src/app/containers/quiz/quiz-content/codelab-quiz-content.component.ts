@@ -670,6 +670,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
     
         // Ensure currentQuizData is an object with all necessary properties
+        if (!currentQuizData.currentQuestion || !Array.isArray(currentQuizData.currentOptions) || currentQuizData.currentOptions.length === 0) {
+          console.warn('[🛑 Skipping incomplete initial data in switchMap]', {
+            currentQuestion: currentQuizData.currentQuestion,
+            currentOptions: currentQuizData.currentOptions
+          });
+          return of(null);
+        }
+        
         const completeQuizData: CombinedQuestionDataType = {
           ...currentQuizData,
           questionText: currentQuizData.currentQuestion.questionText || 'No question text available',
@@ -681,12 +689,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         };
     
         return this.calculateCombinedQuestionData(
-          completeQuizData, // Pass the complete object
+          completeQuizData,  // pass the complete object
           +numberOfCorrectAnswers,
           isExplanationDisplayed,
           formattedExplanation
         );
       }),
+      filter(data => data !== null),
       catchError((error: Error) => {
         console.error('Error combining quiz data:', error);
         return of({
