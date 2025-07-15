@@ -53,7 +53,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   optionBindings: OptionBindings[];
   optionsInitialized = false;
   containerInitialized = false;
-  private initializedOnce = false;
 
   constructor(
     protected fb: FormBuilder,
@@ -95,7 +94,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
       shouldInitializeDynamicComponent = true;
     }
   
-    // ✅ Safe to initialize dynamic component after both inputs are handled
+    // Safe to initialize dynamic component after both inputs are handled
     if (shouldInitializeDynamicComponent && this.question && this.optionsToDisplay?.length > 0) {
       console.log('[📦 ngOnChanges] Inputs ready, initializing dynamic component...');
       this.initializeDynamicComponentIfNeeded();
@@ -188,26 +187,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   }  
 
-  /* protected initializeOptions(): void {
-    if (!this.question) {
-      console.error('initializeOptions - Question is undefined when called');
-      return;
-    }
-
-    if (this.question && this.question.options) {
-      this.questionForm = new FormGroup({});
-      for (const option of this.question.options) {
-        if (!this.questionForm.contains(option.text)) {
-          this.questionForm.addControl(option.text, new FormControl(false));
-        }
-      }
-      this.optionsToDisplay = this.question.options || [];
-    } else {
-      console.error('initializeOptions - Question or options are undefined', {
-        question: this.question
-      });
-    }
-  } */
   protected initializeOptions(): void {
     if (!this.question?.options?.length) {
       console.error('initializeOptions - Invalid question or options', {
