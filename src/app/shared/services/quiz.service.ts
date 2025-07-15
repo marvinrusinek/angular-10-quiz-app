@@ -1385,6 +1385,7 @@ export class QuizService implements OnDestroy {
         explanation: '',
         formattedExplanation: 'An error occurred while loading the question.',
         isExplanationDisplayed: false,
+        selectionMessage: ''
       };
       this.combinedQuestionDataSubject.next(errorStateCombinedQuestionData);
       this.combinedQuestionData$ = this.combinedQuestionDataSubject
