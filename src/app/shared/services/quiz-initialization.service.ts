@@ -322,17 +322,28 @@ export class QuizInitializationService {
         this.currentQuestion = questions[this.currentQuestionIndex];
 
         // Ensure options have the `correct` property explicitly set
-        this.options = this.currentQuestion.options.map((option) => ({
+        this.options = this.currentQuestion.options.map((option, i) => ({
           ...option,
-          correct: option.correct ?? false, // Default `correct` to false if undefined
+          optionId: option.optionId ?? i,
+          correct: option.correct ?? false,
+          feedback: option.feedback ?? `You're right! The correct answer is Option ${i + 1}.`,
+          showIcon: !!option.showIcon,
+          selected: !!option.selected,
+          active: option.active ?? true,
         }));
 
         console.log('Questions loaded:', questions);
         console.log('Current question:', this.currentQuestion);
         console.log('Options with correct property:', this.options);
 
+        // Emit directly to QuizService streams (crucial!)
+        this.quizService.nextQuestionSource.next(this.currentQuestion);
+        // this.quizService.nextQuestionSubject.next(this.currentQuestion);
+        this.quizService.nextOptionsSource.next(this.options);
+        // this.quizService.nextOptionsSubject.next(this.options);
+        
         // Fetch next question and options
-        this.quizService
+        /* this.quizService
           .getNextQuestion(this.currentQuestionIndex)
           .then((nextQuestion) => {
             if (nextQuestion) {
@@ -364,7 +375,7 @@ export class QuizInitializationService {
           })
           .catch((error) => {
             console.error('Error fetching next options:', error);
-          });
+          }); */
       } else {
         console.warn('No questions available for this quiz.');
         this.currentQuestion = null;

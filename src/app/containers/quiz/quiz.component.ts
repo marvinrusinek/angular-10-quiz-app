@@ -2606,29 +2606,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
 
     this.combinedQuestionData$ = combineLatest([
-      this.quizService.nextQuestion$,
-      this.quizService.nextOptions$,
+      safeQuestion$,
+      safeOptions$,
     ]).pipe(
-      tap(([q, o]) => {
-        console.log('[👀 combinedQuestionData$ emit]', { q, o });
-      }),
-      map(([q, o]) => {
-        if (!q || !o || o.length === 0) {
-          console.warn('[⚠️ Missing question or options]', { q, o });
-          return null;
+      switchMap(([nextQuestion, nextOptions]) => {
+        if (nextQuestion) {
+          return of(createSafeQuestionData(nextQuestion, nextOptions));
+        } else {
+          return combineLatest([
+            safePreviousQuestion$,
+            safePreviousOptions$,
+          ]).pipe(
+            map(([prevQuestion, prevOptions]) =>
+              createSafeQuestionData(prevQuestion, prevOptions)
+            )
+          );
         }
-    
-        return {
-          questionText: q.questionText ?? '[No question text]',
-          explanation: q.explanation ?? '',
-          options: o,
-        };
       }),
-      catchError((err) => {
-        console.error('[❌ Error in combinedQuestionData$]', err);
-        return of(null);
+      catchError((error) => {
+        console.error('[❌ Error in createQuestionData]', error);
+        return of(createSafeQuestionData(null, [])); // fallback
       })
-    );    
+    );
   }
 
   private async getQuestion(): Promise<void | null> {
