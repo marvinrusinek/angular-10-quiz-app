@@ -2421,11 +2421,13 @@ export class QuizQuestionComponent
     ev: { option: SelectedOption; index: number; checked: boolean }
   ): void {
     this.performInitialSelectionFlow(ev, ev.option);
+
     this.handleInitialSelection({
       option: ev.option,
       index: ev.index,
       checked: true
     });
+    
     this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
