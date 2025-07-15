@@ -1725,15 +1725,15 @@ export class QuizQuestionComponent
       }
 
       // If questionsArray still empty, bail out gracefully
-      if (!this.questionsArray.length) {
+      if (this.questionsArray.length === 0) {
         console.warn('[loadQuestion] questionsArray still empty – aborting load');
-        return;
+        return false;
       }
 
       if (this.currentQuestionIndex === this.questionsArray.length) {
         console.log('[loadQuestion] End of quiz → /results');
         await this.router.navigate(['/results', this.quizId]);
-        return;
+        return false;
       }
 
       // Validate current index
@@ -1788,7 +1788,6 @@ export class QuizQuestionComponent
             : JSON.parse(JSON.stringify(this.optionsToDisplay));
 
         this.optionsToDisplay = cloned;  // new reference
-        this.cdRef.detectChanges(); 
 
         // finally update the route index (triggers the key change)
         this.currentQuestionIndex = lockedIndex;  // keep index in sync
