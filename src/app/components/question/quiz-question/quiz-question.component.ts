@@ -3330,39 +3330,6 @@ export class QuizQuestionComponent
     }
   }
 
-  private handleMultipleAnswerQuestion(option: SelectedOption): void {
-    this.quizQuestionManagerService
-      .isMultipleAnswerQuestion(this.currentQuestion)
-      .subscribe({
-        next: (isMultipleAnswer) => {
-          // Set the selected option in the service
-          this.selectedOptionService.setSelectedOption(option);
-
-          // Ensure fallback values for option properties if necessary
-          const optionId = option.optionId ?? -1;
-          const optionText = option.text || 'none';
-
-          // Safely select the option with validated data
-          this.selectedOptionService.selectOption(
-            optionId,
-            this.currentQuestionIndex,
-            optionText,
-            isMultipleAnswer
-          );
-
-          // Toggle the selected option state
-          this.selectedOptionService.toggleSelectedOption(
-            this.currentQuestionIndex,
-            option,
-            isMultipleAnswer
-          );
-        },
-        error: (error) => {
-          console.error('Error determining multiple-answer:', error);
-        },
-      });
-  }
-
   private markQuestionAsAnswered(questionIndex: number): void {
     const questionState = this.quizStateService.getQuestionState(
       this.quizId,
