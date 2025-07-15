@@ -2550,6 +2550,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     };
 
     const safeQuestion$ = this.quizService.nextQuestion$.pipe(
+      tap((val) => console.log('[📤 nextQuestion$ emitted]', val)),
       map((value) => {
         if (value === undefined) {
           console.warn('[⚠️ nextQuestion$ emitted undefined]');
@@ -2559,8 +2560,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       distinctUntilChanged()
     );
-
+    
     const safeOptions$ = this.quizService.nextOptions$.pipe(
+      tap((val) => console.log('[📤 nextOptions$ emitted]', val)),
       map((value) => {
         if (value === undefined) {
           console.warn('[⚠️ nextOptions$ emitted undefined]');
