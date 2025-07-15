@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -12,7 +12,6 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import { RenderStateService } from '../../../shared/services/render-state.service';
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
@@ -103,10 +102,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private renderStateService: RenderStateService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private activatedRoute: ActivatedRoute
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -215,7 +212,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           shouldDisplayExplanation === true;
 
         if (showExplanation) {
-          return explanation; // render explanation once
+          return explanation;  // render explanation once
         }
 
         // Otherwise show question (+ correct count if present)
@@ -243,8 +240,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
   private setupDisplayStateSubscription(): void {
     combineLatest([
-      this.displayState$.pipe(distinctUntilChanged()), // ensure state changes trigger updates
-      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged()) // check initialization status
+      this.displayState$.pipe(distinctUntilChanged()),  // ensure state changes trigger updates
+      this.isQuizQuestionComponentInitialized.pipe(distinctUntilChanged())  // check initialization status
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([state, isInitialized]) => {
@@ -276,17 +273,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private initializeExplanationTextObservable(): void {
     combineLatest([
       this.quizStateService.currentQuestion$.pipe(
-        map(value => value ?? null), // Default to `null` if value is `undefined`
+        map(value => value ?? null),  // Default to `null` if value is `undefined`
         distinctUntilChanged()
       ),
       this.explanationTextService.isExplanationTextDisplayed$.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        map(value => value ?? false),  // Default to `false` if value is `undefined`
         distinctUntilChanged()
       )
     ]).pipe(
       takeUntil(this.destroy$),
       withLatestFrom(this.questionRendered.pipe(
-        map(value => value ?? false), // Default to `false` if value is `undefined`
+        map(value => value ?? false),  // Default to `false` if value is `undefined`
         distinctUntilChanged()
       )),
       switchMap(([[question, isDisplayed], rendered]) => {
@@ -298,7 +295,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       catchError(error => {
         console.error('Error fetching explanation text:', error);
-        return of(''); // Emit an empty string in case of an error
+        return of('');  // Emit an empty string in case of an error
       })
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
@@ -336,7 +333,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
-        localStorage.setItem('quizId', quizId); // Store quizId in localStorage
+        localStorage.setItem('quizId', quizId);  // Store quizId in localStorage
         this.currentQuestionIndexValue = zeroBasedIndex;
         await this.loadQuestion(quizId, zeroBasedIndex);
       } else {
@@ -364,8 +361,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const questions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
       if (questions && questions.length > 0 && zeroBasedIndex >= 0 && zeroBasedIndex < questions.length) {
         const question = questions[zeroBasedIndex];
-        this.currentQuestion.next(question); // use 'next' to update BehaviorSubject
-        this.isExplanationDisplayed = false; // reset explanation display state
+        this.currentQuestion.next(question);  // use 'next' to update BehaviorSubject
+        this.isExplanationDisplayed = false;  // reset explanation display state
         this.explanationToDisplay = '';
 
         // Reset explanation state
@@ -382,7 +379,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         */
         setTimeout(() => {
           this.fetchExplanationTextAfterRendering(question);
-        }, 300); // adjust delay as necessary
+        }, 300);  // adjust delay as necessary
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
@@ -406,9 +403,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
       const [questions, explanationTexts] = data;
   
-      console.log('[initializeQuestionData] Questions:', questions);
-      console.log('[initializeQuestionData] Explanations:', explanationTexts);
-  
       if (!questions || questions.length === 0) {
         console.warn('No questions found');
         return;
@@ -426,11 +420,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Set before test fetch
       this.explanationTextService.explanationsInitialized = true;
   
-      // ✅ Now it's safe to fetch
+      // Now it's safe to fetch
       const result = await firstValueFrom(
         this.explanationTextService.getFormattedExplanationTextForQuestion(0)
       );
-      console.log('Q0 explanation after store:', result);
   
       this.initializeCurrentQuestionIndex();
     } catch (error) {
@@ -473,11 +466,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // Function to handle the display of correct answers
   private handleCorrectAnswersDisplay(question: QuizQuestion): void {
     const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
-        map(value => value ?? false), // default to `false` if value is `undefined`
+        map(value => value ?? false),  // default to `false` if value is `undefined`
         distinctUntilChanged()
     );
     const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
-        map(value => value ?? false), // default to `false` if value is `undefined`
+        map(value => value ?? false),  // default to `false` if value is `undefined`
         distinctUntilChanged()
     );
 
@@ -495,7 +488,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }),
         catchError(error => {
           console.error('Error in handleCorrectAnswersDisplay:', error);
-          return of(false); // Default to not displaying correct answers in case of error
+          return of(false);  // Default to not displaying correct answers in case of error
         })
       )
       .subscribe((shouldDisplayCorrectAnswers: boolean) => {
@@ -522,7 +515,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (isMultipleAnswer && !explanationDisplayed) {
           newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
         } else {
-          newCorrectAnswersText = ''; // Clear text if explanation is displayed
+          newCorrectAnswersText = '';  // Clear text if explanation is displayed
         }
   
         if (this.correctAnswersTextSource.getValue() !== newCorrectAnswersText) {
@@ -576,11 +569,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Combine explanationTextService's observable with selectedOptionExplanation$
     const explanationText$ = combineLatest([
       this.explanationTextService.getExplanationText$().pipe(
-        map(value => value ?? 'No explanation available'), // Default to 'No explanation available' if value is `undefined`
+        map(value => value ?? 'No explanation available'),  // Default to 'No explanation available' if value is `undefined`
         distinctUntilChanged()
       ),
       this.selectedOptionService.selectedOptionExplanation$.pipe(
-        map(value => value ?? null), // Default to `null` if value is `undefined`
+        map(value => value ?? null),  // Default to `null` if value is `undefined`
         distinctUntilChanged()
       )
     ]).pipe(
@@ -589,7 +582,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       catchError(error => {
         console.error('Error in updateExplanationForQuestion:', error);
-        return of('No explanation available'); // Emit default message in case of error
+        return of('No explanation available');  // Emit default message in case of error
       })
     );
 
@@ -660,7 +653,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (!currentQuizData.currentQuestion) {
           console.warn('No current question found in data:', currentQuizData);
           return of({
-            currentQuestion: { questionText: 'No question available' }, // Provide a default object
+            currentQuestion: { questionText: 'No question available' },  // Provide a default object
             currentOptions: [],
             options: [],
             questionText: 'No question available',
@@ -733,8 +726,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       filter(([q, opts]) => !!q && Array.isArray(opts) && opts.length > 0),
       map(([currentQuestion, currentOptions]) => {
-        console.log('combineCurrentQuestionAndOptions - currentQuestion:', currentQuestion);
-        console.log('combineCurrentQuestionAndOptions - currentOptions:', currentOptions);
         return { currentQuestion, currentOptions };
       }),
       catchError((error) => {
@@ -813,12 +804,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.shouldDisplayCorrectAnswers$ = combineLatest([
       this.shouldDisplayCorrectAnswers$.pipe(
         startWith(false), // ensuring it has an initial value
-        map(value => value ?? false), // fallback to false if value is undefined
+        map(value => value ?? false),  // fallback to false if value is undefined
         distinctUntilChanged()
       ),
       this.isExplanationDisplayed$.pipe(
         startWith(false), // ensuring it has an initial value
-        map(value => value ?? false), // fallback to false if value is undefined
+        map(value => value ?? false),  // fallback to false if value is undefined
         distinctUntilChanged()
       )
     ]).pipe(
@@ -834,7 +825,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       catchError(error => {
         console.error('Error in shouldDisplayCorrectAnswers$ observable:', error);
-        return of(false); // default to not displaying correct answers in case of error
+        return of(false);  // default to not displaying correct answers in case of error
       })
     );
 
@@ -847,7 +838,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       catchError(error => {
         console.error('Error in displayCorrectAnswersText$ observable:', error);
-        return of(null); // default to null in case of error
+        return of(null);  // default to null in case of error
       })
     );
   }
