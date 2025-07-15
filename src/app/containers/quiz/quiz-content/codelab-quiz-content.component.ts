@@ -670,6 +670,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             isNavigatingToPrevious: false
           } as CombinedQuestionDataType);
         }
+
+        let selectionMessage = '';
+        if ('selectionMessage' in currentQuizData) {
+          selectionMessage = currentQuizData.selectionMessage || '';
+        }
     
         // Ensure currentQuizData is an object with all necessary properties
         const completeQuizData: CombinedQuestionDataType = {
