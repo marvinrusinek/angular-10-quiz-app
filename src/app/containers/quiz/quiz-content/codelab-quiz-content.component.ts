@@ -769,7 +769,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         explanation: '',
         correctAnswersText: '',
         isExplanationDisplayed: false,
-        isNavigatingToPrevious: false
+        isNavigatingToPrevious: false,
+        selectionMessage: ''
       });
     }
 
