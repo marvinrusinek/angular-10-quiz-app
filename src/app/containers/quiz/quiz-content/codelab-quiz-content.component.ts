@@ -782,7 +782,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       explanation: isExplanationDisplayed ? formattedExplanation : '',
       correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
       isExplanationDisplayed: isExplanationDisplayed,
-      isNavigatingToPrevious: false
+      isNavigatingToPrevious: false,
+      selectionMessage: ''
     };
     return of(combinedQuestionData);
   }
