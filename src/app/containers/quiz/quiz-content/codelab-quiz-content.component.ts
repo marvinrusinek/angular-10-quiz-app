@@ -724,8 +724,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.quizService.nextQuestion$,
       this.quizService.nextOptions$
     ]).pipe(
-      filter(([q, opts]) => !!q && Array.isArray(opts) && opts.length > 0),
+      filter(([question, options]) => !!question && Array.isArray(options) && options.length > 0),
       map(([currentQuestion, currentOptions]) => {
+        console.log('[✅ Emitting Question + Options]', { currentQuestion, currentOptions });
         return { currentQuestion, currentOptions };
       }),
       catchError((error) => {
