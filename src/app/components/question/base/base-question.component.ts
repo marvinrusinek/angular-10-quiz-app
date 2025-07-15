@@ -355,7 +355,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
         // Deselect all other options
         for (const opt of this.optionsToDisplay) {
           opt.selected = opt === option;  // only select the clicked option
-          this.showFeedbackForOption[opt.optionId] = false; // hide feedback for other options
+          this.showFeedbackForOption[opt.optionId] = false;  // hide feedback for other options
         }
       } else {
         // For multiple-selection type questions, toggle the clicked option
@@ -371,7 +371,7 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   
       // Update feedback display for each option
       for (const opt of this.optionsToDisplay) {
-        this.showFeedbackForOption[opt.optionId] = true; // show feedback for clicked option
+        this.showFeedbackForOption[opt.optionId] = true;  // show feedback for clicked option
       }
   
       this.selectedOption = option;
@@ -433,7 +433,6 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   private handleOptionsToDisplayChange(change: SimpleChange): void {
-    console.log('Options change detected:', change);
     if (change.currentValue) {
       console.log('New options value:', change.currentValue);
       this.optionsToDisplay = change.currentValue;
