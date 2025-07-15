@@ -2421,6 +2421,11 @@ export class QuizQuestionComponent
     ev: { option: SelectedOption; index: number; checked: boolean }
   ): void {
     this.performInitialSelectionFlow(ev, ev.option);
+    this.handleInitialSelection({
+      option: ev.option,
+      index: ev.index,
+      checked: true
+    });
     this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
@@ -3302,22 +3307,6 @@ export class QuizQuestionComponent
         `[onOptionClicked] Explanation locked for question ${this.currentQuestionIndex}`
       );
     }
-  }
-
-  private toggleOptionState(option: SelectedOption, index: number): void {
-    if (
-      !option ||
-      !('optionId' in option) ||
-      typeof option.optionId !== 'number'
-    ) {
-      console.error('Invalid option passed to toggleOptionState:', option);
-      return;
-    }
-
-    option.selected = !option.selected;  // toggle the selection state
-
-    // Update the feedback display state for this option
-    this.showFeedbackForOption[option.optionId] = option.selected;
   }
 
   private startLoading(): void {
