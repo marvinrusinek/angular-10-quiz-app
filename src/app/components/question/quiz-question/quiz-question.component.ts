@@ -2100,7 +2100,7 @@ export class QuizQuestionComponent
                 quizQuestion.options = quizQuestion.options.map(
                   (option, index) => ({
                     ...option,
-                    optionId: index,
+                    optionId: index
                   })
                 );
               } else {
