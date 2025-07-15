@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
-import { combineLatest } from 'rxjs';
-import { catchError, filter, map, take } from 'rxjs/operators';
+import { catchError, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
