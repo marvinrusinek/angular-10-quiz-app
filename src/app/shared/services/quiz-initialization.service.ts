@@ -336,11 +336,9 @@ export class QuizInitializationService {
         console.log('Current question:', this.currentQuestion);
         console.log('Options with correct property:', this.options);
 
-        // Emit directly to QuizService streams (crucial!)
+        // Emit to shared streams
         this.quizService.nextQuestionSource.next(this.currentQuestion);
-        // this.quizService.nextQuestionSubject.next(this.currentQuestion);
         this.quizService.nextOptionsSource.next(this.options);
-        // this.quizService.nextOptionsSubject.next(this.options);
         
         // Fetch next question and options
         /* this.quizService
