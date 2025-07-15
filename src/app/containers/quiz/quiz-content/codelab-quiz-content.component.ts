@@ -679,7 +679,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanation: formattedExplanation,
           isNavigatingToPrevious: false,
           isExplanationDisplayed,
-          selectionMessage: currentQuizData.selectionMessage || '' 
+          selectionMessage
         };
     
         return this.calculateCombinedQuestionData(
