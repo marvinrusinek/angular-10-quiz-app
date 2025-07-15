@@ -34,8 +34,7 @@
     </ng-template>
 
     <mat-card-footer [ngClass]="cardFooterClass">
-      <h5 class="instructions-message"
-      *ngIf="selectionMessage$ | async as message">
+      <h5 class="instructions-message" *ngIf="selectionMessage$ | async as message">
         {{ message }}
       </h5>
 
