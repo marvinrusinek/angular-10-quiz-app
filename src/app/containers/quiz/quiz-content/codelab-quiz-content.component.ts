@@ -135,35 +135,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
     this.getCombinedDisplayTextStream();
 
-    /* this.isContentAvailable$ = combineLatest([
-      this.currentQuestion$,
-      this.currentOptions$
-    ]).pipe(
-      map(([question, options]) => !!question && options.length > 0),
-      distinctUntilChanged(),
-      catchError(error => {
-        console.error('Error in isContentAvailable$:', error);
-        return of(false);
-      })
-    ); */
-
-    /* this.isContentAvailable$ = combineLatest([this.currentQuestion$, this.quizService.options$]).pipe(
-      map(([question, options]) => {
-        const isAvailable = !!question && options.length > 0;
-        console.log('isContentAvailable$ emitted:', isAvailable, {
-          question,
-          options,
-        });
-        return isAvailable;
-      }),
-      distinctUntilChanged(), // Emit only when the value changes
-      catchError((error) => {
-        console.error('Error in isContentAvailable$:', error);
-        return of(false);
-      }),
-      startWith(false) // Start with `false` to indicate loading
-    ); */
-
     this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
         const isAvailable = !!currentQuestion && currentOptions.length > 0;
@@ -176,7 +147,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       catchError((error) => {
         console.error('Error in isContentAvailable$:', error);
-        return of(false); // fallback to `false` in case of errors
+        return of(false);  // fallback to `false` in case of errors
       }),
       startWith(false)
     );
@@ -192,7 +163,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }
     });
     
-    this.emitContentAvailableState(); // start emitting the content availability state
+    this.emitContentAvailableState();  // start emitting the content availability state
   
     // Load quiz data from the route first
     this.loadQuizDataFromRoute();
@@ -205,7 +176,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnChanges(): void {
     console.log('[🧠 ContentComponent Received]', this.questionText);
-    /** Run only when the new questionText arrives */
+    // Run only when the new questionText arrives
     if (!!this.questionText && !this.questionRendered.getValue()) {
       this.questionRendered.next(true);
       this.initializeExplanationTextObservable();
@@ -733,11 +704,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+  /* private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
       this.quizService.getCurrentQuestion(this.currentQuestionIndexValue), 
       this.quizService.getCurrentOptions(this.currentQuestionIndexValue)
     ]).pipe(
+      map(([currentQuestion, currentOptions]) => {
+        console.log('combineCurrentQuestionAndOptions - currentQuestion:', currentQuestion);
+        console.log('combineCurrentQuestionAndOptions - currentOptions:', currentOptions);
+        return { currentQuestion, currentOptions };
+      }),
+      catchError((error) => {
+        console.error('Error in combineCurrentQuestionAndOptions:', error);
+        return of({ currentQuestion: null, currentOptions: [] });
+      })
+    );
+  } */
+  private combineCurrentQuestionAndOptions(): Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
+    return combineLatest([
+      this.quizService.nextQuestion$,
+      this.quizService.nextOptions$
+    ]).pipe(
+      filter(([q, opts]) => !!q && Array.isArray(opts) && opts.length > 0),
       map(([currentQuestion, currentOptions]) => {
         console.log('combineCurrentQuestionAndOptions - currentQuestion:', currentQuestion);
         console.log('combineCurrentQuestionAndOptions - currentOptions:', currentOptions);
