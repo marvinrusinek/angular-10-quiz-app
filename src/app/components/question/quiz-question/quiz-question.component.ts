@@ -3451,13 +3451,7 @@ export class QuizQuestionComponent
     option: SelectedOption,
     index: number,
     checked: boolean
-  ): Promise<void> {
-    console.log('[🧪 Clicked Option]', {
-      currentQuestionIndex: this.currentQuestionIndex,
-      optionId: option.optionId,
-      feedback: option.feedback
-    });
-    
+  ): Promise<void> { 
     try {
       const event = { option, index, checked };
       await super.onOptionClicked(event);
