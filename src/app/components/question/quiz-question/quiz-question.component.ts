@@ -2427,7 +2427,7 @@ export class QuizQuestionComponent
       index: ev.index,
       checked: true
     });
-    
+
     this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
@@ -2435,7 +2435,6 @@ export class QuizQuestionComponent
     this.enableNextButton();
     this.cdRef.detectChanges();
   }
-  
  
   // Mark the binding and repaint highlight
   private markBindingSelected(opt: Option): void {
@@ -2476,7 +2475,7 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck();
   }
   
-  // Emit / display explanation
+  // Emit/display explanation
   private showExplanationLocked(snapshot: QuizQuestion, qIdx: number): void {
     if (!snapshot) {
       console.warn('[⚠️ showExplanationLocked] snapshot is null. Skipping explanation setup.');
