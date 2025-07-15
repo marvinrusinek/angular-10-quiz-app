@@ -458,9 +458,7 @@ export class QuizQuestionComponent
         .subscribe((opts: Option[]) => {
           // NEW array reference
           const fresh = [...opts];
-      
-          // Use the REAL input name you just confirmed
-          this.currentOptions = fresh;   // parent’s public field
+          this.currentOptions = fresh;  // parent’s public field
         });
   
     // Hydrate from payload
@@ -495,7 +493,7 @@ export class QuizQuestionComponent
   
     // Wait until questions are available
     if (!this.questionsArray || this.questionsArray.length <= index) {
-      setTimeout(() => this.ngAfterViewInit(), 50); // retry after a short delay
+      setTimeout(() => this.ngAfterViewInit(), 50);  // retry after a short delay
       return;
     }
   
@@ -548,7 +546,7 @@ export class QuizQuestionComponent
       }
   
       this.questionPayloadSubject.next(this.questionPayload);
-      this.enforceHydrationFallback(); // backup safety net
+      this.enforceHydrationFallback();  // backup safety net
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
@@ -568,13 +566,13 @@ export class QuizQuestionComponent
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
       setTimeout(() => {
-        console.log('[✅ renderReady] Conditions met, emitting true');
+        // Conditions met, emitting true
         this.renderReadySubject.next(true);
       }, 0);
     } else {
       console.warn('[⏸️ renderReady] Conditions not met:', {
         hasValidQuestion,
-        hasValidOptions,
+        hasValidOptions
       });
       this.renderReadySubject.next(false);
     }
@@ -1184,7 +1182,7 @@ export class QuizQuestionComponent
         // Mark quiz as loaded and emit
         this.isQuizLoaded = true;
         this.quizService.setQuestionsLoaded(true);
-        return true; // Indicate successful data loading
+        return true;  // Indicate successful data loading
       } else {
         console.error('No questions loaded.');
         return false;
@@ -1216,7 +1214,7 @@ export class QuizQuestionComponent
         this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
   
         // Load the question using correct index
-        const loaded = await this.loadQuestion(); // now uses new index
+        const loaded = await this.loadQuestion();  // now uses new index
         if (!loaded) {
           console.error(`[handleRouteChanges] ❌ Failed to load data for Q${questionIndex}`);
           return;
@@ -1426,9 +1424,9 @@ export class QuizQuestionComponent
     this.displaySubscriptions = [];
 
     // Additional clean-up logic
-    this.explanationToDisplay = ''; // clear any currently displayed explanation text
-    this.explanationToDisplayChange.emit(''); // emit empty string to reset UI elements
-    this.showExplanationChange.emit(false); // ensure explanation display is hidden
+    this.explanationToDisplay = '';  // clear any currently displayed explanation text
+    this.explanationToDisplayChange.emit('');  // emit empty string to reset UI elements
+    this.showExplanationChange.emit(false);  // ensure explanation display is hidden
   }
 
   private async initializeComponent(): Promise<void> {
@@ -1578,7 +1576,6 @@ export class QuizQuestionComponent
       });
   
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
-      console.log('[📋 Options cloned]', clonedOptions);
   
       try {
         instance.question = { ...question };
@@ -1612,10 +1609,6 @@ export class QuizQuestionComponent
         ariaLabel: opt.text ?? `Option ${idx + 1}`
       }));
   
-      console.log('[🔗 Option bindings set]', {
-        count: instance.optionBindings.length
-      });
-  
       instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: isMultipleAnswer ? 'multiple' : 'single',
@@ -1638,7 +1631,6 @@ export class QuizQuestionComponent
         feedback: '',
         idx: this.currentQuestionIndex
       };
-  
       console.log('[🧠 SharedOptionConfig set]');
   
       this.questionData = { ...instance.question, options: clonedOptions };
@@ -1681,7 +1673,7 @@ export class QuizQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    this.resetTexts(); // clean slate before loading new question
+    this.resetTexts();  // clean slate before loading new question
     this.startLoading();
 
     try {
@@ -1789,7 +1781,7 @@ export class QuizQuestionComponent
 
         this.optionsToDisplay = cloned;  // new reference
 
-        // finally update the route index (triggers the key change)
+        // Finally update the route index (triggers the key change)
         this.currentQuestionIndex = lockedIndex;  // keep index in sync
 
         if (this.sharedOptionComponent) {
