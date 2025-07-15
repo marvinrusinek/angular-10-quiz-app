@@ -727,7 +727,11 @@ export class QuizQuestionLoaderService {
       let opts = q.options ?? [];
       if (opts.length === 0) {
         // Fetch options separately when they’re not embedded in the question
-        opts = await firstValueFrom(this.quizService.getOptionsForQuiz(this.activeQuizId, index));
+        opts = await firstValueFrom(
+          this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
+            map(qs => qs?.[index]?.options ?? [])
+          )
+        );
         if (opts.length === 0) {
           console.error('[loadQA] no options for Q', index);
           return false;
