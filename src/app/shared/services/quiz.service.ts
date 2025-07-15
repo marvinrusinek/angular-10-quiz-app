@@ -1158,6 +1158,130 @@ export class QuizService implements OnDestroy {
     return this.currentQuestionIndexSubject.asObservable();
   }
 
+  getNextQuestion(currentQuestionIndex: number): Promise<QuizQuestion | undefined> {
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
+          // Log the inputs to help debug
+          console.log('[📊 getNextQuestion called]', {
+            currentQuiz,
+            currentQuestionIndex,
+          });
+  
+          // Ensure quiz and its questions exist
+          if (!currentQuiz) {
+            console.error('[❌ getNextQuestion] currentQuiz is undefined or null');
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+  
+          if (!Array.isArray(currentQuiz.questions)) {
+            console.error('[❌ getNextQuestion] currentQuiz.questions is not an array', {
+              questions: currentQuiz.questions,
+            });
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+  
+          // Validate currentQuestionIndex
+          if (isNaN(currentQuestionIndex) || currentQuestionIndex < 0 || currentQuestionIndex >= currentQuiz.questions.length) {
+            console.error('[❌ getNextQuestion] Invalid currentQuestionIndex', {
+              currentQuestionIndex,
+              total: currentQuiz.questions.length,
+            });
+            this.nextQuestionSource.next(null);
+            this.nextQuestionSubject.next(null);
+            return undefined;
+          }
+  
+          // Fetch the question
+          const nextQuestion = currentQuiz.questions[currentQuestionIndex];
+          this.nextQuestionSource.next(nextQuestion);
+          this.nextQuestionSubject.next(nextQuestion);
+          this.setCurrentQuestionAndNext(nextQuestion, '');
+  
+          console.log('[✅ getNextQuestion] Successfully retrieved question', nextQuestion);
+          return nextQuestion;
+        })
+      )
+    );
+  }
+
+  getPreviousQuestion(
+    questionIndex: number
+  ): Promise<QuizQuestion | undefined> {
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): QuizQuestion | undefined => {
+          const previousIndex = questionIndex - 1;
+
+          if (
+            currentQuiz &&
+            Array.isArray(currentQuiz.questions) &&
+            previousIndex >= 0 &&
+            previousIndex < currentQuiz.questions.length
+          ) {
+            return currentQuiz.questions[previousIndex];
+          } else {
+            return undefined;
+          }
+        })
+      )
+    );
+  }
+
+  getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
+    return firstValueFrom(
+      this.getCurrentQuiz().pipe(
+        map((currentQuiz: Quiz | undefined): Option[] | undefined => {
+          if (
+            currentQuiz &&
+            Array.isArray(currentQuiz.questions) &&
+            currentQuestionIndex >= 0 &&
+            currentQuestionIndex < currentQuiz.questions.length
+          ) {
+            const currentOptions =
+              currentQuiz.questions[currentQuestionIndex].options;
+
+            // Broadcast the current options
+            this.nextOptionsSource.next(currentOptions);
+            this.nextOptionsSubject.next(currentOptions);
+
+            return currentOptions;
+          }
+
+          // Broadcast null when index is invalid
+          this.nextOptionsSource.next(null);
+          this.nextOptionsSubject.next(null);
+
+          return undefined;
+        })
+      )
+    );
+  }
+
+  async getPreviousOptions(
+    questionIndex: number
+  ): Promise<Option[] | undefined> {
+    try {
+      const previousQuestion = await this.getPreviousQuestion(questionIndex);
+      if (previousQuestion) {
+        console.log('Previous question retrieved:', previousQuestion);
+        return previousQuestion.options;
+      }
+      console.log('No previous question found.');
+      return [];
+    } catch (error) {
+      console.error(
+        'Error occurred while fetching options for the previous question:',
+        error
+      );
+      throw error;
+    }
+  }
+
   // set the text of the previous user answers in an array to show in the following quiz
   setPreviousUserAnswersText(questions: QuizQuestion[], previousAnswers): void {
     this.previousAnswers = previousAnswers.map((answer) => {
