@@ -180,11 +180,13 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   private initializeQuestionIfAvailable(): void {
-    if (this.question) {
+    if (this.question && Array.isArray(this.question.options) && this.question.options.length > 0) {
       this.setCurrentQuestion(this.question);
       this.initializeQuestion();
+    } else {
+      console.warn('[⚠️ initializeQuestionIfAvailable] Question or options not ready:', this.question);
     }
-  }
+  }  
 
   /* protected initializeOptions(): void {
     if (!this.question) {
@@ -438,10 +440,16 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     if (change.currentValue) {
       this.question = change.currentValue;
       this.updateQuizStateService();
-      this.initializeQuestion();
-      this.optionsInitialized = true;
+  
+      if (Array.isArray(this.question.options) && this.question.options.length > 0) {
+        this.initializeQuestion();
+        this.optionsInitialized = true;
+      } else {
+        console.warn('[⚠️ handleQuestionChange] Options not loaded yet:', this.question);
+      }
+  
     } else {
-      console.warn('Received null or undefined question:', change);
+      console.warn('[⚠️ handleQuestionChange] Received null or undefined question:', change);
     }
   }
 
