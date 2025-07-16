@@ -203,9 +203,7 @@ export class QuizService implements OnDestroy {
   destroy$ = new Subject<void>();
   private quizUrl = 'assets/data/quiz.json';
 
-  private static instance = 0;
-
-  private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
+  questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   questionPayload$ = this.questionPayloadSubject.asObservable();
 
   constructor(
