@@ -12,6 +12,7 @@ import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
+import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
@@ -204,10 +205,8 @@ export class QuizService implements OnDestroy {
 
   private static instance = 0;
 
-  correctSound: Howl | undefined;
-  incorrectSound: Howl | undefined;
-  private sound: Howl | undefined;
-  private soundsLoaded = false;
+  private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
+  questionPayload$ = this.questionPayloadSubject.asObservable();
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -2249,5 +2248,11 @@ export class QuizService implements OnDestroy {
     this.nextQuestionSubject.next(currentQuestion);
     this.nextOptionsSubject.next(options);
     console.log('[🚀 Emitted question and options together]');
+
+    this.questionPayloadSubject.next({
+      question,
+      options,
+      explanation: question.explanation ?? ''
+    });
   }
 }
