@@ -3982,10 +3982,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private resetSharedUIState(): void {
-    if (this.quizQuestionComponent)
-      this.quizQuestionComponent.renderReady = false;
+    this.quizQuestionComponent && (this.quizQuestionComponent.renderReady = false);
     this.sharedOptionComponent?.resetUIForNewQuestion();
-  }
+  }  
 
   private syncCurrentIndex(index: number): void {
     this.currentQuestionIndex = index;
@@ -4092,7 +4091,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectedOptionService.logCurrentState?.();
     }, 0);
 
-    this.soundService.reset(); // allow sounds to play again
+    this.soundService.reset();  // allow sounds to play again
     this.soundService.clearPlayedOptionsForQuestion(0);
     this.timerService.stopTimer?.();
 
