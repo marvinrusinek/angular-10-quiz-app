@@ -2243,76 +2243,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  /* private initializeQuizBasedOnRouteParams(): void {
-    this.activatedRoute.paramMap
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap((params: ParamMap) => {
-          const quizId = params.get('quizId');
-          const questionIndexParam = params.get('questionIndex');
-          const routeIndex = questionIndexParam ? Number(questionIndexParam) : 1;
-          const internalIndex = Math.max(routeIndex - 1, 0); // ✅ Convert to 0-based
-  
-          console.log(`[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`);
-  
-          if (!quizId) {
-            console.error('[Route Init] ❌ No quizId found in URL.');
-            return EMPTY;
-          }
-  
-          this.quizId = quizId;
-          this.currentQuestionIndex = internalIndex;
-  
-          return this.handleRouteParams(params).pipe(
-            catchError((error: Error) => {
-              console.error('[Route Init] ❌ Error in handleRouteParams:', error);
-              return EMPTY;
-            })
-          );
-        }),
-        switchMap((data) => {
-          const { quizData, questionIndex } = data;
-  
-          if (!quizData || !Array.isArray(quizData.questions)) {
-            console.error('[Route Init] ❌ Invalid quiz data or missing questions array.', quizData);
-            return EMPTY;
-          }
-  
-          const lastIndex = quizData.questions.length - 1;
-          const adjustedIndex = Math.min(questionIndex, lastIndex);
-          this.currentQuestionIndex = adjustedIndex;
-  
-          // ✅ Apply quiz data + state
-          this.quizService.setActiveQuiz(quizData);
-          this.quizService.setCurrentQuestionIndex(adjustedIndex);
-          this.initializeQuizState();
-  
-          return this.quizService.getQuestionByIndex(adjustedIndex);
-        }),
-        catchError((error: Error) => {
-          console.error('[Route Init] ❌ Failed to initialize quiz:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe({
-        next: async (question: QuizQuestion | null) => {
-          if (!question) {
-            console.error('[Route Init] ❌ No question returned.');
-            return;
-          }
-  
-          this.currentQuiz = this.quizService.getActiveQuiz();
-  
-          console.log(`[Route Init] ✅ Question Loaded: Q${this.currentQuestionIndex}`);
-  
-          // 👇 Ensures everything resets and loads cleanly
-          await this.acquireAndNavigateToQuestion(this.currentQuestionIndex);
-        },
-        complete: () => {
-          console.log('[Route Init] 🟢 Initialization complete.');
-        }
-      });
-  } */
   private initializeQuizBasedOnRouteParams(): void {
     this.activatedRoute.paramMap
       .pipe(
@@ -2323,7 +2253,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           const routeIndex = Number(questionIndexParam);
           const internalIndex = isNaN(routeIndex)
             ? 0
-            : Math.max(routeIndex - 1, 0); // 0-based
+            : Math.max(routeIndex - 1, 0);  // 0-based
 
           if (!quizId) {
             console.error('[Route Init] ❌ No quizId found in URL.');
