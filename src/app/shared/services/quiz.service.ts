@@ -2249,10 +2249,15 @@ export class QuizService implements OnDestroy {
     this.nextOptionsSubject.next(options);
     console.log('[🚀 Emitted question and options together]');
 
-    this.questionPayloadSubject.next({
-      question,
-      options,
-      explanation: question.explanation ?? ''
-    });
+    const q = this.currentQuestion.getValue();
+    const opts = this.nextOptionsSubject.getValue();
+
+    if (q && opts?.length > 0) {
+      this.questionPayloadSubject.next({
+        question: q,
+        options: opts,
+        explanation: q.explanation ?? ''
+      });
+    }
   }
 }
