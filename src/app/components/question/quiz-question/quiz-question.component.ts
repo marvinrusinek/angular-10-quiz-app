@@ -1805,10 +1805,9 @@ export class QuizQuestionComponent
 
       if (this.currentQuestion && this.optionsToDisplay?.length > 0) {
         this.questionAndOptionsReady.emit();
+        this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
         console.log('[📤 QQC] Emitted questionAndOptionsReady event');
       }
-      
-      this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
 
       return true;
     } catch (error) {
