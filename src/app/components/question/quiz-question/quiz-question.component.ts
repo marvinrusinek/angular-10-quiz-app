@@ -210,7 +210,6 @@ export class QuizQuestionComponent
 
   public finalRenderReadySubject = new BehaviorSubject<boolean>(false);
   public finalRenderReady$ = this.finalRenderReadySubject.asObservable();
-
   public finalRenderReady = false;
   public internalBufferReady = false;
   
@@ -453,7 +452,7 @@ export class QuizQuestionComponent
 
       this.quizQuestionLoaderService.options$
         .pipe(
-          filter(arr => Array.isArray(arr) && arr.length > 0) // skip empties
+          filter(arr => Array.isArray(arr) && arr.length > 0)  // skip empties
         )
         .subscribe((opts: Option[]) => {
           // NEW array reference
