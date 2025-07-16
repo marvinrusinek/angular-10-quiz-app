@@ -2001,7 +2001,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     if (typeof input === 'object' && Array.isArray(input.options)) {
       const correctOptionsCount = input.options.filter(opt => opt.correct).length;
-      console.log(`[🔍 determineQuestionType] Correct Options Count: ${correctOptionsCount}`);
   
       if (correctOptionsCount > 1) {
         return 'multiple';
