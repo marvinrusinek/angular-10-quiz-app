@@ -1980,10 +1980,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
-  shouldShowExplanation(index: number): boolean {
-    return !!this.explanationToDisplay;
-  }
-
   updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
       this.questions[this.currentQuestionIndex].questionText;
