@@ -1398,13 +1398,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async initializeRouteParams(): Promise<void> {
-    // *Ensure questions are loaded before processing route parameters**
+    // Ensure questions are loaded before processing route parameters
     const loadedSuccessfully = await this.ensureQuestionsLoaded();
     if (!loadedSuccessfully) {
       console.error(
         'Aborting route param initialization due to failed quiz load.'
       );
-      return; // stop if loading fails
+      return;  // stop if loading fails
     }
 
     // Handle route parameters only if questions are loaded
