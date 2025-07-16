@@ -3386,29 +3386,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return this.quizService.shouldExplanationBeDisplayed();
   }
 
-  private async checkIfAnswerSelected(): Promise<void> {
-    try {
-      const isAnswered = await lastValueFrom(
-        this.quizService.isAnswered(this.currentQuestionIndex)
-      );
-
-      console.log('isAnswered from quizService:', isAnswered);
-
-      // Emit the state to isAnsweredSubject
-      this.selectedOptionService.isAnsweredSubject.next(isAnswered);
-
-      if (isAnswered) {
-        console.log('All correct answers selected. Enabling Next button.');
-      } else {
-        console.log(
-          'Not all correct answers selected yet. Next button disabled.'
-        );
-      }
-    } catch (error) {
-      console.error('Error checking if answer is selected:', error);
-    }
-  }
-
   loadCurrentQuestion(): void {
     this.quizService
       .getCurrentQuestionByIndex(this.quizId, this.currentQuestionIndex)
