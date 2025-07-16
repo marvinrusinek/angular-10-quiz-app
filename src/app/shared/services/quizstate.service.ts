@@ -61,7 +61,7 @@ export class QuizStateService {
   });
   public displayState$ = this.displayStateSubject.asObservable();
 
-  private qaSubject = new ReplaySubject<QAPayload>(1);
+  qaSubject = new ReplaySubject<QAPayload>(1);
   qa$ = this.qaSubject.asObservable();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
