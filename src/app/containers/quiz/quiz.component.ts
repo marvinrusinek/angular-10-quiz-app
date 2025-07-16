@@ -3588,6 +3588,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       }
 
+      // Emit QA data with benchmark
+      console.time('🕒 QA emitted');
+      this.quizService.questionPayloadSubject.next({
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: this.currentQuestion?.explanation ?? ''
+      });
+      console.timeEnd('🕒 QA emitted');
+
+
       // ───────── Flip “options loaded” flags together ─────────
       this.hasOptionsLoaded = true;
       this.shouldRenderOptions = true;
