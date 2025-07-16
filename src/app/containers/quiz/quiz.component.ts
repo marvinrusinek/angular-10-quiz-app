@@ -2131,13 +2131,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     const data: QuizQuestion = {
       questionText: questionData.questionText,
-      explanation: questionData.explanation || '', // ensure explanation exists
+      explanation: questionData.explanation || '',  // ensure explanation exists
       options: questionData.options || [],
-      type: (questionData.type as QuestionType) ?? QuestionType.SingleAnswer,
+      type: (questionData.type as QuestionType) ?? QuestionType.SingleAnswer
     };
 
-    // ✅ Assign only valid `QuizQuestion` fields
-    this.data = data; // ✅ Now `this.data` is of type `QuizQuestion`
+    // Assign only valid `QuizQuestion` fields
+    this.data = data;  // now `this.data` is of type `QuizQuestion`
 
     // Set Quiz ID
     this.quizService.setQuizId(quizId);
@@ -2158,8 +2158,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Subscribe to current options with filter and take
     this.quizStateService.currentOptions$
       .pipe(
-        filter((options: Option[]) => options && options.length > 0), // Only process non-empty options
-        take(1) // Automatically unsubscribe after the first valid emission
+        filter((options: Option[]) => options && options.length > 0),  // Only process non-empty options
+        take(1)  // automatically unsubscribe after the first valid emission
       )
       .subscribe({
         next: (options: Option[]) => {
@@ -2170,7 +2170,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             questionText: this.data.questionText,
             options: options.map((option) => ({
               ...option,
-              correct: option.correct ?? false, // Default to false if `correct` is undefined
+              correct: option.correct ?? false  // default to false if `correct` is undefined
             })),
             explanation:
               this.explanationTextService.formattedExplanationSubject.getValue(),
@@ -2188,7 +2188,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               `No correct options found for question: "${currentQuestion.questionText}". Options:`,
               currentQuestion.options
             );
-            return; // Exit early to avoid setting invalid correct answers
+            return;  // exit early to avoid setting invalid correct answers
           }
 
           // Set correct answers if valid options are found
@@ -2229,7 +2229,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       // Apply feedback to options through QuizQuestionComponent
-      this.showFeedback = true; // enable feedback display
+      this.showFeedback = true;  // enable feedback display
 
       // Trigger change detection to update the UI
       this.cdRef.detectChanges();
