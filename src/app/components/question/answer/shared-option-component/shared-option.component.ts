@@ -21,7 +21,6 @@ import { SoundService } from '../../../../shared/services/sound.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
 
-
 @Component({
   selector: 'app-shared-option',
   templateUrl: './shared-option.component.html',
@@ -57,6 +56,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
   @Input() isNavigatingBackwards: boolean = false;
+  @Input() renderReady = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
   @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
