@@ -393,26 +393,20 @@ export class QuizQuestionComponent
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        tap(() => {
-          this.renderReady = false;
-          this.cdRef.detectChanges();  // trigger hide
-        }),
         tap((payload) => {
-          // Consolidated hydration here
+          // Assign all data at once
           const { question, options, explanation } = payload;
           this.currentQuestion = question;
           this.optionsToDisplay = [...options];
           this.explanationToDisplay = explanation?.trim() || '';
+      
+          // Show everything together — Q + A in one paint pass
           this.renderReady = true;
           this.cdRef.detectChanges();
+      
+          console.log('[✅ renderReady triggered with Q&A]');
         }),
-        map(() => true),
-        tap(() => {
-          requestAnimationFrame(() => {
-            this.renderReady = true;
-            this.cdRef.detectChanges();  // only show after next browser paint
-          });
-        })
+        map(() => true)
       );
 
       // Add the visibility change listener
