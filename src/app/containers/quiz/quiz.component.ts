@@ -2946,8 +2946,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.warn(
         'Questions array is not initialized or empty. Loading questions...'
       );
-      await this.loadQuizData(); // Ensure questions are loaded
-      await new Promise((resolve) => setTimeout(resolve, 500)); // small delay before rechecking
+      await this.loadQuizData();  // ensure questions are loaded
+      await new Promise((resolve) => setTimeout(resolve, 500));  // small delay before rechecking
     }
 
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
@@ -2980,7 +2980,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const isAnswered = questionState.isAnswered;
     const explanationAlreadyDisplayed = questionState.explanationDisplayed;
 
-    // 💡 Only disable if it's a fresh unanswered question AND explanation not yet shown
+    // Only disable if it's a fresh unanswered question and explanation not yet shown
     const shouldDisableExplanation =
       !isAnswered && !explanationAlreadyDisplayed;
 
@@ -3019,7 +3019,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         );
       }
 
-      // Always lock and enable explanation AFTER setting the text
+      // Always lock and enable explanation after setting the text
       this.explanationTextService.setResetComplete(true);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
@@ -3122,7 +3122,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Validate and normalize options
     this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
       ...option,
-      optionId: option.optionId ?? index + 1, // Assign a unique ID if missing
+      optionId: option.optionId ?? index + 1,  // assign a unique ID if missing
     }));
 
     // Log undefined optionIds if any
@@ -3134,7 +3134,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         '[checkIfAnswered] Options with undefined optionId found:',
         undefinedOptionIds
       );
-      callback(false); // Abort the check since option structure is invalid
+      callback(false);  // abort the check since option structure is invalid
       return;
     }
 
@@ -3180,7 +3180,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     setTimeout(() => {
       this.timerService.startTimer();
       this.cdRef.markForCheck();
-    }, 50); // Wait 50ms to make sure options are rendered
+    }, 50);  // wait 50ms to make sure options are rendered
   }
 
   private async ensureOptionsLoaded(): Promise<void> {
@@ -3216,7 +3216,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   handleOptions(options: Option[] = []): void {
     if (!Array.isArray(options) || options.length === 0) {
       console.error('No valid options provided');
-      this.options = []; // Set to empty array to avoid errors
+      this.options = [];  // set to empty array to avoid errors
       return;
     }
 
@@ -3226,7 +3226,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       text: option.text ?? 'N/A',
       isCorrect: option.correct ?? false,
       answer: option.answer ?? null,
-      isSelected: false, // Always default to unselected
+      isSelected: false  // always default to unselected
     })) as Option[];
 
     if (this.selectedQuiz && this.options.length > 1) {
@@ -3322,7 +3322,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   handleQuestion(question: QuizQuestion | null): void {
     if (!question) {
       console.error('Invalid question provided.');
-      this.question = null; // Reset the question to avoid stale data
+      this.question = null;  // reset the question to avoid stale data
       return;
     }
 
