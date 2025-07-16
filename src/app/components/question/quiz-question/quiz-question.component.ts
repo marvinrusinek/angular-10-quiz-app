@@ -375,6 +375,12 @@ export class QuizQuestionComponent
     this.currentQuestionIndex = routeIndex;  // ensures correct index
     this.fixedQuestionIndex = isNaN(routeIndex) ? 0 : routeIndex - 1;
 
+    const loaded = await this.loadQuestion();
+    if (!loaded) {
+      console.error('[❌ Failed to load initial question]');
+      return;
+    }
+
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
