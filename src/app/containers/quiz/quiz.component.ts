@@ -4051,4 +4051,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   triggerAnimation(): void {
     this.animationState$.next('animationStarted');
   }
+
+  private emitQuestionAndOptions(): void {
+    if (!this.currentQuestion || !this.optionsToDisplay) {
+      console.warn('[emitQuestionAndOptions] Missing data to emit.');
+      return;
+    }
+  
+    this.quizService.nextQuestion$.next(this.currentQuestion);
+    this.quizService.nextOptions$.next(this.optionsToDisplay);
+    console.log('[🚀 Emitted question and options together]');
+  }  
 }
