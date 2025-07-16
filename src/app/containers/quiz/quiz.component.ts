@@ -1404,7 +1404,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error(
         'Aborting route param initialization due to failed quiz load.'
       );
-      return; // Stop if loading fails
+      return; // stop if loading fails
     }
 
     // Handle route parameters only if questions are loaded
@@ -1421,7 +1421,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       if (Array.isArray(this.questions) && this.questions.length > 0) {
         if (adjustedIndex === 0) {
-          await this.initializeFirstQuestion(); // wait for first question to be initialized
+          await this.initializeFirstQuestion();  // wait for first question to be initialized
         } else {
           this.updateQuestionDisplay(adjustedIndex);
         }
@@ -1435,7 +1435,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private async ensureQuestionsLoaded(): Promise<boolean> {
     if (this.isQuizLoaded) {
-      return true; // Skip loading if already loaded
+      return true;  // skip loading if already loaded
     }
 
     const loadedSuccessfully = await this.loadQuizData();
@@ -1446,7 +1446,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   // Utility function to wait for questions to load
   private async waitForQuestionsToLoad(): Promise<void> {
     while (!Array.isArray(this.questions) || this.questions.length === 0) {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Check every 100ms
+      await new Promise((resolve) => setTimeout(resolve, 100));  // check every 100ms
     }
   }
 
@@ -1455,8 +1455,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.activatedRoute.data
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((data: { quizData: Quiz }) => {
-        // console.log('Resolved quiz data:', data.quizData);
-
         if (
           data.quizData &&
           Array.isArray(data.quizData.questions) &&
@@ -1469,7 +1467,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             data.quizData.questions.map((question) => question.explanation)
           );
 
-          this.initializeQuiz(); // Ensure this method sets currentQuestionIndex correctly
+          this.initializeQuiz();  // ensure this method sets currentQuestionIndex correctly
         } else {
           console.error('Quiz data is undefined, or there are no questions');
           this.router.navigate(['/select']).then(() => {
@@ -1499,9 +1497,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           takeUntil(this.destroy$),
           catchError((err) => {
             console.error('Error fetching quiz:', err);
-            return of(null); // Return null to handle the empty case
+            return of(null);  // return null to handle the empty case
           }),
-          filter((quiz) => !!quiz) // Ensure that only valid, non-null quizzes are passed
+          filter((quiz) => !!quiz)  // ensure that only valid, non-null quizzes are passed
         )
       );
 
@@ -1592,7 +1590,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const questions = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.quizId)
       );
-      this.questions = questions; // Store the fetched questions in a component property
+      this.questions = questions;  // store the fetched questions in a component property
 
       const question = questions[this.currentQuestionIndex];
 
@@ -1761,7 +1759,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         console.log('✅ All explanations preloaded and logged.');
       }),
-      map(() => true), // Ensure this Observable resolves to true
+      map(() => true),  // ensure this Observable resolves to true
       catchError((err) => {
         console.error('❌ Error preloading explanations:', err);
         return of(false);
@@ -1788,8 +1786,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Prepare and display feedback
       setTimeout(() => {
-        this.displayFeedback(); // Call after options are loaded
-      }, 100); // Add slight delay to ensure options are loaded
+        this.displayFeedback();  // call after options are loaded
+      }, 100);  // add slight delay to ensure options are loaded
 
       this.isNavigatedByUrl = false;
     } else {
@@ -1818,11 +1816,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           '[loadQuestionByRouteIndex] ⚠️ Invalid route index:',
           routeIndex
         );
-        this.router.navigate(['/question/', this.quizId, 1]); // or redirect to the first question
+        this.router.navigate(['/question/', this.quizId, 1]);  // or redirect to the first question
         return;
       }
 
-      const questionIndex = routeIndex - 1; // convert 1-based URL index to 0-based
+      const questionIndex = routeIndex - 1;  // convert 1-based URL index to 0-based
       console.log(
         `[loadQuestionByRouteIndex] 🚀 Navigating to Q${questionIndex}`
       );
@@ -1871,11 +1869,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             ? option.optionId
             : index + 1,
       }));
-
-      console.log(
-        '[loadQuestionByRouteIndex] ✅ Options to Display:',
-        this.optionsToDisplay
-      );
 
       const correctOptions = this.optionsToDisplay.filter((opt) => opt.correct);
       if (!correctOptions.length) {
@@ -1968,13 +1961,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private resetFeedbackState(): void {
-    console.log('[resetFeedbackState] 🔄 Resetting feedback state...');
     this.showFeedback = false;
     this.showFeedbackForOption = {};
     this.optionsToDisplay.forEach((option) => {
       option.feedback = '';
       option.showIcon = false;
-      option.selected = false; // Reset selection before reapplying
+      option.selected = false;  // reset selection before reapplying
     });
     this.cdRef.detectChanges();
   }
