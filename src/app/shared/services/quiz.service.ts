@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
-import { Howl } from 'howler';
 import _, { isEqual } from 'lodash';
 
 import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
@@ -20,7 +19,6 @@ import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { ExplanationTextService } from '../../shared/services/explanation-text.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
@@ -207,7 +205,6 @@ export class QuizService implements OnDestroy {
   questionPayload$ = this.questionPayloadSubject.asObservable();
 
   constructor(
-    private explanationTextService: ExplanationTextService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private http: HttpClient
