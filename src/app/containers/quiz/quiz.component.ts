@@ -2434,12 +2434,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Ensure options have the `correct` property explicitly set
         this.options = this.currentQuestion.options.map((option) => ({
           ...option,
-          correct: option.correct ?? false, // Default `correct` to false if undefined
+          correct: option.correct ?? false  // default `correct` to false if undefined
         }));
-
-        console.log('Questions loaded:', questions);
-        console.log('Current question:', this.currentQuestion);
-        console.log('Options with correct property:', this.options);
 
         this.quizService
           .getCurrentQuiz()
@@ -2448,7 +2444,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             take(1)
           )
           .subscribe(async () => {
-            /* ── Fetch the current question by index ───────────────────── */
+            // ── Fetch the current question by index ─────────────────────
             try {
               const question = await firstValueFrom(
                 this.quizService
@@ -2468,7 +2464,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               console.error('Error fetching question:', err);
             }
 
-            /* ── Fetch the options for that same question ──────────────── */
+            // ── Fetch the options for that same question ────────────────
             try {
               const options: Option[] = await firstValueFrom(
                 this.quizService
@@ -2479,7 +2475,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               if (options && options.length) {
                 const updatedOptions = options.map((opt) => ({
                   ...opt,
-                  correct: opt.correct ?? false,
+                  correct: opt.correct ?? false
                 }));
                 console.log('Options with correct property:', updatedOptions);
               } else {
@@ -2505,7 +2501,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           ...question,
           options: question.options.map((option) => ({
             ...option,
-            correct: option.correct ?? false,
+            correct: option.correct ?? false
           })),
         }));
         this.isQuizDataLoaded = true;
@@ -2524,7 +2520,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       questionText: 'No question available',
       type: QuestionType.SingleAnswer,
       explanation: '',
-      options: [],
+      options: []
     };
 
     const createSafeQuestionData = (
@@ -2620,7 +2616,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }),
       catchError((error) => {
         console.error('[❌ Error in createQuestionData]', error);
-        return of(createSafeQuestionData(null, [])); // fallback
+        return of(createSafeQuestionData(null, []));  // fallback
       })
     );
   }
@@ -2654,7 +2650,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ...question,
         options: options?.map((option) => ({
           ...option,
-          correct: option.correct ?? false,
+          correct: option.correct ?? false
         })),
       });
     } catch (error) {
@@ -2667,14 +2663,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     return this.quizService.getCurrentOptions(index).pipe(
       catchError((error) => {
         console.error('Error fetching options:', error);
-        return of([]); // Fallback to an empty array
+        return of([]);  // fallback to an empty array
       })
     );
   }
 
   getContentAvailability(): Observable<boolean> {
     return combineLatest([
-      this.currentQuestion$, // Ensure this is initialized
+      this.currentQuestion$,  // ensure this is initialized
       this.options$,
     ]).pipe(
       map(([question, options]) => !!question && options.length > 0),
@@ -2752,12 +2748,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             'Error subscribing to current question from quizService:',
             error
           );
-          return of(null); // Emit null to continue the stream
+          return of(null);  // emit null to continue the stream
         })
       ),
       this.quizStateService.currentQuestion$
     ).pipe(
-      map((val) => val as QuizQuestion | null) // explicitly cast to resolve merge typing ambiguity
+      map((val) => val as QuizQuestion | null)  // explicitly cast to resolve merge typing ambiguity
     );
 
     combinedQuestionObservable
@@ -2783,7 +2779,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private async handleNewQuestion(question: QuizQuestion): Promise<void> {
     try {
       this.currentQuestion = question;
-      this.options = question.options || []; // Initialize options safely
+      this.options = question.options || [];  // initialize options safely
       this.currentQuestionType = question.type;
 
       // Handle correct answers text update
@@ -2807,8 +2803,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private resetCurrentQuestionState(): void {
     this.currentQuestion = null;
     this.options = [];
-    this.currentQuestionType = null; // Reset on error
-    this.correctAnswersTextSource.next(''); // Clear the correct answers text
+    this.currentQuestionType = null;  // reset on error
+    this.correctAnswersTextSource.next('');  // clear the correct answers text
     console.warn('Resetting the current question state.');
   }
 
@@ -2876,8 +2872,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
       next: (currentQuiz) => {
-        console.log('[✅ QUIZ LOADED]', currentQuiz);
-
         // Validate the quiz object
         if (!currentQuiz) {
           console.error(`Quiz not found: Quiz ID ${this.quizId}`);
