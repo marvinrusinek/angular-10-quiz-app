@@ -392,7 +392,6 @@ export class QuizQuestionComponent
 
       this.renderReady$ = this.questionPayloadSubject.pipe(
         filter((payload): payload is QuestionPayload => !!payload),
-        auditTime(30),  // batch rapid changes
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         tap(() => {
           this.renderReady = false;
@@ -404,8 +403,9 @@ export class QuizQuestionComponent
           this.currentQuestion = question;
           this.optionsToDisplay = [...options];
           this.explanationToDisplay = explanation?.trim() || '';
+          this.renderReady = true;
+          this.cdRef.detectChanges();
         }),
-        delay(16),  // let DOM settle (~1 frame)
         map(() => true),
         tap(() => {
           requestAnimationFrame(() => {
