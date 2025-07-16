@@ -3427,7 +3427,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 },
                 error: (error) => {
                   console.error('Error fetching options:', error);
-                  this.optionsToDisplay = []; // Fallback in case of error
+                  this.optionsToDisplay = [];  // fallback in case of error
                 },
               });
           } else {
@@ -3439,7 +3439,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }),
         catchError((error) => {
           console.error('Error fetching question:', error);
-          return of(null); // Return fallback observable if needed
+          return of(null);  // Return fallback observable if needed
         })
       )
       .subscribe();
@@ -3483,7 +3483,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    this.navigatingToResults = true; // prevent multiple clicks
+    this.navigatingToResults = true;  // prevent multiple clicks
 
     // Reset quiz state
     this.quizService.resetAll();
@@ -3511,7 +3511,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.error('Error during checkIfAnsweredCorrectly:', error);
         })
         .finally(() => {
-          this.navigatingToResults = false; // Allow navigation again after the process
+          this.navigatingToResults = false;  // allow navigation again after the process
         });
     } else {
       console.warn('Quiz already marked as completed.');
