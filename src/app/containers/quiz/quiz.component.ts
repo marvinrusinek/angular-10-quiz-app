@@ -2843,7 +2843,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
       const selectedQuestion = this.questions[questionIndex];
 
-      this.questionTextLoaded = false; // reset to false before updating
+      this.questionTextLoaded = false;  // reset to false before updating
 
       this.questionToDisplay = selectedQuestion.questionText;
       this.optionsToDisplay = selectedQuestion.options;
@@ -2871,8 +2871,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const explanationAlreadyDisplayed = questionState.explanationDisplayed;
 
     // Only disable if it's a fresh unanswered question and explanation not yet shown
-    const shouldDisableExplanation =
-      !isAnswered && !explanationAlreadyDisplayed;
+    const shouldDisableExplanation = !isAnswered && !explanationAlreadyDisplayed;
 
     if (isAnswered || explanationAlreadyDisplayed) {
       // Validate inputs and ensure explanation system is initialized
@@ -2928,13 +2927,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.showExplanation = false;
     }
-
-    console.log(`[🛠️ updateQuestionStateAndExplanation] Q${questionIndex}:`, {
-      isAnswered,
-      explanationAlreadyDisplayed,
-      shouldDisableExplanation,
-      explanation: this.explanationToDisplay,
-    });
   }
 
   async initializeFirstQuestion(): Promise<void> {
@@ -3012,7 +3004,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Validate and normalize options
     this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
       ...option,
-      optionId: option.optionId ?? index + 1,  // assign a unique ID if missing
+      optionId: option.optionId ?? index + 1  // assign a unique ID if missing
     }));
 
     // Log undefined optionIds if any
@@ -3306,7 +3298,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }),
         catchError((error) => {
           console.error('Error fetching question:', error);
-          return of(null);  // Return fallback observable if needed
+          return of(null);  // return fallback observable
         })
       )
       .subscribe();
@@ -3512,8 +3504,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.nextButtonStateService.syncNextButtonState();
       }
 
-      console.log('[⏳ Starting parallel fetch for question and options]');
-
+      // Parallel fetch for question and options
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(
@@ -4036,7 +4027,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
                 this.explanationTextService.triggerExplanationEvaluation();
               }, 10);
 
-              // Start timer only after UI + logic settle
+              // Start timer only after UI and logic settle
               this.timerService.startTimer(this.timerService.timePerQuestion);  // reset timer after quiz reset
             }, 100);  // delay for explanation logic/DOM to stabilize
           } catch (error) {
