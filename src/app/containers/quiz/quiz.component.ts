@@ -3568,6 +3568,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Emit Q+A before any rendering logic kicks in
       this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
 
+      // Then set QA observable or render flags AFTER
+      this.quizStateService.qaSubject.next({ 
+        question: currentQuestion, 
+        options: optionsToDisplay, 
+        explanation: currentQuestion.explanation
+      });
+
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
       } else {
