@@ -25,6 +25,7 @@
           [shouldRenderOptions]="shouldRenderOptions"
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
+          (questionAndOptionsReady)="emitQuestionAndOptions()"
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
