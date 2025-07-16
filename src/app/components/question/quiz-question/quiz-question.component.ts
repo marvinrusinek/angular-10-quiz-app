@@ -127,6 +127,7 @@ export class QuizQuestionComponent
   questionRenderComplete = new EventEmitter<void>();
   questionToDisplay = '';
   private _questionPayload: QuestionPayload | null = null;
+  latestQuestionText$: Observable<string>;
   totalQuestions!: number;
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
