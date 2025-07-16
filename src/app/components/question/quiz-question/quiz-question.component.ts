@@ -1802,6 +1802,10 @@ export class QuizQuestionComponent
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
       await this.handleExplanationDisplay();
 
+      this.quizService.nextQuestionSubject.next(this.currentQuestion);
+      this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
+      console.log('[🚀 Emitted Q1 question and options together]');
+
       return true;
     } catch (error) {
       console.error('[loadQuestion] Error:', error);
