@@ -117,6 +117,7 @@ export class QuizQuestionComponent
   @Input() reset: boolean;
   @Input() explanationToDisplay = '';
   @Input() passedOptions: Option[] | null = null;
+  @Input() questionToDisplay$: Observable<string>;
   quiz: Quiz;
   selectedQuiz = new ReplaySubject<Quiz>(1);
   questions: QuizQuestion[] = [];
@@ -308,6 +309,12 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     this.clearSoundFlagsForCurrentQuestion(0);
+
+    if (this.questionToDisplay$) {
+      this.latestQuestionText$ = this.questionToDisplay$.pipe(
+        distinctUntilChanged()
+      );
+    }
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
