@@ -738,11 +738,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       next: (question: QuizQuestion) => {
         if (question) {
           const questionType: QuestionType =
-            question.type || ('single' as QuestionType); // Cast fallback to QuestionType
+            question.type || ('single' as QuestionType);  // cast fallback to QuestionType
           this.quizDataService.setQuestionType({
             ...question,
             type: questionType,
-          }); // Restore question type
+          });  // restore question type
           this.updateQuestionDisplay(this.currentQuestionIndex);
         } else {
           console.warn('Failed to restore question state: Question not found.');
@@ -768,11 +768,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           optionId
         );
       }
-
-      console.log(
-        `Restored selected options for question ${this.currentQuestionIndex}:`,
-        selectedOptions
-      );
 
       // Get the question options to update the answered state
       const questionOptions =
@@ -810,18 +805,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       );
       const current = this.selectionMessageService.getCurrentMessage();
 
-      console.log('[🧩 setSelectionMessage]', {
-        index,
-        total,
-        isAnswered,
-        current,
-        newMessage,
-      });
-
       if (newMessage !== current) {
-        console.log(
-          `[📢 updateSelectionMessage TRIGGERED] from "${current}" → "${newMessage}"`
-        );
         this.selectionMessageService.updateSelectionMessage(newMessage);
       } else {
         console.log(`[⏸️ Skipping update — message already "${current}"`);
@@ -908,7 +892,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private showTooltip(): void {
     if (this.nextButtonTooltip) {
-      this.nextButtonTooltip.show(); // Show the tooltip programmatically
+      this.nextButtonTooltip.show(); // show the tooltip programmatically
     } else {
       console.warn('Tooltip not available');
     }
@@ -938,7 +922,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (this.nextButtonTooltip) {
         console.log('Updating tooltip:', message);
         this.nextButtonTooltip.message = message;
-        this.nextButtonTooltip.show(); // Manually show the tooltip
+        this.nextButtonTooltip.show();  // manually show the tooltip
       } else {
         console.warn('Tooltip reference not available in QQC');
       }
@@ -969,7 +953,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    // Handle single vs multiple answer
+    // Handle single vs. multiple answer
     if (this.currentQuestion.type === QuestionType.SingleAnswer) {
       this.selectedOptions = checked ? [option] : [];
     } else {
@@ -1073,7 +1057,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptionService.setOptionSelected(false);
     // this.selectedOptionService.setAnswered(false);
 
-    // Reset the actual options (visual + logical state)
+    // Reset the actual options (visual and logical state)
     if (this.questions?.length) {
       this.questions.forEach((q) => {
         q.options?.forEach((opt) => {
@@ -1105,8 +1089,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.nextButtonStateService.cleanupNextButtonStateStream();
 
     if (this.nextButtonTooltip) {
-      this.nextButtonTooltip.disabled = true; // disable tooltips
-      this.nextButtonTooltip.hide(); // hide any active tooltip
+      this.nextButtonTooltip.disabled = true;  // disable tooltips
+      this.nextButtonTooltip.hide();  // hide any active tooltip
     }
   }
 
@@ -1221,7 +1205,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .subscribe((params) => {
         this.quizId = params['quizId'];
         this.questionIndex = +params['questionIndex'];
-        this.currentQuestionIndex = this.questionIndex - 1; // Ensure it's zero-based
+        this.currentQuestionIndex = this.questionIndex - 1;  // ensure it's zero-based
         this.loadQuizData();
       });
   }
@@ -1239,8 +1223,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       const quiz = (await firstValueFrom(
-        this.quizDataService
-          .getQuiz(this.quizId)
+        this.quizDataService.getQuiz(this.quizId)
           .pipe(take(1), takeUntil(this.destroy$))
       )) as Quiz;
 
