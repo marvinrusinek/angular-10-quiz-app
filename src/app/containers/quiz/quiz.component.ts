@@ -2325,15 +2325,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             ? 0
             : Math.max(routeIndex - 1, 0); // 0-based
 
-          console.log(
-            `[Route Init] 📍 quizId=${quizId}, routeIndex=${routeIndex}, internalIndex=${internalIndex}`
-          );
-
           if (!quizId) {
             console.error('[Route Init] ❌ No quizId found in URL.');
             return EMPTY;
           }
-
           this.quizId = quizId;
 
           return this.handleRouteParams(params).pipe(
