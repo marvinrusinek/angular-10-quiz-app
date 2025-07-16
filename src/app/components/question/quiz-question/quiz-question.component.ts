@@ -365,9 +365,6 @@ export class QuizQuestionComponent
     
         // Set current index in service
         this.quizService.setCurrentQuestionIndex(questionIndex);
-    
-        await this.loadQuestion();
-    
       } catch (err) {
         console.error('[❌ Error during question fetch]', err);
       }
