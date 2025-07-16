@@ -2240,24 +2240,22 @@ export class QuizService implements OnDestroy {
   }
 
   emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
-    if (!currentQuestion || !options) {
-      console.warn('[emitQuestionAndOptions] Missing data to emit.');
+    if (!currentQuestion || !options?.length) {
+      console.warn('[emitQuestionAndOptions] Missing or empty data to emit.');
       return;
     }
   
+    // Emit to individual subjects
     this.nextQuestionSubject.next(currentQuestion);
     this.nextOptionsSubject.next(options);
-    console.log('[🚀 Emitted question and options together]');
-
-    const q = this.currentQuestion.getValue();
-    const opts = this.nextOptionsSubject.getValue();
-
-    if (q && opts?.length > 0) {
-      this.questionPayloadSubject.next({
-        question: q,
-        options: opts,
-        explanation: q.explanation ?? ''
-      });
-    }
-  }
+  
+    // Emit the combined payload
+    this.questionPayloadSubject.next({
+      question: currentQuestion,
+      options,
+      explanation: currentQuestion.explanation ?? ''
+    });
+  
+    console.log('[🚀 Emitted question + options + explanation to payload]');
+  }  
 }
