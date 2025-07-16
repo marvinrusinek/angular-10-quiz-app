@@ -437,7 +437,7 @@ export class QuizService implements OnDestroy {
     const values = options.map(opt => 'value' in opt ? opt.value : 0);
     this.setAnswers(values);
 
-    this.optionsSubject.next(options); // emit to options$
+    this.optionsSubject.next(options);  // emit to options$
   }
 
   // Return a sanitized array of options for the given question index.
@@ -1675,11 +1675,11 @@ export class QuizService implements OnDestroy {
   }
 
   setNextExplanationText(text: string): void {
-    this.nextExplanationTextSource.next(text); // Emit the new explanation text
+    this.nextExplanationTextSource.next(text);  // emit the new explanation text
   }
 
   resetExplanationText(): void {
-    this.nextExplanationTextSource.next(''); // Clear the explanation text
+    this.nextExplanationTextSource.next('');  // clear the explanation text
   }
 
   shouldExplanationBeDisplayed(): boolean {
@@ -2238,5 +2238,16 @@ export class QuizService implements OnDestroy {
     } else {
       console.warn('[QuizService] ⚠️ No valid last known index found. Skipping persistence.');
     }
+  }
+
+  emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
+    if (!currentQuestion || !options) {
+      console.warn('[emitQuestionAndOptions] Missing data to emit.');
+      return;
+    }
+  
+    this.nextQuestionSubject.next(currentQuestion);
+    this.nextOptionsSubject.next(options);
+    console.log('[🚀 Emitted question and options together]');
   }
 }
