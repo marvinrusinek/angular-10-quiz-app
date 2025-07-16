@@ -2021,8 +2021,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
   
-    console.log('[✅ Options Populated]:', JSON.stringify(this.optionsToDisplay, null, 2));
-  
     // Determine type based on the populated options
     const calculatedType = this.determineQuestionType(this.currentQuestion);
     this.type = calculatedType;
@@ -2070,7 +2068,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         o.showIcon  = o.selected;
       } else {
         // keep whatever selection state it already had
-        // BUT never bleed highlight/icon if *not* selected
+        // BUT never bleed highlight/icon if not selected
         if (!o.selected) {
           o.highlight = false;
           o.showIcon  = false;
