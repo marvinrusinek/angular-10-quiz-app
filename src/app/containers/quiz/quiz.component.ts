@@ -3655,7 +3655,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.selectedOptionService.isQuestionAnswered(questionIndex);
       console.log('[🧪 fetchAndSetQuestionData → isAnswered]', {
         questionIndex,
-        isAnsweredFromService: isAnswered,
+        isAnsweredFromService: isAnswered
       });
 
       // Only set false if it's actually unanswered
@@ -3707,7 +3707,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
-        feedback: opt.feedback ?? `The correct options are: ${opt.text}`,
+        feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
       const finalOptions = this.quizService.assignOptionActiveStates(
         hydratedOptions,
@@ -3722,7 +3722,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionText: fetchedQuestion.questionText,
         explanation: fetchedQuestion.explanation ?? '',
         options: clonedOptions,
-        type: fetchedQuestion.type ?? QuestionType.SingleAnswer,
+        type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
 
@@ -3743,13 +3743,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       let explanationText = '';
 
       if (isAnswered) {
-        // Already answered: restore explanation state + stop timer
+        // Already answered: restore explanation state and stop timer
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
         this.explanationTextService.setExplanationTextForQuestionIndex(questionIndex, explanationText);
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        // ❌ Not answered yet: show the correct selection message + start timer
+        // Not answered yet: show the correct selection message and start timer
         const expectedMessage =
           this.selectionMessageService.determineSelectionMessage(
             questionIndex,
@@ -3758,21 +3758,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           );
         const currentMessage = this.selectionMessageService.getCurrentMessage();
 
-        console.log('[🔍 Selection Message Check]', {
-          questionIndex,
-          currentMessage,
-          expectedMessage,
-        });
-
         if (currentMessage !== expectedMessage) {
-          console.log('[🧩 setSelectionMessage]', {
-            index: questionIndex,
-            total: this.totalQuestions,
-            isAnswered: false,
-            current: currentMessage,
-            newMessage: expectedMessage,
-          });
-
           // Slight delay avoids overwrite by early option selection
           setTimeout(() => {
             this.selectionMessageService.updateSelectionMessage(
@@ -3965,7 +3951,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!fetched || !this.question || !this.optionsToDisplay?.length) {
       console.error(`[❌ Q${index}] Incomplete data`, {
         fetched,
-        question: this.question,
+        question: this.question
       });
       return false;
     }
