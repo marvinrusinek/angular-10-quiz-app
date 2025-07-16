@@ -4886,4 +4886,8 @@ export class QuizQuestionComponent
   clearSoundFlagsForCurrentQuestion(index: number): void {
     this.soundService.clearPlayedOptionsForQuestion(index);
   }
+
+  public isQuestionReady(): boolean {
+    return !!this.currentQuestion && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0;
+  }  
 }

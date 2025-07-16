@@ -4058,8 +4058,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
   
-    this.quizService.nextQuestion$.next(this.currentQuestion);
-    this.quizService.nextOptions$.next(this.optionsToDisplay);
+    this.quizService.nextQuestionSubject.next(this.currentQuestion);
+    this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
     console.log('[🚀 Emitted question and options together]');
-  }  
+  }
 }
