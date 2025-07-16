@@ -89,6 +89,7 @@ export class QuizQuestionComponent
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
+  @Output() questionAndOptionsReady = new EventEmitter<void>();
 
   @Input() data: {
     questionText: string,
@@ -1769,13 +1770,12 @@ export class QuizQuestionComponent
           selected: false
         }));
 
-        this.questionToDisplay =
-          this.currentQuestion.questionText?.trim() || '';
+        this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
 
         // Hand a brand-new array & bindings to the child
         const cloned = 
           typeof structuredClone === 'function'
-            ? structuredClone(this.optionsToDisplay)          // deep clone
+            ? structuredClone(this.optionsToDisplay)  // deep clone
             : JSON.parse(JSON.stringify(this.optionsToDisplay));
 
         this.optionsToDisplay = cloned;  // new reference
@@ -1805,6 +1805,11 @@ export class QuizQuestionComponent
       this.quizService.nextQuestionSubject.next(this.currentQuestion);
       this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
       console.log('[🚀 Emitted Q1 question and options together]');
+
+      if (this.currentQuestion && this.optionsToDisplay?.length > 0) {
+        this.questionAndOptionsReady.emit();
+        console.log('[📤 QQC] Emitted questionAndOptionsReady event');
+      }      
 
       return true;
     } catch (error) {
