@@ -255,6 +255,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       // Rebuild bindings from the *new* options list
       this.optionBindings = [];
       this.processOptionBindings();
+    
+      // Two stacked change-detections → guarantees clean slate paint
+      this.cdRef.detectChanges();   // clears old DOM paint
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
@@ -330,7 +333,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.resetState();
     }
 
-    this.cdRef.detectChanges();
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   }
 
