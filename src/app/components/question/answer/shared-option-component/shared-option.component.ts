@@ -226,7 +226,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[⏱️ SharedOptionComponent Render]');
     // Version bump → child trackBy
     if (changes['questionVersion']) {
@@ -338,8 +338,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
-  } */
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  }
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[⏱️ SharedOptionComponent Render]');
     const start = performance.now();
     console.log('[🔁 ngOnChanges] started');
@@ -455,7 +455,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
     console.log(`[✅ ngOnChanges complete]: ${(performance.now() - start).toFixed(2)} ms`);
-  }
+  } */
   
 
   ngAfterViewInit(): void {
