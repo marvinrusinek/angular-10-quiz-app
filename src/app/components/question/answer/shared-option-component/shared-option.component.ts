@@ -2085,10 +2085,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     return this.lastSelectedOptionId === option.optionId;
   }
 
-  public triggerViewRefresh(): void {
-    this.cdRef.markForCheck();
-  }
-
   // Hard-reset every row (flags + visual DOM) for a brand-new question
   private fullyResetRows(): void {
     // zero every binding flag …
