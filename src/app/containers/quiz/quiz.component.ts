@@ -3563,9 +3563,26 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
+      this.optionsToDisplay = clonedOptions;
 
       // Emit Q+A before any rendering logic kicks in
       this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
+
+      // Emit QA data with benchmark
+      console.time('🕒 QA emitted');
+      this.quizService.questionPayloadSubject.next({
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: this.currentQuestion?.explanation ?? ''
+      });
+      console.timeEnd('🕒 QA emitted');
+
+      this.questionPayload = {
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: explanationText,
+      };
+      this.shouldRenderQuestionComponent = true;
 
       // Then set QA observable or render flags AFTER
       this.quizStateService.qaSubject.next({
@@ -3586,16 +3603,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.log('[⏳ Pending options queued until component ready]');
         });
       }
-
-      // Emit QA data with benchmark
-      console.time('🕒 QA emitted');
-      this.quizService.questionPayloadSubject.next({
-        question: this.currentQuestion!,
-        options: clonedOptions,
-        explanation: this.currentQuestion?.explanation ?? ''
-      });
-      console.timeEnd('🕒 QA emitted');
-
 
       // ───────── Flip “options loaded” flags together ─────────
       this.hasOptionsLoaded = true;
@@ -3637,26 +3644,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
-      this.shouldRenderQuestionComponent = false;
-
-      requestAnimationFrame(() => {
-        this.questionPayload = {
-          question: this.currentQuestion!,
-          options: clonedOptions,
-          explanation: explanationText,
-        };
-
-        // Now safely trigger rendering after payload is ready
-        requestAnimationFrame(() => {
-          this.shouldRenderQuestionComponent = true;
-        });
-      });
 
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
 
-      await this.loadQuestionContents(questionIndex);
       await this.quizService.checkIfAnsweredCorrectly();
 
       // Mark question ready
