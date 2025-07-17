@@ -332,7 +332,11 @@ export class QuizQuestionComponent
         }),
         tap(() => console.timeEnd('🕒 QQC render'))
       )
-      .subscribe();
+      .subscribe((payload) => {
+        console.time('[📥 QQC received QA]');
+        console.log('[📥 QQC got payload]', payload);
+        console.timeEnd('[📥 QQC received QA]');
+      });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
