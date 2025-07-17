@@ -2253,4 +2253,4 @@ export class QuizService implements OnDestroy {
   
     console.log('[🚀 Emitted question + options + explanation to payload]');
   }  
-}
+} 
