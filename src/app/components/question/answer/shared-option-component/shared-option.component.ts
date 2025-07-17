@@ -261,7 +261,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
-      this.cdRef.detectChanges();   // paints pristine rows
     }
 
     if (changes['optionsToDisplay'] && changes['optionsToDisplay'].currentValue) {
@@ -314,9 +313,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
       // Let SOC recompute directive state
       this.processOptionBindings();
-  
-      // Second immediate CD so neutral colors / no icons render
-      this.cdRef.detectChanges();
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
