@@ -2003,7 +2003,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
   private determineQuestionType(input: QuizQuestion | QuestionType): 'single' | 'multiple' {
     if (typeof input === 'number') {
-      console.log(`[🔍 determineQuestionType] Received QuestionType enum: ${input}`);
       return input === QuestionType.MultipleAnswer ? 'multiple' : 'single';
     }
   
