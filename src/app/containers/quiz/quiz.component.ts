@@ -562,14 +562,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const opts = this.quizQuestionLoaderService.pendingOptions;
       this.quizQuestionLoaderService.pendingOptions = null;  // clear the queue
 
-      console.log(
-        '[BRIDGE] applying queued options',
-        opts.map((o) => o.text)
-      );
-
       // Push into child
-      this.quizQuestionComponent.updateOptionsSafely(opts);
-      this.quizQuestionComponent.optionsToDisplay = [...opts];
+      Promise.resolve().then(() => {
+        if (this.quizQuestionComponent && opts?.length) {
+          this.quizQuestionComponent.optionsToDisplay = [...opts];
+        }
+      });
     }
 
     setTimeout(() => {
@@ -577,7 +575,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizQuestionComponent.renderReady$
           .pipe(debounceTime(10))
           .subscribe((isReady: boolean) => {
-            console.log('[📡 renderReady$ emitted]', isReady);
             this.isQuizRenderReady$.next(isReady);
 
             if (isReady) {
@@ -3485,10 +3482,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
 
-      this.cdRef.detectChanges();
-      // Tiny delay to clear any in‑flight bindings
-      await new Promise((res) => setTimeout(res, 30));
-
       // ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─-
       const isAnswered =
         this.selectedOptionService.isQuestionAnswered(questionIndex);
@@ -3505,12 +3498,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       // Parallel fetch for question and options
+      console.time('⏳ Parallel fetch: question + options');
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
         this.fetchQuestionDetails(questionIndex),
         firstValueFrom(
           this.quizService.getCurrentOptions(questionIndex).pipe(take(1))
         ),
       ]);
+      console.timeEnd('⏳ Parallel fetch: question + options');
 
       // Validate arrival of both question and options
       if (
@@ -3528,32 +3523,38 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
 
-      const trimmedText =
-        (fetchedQuestion?.questionText ?? '').trim() || 'No question available';
+      const trimmedText = (fetchedQuestion?.questionText ?? '').trim() || 'No question available';
       this.questionToDisplay = trimmedText;
 
       // Defer header update until Angular has already rendered the new QA
-      setTimeout(() => {
-        // 1 macrotask delay
-        console.trace('[TRACE] questionToDisplay$.next firing', this.questionToDisplay);
+      Promise.resolve().then(() => {
         this.questionToDisplaySubject.next(trimmedText);
       });
       this.questionTextLoaded = true;
 
       // ───────── Hydrate and clone options ─────────
+      console.time('🧪 Hydrate options');
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
         ...opt,
         optionId: opt.optionId ?? idx,
         correct: opt.correct ?? false,
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
+      console.timeEnd('🧪 Hydrate options');
+
+      console.time('⚙️ Assign active states');
       const finalOptions = this.quizService.assignOptionActiveStates(
         hydratedOptions,
         false
       );
+      console.timeEnd('⚙️ Assign active states');
+      
+      
+      console.time('🧬 Clone options');
       const clonedOptions =
         structuredClone?.(finalOptions) ??
         JSON.parse(JSON.stringify(finalOptions));
+      console.timeEnd('🧬 Clone options');
 
       // ───────────────────  Assign into Component State  ──────────────── 
       this.question = {
@@ -3568,6 +3569,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Emit Q+A before any rendering logic kicks in
       this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
 
+      console.time('[3️⃣ Component assignment]');
+
       // Emit QA data with benchmark
       console.time('🕒 QA emitted');
       this.quizService.questionPayloadSubject.next({
@@ -3576,13 +3579,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         explanation: this.currentQuestion?.explanation ?? ''
       });
       console.timeEnd('🕒 QA emitted');
-
-      this.questionPayload = {
-        question: this.currentQuestion!,
-        options: clonedOptions,
-        explanation: explanationText,
-      };
-      this.shouldRenderQuestionComponent = true;
 
       // Then set QA observable or render flags AFTER
       this.quizStateService.qaSubject.next({
@@ -3606,6 +3602,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // ───────── Flip “options loaded” flags together ─────────
       this.hasOptionsLoaded = true;
+
+      console.time('🎯 Time to render options');
       this.shouldRenderOptions = true;
 
       // ───────────  Explanation/Timer/Badge Logic  ─────────
@@ -3645,6 +3643,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
 
+      this.questionPayload = {
+        question: this.currentQuestion!,
+        options: clonedOptions,
+        explanation: explanationText
+      };
+      this.shouldRenderQuestionComponent = true;
+
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
@@ -3653,6 +3658,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Mark question ready
       this.resetComplete = true;
+
+      console.time('[1️⃣ fetchAndSetQuestionData TOTAL]');
 
       return true;
     } catch (error) {
