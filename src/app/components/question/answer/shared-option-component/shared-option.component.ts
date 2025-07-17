@@ -226,7 +226,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[⏱️ SharedOptionComponent Render]');
     // Version bump → child trackBy
     if (changes['questionVersion']) {
@@ -338,7 +338,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
-  }
+  } */
   /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[⏱️ SharedOptionComponent Render]');
     const start = performance.now();
@@ -456,6 +456,89 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
     console.log(`[✅ ngOnChanges complete]: ${(performance.now() - start).toFixed(2)} ms`);
   } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.time('[⏱️ SharedOptionComponent Render]');
+  
+    const questionChanged =
+      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged = changes['optionsToDisplay'];
+  
+    if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
+      this.questionVersion++;
+      this.fullyResetRows();  // ⬅️ clears highlight/icon state etc.
+  
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  
+      this.optionBindings = [];
+      this.processOptionBindings();
+  
+      // ✅ Strategic repaint here to clear DOM before new render
+      this.cdRef.detectChanges();
+  
+      this.updateSelections(-1);
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+    }
+  
+    // options → regenerate bindings
+    if (changes['optionsToDisplay']?.currentValue) {
+      this.generateOptionBindings();
+  
+      // ✅ Force one clean render after full setup
+      this.cdRef.detectChanges();
+    }
+  
+    if (changes['optionBindings']?.currentValue?.length) {
+      this.freezeOptionBindings = false;
+      this.initializeOptionBindings();
+      this.optionBindings = changes['optionBindings'].currentValue;
+      this.generateOptionBindings();
+  
+      for (const b of this.optionBindings) {
+        const id = b.option.optionId ?? b.index;
+        b.isSelected = false;
+        b.option.selected = false;
+        b.option.highlight = false;
+        b.option.showIcon = false;
+  
+        this.showFeedbackForOption[id] = true;
+        this.feedbackConfigs[id] = {
+          showFeedback: false,
+          selectedOption: b.option,
+          feedback: b.option.feedback?.trim() || (b.option.correct
+            ? 'Great job — that answer is correct.'
+            : 'Not quite — see the explanation.'),
+          options: this.optionBindings.map(x => x.option),
+          question: this.currentQuestion!,
+          correctMessage: '',
+          idx: b.index
+        };
+      }
+  
+      this.optionsReady = true;
+      this.processOptionBindings();
+  
+      // ✅ Final repaint after full binding+config
+      this.cdRef.detectChanges();
+    }
+  
+    if (changes['currentQuestion']?.currentValue) {
+      this.selectedOption = null;
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      this.highlightedOptionIds.clear();
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+    }
+  
+    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
+      this.resetState();
+    }
+  
+    console.timeEnd('[⏱️ SharedOptionComponent Render]');
+  }
   
 
   ngAfterViewInit(): void {
