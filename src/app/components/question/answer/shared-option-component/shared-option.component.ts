@@ -231,6 +231,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.time('[⏱️ SharedOptionComponent Render]');
     // Version bump → child trackBy
     if (changes['questionVersion']) {
       console.log('[CHILD] got version →', this.questionVersion);
@@ -335,6 +336,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
+
+    console.timeEnd('[⏱️ SharedOptionComponent Render]');
   }
 
   ngAfterViewInit(): void {
@@ -1743,7 +1746,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     const showMap: Record<number, boolean> = {};
     this.showFeedbackForOption = showMap;
   
+
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      console.time('[⏱️ Binding Row]');
       const enriched = {
         ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex
@@ -1753,6 +1758,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     
       const binding = this.getOptionBindings(enriched, idx, chosen);
       binding.showFeedbackForOption = this.showFeedbackForOption;
+    
+      console.timeEnd('[⏱️ Binding Row]');
+      console.log(`[ℹ️ Row ${idx} processed]`);
     
       return binding;
     });
