@@ -1863,38 +1863,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
   
   public generateOptionBindings(): void {
-    console.log("LOG GOB");
-    console.time('[🧪 generateOptionBindings]');
+    const start = performance.now();
+    console.log('[🧪 generateOptionBindings] Started');
+  
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
   
     const showMap: Record<number, boolean> = {};
     this.showFeedbackForOption = showMap;
   
-
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
-      console.time(`[⏱️ Bind Row ${idx}]`);
-
+      const rowStart = performance.now();
+  
       const enriched = {
         ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex
       };
-    
+  
       const chosen = !!enriched.selected;
-    
+  
       const binding = this.getOptionBindings(enriched, idx, chosen);
-      binding.showFeedbackForOption = this.showFeedbackForOption;
-    
-      console.timeEnd(`[⏱️ Bind Row ${idx}]`);
+      binding.showFeedbackForOption = showMap;
+  
+      const rowEnd = performance.now();
+      console.log(`[⏱️ Bind Row ${idx}]: ${(rowEnd - rowStart).toFixed(2)} ms`);
+  
       return binding;
     });
   
-    // one paint pass
     this.cdRef.detectChanges();
-    this.highlightDirectives?.forEach(d => d.updateHighlight());
-
-    // Mark render ready after bindings and paint are done
+    this.highlightDirectives?.forEach((d) => d.updateHighlight());
+  
     this.markRenderReady();
+  
+    const end = performance.now();
+    console.log(`[✅ generateOptionBindings done]: ${(end - start).toFixed(2)} ms`);
   }
+  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
