@@ -53,7 +53,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   sharedOptionConfig: SharedOptionConfig;
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
-  type: 'single' | 'multiple'; // store the type (single/multiple answer)
+  type: 'single' | 'multiple';  // store the type (single/multiple answer)
   selectedOptionIndex = -1;
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
@@ -146,7 +146,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
     if (this.viewContainerRefs && this.viewContainerRefs.length > 0) {
       console.log('viewContainerRefs available in handleViewContainerRef:', this.viewContainerRefs);
-      this.viewContainerRef = this.viewContainerRefs.first; // assign the first available ViewContainerRef
+      this.viewContainerRef = this.viewContainerRefs.first;  // assign the first available ViewContainerRef
       this.loadQuizQuestionComponent();
       this.hasComponentLoaded = true; // prevent further attempts to load
     } else {
@@ -223,7 +223,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (this.type === 'single') {
       this.selectedOptionIndex = index;
       this.selectedOption = option;
-      this.showFeedbackForOption = { [option.optionId]: true }; // show feedback for selected option
+      this.showFeedbackForOption = { [option.optionId]: true };  // show feedback for selected option
   
     } else {
       // Handle multiple-answer questions by toggling selection
@@ -294,7 +294,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       b.optionsToDisplay = cloned;
     });
   
-    this.cdRef.markForCheck();           // OnPush view refresh
+    this.cdRef.markForCheck();  // OnPush view refresh
   }
 
   // Builds a minimal but type-complete binding when no helper exists
