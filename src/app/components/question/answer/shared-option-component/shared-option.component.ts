@@ -231,6 +231,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.log('[🧪 ngOnChanges] fired', changes);
     console.time('[⏱️ SharedOptionComponent Render]');
     // Version bump → child trackBy
     if (changes['questionVersion']) {
@@ -239,8 +240,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     // Question or options list changed
     const questionChanged =
-          changes['questionIndex'] && !changes['questionIndex'].firstChange;
-    const optionsChanged   = changes['optionsToDisplay'];
+      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged =
+      changes['optionsToDisplay'] &&
+      changes['optionsToDisplay'].previousValue !== changes['optionsToDisplay'].currentValue;
   
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
