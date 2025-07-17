@@ -1756,7 +1756,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     const showMap: Record<number, boolean> = {};
     this.showFeedbackForOption = showMap;
-  
+
+    const currentIndex = this.quizService.currentQuestionIndex;
+    const timingKey = `[Q${currentIndex} generateOptionBindings]`;
+
+    if (currentIndex === 0) console.time(timingKey);
 
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       console.time('[⏱️ Binding Row]');
@@ -1775,7 +1779,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     
       return binding;
     });
-  
+
+    if (currentIndex === 0) console.timeEnd(timingKey);
+    
     // one paint pass
     this.cdRef.detectChanges();
     this.highlightDirectives?.forEach(d => d.updateHighlight());
