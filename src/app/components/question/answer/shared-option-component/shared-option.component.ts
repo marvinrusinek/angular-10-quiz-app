@@ -280,7 +280,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.freezeOptionBindings = false;
       this.initializeOptionBindings();
       this.optionBindings = changes['optionBindings'].currentValue;
-      this.generateOptionBindings();  // produces brand-new objects
+      
+      const currentIndex = this.quizService.currentQuestionIndex;
+      const shouldTime = currentIndex === 0;
+
+      if (shouldTime) console.time('[Q1 generateBindings]');
+
+      this.generateOptionBindings();
+
+      if (shouldTime) console.timeEnd('[Q1 generateBindings]');
   
       // Now, before any directive paints, zero out the row flags
       this.optionBindings.forEach(b => {
