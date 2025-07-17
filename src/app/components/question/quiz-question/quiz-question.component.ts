@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { auditTime, catchError, debounceTime, delay, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
