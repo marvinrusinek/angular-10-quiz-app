@@ -40,7 +40,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() reselectionDetected = new EventEmitter<boolean>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Input() currentQuestion: QuizQuestion;
-  @Input() optionsToDisplay!: Option[];
+  @Input() optionsToDisplay!: Option[] = [];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
   @Input() selectedOption: Option | null = null;
@@ -102,7 +102,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   viewInitialized = false;
   viewReady = false;
   optionsReady = false;
-  renderReady = false;
   displayReady = false;
   showOptions = false;
   lastClickedOptionId: number | null = null;
@@ -135,6 +134,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     private fb: FormBuilder,
     private ngZone: NgZone
   ) {
+    console.timeEnd('🎯 Time to render options');
+    console.log('[🧪 SharedOptionComponent initialized]');
+
     this.form = this.fb.group({
       selectedOptionId: [null, Validators.required]
     });
@@ -230,7 +232,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[⏱️ SharedOptionComponent Render]');
     // Version bump → child trackBy
     if (changes['questionVersion']) {
@@ -267,6 +269,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.updateSelections(-1);    // no row selected
       this.cdRef.detectChanges();   // paints pristine rows
     }
+
+    if (changes['optionsToDisplay'] && changes['optionsToDisplay'].currentValue) {
+      this.generateOptionBindings();
+    }    
   
     // New optionBindings array came in
     if (changes['optionBindings'] &&
@@ -338,7 +344,123 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
+  } */
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.time('[⏱️ SharedOptionComponent Render]');
+  
+    const questionChanged =
+      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged = changes['optionsToDisplay'];
+  
+    if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
+      this.questionVersion++;
+  
+      this.fullyResetRows(); // clear old state
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+  
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  
+      this.optionBindings = [];
+      this.freezeOptionBindings = false;
+      this.initializeOptionBindings();
+  
+      this.generateOptionBindings(); // 🔥 Build from fresh options
+  
+      this.optionBindings.forEach(b => {
+        b.isSelected = false;
+        b.option.selected = false;
+        b.option.highlight = false;
+        b.option.showIcon = false;
+      });
+  
+      this.optionsReady = true;
+  
+      for (const b of this.optionBindings) {
+        const id = b.option.optionId ?? b.index;
+        this.showFeedbackForOption[id] = true;
+        this.feedbackConfigs[id] = {
+          showFeedback: false,
+          selectedOption: b.option,
+          feedback:
+            b.option.feedback?.trim() ||
+            (b.option.correct
+              ? 'Great job — that answer is correct.'
+              : 'Not quite — see the explanation.'),
+          options: this.optionBindings.map(x => x.option),
+          question: this.currentQuestion!,
+          correctMessage: '',
+          idx: b.index
+        };
+      }
+  
+      this.processOptionBindings();
+      this.cdRef.detectChanges();
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+      this.updateSelections(-1);
+      this.cdRef.detectChanges();
+    }
+  
+    if (changes['optionBindings'] &&
+        Array.isArray(changes['optionBindings'].currentValue) &&
+        changes['optionBindings'].currentValue.length) {
+      // Same logic as above — consider DRYing this out if both branches run
+      this.freezeOptionBindings = false;
+      this.initializeOptionBindings();
+      this.optionBindings = changes['optionBindings'].currentValue;
+      this.generateOptionBindings();
+  
+      this.optionBindings.forEach(b => {
+        b.isSelected = false;
+        b.option.selected = false;
+        b.option.highlight = false;
+        b.option.showIcon = false;
+      });
+  
+      this.optionsReady = true;
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+  
+      for (const b of this.optionBindings) {
+        const id = b.option.optionId ?? b.index;
+        this.showFeedbackForOption[id] = true;
+        this.feedbackConfigs[id] = {
+          showFeedback: false,
+          selectedOption: b.option,
+          feedback:
+            b.option.feedback?.trim() ||
+            (b.option.correct
+              ? 'Great job — that answer is correct.'
+              : 'Not quite — see the explanation.'),
+          options: this.optionBindings.map(x => x.option),
+          question: this.currentQuestion!,
+          correctMessage: '',
+          idx: b.index
+        };
+      }
+  
+      this.processOptionBindings();
+      this.cdRef.detectChanges();
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+    }
+  
+    if (changes['currentQuestion'] && this.currentQuestion?.questionText?.trim()) {
+      this.selectedOption = null;
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      this.highlightedOptionIds.clear();
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+    }
+  
+    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
+      this.resetState();
+    }
+  
+    console.timeEnd('[⏱️ SharedOptionComponent Render]');
   }
+  
 
   ngAfterViewInit(): void {
     if (this.form) {
@@ -1741,6 +1863,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
   
   public generateOptionBindings(): void {
+    console.log("LOG GOB");
+    console.time('[🧪 generateOptionBindings]');
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
   
     const showMap: Record<number, boolean> = {};
@@ -1748,7 +1872,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
 
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
-      console.time('[⏱️ Binding Row]');
+      console.time(`[⏱️ Bind Row ${idx}]`);
+
       const enriched = {
         ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex
@@ -1759,9 +1884,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       const binding = this.getOptionBindings(enriched, idx, chosen);
       binding.showFeedbackForOption = this.showFeedbackForOption;
     
-      console.timeEnd('[⏱️ Binding Row]');
-      console.log(`[ℹ️ Row ${idx} processed]`);
-    
+      console.timeEnd(`[⏱️ Bind Row ${idx}]`);
       return binding;
     });
   
