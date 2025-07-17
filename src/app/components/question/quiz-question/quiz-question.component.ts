@@ -318,6 +318,22 @@ export class QuizQuestionComponent
       );
     }
 
+    this.quizService.questionPayload$
+      .pipe(
+        filter((payload): payload is QuestionPayload => !!payload),
+        tap(() => console.time('🕒 QQC render')),
+        tap((payload) => {
+          this.currentQuestion = payload.question;
+          this.optionsToDisplay = payload.options;
+          this.explanationToDisplay = payload.explanation ?? '';
+
+          this.renderReady = true;
+          this.cdRef.detectChanges();
+        }),
+        tap(() => console.timeEnd('🕒 QQC render'))
+      )
+      .subscribe();
+
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
       console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
