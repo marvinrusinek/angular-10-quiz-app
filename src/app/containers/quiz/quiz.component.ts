@@ -3564,7 +3564,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         type: fetchedQuestion.type ?? QuestionType.SingleAnswer
       };
       this.currentQuestion = { ...this.question };
-      this.optionsToDisplay = clonedOptions;
+      this.optionsToDisplay = structuredClone(clonedOptions);
 
       // Emit Q+A before any rendering logic kicks in
       this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
