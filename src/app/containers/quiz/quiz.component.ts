@@ -3527,9 +3527,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.questionToDisplay = trimmedText;
 
       // Defer header update until Angular has already rendered the new QA
-      /* Promise.resolve().then(() => {
+      Promise.resolve().then(() => {
         this.questionToDisplaySubject.next(trimmedText);
-      }); */
+        this.optionsToDisplay = structuredClone(finalOptions);
+      });
 
       this.questionTextLoaded = true;
 
