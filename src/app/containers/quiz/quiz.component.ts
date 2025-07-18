@@ -3559,8 +3559,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       // Assign after declaration
       Promise.resolve().then(() => {
-        this.optionsToDisplay = clonedOptions;
-        this.cdRef.markForCheck();  // deferred optionsToDisplay assignment
+        this.optionsToDisplay = clonedOptions;  // deferred optionsToDisplay assignment
+        this.cdRef.markForCheck();
       });
 
       // ───────────────────  Assign into Component State  ──────────────── 
