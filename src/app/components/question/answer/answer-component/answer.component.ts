@@ -91,7 +91,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // displays the unique options to the UI
     this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(opts => {
+      .subscribe((opts: Option[]) => {
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
         this.cdRef.markForCheck();
       });
