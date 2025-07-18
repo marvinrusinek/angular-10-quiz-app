@@ -3556,7 +3556,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.time('🟢 Defer QA assignment');
       Promise.resolve().then(() => {
         this.questionToDisplaySubject.next(trimmedText);
+      
+        // Force fresh array reference to trigger ngOnChanges
         this.optionsToDisplay = structuredClone(clonedOptions);
+      
+        // 🔍 Log to confirm the assignment
+        console.log('[🟢 Assigning optionsToDisplay]', this.optionsToDisplay);
+      
         this.shouldRenderOptions = true;
         this.cdRef.markForCheck();
         console.timeEnd('🟢 Defer QA assignment');
