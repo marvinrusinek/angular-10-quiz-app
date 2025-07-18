@@ -78,6 +78,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   async ngOnInit(): Promise<void> {
+    console.timeEnd('🏁 AnswerComponent Init');
     await super.ngOnInit();
 
     await this.initializeAnswerConfig();
@@ -98,6 +99,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.time('🏁 AnswerComponent Init');
+    console.log('[🧪 AnswerComponent ngOnChanges]', changes);
     // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
 
