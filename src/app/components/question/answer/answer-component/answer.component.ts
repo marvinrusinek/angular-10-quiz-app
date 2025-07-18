@@ -100,6 +100,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
+
+    console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
   
     // Parent just handed us a new optionsToDisplay reference
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
