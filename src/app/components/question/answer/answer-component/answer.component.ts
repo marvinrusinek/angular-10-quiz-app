@@ -105,6 +105,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     // Parent just handed us a new optionsToDisplay reference
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
+      console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
       // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
       this.rebuildOptionBindings();  // respond to updates
