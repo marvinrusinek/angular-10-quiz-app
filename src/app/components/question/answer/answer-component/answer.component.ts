@@ -105,6 +105,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
+      this.rebuildOptionBindings();  // respond to updates
   
       // Wake the OnPush CD cycle
       this.cdRef.markForCheck();
