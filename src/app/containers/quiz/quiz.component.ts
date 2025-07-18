@@ -3526,12 +3526,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const trimmedText = (fetchedQuestion?.questionText ?? '').trim() || 'No question available';
       this.questionToDisplay = trimmedText;
 
-      // Defer header update until Angular has already rendered the new QA
-      Promise.resolve().then(() => {
-        this.questionToDisplaySubject.next(trimmedText);
-        this.optionsToDisplay = structuredClone(finalOptions);
-      });
-
       this.questionTextLoaded = true;
 
       // ───────── Hydrate and clone options ─────────
@@ -3558,9 +3552,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         JSON.parse(JSON.stringify(finalOptions));
       console.timeEnd('🧬 Clone options');
 
-      // Assign after declaration
+      // Defer header update until Angular has already rendered the new QA
       Promise.resolve().then(() => {
         this.optionsToDisplay = clonedOptions;  // deferred optionsToDisplay assignment
+        this.questionToDisplaySubject.next(trimmedText);
+        this.optionsToDisplay = structuredClone(finalOptions);
         this.cdRef.markForCheck();
       });
 
