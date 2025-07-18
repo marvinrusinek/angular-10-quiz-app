@@ -353,8 +353,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.time('[📦 SOC ngOnChanges]');
     console.log('[🧪 ngOnChanges] fired', changes);
-    console.time('[⏱️ SharedOptionComponent Render]');
+    // console.time('[⏱️ SharedOptionComponent Render]');
   
     // --- First: Handle direct Input change to optionBindings (before touching anything else)
     if (
@@ -409,7 +410,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.resetState();
     }
   
-    console.timeEnd('[⏱️ SharedOptionComponent Render]');
+    // console.timeEnd('[⏱️ SharedOptionComponent Render]');
+    console.timeEnd('[📦 SOC ngOnChanges]');
   }  
 
   ngAfterViewInit(): void {
@@ -1813,6 +1815,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
   
   public generateOptionBindings(): void {
+    console.time('[⚙️ SOC generateOptionBindings]');
     console.log('✅ generateOptionBindings CALLED');
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
   
@@ -1850,6 +1853,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
     // Mark render ready after bindings and paint are done
     this.markRenderReady();
+    console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {

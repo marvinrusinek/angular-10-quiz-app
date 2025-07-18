@@ -78,7 +78,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   async ngOnInit(): Promise<void> {
-    console.timeEnd('🏁 AnswerComponent Init');
     await super.ngOnInit();
 
     await this.initializeAnswerConfig();
@@ -124,6 +123,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         changes.questionData.currentValue
       );
     }
+    console.timeEnd('🏁 AnswerComponent Init');
   }
   
   ngAfterViewInit(): void {  
