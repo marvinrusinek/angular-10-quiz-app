@@ -12,6 +12,7 @@
 
   <app-answer
     *ngIf="shouldRenderOptions"
+    [questionData]="questionToDisplay"
     [optionsToDisplay]="optionsToDisplay"
     [currentQuestionIndex]="currentQuestionIndex"
     (optionClicked)="onOptionClicked($event)">
