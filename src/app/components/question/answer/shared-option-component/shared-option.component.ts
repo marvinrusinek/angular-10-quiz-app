@@ -145,7 +145,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       .subscribe((id: number) => this.updateSelections(id));
   }
 
-  ngOnInit(): void {
+  /* ngOnInit(): void {
     console.time("NGONINIT LOG");
     this.initializeFromConfig();
 
@@ -230,7 +230,105 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       console.warn('No options received in SharedOptionComponent');
     }
     console.timeEnd("NGONINIT LOG");
+  } */
+  ngOnInit(): void {
+    console.time('[⏳ SOC.ngOnInit total]');
+  
+    console.time('[🛠️ initializeFromConfig]');
+    this.initializeFromConfig();
+    console.timeEnd('[🛠️ initializeFromConfig]');
+  
+    console.time('[✅ Set renderReady]');
+    this.renderReady = this.optionsToDisplay?.length > 0;
+    console.timeEnd('[✅ Set renderReady]');
+  
+    console.time('[🧮 OptionBindings check]');
+    if (!this.optionBindings || this.optionBindings.length === 0) {
+      console.log('[🚀 Calling initializeOptionBindings()]');
+      this.initializeOptionBindings();
+    } else {
+      console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
+    }
+    console.timeEnd('[🧮 OptionBindings check]');
+  
+    console.time('[⏱️ setTimeout initializeOptionBindings]');
+    setTimeout(() => {
+      console.time('[⏱️ Delayed initializeOptionBindings]');
+      this.initializeOptionBindings();
+      this.renderReady = this.optionsToDisplay?.length > 0;
+      this.cdRef.detectChanges();
+      console.timeEnd('[⏱️ Delayed initializeOptionBindings]');
+    }, 100);
+    console.timeEnd('[⏱️ setTimeout initializeOptionBindings]');
+  
+    console.time('[🔁 synchronizeOptionBindings]');
+    this.synchronizeOptionBindings();
+    console.timeEnd('[🔁 synchronizeOptionBindings]');
+  
+    console.time('[🎨 initializeDisplay]');
+    this.initializeDisplay();
+    console.timeEnd('[🎨 initializeDisplay]');
+  
+    console.time('[📡 Subscribe to finalRenderReady$]');
+    if (this.finalRenderReady$) {
+      this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
+        this.finalRenderReady = ready;
+        this.cdRef.detectChanges(); // ensure UI updates
+      });
+    }
+    console.timeEnd('[📡 Subscribe to finalRenderReady$]');
+  
+    console.time('[🖱️ Subscribe to click$]');
+    this.click$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(({ b, i }) => {
+        this.form.get('selectedOptionId')?.setValue(b.option.optionId, { emitEvent: false });
+        this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
+        this.cdRef.detectChanges();
+      });
+    console.timeEnd('[🖱️ Subscribe to click$]');
+  
+    console.time('[🎛️ Load user prefs]');
+    this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+    console.timeEnd('[🎛️ Load user prefs]');
+  
+    console.time('[🔢 ensureOptionIds]');
+    if (!this.showFeedbackForOption) {
+      this.showFeedbackForOption = {};
+    }
+    this.ensureOptionIds();
+    console.timeEnd('[🔢 ensureOptionIds]');
+  
+    console.time('[🔍 selectedOption check]');
+    if (this.selectedOption) {
+      console.log('[🔍 Option Data]', {
+        optionId: this.selectedOption.optionId,
+        feedback: this.selectedOption.feedback,
+        correct: this.selectedOption.correct,
+        fullOption: this.selectedOption
+      });
+    } else {
+      console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
+    }
+    console.timeEnd('[🔍 selectedOption check]');
+  
+    console.time('[🧠 generateFeedbackConfig]');
+    this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
+    console.timeEnd('[🧠 generateFeedbackConfig]');
+  
+    console.time('[📦 set optionsToDisplay]');
+    if (this.config && this.config.optionsToDisplay?.length > 0) {
+      this.optionsToDisplay = this.config.optionsToDisplay;
+    } else if (this.optionsToDisplay?.length > 0) {
+      console.log('Options received directly:', this.optionsToDisplay);
+    } else {
+      console.warn('No options received in SharedOptionComponent');
+    }
+    console.timeEnd('[📦 set optionsToDisplay]');
+  
+    console.timeEnd('[⏳ SOC.ngOnInit total]');
   }
+  
 
   /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.log('[🧪 ngOnChanges] fired', changes);
