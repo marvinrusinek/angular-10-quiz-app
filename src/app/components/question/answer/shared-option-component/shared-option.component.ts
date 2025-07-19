@@ -2021,63 +2021,61 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }   
 
   private processOptionBindings(): void {
-    console.log(
-      '[SOC] processOptionBindings → qIdx',
-      this.quizService.currentQuestionIndex,
-      '| first row text =',
-      this.optionBindings[0]?.option?.text
-    );
-
+    console.time('[⚙️ processOptionBindings]');
+    const qIdx = this.quizService.currentQuestionIndex;
     const options = this.optionsToDisplay ?? [];
   
+    // Pre-checks
     if (!options.length) {
       console.warn('[⚠️ processOptionBindings] No options to process. Exiting.');
       this.optionBindingsInitialized = false;
       return;
     }
-  
-    const existingSelectionMap = new Map(
-      (this.optionBindings ?? []).map(binding => [binding.option.optionId, binding.isSelected])
-    );
-  
     if (this.freezeOptionBindings) {
       console.warn('[💣 ABORTED optionBindings reassignment after user click]');
       return;
     }
+    if (!this.currentQuestion) return;
   
-    if (!this.currentQuestion) {
-      return;
-    }
-
+    const selectionMap = new Map<number, boolean>(
+      (this.optionBindings ?? []).map(b => [b.option.optionId, b.isSelected])
+    );
+  
     const correctOptions = this.quizService.getCorrectOptionsForCurrentQuestion(this.currentQuestion);
-    console.log('[Correct IDs]', correctOptions.map(o => o.optionId));
-    
+    const correctIds = correctOptions.map(o => o.optionId);
     const feedbackSentence =
       this.feedbackService.generateFeedbackForOptions(correctOptions, options) ||
       'No feedback available.';
-
-    this.optionBindings = options.map((option, idx) => {
-      option.feedback = feedbackSentence;
-
-      const isSelected = existingSelectionMap.get(option.optionId) ?? !!option.selected;
-      const binding    = this.getOptionBindings(option, idx, isSelected);
-
-      if (isSelected || this.highlightedOptionIds.has(option.optionId)) {
-        option.highlight = true;
-      }
-      return binding;
-    });
-
-    this.updateSelections(-1);
-    this.updateHighlighting();
   
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        this.optionsReady = true;
-      });
-    }, 100);
+    // Logging once before map begins
+    console.log('[SOC] processOptionBindings → qIdx', qIdx, '| first row text =', options[0]?.text);
+    console.log('[✅ Correct IDs]', correctIds);
+  
+    const highlightSet = this.highlightedOptionIds;
+    const getBindings = this.getOptionBindings.bind(this);
+  
+    this.optionBindings = options.map((opt, idx) => {
+      const isSelected = selectionMap.get(opt.optionId) ?? !!opt.selected;
+      opt.feedback = feedbackSentence;
+      if (isSelected || highlightSet.has(opt.optionId)) {
+        opt.highlight = true;
+      }
+      return getBindings(opt, idx, isSelected);
+    });
+  
+    console.time('[🌀 updateSelections]');
+    this.updateSelections(-1);
+    console.timeEnd('[🌀 updateSelections]');
+  
+    console.time('[✨ updateHighlighting]');
+    this.updateHighlighting();
+    console.timeEnd('[✨ updateHighlighting]');
+  
+    // Flag updates with minimal delay
+    setTimeout(() => this.ngZone.run(() => (this.optionsReady = true)), 50);
   
     this.viewReady = true;
+    console.timeEnd('[⚙️ processOptionBindings]');
   }
 
   initializeFeedbackBindings(): void { 
