@@ -43,7 +43,7 @@ export class NextButtonStateService {
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
     const isEnabled = isAnswered && !isLoading && !isNavigating;
-    this.updateAndSyncNextButtonState(isEnabled);
+    this.updateAndSyncNextButtonState();
   }
 
   public initializeNextButtonStateStream(
@@ -65,7 +65,7 @@ export class NextButtonStateService {
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-        this.updateAndSyncNextButtonState(isEnabled);
+        this.updateAndSyncNextButtonState();
       });
   }
 
@@ -81,11 +81,11 @@ export class NextButtonStateService {
     isNavigating: boolean
   ): boolean {
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
-    this.updateAndSyncNextButtonState(shouldEnable);
+    this.updateAndSyncNextButtonState();
     return shouldEnable;
   }
 
-  public updateAndSyncNextButtonState(isEnabled: boolean): void {
+  public updateAndSyncNextButtonState(): void {
     this.ngZone.run(() => {
       this.isEnabled = true;
       this.isButtonEnabledSubject.next(true);
