@@ -50,6 +50,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
   selectedOptions: SelectedOption[] = [];
+  incomingOptions: Option[] = [];
   sharedOptionConfig: SharedOptionConfig;
   isQuizQuestionComponentLoaded = false;
   hasComponentLoaded = false;
@@ -90,11 +91,19 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     });
 
     // displays the unique options to the UI
-    this.quizQuestionLoaderService.optionsStream$
+    /* this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe((opts: Option[]) => {
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
         this.cdRef.markForCheck();
+      }); */
+    this.quizQuestionLoaderService.optionsStream$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((opts: Option[]) => {
+        console.log('[📥 AnswerComponent] Received options:', opts);
+  
+        this.incomingOptions = structuredClone(opts);
+        this.rebuildOptionBindings();
       });
   }
 
