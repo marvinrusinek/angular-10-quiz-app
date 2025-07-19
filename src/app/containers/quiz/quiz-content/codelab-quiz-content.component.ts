@@ -63,7 +63,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
   nextExplanationText = '';
   formattedExplanation = '';
-  formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
   numberOfCorrectAnswers = 0;
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
@@ -634,7 +635,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         })
       )
       .subscribe((explanation: string) => {
-        this.formattedExplanation$.next(explanation);
+        this.explanationTextService.formattedExplanationSubject.next(explanation);
       });
 
     this.combinedQuestionData$ = combineLatest([
