@@ -11,6 +11,7 @@
   </form>
 
   <app-answer
+    *ngIf="shouldRenderOptions"
     [optionsToDisplay]="optionsToDisplay"
     [currentQuestionIndex]="currentQuestionIndex"
     (optionClicked)="onOptionClicked($event)">
