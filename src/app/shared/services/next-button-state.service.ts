@@ -43,7 +43,7 @@ export class NextButtonStateService {
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
     const isEnabled = isAnswered && !isLoading && !isNavigating;
-    this.setNextButtonState(isEnabled);
+    this.updateAndSyncNextButtonState(isEnabled);
   }
 
   public initializeNextButtonStateStream(
@@ -65,7 +65,7 @@ export class NextButtonStateService {
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-        this.setNextButtonState(isEnabled);
+        this.updateAndSyncNextButtonState(isEnabled);
       });
   }
 
@@ -81,21 +81,40 @@ export class NextButtonStateService {
     isNavigating: boolean
   ): boolean {
     const shouldEnable = isAnswered && !isLoading && !isNavigating;
-    this.setNextButtonState(shouldEnable);
+    this.updateAndSyncNextButtonState(shouldEnable);
     return shouldEnable;
+  }
+
+  public updateAndSyncNextButtonState(isEnabled: boolean): void {
+    this.ngZone.run(() => {
+      this.isEnabled = true;
+      this.isButtonEnabledSubject.next(true);
+      this.nextButtonStyle = {
+        opacity: '1',
+        'pointer-events': 'auto'
+      };
+    });
+  }
+
+  public setButtonEnabled(enabled: boolean): void {
+    this.ngZone.run(() => {
+      this.isEnabled = enabled;
+      this.isButtonEnabledSubject.next(enabled);
+
+      this.nextButtonStyle = {
+        opacity: enabled ? '1' : '0.5',
+        'pointer-events': enabled ? 'auto' : 'none'
+      };
+    });
+  }
+
+  public isButtonCurrentlyEnabled(): boolean {
+    return this.isEnabled;
   }
 
   public setNextButtonState(enabled: boolean): void {
     this.isEnabled = enabled;
     this.isButtonEnabledSubject.next(enabled);
-    this.nextButtonStyle = {
-      opacity: enabled ? '1' : '0.5',
-      'pointer-events': enabled ? 'auto' : 'none'
-    };
-  }  
-
-  public isButtonCurrentlyEnabled(): boolean {
-    return this.isEnabled;
   }
 
   public getNextButtonState(): Observable<boolean> {
