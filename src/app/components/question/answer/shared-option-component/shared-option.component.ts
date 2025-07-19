@@ -2072,7 +2072,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.timeEnd('[✨ updateHighlighting]');
   
     // Flag updates with minimal delay
-    setTimeout(() => this.ngZone.run(() => (this.optionsReady = true)), 50);
+    this.ngZone.run(() => {
+      this.optionsReady = true;
+      this.renderReady = true;
+      this.cdRef.detectChanges();  // ensure view is in sync
+    });
   
     this.viewReady = true;
     console.timeEnd('[⚙️ processOptionBindings]');
