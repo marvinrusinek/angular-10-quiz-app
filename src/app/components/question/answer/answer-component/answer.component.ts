@@ -56,6 +56,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   hasComponentLoaded = false;
   type: 'single' | 'multiple';  // store the type (single/multiple answer)
   selectedOptionIndex = -1;
+  renderReady = false;
 
   private quizQuestionComponentLoadedSubject = new BehaviorSubject<boolean>(false);
   quizQuestionComponentLoaded$ = this.quizQuestionComponentLoadedSubject.asObservable();
@@ -299,24 +300,32 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       return;
     }
   
-    // Deep-clone so every question gets new objects and new array
-    const cloned: Option[] = 
-      structuredClone?.(this.incomingOptions) 
-        ?? JSON.parse(JSON.stringify(this.incomingOptions));
+    // Deep clone (already validated incomingOptions above)
+    const cloned: Option[] =
+      typeof structuredClone === 'function'
+        ? structuredClone(this.incomingOptions)
+        : JSON.parse(JSON.stringify(this.incomingOptions));
   
-    // Build fresh bindings (all with new object refs)
-    this.optionBindings = cloned.map((opt, idx) =>
-      this.buildFallbackBinding(opt, idx)
-    );
+    // Build fresh bindings
+    const rebuilt = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
   
-    // Now that optionBindings exists, patch allOptions / optionsToDisplay refs
-    this.optionBindings.forEach(b => {
+    // Patch allOptions / optionsToDisplay refs
+    rebuilt.forEach(b => {
       b.allOptions       = cloned;
       b.optionsToDisplay = cloned;
     });
   
-    this.cdRef.markForCheck();  // OnPush view refresh
-    console.timeEnd('[⏱️ Rebuild OptionBindings]');
+    // ───── Gating render ─────
+    this.renderReady = false;
+    this.optionBindings = rebuilt;
+    this.cdRef.detectChanges(); // immediate change detection pass
+
+    Promise.resolve().then(() => {
+      this.renderReady = true;
+      this.cdRef.markForCheck(); // allow render in next microtask
+    });
+
+    console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
   }
 
   // Builds a minimal but type-complete binding when no helper exists
