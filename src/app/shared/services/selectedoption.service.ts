@@ -61,21 +61,18 @@ export class SelectedOptionService {
       return;
     }
   
-    this.ngZone.run(() => {
-      // Emit the selected option
-      this.selectedOptionSubject.next(selectedOption);
+    this.selectedOptionSubject.next(selectedOption);
   
-      if (!isMultiSelect) {
-        this.isOptionSelectedSubject.next(true);  // enable Next button for single-answer questions
-        this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
-        this.setNextButtonEnabled(true);
-      } else {
-        this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
-      }
+    if (!isMultiSelect) {
+      this.isOptionSelectedSubject.next(true);
+      this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
+      this.setNextButtonEnabled(true);
+    } else {
+      this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
+    }
   
-      console.info('Selected option emitted:', selectedOption);
-    });
-  }
+    console.info('Selected option emitted:', selectedOption);
+  }  
 
   deselectOption(): void {
     const deselectedOption: SelectedOption = {
@@ -145,27 +142,25 @@ export class SelectedOptionService {
       this.updateAnsweredState();
       return;
     }
-
+  
     if (Array.isArray(option)) {
       if (this.areOptionsAlreadySelected(option)) {
         console.log('SelectedOptionService: Options already selected, skipping');
         return;
       }
       console.error('Expected a single SelectedOption, but received an array:', option);
-      return;  // exit early if the option is not valid
+      return;
     }
-
+  
     if (this.isOptionAlreadySelected(option)) {
       console.log('SelectedOptionService: Option already selected, skipping');
       return;
     }
-
-    this.ngZone.run(() => {
-      this.selectedOption = option;
-      this.selectedOptionSubject.next(option);
-      this.isOptionSelectedSubject.next(true);  // ensure button enablement
-    });
-  }
+  
+    this.selectedOption = option;
+    this.selectedOptionSubject.next(option);
+    this.isOptionSelectedSubject.next(true);
+  }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
@@ -303,18 +298,13 @@ export class SelectedOptionService {
 
   // Method to set the option selected state
   setOptionSelected(isSelected: boolean): void {
-    this.ngZone.run(() => {
-      // Check if the new state is different from the current state
-      if (this.isOptionSelectedSubject.getValue() !== isSelected) {
-        console.log(
-          `Updating isOptionSelected state from ${this.isOptionSelectedSubject.getValue()} to ${isSelected}`
-        );
-        this.isOptionSelectedSubject.next(isSelected);
-      } else {
-        console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
-      }
-    });
-  }
+    if (this.isOptionSelectedSubject.getValue() !== isSelected) {
+      console.log(`Updating isOptionSelected state from ${this.isOptionSelectedSubject.getValue()} to ${isSelected}`);
+      this.isOptionSelectedSubject.next(isSelected);
+    } else {
+      console.log(`isOptionSelected state remains unchanged: ${isSelected}`);
+    }
+  }  
 
   getSelectedOptionIndices(questionIndex: number): number[] {
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
