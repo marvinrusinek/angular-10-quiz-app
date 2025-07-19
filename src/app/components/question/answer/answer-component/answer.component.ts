@@ -290,17 +290,16 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   // Rebuild optionBindings from the latest optionsToDisplay.
   private rebuildOptionBindings(): void {
     console.time('[⏱️ Rebuild OptionBindings]');
-    if (!this.optionsToDisplay?.length) {
+
+    if (!this.incomingOptions?.length) {
       this.optionBindings = [];
-      console.timeEnd('[⏱️ Rebuild OptionBindings]');  // prevents dangling timer
       return;
     }
   
     // Deep-clone so every question gets new objects and new array
-    const cloned: Option[] =
-      typeof structuredClone === 'function'
-        ? structuredClone(this.optionsToDisplay)
-        : JSON.parse(JSON.stringify(this.optionsToDisplay));
+    const cloned: Option[] = 
+      structuredClone?.(this.incomingOptions) 
+        ?? JSON.parse(JSON.stringify(this.incomingOptions));
   
     // Build fresh bindings (all with new object refs)
     this.optionBindings = cloned.map((opt, idx) =>
