@@ -254,7 +254,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.time('[⏱️ setTimeout initializeOptionBindings]');
     setTimeout(() => {
       console.time('[⏱️ Delayed initializeOptionBindings]');
-      this.initializeOptionBindings();
+      // this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
       this.cdRef.detectChanges();
       console.timeEnd('[⏱️ Delayed initializeOptionBindings]');
@@ -1995,26 +1995,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   initializeOptionBindings(): void {
+    console.time('[🔧 initializeOptionBindings]');
     console.log('[🚀 initializeOptionBindings STARTED]');
     console.log('[SOC] init bindings', this.quizService.currentQuestionIndex);
   
-    if (this.optionBindingsInitialized) {
-      console.warn('[🛑 Already initialized]');
-      return;
+    try {
+      if (this.optionBindingsInitialized) {
+        console.warn('[🛑 Already initialized]');
+        return;
+      }
+  
+      this.optionBindingsInitialized = true;
+  
+      const options = this.optionsToDisplay;
+  
+      if (!options?.length) {
+        console.warn('[⚠️ No options available]');
+        this.optionBindingsInitialized = false;
+        return;
+      }
+  
+      this.processOptionBindings();
+    } catch (error) {
+      console.error('[❌ initializeOptionBindings error]', error);
+    } finally {
+      console.timeEnd('[🔧 initializeOptionBindings]');
     }
-  
-    this.optionBindingsInitialized = true;
-  
-    const options = this.optionsToDisplay;
-  
-    if (!options?.length) {
-      console.warn('[⚠️ No options available]');
-      this.optionBindingsInitialized = false;
-      return;
-    }
-  
-    this.processOptionBindings();
-  }  
+  }   
 
   private processOptionBindings(): void {
     console.log(
