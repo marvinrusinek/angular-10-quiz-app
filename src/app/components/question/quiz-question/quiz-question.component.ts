@@ -353,15 +353,19 @@ export class QuizQuestionComponent
 
     this.quizNavigationService.navigationToQuestion$.subscribe(({ question, options }) => {
       if (question?.questionText && options?.length) {
-        this.containerInitialized = false;
+        if (!this.containerInitialized && this.dynamicAnswerContainer) {
+          console.time('[🛠️ loadDynamicComponent ngOnInit]');
+          this.loadDynamicComponent(question, options);
+          this.containerInitialized = true;
+          console.timeEnd('[🛠️ loadDynamicComponent ngOnInit]');
+    
+          console.log('[✅ Component injected dynamically from navigation]');
+        } else {
+          console.log('[🧊 Skipping re-injection — already initialized]');
+        }
+    
         this.sharedOptionConfig = undefined;
         this.shouldRenderFinalOptions = false;
-    
-        console.time('[🛠️ loadDynamicComponent ngOnInit]');
-        this.loadDynamicComponent(question, options);
-        console.timeEnd('[🛠️ loadDynamicComponent ngOnInit]');
-    
-        console.log('[✅ Component injected dynamically from navigation]');
       } else {
         console.warn('[🚫 Dynamic injection skipped]', {
           questionText: question?.questionText,
@@ -369,6 +373,7 @@ export class QuizQuestionComponent
         });
       }
     });
+    
     
     this.quizNavigationService.explanationReset$.subscribe(() => {
       console.log('[QQC] 🔁 explanationReset$ received');

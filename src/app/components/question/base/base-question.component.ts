@@ -137,8 +137,12 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
     }
   
     try {
-      this.dynamicAnswerContainer.clear();
-      this.loadDynamicComponent(this.question, this.optionsToDisplay, this.quizService.currentQuestionIndex);
+      // this.dynamicAnswerContainer.clear();
+
+
+      // this.loadDynamicComponent(this.question, this.optionsToDisplay, this.quizService.currentQuestionIndex);
+
+
       this.containerInitialized = true;
       this.cdRef.markForCheck();
     } catch (error) {
