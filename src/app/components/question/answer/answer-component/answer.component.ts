@@ -302,7 +302,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     if (!opt?.length) {
       this.optionBindings = [];
-      return;
+      return [];
     }
   
     // Deep clone options to avoid mutation
