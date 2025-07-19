@@ -1842,7 +1842,7 @@ export class QuizQuestionComponent
         this.sharedOptionComponent.initializeOptionBindings();
       }
   
-      this.cdRef.markForCheck();  // manually trigger change detection
+      this.cdRef.markForCheck();  // manually trigger change detection after bindings and updates
   
       // ───────────── End UI Update ─────────────
   
