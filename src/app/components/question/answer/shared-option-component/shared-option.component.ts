@@ -86,8 +86,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   lastSelectedOptionIndex = -1;
   private lastFeedbackQuestionIndex = -1;
   lastFeedbackOptionId = -1;
-  highlightedOptionIds: Set<number> = new Set();
   lastSelectedOptionId = -1;
+  highlightedOptionIds: Set<number> = new Set();
   visitedOptionIds: Set<number> = new Set();
 
   isOptionSelected = false;
@@ -102,10 +102,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   lastClickTimestamp: number | null = null;
   hasUserClicked = false;
   freezeOptionBindings = false;
-  private selectedOptionMap: Map<number, boolean> = new Map();
   selectedOptionHistory: number[] = [];
-  form!: FormGroup;
+  private selectedOptionMap: Map<number, boolean> = new Map();
   lastFeedbackOptionMap: { [questionIndex: number]: number } = {};
+  form!: FormGroup;
 
   optionTextStyle = { color: 'black' };
 
