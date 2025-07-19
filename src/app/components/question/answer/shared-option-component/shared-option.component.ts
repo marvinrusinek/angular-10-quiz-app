@@ -146,6 +146,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit(): void {
+    console.log('[🧪 SOC ngOnInit]');
     this.initializeFromConfig();
 
     // Ensure rendering flags are set based on data availability
@@ -418,6 +419,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }  
 
   ngAfterViewInit(): void {
+    console.log('[✅ SOC ngAfterViewInit]');
     if (this.form) {
       console.log('form value:', this.form.value);
     } else {
