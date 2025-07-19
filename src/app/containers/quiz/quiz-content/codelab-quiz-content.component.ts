@@ -135,17 +135,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
-        const questionText =
-          currentQuestion?.questionText?.trim() ?? 'No question available';
+        const questionText = currentQuestion?.questionText?.trim() ?? 'No question available';
         const options = currentOptions ?? [];
-  
-        return { questionText, options };
+    
+        return {
+          questionText,
+          options,
+          explanation: currentQuestion?.explanation ?? 'No explanation available',
+          currentQuestion,
+          isNavigatingToPrevious: false,
+          isExplanationDisplayed: false,
+          selectionMessage: ''
+        } satisfies CombinedQuestionDataType;
       }),
       catchError((err) => {
         console.error('[❌ combinedQuestionData$ error]:', err);
-        return of({ questionText: 'Error loading question', options: [] });
+        return of({
+          questionText: 'Error loading question',
+          options: [],
+          explanation: '',
+          currentQuestion: null,
+          isNavigatingToPrevious: false,
+          isExplanationDisplayed: false,
+          selectionMessage: 'Unable to load question.'
+        } satisfies CombinedQuestionDataType);
       })
-    );
+    );    
 
     this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
