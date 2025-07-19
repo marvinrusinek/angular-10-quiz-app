@@ -96,10 +96,6 @@ export class NextButtonStateService {
     });
   }
 
-  public isButtonCurrentlyEnabled(): boolean {
-    return this.isEnabled;
-  }
-
   public setNextButtonState(enabled: boolean): void {
     this.isEnabled = enabled;
     this.isButtonEnabledSubject.next(enabled);
@@ -107,5 +103,9 @@ export class NextButtonStateService {
 
   public getNextButtonState(): Observable<boolean> {
     return this.isButtonEnabledSubject.asObservable();
+  }
+
+  public isButtonCurrentlyEnabled(): boolean {
+    return this.isEnabled;
   }
 }
