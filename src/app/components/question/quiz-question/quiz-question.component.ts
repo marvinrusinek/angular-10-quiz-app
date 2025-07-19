@@ -510,6 +510,12 @@ export class QuizQuestionComponent
               this.renderReady = true;
               this.hydrationInProgress = false;
               this.cdRef.detectChanges();
+            
+              if (!this.containerInitialized && this.dynamicAnswerContainer) {
+                this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+                this.containerInitialized = true;
+                console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
+              }
             });
           });
         }, 0);
@@ -557,6 +563,11 @@ export class QuizQuestionComponent
         }
       );
     }
+
+    setTimeout(() => {
+      console.timeEnd('🎯 Time to render options');
+      console.log('[📦 Delayed render log — options assumed visible]');
+    }, 0);
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
