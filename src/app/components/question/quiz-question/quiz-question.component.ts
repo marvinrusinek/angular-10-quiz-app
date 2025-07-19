@@ -1846,6 +1846,12 @@ export class QuizQuestionComponent
         this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
         console.log('[📤 QQC] Emitted questionAndOptionsReady event');
       }
+
+      this.quizService.questionPayloadSubject.next({
+        question: this.currentQuestion!,
+        options: this.optionsToDisplay,
+        explanation: this.currentExplanationText
+      });      
   
       return true;
     } catch (error) {
