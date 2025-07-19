@@ -243,12 +243,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.timeEnd('[✅ Set renderReady]');
   
     console.time('[🧮 OptionBindings check]');
-    if (!this.optionBindings || this.optionBindings.length === 0) {
-      console.log('[🚀 Calling initializeOptionBindings()]');
-      this.initializeOptionBindings();
-    } else {
-      console.log('[⏭️ Skipped initializeOptionBindings — optionBindings already exist]');
-    }
+    this.initializeOptionBindings();
     console.timeEnd('[🧮 OptionBindings check]');
   
     console.time('[⏱️ setTimeout initializeOptionBindings]');
