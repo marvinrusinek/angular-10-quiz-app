@@ -515,6 +515,7 @@ export class QuizQuestionComponent
                 this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
                 this.containerInitialized = true;
                 console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
+                console.timeEnd('🎯 Time to render options');
               }
             });
           });

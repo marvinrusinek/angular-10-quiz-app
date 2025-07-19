@@ -98,7 +98,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
         this.cdRef.markForCheck();
       }); */
-    this.quizQuestionLoaderService.optionsStream$
+      this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe((opts: Option[]) => {
         console.time('[📥 AnswerComponent optionsStream$]');
@@ -106,10 +106,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         const cloned = structuredClone(opts);
         this.incomingOptions = cloned;
     
-        const rebuilt = this.rebuildOptionBindings(cloned);
-    
         this.renderReady = false;
-        this.optionBindings = rebuilt;
+        this.rebuildOptionBindings(cloned);  // let this method assign optionBindings
         this.cdRef.detectChanges();
     
         Promise.resolve().then(() => {
@@ -117,8 +115,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
           this.cdRef.markForCheck();
           console.timeEnd('[📥 AnswerComponent optionsStream$]');
         });
-      });
-    
+      });    
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
