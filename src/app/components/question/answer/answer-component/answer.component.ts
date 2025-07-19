@@ -281,6 +281,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     console.time('[⏱️ Rebuild OptionBindings]');
     if (!this.optionsToDisplay?.length) {
       this.optionBindings = [];
+      console.timeEnd('[⏱️ Rebuild OptionBindings]');  // prevents dangling timer
       return;
     }
   
