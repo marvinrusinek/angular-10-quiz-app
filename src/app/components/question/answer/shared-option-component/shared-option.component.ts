@@ -86,15 +86,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   lastSelectedOptionIndex = -1;
   private lastFeedbackQuestionIndex = -1;
   lastFeedbackOptionId = -1;
-  secondToLastFeedbackOptionId = -1;
   highlightedOptionIds: Set<number> = new Set();
-  lastSelectedOptionId: number = -1;
-  lastFeedbackAnchorOptionId: number = -1;
+  lastSelectedOptionId = -1;
   visitedOptionIds: Set<number> = new Set();
-  lastSelectionId: number = -1;
-  secondLastSelectionId: number = -1;
-  hasUserClickedOnce = false;
-  firstClickOccurred = false;
 
   isOptionSelected = false;
   optionIconClass: string;
@@ -102,7 +96,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   viewInitialized = false;
   viewReady = false;
   optionsReady = false;
-  renderReady = false;
   displayReady = false;
   showOptions = false;
   lastClickedOptionId: number | null = null;
