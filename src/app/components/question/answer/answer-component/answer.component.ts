@@ -317,12 +317,14 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
     // ───── Gating render ─────
     this.renderReady = false;
+    console.time('[🕐 renderReady false]');
     this.optionBindings = rebuilt;
-    this.cdRef.detectChanges(); // immediate change detection pass
+    this.cdRef.detectChanges();
 
     Promise.resolve().then(() => {
+      console.timeEnd('[🕐 renderReady false]');
       this.renderReady = true;
-      this.cdRef.markForCheck(); // allow render in next microtask
+      this.cdRef.markForCheck();
     });
 
     console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
