@@ -1416,6 +1416,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     // Sync Next Button State
     console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
     this.nextButtonStateService.syncNextButtonState();
+  }
+
+  private deferHighlightUpdate(callback: () => void): void {
+    this.ngZone.runOutsideAngular(() => {
+      requestAnimationFrame(() => {
+        this.ngZone.run(() => {
+          callback();
+          this.cdRef.detectChanges();
+        });
+      });
+    });
   }  
 
   private forceHighlightRefresh(optionId: number): void {
@@ -1447,13 +1458,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         directive.option.highlight = true;
   
         // Defer update to after current rendering phase
-        this.ngZone.runOutsideAngular(() => {
-          requestAnimationFrame(() => {
-            this.ngZone.run(() => {
-              directive.updateHighlight();  // trigger directive update
-              this.cdRef.detectChanges();   // flush DOM changes cleanly
-            });
-          });
+        this.deferHighlightUpdate(() => {
+          directive.updateHighlight();
         });
   
         found = true;
