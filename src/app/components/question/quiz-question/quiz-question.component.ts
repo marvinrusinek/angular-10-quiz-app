@@ -2462,7 +2462,7 @@ export class QuizQuestionComponent
     this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setButtonEnabled(true);
+    this.nextButtonStateService.setNextButtonState(true);
     this.enableNextButton();
     this.cdRef.detectChanges();
   }
