@@ -146,6 +146,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit(): void {
+    console.time("NGONINIT LOG");
     this.initializeFromConfig();
 
     // Ensure rendering flags are set based on data availability
@@ -228,6 +229,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       console.warn('No options received in SharedOptionComponent');
     }
+    console.timeEnd("NGONINIT LOG");
   }
 
   /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -412,7 +414,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   
     // console.timeEnd('[⏱️ SharedOptionComponent Render]');
-    console.timeEnd('[🔁 SOC ngOnChanges]');
+    console.timeEnd('[📦 SOC ngOnChanges]');
   }  
 
   ngAfterViewInit(): void {
@@ -1641,6 +1643,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     return config;
   } */
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
+    console.time("GFC LOG");
     if (!option) {
       console.warn('[⚠️ generateFeedbackConfig] option is null or undefined');
       return {
@@ -1683,7 +1686,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       correctMessage,
       finalFeedback
     });
-  
+ 
+    console.timeEnd("GFC LOG");
     return config;
   }
 
