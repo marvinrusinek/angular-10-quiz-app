@@ -237,6 +237,8 @@ export class QuizQuestionComponent
   selectionMessageSubscription: Subscription = new Subscription();
 
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
+  public questionPayload$ = this.questionPayloadSubject.asObservable();
+  
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
 
