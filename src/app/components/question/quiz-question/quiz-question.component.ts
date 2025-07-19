@@ -1533,7 +1533,9 @@ export class QuizQuestionComponent
     question: QuizQuestion,
     options: Option[]
   ): Promise<void> {
-    try {  
+    console.time('[🔧 loadDynamicComponent TOTAL]');
+  
+    try {
       // Guard –- missing question or options
       if (!question || !Array.isArray(options) || options.length === 0) {
         console.warn('[⚠️ Early return A] Missing question or options', {
@@ -1552,6 +1554,7 @@ export class QuizQuestionComponent
   
       let isMultipleAnswer = false;
       try {
+        console.time('[🔎 Determine question type]');
         if (!question || !('questionText' in question)) {
           console.warn('[⚠️ Early return C] Invalid question object before isMultipleAnswer', question);
           return;
@@ -1560,26 +1563,32 @@ export class QuizQuestionComponent
         isMultipleAnswer = await firstValueFrom(
           this.quizQuestionManagerService.isMultipleAnswerQuestion(question)
         );
+        console.timeEnd('[🔎 Determine question type]');
       } catch (err) {
         console.error('[❌ isMultipleAnswerQuestion failed]', err);
         console.warn('[⚠️ Early return D] Failed to get isMultipleAnswer');
         return;
       }
   
+      console.time('[🧹 Clear container]');
       this.dynamicAnswerContainer.clear();
       await Promise.resolve();
+      console.timeEnd('[🧹 Clear container]');
   
+      console.time('[🏗️ Create component]');
       const componentRef: ComponentRef<BaseQuestionComponent> =
         await this.dynamicComponentService.loadComponent(
-          this.dynamicAnswerContainer, 
+          this.dynamicAnswerContainer,
           isMultipleAnswer,
           this.onOptionClicked.bind(this)
         );
+      console.timeEnd('[🏗️ Create component]');
+  
       if (!componentRef || !componentRef.instance) {
         console.warn('[❌ loadDynamicComponent] ComponentRef or instance is undefined');
         return;
       }
-
+  
       console.log('[🧪 Component instance created]', {
         componentType: componentRef?.instance?.constructor?.name,
         index: this.currentQuestionIndex
@@ -1590,9 +1599,8 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Early return F] ComponentRef has no instance');
         return;
       }
-
+  
       // Set backward nav flag if supported
-      // Forced cast: we expect the dynamic component to be AnswerComponent at this point
       (instance as unknown as AnswerComponent).isNavigatingBackwards = this.navigatingBackwards ?? false;
       this.navigatingBackwards = false;
   
@@ -1600,6 +1608,7 @@ export class QuizQuestionComponent
         componentType: componentRef.componentType?.name ?? '[Unknown]',
       });
   
+      console.time('[📦 Clone + Assign inputs]');
       const clonedOptions = structuredClone?.(options) ?? JSON.parse(JSON.stringify(options));
   
       try {
@@ -1633,7 +1642,9 @@ export class QuizQuestionComponent
         disabled: false,
         ariaLabel: opt.text ?? `Option ${idx + 1}`
       }));
+      console.timeEnd('[📦 Clone + Assign inputs]');
   
+      console.time('[🧠 Assign sharedOptionConfig]');
       instance.sharedOptionConfig = {
         ...this.getDefaultSharedOptionConfig?.(),
         type: isMultipleAnswer ? 'multiple' : 'single',
@@ -1656,13 +1667,16 @@ export class QuizQuestionComponent
         feedback: '',
         idx: this.currentQuestionIndex
       };
+      console.timeEnd('[🧠 Assign sharedOptionConfig]');
       console.log('[🧠 SharedOptionConfig set]');
   
       this.questionData = { ...instance.question, options: clonedOptions };
       this.sharedOptionConfig = instance.sharedOptionConfig;
       this.cdRef.markForCheck();
   
+      console.time('[⚙️ initializeSharedOptionConfig]');
       await instance.initializeSharedOptionConfig?.(clonedOptions);
+      console.timeEnd('[⚙️ initializeSharedOptionConfig]');
       console.log('[✅ initializeSharedOptionConfig complete]');
   
       if (!Object.prototype.hasOwnProperty.call(instance, 'onOptionClicked')) {
@@ -1678,7 +1692,7 @@ export class QuizQuestionComponent
         !!instance.sharedOptionConfig;
   
       if (isReady) {
-        this.shouldRenderOptions = true; 
+        this.shouldRenderOptions = true;
         this._canRenderFinalOptions = true;
       } else {
         console.warn('[⚠️ Skipping render — not fully ready]', {
@@ -1690,7 +1704,10 @@ export class QuizQuestionComponent
     } catch (error) {
       console.error('[❌ loadDynamicComponent] Failed to load component:', error);
     }
+  
+    console.timeEnd('[🔧 loadDynamicComponent TOTAL]');
   }
+  
   
   // rename
   private async loadInitialQuestionAndMessage(): Promise<void> {
