@@ -65,7 +65,7 @@ export class NextButtonStateService {
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
         const isEnabled = isAnswered && !isLoading && !isNavigating;
-        this.updateAndSyncNextButtonState(isEnabled);
+        this.setNextButtonState(isEnabled);
       });
   }
 
