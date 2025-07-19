@@ -1744,7 +1744,7 @@ export class QuizQuestionComponent
       this.timerService.startTimer(this.timerService.timePerQuestion, true);
   
       // Fetch questions if not already available
-      /* if (!this.questionsArray || this.questionsArray.length === 0) {
+      if (!this.questionsArray || this.questionsArray.length === 0) {
         const quizId = this.quizService.getCurrentQuizId();
         if (!quizId) throw new Error('No active quiz ID found.');
   
@@ -1758,7 +1758,7 @@ export class QuizQuestionComponent
       if (this.questionsArray.length === 0) {
         console.warn('[loadQuestion] questionsArray still empty – aborting load');
         return false;
-      } */
+      }
   
       if (this.currentQuestionIndex === this.questionsArray.length) {
         console.log('[loadQuestion] End of quiz → /results');
