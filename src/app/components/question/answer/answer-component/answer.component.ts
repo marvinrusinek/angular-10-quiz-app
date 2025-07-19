@@ -299,25 +299,22 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   // Rebuild optionBindings from the latest optionsToDisplay.
-  private rebuildOptionBindings(clonedOptions: Option[]): OptionBindings[] {
+  private rebuildOptionBindings(options: Option[]): void {
     console.time('[⏱️ Rebuild OptionBindings]');
 
-    if (!this.incomingOptions?.length) {
+    if (!Array.isArray(options) || options.length === 0) {
       this.optionBindings = [];
       return;
     }
   
     // Deep clone (already validated incomingOptions above)
-    const cloned: Option[] =
-      typeof structuredClone === 'function'
-        ? structuredClone(this.incomingOptions)
-        : JSON.parse(JSON.stringify(this.incomingOptions));
+    const cloned = structuredClone(options);
   
     // Build fresh bindings
-    const rebuilt = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
+    const bindings = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
   
     // Patch allOptions / optionsToDisplay refs
-    rebuilt.forEach(b => {
+    bindings.forEach(b => {
       b.allOptions       = cloned;
       b.optionsToDisplay = cloned;
     });
@@ -325,17 +322,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // ───── Gating render ─────
     this.renderReady = false;
     console.time('[🕐 renderReady false]');
-    this.optionBindings = rebuilt;
+    this.optionBindings = bindings;
     this.cdRef.detectChanges();
 
-    Promise.resolve().then(() => {
-      console.timeEnd('[🕐 renderReady false]');
-      this.renderReady = true;
-      this.cdRef.markForCheck();
-    });
-
     console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
-    return rebuilt;
   }
 
   // Builds a minimal but type-complete binding when no helper exists
