@@ -297,7 +297,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   // Rebuild optionBindings from the latest optionsToDisplay.
-  private rebuildOptionBindings(opt: Option[]): void {
+  private rebuildOptionBindings(opt: Option[]): OptionBindings[] {
     console.time('[⏱️ Rebuild OptionBindings]');
   
     if (!opt?.length) {
@@ -333,6 +333,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     });
   
     console.timeEnd('[⏱️ Rebuild OptionBindings]');
+    return rebuilt;
   }
   
   // Builds a minimal but type-complete binding when no helper exists
