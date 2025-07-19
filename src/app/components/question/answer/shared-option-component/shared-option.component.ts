@@ -2010,7 +2010,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         return;
       }
   
+      console.time('[⚙️ processOptionBindings]');
       this.processOptionBindings();
+      console.timeEnd('[⚙️ processOptionBindings]');
     } catch (error) {
       console.error('[❌ initializeOptionBindings error]', error);
     } finally {
