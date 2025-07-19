@@ -2179,7 +2179,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       this.renderReady = true;
       this.viewReady = true;
       this.displayReady = true;
-      this.cdRef.detectChanges(); // flush view
+      this.cdRef.detectChanges();  // flush view
     } else {
       console.warn('[🛑 Display init skipped — not ready]');
     }
