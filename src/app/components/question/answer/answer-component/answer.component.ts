@@ -299,43 +299,42 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   // Rebuild optionBindings from the latest optionsToDisplay.
   private rebuildOptionBindings(opt: Option[]): void {
     console.time('[⏱️ Rebuild OptionBindings]');
-
-    if (!this.incomingOptions?.length) {
+  
+    if (!opt?.length) {
       this.optionBindings = [];
       return;
     }
   
-    // Deep clone (already validated incomingOptions above)
+    // Deep clone options to avoid mutation
     const cloned: Option[] =
       typeof structuredClone === 'function'
-        ? structuredClone(this.incomingOptions)
-        : JSON.parse(JSON.stringify(this.incomingOptions));
+        ? structuredClone(opt)
+        : JSON.parse(JSON.stringify(opt));
   
     // Build fresh bindings
     const rebuilt = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
   
-    // Patch allOptions / optionsToDisplay refs
+    // Patch shared references
     rebuilt.forEach(b => {
       b.allOptions       = cloned;
       b.optionsToDisplay = cloned;
     });
   
-    // ───── Gating render ─────
+    // Gate rendering
     this.renderReady = false;
     console.time('[🕐 renderReady false]');
     this.optionBindings = rebuilt;
     this.cdRef.detectChanges();
-
+  
     Promise.resolve().then(() => {
       console.timeEnd('[🕐 renderReady false]');
       this.renderReady = true;
       this.cdRef.markForCheck();
     });
-
-    console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
-    return rebuilt;
+  
+    console.timeEnd('[⏱️ Rebuild OptionBindings]');
   }
-
+  
   // Builds a minimal but type-complete binding when no helper exists
   private buildFallbackBinding(opt: Option, idx: number): OptionBindings {
     return {
