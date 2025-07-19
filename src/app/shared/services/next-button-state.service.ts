@@ -43,7 +43,7 @@ export class NextButtonStateService {
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
     const isEnabled = isAnswered && !isLoading && !isNavigating;
-    this.updateAndSyncNextButtonState(isEnabled);
+    this.setNextButtonState(isEnabled);
   }
 
   public initializeNextButtonStateStream(
@@ -96,11 +96,6 @@ export class NextButtonStateService {
 
   public isButtonCurrentlyEnabled(): boolean {
     return this.isEnabled;
-  }
-
-  public setNextButtonState(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.isButtonEnabledSubject.next(enabled);
   }
 
   public getNextButtonState(): Observable<boolean> {
