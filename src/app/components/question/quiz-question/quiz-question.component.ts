@@ -357,7 +357,9 @@ export class QuizQuestionComponent
         this.sharedOptionConfig = undefined;
         this.shouldRenderFinalOptions = false;
     
+        console.time('[🛠️ loadDynamicComponent ngOnInit]');
         this.loadDynamicComponent(question, options);
+        console.timeEnd('[🛠️ loadDynamicComponent ngOnInit]');
     
         console.log('[✅ Component injected dynamically from navigation]');
       } else {
@@ -512,7 +514,10 @@ export class QuizQuestionComponent
               this.cdRef.detectChanges();
             
               if (!this.containerInitialized && this.dynamicAnswerContainer) {
+                console.time('[🛠️ loadDynamicComponent ngAfterViewInit]');
                 this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+                console.timeEnd('[🛠️ loadDynamicComponent ngAfterViewInit]');
+
                 this.containerInitialized = true;
                 console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
                 console.timeEnd('🎯 Time to render options');
