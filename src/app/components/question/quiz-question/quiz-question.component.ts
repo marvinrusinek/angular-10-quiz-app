@@ -540,29 +540,6 @@ export class QuizQuestionComponent
     } else {
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
     }
-  
-    // Load dynamic component when content is available and container is ready
-    if (this.isContentAvailable$) {
-      this.isContentAvailable$
-        .pipe(distinctUntilChanged())
-        .subscribe((isAvailable) => {
-          if (isAvailable && !this.containerInitialized) {
-            // Ensure view has initialized
-            setTimeout(() => {
-              if (this.dynamicAnswerContainer) {
-                const currentQuestion = this.currentQuestion;
-                const options = this.optionsToDisplay;
-    
-                this.loadDynamicComponent(currentQuestion, options);
-                this.containerInitialized = true;
-              } else {
-                console.warn('[⚠️ dynamicAnswerContainer not available]');
-              }
-            });
-          }
-        }
-      );
-    }
 
     setTimeout(() => {
       console.timeEnd('🎯 Time to render options');
