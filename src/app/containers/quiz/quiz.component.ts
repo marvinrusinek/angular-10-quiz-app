@@ -453,6 +453,28 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    const quizId = this.quizService.getCurrentQuizId();
+
+    if (!quizId) {
+      console.error('[❌ QuizComponent] Missing quizId.');
+      return;
+    }
+
+    try {
+      const questions = await this.quizService.fetchQuizQuestions(quizId);
+      if (!questions || questions.length === 0) {
+        console.error('[❌ QuizComponent] Failed to fetch quiz questions.');
+        return;
+      }
+
+      this.questions = questions;
+      console.log('[✅ Preloaded quiz questions in QuizComponent]');
+    } catch (err) {
+      console.error('[❌ QuizComponent] Error fetching questions:', err);
+    }
+
+    await this.quizQuestionComponent.loadQuestion();
+
     // Assign question and options together when ready
     this.quizStateService.qa$
       .pipe(
