@@ -101,14 +101,24 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe((opts: Option[]) => {
-        console.log('[📥 AnswerComponent] Received options:', opts);
-  
-        this.incomingOptions = structuredClone(opts);
-
-        console.time('[⏱️ AnswerComponent rebuildOptionBindings]');
-        this.rebuildOptionBindings();
-        console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
+        console.time('[📥 AnswerComponent optionsStream$]');
+    
+        const cloned = structuredClone(opts);
+        this.incomingOptions = cloned;
+    
+        const rebuilt = this.rebuildOptionBindings(cloned);
+    
+        this.renderReady = false;
+        this.optionBindings = rebuilt;
+        this.cdRef.detectChanges();
+    
+        Promise.resolve().then(() => {
+          this.renderReady = true;
+          this.cdRef.markForCheck();
+          console.timeEnd('[📥 AnswerComponent optionsStream$]');
+        });
       });
+    
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -125,7 +135,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
       // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
-      this.rebuildOptionBindings();  // respond to updates
+      this.rebuildOptionBindings(this.optionBindingsSrc);  // respond to updates
   
       // Wake the OnPush CD cycle
       this.cdRef.markForCheck();
@@ -292,7 +302,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   // Rebuild optionBindings from the latest optionsToDisplay.
-  private rebuildOptionBindings(): void {
+  private rebuildOptionBindings(clonedOptions: Option[]): OptionBindings[] {
     console.time('[⏱️ Rebuild OptionBindings]');
 
     if (!this.incomingOptions?.length) {
@@ -328,6 +338,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     });
 
     console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
+    return rebuilt;
   }
 
   // Builds a minimal but type-complete binding when no helper exists
