@@ -238,7 +238,7 @@ export class QuizQuestionComponent
 
   private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   public questionPayload$ = this.questionPayloadSubject.asObservable();
-  
+
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
 
@@ -330,7 +330,6 @@ export class QuizQuestionComponent
           this.explanationToDisplay = payload.explanation ?? '';
 
           this.renderReady = true;
-          this.cdRef.detectChanges();
         }),
         tap(() => console.timeEnd('🕒 QQC render'))
       )
@@ -1790,7 +1789,26 @@ export class QuizQuestionComponent
       // ───────────── Update Component State ─────────────
   
       this.currentQuestion = { ...potentialQuestion };
+      this.optionsToDisplay = this.quizService.assignOptionIds(
+        this.currentQuestion.options || []
+      ).map(option => ({
+        ...option,
+        active: true,
+        feedback: undefined,
+        showIcon: false,
+        selected: false
+      }));
   
+      this.quizService.questionPayloadSubject.next({
+        question: this.currentQuestion!,
+        options: this.optionsToDisplay,
+        explanation: ''
+      });
+
+      // Emit Q&A ready event before explanation text is fetched
+      this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
+      this.questionAndOptionsReady.emit();
+
       if (!this.currentQuestion.options?.length) {
         console.warn('[loadQuestion] Current question has no options.');
         this.currentQuestion.options = [];
@@ -1848,12 +1866,6 @@ export class QuizQuestionComponent
         this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
         console.log('[📤 QQC] Emitted questionAndOptionsReady event');
       }
-
-      this.quizService.questionPayloadSubject.next({
-        question: this.currentQuestion!,
-        options: this.optionsToDisplay,
-        explanation: this.currentExplanationText
-      });      
   
       return true;
     } catch (error) {
@@ -1866,7 +1878,7 @@ export class QuizQuestionComponent
       this.isLoading = false;
       this.quizStateService.setLoading(false);
     }
-  }  
+  }
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
