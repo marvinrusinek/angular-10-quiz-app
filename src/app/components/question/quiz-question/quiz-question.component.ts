@@ -1799,16 +1799,17 @@ export class QuizQuestionComponent
         selected: false
       }));
   
+      // 🔥 Emit early to reduce display lag
       this.quizService.questionPayloadSubject.next({
         question: this.currentQuestion!,
         options: this.optionsToDisplay,
         explanation: ''
       });
-
+  
       // Emit Q&A ready event before explanation text is fetched
       this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
       this.questionAndOptionsReady.emit();
-
+  
       if (!this.currentQuestion.options?.length) {
         console.warn('[loadQuestion] Current question has no options.');
         this.currentQuestion.options = [];
@@ -1879,6 +1880,7 @@ export class QuizQuestionComponent
       this.quizStateService.setLoading(false);
     }
   }
+  
 
   // Method to ensure loading of the correct current question
   private async loadCurrentQuestion(): Promise<boolean> {
