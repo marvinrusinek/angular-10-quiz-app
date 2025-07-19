@@ -103,7 +103,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         console.log('[📥 AnswerComponent] Received options:', opts);
   
         this.incomingOptions = structuredClone(opts);
+
+        console.time('[⏱️ AnswerComponent rebuildOptionBindings]');
         this.rebuildOptionBindings();
+        console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
       });
   }
 
