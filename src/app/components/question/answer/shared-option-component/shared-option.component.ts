@@ -352,7 +352,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   } */
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  async onChanges(changes: SimpleChanges): Promise<void> {
     console.time('[📦 SOC ngOnChanges]');
     console.log('[📦 SOC ngOnChanges]', changes);
     console.timeEnd('[📦 SOC ngOnChanges]');
