@@ -92,30 +92,12 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     });
 
     // displays the unique options to the UI
-    /* this.quizQuestionLoaderService.optionsStream$
+    this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe((opts: Option[]) => {
         this.optionsToDisplay = [...opts];  // hand the child a new array instance
         this.cdRef.markForCheck();
-      }); */
-      this.quizQuestionLoaderService.optionsStream$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((opts: Option[]) => {
-        console.time('[📥 AnswerComponent optionsStream$]');
-    
-        const cloned = structuredClone(opts);
-        this.incomingOptions = cloned;
-    
-        this.renderReady = false;
-        this.rebuildOptionBindings(cloned);  // let this method assign optionBindings
-        this.cdRef.detectChanges();
-    
-        Promise.resolve().then(() => {
-          this.renderReady = true;
-          this.cdRef.markForCheck();
-          console.timeEnd('[📥 AnswerComponent optionsStream$]');
-        });
-      });    
+      }); 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -299,22 +281,25 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   // Rebuild optionBindings from the latest optionsToDisplay.
-  private rebuildOptionBindings(options: Option[]): void {
+  private rebuildOptionBindings(opt: Option[]): void {
     console.time('[⏱️ Rebuild OptionBindings]');
 
-    if (!Array.isArray(options) || options.length === 0) {
+    if (!this.incomingOptions?.length) {
       this.optionBindings = [];
       return;
     }
   
     // Deep clone (already validated incomingOptions above)
-    const cloned = structuredClone(options);
+    const cloned: Option[] =
+      typeof structuredClone === 'function'
+        ? structuredClone(this.incomingOptions)
+        : JSON.parse(JSON.stringify(this.incomingOptions));
   
     // Build fresh bindings
-    const bindings = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
+    const rebuilt = cloned.map((opt, idx) => this.buildFallbackBinding(opt, idx));
   
     // Patch allOptions / optionsToDisplay refs
-    bindings.forEach(b => {
+    rebuilt.forEach(b => {
       b.allOptions       = cloned;
       b.optionsToDisplay = cloned;
     });
@@ -322,10 +307,17 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     // ───── Gating render ─────
     this.renderReady = false;
     console.time('[🕐 renderReady false]');
-    this.optionBindings = bindings;
+    this.optionBindings = rebuilt;
     this.cdRef.detectChanges();
 
+    Promise.resolve().then(() => {
+      console.timeEnd('[🕐 renderReady false]');
+      this.renderReady = true;
+      this.cdRef.markForCheck();
+    });
+
     console.timeEnd('[⏱️ AnswerComponent rebuildOptionBindings]');
+    return rebuilt;
   }
 
   // Builds a minimal but type-complete binding when no helper exists

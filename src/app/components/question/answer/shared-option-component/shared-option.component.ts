@@ -146,8 +146,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.time('[🕒 SharedOptionComponent Init]');
-    console.log('[🧪 SOC ngOnInit]');
     this.initializeFromConfig();
 
     // Ensure rendering flags are set based on data availability
@@ -230,8 +228,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     } else {
       console.warn('No options received in SharedOptionComponent');
     }
-
-    console.timeEnd('[🕒 SharedOptionComponent Init]');
   }
 
   /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -356,9 +352,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   } */
-  async onChanges(changes: SimpleChanges): Promise<void> {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[📦 SOC ngOnChanges]');
     console.log('[📦 SOC ngOnChanges]', changes);
+    console.timeEnd('[📦 SOC ngOnChanges]');
 
     console.log('[🧪 ngOnChanges] fired', changes);
     // console.time('[⏱️ SharedOptionComponent Render]');
@@ -421,8 +418,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   }  
 
   ngAfterViewInit(): void {
-    console.time('[🕒 SharedOptionComponent ViewInit]');
-    console.log('[✅ SOC ngAfterViewInit]');
     if (this.form) {
       console.log('form value:', this.form.value);
     } else {
@@ -435,7 +430,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     this.viewInitialized = true;
     this.viewReady = true;
-    console.timeEnd('[🕒 SharedOptionComponent ViewInit]');
   }
 
   ngOnDestroy(): void {
