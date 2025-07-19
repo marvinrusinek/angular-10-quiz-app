@@ -107,22 +107,20 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @HostListener('click', ['$event'])
   onClick(event: Event): void {
     try {
-      this.ngZone.run(() => {
-        event.stopPropagation(); // prevent further propagation, ensure event doesn't bubble up further
+      event.stopPropagation();  // prevent further propagation
 
-        // Check if the option is deactivated (highlighted or inactive)
-        if (this.option?.highlight || this.option?.active === false) {
-          console.info('Deactivated option clicked. No action taken:', this.option);
-          return; // exit early for deactivated options
-        }
+      // Check if the option is deactivated (highlighted or inactive)
+      if (this.option?.highlight || this.option?.active === false) {
+        console.info('Deactivated option clicked. No action taken:', this.option);
+        return;
+      }
 
-        // Emit the optionClicked event and update highlight if not deactivated
-        if (this.option) {
-          this.optionClicked.emit(this.option); // notify the parent component
-          this.updateHighlight(); // update the visual state
-          this.cdRef.detectChanges(); // trigger change detection to ensure UI updates
-        }
-      });
+      // Emit the event and update visuals
+      if (this.option) {
+        this.optionClicked.emit(this.option);  // notify parent
+        this.updateHighlight();                // update UI
+        this.cdRef.detectChanges();            // ensure re-render
+      }
     } catch (error) {
       console.error('Error in onClick:', error);
     }
