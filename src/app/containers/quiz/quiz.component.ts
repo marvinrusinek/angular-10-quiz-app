@@ -406,51 +406,50 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async restoreStateAfterFocus(): Promise<void> {
-    this.ngZone.run(async () => {
-      if (this.isLoading || this.quizStateService.isLoading()) {
+    if (this.isLoading || this.quizStateService.isLoading()) {
+      console.warn(
+        '[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.'
+      );
+      return;
+    }
+  
+    try {
+      // Retrieve last known question index (DO NOT RESET!)
+      const savedIndex = localStorage.getItem('savedQuestionIndex');
+      let restoredIndex = this.quizService.getCurrentQuestionIndex();
+  
+      if (savedIndex !== null) {
+        restoredIndex = JSON.parse(savedIndex);
+      }
+  
+      // Ensure the index is valid
+      const totalQuestions = await firstValueFrom(
+        this.quizService.getTotalQuestionsCount(this.quizId)
+      );
+  
+      if (
+        typeof restoredIndex !== 'number' ||
+        restoredIndex < 0 ||
+        restoredIndex >= totalQuestions
+      ) {
         console.warn(
-          '[restoreStateAfterFocus] ⚠️ State restoration skipped: Loading in progress.'
+          'Invalid restored index. Keeping latest valid index:',
+          restoredIndex
         );
-        return;
       }
-
-      try {
-        // Retrieve last known question index (DO NOT RESET!)
-        const savedIndex = localStorage.getItem('savedQuestionIndex');
-        let restoredIndex = this.quizService.getCurrentQuestionIndex();
-
-        if (savedIndex !== null) {
-          restoredIndex = JSON.parse(savedIndex);
-        }
-
-        // Ensure the index is valid
-        const totalQuestions = await firstValueFrom(
-          this.quizService.getTotalQuestionsCount(this.quizId)
+  
+      if (this.currentQuestionIndex !== restoredIndex) {
+        this.currentQuestionIndex = restoredIndex;
+        localStorage.setItem(
+          'savedQuestionIndex',
+          JSON.stringify(restoredIndex)
         );
-        if (
-          typeof restoredIndex !== 'number' ||
-          restoredIndex < 0 ||
-          restoredIndex >= totalQuestions
-        ) {
-          console.warn(
-            'Invalid restored index. Keeping latest valid index:',
-            restoredIndex
-          );
-        }
-
-        if (this.currentQuestionIndex !== restoredIndex) {
-          this.currentQuestionIndex = restoredIndex;
-          localStorage.setItem(
-            'savedQuestionIndex',
-            JSON.stringify(restoredIndex)
-          );
-        }
-
-        this.cdRef.detectChanges();
-      } catch (error) {
-        console.error('Error during state restoration:', error);
       }
-    });
+  
+      this.cdRef.detectChanges();
+    } catch (error) {
+      console.error('Error during state restoration:', error);
+    }
   }
 
   async ngOnInit(): Promise<void> {
