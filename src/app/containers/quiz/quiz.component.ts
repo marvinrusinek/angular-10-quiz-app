@@ -324,13 +324,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       next: (newQuestion) => {
         if (!newQuestion) return;
 
-        this.ngZone.run(() => {
-          this.currentQuestion = null;  // force reset to clear stale UI
+        this.currentQuestion = null;
 
-          setTimeout(() => {
-            this.currentQuestion = { ...newQuestion };
-          }, 10);  // small delay to ensure UI resets properly
-        });
+        setTimeout(() => {
+          this.currentQuestion = { ...newQuestion };
+
+        }, 10);
       },
       error: (err) =>
         console.error('Error in currentQuestion subscription:', err),
