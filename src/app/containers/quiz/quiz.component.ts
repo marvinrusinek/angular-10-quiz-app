@@ -3558,7 +3558,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionToDisplaySubject.next(trimmedText);
       
         // Force fresh array reference to trigger ngOnChanges
-        this.optionsToDisplay = structuredClone(clonedOptions);
+        this.optionsToDisplay = clonedOptions;
       
         // 🔍 Log to confirm the assignment
         console.log('[🟢 Assigning optionsToDisplay]', this.optionsToDisplay);
