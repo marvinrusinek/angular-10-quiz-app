@@ -2559,7 +2559,7 @@ export class QuizQuestionComponent
 
   private enableNextButton(): void {
     const shouldEnableNext = this.answerTrackingService.isAnyOptionSelected();
-    this.nextButtonStateService.updateAndSyncNextButtonState(shouldEnableNext);
+    this.nextButtonStateService.setNextButtonState(shouldEnableNext);
   }  
 
   private emitExplanationIfValid(explanationText: string, lockedState: LockedState): void {
@@ -3947,7 +3947,7 @@ export class QuizQuestionComponent
       this.quizStateService.setAnswered(true);  // update quiz-level answered state
       //this.nextButtonStateService.syncNextButtonState();  // let the observable handle enable logic
       const isSelected = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.updateAndSyncNextButtonState(isSelected);
+      this.nextButtonStateService.setNextButtonState(isSelected);
     } catch (error) {
       console.error('Error during option selection:', error);
     }
