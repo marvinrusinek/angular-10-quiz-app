@@ -1463,7 +1463,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
         });
   
         found = true;
-        break; // stop after first match
+        break;  // stop after first match
       }
     }
   
