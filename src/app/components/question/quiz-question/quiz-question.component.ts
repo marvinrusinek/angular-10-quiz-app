@@ -2462,10 +2462,10 @@ export class QuizQuestionComponent
       this.markBindingSelected(option);  // highlight row and mark binding
       this.refreshFeedbackFor(option);   // only show feedback on selected row
   
-      // ───── Update Explanation State ─────
+      // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
       this.showExplanationLocked(this.currentQuestion, this.currentQuestionIndex);  // emits and flags explanation
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
       // ───── Async Tasks (cleanup, emission) ─────
       await this.postClickTasks(option, index, checked, wasReselected);
