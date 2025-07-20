@@ -1811,10 +1811,6 @@ export class QuizQuestionComponent
         explanation: ''
       });
   
-      // Emit Q&A ready event before explanation text is fetched
-      this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
-      this.questionAndOptionsReady.emit();
-  
       if (!this.currentQuestion.options?.length) {
         console.warn('[loadQuestion] Current question has no options.');
         this.currentQuestion.options = [];
