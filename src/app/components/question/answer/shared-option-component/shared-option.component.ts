@@ -226,7 +226,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.timeEnd("NGONINIT LOG");
   } */
   ngOnInit(): void {
-    console.time('[⏳ SOC.ngOnInit total]');
+    console.time('[⏱️ SOC ngOnInit]');
   
     // Delay fallback appearance
     setTimeout(() => {
@@ -322,7 +322,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
     console.timeEnd('[📦 set optionsToDisplay]');
   
-    console.timeEnd('[⏳ SOC.ngOnInit total]');
+    console.timeEnd('[⏱️ SOC ngOnInit]');
   }
   
 
@@ -449,7 +449,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.time('[📦 SOC total render]');
+    console.time('[📦 SOC ngOnChanges]');
     console.log('[🧪 ngOnChanges] fired', changes);
   
     const shouldRegenerate =
@@ -521,7 +521,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   ngAfterViewInit(): void {
-    console.time('[🖼️ SOC ngAfterViewInit]');
+    console.time('[⏱️ SOC ngAfterViewInit]');
     if (this.form) {
       console.log('form value:', this.form.value);
     } else {
@@ -534,12 +534,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.viewInitialized = true;
     this.viewReady = true;
-    console.timeEnd('[📦 SOC total render]');
+    console.timeEnd('[⏱️ SOC ngAfterViewInit]');
   }
 
   ngAfterViewChecked(): void {
-    // console.timeEnd('[⏱️ Total Render Cycle]');
+    console.time('[⏱️ SOC ngAfterViewChecked]');
     console.log('[✅ SharedOptionComponent View Checked]');
+    console.timeEnd('[⏱️ SOC ngAfterViewChecked]');
   }
   
 
