@@ -921,17 +921,6 @@ export class QuizQuestionComponent
   
     this.renderReadySubject.next(true);  // triggers the stream
   }
-  
-  private resetOptionsDueToInvalidData(reason: string): void {
-    if (this.optionsToDisplay.length > 0) {
-      console.warn(`[setOptionsToDisplay] 🚨 Resetting options due to issue: ${reason}`);
-      console.warn(`[Stack trace]`, new Error().stack);
-      this.optionsToDisplay = [];
-      this.optionBindings = [];
-    } else {
-      console.log(`[setOptionsToDisplay] No reset needed — options already empty.`);
-    }
-  }
 
   private saveQuizState(): void {
     try {
