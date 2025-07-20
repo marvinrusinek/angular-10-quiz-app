@@ -2529,6 +2529,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       safeOptions$
     ]).pipe(
       map(([question, options]) => createSafeQuestionData(question, options)),
+      tap(data => console.log('[🧪 combinedQuestionData$]', data?.question?.questionText)),
       catchError((error) => {
         console.error('[❌ Error in createQuestionData]', error);
         return of(createSafeQuestionData(null, []));
