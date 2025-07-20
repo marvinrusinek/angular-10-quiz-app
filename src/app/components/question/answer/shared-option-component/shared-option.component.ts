@@ -98,6 +98,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   optionsReady = false;
   displayReady = false;
   showOptions = false;
+  showNoOptionsFallback = false;
   lastClickedOptionId: number | null = null;
   lastClickTimestamp: number | null = null;
   hasUserClicked = false;
@@ -227,6 +228,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnInit(): void {
     console.time('[⏳ SOC.ngOnInit total]');
   
+    // Delay fallback appearance
+    setTimeout(() => {
+      if (!this.renderReady || !this.optionsToDisplay?.length) {
+        this.showNoOptionsFallback = true;
+        this.cdRef.markForCheck();
+      }
+    }, 150);  // adjust as needed
+
     console.time('[🛠️ initializeFromConfig]');
     this.initializeFromConfig();
     console.timeEnd('[🛠️ initializeFromConfig]');
