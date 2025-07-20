@@ -1859,9 +1859,9 @@ export class QuizQuestionComponent
       }
   
       // Update explanation and feedback
-      await this.updateExplanationText(lockedIndex);
+      /* await this.updateExplanationText(lockedIndex);
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      await this.handleExplanationDisplay();
+      await this.handleExplanationDisplay(); */
   
       this.quizService.nextQuestionSubject.next(this.currentQuestion);
       this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
