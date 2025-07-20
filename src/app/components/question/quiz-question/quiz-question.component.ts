@@ -293,19 +293,10 @@ export class QuizQuestionComponent
   @Input() set questionPayload(value: QuestionPayload | null) {
     if (!value) return;
   
-    console.log('[📥 @Input received]', value);
-  
-    const serialized = JSON.stringify(value);
-    if (serialized !== this.lastSerializedPayload) {
-      console.log('[🚀 hydrateFromPayload WILL BE CALLED from @Input]');
-      this.lastSerializedPayload = serialized;
-      this._questionPayload = value;
-      this.questionPayloadSubject.next(value);  // emit into stream
-      this.hydrateFromPayload(value);
-    } else {
-      console.log('[⛔ SKIPPING hydrateFromPayload — payload is identical]');
-    }
-  }
+    this._questionPayload = value;
+    this.questionPayloadSubject.next(value);
+    this.hydrateFromPayload(value);  // let this handle serialization diffing
+  }  
   
   get questionPayload(): QuestionPayload | null {
     return this._questionPayload;
@@ -564,29 +555,10 @@ export class QuizQuestionComponent
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.questionPayload && this.questionPayload) { 
-      const serialized = JSON.stringify(this.questionPayload);
-      console.log('[🔍 ngOnChanges detected questionPayload]', serialized);
-    
-      const shouldForceHydrate = this.quizService.currentQuestionIndex === 0;
-    
-      if (this.lastSerializedPayload !== serialized || shouldForceHydrate) {
-        console.log('[🚀 hydrateFromPayload WILL BE CALLED from ngOnChanges]');
-        this.lastSerializedPayload = serialized;
-        this.hydrateFromPayload(this.questionPayload);
-      } else if (!this.finalRenderReady) {
-        console.warn('[⚠️ Fallback render trigger] For unchanged payload');
-        if (
-          Array.isArray(this.optionsToDisplay) &&
-          this.optionsToDisplay.length > 0 &&
-          this.sharedOptionComponent?.optionBindings?.length > 0
-        ) {
-          this.triggerRenderReady('✅ Options + bindings ready');
-        }
-      }
-    
+    if (changes.questionPayload && this.questionPayload) {
+      this.hydrateFromPayload(this.questionPayload);
       this.questionPayloadSubject.next(this.questionPayload);
-      this.enforceHydrationFallback();  // backup safety net
+      this.enforceHydrationFallback();
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
