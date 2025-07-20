@@ -1802,12 +1802,15 @@ export class QuizQuestionComponent
         selected: false
       }));
   
-      // 🔥 Emit early to reduce display lag
+      // Emit early to reduce display lag
       this.quizService.questionPayloadSubject.next({
         question: this.currentQuestion!,
         options: this.optionsToDisplay,
         explanation: ''
       });
+
+      // Mark renderReady = true
+      this.renderReadySubject.next(true);
   
       // Emit Q&A ready event before explanation text is fetched
       this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
