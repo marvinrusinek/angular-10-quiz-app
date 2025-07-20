@@ -329,8 +329,6 @@ export class QuizQuestionComponent
           this.currentQuestion = payload.question;
           this.optionsToDisplay = payload.options;
           this.explanationToDisplay = payload.explanation ?? '';
-
-          this.renderReady = true;
         }),
         tap(() => console.timeEnd('🕒 QQC render'))
       )
@@ -439,9 +437,11 @@ export class QuizQuestionComponent
           this.explanationToDisplay = explanation?.trim() || '';
       
           // Show everything together — Q + A in one paint pass
-          this.renderReady = true;
-          this.renderReadySubject.next(true);
-          this.cdRef.detectChanges();
+          setTimeout(() => {
+            this.renderReady = true;
+            this.renderReadySubject.next(true);
+            this.cdRef.detectChanges();
+          }, 0);
       
           console.log('[✅ renderReady triggered with Q&A]');
         }),
