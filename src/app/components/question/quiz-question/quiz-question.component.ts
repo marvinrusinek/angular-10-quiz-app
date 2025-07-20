@@ -1858,11 +1858,6 @@ export class QuizQuestionComponent
         return false;
       }
   
-      // Update explanation and feedback
-      /* await this.updateExplanationText(lockedIndex);
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      await this.handleExplanationDisplay(); */
-  
       this.quizService.nextQuestionSubject.next(this.currentQuestion);
       this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
       console.log('[🚀 Emitted Q1 question and options together]');
