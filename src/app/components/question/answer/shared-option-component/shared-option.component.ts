@@ -2271,9 +2271,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       b.showFeedbackForOption[b.option.optionId] = false;
     }
 
-    this.perQuestionHistory.clear();   // forget old clicks
+    this.perQuestionHistory.clear();  // forget old clicks
 
-    // force every directive to repaint *now*
+    // Force every directive to repaint now
     this.highlightDirectives?.forEach(d => {
       d.isSelected  = false;
       d.updateHighlight();
