@@ -814,18 +814,15 @@ export class QuizQuestionComponent
 
           this.optionsToDisplay = [...newOptions];
 
-          this.cdRef.markForCheck();
-
           // Flip visibility next frame
-          requestAnimationFrame(() => {
+          setTimeout(() => {
             this.internalBufferReady = true;
-            this.finalRenderReady    = true;
-            this.renderReady         = true;
+            this.finalRenderReady = true;
+            this.renderReady = true;
             this.renderReadySubject.next(true);
-
-            // Force CD in case parent doesn’t trigger it
-            this.cdRef.markForCheck();
-          });
+        
+            this.cdRef.markForCheck();  // refresh OnPush components if needed
+          }, 0);
         });
       }, 0);
 
