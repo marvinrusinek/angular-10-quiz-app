@@ -845,6 +845,8 @@ export class QuizQuestionComponent
   }
 
   private hydrateFromPayload(payload: QuestionPayload): void {
+    console.time('[⏱️ hydrateFromPayload]');
+  
     const serialized = JSON.stringify(payload);
   
     // Skip if no change
@@ -853,6 +855,7 @@ export class QuizQuestionComponent
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
         this.sharedOptionComponent?.markRenderReady('💡 Rehydrated identical payload');
       }
+      console.timeEnd('[⏱️ hydrateFromPayload]');
       return;
     }
   
@@ -866,27 +869,32 @@ export class QuizQuestionComponent
   
     const { question, options, explanation } = payload;
   
-    // Assign the data before injection
+    console.time('[🧬 structuredClone(options)]');
     this.currentQuestion = question;
     this.optionsToDisplay = structuredClone(options);
+    console.timeEnd('[🧬 structuredClone(options)]');
+  
     this.explanationToDisplay = explanation?.trim() || '';
   
     // Now inject the AnswerComponent
     if (!this.containerInitialized && this.dynamicAnswerContainer) {
-      console.time('[🛠️ loadDynamicComponent]');
+      console.time('[⏱️ loadDynamicComponent]');
       this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
       this.containerInitialized = true;
-      console.timeEnd('[🛠️ loadDynamicComponent]');
+      console.timeEnd('[⏱️ loadDynamicComponent]');
       console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
     }
   
-    // Bind option UI
     if (this.sharedOptionComponent) {
+      console.time('[🛠️ initializeOptionBindings]');
       this.sharedOptionComponent.initializeOptionBindings();
+      console.timeEnd('[🛠️ initializeOptionBindings]');
     }
   
     // Set render flags after bindings
     setTimeout(() => {
+      console.time('[⏹️ post-bindings renderReady check]');
+  
       const bindingsReady =
         Array.isArray(this.sharedOptionComponent?.optionBindings) &&
         this.sharedOptionComponent.optionBindings.length > 0 &&
@@ -902,8 +910,11 @@ export class QuizQuestionComponent
       } else {
         console.warn('[❌ renderReady skipped: options or bindings not ready]');
       }
+  
+      console.timeEnd('[⏹️ post-bindings renderReady check]');
+      console.timeEnd('[⏱️ hydrateFromPayload]');
     }, 0);
-  }  
+  }
   
   private enforceHydrationFallback(): void {
     setTimeout(() => {
