@@ -1734,6 +1734,7 @@ export class QuizQuestionComponent
       this.explanationTextService.resetExplanationState();
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setIsExplanationTextDisplayed(false);
+      this.renderReadySubject.next(false);
   
       this.displayState = { mode: 'question', answered: false };
       this.forceQuestionDisplay = true;
@@ -1808,9 +1809,6 @@ export class QuizQuestionComponent
         options: this.optionsToDisplay,
         explanation: ''
       });
-
-      // Mark renderReady = true
-      this.renderReadySubject.next(true);
   
       // Emit Q&A ready event before explanation text is fetched
       this.quizService.emitQuestionAndOptions(this.currentQuestion, this.optionsToDisplay);
