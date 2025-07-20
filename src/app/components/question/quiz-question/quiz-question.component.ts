@@ -2464,7 +2464,7 @@ export class QuizQuestionComponent
   
       // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
-      this.displayExplanationAndFeedback(this.currentQuestion, this.currentQuestionIndex);  // emits and flags explanation
+      this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);  // emits and flags explanation
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
       // ───── Async Tasks (cleanup, emission) ─────
@@ -2533,7 +2533,7 @@ export class QuizQuestionComponent
   }
   
   // Emit/display explanation
-  private displayExplanationAndFeedback(snapshot: QuizQuestion, qIdx: number): void {
+  private displayExplanationText(snapshot: QuizQuestion, qIdx: number): void {
     if (!snapshot) {
       console.warn('[⚠️ showExplanationLocked] snapshot is null. Skipping explanation setup.');
       return;
