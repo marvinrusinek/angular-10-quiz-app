@@ -2498,10 +2498,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       distinctUntilChanged()
     );
 
-    this.combinedQuestionData$ = combineLatest([
+    /* this.combinedQuestionData$ = combineLatest([
       safeQuestion$,
       safeOptions$,
     ]).pipe(
+      filter(([question, options]) =>
+        !!question && Array.isArray(options) && options.length > 0
+      ),
       switchMap(([nextQuestion, nextOptions]) => {
         if (nextQuestion) {
           return of(createSafeQuestionData(nextQuestion, nextOptions));
@@ -2520,7 +2523,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('[❌ Error in createQuestionData]', error);
         return of(createSafeQuestionData(null, []));  // fallback
       })
-    );
+    ); */
+    this.combinedQuestionData$ = combineLatest([
+      safeQuestion$,
+      safeOptions$,
+    ]).pipe(
+      filter(([question, options]) =>
+        !!question && Array.isArray(options) && options.length > 0
+      ),
+      switchMap(([nextQuestion, nextOptions]) => {
+        return of(createSafeQuestionData(nextQuestion, nextOptions));
+      }),
+      catchError((error) => {
+        console.error('[❌ Error in createQuestionData]', error);
+        return of(createSafeQuestionData(null, []));
+      })
+    );    
   }
 
   private async getQuestion(): Promise<void | null> {
