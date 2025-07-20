@@ -44,7 +44,6 @@ import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
-
 type AnimationState = 'animationStarted' | 'none';
 
 export interface LoadedQuestionData {
