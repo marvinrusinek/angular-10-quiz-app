@@ -565,20 +565,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngAfterViewInit(): Promise<void> {
-    await this.waitForQuizStateReady();
     this.loadQuestionContents(this.currentQuestionIndex);
-
-    // Defer the call to loadQuestion to the next microtask queue
-    /* Promise.resolve().then(async () => {
-      if (this.quizQuestionComponent) {
-        console.log('[🚀 ngAfterViewInit] Calling loadQuestion() on QuizQuestionComponent');
-        console.time('[⏱️ loadQuestion]');
-        await this.quizQuestionComponent.loadQuestion();
-        console.timeEnd('[⏱️ loadQuestion]');
-      } else {
-        console.warn('[⚠️ quizQuestionComponent undefined in ngAfterViewInit]');
-      }
-    }); */
 
     // If the loader queued options before the child existed, apply them now
     if (this.quizQuestionLoaderService.pendingOptions?.length) {
@@ -606,19 +593,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           });
       }
     }, 0);
-  }
-
-  private async waitForQuizStateReady(): Promise<void> {
-    const quizIdExists = await this.quizService.ensureQuizIdExists();
-    if (!quizIdExists) {
-      console.error('[❌ Missing quizId]');
-      return;
-    }
-  
-    if (!this.questionsArray || this.questionsArray.length === 0) {
-      const questions = await this.quizService.fetchQuizQuestions(this.quizService.quizId!);
-      this.questionsArray = questions;
-    }
   }  
 
   initializeDisplayVariables(): void {
