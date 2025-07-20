@@ -2498,32 +2498,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       distinctUntilChanged()
     );
 
-    /* this.combinedQuestionData$ = combineLatest([
-      safeQuestion$,
-      safeOptions$,
-    ]).pipe(
-      filter(([question, options]) =>
-        !!question && Array.isArray(options) && options.length > 0
-      ),
-      switchMap(([nextQuestion, nextOptions]) => {
-        if (nextQuestion) {
-          return of(createSafeQuestionData(nextQuestion, nextOptions));
-        } else {
-          return combineLatest([
-            safePreviousQuestion$,
-            safePreviousOptions$,
-          ]).pipe(
-            map(([prevQuestion, prevOptions]) =>
-              createSafeQuestionData(prevQuestion, prevOptions)
-            )
-          );
-        }
-      }),
-      catchError((error) => {
-        console.error('[❌ Error in createQuestionData]', error);
-        return of(createSafeQuestionData(null, []));  // fallback
-      })
-    ); */
     this.combinedQuestionData$ = combineLatest([
       safeQuestion$,
       safeOptions$
