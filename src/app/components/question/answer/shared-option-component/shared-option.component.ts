@@ -449,7 +449,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     console.timeEnd('[⏱️ SharedOptionComponent Render]');
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.time('[📦 SOC ngOnChanges]');
+    console.time('[📦 SOC total render]');
     console.log('[🧪 ngOnChanges] fired', changes);
   
     const shouldRegenerate =
@@ -534,7 +534,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   
     this.viewInitialized = true;
     this.viewReady = true;
-    console.timeEnd('[🖼️ SOC ngAfterViewInit]')
+    console.timeEnd('[📦 SOC total render]');
   }
 
   ngOnDestroy(): void {
