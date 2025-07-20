@@ -523,16 +523,6 @@ export class QuizQuestionComponent
           this.sharedOptionComponent.initializeOptionBindings();
         }
       
-        // Load dynamic component container
-        if (!this.containerInitialized && this.dynamicAnswerContainer) {
-          console.time('[🛠️ loadDynamicComponent]');
-          this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
-          console.timeEnd('[🛠️ loadDynamicComponent]');
-      
-          this.containerInitialized = true;
-          console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
-        }
-      
         // Finalize rendering state after one microtask delay
         setTimeout(() => {
           this.renderReady = true;
@@ -855,6 +845,16 @@ export class QuizQuestionComponent
   }
 
   private hydrateFromPayload(payload: QuestionPayload): void {
+    // Load dynamic component container
+    if (!this.containerInitialized && this.dynamicAnswerContainer) {
+      console.time('[🛠️ loadDynamicComponent]');
+      this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+      console.timeEnd('[🛠️ loadDynamicComponent]');
+  
+      this.containerInitialized = true;
+      console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
+    }
+    
     const serialized = JSON.stringify(payload);
   
     if (this.lastSerializedPayload === serialized) {
