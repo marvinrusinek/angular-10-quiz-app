@@ -538,7 +538,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   ngAfterViewChecked(): void {
-    console.timeEnd('[⏱️ Total Render Cycle]');
+    // console.timeEnd('[⏱️ Total Render Cycle]');
     console.log('[✅ SharedOptionComponent View Checked]');
   }
   
@@ -2227,6 +2227,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         reason,
       });
     }
+
+    console.time('[📌 markRenderReady]');
+    console.timeEnd('[⏱️ Total Render Cycle]');
   }  
 
   trackByOptionId(index: number, binding: OptionBindings): number {
