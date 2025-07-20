@@ -2178,14 +2178,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  public markRenderReady(): void {
-    if (this.optionBindings?.length && this.optionsToDisplay?.length) {
+  public markRenderReady(reason: string = ''): void {
+    const bindingsReady =
+      Array.isArray(this.optionBindings) &&
+      this.optionBindings.length > 0;
+  
+    const optionsReady =
+      Array.isArray(this.optionsToDisplay) &&
+      this.optionsToDisplay.length > 0;
+  
+    if (bindingsReady && optionsReady) {
+      if (reason) {
+        console.log(`[✅ renderReady]: ${reason}`);
+      }
+  
       this.ngZone.run(() => {
         this.renderReady = true;
         this.cdRef.detectChanges();
       });
+    } else {
+      console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
+        bindingsReady,
+        optionsReady,
+        reason,
+      });
     }
-  }
+  }  
 
   trackByOptionId(index: number, binding: OptionBindings): number {
     return binding.option?.optionId ?? index;

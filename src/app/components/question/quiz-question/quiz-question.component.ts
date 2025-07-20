@@ -860,7 +860,7 @@ export class QuizQuestionComponent
     if (this.lastSerializedPayload === serialized) {
       if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
-        this.markRenderReady('💡 Rehydrated identical payload');
+        this.sharedOptionComponent.markRenderReady('💡 Rehydrated identical payload');
       }
       return;
     }
