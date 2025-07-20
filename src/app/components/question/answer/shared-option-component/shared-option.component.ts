@@ -253,7 +253,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
       console.time('[⏱️ Delayed initializeOptionBindings]');
       // this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
-      this.cdRef.detectChanges();
       console.timeEnd('[⏱️ Delayed initializeOptionBindings]');
     }, 100);
     console.timeEnd('[⏱️ setTimeout initializeOptionBindings]');
