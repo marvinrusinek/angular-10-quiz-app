@@ -158,8 +158,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.initializeOptionBindings();
       this.renderReady = this.optionsToDisplay?.length > 0;
       // this.canDisplayOptions = this.optionsToDisplay?.length > 0;
-  
-      this.cdRef.detectChanges();
     }, 100);
 
     // Always synchronize to ensure data consistency
@@ -170,7 +168,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
         this.finalRenderReady = ready;
-        this.cdRef.detectChanges(); // ensure UI updates
       });
     }
 
@@ -421,9 +418,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       // Let SOC recompute directive state
       this.processOptionBindings();
-  
-      // Second immediate CD so neutral colors / no icons render
-      this.cdRef.detectChanges();
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
@@ -580,7 +574,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private updateSelections(selectedId: number): void {
     // Ignore the synthetic “-1 repaint” that runs right after question load
     if (selectedId === -1) {
-      this.cdRef.detectChanges();
       return;
     }
 
@@ -930,7 +923,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Immediate update instead of deferring
     this.optionsReady = true;
     this.showOptions = true;
-    this.cdRef.detectChanges();
   }
 
   private handleQuestionChange(change: SimpleChange): void {
@@ -1438,7 +1430,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       requestAnimationFrame(() => {
         this.ngZone.run(() => {
           callback();
-          this.cdRef.detectChanges();
         });
       });
     });
@@ -1500,9 +1491,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Update explanation text immediately
     this.explanationTextService.setExplanationText(explanationText);
     console.log(`[✅ Explanation text set for Q${questionIndex}]`, explanationText);
-  
-    // Force immediate DOM update
-    this.cdRef.detectChanges();
   }  
 
   private immediateExplanationUpdate(questionIndex: number): void {
@@ -1659,9 +1647,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.feedbackConfigs[optionId] = this.currentFeedbackConfig;
 
     console.log('[🧪 Stored feedback]', this.feedbackConfigs[optionId]?.feedback);
-
-    // Force Angular to re-render
-    queueMicrotask(() => this.cdRef.detectChanges());
    
     // Update the answered state
     this.selectedOptionService.updateAnsweredState();
@@ -1719,9 +1704,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       optionId,
       feedbackConfig: this.feedbackConfigs[optionId]
     });
-  
-    // Force Angular to re-render
-    queueMicrotask(() => this.cdRef.detectChanges());
   
     // Update the answered state
     this.selectedOptionService.updateAnsweredState();
@@ -2202,7 +2184,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.renderReady = true;
       this.viewReady = true;
       this.displayReady = true;
-      this.cdRef.detectChanges();  // flush view
     } else {
       console.warn('[🛑 Display init skipped — not ready]');
     }
@@ -2224,7 +2205,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       this.ngZone.run(() => {
         this.renderReady = true;
-        this.cdRef.detectChanges();
       });
     } else {
       console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
@@ -2279,10 +2259,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   public triggerViewRefresh(): void {
     this.cdRef.markForCheck();
-  }
-
-  public forceRefresh(): void {
-    setTimeout(() => this.cdRef.detectChanges());
   }
 
   // Hard-reset every row (flags + visual DOM) for a brand-new question
