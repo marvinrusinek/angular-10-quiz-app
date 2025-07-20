@@ -2932,6 +2932,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async initializeFirstQuestion(): Promise<void> {
+    console.log('[🚀 initializeFirstQuestion CALLED]');
+    console.time("FIRST QUESTION");
     this.resetQuestionDisplayState();
 
     try {
@@ -2983,6 +2985,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         setTimeout(() => {
           this.cdRef.markForCheck();
         }, 200);
+        console.timeEnd("FIRST QUESTION");
       } else {
         console.warn('No questions available for this quiz.');
         this.handleNoQuestionsAvailable();
