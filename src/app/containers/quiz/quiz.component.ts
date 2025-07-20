@@ -3659,6 +3659,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
 
+      console.time('[⏱️ Total Render Cycle]');
+      console.time('[🚀 Sent QA to QQC]');
       this.questionPayload = {
         question: this.currentQuestion!,
         options: clonedOptions,
