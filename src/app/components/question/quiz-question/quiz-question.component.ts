@@ -1840,7 +1840,9 @@ export class QuizQuestionComponent
       this.currentQuestionIndex = lockedIndex;
   
       if (this.sharedOptionComponent) {
+        console.time('[🧩 Init Option Bindings]');
         this.sharedOptionComponent.initializeOptionBindings();
+        console.timeEnd('[🧩 Init Option Bindings]');
       }
   
       this.cdRef.markForCheck();  // manually trigger change detection after bindings and updates
