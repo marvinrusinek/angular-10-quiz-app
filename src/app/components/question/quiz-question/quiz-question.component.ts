@@ -2439,8 +2439,8 @@ export class QuizQuestionComponent
   }
 
   public override async onOptionClicked(event: {
-    option : SelectedOption | null;
-    index  : number;
+    option: SelectedOption | null;
+    index: number;
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
@@ -2448,39 +2448,31 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
     }
-
+  
     const { option, index, checked, wasReselected } = event;
-
-    console.log('[🧪 Final Option State on Click]', {
-      option,
-      selected: option.selected,
-      wasPreviouslySelected: event.wasReselected
-    });
-
+  
     if (!this.currentQuestion) {
       console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
       return;
     }
-
+  
     try {
-      // Basic selection → next button, flags, detectChanges
-      this.handleCoreSelection(event);
+      // ───── Core Selection Logic ─────
+      this.handleCoreSelection(event);   // selection flags, next button logic
+      this.markBindingSelected(option);  // highlight row and mark binding
+      this.refreshFeedbackFor(option);   // only show feedback on selected row
   
-      // Highlight row & mark binding
-      this.markBindingSelected(event.option);
+      // ───── Update Explanation State ─────
+      await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
+      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
+      this.showExplanationLocked(this.currentQuestion, this.currentQuestionIndex);  // emits and flags explanation
   
-      // Feedback only under the row just clicked
-      this.refreshFeedbackFor(event.option);
-  
-      // Explanation panel
-      this.showExplanationLocked(this.currentQuestion!, this.currentQuestionIndex);
-  
-      // Remaining async tasks
+      // ───── Async Tasks (cleanup, emission) ─────
       await this.postClickTasks(option, index, checked, wasReselected);
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
-  }
+  }  
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
