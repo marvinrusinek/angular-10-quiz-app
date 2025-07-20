@@ -2502,7 +2502,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       safeQuestion$,
       safeOptions$
     ]).pipe(
-      map(([question, options]) => createSafeQuestionData(question, options)),
+      switchMap(([nextQuestion, nextOptions]) => {
+        const qa = createSafeQuestionData(nextQuestion, nextOptions);
+        
+        console.time('[🚀 Sent QA to QQC]');
+        console.log('[🚀 Sent QA to QQC]', qa);
+    
+        return of(qa);
+      }),
       tap(data => console.log('[🧪 combinedQuestionData$]', data?.question?.questionText)),
       catchError((error) => {
         console.error('[❌ Error in createQuestionData]', error);
