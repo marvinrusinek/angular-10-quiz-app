@@ -268,8 +268,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[📡 Subscribe to finalRenderReady$]');
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
-        this.finalRenderReady = ready;
-        this.cdRef.detectChanges(); // ensure UI updates
+        this.finalRenderReady = ready
       });
     }
     console.timeEnd('[📡 Subscribe to finalRenderReady$]');
@@ -280,7 +279,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       .subscribe(({ b, i }) => {
         this.form.get('selectedOptionId')?.setValue(b.option.optionId, { emitEvent: false });
         this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
-        this.cdRef.detectChanges();
       });
     console.timeEnd('[🖱️ Subscribe to click$]');
   
