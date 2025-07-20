@@ -802,41 +802,36 @@ export class QuizQuestionComponent
       );
 
       // ── Batch the visual swap
+      const latest = JSON.stringify(newOptions);
+      if (latest !== this.lastSerializedOptions) {
+        this.lastSerializedOptions = latest;
+      }
+
+      // Swap reference for OnPush
+      this.optionsToDisplay = [...newOptions];
+
+      // Initialize bindings if applicable
+      if (this.sharedOptionComponent) {
+        this.sharedOptionComponent.initializeOptionBindings();
+      }
+
+      // Set renderReady in next microtask to avoid sync paint conflicts
       setTimeout(() => {
-        requestAnimationFrame(() => {
-          const latest = JSON.stringify(newOptions);
-          if (latest !== this.lastSerializedOptions) {
-            this.lastSerializedOptions = latest;  // track for stale-guard
-          }
-
-          // Swap reference so OnPush sees a new array
-          this.optionsToDisplay = [];
-
-          this.optionsToDisplay = [...newOptions];
-
-          // Flip visibility next frame
-          setTimeout(() => {
-            this.internalBufferReady = true;
-            this.finalRenderReady = true;
-            this.renderReady = true;
-            this.renderReadySubject.next(true);
-        
-            this.cdRef.markForCheck();  // refresh OnPush components if needed
-          }, 0);
-        });
-      }, 0);
-
-      // Fallback: guarantee ready after 150 ms
-      setTimeout(() => {
-        if (!this.finalRenderReady || this.optionsToDisplay.length === 0) {
-          console.warn('[🛠️ Fallback triggered in updateOptionsSafely]');
-          this.finalRenderReady = true;
-          this.renderReady = true;
-          this.renderReadySubject.next(true);
-          this.cdRef.markForCheck();
+        const ready =
+          Array.isArray(this.optionsToDisplay) &&
+          this.optionsToDisplay.length > 0;
+      
+        if (!ready) {
+          console.warn('[🛠️ Skipping renderReady — options not ready]');
+          return;
         }
-      }, 150);
-
+      
+        this.internalBufferReady = true;
+        this.finalRenderReady = true;
+        this.renderReady = true;
+        this.renderReadySubject.next(true);
+        this.cdRef.markForCheck();
+      }, 0);
     } else {
       // No option change but render was not ready so force refresh
       if (!this.finalRenderReady) {
