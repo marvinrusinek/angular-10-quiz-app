@@ -440,6 +440,7 @@ export class QuizQuestionComponent
       
           // Show everything together — Q + A in one paint pass
           this.renderReady = true;
+          this.renderReadySubject.next(true);
           this.cdRef.detectChanges();
       
           console.log('[✅ renderReady triggered with Q&A]');
