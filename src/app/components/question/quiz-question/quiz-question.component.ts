@@ -291,11 +291,20 @@ export class QuizQuestionComponent
 
   @Input() set questionPayload(value: QuestionPayload | null) {
     console.log('[📥 @Input questionPayload] received:', value);
-    if (!value) return;
   
-    this._questionPayload = value;
-    this.questionPayloadSubject.next(value);
-    this.hydrateFromPayload(value);  // let this handle serialization diffing
+    if (!value) {
+      console.warn('[⚠️ Skipping: value is null]');
+      return;
+    }
+  
+    try {
+      this._questionPayload = value;
+      this.questionPayloadSubject.next(value);
+      console.log('[🔁 About to hydrate payload]');
+      this.hydrateFromPayload(value);
+    } catch (err) {
+      console.error('[❌ Error during hydrateFromPayload]', err);
+    }
   }  
   
   get questionPayload(): QuestionPayload | null {
@@ -826,6 +835,7 @@ export class QuizQuestionComponent
   }
 
   private hydrateFromPayload(payload: QuestionPayload): void {
+    console.log('[🔍 hydrateFromPayload CALLED with]', payload);
     console.time('[⏱️ hydrateFromPayload]');
   
     const serialized = JSON.stringify(payload);
