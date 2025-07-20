@@ -2526,14 +2526,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ); */
     this.combinedQuestionData$ = combineLatest([
       safeQuestion$,
-      safeOptions$,
+      safeOptions$
     ]).pipe(
-      filter(([question, options]) =>
-        !!question && Array.isArray(options) && options.length > 0
-      ),
-      switchMap(([nextQuestion, nextOptions]) => {
-        return of(createSafeQuestionData(nextQuestion, nextOptions));
-      }),
+      map(([question, options]) => createSafeQuestionData(question, options)),
       catchError((error) => {
         console.error('[❌ Error in createQuestionData]', error);
         return of(createSafeQuestionData(null, []));
