@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnInit, Output, QueryList, SimpleChange, SimpleChanges, ViewChildren } from '@angular/core';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -27,7 +27,7 @@ import { HighlightOptionDirective } from '../../../../directives/highlight-optio
   styleUrls: ['../../quiz-question/quiz-question.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
+export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked {
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
@@ -536,6 +536,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     this.viewReady = true;
     console.timeEnd('[📦 SOC total render]');
   }
+
+  ngAfterViewChecked(): void {
+    console.timeEnd('[⏱️ Total Render Cycle]');
+    console.log('[✅ SharedOptionComponent View Checked]');
+  }
+  
 
   ngOnDestroy(): void {
     this.onDestroy$.next();
