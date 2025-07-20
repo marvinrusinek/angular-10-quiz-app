@@ -450,21 +450,30 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[📦 SOC ngOnChanges]');
-
     console.log('[🧪 ngOnChanges] fired', changes);
-    // console.time('[⏱️ SharedOptionComponent Render]');
   
-    // --- First: Handle direct Input change to optionBindings (before touching anything else)
-    if (
+    const shouldRegenerate =
+      (changes['optionsToDisplay'] && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) ||
+      (changes['config'] && this.config != null);
+  
+    if (shouldRegenerate) {
+      console.time('[⚙️ generateOptionBindings]');
+      this.generateOptionBindings();
+      console.timeEnd('[⚙️ generateOptionBindings]');
+    } else if (
       changes['optionBindings'] &&
       Array.isArray(changes['optionBindings'].currentValue) &&
       changes['optionBindings'].currentValue.length
     ) {
       console.log('✅ optionBindings change detected');
-      console.time('generateOptionBindings');
+      console.time('[⚙️ generateOptionBindings]');
       this.generateOptionBindings();
-      console.timeEnd('generateOptionBindings');
+      console.timeEnd('[⚙️ generateOptionBindings]');
+    } else {
+      console.warn('[⏳ generateOptionBindings skipped] No triggering inputs changed');
     }
+  
+    console.timeEnd('[📦 SOC ngOnChanges]');
   
     // --- Then: Handle changes to optionsToDisplay / questionIndex (if any)
     const questionChanged =
@@ -1935,6 +1944,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     if (currentIndex === 0) console.time(timingKey);
 
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      const t0 = performance.now();
       console.time('[⏱️ Binding Row]');
       const enriched = {
         ...(opt as SelectedOption),
