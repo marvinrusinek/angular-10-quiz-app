@@ -488,15 +488,15 @@ export class QuizQuestionComponent
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
 
-      this.quizQuestionLoaderService.options$
-        .pipe(
-          filter(arr => Array.isArray(arr) && arr.length > 0)  // skip empties
-        )
-        .subscribe((opts: Option[]) => {
-          // NEW array reference
-          const fresh = [...opts];
-          this.currentOptions = fresh;  // parent’s public field
-        });
+    this.quizQuestionLoaderService.options$
+      .pipe(
+        filter(arr => Array.isArray(arr) && arr.length > 0)  // skip empties
+      )
+      .subscribe((opts: Option[]) => {
+        // NEW array reference
+        const fresh = [...opts];
+        this.currentOptions = fresh;  // parent’s public field
+      });
   
     // Hydrate from payload
     this.payloadSubject
@@ -506,35 +506,41 @@ export class QuizQuestionComponent
       )
       .subscribe((payload: QuestionPayload) => {
         if (this.hydrationInProgress) return;
+      
         this.renderReady = false;
         this.hydrationInProgress = true;
-  
+      
+        console.time('🎯 Time to render options');
+      
+        // Extract and assign payload
+        const { question, options, explanation } = payload;
+        this.currentQuestion = question;
+        this.explanationToDisplay = explanation?.trim() || '';
+        this.optionsToDisplay = structuredClone(options);  // Ensure isolation
+      
+        // Initialize option bindings if needed
+        if (this.sharedOptionComponent) {
+          this.sharedOptionComponent.initializeOptionBindings();
+        }
+      
+        // Load dynamic component container
+        if (!this.containerInitialized && this.dynamicAnswerContainer) {
+          console.time('[🛠️ loadDynamicComponent]');
+          this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+          console.timeEnd('[🛠️ loadDynamicComponent]');
+      
+          this.containerInitialized = true;
+          console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
+        }
+      
+        // Finalize rendering state after one microtask delay
         setTimeout(() => {
-          requestAnimationFrame(() => {
-            const { question, options, explanation } = payload;
-            this.currentQuestion = question;
-            this.explanationToDisplay = explanation?.trim() || '';
-            this.optionsToDisplay = [...options];
-            this.cdRef.detectChanges();
-  
-            requestAnimationFrame(() => {
-              this.renderReady = true;
-              this.hydrationInProgress = false;
-              this.cdRef.detectChanges();
-            
-              if (!this.containerInitialized && this.dynamicAnswerContainer) {
-                console.time('[🛠️ loadDynamicComponent ngAfterViewInit]');
-                this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
-                console.timeEnd('[🛠️ loadDynamicComponent ngAfterViewInit]');
-
-                this.containerInitialized = true;
-                console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
-                console.timeEnd('🎯 Time to render options');
-              }
-            });
-          });
+          this.renderReady = true;
+          this.hydrationInProgress = false;
+          this.cdRef.detectChanges();  // trigger OnPush refresh
+          console.timeEnd('🎯 Time to render options');
         }, 0);
-      });
+      });      
   
     const index = this.currentQuestionIndex;
   
