@@ -857,44 +857,51 @@ export class QuizQuestionComponent
   private hydrateFromPayload(payload: QuestionPayload): void {
     const serialized = JSON.stringify(payload);
   
-    // Skip if no change
     if (this.lastSerializedPayload === serialized) {
       if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
-  
-        this.renderReady = true;
-        this.renderReadySubject.next(true);
-        this.finalRenderReady = true;
-        this.finalRenderReadySubject.next(true);
-        this.cdRef.detectChanges();
+        this.markRenderReady('💡 Rehydrated identical payload');
       }
       return;
     }
   
-    // New payload — store and reset render flags
+    // Store payload and reset render flags
     this.lastSerializedPayload = serialized;
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
     this.finalRenderReadySubject.next(false);
-    this.cdRef.detectChanges();  // hide UI during reset
+    this.cdRef.detectChanges();  // clear UI before hydration
   
-    requestAnimationFrame(() => {
-      const { question, options, explanation } = payload;
+    const { question, options, explanation } = payload;
   
-      this.currentQuestion = question;
-      this.optionsToDisplay = [...options];
-      this.explanationToDisplay = explanation?.trim() || '';
+    this.currentQuestion = question;
+    this.optionsToDisplay = structuredClone(options);
+    this.explanationToDisplay = explanation?.trim() || '';
   
-      requestAnimationFrame(() => {
-        this.renderReady = true;
-        this.renderReadySubject.next(true);
-        this.finalRenderReady = true;
-        this.finalRenderReadySubject.next(true);
-        this.cdRef.detectChanges();  // show when fully ready
-      });
-    });
-  }
+    if (this.sharedOptionComponent) {
+      this.sharedOptionComponent.initializeOptionBindings();
+    }
+  
+    // Delay renderReady until options and bindings are verified
+    setTimeout(() => {
+      const bindingsReady =
+        Array.isArray(this.sharedOptionComponent?.optionBindings) &&
+        this.sharedOptionComponent.optionBindings.length > 0 &&
+        this.sharedOptionComponent.optionBindings.every(b => !!b.option);
+  
+      const ready =
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0 &&
+        bindingsReady;
+  
+      if (ready) {
+        this.sharedOptionComponent.markRenderReady('✅ Hydrated from new payload');
+      } else {
+        console.warn('[❌ renderReady skipped: options or bindings not ready]');
+      }
+    }, 0);
+  }  
   
   private enforceHydrationFallback(): void {
     setTimeout(() => {
