@@ -833,12 +833,17 @@ export class QuizQuestionComponent
         this.cdRef.markForCheck();
       }, 0);
     } else {
-      // No option change but render was not ready so force refresh
-      if (!this.finalRenderReady) {
+      // No option change, but render was not previously marked ready
+      const ready =
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0;
+
+      if (ready && !this.finalRenderReady) {
+        this.internalBufferReady = true;
         this.finalRenderReady = true;
         this.renderReady = true;
         this.renderReadySubject.next(true);
-        this.cdRef.detectChanges();
+        this.cdRef.markForCheck();
       }
     }
   }
@@ -906,7 +911,6 @@ export class QuizQuestionComponent
     this.renderReady = true;
   
     this.renderReadySubject.next(true);  // triggers the stream
-    this.cdRef.detectChanges();  // optional, only if UI is not reacting
   }
   
   private resetOptionsDueToInvalidData(reason: string): void {
