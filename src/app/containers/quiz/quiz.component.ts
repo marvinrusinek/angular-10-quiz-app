@@ -52,6 +52,7 @@ export interface LoadedQuestionData {
   explanation: string;
 }
 
+
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
