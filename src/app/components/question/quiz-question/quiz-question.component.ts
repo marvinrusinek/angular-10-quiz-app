@@ -564,10 +564,15 @@ export class QuizQuestionComponent
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.questionPayload && this.questionPayload) {
+    if (changes.questionPayload && this.questionPayload) { 
       const serialized = JSON.stringify(this.questionPayload);
-  
-      if (this.lastSerializedPayload !== serialized) {
+      console.log('[🔍 ngOnChanges detected questionPayload]', serialized);
+    
+      const shouldForceHydrate =
+        this._questionPayload?.question?.questionIndex === 0;
+    
+      if (this.lastSerializedPayload !== serialized || shouldForceHydrate) {
+        console.log('[🚀 hydrateFromPayload WILL BE CALLED from ngOnChanges]');
         this.lastSerializedPayload = serialized;
         this.hydrateFromPayload(this.questionPayload);
       } else if (!this.finalRenderReady) {
@@ -580,7 +585,7 @@ export class QuizQuestionComponent
           this.triggerRenderReady('✅ Options + bindings ready');
         }
       }
-  
+    
       this.questionPayloadSubject.next(this.questionPayload);
       this.enforceHydrationFallback();  // backup safety net
     }
