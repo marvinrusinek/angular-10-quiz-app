@@ -2200,18 +2200,32 @@ export class QuizQuestionComponent
   private async initializeQuizQuestionsAndAnswers(): Promise<void> {
     try {
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-      await this.fetchAndProcessQuizQuestions(this.quizId);
-
-      if (this.quizId) {
-        await this.quizDataService.asyncOperationToSetQuestion(
-          this.quizId,
-          this.currentQuestionIndex
-        );
-      } else {
+  
+      if (!this.quizId) {
         console.error('Quiz ID is empty after initialization.');
+        return;
       }
+  
+      // Fetch and store only if not already fetched
+      if (!this.questionsArray || this.questionsArray.length === 0) {
+        const fetched = await this.fetchAndProcessQuizQuestions(this.quizId);
+        if (!fetched || fetched.length === 0) {
+          console.error('[❌] No questions returned.');
+          return;
+        }
+  
+        this.questionsArray = fetched;
+        this.questions = fetched;
+        console.log('[✅] Quiz questions set once.');
+      }
+  
+      // Now safe to run post-fetch logic
+      await this.quizDataService.asyncOperationToSetQuestion(
+        this.quizId,
+        this.currentQuestionIndex
+      );
     } catch (error) {
-      console.error('Error getting current question:', error);
+      console.error('Error initializing quiz questions and answers:', error);
     }
   }
 
