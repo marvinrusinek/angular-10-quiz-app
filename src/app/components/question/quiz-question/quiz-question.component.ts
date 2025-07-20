@@ -241,6 +241,7 @@ export class QuizQuestionComponent
 
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
+  private renderReadySubscription?: Subscription;
 
   private containerReady = new Subject<void>();
 
@@ -445,6 +446,7 @@ export class QuizQuestionComponent
         }),
         map(() => true)
       );
+      this.renderReadySubscription = this.renderReady$.subscribe();
 
       // Add the visibility change listener
       document.addEventListener(
@@ -619,6 +621,7 @@ export class QuizQuestionComponent
     this.resetFeedbackSubscription?.unsubscribe();
     this.resetStateSubscription?.unsubscribe();
     this.displayModeSubscription?.unsubscribe();
+    this.renderReadySubscription?.unsubscribe();
   }
 
   // Listen for the visibility change event
