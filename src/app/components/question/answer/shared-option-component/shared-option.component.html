@@ -1,5 +1,5 @@
 <!-- Show list only when there are options -->
-<ng-container *ngIf="canDisplayOptions; else noOptions">
+<ng-container *ngIf="canDisplayOptions && renderReady && optionsToDisplay?.length > 0; else noOptions">
   <form [formGroup]="form" class="options-form">
 
     <!-- ─────────── SINGLE-ANSWER (radio) ─────────── -->
@@ -92,5 +92,5 @@
 
 <!-- Fallback when no options yet -->
 <ng-template #noOptions>
-  <span>Options not ready...</span>
-</ng-template> 
+  <span *ngIf="showNoOptionsFallback">Options not ready...</span>
+</ng-template>
