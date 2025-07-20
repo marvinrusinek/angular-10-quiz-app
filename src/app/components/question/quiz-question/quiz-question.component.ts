@@ -568,8 +568,7 @@ export class QuizQuestionComponent
       const serialized = JSON.stringify(this.questionPayload);
       console.log('[🔍 ngOnChanges detected questionPayload]', serialized);
     
-      const shouldForceHydrate =
-        this._questionPayload?.question?.questionIndex === 0;
+      const shouldForceHydrate = this.quizService.currentQuestionIndex === 0;
     
       if (this.lastSerializedPayload !== serialized || shouldForceHydrate) {
         console.log('[🚀 hydrateFromPayload WILL BE CALLED from ngOnChanges]');
