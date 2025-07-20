@@ -577,7 +577,13 @@ export class QuizQuestionComponent
         this.hydrateFromPayload(this.questionPayload);
       } else if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback render trigger] For unchanged payload');
-        this.triggerRenderReady();
+        if (
+          Array.isArray(this.optionsToDisplay) &&
+          this.optionsToDisplay.length > 0 &&
+          this.sharedOptionComponent?.optionBindings?.length > 0
+        ) {
+          this.triggerRenderReady('✅ Options + bindings ready');
+        }
       }
   
       this.questionPayloadSubject.next(this.questionPayload);
