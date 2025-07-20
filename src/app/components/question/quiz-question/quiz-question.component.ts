@@ -1845,8 +1845,8 @@ export class QuizQuestionComponent
       }
       console.timeEnd('[🧩 Init Option Bindings]');
   
+      this.renderReady = true;
       this.cdRef.markForCheck();  // manually trigger change detection after bindings and updates
-  
       // ───────────── End UI Update ─────────────
   
       // Abort after UI update
