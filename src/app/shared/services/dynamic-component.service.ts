@@ -10,15 +10,26 @@ export class DynamicComponentService {
     onOptionClicked: (event: any) => void
   ): Promise<ComponentRef<T>> {
     // Load AnswerComponent dynamically
+    console.time('[⏳ DCS.loadComponent]');
+    console.time('[📦 DCS.importComponent]');
     const { AnswerComponent } = await this.importComponent('answer');
-    
+    console.timeEnd('[📦 DCS.importComponent]');
+
+    console.time('[🏗️ DCS.resolveComponentFactory]');
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(AnswerComponent as Type<T>);
+    console.timeEnd('[🏗️ DCS.resolveComponentFactory]');
+
+    console.time('[🧹 DCS.container.clear]');
     container.clear();
+    console.timeEnd('[🧹 DCS.container.clear]');
   
     // Create the component dynamically in the container
+    console.time('[🧱 DCS.createComponent]');
     const componentRef = container.createComponent(componentFactory);
+    console.timeEnd('[🧱 DCS.createComponent]');
   
     // Pass the 'multipleAnswer' input to the dynamically created AnswerComponent
+    console.time('[🧩 DCS.setInputsAndSubscribe]');
     (componentRef.instance as any).isMultipleAnswer = multipleAnswer;
     
     // Subscribe to optionClicked and forward it
@@ -27,7 +38,9 @@ export class DynamicComponentService {
       console.log('[⚡ DCS] optionClicked event received from AnswerComponent:', event);
       onOptionClicked(event);
     });
-  
+    console.timeEnd('[🧩 DCS.setInputsAndSubscribe]');
+
+    console.timeEnd('[⏳ DCS.loadComponent]');
     return componentRef;
   }  
 
