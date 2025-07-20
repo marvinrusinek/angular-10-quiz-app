@@ -1,5 +1,5 @@
 <!-- Show list only when there are options -->
-<ng-container *ngIf="renderReady && optionsToDisplay?.length > 0; else noOptions">
+<ng-container *ngIf="canDisplayOptions; else noOptions">
   <form [formGroup]="form" class="options-form">
 
     <!-- ─────────── SINGLE-ANSWER (radio) ─────────── -->

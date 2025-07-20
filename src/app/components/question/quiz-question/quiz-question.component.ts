@@ -1839,11 +1839,11 @@ export class QuizQuestionComponent
       // Finally update the route index (triggers the key change)
       this.currentQuestionIndex = lockedIndex;
   
+      console.time('[🧩 Init Option Bindings]');
       if (this.sharedOptionComponent) {
-        console.time('[🧩 Init Option Bindings]');
         this.sharedOptionComponent.initializeOptionBindings();
-        console.timeEnd('[🧩 Init Option Bindings]');
       }
+      console.timeEnd('[🧩 Init Option Bindings]');
   
       this.cdRef.markForCheck();  // manually trigger change detection after bindings and updates
   
