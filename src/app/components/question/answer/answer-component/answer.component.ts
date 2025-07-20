@@ -104,7 +104,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         //  Clear prior icons and bindings (clean slate)
         this.optionBindings = [];
         this.renderReady = false;
-        this.cdRef.detectChanges(); // force clear pass
 
         // Defer rebuild and update bindings
         Promise.resolve().then(() => {
