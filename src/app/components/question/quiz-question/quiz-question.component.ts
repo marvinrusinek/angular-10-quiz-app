@@ -842,14 +842,19 @@ export class QuizQuestionComponent
     const incomingQuestionText = payload?.question?.questionText?.trim();
     const currentQuestionText = this.currentQuestion?.questionText?.trim();
   
-    if (incomingQuestionText === currentQuestionText && this.finalRenderReady) {
+    // Skip if same question text and already rendered
+    if (
+      incomingQuestionText &&
+      incomingQuestionText === currentQuestionText &&
+      this.finalRenderReady
+    ) {
       console.warn('[⚠️ Skipping rehydration: same question text and already rendered]');
       console.timeEnd('[⏱️ hydrateFromPayload]');
       return;
     }
   
     // Store payload and reset render flags
-    this.lastSerializedPayload = JSON.stringify(payload);  // optional: update for tracking
+    this.lastSerializedPayload = JSON.stringify(payload);  // update for tracking
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
@@ -4952,7 +4957,7 @@ export class QuizQuestionComponent
     const isCorrect = option.correct;
     console.log(`[🔊 playSoundForOption CALLED]`, {
       optionId: option.optionId,
-      correct: isCorrect,
+      correct: isCorrect
     });
 
     this.soundService.play(isCorrect ? 'correct' : 'incorrect');
