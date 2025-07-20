@@ -159,7 +159,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.renderReady = this.optionsToDisplay?.length > 0;
       // this.canDisplayOptions = this.optionsToDisplay?.length > 0;
   
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
     }, 100);
 
     // Always synchronize to ensure data consistency
@@ -170,7 +170,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (this.finalRenderReady$) {
       this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
         this.finalRenderReady = ready;
-        this.cdRef.detectChanges(); // ensure UI updates
+        // [REVIEW] this.cdRef.detectChanges(); // ensure UI updates
       });
     }
 
@@ -189,7 +189,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         );
 
         // Flush once
-        this.cdRef.detectChanges();
+        // [REVIEW] this.cdRef.detectChanges();
       });
 
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
@@ -358,11 +358,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.processOptionBindings();
     
       // Two stacked change-detections → guarantees clean slate paint
-      this.cdRef.detectChanges();   // clears old DOM paint
+      // [REVIEW] this.cdRef.detectChanges();   // clears old DOM paint
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);    // no row selected
-      this.cdRef.detectChanges();   // paints pristine rows
+      // [REVIEW] this.cdRef.detectChanges();   // paints pristine rows
     }
   
     // New optionBindings array came in
@@ -423,7 +423,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.processOptionBindings();
   
       // Second immediate CD so neutral colors / no icons render
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
 
       this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
@@ -495,10 +495,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       // ❗DO NOT reset optionBindings here — they already came in via Input
       this.processOptionBindings();
   
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
       this.highlightDirectives?.forEach(d => d.updateHighlight());
       this.updateSelections(-1);
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
     }
   
     // New currentQuestion
@@ -566,7 +566,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.preserveOptionHighlighting();
 
         // Trigger UI update
-        this.cdRef.detectChanges();
+        // [REVIEW] this.cdRef.detectChanges();
       } else {
         console.log('[SharedOptionComponent] Tab is hidden.');
       }
@@ -580,7 +580,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private updateSelections(selectedId: number): void {
     // Ignore the synthetic “-1 repaint” that runs right after question load
     if (selectedId === -1) {
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
       return;
     }
 
@@ -612,7 +612,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       b.directiveInstance?.updateHighlight();
     });
 
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
   }
   
   private ensureOptionsToDisplay(): void {
@@ -930,7 +930,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Immediate update instead of deferring
     this.optionsReady = true;
     this.showOptions = true;
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
   }
 
   private handleQuestionChange(change: SimpleChange): void {
@@ -970,7 +970,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   
     this.updateHighlighting();
-    this.cdRef.detectChanges();
+    // [KEEP] this.cdRef.detectChanges();
   }
 
   getOptionContext(optionBinding: OptionBindings, index: number) {
@@ -1080,7 +1080,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         const cfg = this.feedbackConfigs[this.lastFeedbackOptionId];
         if (cfg) cfg.showFeedback = true;
 
-        this.cdRef.detectChanges();   // one CD pass so the *ngIf runs
+        // [REVIEW] this.cdRef.detectChanges();   // one CD pass so the *ngIf runs
       }
 
       return;
@@ -1161,7 +1161,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         if (cfg) cfg.showFeedback = true;
       }
 
-      this.cdRef.detectChanges();
+      // [REVIEW] this.cdRef.detectChanges();
       return;
     }
  
@@ -1223,7 +1223,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex)
 
     // Final UI change detection
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
   }
   
   private applyHighlighting(optionBinding: OptionBindings): void {
@@ -1308,7 +1308,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private finalizeOptionSelection(optionBinding: OptionBindings, checked: boolean): void {
     this.selectedOptionService.isAnsweredSubject.next(true);
     this.updateHighlighting();
-    this.cdRef.detectChanges();
+    // [KEEP] this.cdRef.detectChanges();
   }
 
   updateHighlighting(): void {
@@ -1404,7 +1404,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.nextButtonStateService.syncNextButtonState();
   
     // Immediate Change Detection
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }  
 
@@ -1438,7 +1438,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       requestAnimationFrame(() => {
         this.ngZone.run(() => {
           callback();
-          this.cdRef.detectChanges();
+          // [REVIEW] this.cdRef.detectChanges();
         });
       });
     });
@@ -1502,7 +1502,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log(`[✅ Explanation text set for Q${questionIndex}]`, explanationText);
   
     // Force immediate DOM update
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
   }  
 
   private immediateExplanationUpdate(questionIndex: number): void {
@@ -1522,7 +1522,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log(`[📥 Explanation text set in state for Q${questionIndex}]`);
   
     // Trigger immediate change detection after both actions
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
   }
   
   async handleOptionClick(option: SelectedOption | undefined, index: number, checked: boolean): Promise<void> {
@@ -1833,7 +1833,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.showFeedback = true;
     this.updateHighlighting();
-    this.cdRef.detectChanges();
+    // [KEEP] this.cdRef.detectChanges();
   
     // Reset the backward navigation flag
     this.isNavigatingBackwards = false;
@@ -1970,7 +1970,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
     // one paint pass
-    this.cdRef.detectChanges();
+    // [REVIEW] this.cdRef.detectChanges();
     this.highlightDirectives?.forEach(d => d.updateHighlight());
 
     // Mark render ready after bindings and paint are done
@@ -2104,7 +2104,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.optionsReady = true;
     this.renderReady = true;  
     this.viewReady = true;
-    this.cdRef.detectChanges();  // ensure view is in sync
+    // [KEEP] this.cdRef.detectChanges();  // ensure view is in sync
     console.timeEnd('[⚙️ processOptionBindings]');
   }
 
@@ -2202,7 +2202,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.renderReady = true;
       this.viewReady = true;
       this.displayReady = true;
-      this.cdRef.detectChanges();  // flush view
+      // [REVIEW] this.cdRef.detectChanges();  // flush view
     } else {
       console.warn('[🛑 Display init skipped — not ready]');
     }
@@ -2224,7 +2224,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       this.ngZone.run(() => {
         this.renderReady = true;
-        this.cdRef.detectChanges();
+        // [REVIEW] this.cdRef.detectChanges();
       });
     } else {
       console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
