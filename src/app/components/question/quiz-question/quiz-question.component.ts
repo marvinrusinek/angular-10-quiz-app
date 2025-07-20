@@ -291,6 +291,7 @@ export class QuizQuestionComponent
   }
 
   @Input() set questionPayload(value: QuestionPayload | null) {
+    console.log('[📥 @Input questionPayload] received:', value);
     if (!value) return;
   
     this._questionPayload = value;
