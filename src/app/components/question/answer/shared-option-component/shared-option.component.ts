@@ -2178,7 +2178,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  private markRenderReady(): void {
+  public markRenderReady(): void {
     if (this.optionBindings?.length && this.optionsToDisplay?.length) {
       this.ngZone.run(() => {
         this.renderReady = true;
