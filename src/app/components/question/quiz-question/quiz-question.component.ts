@@ -292,7 +292,8 @@ export class QuizQuestionComponent
   @Input() set questionPayload(value: QuestionPayload | null) {
     console.log('[📥 @Input questionPayload] received:', value);
     console.timeEnd('[🚀 Sent QA to QQC]');
-    console.time('[📥 @Input questionPayload received]');
+    // console.time('[📥 @Input questionPayload received]');
+    console.time('[📥 QQC @Input questionPayload]');
   
     if (!value) {
       console.warn('[⚠️ Skipping: value is null]');
@@ -303,6 +304,7 @@ export class QuizQuestionComponent
       this._questionPayload = value;
       this.questionPayloadSubject.next(value);
       console.log('[🔁 About to hydrate payload]');
+      console.timeEnd('[📥 QQC @Input questionPayload]');
       this.hydrateFromPayload(value);
     } catch (err) {
       console.error('[❌ Error during hydrateFromPayload]', err);
