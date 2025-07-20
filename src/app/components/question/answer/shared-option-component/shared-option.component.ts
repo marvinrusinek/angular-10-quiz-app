@@ -1980,6 +1980,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
+  logTemplateRender(i: number): string {
+    const now = performance.now();
+    console.log(`[🖼️ Render Row ${i} at ${now.toFixed(2)} ms]`);
+    return '';
+  }
+  
+
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
     const isSelected = this.isSelectedOption(option) ?? false;
