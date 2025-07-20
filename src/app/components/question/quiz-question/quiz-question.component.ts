@@ -838,20 +838,18 @@ export class QuizQuestionComponent
     console.log('[🔍 hydrateFromPayload CALLED with]', payload);
     console.time('[⏱️ hydrateFromPayload]');
   
-    const serialized = JSON.stringify(payload);
+    // Compare by questionText instead of full JSON
+    const incomingQuestionText = payload?.question?.questionText?.trim();
+    const currentQuestionText = this.currentQuestion?.questionText?.trim();
   
-    // Skip if no change
-    if (this.lastSerializedPayload === serialized) {
-      if (!this.finalRenderReady) {
-        console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
-        this.sharedOptionComponent?.markRenderReady('💡 Rehydrated identical payload');
-      }
+    if (incomingQuestionText === currentQuestionText && this.finalRenderReady) {
+      console.warn('[⚠️ Skipping rehydration: same question text and already rendered]');
       console.timeEnd('[⏱️ hydrateFromPayload]');
       return;
     }
   
     // Store payload and reset render flags
-    this.lastSerializedPayload = serialized;
+    this.lastSerializedPayload = JSON.stringify(payload);  // optional: update for tracking
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
@@ -905,7 +903,7 @@ export class QuizQuestionComponent
       console.timeEnd('[⏹️ post-bindings renderReady check]');
       console.timeEnd('[⏱️ hydrateFromPayload]');
     }, 0);
-  }
+  }  
   
   private enforceHydrationFallback(): void {
     setTimeout(() => {
