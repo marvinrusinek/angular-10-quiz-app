@@ -44,6 +44,7 @@ import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
+
 type AnimationState = 'animationStarted' | 'none';
 
 export interface LoadedQuestionData {
@@ -82,6 +83,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   question!: QuizQuestion;
   questions: QuizQuestion[];
   question$!: Observable<[QuizQuestion, Option[]]>;
+  questionsArray: QuizQuestion[] = [];
   questions$: Observable<QuizQuestion[]>;
   questionPayload: QuestionPayload | null = null;
   questionVersion = 0;
@@ -454,7 +456,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     const quizId = this.quizService.getCurrentQuizId();
-
     if (!quizId) {
       console.error('[❌ QuizComponent] Missing quizId.');
       return;
@@ -462,18 +463,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
-      if (!questions || questions.length === 0) {
-        console.error('[❌ QuizComponent] Failed to fetch quiz questions.');
+      if (!questions?.length) {
+        console.error('[❌ QuizComponent] No quiz questions returned.');
         return;
       }
 
-      this.questions = questions;
-      console.log('[✅ Preloaded quiz questions in QuizComponent]');
-    } catch (err) {
-      console.error('[❌ QuizComponent] Error fetching questions:', err);
-    }
+      this.questionsArray = questions;
+      console.log('[✅ QuizComponent] Questions fetched.');
 
-    await this.quizQuestionComponent.loadQuestion();
+      // Ensure ViewChild is ready
+      setTimeout(() => {
+        if (this.quizQuestionComponent) {
+          this.quizQuestionComponent.loadQuestion();
+        }
+      });
+    } catch (err) {
+      console.error('[❌ QuizComponent] Failed to fetch questions:', err);
+    }
 
     // Assign question and options together when ready
     this.quizStateService.qa$
