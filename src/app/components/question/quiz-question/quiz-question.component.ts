@@ -891,18 +891,21 @@ export class QuizQuestionComponent
   }
   
   private enforceHydrationFallback(): void {
-    // If renderReady is still false after a timeout, trigger fallback
     setTimeout(() => {
-      if (
+      const safeToRender =
         !this.renderReady &&
-        (!this.optionsToDisplay || this.optionsToDisplay.length === 0)
-      ) {
-        console.warn('[🛠️ Fallback triggered: Forcing render]');
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0;
+  
+      if (safeToRender) {
+        console.warn('[🛠️ Hydration fallback triggered: safe renderReady]');
         this.renderReady = true;
         this.cdRef.detectChanges();
+      } else {
+        console.warn('[🛠️ Fallback skipped — options not ready]');
       }
-    }, 150); // Adjust as needed (e.g., 100–300ms)
-  }
+    }, 150);
+  }  
 
   private triggerRenderReady(reason: string = ''): void {
     if (reason) console.log('[🚀 triggerRenderReady]', reason);
