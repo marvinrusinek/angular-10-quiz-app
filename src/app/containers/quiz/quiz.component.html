@@ -1,4 +1,4 @@
-<ng-container *ngIf="isQuizReady; else loading">
+<ng-container>
   <mat-card *ngIf="combinedQuestionData$ | async as qa; else loading"
     [@changeRoute]="animationState$ | async"
     (@changeRoute.done)="animationDoneHandler()"
