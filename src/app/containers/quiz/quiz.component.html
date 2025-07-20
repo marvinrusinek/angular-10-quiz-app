@@ -13,6 +13,7 @@
         <ng-content></ng-content>
         
         <codelab-quiz-content
+          [questionPayload]="qa"
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
         ></codelab-quiz-content>
