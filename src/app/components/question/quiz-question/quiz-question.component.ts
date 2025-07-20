@@ -293,12 +293,17 @@ export class QuizQuestionComponent
   @Input() set questionPayload(value: QuestionPayload | null) {
     if (!value) return;
   
+    console.log('[📥 @Input received]', value);
+  
     const serialized = JSON.stringify(value);
     if (serialized !== this.lastSerializedPayload) {
+      console.log('[🚀 hydrateFromPayload WILL BE CALLED from @Input]');
       this.lastSerializedPayload = serialized;
       this._questionPayload = value;
       this.questionPayloadSubject.next(value);  // emit into stream
       this.hydrateFromPayload(value);
+    } else {
+      console.log('[⛔ SKIPPING hydrateFromPayload — payload is identical]');
     }
   }
   
