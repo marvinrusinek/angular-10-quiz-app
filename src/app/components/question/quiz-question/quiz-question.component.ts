@@ -845,22 +845,13 @@ export class QuizQuestionComponent
   }
 
   private hydrateFromPayload(payload: QuestionPayload): void {
-    // Load dynamic component container
-    if (!this.containerInitialized && this.dynamicAnswerContainer) {
-      console.time('[🛠️ loadDynamicComponent]');
-      this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
-      console.timeEnd('[🛠️ loadDynamicComponent]');
-  
-      this.containerInitialized = true;
-      console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
-    }
-    
     const serialized = JSON.stringify(payload);
   
+    // Skip if no change
     if (this.lastSerializedPayload === serialized) {
       if (!this.finalRenderReady) {
         console.warn('[⚠️ Fallback hydration trigger] Render flag was never finalized');
-        this.sharedOptionComponent.markRenderReady('💡 Rehydrated identical payload');
+        this.sharedOptionComponent?.markRenderReady('💡 Rehydrated identical payload');
       }
       return;
     }
@@ -871,19 +862,30 @@ export class QuizQuestionComponent
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
     this.finalRenderReadySubject.next(false);
-    this.cdRef.detectChanges();  // clear UI before hydration
+    this.cdRef.detectChanges();  // clear UI
   
     const { question, options, explanation } = payload;
   
+    // Assign the data before injection
     this.currentQuestion = question;
     this.optionsToDisplay = structuredClone(options);
     this.explanationToDisplay = explanation?.trim() || '';
   
+    // Now inject the AnswerComponent
+    if (!this.containerInitialized && this.dynamicAnswerContainer) {
+      console.time('[🛠️ loadDynamicComponent]');
+      this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
+      this.containerInitialized = true;
+      console.timeEnd('[🛠️ loadDynamicComponent]');
+      console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
+    }
+  
+    // Bind option UI
     if (this.sharedOptionComponent) {
       this.sharedOptionComponent.initializeOptionBindings();
     }
   
-    // Delay renderReady until options and bindings are verified
+    // Set render flags after bindings
     setTimeout(() => {
       const bindingsReady =
         Array.isArray(this.sharedOptionComponent?.optionBindings) &&
@@ -896,7 +898,7 @@ export class QuizQuestionComponent
         bindingsReady;
   
       if (ready) {
-        this.sharedOptionComponent.markRenderReady('✅ Hydrated from new payload');
+        this.sharedOptionComponent?.markRenderReady('✅ Hydrated from new payload');
       } else {
         console.warn('[❌ renderReady skipped: options or bindings not ready]');
       }
