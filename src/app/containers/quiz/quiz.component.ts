@@ -571,7 +571,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     Promise.resolve().then(async () => {
       if (this.quizQuestionComponent) {
         console.log('[🚀 ngAfterViewInit] Calling loadQuestion() on QuizQuestionComponent');
+        console.time('[⏱️ loadQuestion]');
         await this.quizQuestionComponent.loadQuestion();
+        console.timeEnd('[⏱️ loadQuestion]');
       } else {
         console.warn('[⚠️ quizQuestionComponent undefined in ngAfterViewInit]');
       }
