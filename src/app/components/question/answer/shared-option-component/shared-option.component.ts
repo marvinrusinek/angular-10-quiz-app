@@ -1953,7 +1953,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
     // Mark render ready early
-    this.markRenderReady();
+    // this.markRenderReady();
     this.setRenderReady();
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
