@@ -1953,8 +1953,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
     // Mark render ready early
-    // this.markRenderReady();
-    this.setRenderReady();
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
+    this.cdRef.detectChanges();
+
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      this.finalizeRenderReady();
+    });
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
@@ -2217,14 +2221,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.timeEnd('[⏱️ Total Render Cycle]');
   }
 
-  private setRenderReady(): void {
-    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-      this.cdRef.detectChanges();
-      this.renderReadyChange.emit(true); // notify parent
-    });
+  private finalizeRenderReady(): void {
+    this.renderReady = true;
+    this.renderReadyChange.emit(true);
   }
-
 
   trackByOptionId(index: number, binding: OptionBindings): number {
     return binding.option?.optionId ?? index;
