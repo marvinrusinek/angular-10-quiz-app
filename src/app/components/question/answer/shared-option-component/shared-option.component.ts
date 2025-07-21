@@ -2208,6 +2208,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       this.ngZone.run(() => {
         this.renderReady = true;
+        this.renderReadyChange.emit(true);
       });
     } else {
       console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
@@ -2216,14 +2217,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         reason,
       });
     }
-
+  
     console.time('[📌 markRenderReady]');
     console.timeEnd('[⏱️ Total Render Cycle]');
-  }
-
-  private finalizeRenderReady(): void {
-    this.renderReady = true;
-    this.renderReadyChange.emit(true);
   }
 
   trackByOptionId(index: number, binding: OptionBindings): number {
