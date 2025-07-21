@@ -1951,28 +1951,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
-    // Mark render ready first (non-blocking)
+    // Mark render ready early
     this.markRenderReady();
 
-    // Delay highlight application until next stable render
-    requestAnimationFrame(() => {
+    // Defer highlight logic to ensure DOM is painted and directives exist
+    setTimeout(() => {
+      if (!this.highlightDirectives || this.highlightDirectives.length === 0) {
+        console.warn('[⏳ highlightDirectives not ready, retrying in 50ms]');
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            this.highlightDirectives?.forEach((d) => d.updateHighlight());
+            this.cdRef.detectChanges();
+            console.log('[✅ Highlights applied on retry]');
+          });
+        }, 50);
+        return;
+      }
+
       requestAnimationFrame(() => {
-        if (this.highlightDirectives?.length) {
-          // Safety: filter only defined directives
-          this.highlightDirectives
-            .filter(d => !!d)
-            .forEach(d => d.updateHighlight());
-
-          // Trigger change detection after highlight update
-          this.cdRef.detectChanges();
-        } else {
-          console.warn('[⚠️ No highlightDirectives found at time of update]');
-        }
-
-        console.timeEnd('[⚙️ SOC generateOptionBindings]');
+        this.highlightDirectives?.forEach((d) => d.updateHighlight());
+        this.cdRef.detectChanges();
+        console.log('[✅ Highlights applied]');
       });
-    });
+    }, 0);
 
+    console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
   logTemplateRender(i: number): string {
