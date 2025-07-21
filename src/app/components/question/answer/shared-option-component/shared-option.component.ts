@@ -1954,13 +1954,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Mark render ready first
     this.markRenderReady();
 
-    // Defer highlight update until view is stable
-    setTimeout(() => {
-      if (this.highlightDirectives?.length) {
-        this.highlightDirectives.forEach(d => d.updateHighlight());
-      }
-      this.cdRef.detectChanges();  // ensures any visual updates are reflected
-    }, 0);
+    // Defer highlight update until DOM is fully ready
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.highlightDirectives?.length) {
+          this.highlightDirectives.forEach(d => d.updateHighlight());
+        }
+        this.cdRef.detectChanges();  // ensure any visual DOM changes are recognized
+      });
+    });
 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
