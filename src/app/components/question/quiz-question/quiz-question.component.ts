@@ -497,6 +497,15 @@ export class QuizQuestionComponent
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
 
+    // Defer renderReady subscription until ViewChild is actually initialized
+    setTimeout(() => {
+      if (this.sharedOptionComponent) {
+        this.subscribeToRenderReady();  // <-- Now safe to access
+      } else {
+        console.warn('[⚠️ sharedOptionComponent not ready in ngAfterViewInit]');
+      }
+    });
+
     this.quizQuestionLoaderService.options$
       .pipe(
         filter(arr => Array.isArray(arr) && arr.length > 0)  // skip empties
@@ -1165,6 +1174,26 @@ export class QuizQuestionComponent
         this.totalQuestions = totalQuestions;
       });
   }
+
+  private subscribeToRenderReady(): void {
+    if (!this.sharedOptionComponent) return;
+  
+    this.sharedOptionComponent.renderReady$
+      .pipe(
+        filter(ready => ready === true),
+        take(1) // only care about first true
+      )
+      .subscribe(() => {
+        console.log('[🟢 QuizQuestionComponent] Render ready confirmed by SOC');
+        this.afterRenderReadyTasks();
+      });
+  }
+
+  private afterRenderReadyTasks(): void {
+    // defer highlighting, feedback checks, etc. here
+    console.log('[✨ Performing post-render actions]');
+    this.cdRef.detectChanges();
+  }  
 
   private initializeComponentState(): void {
     this.waitForQuestionData();
