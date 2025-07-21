@@ -1951,12 +1951,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
-    // one paint pass
-    this.highlightDirectives?.forEach(d => d.updateHighlight());
+    // Mark render ready first
     this.markRenderReady();
 
-    // Trigger change detection after highlight and render ready
-    this.cdRef.detectChanges();
+    // Defer highlight update until view is stable
+    setTimeout(() => {
+      if (this.highlightDirectives?.length) {
+        this.highlightDirectives.forEach(d => d.updateHighlight());
+      }
+      this.cdRef.detectChanges(); // ensures any visual updates are reflected
+    }, 0); // You can also try requestAnimationFrame if needed
 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
