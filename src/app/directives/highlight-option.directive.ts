@@ -1,4 +1,6 @@
 import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -28,6 +30,8 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() showFeedback: boolean;
   @Input() isAnswered: boolean;
   @Input() selectedOptionHistory: number[] = [];
+  @Input() renderReady = false;
+  private renderReadySub?: Subscription;
   private areAllCorrectAnswersSelected = false;
 
   constructor(
@@ -43,6 +47,13 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   ngOnInit(): void {
     if (this.optionBinding) {
       this.optionBinding.directiveInstance = this;
+    }
+
+    // Retry highlight once renderReady becomes true
+    if (!this.renderReadySub && this.renderReady === false) {
+      this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+        this.updateHighlight();
+      });
     }
   }
 
@@ -102,6 +113,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.renderReadySub?.unsubscribe();
+  }
+
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
 
   @HostListener('click', ['$event'])
@@ -129,6 +144,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   updateHighlight(): void {
     if (!this.optionBinding?.option) return;
 
+    if (!this.renderReady) {
+      console.warn('[HighlightOptionDirective] Skipping highlight — not renderReady');
+      return;
+    }
+
     const opt  = this.optionBinding.option;
     const host = this.el.nativeElement as HTMLElement;
 
@@ -139,17 +159,14 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.setPointerEvents (host, 'auto');
     opt.showIcon = false;  // hide ✓/✗ by default
 
-    // SELECTED row, trust only opt.highlight
+    // SELECTED
     if (opt.highlight) {
-      this.setBackgroundColor(
-        host,
-        opt.correct ? '#43f756' : '#ff0000'
-      );
+      this.setBackgroundColor(host, opt.correct ? '#43f756' : '#ff0000');
       opt.showIcon = true;  // show the icon
       return;
     }
 
-    // DISABLED row
+    // DISABLED
     if (!opt.correct && opt.active === false) {
       this.setBackgroundColor(host, '#a3a3a3');
       this.renderer.addClass(host, 'deactivated-option');
