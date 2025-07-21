@@ -2,7 +2,7 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
@@ -108,6 +108,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private selectedOptionMap: Map<number, boolean> = new Map();
   lastFeedbackOptionMap: { [questionIndex: number]: number } = {};
   form!: FormGroup;
+
+  private renderReadySubject = new BehaviorSubject<boolean>(false);
+  public renderReady$ = this.renderReadySubject.asObservable();
 
   optionTextStyle = { color: 'black' };
 
@@ -1952,13 +1955,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
-    // Mark render ready early
-    this.highlightDirectives?.forEach(d => d.updateHighlight());
-    this.cdRef.detectChanges();
-
+    // Wait until Angular is stable to update highlights and mark ready
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      this.finalizeRenderReady();
+      // Defer highlight update to allow bindings to apply
+      setTimeout(() => {
+        if (this.highlightDirectives?.length) {
+          this.highlightDirectives.forEach((d, i) => {
+            try {
+              d.updateHighlight();
+            } catch (err) {
+              console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
+            }
+          });
+        } else {
+          console.warn('[⚠️ No highlightDirectives found at time of update]');
+        }
+    
+        // Final change detection & render flag
+        this.cdRef.detectChanges();
+        this.markRenderReady('highlight directives updated');
+      }, 0);  // microtask queue
     });
+    
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
@@ -2202,13 +2220,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.optionsToDisplay.length > 0;
   
     if (bindingsReady && optionsReady) {
-      if (reason) {
-        console.log(`[✅ renderReady]: ${reason}`);
-      }
-  
       this.ngZone.run(() => {
         this.renderReady = true;
         this.renderReadyChange.emit(true);
+        this.renderReadySubject.next(true);
+        if (reason) {
+          console.log(`[✅ renderReady]: ${reason}`);
+        }
       });
     } else {
       console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
@@ -2220,7 +2238,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     console.time('[📌 markRenderReady]');
     console.timeEnd('[⏱️ Total Render Cycle]');
-  }
+  }  
 
   trackByOptionId(index: number, binding: OptionBindings): number {
     return binding.option?.optionId ?? index;
