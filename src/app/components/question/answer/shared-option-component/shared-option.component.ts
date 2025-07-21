@@ -1954,26 +1954,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Mark render ready early
     this.markRenderReady();
 
-    // Defer highlight logic to ensure DOM is painted and directives exist
-    setTimeout(() => {
-      if (!this.highlightDirectives || this.highlightDirectives.length === 0) {
-        console.warn('[⏳ highlightDirectives not ready, retrying in 50ms]');
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            this.highlightDirectives?.forEach((d) => d.updateHighlight());
-            this.cdRef.detectChanges();
-            console.log('[✅ Highlights applied on retry]');
-          });
-        }, 50);
-        return;
-      }
-
-      requestAnimationFrame(() => {
-        this.highlightDirectives?.forEach((d) => d.updateHighlight());
-        this.cdRef.detectChanges();
-        console.log('[✅ Highlights applied]');
-      });
-    }, 0);
+    // Defer highlight update to next microtask (ensures DOM + ViewChildren are available)
+    Promise.resolve().then(() => {
+      this.highlightDirectives?.forEach((d) => d.updateHighlight());
+      this.cdRef.detectChanges();
+    });
 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
