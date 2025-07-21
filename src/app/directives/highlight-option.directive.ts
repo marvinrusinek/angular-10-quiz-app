@@ -50,11 +50,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     }
 
     // Retry highlight once renderReady becomes true
-    if (!this.renderReadySub && this.renderReady === false) {
+    /* if (!this.renderReadySub && this.renderReady === false) {
       this.ngZone.onStable.pipe(take(1)).subscribe(() => {
         this.updateHighlight();
       });
-    }
+    } */
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -144,35 +144,32 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   updateHighlight(): void {
     if (!this.optionBinding?.option) return;
 
-    if (!this.renderReady) {
-      console.warn('[HighlightOptionDirective] Skipping highlight — not renderReady');
-      return;
-    }
+    setTimeout(() => {
+      const opt  = this.optionBinding.option;
+      const host = this.el.nativeElement as HTMLElement;
 
-    const opt  = this.optionBinding.option;
-    const host = this.el.nativeElement as HTMLElement;
+      // RESET
+      this.renderer.removeStyle(host, 'background-color');
+      this.renderer.removeClass(host, 'deactivated-option');
+      this.renderer.setStyle (host, 'cursor', 'pointer');
+      this.setPointerEvents (host, 'auto');
+      opt.showIcon = false;  // hide ✓/✗ by default
 
-    // RESET
-    this.renderer.removeStyle(host, 'background-color');
-    this.renderer.removeClass(host, 'deactivated-option');
-    this.renderer.setStyle (host, 'cursor', 'pointer');
-    this.setPointerEvents (host, 'auto');
-    opt.showIcon = false;  // hide ✓/✗ by default
+      // SELECTED
+      if (opt.highlight) {
+        this.setBackgroundColor(host, opt.correct ? '#43f756' : '#ff0000');
+        opt.showIcon = true;  // show the icon
+        return;
+      }
 
-    // SELECTED
-    if (opt.highlight) {
-      this.setBackgroundColor(host, opt.correct ? '#43f756' : '#ff0000');
-      opt.showIcon = true;  // show the icon
-      return;
-    }
-
-    // DISABLED
-    if (!opt.correct && opt.active === false) {
-      this.setBackgroundColor(host, '#a3a3a3');
-      this.renderer.addClass(host, 'deactivated-option');
-      this.renderer.setStyle(host, 'cursor', 'not-allowed');
-      this.setPointerEvents(host, 'none');
-    }
+      // DISABLED
+      if (!opt.correct && opt.active === false) {
+        this.setBackgroundColor(host, '#a3a3a3');
+        this.renderer.addClass(host, 'deactivated-option');
+        this.renderer.setStyle(host, 'cursor', 'not-allowed');
+        this.setPointerEvents(host, 'none');
+      }
+    }, 0);  // defers just long enough to let bindings finalize
   }
 
   private highlightCorrectAnswers(): void {
