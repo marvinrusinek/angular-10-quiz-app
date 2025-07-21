@@ -1952,14 +1952,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (currentIndex === 0) console.timeEnd(timingKey);
 
     // one paint pass
-    this.cdRef.detectChanges();
     this.highlightDirectives?.forEach(d => d.updateHighlight());
-
-    // Mark render ready after bindings and paint are done
     this.markRenderReady();
-    console.timeEnd('[⚙️ SOC generateOptionBindings]');
 
+    // Trigger change detection AFTER highlight + render ready
     this.cdRef.detectChanges();
+
+    console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
   logTemplateRender(i: number): string {
