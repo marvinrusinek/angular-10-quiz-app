@@ -1959,8 +1959,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       if (this.highlightDirectives?.length) {
         this.highlightDirectives.forEach(d => d.updateHighlight());
       }
-      this.cdRef.detectChanges(); // ensures any visual updates are reflected
-    }, 0); // You can also try requestAnimationFrame if needed
+      this.cdRef.detectChanges();  // ensures any visual updates are reflected
+    }, 0);
 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
