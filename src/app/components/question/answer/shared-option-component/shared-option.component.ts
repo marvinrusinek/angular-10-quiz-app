@@ -1958,6 +1958,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Mark render ready after bindings and paint are done
     this.markRenderReady();
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
+
+    this.cdRef.detectChanges();
   }
 
   logTemplateRender(i: number): string {
