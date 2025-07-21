@@ -1955,12 +1955,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.markRenderReady();
 
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      if (this.highlightDirectives?.length) {
-        this.highlightDirectives.forEach(d => d.updateHighlight());
-        this.cdRef.detectChanges();
-      } else {
-        console.warn('[⚠️ highlightDirectives still not available]');
-      }
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+      this.renderReady = true;
+      this.cdRef.detectChanges();
     });
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
