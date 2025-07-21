@@ -39,6 +39,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() reselectionDetected = new EventEmitter<boolean>();
   @Output() explanationUpdate = new EventEmitter<number>();
+  @Output() renderReadyChange = new EventEmitter<boolean>();
   @Input() currentQuestion: QuizQuestion;
   @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
@@ -1953,12 +1954,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     // Mark render ready early
     this.markRenderReady();
-
-    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-      this.renderReady = true;
-      this.cdRef.detectChanges();
-    });
+    this.setRenderReady();
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
@@ -2219,7 +2215,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     console.time('[📌 markRenderReady]');
     console.timeEnd('[⏱️ Total Render Cycle]');
-  }  
+  }
+
+  private setRenderReady(): void {
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+      this.cdRef.detectChanges();
+      this.renderReadyChange.emit(true); // notify parent
+    });
+  }
+
 
   trackByOptionId(index: number, binding: OptionBindings): number {
     return binding.option?.optionId ?? index;
