@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -1954,13 +1954,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Mark render ready early
     this.markRenderReady();
 
-    // Defer highlight update to next microtask (ensures DOM + ViewChildren are available)
-    requestAnimationFrame(() => {
+    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
       if (this.highlightDirectives?.length) {
-        this.highlightDirectives.forEach((d) => d.updateHighlight());
+        this.highlightDirectives.forEach(d => d.updateHighlight());
         this.cdRef.detectChanges();
       } else {
-        console.warn('[⚠️ No highlightDirectives available]');
+        console.warn('[⚠️ highlightDirectives still not available]');
       }
     });
     
