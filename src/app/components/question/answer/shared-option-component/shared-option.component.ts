@@ -1938,18 +1938,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const t0 = performance.now();
       console.time('[⏱️ Binding Row]');
-      const enriched = {
+      
+      const selected = !!opt.selected;
+
+      const enriched: SelectedOption = {
         ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex,
-        highlight: !!opt.selected
+        highlight: selected,
+        showIcon: selected
       };
-    
-      const chosen = !!enriched.selected;
 
-      enriched.highlight = chosen;
-      enriched.showIcon  = chosen;
-    
-      const binding = this.getOptionBindings(enriched, idx, chosen);
+      const binding = this.getOptionBindings(enriched, idx, selected);
+
+      // Also make sure binding.option reflects the enriched state:
+      binding.option.highlight = selected;
+      binding.option.showIcon  = selected;
       binding.showFeedbackForOption = this.showFeedbackForOption;
     
       console.timeEnd('[⏱️ Binding Row]');
