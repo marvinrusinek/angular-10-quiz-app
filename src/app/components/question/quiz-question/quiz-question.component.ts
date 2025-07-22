@@ -3684,7 +3684,7 @@ export class QuizQuestionComponent
       questionIndex: this.currentQuestionIndex,
       text: option.text
     };
-    this.selectedOptionService.toggleSelectedOption(
+    this.selectedOptionService.updateSelectionState(
       this.currentQuestionIndex,
       selectedOption,
       this.isMultipleAnswer
@@ -3961,7 +3961,7 @@ export class QuizQuestionComponent
       // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
       this.selectedOptionService.setSelectedOption(option);
-      this.selectedOptionService.toggleSelectedOption(
+      this.selectedOptionService.updateSelectionState(
         questionIndex,
         option,
         this.isMultipleAnswer

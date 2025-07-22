@@ -68,7 +68,7 @@ export class SelectedOptionService {
       this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
       this.setNextButtonEnabled(true);
     } else {
-      this.toggleSelectedOption(questionIndex, selectedOption, isMultiSelect);
+      this.updateSelectionState(questionIndex, selectedOption, isMultiSelect);
     }
   
     console.info('Selected option emitted:', selectedOption);
@@ -348,7 +348,7 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  toggleSelectedOption(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
