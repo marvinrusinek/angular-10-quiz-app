@@ -1,6 +1,4 @@
 import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -31,7 +29,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() isAnswered: boolean;
   @Input() selectedOptionHistory: number[] = [];
   @Input() renderReady = false;
-  private renderReadySub?: Subscription;
   private areAllCorrectAnswersSelected = false;
 
   constructor(
@@ -48,13 +45,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     if (this.optionBinding) {
       this.optionBinding.directiveInstance = this;
     }
-
-    // Retry highlight once renderReady becomes true
-    /* if (!this.renderReadySub && this.renderReady === false) {
-      this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-        this.updateHighlight();
-      });
-    } */
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -111,10 +101,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     } else {
       console.log('[🛑 HighlightOptionDirective] ngOnChanges — no relevant changes detected');
     }
-  }
-
-  ngOnDestroy(): void {
-    this.renderReadySub?.unsubscribe();
   }
 
   @HostBinding('style.backgroundColor') backgroundColor: string = '';
