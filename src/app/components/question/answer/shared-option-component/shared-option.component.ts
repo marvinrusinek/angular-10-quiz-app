@@ -1934,15 +1934,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (currentIndex === 0) console.time(timingKey);
 
+    // Set up bindings
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const t0 = performance.now();
       console.time('[⏱️ Binding Row]');
       const enriched = {
         ...(opt as SelectedOption),
-        questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex
+        questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex,
+        highlight: !!opt.selected
       };
     
       const chosen = !!enriched.selected;
+
+      enriched.highlight = chosen;
+      enriched.showIcon  = chosen;
     
       const binding = this.getOptionBindings(enriched, idx, chosen);
       binding.showFeedbackForOption = this.showFeedbackForOption;
@@ -1971,12 +1976,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           console.warn('[⚠️ No highlightDirectives found at time of update]');
         }
     
-        // Final change detection & render flag
+        // Final change detection and render flag
         this.cdRef.detectChanges();
+
         this.markRenderReady('highlight directives updated');
       }, 0);  // microtask queue
     });
-    
     
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
