@@ -446,8 +446,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.time('[📦 SOC ngOnChanges]');
-    console.log('[🧪 ngOnChanges] fired', changes);
-  
+    console.log('[🔥 ngOnChanges fired]', changes);
+
     const shouldRegenerate =
       (changes['optionsToDisplay'] && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) ||
       (changes['config'] && this.config != null);
@@ -1943,23 +1943,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
       const enriched: SelectedOption = {
         ...(opt as SelectedOption),
-        questionIndex: (opt as SelectedOption).questionIndex ?? this.quizService.currentQuestionIndex,
+        questionIndex: (opt as SelectedOption).questionIndex ?? currentIndex,
         highlight: selected,
         showIcon: selected
       };
+
+      if (selected && opt.optionId != null) {
+        showMap[opt.optionId] = true;
+      }
+      console.log('[🔁 showFeedbackForOption]', this.showFeedbackForOption);
 
       const binding = this.getOptionBindings(enriched, idx, selected);
 
       // Also make sure binding.option reflects the enriched state:
       binding.option.highlight = selected;
       binding.option.showIcon  = selected;
-      binding.showFeedbackForOption = this.showFeedbackForOption;
+      binding.showFeedbackForOption = showMap;
     
       console.timeEnd('[⏱️ Binding Row]');
       console.log(`[ℹ️ Row ${idx} processed]`);
     
       return binding;
     });
+    console.log('[🎯 showMap after loop]', showMap);
+
+    this.showFeedbackForOption = showMap;
 
     console.log('[🔍 Final bindings]', this.optionBindings.map(b => ({
       id: b.option.optionId,
@@ -2179,12 +2187,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
   
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     if (!option || typeof option !== 'object') return false;
-    
+    // return !!(this.showFeedback && option.showIcon);
     const id = option.optionId;
-    return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-  }
+    // return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
+    return !!(this.showFeedback && (option.showIcon || this.showFeedbackForOption?.[id]));
+  } */
+  shouldShowIcon(option: Option): boolean {
+    const id = option.optionId;
+    const show = !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
+    console.log(`[🔍 shouldShowIcon]`, { id, show });
+    return show;
+  }  
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
@@ -2335,6 +2350,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         }
       }
     });
+
+    console.log('[✅ Post-toggle options]', this.optionsToDisplay.map(o => ({
+      id: o.optionId,
+      selected: o.selected,
+      showIcon: o.showIcon,
+      highlight: o.highlight
+    })));
+
+    // Force Angular to detect changes
+    this.optionsToDisplay = [...this.optionsToDisplay];
+    this.cdRef.detectChanges();
   }
 
   // Ensure every binding’s option.selected matches the map / history
