@@ -2339,7 +2339,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   // Only (de)select the clicked option, leave others untouched
-  private toggleSelectedOption(clicked: Option): void {
+  /* private toggleSelectedOption(clicked: Option): void {
     this.optionsToDisplay.forEach(o => {
       if (o.optionId === clicked.optionId) {
         // toggle just this row
@@ -2366,7 +2366,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Force Angular to detect changes
     this.optionsToDisplay = [...this.optionsToDisplay];
     this.cdRef.detectChanges();
-  }
+  } */
+  private toggleSelectedOption(clicked: Option): void {
+    this.optionsToDisplay = this.optionsToDisplay.map(o => {
+      const selected = o.optionId === clicked.optionId ? !o.selected : o.selected;
+      return {
+        ...o,
+        selected,
+        highlight: selected,
+        showIcon: selected
+      };
+    });
+  
+    console.log('[✅ Post-toggle options]', this.optionsToDisplay.map(o => ({
+      id: o.optionId,
+      selected: o.selected,
+      showIcon: o.showIcon,
+      highlight: o.highlight
+    })));
+  
+    this.generateOptionBindings();  // force refresh after toggle
+    this.cdRef.detectChanges();
+  }  
 
   // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
