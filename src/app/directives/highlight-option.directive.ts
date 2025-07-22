@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, NgZone, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { Option } from '../shared/models/Option.model';
 import { OptionBindings } from '../shared/models/OptionBindings.model';
@@ -37,7 +37,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     private el: ElementRef,
     private renderer: Renderer2,
     private cdRef: ChangeDetectorRef,
-    private ngZone: NgZone,
     private userPreferenceService: UserPreferenceService
   ) {}
 
