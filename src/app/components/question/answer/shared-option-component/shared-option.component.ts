@@ -1961,9 +1961,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return binding;
     });
 
-    if (currentIndex === 0) console.timeEnd(timingKey);
+    console.log('[🔍 Final bindings]', this.optionBindings.map(b => ({
+      id: b.option.optionId,
+      selected: b.option.selected,
+      highlight: b.option.highlight,
+      showIcon: b.option.showIcon
+    })));
 
-    this.cdRef.detectChanges();
+    if (currentIndex === 0) console.timeEnd(timingKey);
     
     // Wait until Angular is stable to update highlights and mark ready
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
