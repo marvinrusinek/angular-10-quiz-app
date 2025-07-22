@@ -1315,12 +1315,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
 
-        // Wipe every headline stream BEFORE any async work
-        this.quizQuestionLoaderService.resetHeadlineStreams(); // clears QA, header, expl.
+        // Wipe every headline stream before any async work
+        this.quizQuestionLoaderService.resetHeadlineStreams();  // clears QA, header, expl.
         this.cdRef.markForCheck();
         /* ──────────────────────────────────────────────────────────────────── */
 
-        // Update indices (local + services) before async calls
+        // Update indices (local and services) before async calls
         this.quizId = quizId;
         this.currentQuestionIndex = index;
         this.quizService.quizId = quizId;
