@@ -449,7 +449,6 @@ export class QuizQuestionComponent
           setTimeout(() => {
             this.renderReady = true;
             this.renderReadySubject.next(true);
-            this.cdRef.detectChanges();
           }, 0);
       
           console.log('[✅ renderReady triggered with Q&A]');
