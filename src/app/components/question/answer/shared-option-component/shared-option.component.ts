@@ -450,7 +450,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log('[🔥 ngOnChanges fired]', changes);
 
     const shouldRegenerate =
-      (changes['optionsToDisplay'] && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0) ||
+      changes['optionsToDisplay'] &&
+      Array.isArray(this.optionsToDisplay) &&
+      this.optionsToDisplay.length > 0 &&
+      this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt) ||
       (changes['config'] && this.config != null);
   
     if (shouldRegenerate) {
@@ -1894,7 +1897,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     return {
       option: {
-        ...option,
+        ...structuredClone(option),
         feedback: option.feedback
       },
       index: idx,
@@ -1925,6 +1928,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   public generateOptionBindings(): void {
     console.time('[⚙️ SOC generateOptionBindings]');
     console.log('✅ generateOptionBindings CALLED');
+    console.log('[🚨 generateOptionBindings triggered]');
+    this.optionsToDisplay = [...this.optionsToDisplay];
+
     if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
   
     const showMap: Record<number, boolean> = {};
@@ -1935,6 +1941,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (currentIndex === 0) console.time(timingKey);
 
+    console.log('[🧪 Binding count]', this.optionBindings?.length);
     // Set up bindings
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const t0 = performance.now();
@@ -1951,6 +1958,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
       if (selected && opt.optionId != null) {
         showMap[opt.optionId] = true;
+        enriched.showIcon = true;
       }
       console.log('[🔁 showFeedbackForOption]', this.showFeedbackForOption);
 
@@ -1970,13 +1978,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     this.showFeedbackForOption = showMap;
 
-    console.log('[🔍 Final bindings]', this.optionBindings.map(b => ({
+    console.log('[🔍 Final Bindings]', this.optionBindings.map(b => ({
       id: b.option.optionId,
       selected: b.option.selected,
-      highlight: b.option.highlight,
-      showIcon: b.option.showIcon
+      showIcon: b.option.showIcon,
+      highlight: b.option.highlight
     })));
-
+    
     if (currentIndex === 0) console.timeEnd(timingKey);
     
     // Wait until Angular is stable to update highlights and mark ready
@@ -2197,10 +2205,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   } */
   shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
-    const show = !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-    console.log(`[🔍 shouldShowIcon]`, { id, show });
-    return show;
-  }  
+    return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
+  } 
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
