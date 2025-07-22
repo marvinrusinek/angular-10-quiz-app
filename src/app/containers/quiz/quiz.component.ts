@@ -2984,7 +2984,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         setTimeout(() => {
           this.cdRef.markForCheck();
         }, 200);
-        console.timeEnd('[FIRST Q1 INIT]');
+        console.timeEnd("FIRST QUESTION");
       } else {
         console.warn('No questions available for this quiz.');
         this.handleNoQuestionsAvailable();
