@@ -455,6 +455,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngOnInit(): Promise<void> {
+    this.initializeRouteParameters();
+
     const quizId = this.quizService.getCurrentQuizId();
     if (!quizId) {
       console.error('[❌ QuizComponent] Missing quizId.');
@@ -1178,13 +1180,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /*************** ngOnInit barrel functions ******************/
-  /* potentially remove: 
-    private initializeRouteParameters(): void {
+  private initializeRouteParameters(): void {
     this.fetchRouteParams();
     this.subscribeRouterAndInit();
     this.subscribeToRouteParams();
     this.initializeRouteParams();
-  } */
+  }
 
   private initializeQuizData(): void {
     this.resolveQuizData();
