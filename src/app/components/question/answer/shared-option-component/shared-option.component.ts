@@ -1957,7 +1957,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
       if (selected && opt.optionId != null) {
         showMap[opt.optionId] = true;
-        enriched.showIcon = true;
       }
       console.log('[🔁 showFeedbackForOption]', this.showFeedbackForOption);
 
@@ -1966,7 +1965,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       binding.option.highlight = selected;
       binding.option.showIcon  = selected;
       binding.showFeedbackForOption = showMap;
-      this.showFeedbackForOption = showMap;
     
       console.timeEnd('[⏱️ Binding Row]');
       console.log(`[ℹ️ Row ${idx} processed]`);
@@ -1974,6 +1972,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return binding;
     });
     console.log('[🎯 showMap after loop]', showMap);
+
+    this.showFeedbackForOption = showMap;
 
     console.log('[🔍 Final Bindings]', this.optionBindings.map(b => ({
       id: b.option.optionId,
