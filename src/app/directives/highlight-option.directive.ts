@@ -128,25 +128,31 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
 
   updateHighlight(): void {
     if (!this.optionBinding?.option) return;
-
+  
     setTimeout(() => {
       const opt  = this.optionBinding.option;
       const host = this.el.nativeElement as HTMLElement;
-
-      // RESET
+  
+      console.log('[🎯 Directive] Highlight check', {
+        id: opt?.optionId,
+        selected: opt?.selected,
+        highlight: opt?.highlight,
+        showIcon: opt?.showIcon
+      });
+  
+      // RESET styles
       this.renderer.removeStyle(host, 'background-color');
       this.renderer.removeClass(host, 'deactivated-option');
-      this.renderer.setStyle (host, 'cursor', 'pointer');
-      this.setPointerEvents (host, 'auto');
-      opt.showIcon = false;  // hide ✓/✗ by default
-
+      this.renderer.setStyle(host, 'cursor', 'pointer');
+      this.setPointerEvents(host, 'auto');
+  
       // SELECTED
       if (opt.highlight) {
         this.setBackgroundColor(host, opt.correct ? '#43f756' : '#ff0000');
-        opt.showIcon = true;  // show the icon
+        opt.showIcon = true;  // keep ✓/✗
         return;
       }
-
+  
       // DISABLED
       if (!opt.correct && opt.active === false) {
         this.setBackgroundColor(host, '#a3a3a3');
@@ -154,9 +160,12 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         this.renderer.setStyle(host, 'cursor', 'not-allowed');
         this.setPointerEvents(host, 'none');
       }
-    }, 0);  // defers just long enough to let bindings finalize
+  
+      // FALLBACK: no highlight and not disabled — no icon
+      opt.showIcon = false;
+    }, 0);  // defer until DOM is ready
   }
-
+  
   private highlightCorrectAnswers(): void {
     if (this.allOptions) {
       for (const opt of this.allOptions) {
@@ -175,7 +184,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   }
 
   private get paintTarget(): HTMLElement {
-    // host is <label>, its first element child is the flex box
     return this.el.nativeElement.firstElementChild as HTMLElement ?? this.el.nativeElement;
   }
 
