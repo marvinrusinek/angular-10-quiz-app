@@ -20,7 +20,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   @Input() option: Option;
   @Input() showFeedbackForOption: { [key: number]: boolean } = {};
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() allOptions: Option[]; // to access all options directly
+  @Input() allOptions: Option[];  // to access all options directly
   @Input() optionsToDisplay: Option[];
   @Input() optionBinding: OptionBindings | undefined;
   @Input() isSelected: boolean = false;
@@ -164,10 +164,10 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         if (opt.correct) {
           this.showFeedbackForOption[opt.optionId] = true;
           if (opt.optionId === this.option.optionId) {
-            this.setBackgroundColor(this.paintTarget, '#43f756'); // green
+            this.setBackgroundColor(this.paintTarget, '#43f756');  // green
           }
         } else if (opt.optionId === this.option.optionId) {
-          this.setBackgroundColor(this.paintTarget, '#ff0000'); // red
+          this.setBackgroundColor(this.paintTarget, '#ff0000');  // red
         }
       }
     } else {
@@ -201,11 +201,11 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.isAnswered = false;
     if (this.allOptions) {
       for (const opt of this.allOptions) {
-        opt.active = true; // reset all options to active
+        opt.active = true;  // reset all options to active
       }
     }
     this.setBackgroundColor(this.paintTarget, 'transparent');
     this.renderer.setStyle(this.el.nativeElement, 'background-color', 'white');
-    this.resetBackground.emit(true); // emit event to notify the reset
+    this.resetBackground.emit(true);  // emit event to notify the reset
   }
 }
