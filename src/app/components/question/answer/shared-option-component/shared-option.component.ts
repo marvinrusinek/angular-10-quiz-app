@@ -2342,32 +2342,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Only (de)select the clicked option, leave others untouched
   private toggleSelectedOption(clicked: Option): void {
-    this.optionsToDisplay.forEach((o) => {
-      if (o.optionId === clicked.optionId) {
-        // Always mark the clicked option as selected
-        o.selected = true;
-        o.highlight = true;
-        o.showIcon = true;
-      } else {
-        // If it was already selected, preserve its state
-        if (o.selected) {
+    const isMultiSelect = this.type === 'multiple';
+    const currentIndex = this.quizService.currentQuestionIndex;
+  
+    this.optionsToDisplay.forEach(o => {
+      if (isMultiSelect) {
+        // Multi: toggle clicked only
+        if (o.optionId === clicked.optionId) {
+          o.selected = true;
           o.highlight = true;
           o.showIcon = true;
         }
+      } else {
+        // Single: deselect all except clicked
+        const isClicked = o.optionId === clicked.optionId;
+        o.selected = isClicked;
+        o.highlight = isClicked;
+        o.showIcon = isClicked;
       }
     });
   
-    console.log('[✅ Updated options]', this.optionsToDisplay.map(o => ({
-      id: o.optionId,
-      selected: o.selected,
-      highlight: o.highlight,
-      showIcon: o.showIcon
-    })));
+    // 🔄 Save selection to service
+    this.selectedOptionService.updateSelectionState(
+      currentIndex,
+      clicked as SelectedOption,
+      isMultiSelect
+    );
   
-    // 🔄 Force Angular to re-render
-    this.optionsToDisplay = [...this.optionsToDisplay];
+    // 🔁 Re-trigger binding and change detection
+    this.generateOptionBindings();
     this.cdRef.detectChanges();
-  }
+  } 
   
 
   // Ensure every binding’s option.selected matches the map / history
