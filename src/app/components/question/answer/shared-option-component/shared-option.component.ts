@@ -1930,20 +1930,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
   
+    // 🔍 Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
   
-    // Patch current options with stored selections
-    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+    // 🔧 Patch current options with stored selected state
+    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = storedSelections.find(s => s.optionId === opt.optionId);
       return {
         ...opt,
-        selected: match?.selected ?? opt.selected ?? false,
-        highlight: match?.highlight ?? opt.highlight ?? false,
-        showIcon: match?.showIcon ?? opt.showIcon ?? false
+        selected: match?.selected ?? false,
+        highlight: match?.highlight ?? false,
+        showIcon: match?.showIcon ?? false
       };
     });
   
     const showMap: Record<number, boolean> = {};
+  
+    // Create option bindings
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const selected = !!opt.selected;
   
@@ -1967,8 +1970,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   
     this.showFeedbackForOption = showMap;
+  
+    // Immediate change detection
     this.cdRef.detectChanges();
   
+    // Wait for Angular to stabilize before updating highlights
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
       setTimeout(() => {
         this.highlightDirectives?.forEach((d, i) => {
@@ -1978,6 +1984,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
             console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
           }
         });
+  
         this.cdRef.detectChanges();
         this.markRenderReady('highlight directives updated');
       });
