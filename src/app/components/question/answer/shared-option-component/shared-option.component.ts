@@ -1933,7 +1933,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     const showMap: Record<number, boolean> = {};
 
-    //  Apply stored selection state to optionsToDisplay before mapping
+    // Apply stored selection state to optionsToDisplay before mapping
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const stored = storedSelections.find(sel => sel.optionId === opt.optionId);
       return {
@@ -1961,7 +1961,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }
     
       const binding = this.getOptionBindings(enriched, idx, selected);
-      binding.option = enriched; // 👈 ensure all enriched props persist
+      binding.option = enriched;  // ensure all enriched props persist
       binding.showFeedbackForOption = showMap;
     
       return binding;
