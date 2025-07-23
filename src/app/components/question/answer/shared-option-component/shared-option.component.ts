@@ -1926,7 +1926,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     };
   }
   
-  public generateOptionBindings(): void {
+  public generateOptionBindings(): void { 
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
   

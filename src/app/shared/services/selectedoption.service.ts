@@ -219,23 +219,8 @@ export class SelectedOptionService {
   }
 
   getSelectedOptions(): SelectedOption[] {
-    const selectedOptions = this.selectedOptionSubject.getValue();
-  
-    // Ensure the returned value is an array
-    if (Array.isArray(selectedOptions)) {
-      return selectedOptions;
-    }
-  
-    // Handle cases where it's not an array but a single option or undefined
-    if (selectedOptions) {
-      console.log('[getSelectedOptions] Converting single option to array:', selectedOptions);
-      return [selectedOptions];
-    }
-  
-    // If no selected options, return an empty array
-    console.info('[getSelectedOptions] No selected options found. Returning empty array.');
-    return [];
-  }
+    return this.selectedOptionSubject.getValue() || [];
+  }  
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
     const all = this.getSelectedOptions();
