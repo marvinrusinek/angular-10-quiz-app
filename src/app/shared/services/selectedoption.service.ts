@@ -363,6 +363,8 @@ export class SelectedOptionService {
     };
   
     options.push(updated);
+
+    console.log(`[✅ Updated Option Stored for Q${questionIndex}]`, updated);
   
     // Update the map and emit the new state
     this.selectedOptionsMap.set(questionIndex, options);
