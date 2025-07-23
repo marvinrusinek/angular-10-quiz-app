@@ -1930,8 +1930,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
   
-    const allSelections = this.selectedOptionService.getSelectedOptions() || [];
-    const storedSelections = allSelections.filter(s => s.questionIndex === currentIndex);
+    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
   
     // Patch current options with stored selections
     this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
@@ -2250,7 +2249,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         if (reason) {
           console.log(`[✅ renderReady]: ${reason}`);
         }
-        
+
         this.renderReady = true;
         this.renderReadyChange.emit(true);
         this.renderReadySubject.next(true);
