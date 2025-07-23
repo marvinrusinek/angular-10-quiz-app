@@ -457,6 +457,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     if (shouldRegenerate) {
       console.time('[⚙️ generateOptionBindings]');
+      this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
       console.timeEnd('[⚙️ generateOptionBindings]');
     } else if (
@@ -466,6 +467,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     ) {
       console.log('✅ optionBindings change detected');
       console.time('[⚙️ generateOptionBindings]');
+      this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
       console.timeEnd('[⚙️ generateOptionBindings]');
     } else {
@@ -2350,6 +2352,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     );
   
     // 🔁 Re-trigger binding and change detection
+    this.hydrateOptionsFromSelectionState();
     this.generateOptionBindings();
     this.cdRef.detectChanges();
   } 
