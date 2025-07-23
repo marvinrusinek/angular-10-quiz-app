@@ -2197,20 +2197,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
     return !!(this.showFeedback && (option.showIcon || this.showFeedbackForOption?.[id]));
   } */
-  /* shouldShowIcon(option: Option): boolean {
-    const id = option.optionId;
-    return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-  } */
   shouldShowIcon(option: Option): boolean {
-    const id = option.optionId;
-    const show = option?.showIcon ?? false;
-    const fromMap = this.showFeedbackForOption?.[id] ?? false;
-    const result = show || fromMap;
-  
-    console.log(`[🧩 shouldShowIcon] ID: ${id}, showIcon: ${show}, showMap: ${fromMap}, Result: ${result}`);
-    return result;
-  }
-  
+    //const id = option.optionId;
+    //return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
+    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+  }  
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
