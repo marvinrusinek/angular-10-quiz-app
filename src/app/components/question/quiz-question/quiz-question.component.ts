@@ -3963,8 +3963,10 @@ export class QuizQuestionComponent
       this.processOptionSelection(currentQuestion, option, optionIndex);
 
       const enriched: SelectedOption = {
-        ...option,
-        questionIndex,
+        optionId: option.optionId,
+        text: option.text,
+        correct: option.correct ?? false,
+        questionIndex: this.currentQuestionIndex,
         selected: true,
         highlight: true,
         showIcon: true
