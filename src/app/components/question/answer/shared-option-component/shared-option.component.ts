@@ -2368,14 +2368,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.cdRef.detectChanges();
   } */
   private toggleSelectedOption(clicked: Option): void {
-    this.optionsToDisplay = this.optionsToDisplay.map(o => {
-      const selected = o.optionId === clicked.optionId ? !o.selected : o.selected;
-      return {
-        ...o,
-        selected,
-        highlight: selected,
-        showIcon: selected
-      };
+    this.optionsToDisplay.forEach(o => {
+      if (o.optionId === clicked.optionId) {
+        // ✅ If not already selected, mark as selected and show icon
+        if (!o.selected) {
+          o.selected = true;
+          o.highlight = true;
+          o.showIcon = true;
+        }
+      }
+  
+      // 🧼 Ensure icons are hidden ONLY for truly unselected options
+      if (!o.selected) {
+        o.highlight = false;
+        o.showIcon = false;
+      }
     });
   
     console.log('[✅ Post-toggle options]', this.optionsToDisplay.map(o => ({
@@ -2385,9 +2392,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       highlight: o.highlight
     })));
   
-    this.generateOptionBindings();  // force refresh after toggle
+    // 🔁 Force Angular to detect changes
+    this.optionsToDisplay = [...this.optionsToDisplay];
     this.cdRef.detectChanges();
-  }  
+  }
+  
 
   // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
