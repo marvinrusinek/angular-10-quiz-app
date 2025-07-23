@@ -1981,7 +1981,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   private hydrateOptionsFromSelectionState(): void {
-    const currentIndex = this.quizService.currentQuestionIndex;
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
@@ -1994,8 +1993,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       };
     });
   }
-  
-  
 
   logTemplateRender(i: number): string {
     const now = performance.now();
