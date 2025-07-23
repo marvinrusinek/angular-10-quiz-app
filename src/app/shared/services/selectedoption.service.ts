@@ -127,7 +127,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);  // no option selected
   }
 
-  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+  /* setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
       this.selectedOption = null;
@@ -155,7 +155,39 @@ export class SelectedOptionService {
     this.selectedOption = [option];
     this.selectedOptionSubject.next([option]);
     this.isOptionSelectedSubject.next(true);
-  }  
+  } */
+  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+    if (!option) {
+      console.log('SelectedOptionService: Clearing selected option');
+      this.selectedOption = [];
+      this.selectedOptionSubject.next([]);
+      this.showFeedbackForOptionSubject.next({});
+      this.isOptionSelectedSubject.next(false);
+      this.updateAnsweredState();
+      return;
+    }
+  
+    if (Array.isArray(option)) {
+      if (this.areOptionsAlreadySelected(option)) {
+        console.log('SelectedOptionService: Options already selected, skipping');
+        return;
+      }
+      console.error('Expected a single SelectedOption, but received an array:', option);
+      return;
+    }
+  
+    // Explicitly ensure showIcon is set to true
+    const updatedOption: SelectedOption = {
+      ...option,
+      selected: true,
+      highlight: true,
+      showIcon: true,
+    };
+  
+    this.selectedOption = [updatedOption];
+    this.selectedOptionSubject.next([updatedOption]);
+    this.isOptionSelectedSubject.next(true);
+  }
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
