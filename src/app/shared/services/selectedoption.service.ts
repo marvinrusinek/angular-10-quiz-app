@@ -127,35 +127,6 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);  // no option selected
   }
 
-  /* setSelectedOption(option: SelectedOption | SelectedOption[]): void {
-    if (!option) {
-      console.log('SelectedOptionService: Clearing selected option');
-      this.selectedOption = null;
-      this.selectedOptionSubject.next(null);
-      this.showFeedbackForOptionSubject.next({});
-      this.isOptionSelectedSubject.next(false);
-      this.updateAnsweredState();
-      return;
-    }
-  
-    if (Array.isArray(option)) {
-      if (this.areOptionsAlreadySelected(option)) {
-        console.log('SelectedOptionService: Options already selected, skipping');
-        return;
-      }
-      console.error('Expected a single SelectedOption, but received an array:', option);
-      return;
-    }
-  
-    if (this.isOptionAlreadySelected(option)) {
-      console.log('SelectedOptionService: Option already selected, skipping');
-      return;
-    }
-  
-    this.selectedOption = [option];
-    this.selectedOptionSubject.next([option]);
-    this.isOptionSelectedSubject.next(true);
-  } */
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
