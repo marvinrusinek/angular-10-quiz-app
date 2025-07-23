@@ -43,7 +43,6 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -65,18 +64,12 @@ export class QuizQuestionComponent
     selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() explanationToDisplayChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() showExplanationChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() selectionMessageChange: EventEmitter<string> =
-    new EventEmitter<string>();
-  @Output() isAnsweredChange: EventEmitter<boolean> =
-    new EventEmitter<boolean>();
-  @Output() feedbackTextChange: EventEmitter<string> =
-    new EventEmitter<string>();
+  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() feedbackTextChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
