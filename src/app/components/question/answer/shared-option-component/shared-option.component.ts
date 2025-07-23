@@ -1929,42 +1929,40 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   public generateOptionBindings(): void {
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
+  
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
-    const showMap: Record<number, boolean> = {};
-
-    // Patch before mapping — merge stored selection metadata into optionsToDisplay
-    const patchedOptions = this.optionsToDisplay.map(opt => {
-      const stored = storedSelections.find(s => s.optionId === opt.optionId);
+    // 🔧 PATCH current options with stored selections
+    this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
+      const match = storedSelections.find(s => s.optionId === opt.optionId);
       return {
-        ...(opt as SelectedOption),
-        selected: stored?.selected ?? opt.selected ?? false,
-        highlight: stored?.highlight ?? opt.highlight ?? false,
-        showIcon: stored?.showIcon ?? opt.showIcon ?? false,
-        questionIndex: stored?.questionIndex ?? currentIndex
+        ...opt,
+        selected: match?.selected ?? opt.selected ?? false,
+        highlight: match?.highlight ?? opt.highlight ?? false,
+        showIcon: match?.showIcon ?? opt.showIcon ?? false,
       };
     });
-
-    this.optionBindings = patchedOptions.map((opt, idx) => {
-      const matched = storedSelections.find(sel => sel.optionId === opt.optionId);
-      const selected = matched?.selected ?? false;
-    
+  
+    const showMap: Record<number, boolean> = {};
+    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      const selected = !!opt.selected;
+  
       const enriched: SelectedOption = {
         ...(opt as SelectedOption),
         questionIndex: currentIndex,
         selected,
-        highlight: matched?.highlight ?? selected,
-        showIcon: matched?.showIcon ?? selected
+        highlight: opt.highlight ?? selected,
+        showIcon: opt.showIcon ?? selected
       };
-    
-      if (enriched.selected) {
+  
+      if (enriched.selected && enriched.optionId != null) {
         showMap[enriched.optionId] = true;
       }
-    
+  
       const binding = this.getOptionBindings(enriched, idx, selected);
       binding.option = enriched;  // ensure all enriched props persist
       binding.showFeedbackForOption = showMap;
-    
+  
       return binding;
     });
   
