@@ -386,7 +386,7 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(questionIndex, options);
     this.updateSelectedOptions(questionIndex, option.optionId, 'add');
   } */
-  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -408,7 +408,43 @@ export class SelectedOptionService {
     }
   
     this.selectedOptionsMap.set(questionIndex, options);
-  }  
+  } */
+  updateSelectionState(
+    questionIndex: number,
+    option: SelectedOption,
+    isMultiSelect: boolean
+  ): void {
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);
+    }
+  
+    const options = this.selectedOptionsMap.get(questionIndex) || [];
+  
+    const existingIndex = options.findIndex(
+      o => o.optionId === option.optionId
+    );
+  
+    const enriched: SelectedOption = {
+      optionId: option.optionId,
+      questionIndex,
+      selected: true,
+      highlight: true,
+      showIcon: true,
+      text: option.text ?? '',
+      correct: option.correct ?? undefined
+    };
+  
+    if (existingIndex > -1) {
+      // Don't remove it — just update
+      options[existingIndex] = enriched;
+    } else {
+      options.push(enriched);
+    }
+  
+    this.selectedOptionsMap.set(questionIndex, options);
+    this.updateSelectedOptions(questionIndex, option.optionId, 'add');
+  }
+  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
