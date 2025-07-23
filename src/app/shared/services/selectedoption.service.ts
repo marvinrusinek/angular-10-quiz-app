@@ -176,16 +176,15 @@ export class SelectedOptionService {
       return;
     }
   
-    // Explicitly ensure showIcon is set to true
-    const updatedOption: SelectedOption = {
+    const enrichedOption: SelectedOption = {
       ...option,
       selected: true,
       highlight: true,
-      showIcon: true,
+      showIcon: true
     };
   
-    this.selectedOption = [updatedOption];
-    this.selectedOptionSubject.next([updatedOption]);
+    this.selectedOption = [enrichedOption];
+    this.selectedOptionSubject.next([enrichedOption]);
     this.isOptionSelectedSubject.next(true);
   }
 
@@ -269,9 +268,9 @@ export class SelectedOptionService {
   }
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
-    const all = this.selectedOptionSubject.getValue() || [];
+    const all = this.getSelectedOptions();
     return all.filter(opt => opt.questionIndex === questionIndex);
-  }  
+  }
 
   // Method to get the current option selected state
   getCurrentOptionSelectedState(): boolean {
