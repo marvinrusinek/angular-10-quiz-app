@@ -1949,8 +1949,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }
     
       const binding = this.getOptionBindings(enriched, idx, selected);
-    
-      // Mutate the binding.option directly instead of replacing it
       const boundOpt = binding.option as SelectedOption;
       boundOpt.selected = enriched.selected;
       boundOpt.highlight = enriched.highlight;
