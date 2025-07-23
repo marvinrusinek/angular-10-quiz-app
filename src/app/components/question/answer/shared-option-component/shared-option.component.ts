@@ -1929,13 +1929,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   public generateOptionBindings(): void {
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
-    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
+    const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     const showMap: Record<number, boolean> = {};
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const matched = storedSelections.find(sel => sel.optionId === opt.optionId);
       const selected = matched?.selected ?? false;
-  
+    
       const enriched: SelectedOption = {
         ...(opt as SelectedOption),
         questionIndex: currentIndex,
@@ -1943,15 +1943,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         highlight: matched?.highlight ?? selected,
         showIcon: matched?.showIcon ?? selected
       };
-  
+    
       if (enriched.selected) {
         showMap[enriched.optionId] = true;
       }
-  
+    
       const binding = this.getOptionBindings(enriched, idx, selected);
-      binding.option = enriched;
+    
+      // Mutate the binding.option directly instead of replacing it
+      binding.option.selected = enriched.selected;
+      binding.option.highlight = enriched.highlight;
+      binding.option.showIcon = enriched.showIcon;
+      binding.option.questionIndex = enriched.questionIndex;
+    
       binding.showFeedbackForOption = showMap;
-  
+    
       return binding;
     });
   
@@ -2324,39 +2330,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Only (de)select the clicked option, leave others untouched
   private toggleSelectedOption(clicked: Option): void {
-    const isMultiSelect = this.type === 'multiple';
-    const currentIndex = this.quizService.currentQuestionIndex;
+    const isMultiple = this.type === 'multiple';
   
     this.optionsToDisplay.forEach(o => {
-      if (isMultiSelect) {
-        // Multi: toggle clicked only
-        if (o.optionId === clicked.optionId) {
-          o.selected = true;
-          o.highlight = true;
-          o.showIcon = true;
+      const isClicked = o.optionId === clicked.optionId;
+  
+      if (isMultiple) {
+        if (isClicked) {
+          o.selected = !o.selected;
+          o.showIcon = o.selected;
+          o.highlight = o.selected;
         }
       } else {
-        // Single: deselect all except clicked
-        const isClicked = o.optionId === clicked.optionId;
+        // SINGLE-ANSWER: deselect others
         o.selected = isClicked;
-        o.highlight = isClicked;
         o.showIcon = isClicked;
+        o.highlight = isClicked;
       }
     });
   
-    // 🔄 Save selection to service
-    this.selectedOptionService.updateSelectionState(
-      currentIndex,
-      clicked as SelectedOption,
-      isMultiSelect
-    );
+    console.log('[✅ After toggle]', this.optionsToDisplay.map(o => ({
+      id: o.optionId,
+      selected: o.selected,
+      showIcon: o.showIcon
+    })));
   
-    // 🔁 Re-trigger binding and change detection
-    this.hydrateOptionsFromSelectionState();
-    this.generateOptionBindings();
+    this.optionsToDisplay = [...this.optionsToDisplay]; // force change detection
     this.cdRef.detectChanges();
-  } 
-  
+  }
 
   // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
