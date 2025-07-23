@@ -239,6 +239,10 @@ export class SelectedOptionService {
     // If no selected options, return an empty array
     console.info('[getSelectedOptions] No selected options found. Returning empty array.');
     return [];
+  }
+
+  getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
+    return this.selectedOptionsMap.get(questionIndex) || [];
   }  
 
   // Method to get the current option selected state
