@@ -3681,6 +3681,7 @@ export class QuizQuestionComponent
       highlight: true,
       showIcon: true,
     };
+    console.log('[📥 processOptionSelectionAndUpdateState called]', selectedOption);
     this.selectedOptionService.updateSelectionState(
       this.currentQuestionIndex,
       selectedOption,
@@ -3930,6 +3931,8 @@ export class QuizQuestionComponent
     optionIndex: number,
     currentQuestion: QuizQuestion
   ): Promise<void> {
+    console.log('[📥 handleOptionSelection called]', option);
+
     const questionIndex = this.currentQuestionIndex;
   
     // Ensure that the option and optionIndex are valid

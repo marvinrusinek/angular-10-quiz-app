@@ -219,6 +219,7 @@ export class SelectedOptionService {
   }
 
   getSelectedOptions(): SelectedOption[] {
+    console.log('[📤 getSelectedOptions()] current subject value:', this.selectedOptionSubject.getValue());
     return this.selectedOptionSubject.getValue() || [];
   }  
 
@@ -411,6 +412,8 @@ export class SelectedOptionService {
       options = [];
     }
   
+    // Check if the option already exists (avoid duplicating)
+    const existingIndex = options.findIndex(o => o.optionId === option.optionId);
     const updated: SelectedOption = {
       ...option,
       selected: true,
@@ -419,7 +422,6 @@ export class SelectedOptionService {
       questionIndex
     };
   
-    const existingIndex = options.findIndex(o => o.optionId === option.optionId);
     if (existingIndex >= 0) {
       options[existingIndex] = updated;
     } else {
@@ -428,6 +430,8 @@ export class SelectedOptionService {
   
     this.selectedOptionsMap.set(questionIndex, options);
     this.selectedOptionSubject.next(options);
+
+    console.log(`[📝 Stored in Map for Q${questionIndex}]`, this.selectedOptionsMap.get(questionIndex));
   }
   
 
