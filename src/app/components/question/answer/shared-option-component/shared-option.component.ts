@@ -2247,12 +2247,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     if (bindingsReady && optionsReady) {
       this.ngZone.run(() => {
-        this.renderReady = true;
-        this.renderReadyChange.emit(true);
-        this.renderReadySubject.next(true);
         if (reason) {
           console.log(`[✅ renderReady]: ${reason}`);
         }
+        
+        this.renderReady = true;
+        this.renderReadyChange.emit(true);
+        this.renderReadySubject.next(true);
       });
     } else {
       console.warn(`[❌ markRenderReady skipped] Incomplete state:`, {
