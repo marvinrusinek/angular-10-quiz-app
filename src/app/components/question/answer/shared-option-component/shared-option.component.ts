@@ -2342,30 +2342,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Only (de)select the clicked option, leave others untouched
   private toggleSelectedOption(clicked: Option): void {
-    this.optionsToDisplay.forEach(o => {
+    this.optionsToDisplay.forEach((o) => {
       if (o.optionId === clicked.optionId) {
-        // ✅ Toggle on if not selected
-        if (!o.selected) {
-          o.selected = true;
+        // Always mark the clicked option as selected
+        o.selected = true;
+        o.highlight = true;
+        o.showIcon = true;
+      } else {
+        // If it was already selected, preserve its state
+        if (o.selected) {
           o.highlight = true;
           o.showIcon = true;
         }
-  
-        // ❌ Never toggle off — we persist previous state
       }
     });
   
-    console.log('[✅ After toggle]', this.optionsToDisplay.map(o => ({
+    console.log('[✅ Updated options]', this.optionsToDisplay.map(o => ({
       id: o.optionId,
       selected: o.selected,
       highlight: o.highlight,
       showIcon: o.showIcon
     })));
   
-    // 🔄 Trigger re-render
+    // 🔄 Force Angular to re-render
     this.optionsToDisplay = [...this.optionsToDisplay];
     this.cdRef.detectChanges();
   }
+  
 
   // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
