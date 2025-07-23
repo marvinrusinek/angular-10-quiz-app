@@ -3679,7 +3679,7 @@ export class QuizQuestionComponent
       correct: option.correct ?? false,
       selected: true,
       highlight: true,
-      showIcon: true,
+      showIcon: true
     };
     console.log('[📥 processOptionSelectionAndUpdateState called]', selectedOption);
     this.selectedOptionService.updateSelectionState(

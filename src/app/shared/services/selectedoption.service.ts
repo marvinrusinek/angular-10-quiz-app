@@ -335,67 +335,6 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
-    if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
-    }
-
-    const options = this.selectedOptionsMap.get(questionIndex) || [];
-    const index = options.findIndex(
-      selectedOption => selectedOption.optionId === option.optionId
-    );
-
-    if (index > -1) {
-      options.splice(index, 1);
-    } else {
-      options.push(option);
-    }
-
-    this.handleSingleOption(option, questionIndex, isMultiSelect);
-    this.selectedOptionsMap.set(questionIndex, options);
-    this.updateSelectedOptions(questionIndex, option.optionId, 'add');
-  } */
-  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
-    if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
-    }
-  
-    const options = this.selectedOptionsMap.get(questionIndex) || [];
-    const index = options.findIndex(o => o.optionId === option.optionId);
-  
-    if (index > -1) {
-      options.splice(index, 1); // user unselected
-    } else {
-      option.showIcon = true;   // 👈 set here
-      options.push(option);
-    }
-  
-    this.selectedOptionsMap.set(questionIndex, options);
-    this.updateSelectedOptions(questionIndex, option.optionId, 'add');
-  } */
-  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
-    if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
-    }
-  
-    const options = this.selectedOptionsMap.get(questionIndex) || [];
-  
-    const index = options.findIndex(o => o.optionId === option.optionId);
-  
-    if (isMultiSelect) {
-      if (index > -1) {
-        // Do not remove it — icons should persist
-        return;
-      } else {
-        options.push({ ...option, selected: true, highlight: true, showIcon: true });
-      }
-    } else {
-      options.length = 0; // clear all previous for single
-      options.push({ ...option, selected: true, highlight: true, showIcon: true });
-    }
-  
-    this.selectedOptionsMap.set(questionIndex, options);
-  } */
   updateSelectionState(
     questionIndex: number,
     option: SelectedOption,
@@ -410,10 +349,11 @@ export class SelectedOptionService {
     if (!isMultiSelect) {
       // For single-answer questions: reset and only keep current
       options = [];
+    } else {
+      // Remove any duplicates for the same optionId
+      options = options.filter(o => o.optionId !== option.optionId);
     }
   
-    // Check if the option already exists (avoid duplicating)
-    const existingIndex = options.findIndex(o => o.optionId === option.optionId);
     const updated: SelectedOption = {
       ...option,
       selected: true,
@@ -422,18 +362,14 @@ export class SelectedOptionService {
       questionIndex
     };
   
-    if (existingIndex >= 0) {
-      options[existingIndex] = updated;
-    } else {
-      options.push(updated);
-    }
+    options.push(updated);
   
+    // Update the map and emit the new state
     this.selectedOptionsMap.set(questionIndex, options);
     this.selectedOptionSubject.next(options);
-
-    console.log(`[📝 Stored in Map for Q${questionIndex}]`, this.selectedOptionsMap.get(questionIndex));
-  }
   
+    console.log(`[📝 Stored in Map for Q${questionIndex}]`, this.selectedOptionsMap.get(questionIndex));
+  }  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
