@@ -1952,18 +1952,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         ...(opt as SelectedOption),
         questionIndex: (opt as SelectedOption).questionIndex ?? currentIndex,
         highlight: selected,
-        showIcon: selected
+        showIcon: opt.showIcon ?? selected
       };
 
-      if (selected && opt.optionId != null) {
-        showMap[opt.optionId] = true;
+      if (enriched.selected && enriched.optionId != null) {
+        showMap[enriched.optionId] = true;
       }
       console.log('[🔁 showFeedbackForOption]', this.showFeedbackForOption);
 
-      const binding = this.getOptionBindings(enriched, idx, selected);
+      const binding = this.getOptionBindings(enriched, idx, enriched.selected);
 
-      binding.option.highlight = selected;
-      binding.option.showIcon  = selected;
+      binding.option.highlight = enriched.highlight;
+      binding.option.showIcon  = enriched.showIcon;
       binding.showFeedbackForOption = showMap;
     
       console.timeEnd('[⏱️ Binding Row]');
@@ -2202,8 +2202,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   } */
   shouldShowIcon(option: Option): boolean {
     const id = option.optionId;
-    const visible = !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-    return visible;
+    return !!(
+      this.showFeedback &&
+      (this.showFeedbackForOption?.[id] || option.showIcon)
+    );
   }  
 
   shouldShowFeedback(index: number): boolean {
@@ -2339,64 +2341,31 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   // Only (de)select the clicked option, leave others untouched
-  /* private toggleSelectedOption(clicked: Option): void {
-    this.optionsToDisplay.forEach(o => {
-      if (o.optionId === clicked.optionId) {
-        // toggle just this row
-        o.selected  = !o.selected;
-        o.highlight = o.selected;
-        o.showIcon  = o.selected;
-      } else {
-        // keep whatever selection state it already had
-        // BUT never bleed highlight/icon if not selected
-        if (!o.selected) {
-          o.highlight = false;
-          o.showIcon  = false;
-        }
-      }
-    });
-
-    console.log('[✅ Post-toggle options]', this.optionsToDisplay.map(o => ({
-      id: o.optionId,
-      selected: o.selected,
-      showIcon: o.showIcon,
-      highlight: o.highlight
-    })));
-
-    // Force Angular to detect changes
-    this.optionsToDisplay = [...this.optionsToDisplay];
-    this.cdRef.detectChanges();
-  } */
   private toggleSelectedOption(clicked: Option): void {
     this.optionsToDisplay.forEach(o => {
       if (o.optionId === clicked.optionId) {
-        // ✅ If not already selected, mark as selected and show icon
+        // ✅ Toggle on if not selected
         if (!o.selected) {
           o.selected = true;
           o.highlight = true;
           o.showIcon = true;
         }
-      }
   
-      // 🧼 Ensure icons are hidden ONLY for truly unselected options
-      if (!o.selected) {
-        o.highlight = false;
-        o.showIcon = false;
+        // ❌ Never toggle off — we persist previous state
       }
     });
   
-    console.log('[✅ Post-toggle options]', this.optionsToDisplay.map(o => ({
+    console.log('[✅ After toggle]', this.optionsToDisplay.map(o => ({
       id: o.optionId,
       selected: o.selected,
-      showIcon: o.showIcon,
-      highlight: o.highlight
+      highlight: o.highlight,
+      showIcon: o.showIcon
     })));
   
-    // 🔁 Force Angular to detect changes
+    // 🔄 Trigger re-render
     this.optionsToDisplay = [...this.optionsToDisplay];
     this.cdRef.detectChanges();
   }
-  
 
   // Ensure every binding’s option.selected matches the map / history
   private syncSelectedFlags(): void {
