@@ -3967,7 +3967,6 @@ export class QuizQuestionComponent
   
       // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
-      this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.updateSelectionState(
         questionIndex,
         enriched,
