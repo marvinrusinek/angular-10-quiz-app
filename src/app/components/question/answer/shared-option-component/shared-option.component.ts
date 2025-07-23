@@ -1930,10 +1930,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
   
-    // 🔍 Pull selected state for current question
+    // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
   
-    // 🔧 Patch current options with stored selected state
+    // Patch current options with stored selected state
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = storedSelections.find(s => s.optionId === opt.optionId);
       return {
@@ -2197,11 +2197,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
     return !!(this.showFeedback && (option.showIcon || this.showFeedbackForOption?.[id]));
   } */
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     //const id = option.optionId;
     //return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
     return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
-  }  
+  } */
+  shouldShowIcon(option: Option): boolean {
+    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+  }
+  
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
