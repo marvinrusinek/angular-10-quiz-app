@@ -1933,14 +1933,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const allSelections = this.selectedOptionService.getSelectedOptions() || [];
     const storedSelections = allSelections.filter(s => s.questionIndex === currentIndex);
   
-    // 🔧 PATCH current options with stored selections
+    // Patch current options with stored selections
     this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
       const match = storedSelections.find(s => s.optionId === opt.optionId);
       return {
         ...opt,
         selected: match?.selected ?? opt.selected ?? false,
         highlight: match?.highlight ?? opt.highlight ?? false,
-        showIcon: match?.showIcon ?? opt.showIcon ?? false,
+        showIcon: match?.showIcon ?? opt.showIcon ?? false
       };
     });
   
