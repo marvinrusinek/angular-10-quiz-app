@@ -1926,89 +1926,53 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
   public generateOptionBindings(): void {
     console.time('[⚙️ SOC generateOptionBindings]');
-    console.log('✅ generateOptionBindings CALLED');
-    console.log('[🚨 generateOptionBindings triggered]');
-    this.optionsToDisplay = [...this.optionsToDisplay];
-
-    if (this.freezeOptionBindings || !this.optionsToDisplay?.length) return;
+    const currentIndex = this.quizService.currentQuestionIndex;
+    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
   
     const showMap: Record<number, boolean> = {};
-    this.showFeedbackForOption = showMap;
-
-    const currentIndex = this.quizService.currentQuestionIndex;
-    const timingKey = `[Q${currentIndex} generateOptionBindings]`;
-
-    if (currentIndex === 0) console.time(timingKey);
-
-    console.log('[🧪 Binding count]', this.optionBindings?.length);
-    // Set up bindings
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
-      const t0 = performance.now();
-      console.time('[⏱️ Binding Row]');
-      
-      const selected = !!opt.selected;
-
+      const matched = storedSelections.find(sel => sel.optionId === opt.optionId);
+      const selected = matched?.selected ?? false;
+  
       const enriched: SelectedOption = {
         ...(opt as SelectedOption),
-        questionIndex: (opt as SelectedOption).questionIndex ?? currentIndex,
-        highlight: selected,
-        showIcon: opt.showIcon ?? selected
+        questionIndex: currentIndex,
+        selected,
+        highlight: matched?.highlight ?? selected,
+        showIcon: matched?.showIcon ?? selected
       };
-
-      if (enriched.selected && enriched.optionId != null) {
+  
+      if (enriched.selected) {
         showMap[enriched.optionId] = true;
       }
-      console.log('[🔁 showFeedbackForOption]', this.showFeedbackForOption);
-
-      const binding = this.getOptionBindings(enriched, idx, enriched.selected);
-
-      binding.option.highlight = enriched.highlight;
-      binding.option.showIcon  = enriched.showIcon;
+  
+      const binding = this.getOptionBindings(enriched, idx, selected);
+      binding.option = enriched;
       binding.showFeedbackForOption = showMap;
-    
-      console.timeEnd('[⏱️ Binding Row]');
-      console.log(`[ℹ️ Row ${idx} processed]`);
-    
+  
       return binding;
     });
-    console.log('[🎯 showMap after loop]', showMap);
-
+  
     this.showFeedbackForOption = showMap;
-
-    console.log('[🔍 Final Bindings]', this.optionBindings.map(b => ({
-      id: b.option.optionId,
-      selected: b.option.selected,
-      showIcon: b.option.showIcon,
-      highlight: b.option.highlight
-    })));
-    
-    if (currentIndex === 0) console.timeEnd(timingKey);
-    
-    // Wait until Angular is stable to update highlights and mark ready
+  
+    // Ensure highlights render
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      // Defer highlight update to allow bindings to apply
       setTimeout(() => {
-        if (this.highlightDirectives?.length) {
-          this.highlightDirectives.forEach((d, i) => {
-            try {
-              d.updateHighlight();
-            } catch (err) {
-              console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
-            }
-          });
-        } else {
-          console.warn('[⚠️ No highlightDirectives found at time of update]');
-        }
-    
-        // Final change detection and render flag
+        this.highlightDirectives?.forEach((d, i) => {
+          try {
+            d.updateHighlight();
+          } catch (err) {
+            console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
+          }
+        });
         this.cdRef.detectChanges();
-
         this.markRenderReady('highlight directives updated');
-      }, 0);  // microtask queue
+      });
     });
-    
+  
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
+  
 
   logTemplateRender(i: number): string {
     const now = performance.now();
