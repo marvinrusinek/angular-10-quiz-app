@@ -3682,7 +3682,11 @@ export class QuizQuestionComponent
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
       questionIndex: this.currentQuestionIndex,
-      text: option.text
+      text: option.text,
+      correct: option.correct ?? false,
+      selected: true,
+      highlight: true,
+      showIcon: true,
     };
     this.selectedOptionService.updateSelectionState(
       this.currentQuestionIndex,
@@ -3957,13 +3961,21 @@ export class QuizQuestionComponent
   
       // Process the selected option and update states
       this.processOptionSelection(currentQuestion, option, optionIndex);
+
+      const enriched: SelectedOption = {
+        ...option,
+        questionIndex,
+        selected: true,
+        highlight: true,
+        showIcon: true
+      };
   
       // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
       this.selectedOptionService.setSelectedOption(option);
       this.selectedOptionService.updateSelectionState(
         questionIndex,
-        option,
+        enriched,
         this.isMultipleAnswer
       );
       this.selectedOptionService.updateSelectedOptions(
