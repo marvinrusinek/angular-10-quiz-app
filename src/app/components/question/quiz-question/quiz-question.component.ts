@@ -286,7 +286,6 @@ export class QuizQuestionComponent
   @Input() set questionPayload(value: QuestionPayload | null) {
     console.log('[📥 @Input questionPayload] received:', value);
     console.timeEnd('[🚀 Sent QA to QQC]');
-    // console.time('[📥 @Input questionPayload received]');
     console.time('[📥 QQC @Input questionPayload]');
   
     if (!value) {
