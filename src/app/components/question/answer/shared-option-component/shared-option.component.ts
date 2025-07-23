@@ -1972,6 +1972,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
+
+  private hydrateOptionsFromSelectionState(): void {
+    const currentIndex = this.quizService.currentQuestionIndex;
+    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
+  
+    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
+      const match = storedSelections.find(sel => sel.optionId === opt.optionId);
+      return {
+        ...opt,
+        selected: match?.selected ?? false,
+        highlight: match?.highlight ?? false,
+        showIcon: match?.showIcon ?? false
+      };
+    });
+  }
+  
   
 
   logTemplateRender(i: number): string {
