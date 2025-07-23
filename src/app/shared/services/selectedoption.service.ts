@@ -12,7 +12,6 @@ export class SelectedOptionService {
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
-  // private selectedOptionSubject = new BehaviorSubject<SelectedOption | null>(null);
   private selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
   selectedOption$ = this.selectedOptionSubject.asObservable();
 
