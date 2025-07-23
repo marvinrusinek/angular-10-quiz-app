@@ -3957,24 +3957,9 @@ export class QuizQuestionComponent
   
       // Process the selected option and update states
       this.processOptionSelection(currentQuestion, option, optionIndex);
-
-      const enriched: SelectedOption = {
-        optionId: option.optionId,
-        text: option.text,
-        correct: option.correct ?? false,
-        questionIndex: this.currentQuestionIndex,
-        selected: true,
-        highlight: true,
-        showIcon: true
-      };
   
       // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
-      this.selectedOptionService.updateSelectionState(
-        questionIndex,
-        enriched,
-        this.isMultipleAnswer
-      );
       this.selectedOptionService.updateSelectedOptions(
         questionIndex,
         optionIndex,
