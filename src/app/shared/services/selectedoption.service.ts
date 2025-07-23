@@ -594,9 +594,7 @@ export class SelectedOptionService {
       console.log('[🧪 EMIT CHECK] About to emit answered:', isAnswered);
       this.isAnsweredSubject.next(isAnswered);
       sessionStorage.setItem('isAnswered', JSON.stringify(isAnswered));
-      console.log('[✅ setAnswered] Emitted new answered state:', isAnswered);
     } else {
-      console.log('[🟡 setAnswered] No change needed (already', current + ')');
       // Force re-emit even if value didn't change
       this.isAnsweredSubject.next(isAnswered);
     }
@@ -677,7 +675,7 @@ export class SelectedOptionService {
       console.log('isOptionSelectedSubject (latest):', value);
     });
   
-    // You can log any additional custom properties you're using
+    // Log any additional custom properties
     // Example:
     // console.log('lastSelectedOption:', this.lastSelectedOption);
     // console.log('answeredMap:', this.answeredMap);
