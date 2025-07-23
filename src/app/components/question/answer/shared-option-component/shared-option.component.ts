@@ -1930,7 +1930,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
   
-    const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
+    const allSelections = this.selectedOptionService.getSelectedOptions() || [];
+    const storedSelections = allSelections.filter(s => s.questionIndex === currentIndex); // 🔥 critical line
   
     // 🔧 PATCH current options with stored selections
     this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
@@ -1960,18 +1961,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }
   
       const binding = this.getOptionBindings(enriched, idx, selected);
-      binding.option = enriched;  // ensure all enriched props persist
+      binding.option = enriched;
       binding.showFeedbackForOption = showMap;
   
       return binding;
     });
   
     this.showFeedbackForOption = showMap;
-
-    // Trigger change detection immediately
-    this.cdRef.detectChanges();  // ensures icon updates render now
+    this.cdRef.detectChanges();
   
-    // Ensure highlights render
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
       setTimeout(() => {
         this.highlightDirectives?.forEach((d, i) => {
