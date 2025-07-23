@@ -1967,6 +1967,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   
     this.showFeedbackForOption = showMap;
+
+    // Trigger change detection immediately
+    this.cdRef.detectChanges();  // ensures icon updates render now
   
     // Ensure highlights render
     this.ngZone.onStable.pipe(take(1)).subscribe(() => {
