@@ -2309,7 +2309,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.cdRef.markForCheck();
   }
 
-  // Hard-reset every row (flags + visual DOM) for a brand-new question
+  // Hard-reset every row (flags and visual DOM) for a brand-new question
   private fullyResetRows(): void {
     // zero every binding flag …
     for (const b of this.optionBindings) {
@@ -2356,7 +2356,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       showIcon: o.showIcon
     })));
   
-    this.optionsToDisplay = [...this.optionsToDisplay]; // force change detection
+    this.optionsToDisplay = [...this.optionsToDisplay];  // force change detection
     this.cdRef.detectChanges();
   }
 
