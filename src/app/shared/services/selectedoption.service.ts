@@ -368,7 +368,7 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(questionIndex, options);
     this.updateSelectedOptions(questionIndex, option.optionId, 'add');
   } */
-  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -385,7 +385,30 @@ export class SelectedOptionService {
   
     this.selectedOptionsMap.set(questionIndex, options);
     this.updateSelectedOptions(questionIndex, option.optionId, 'add');
-  }
+  } */
+  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);
+    }
+  
+    const options = this.selectedOptionsMap.get(questionIndex) || [];
+  
+    const index = options.findIndex(o => o.optionId === option.optionId);
+  
+    if (isMultiSelect) {
+      if (index > -1) {
+        // Do not remove it — icons should persist
+        return;
+      } else {
+        options.push({ ...option, selected: true, highlight: true, showIcon: true });
+      }
+    } else {
+      options.length = 0; // clear all previous for single
+      options.push({ ...option, selected: true, highlight: true, showIcon: true });
+    }
+  
+    this.selectedOptionsMap.set(questionIndex, options);
+  }  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
