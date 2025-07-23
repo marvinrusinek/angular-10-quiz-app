@@ -1933,18 +1933,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     const showMap: Record<number, boolean> = {};
 
-    // Apply stored selection state to optionsToDisplay before mapping
-    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const stored = storedSelections.find(sel => sel.optionId === opt.optionId);
+    // Patch before mapping — merge stored selection metadata into optionsToDisplay
+    const patchedOptions = this.optionsToDisplay.map(opt => {
+      const stored = storedSelections.find(s => s.optionId === opt.optionId);
       return {
-        ...opt,
-        selected: stored?.selected ?? false,
-        highlight: stored?.highlight ?? false,
-        showIcon: stored?.showIcon ?? false
+        ...(opt as SelectedOption),
+        selected: stored?.selected ?? opt.selected ?? false,
+        highlight: stored?.highlight ?? opt.highlight ?? false,
+        showIcon: stored?.showIcon ?? opt.showIcon ?? false,
+        questionIndex: stored?.questionIndex ?? currentIndex
       };
     });
 
-    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+    this.optionBindings = patchedOptions.map((opt, idx) => {
       const matched = storedSelections.find(sel => sel.optionId === opt.optionId);
       const selected = matched?.selected ?? false;
     
