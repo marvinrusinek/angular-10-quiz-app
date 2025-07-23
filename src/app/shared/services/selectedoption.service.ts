@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, map, startWith, take } from 'rxjs/operators';
 
@@ -12,7 +12,8 @@ export class SelectedOptionService {
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
-  private selectedOptionSubject = new BehaviorSubject<SelectedOption | null>(null);
+  // private selectedOptionSubject = new BehaviorSubject<SelectedOption | null>(null);
+  private selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
   selectedOption$ = this.selectedOptionSubject.asObservable();
 
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
@@ -45,7 +46,7 @@ export class SelectedOptionService {
     return this.isNextButtonEnabledSubject.asObservable();
   }
 
-  constructor(private ngZone: NgZone) {}
+  constructor() {}
 
   // Method to update the selected option state
   selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
@@ -61,7 +62,7 @@ export class SelectedOptionService {
       return;
     }
   
-    this.selectedOptionSubject.next(selectedOption);
+    this.selectedOptionSubject.next([selectedOption]);
   
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
@@ -75,14 +76,8 @@ export class SelectedOptionService {
   }  
 
   deselectOption(): void {
-    const deselectedOption: SelectedOption = {
-      optionId: null,
-      questionIndex: null,
-      text: null
-    };
-  
-    this.selectedOptionSubject.next(deselectedOption);
-    this.isOptionSelectedSubject.next(false);  // indicate that no option is selected
+    this.selectedOptionSubject.next([]);
+    this.isOptionSelectedSubject.next(false);
   }
 
   // Adds an option to the selectedOptionsMap
@@ -157,8 +152,8 @@ export class SelectedOptionService {
       return;
     }
   
-    this.selectedOption = option;
-    this.selectedOptionSubject.next(option);
+    this.selectedOption = [option];
+    this.selectedOptionSubject.next([option]);
     this.isOptionSelectedSubject.next(true);
   }  
 
@@ -199,9 +194,9 @@ export class SelectedOptionService {
   }
   
   private handleSingleOption(option: SelectedOption, currentQuestionIndex: number, isMultiSelect: boolean): void {
-    // Set the selected option
-    this.selectedOption = option;
-    this.selectedOptionSubject.next(option);
+    // Set the selected option (as an array)
+    this.selectedOption = [option];
+    this.selectedOptionSubject.next([option]);
 
     // Update the selected status
     this.isOptionSelectedSubject.next(true);
@@ -413,30 +408,41 @@ export class SelectedOptionService {
   
     this.selectedOptionsMap.set(questionIndex, options);
   } */
-  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+  updateSelectionState(
+    questionIndex: number,
+    option: SelectedOption,
+    isMultiSelect: boolean
+  ): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    const options = this.selectedOptionsMap.get(questionIndex)!;
-    const index = options.findIndex(o => o.optionId === option.optionId);
+    let options = this.selectedOptionsMap.get(questionIndex)!;
   
-    const enriched: SelectedOption = {
+    if (!isMultiSelect) {
+      // For single-answer questions: reset and only keep current
+      options = [];
+    }
+  
+    const updated: SelectedOption = {
       ...option,
-      questionIndex,
       selected: true,
       highlight: true,
-      showIcon: true
+      showIcon: true,
+      questionIndex
     };
   
-    if (index > -1) {
-      options[index] = enriched;
+    const existingIndex = options.findIndex(o => o.optionId === option.optionId);
+    if (existingIndex >= 0) {
+      options[existingIndex] = updated;
     } else {
-      options.push(enriched);
+      options.push(updated);
     }
   
     this.selectedOptionsMap.set(questionIndex, options);
+    this.selectedOptionSubject.next(options);
   }
+  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
