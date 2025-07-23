@@ -1943,6 +1943,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         showIcon: match?.showIcon ?? false
       };
     });
+
+    console.log('[🧠 Stored Selections]', storedSelections);
+    console.log('[🧩 Patched Options]', this.optionsToDisplay);
   
     const showMap: Record<number, boolean> = {};
   
