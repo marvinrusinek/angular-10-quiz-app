@@ -1975,7 +1975,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private hydrateOptionsFromSelectionState(): void {
     const currentIndex = this.quizService.currentQuestionIndex;
-    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
+    const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = storedSelections.find(sel => sel.optionId === opt.optionId);
