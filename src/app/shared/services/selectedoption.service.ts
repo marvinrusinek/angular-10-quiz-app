@@ -348,7 +348,7 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
+  /* updateSelectionState(questionIndex: number, option: SelectedOption, isMultiSelect: boolean): void {
     if (!this.selectedOptionsMap.has(questionIndex)) {
       this.selectedOptionsMap.set(questionIndex, []);
     }
@@ -367,7 +367,34 @@ export class SelectedOptionService {
     this.handleSingleOption(option, questionIndex, isMultiSelect);
     this.selectedOptionsMap.set(questionIndex, options);
     this.updateSelectedOptions(questionIndex, option.optionId, 'add');
+  } */
+  updateSelectionState(
+    questionIndex: number,
+    option: SelectedOption,
+    isMultiSelect: boolean
+  ): void {
+    if (!this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.set(questionIndex, []);
+    }
+  
+    const options = this.selectedOptionsMap.get(questionIndex)!;
+    const alreadySelected = options.some(
+      o => o.optionId === option.optionId
+    );
+  
+    // Only add if not already selected
+    if (!alreadySelected) {
+      option.selected = true;
+      option.showIcon = true;
+      option.highlight = true;
+      options.push(option);
+    }
+  
+    this.handleSingleOption(option, questionIndex, isMultiSelect);
+    this.selectedOptionsMap.set(questionIndex, options);
+    this.updateSelectedOptions(questionIndex, option.optionId, 'add');
   }
+  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
