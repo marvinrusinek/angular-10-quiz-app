@@ -1931,7 +1931,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const currentIndex = this.quizService.currentQuestionIndex;
   
     const allSelections = this.selectedOptionService.getSelectedOptions() || [];
-    const storedSelections = allSelections.filter(s => s.questionIndex === currentIndex); // 🔥 critical line
+    const storedSelections = allSelections.filter(s => s.questionIndex === currentIndex);
   
     // 🔧 PATCH current options with stored selections
     this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
