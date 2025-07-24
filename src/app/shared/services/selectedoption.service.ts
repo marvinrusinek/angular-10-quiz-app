@@ -67,8 +67,6 @@ export class SelectedOptionService {
       this.isOptionSelectedSubject.next(true);
       this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
       this.setNextButtonEnabled(true);
-    } else {
-      this.updateSelectionState(questionIndex, selectedOption, isMultiSelect);
     }
   
     console.info('Selected option emitted:', selectedOption);

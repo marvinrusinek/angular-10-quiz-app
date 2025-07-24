@@ -4379,15 +4379,12 @@ export class QuizQuestionComponent
 
     this.selectionChanged.emit({
       question: currentQuestion,
-      selectedOptions: this.selectedOptions,
+      selectedOptions: this.selectedOptions
     });
 
     // Retrieve correct answers and set correct message
     const correctAnswers = this.optionsToDisplay.filter((opt) => opt.correct);
-    this.feedbackService.setCorrectMessage(
-      correctAnswers,
-      this.optionsToDisplay
-    );
+    this.feedbackService.setCorrectMessage(correctAnswers, this.optionsToDisplay);
   }
 
   unselectOption(): void {
