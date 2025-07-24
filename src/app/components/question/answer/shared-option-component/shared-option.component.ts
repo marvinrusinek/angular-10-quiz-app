@@ -306,15 +306,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
     }
     console.timeEnd('[🔍 selectedOption check]');
-
-    this.selectedOptionService.selectedOptionSubject
-    .pipe(filter(Boolean))
-    .subscribe(selectedOptions => {
-      console.log('[🔁 SUBSCRIBE] selectedOptions updated:', selectedOptions);
-      this.hydrateOptionsFromSelectionState(selectedOptions);
-      this.generateOptionBindings();
-      this.cdRef.detectChanges(); // <-- force re-render if needed
-    });
   
     console.time('[🧠 generateFeedbackConfig]');
     this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
