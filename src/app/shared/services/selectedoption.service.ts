@@ -351,14 +351,14 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    let options = this.selectedOptionsMap.get(questionIndex)!;
+    // Get a fresh copy
+    let options = [...this.selectedOptionsMap.get(questionIndex)!];
   
     if (!isMultiSelect) {
-      // For single-answer questions: reset and only keep current
       options = [];
     }
   
-    // Deduping logic: remove any existing entry with the same optionId
+    // Remove existing entry for same optionId
     options = options.filter(o => o.optionId !== option.optionId);
   
     const updated: SelectedOption = {
@@ -370,10 +370,15 @@ export class SelectedOptionService {
     };
   
     options.push(updated);
+  
+    // RE-SET the deduped array
     this.selectedOptionsMap.set(questionIndex, options);
   
+    this.selectedOptionSubject.next(options);
+  
     console.log(`[✅ Updated Option Stored for Q${questionIndex}]`, updated);
-  }  
+    console.log(`[📤 Current Map for Q${questionIndex}]`, options);
+  }
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
