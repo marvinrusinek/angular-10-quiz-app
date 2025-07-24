@@ -219,9 +219,18 @@ export class SelectedOptionService {
   }
 
   getSelectedOptions(): SelectedOption[] {
-    console.log('[📤 getSelectedOptions()] current subject value:', this.selectedOptionSubject.getValue());
-    return this.selectedOptionSubject.getValue() || [];
-  }  
+    // Flatten the map into a single array of options
+    const combined: SelectedOption[] = [];
+  
+    this.selectedOptionsMap.forEach((opts) => {
+      if (Array.isArray(opts)) {
+        combined.push(...opts);
+      }
+    });
+  
+    console.log('[📤 getSelectedOptions()] returning', combined);
+    return combined;
+  }
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
     const all = this.getSelectedOptions();

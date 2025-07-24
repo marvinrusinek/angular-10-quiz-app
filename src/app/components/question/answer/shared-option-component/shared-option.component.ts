@@ -1932,6 +1932,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
+    console.log(`[🧠 storedSelections Q${currentIndex}]`, storedSelections);
   
     // Patch current options with stored selected state
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
