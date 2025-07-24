@@ -32,6 +32,8 @@ export class SelectedOptionService {
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
+  private storedSelectionsMap: Map<number, SelectedOption[]> = new Map();
+
   stopTimer$ = new Subject<void>();
   stopTimerEmitted = false;
 
