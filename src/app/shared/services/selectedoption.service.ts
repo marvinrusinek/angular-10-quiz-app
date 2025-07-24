@@ -270,8 +270,8 @@ export class SelectedOptionService {
   }  
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
-    return this.getSelectedOptions().filter(opt => opt.questionIndex === questionIndex);
-  }  
+    return this.selectedOptionsMap.get(questionIndex) || [];
+  } 
 
   // Method to get the current option selected state
   getCurrentOptionSelectedState(): boolean {
