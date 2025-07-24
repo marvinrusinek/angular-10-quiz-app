@@ -12,7 +12,7 @@ export class SelectedOptionService {
   selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
-  private selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
+  selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
   selectedOption$ = this.selectedOptionSubject.asObservable();
 
   private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
