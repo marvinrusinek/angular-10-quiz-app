@@ -48,7 +48,7 @@ export class SelectedOptionService {
   constructor() {}
 
   // Method to update the selected option state
-  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
@@ -70,7 +70,47 @@ export class SelectedOptionService {
     }
   
     console.info('Selected option emitted:', selectedOption);
-  }  
+  }  */
+  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+    if (optionId == null || questionIndex == null || !text) {
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
+    }
+  
+    const newSelection: SelectedOption = {
+      optionId,
+      questionIndex,
+      text,
+      selected: true,
+      highlight: true,
+      showIcon: true
+    };
+  
+    // Get current stored selections
+    const currentSelections = this.getSelectedOptions();
+  
+    // Remove any existing entry with same optionId + questionIndex
+    const filteredSelections = currentSelections.filter(
+      s => !(s.optionId === optionId && s.questionIndex === questionIndex)
+    );
+  
+    // Add the new one
+    const updatedSelections = [...filteredSelections, newSelection];
+  
+    // Emit updated list
+    this.selectedOptionSubject.next(updatedSelections);
+  
+    // Save internally if needed
+    this.storedSelectionsMap.set(questionIndex, updatedSelections);
+  
+    if (!isMultiSelect) {
+      this.isOptionSelectedSubject.next(true);
+      this.setNextButtonEnabled(true);
+    }
+  
+    console.info('[🧠 selectOption()] Emitted updated selections:', updatedSelections);
+  }
+  
 
   deselectOption(): void {
     this.selectedOptionSubject.next([]);
