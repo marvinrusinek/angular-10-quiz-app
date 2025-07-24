@@ -4998,5 +4998,10 @@ export class QuizQuestionComponent
 
   public isQuestionReady(): boolean {
     return !!this.currentQuestion && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0;
-  }  
+  }
+
+  private clearOptionIcons(): void {
+    const currentIndex = this.currentQuestionIndex;
+    this.selectedOptionService.clearSelectionsForQuestion(currentIndex);
+  }
 }

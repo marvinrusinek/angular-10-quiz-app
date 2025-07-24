@@ -271,7 +271,11 @@ export class SelectedOptionService {
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
     return this.selectedOptionsMap.get(questionIndex) || [];
-  } 
+  }
+
+  clearSelectionsForQuestion(questionIndex: number): void {
+    this.selectedOptionsMap.set(questionIndex, []); // clears selected for that question only
+  }
 
   // Method to get the current option selected state
   getCurrentOptionSelectedState(): boolean {
