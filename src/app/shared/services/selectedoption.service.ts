@@ -32,8 +32,6 @@ export class SelectedOptionService {
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  private storedSelectionsMap: Map<number, SelectedOption[]> = new Map();
-
   stopTimer$ = new Subject<void>();
   stopTimerEmitted = false;
 
@@ -103,7 +101,7 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(updatedSelections);
   
     // Save internally if needed
-    this.storedSelectionsMap.set(questionIndex, updatedSelections);
+    this.selectedOptionsMap.set(questionIndex, updatedSelections);
   
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
@@ -421,7 +419,7 @@ export class SelectedOptionService {
     isMultiSelect: boolean
   ): void {
     const key = `Q${questionIndex}`;
-    const prevSelections = this.selectionMap.get(key) || [];
+    const prevSelections = this.selectedOptionsMap.get(key) || [];
   
     let updatedSelections: SelectedOption[];
   
@@ -438,7 +436,7 @@ export class SelectedOptionService {
       updatedSelections = [selectedOption];
     }
   
-    this.selectionMap.set(key, updatedSelections);
+    this.selectedOptionsMap.set(key, updatedSelections);
   
     console.log(`[📌 Updated stored selections for ${key}]`, updatedSelections);
   }
