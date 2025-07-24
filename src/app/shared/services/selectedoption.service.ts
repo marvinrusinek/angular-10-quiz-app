@@ -420,6 +420,11 @@ export class SelectedOptionService {
   ): void {
     const key = `Q${questionIndex}`;
     const numericKey = Number(key);
+    if (isNaN(numericKey)) {
+      console.warn(`Invalid key', ${key}`);
+      return;
+    }
+
     const prevSelections = this.selectedOptionsMap.get(numericKey) || [];
   
     let updatedSelections: SelectedOption[];
