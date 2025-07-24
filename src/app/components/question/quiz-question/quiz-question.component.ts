@@ -4395,7 +4395,6 @@ export class QuizQuestionComponent
   }
 
   unselectOption(): void {
-    console.log('MYTEST');
     this.selectedOptions = [];
     this.optionChecked = {};
     this.showFeedbackForOption = {};
