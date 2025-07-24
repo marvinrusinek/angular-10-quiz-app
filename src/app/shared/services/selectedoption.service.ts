@@ -349,33 +349,29 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(questionIndex, []);
     }
   
-    // Get a fresh copy
-    let options = [...this.selectedOptionsMap.get(questionIndex)!];
+    let options = this.selectedOptionsMap.get(questionIndex)!;
+
+     // For single-answer: overwrite
+     if (!isMultiSelect) {
+       options = [option];
+     } else {
+       // Remove any duplicate first
+       options = options.filter(o => o.optionId !== option.optionId);
+       options.push(option);
+     }
   
-    if (!isMultiSelect) {
-      options = [];
-    }
-  
-    // Remove existing entry for same optionId
-    options = options.filter(o => o.optionId !== option.optionId);
-  
-    const updated: SelectedOption = {
-      ...option,
+     const updated = options.map(o => ({
+      ...o,
       selected: true,
       highlight: true,
-      showIcon: true,
-      questionIndex
-    };
-  
-    options.push(updated);
+      showIcon: true
+    }));
   
     // RE-SET the deduped array
-    this.selectedOptionsMap.set(questionIndex, options);
-  
-    this.selectedOptionSubject.next(options);
+    this.selectedOptionsMap.set(questionIndex, updated);
+    this.selectedOptionSubject.next(updated);
   
     console.log(`[✅ Updated Option Stored for Q${questionIndex}]`, updated);
-    console.log(`[📤 Current Map for Q${questionIndex}]`, options);
   }
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
