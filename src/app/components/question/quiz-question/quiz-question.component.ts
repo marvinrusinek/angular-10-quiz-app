@@ -569,6 +569,8 @@ export class QuizQuestionComponent
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    console.log('[🔁 ngOnChanges] triggered with changes:', changes);
+    
     if (changes.questionPayload && this.questionPayload) {
       this.hydrateFromPayload(this.questionPayload);
       this.questionPayloadSubject.next(this.questionPayload);
@@ -576,6 +578,7 @@ export class QuizQuestionComponent
     }
   
     if (changes['currentQuestion'] || changes['selectedOptions']) {
+      this.unselectOption();  // clears per-question UI state
       this.handleQuestionAndOptionsChange(
         changes['currentQuestion'],
         changes['selectedOptions']
@@ -4392,6 +4395,7 @@ export class QuizQuestionComponent
   }
 
   unselectOption(): void {
+    console.log('MYTEST');
     this.selectedOptions = [];
     this.optionChecked = {};
     this.showFeedbackForOption = {};
