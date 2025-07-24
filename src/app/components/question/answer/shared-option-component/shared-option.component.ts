@@ -2001,7 +2001,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const match = storedSelections.find(sel => sel.optionId === opt.optionId);
+      const match = storedSelections.find(
+        sel => sel.optionId === opt.optionId && sel.questionIndex === opt.questionIndex
+      );
       return {
         ...opt,
         selected: match?.selected ?? false,
