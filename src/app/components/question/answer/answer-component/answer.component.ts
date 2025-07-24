@@ -324,7 +324,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     this.renderReady = false;
     console.time('[🕐 renderReady false]');
     this.optionBindings = rebuilt;
-    this.cdRef.detectChanges();
   
     Promise.resolve().then(() => {
       console.timeEnd('[🕐 renderReady false]');
