@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, filter, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -306,6 +306,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
     }
     console.timeEnd('[🔍 selectedOption check]');
+
+    this.selectedOptionService.selectedOptionSubject
+    .pipe(filter(Boolean))
+    .subscribe(selectedOptions => {
+      console.log('[🔁 SUBSCRIBE] selectedOptions updated:', selectedOptions);
+      this.hydrateOptionsFromSelectionState(selectedOptions);
+      this.generateOptionBindings();
+      this.cdRef.detectChanges(); // <-- force re-render if needed
+    });
   
     console.time('[🧠 generateFeedbackConfig]');
     this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
