@@ -419,7 +419,8 @@ export class SelectedOptionService {
     isMultiSelect: boolean
   ): void {
     const key = `Q${questionIndex}`;
-    const prevSelections = this.selectedOptionsMap.get(key) || [];
+    const numericKey = Number(key);
+    const prevSelections = this.selectedOptionsMap.get(numericKey) || [];
   
     let updatedSelections: SelectedOption[];
   
@@ -436,7 +437,7 @@ export class SelectedOptionService {
       updatedSelections = [selectedOption];
     }
   
-    this.selectedOptionsMap.set(key, updatedSelections);
+    this.selectedOptionsMap.set(numericKey, updatedSelections);
   
     console.log(`[📌 Updated stored selections for ${key}]`, updatedSelections);
   }
