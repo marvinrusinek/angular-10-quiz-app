@@ -2001,7 +2001,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const matched = storedSelections.find(
+      const match = storedSelections.find(
         sel =>
           sel.optionId === opt.optionId &&
           sel.questionIndex === (opt as SelectedOption).questionIndex
@@ -2009,9 +2009,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       return {
         ...opt,
-        selected: matched?.selected ?? false,
-        highlight: matched?.highlight ?? false,
-        showIcon: matched?.showIcon ?? false
+        selected: match?.selected ?? false,
+        highlight: match?.highlight ?? false,
+        showIcon: match?.showIcon ?? false
       };
     });
   }

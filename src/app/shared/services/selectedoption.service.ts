@@ -380,7 +380,7 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  updateSelectionState(
+  /* updateSelectionState(
     questionIndex: number,
     option: SelectedOption,
     isMultiSelect: boolean
@@ -412,7 +412,35 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(updated);
   
     console.log(`[✅ Updated Option Stored for Q${questionIndex}]`, updated);
+  } */
+  public updateSelectionState(
+    questionIndex: number,
+    selectedOption: SelectedOption,
+    isMultiSelect: boolean
+  ): void {
+    const key = `Q${questionIndex}`;
+    const prevSelections = this.selectionMap.get(key) || [];
+  
+    let updatedSelections: SelectedOption[];
+  
+    if (isMultiSelect) {
+      const alreadySelected = prevSelections.find(
+        (opt) => opt.optionId === selectedOption.optionId
+      );
+      if (!alreadySelected) {
+        updatedSelections = [...prevSelections, selectedOption];
+      } else {
+        updatedSelections = prevSelections;
+      }
+    } else {
+      updatedSelections = [selectedOption];
+    }
+  
+    this.selectionMap.set(key, updatedSelections);
+  
+    console.log(`[📌 Updated stored selections for ${key}]`, updatedSelections);
   }
+  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
