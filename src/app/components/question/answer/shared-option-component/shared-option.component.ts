@@ -2002,7 +2002,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = storedSelections.find(
-        sel => sel.optionId === opt.optionId && sel.questionIndex === opt.questionIndex
+        sel => sel.optionId === opt.optionId && 
+               sel.questionIndex === (opt as SelectedOption).questionIndex
       );
       return {
         ...opt,
