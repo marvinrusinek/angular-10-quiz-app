@@ -4462,8 +4462,7 @@ export class QuizQuestionComponent
       }
     } catch (error) {
       console.error('Error managing explanation display:', error);
-      this.explanationToDisplay =
-        'Error loading explanation. Please try again.';
+      this.explanationToDisplay = 'Error loading explanation. Please try again.';
       this.displayExplanation = true;
       this.explanationToDisplayChange.emit(this.explanationToDisplay);
       this.showExplanationChange.emit(true);
