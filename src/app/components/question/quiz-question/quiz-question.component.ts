@@ -4302,15 +4302,13 @@ export class QuizQuestionComponent
 
   shouldShowIcon(option: Option): boolean {
     const selectedOptions = this.selectedOptionService.getSelectedOptions();  // retrieve all selected options
-    const showFeedbackForOption =
-      this.selectedOptionService.getShowFeedbackForOption();
+    const showFeedbackForOption = this.selectedOptionService.getShowFeedbackForOption();
 
     if (!Array.isArray(selectedOptions)) {
       console.warn(
-        '[shouldShowIcon] Selected options are not an array:',
-        selectedOptions
+        '[shouldShowIcon] Selected options are not an array:', selectedOptions
       );
-      return false; // ensure selectedOptions is an array
+      return false;  // ensure selectedOptions is an array
     }
 
     // Check if the current option should show an icon based on the selected options
@@ -4336,11 +4334,17 @@ export class QuizQuestionComponent
     const selectedOption = {
       ...option,
       optionId: optionIndex,
-      questionIndex: this.currentQuestionIndex,
+      questionIndex: this.currentQuestionIndex
     };
     this.showFeedbackForOption = { [selectedOption.optionId]: true };
     this.selectedOptionService.setSelectedOption(selectedOption);
     this.selectedOption = selectedOption;
+    this.selectedOptionService.selectOption(
+      selectedOption.optionId,
+      selectedOption.questionIndex,
+      selectedOption.text,
+      this.isMultipleAnswer
+    );
 
     this.explanationTextService.setIsExplanationTextDisplayed(true);
 
