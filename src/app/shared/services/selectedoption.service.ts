@@ -219,10 +219,9 @@ export class SelectedOptionService {
   }
 
   getSelectedOptions(): SelectedOption[] {
-    // Flatten the map into a single array of options
     const combined: SelectedOption[] = [];
   
-    this.selectedOptionsMap.forEach((opts) => {
+    this.selectedOptionsMap.forEach((opts, qIndex) => {
       if (Array.isArray(opts)) {
         combined.push(...opts);
       }
@@ -230,7 +229,7 @@ export class SelectedOptionService {
   
     console.log('[📤 getSelectedOptions()] returning', combined);
     return combined;
-  }
+  }  
 
   getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
     return this.getSelectedOptions().filter(opt => opt.questionIndex === questionIndex);
