@@ -376,7 +376,6 @@ export class SelectedOptionService {
   
     // Update the map and emit the new state
     this.selectedOptionsMap.set(questionIndex, options);
-    this.selectedOptionSubject.next(options);
   
     console.log(`[📝 Stored in Map for Q${questionIndex}]`, this.selectedOptionsMap.get(questionIndex));
   }  
