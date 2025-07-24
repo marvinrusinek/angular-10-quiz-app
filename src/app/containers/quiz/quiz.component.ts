@@ -3953,6 +3953,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
     this.selectedOptionService.resetSelectionState?.();
+    this.selectedOptionService.deselectOption();  // reset global selected options
 
     setTimeout(() => {
       this.selectedOptionService.logCurrentState?.();
