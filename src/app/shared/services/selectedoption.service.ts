@@ -421,7 +421,7 @@ export class SelectedOptionService {
     const key = `Q${questionIndex}`;
     const numericKey = Number(key);
     if (isNaN(numericKey)) {
-      console.warn(`Invalid key', ${key}`);
+      console.warn(`Invalid key' ${key}`);
       return;
     }
 
