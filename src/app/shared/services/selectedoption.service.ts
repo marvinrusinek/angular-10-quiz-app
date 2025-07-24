@@ -9,7 +9,7 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
   selectedOption: SelectedOption | SelectedOption[] = null;
-  selectedOptionsMap: Map<number, SelectedOption[]> = new Map();
+  selectedOptionsMap = new Map<number, SelectedOption[]>();
   private selectedOptionIndices: { [key: number]: number[] } = {};
 
   selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
