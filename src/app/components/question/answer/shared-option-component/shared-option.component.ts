@@ -1954,22 +1954,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
   
-  /* shouldShowIcon(option: Option): boolean {
-    if (!option || typeof option !== 'object') return false;
-    // return !!(this.showFeedback && option.showIcon);
-    const id = option.optionId;
-    // return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-    return !!(this.showFeedback && (option.showIcon || this.showFeedbackForOption?.[id]));
-  } */
-  /* shouldShowIcon(option: Option): boolean {
-    //const id = option.optionId;
-    //return !!(this.showFeedback && (this.showFeedbackForOption?.[id] || option.showIcon));
-    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
-  } */
   shouldShowIcon(option: Option): boolean {
-    const result = !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
-    console.log(`[👁 shouldShowIcon] optionId=${option?.optionId}, showIcon=${option?.showIcon}, showFeedbackMap=${this.showFeedbackForOption?.[option.optionId]}, result=${result}`);
-    return result;
+    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
   }
 
   shouldShowFeedback(index: number): boolean {
@@ -2143,24 +2129,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   }
 
-  applyImmediateSelectionUI(option: Option, selectedOptions: Option[]): void {
+  applyImmediateSelectionUI(currentOption: Option, previouslySelected: Option[]): void {
     if (!this.optionsToDisplay?.length) return;
-  
-    // Combine selectedOptions with the newly clicked option (if not already tracked) to avoid duplicate
-    const alreadyExists = selectedOptions.some(sel => sel.optionId === option.optionId);
-    const updatedSelections = alreadyExists ? selectedOptions : [...selectedOptions, option];
+
+    const allSelected = [...previouslySelected];
+
+    // Avoid duplicates (in case the current is already in the selected list)
+    const alreadyIncluded = previouslySelected.some(sel => sel.optionId === currentOption.optionId);
+    if (!alreadyIncluded) {
+      allSelected.push(currentOption);
+    }
   
     // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const match = updatedSelections.find(sel => sel.optionId === opt.optionId);
-      // Determine if this option should have its UI updated
-      const shouldUpdate = !!match || opt.optionId === option.optionId;
-  
+      const match = allSelected.find(sel => sel.optionId === opt.optionId);
+      const isSelectedNow = !!match || opt.optionId === currentOption.optionId;
       return {
         ...opt,
-        selected: shouldUpdate || opt.selected,
-        showIcon: shouldUpdate || opt.showIcon,
-        highlight: shouldUpdate || opt.highlight
+        selected: isSelectedNow,
+        showIcon: isSelectedNow,
+        highlight: isSelectedNow
       };
     });
   
