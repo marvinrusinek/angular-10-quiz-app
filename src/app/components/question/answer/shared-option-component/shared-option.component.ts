@@ -146,102 +146,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   ngOnInit(): void {
-    console.time('[⏱️ SOC ngOnInit]');
-  
-    // Delay fallback appearance
+    // ─── Fallback Rendering ────────────────────────────────────────────────
     setTimeout(() => {
       if (!this.renderReady || !this.optionsToDisplay?.length) {
         this.showNoOptionsFallback = true;
         this.cdRef.markForCheck();
       }
-    }, 150);  // adjust as needed
-
-    console.time('[🛠️ initializeFromConfig]');
+    }, 150);
+  
+    // ─── Config and Options Initialization ───────────────────────────────────
     this.initializeFromConfig();
-    console.timeEnd('[🛠️ initializeFromConfig]');
   
-    console.time('[✅ Set renderReady]');
-    this.renderReady = this.optionsToDisplay?.length > 0;
-    console.timeEnd('[✅ Set renderReady]');
-  
-    console.time('[🧮 OptionBindings check]');
-    this.initializeOptionBindings();
-    console.timeEnd('[🧮 OptionBindings check]');
-  
-    console.time('[⏱️ setTimeout initializeOptionBindings]');
-    setTimeout(() => {
-      console.time('[⏱️ Delayed initializeOptionBindings]');
-      // this.initializeOptionBindings();
-      this.renderReady = this.optionsToDisplay?.length > 0;
-      console.timeEnd('[⏱️ Delayed initializeOptionBindings]');
-    }, 100);
-    console.timeEnd('[⏱️ setTimeout initializeOptionBindings]');
-  
-    console.time('[🔁 synchronizeOptionBindings]');
-    this.synchronizeOptionBindings();
-    console.timeEnd('[🔁 synchronizeOptionBindings]');
-  
-    console.time('[🎨 initializeDisplay]');
-    this.initializeDisplay();
-    console.timeEnd('[🎨 initializeDisplay]');
-  
-    console.time('[📡 Subscribe to finalRenderReady$]');
-    if (this.finalRenderReady$) {
-      this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
-        this.finalRenderReady = ready
-      });
-    }
-    console.timeEnd('[📡 Subscribe to finalRenderReady$]');
-  
-    console.time('[🖱️ Subscribe to click$]');
-    this.click$
-      .pipe(takeUntil(this.onDestroy$))
-      .subscribe(({ b, i }) => {
-        this.form.get('selectedOptionId')?.setValue(b.option.optionId, { emitEvent: false });
-        this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
-      });
-    console.timeEnd('[🖱️ Subscribe to click$]');
-
-    this.selectionSub = this.selectedOptionService.selectedOption$
-      .pipe(
-        distinctUntilChanged((prev, curr) =>
-          JSON.stringify(prev) === JSON.stringify(curr)
-        )
-      )
-      .subscribe(() => {
-        this.hydrateOptionsFromSelectionState();
-        this.generateOptionBindings();
-      });
-  
-    console.time('[🎛️ Load user prefs]');
-    this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
-    console.timeEnd('[🎛️ Load user prefs]');
-  
-    console.time('[🔢 ensureOptionIds]');
-    if (!this.showFeedbackForOption) {
-      this.showFeedbackForOption = {};
-    }
-    this.ensureOptionIds();
-    console.timeEnd('[🔢 ensureOptionIds]');
-  
-    console.time('[🔍 selectedOption check]');
-    if (this.selectedOption) {
-      console.log('[🔍 Option Data]', {
-        optionId: this.selectedOption.optionId,
-        feedback: this.selectedOption.feedback,
-        correct: this.selectedOption.correct,
-        fullOption: this.selectedOption
-      });
-    } else {
-      console.warn('[❌ Option Data Missing] `option` is undefined in ngOnInit');
-    }
-    console.timeEnd('[🔍 selectedOption check]');
-  
-    console.time('[🧠 generateFeedbackConfig]');
-    this.generateFeedbackConfig(this.selectedOption as SelectedOption, this.quizService.currentQuestionIndex);
-    console.timeEnd('[🧠 generateFeedbackConfig]');
-  
-    console.time('[📦 set optionsToDisplay]');
     if (this.config && this.config.optionsToDisplay?.length > 0) {
       this.optionsToDisplay = this.config.optionsToDisplay;
     } else if (this.optionsToDisplay?.length > 0) {
@@ -249,135 +164,58 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     } else {
       console.warn('No options received in SharedOptionComponent');
     }
-    console.timeEnd('[📦 set optionsToDisplay]');
   
-    console.timeEnd('[⏱️ SOC ngOnInit]');
-  }
+    this.renderReady = this.optionsToDisplay?.length > 0;
   
-
-  /* async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('[🧪 ngOnChanges] fired', changes);
-    console.time('[⏱️ SharedOptionComponent Render]');
-    // Version bump → child trackBy
-    if (changes['questionVersion']) {
-      console.log('[CHILD] got version →', this.questionVersion);
+    // ─── Option Bindings and Display ───────────────────────────────────────
+    this.initializeOptionBindings();
+    this.synchronizeOptionBindings();
+    this.initializeDisplay();
+  
+    setTimeout(() => {
+      // this.initializeOptionBindings();
+      this.renderReady = this.optionsToDisplay?.length > 0;
+    }, 100);
+  
+    // ─── Subscriptions ─────────────────────────────────────────────────────
+    if (this.finalRenderReady$) {
+      this.finalRenderReadySub = this.finalRenderReady$.subscribe((ready) => {
+        this.finalRenderReady = ready;
+      });
     }
   
-    // Question or options list changed
-    const questionChanged =
-      changes['questionIndex'] && !changes['questionIndex'].firstChange;
-    const optionsChanged =
-      changes['optionsToDisplay'] &&
-      changes['optionsToDisplay'].previousValue !== changes['optionsToDisplay'].currentValue;
-  
-    if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
-      this.questionVersion++;
-    
-      this.fullyResetRows();  // single point of truth
-    
-      // Clear per-question state maps
-      this.selectedOptionHistory = [];
-      this.lastFeedbackOptionId  = -1;
-      this.showFeedbackForOption = {};
-      this.feedbackConfigs       = {};
-    
-      // Clear reactive form without emitting
-      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
-    
-      // Rebuild bindings from the *new* options list
-      this.optionBindings = [];
-      this.processOptionBindings();
-    
-      // Two stacked change-detections → guarantees clean slate paint
-      this.cdRef.detectChanges();   // clears old DOM paint
-
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-      this.updateSelections(-1);    // no row selected
-      this.cdRef.detectChanges();   // paints pristine rows
-    }
-  
-    // New optionBindings array came in
-    if (changes['optionBindings'] &&
-        Array.isArray(changes['optionBindings'].currentValue) &&
-        changes['optionBindings'].currentValue.length) {
-  
-      // Rebuild fresh bindings
-      this.freezeOptionBindings = false;
-      this.initializeOptionBindings();
-      this.optionBindings = changes['optionBindings'].currentValue;
-      
-      //const currentIndex = this.quizService.currentQuestionIndex;
-      //const shouldTime = currentIndex === 0;
-
-      //if (shouldTime) console.time('[Q1 generateBindings]');
-
-      console.time('generateOptionBindings');
-      this.generateOptionBindings();
-      console.timeEnd('generateOptionBindings');
-
-      //if (shouldTime) console.timeEnd('[Q1 generateBindings]');
-  
-      // Now, before any directive paints, zero out the row flags
-      this.optionBindings.forEach(b => {
-        b.isSelected         = false;
-        b.option.selected    = false;
-        b.option.highlight   = false;
-        b.option.showIcon    = false;
+    this.click$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(({ b, i }) => {
+        this.form.get('selectedOptionId')?.setValue(b.option.optionId, { emitEvent: false });
+        this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
       });
   
-      this.optionsReady = true;
+    this.selectionSub = this.selectedOptionService.selectedOption$
+      .pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)))
+      .subscribe(() => {
+        this.hydrateOptionsFromSelectionState();
+        this.generateOptionBindings();
+      });
   
-      // Rebuild per-question maps
+    // ─── Preferences and IDs ─────────────────────────────────────────────────
+    this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
+  
+    if (!this.showFeedbackForOption) {
       this.showFeedbackForOption = {};
-      this.feedbackConfigs       = {};
-  
-      for (const b of this.optionBindings) {
-        const id = b.option.optionId ?? b.index;
-  
-        this.showFeedbackForOption[id] = true;
-  
-        this.feedbackConfigs[id] = {
-          showFeedback   : false,
-          selectedOption : b.option,
-          feedback       : b.option.feedback?.trim() ||
-                           (b.option.correct
-                             ? 'Great job — that answer is correct.'
-                             : 'Not quite — see the explanation.'),
-          options        : this.optionBindings.map(x => x.option),
-          question       : this.currentQuestion!,
-          correctMessage : '',
-          idx            : b.index
-        };
-      }
-  
-      // Let SOC recompute directive state
-      this.processOptionBindings();
-
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
     }
+    this.ensureOptionIds();
   
-    // New question object (text)
-    if (changes['currentQuestion'] &&
-        this.currentQuestion?.questionText?.trim()) {
-      this.selectedOption        = null;
-      this.selectedOptionHistory = [];
-      this.lastFeedbackOptionId  = -1;
-      this.highlightedOptionIds.clear();
+    // ─── Feedback Logic ────────────────────────────────────────────────────
+    this.generateFeedbackConfig(
+      this.selectedOption as SelectedOption,
+      this.quizService.currentQuestionIndex
+    );
+  }
 
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-    }
-  
-    // Background reset
-    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
-      this.resetState();
-    }
-
-    console.timeEnd('[⏱️ SharedOptionComponent Render]');
-  } */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.time('[📦 SOC ngOnChanges]');
     console.log('[🔥 ngOnChanges fired]', changes);
-
+  
     const shouldRegenerate =
       (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
@@ -385,34 +223,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
       (changes['config'] && this.config != null) ||
       (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number');
-
+  
     if (changes['currentQuestionIndex']) {
       console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
     }
-
+  
     if (shouldRegenerate) {
-      console.time('[⚙️ generateOptionBindings]');
       console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
       this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
-      console.timeEnd('[⚙️ generateOptionBindings]');
     } else if (
       changes['optionBindings'] &&
       Array.isArray(changes['optionBindings'].currentValue) &&
       changes['optionBindings'].currentValue.length
     ) {
-      console.log('✅ optionBindings change detected');
-      console.time('[⚙️ generateOptionBindings]');
       this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
-      console.timeEnd('[⚙️ generateOptionBindings]');
     } else {
       console.warn('[⏳ generateOptionBindings skipped] No triggering inputs changed');
     }
   
-    console.timeEnd('[📦 SOC ngOnChanges]');
-  
-    // --- Then: Handle changes to optionsToDisplay / questionIndex (if any)
+    // Handle changes to optionsToDisplay / questionIndex (if any)
     const questionChanged =
       changes['questionIndex'] && !changes['questionIndex'].firstChange;
     const optionsChanged =
@@ -431,7 +262,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
   
-      // ❗DO NOT reset optionBindings here — they already came in via Input
+      // DO NOT reset optionBindings here — they already came in via Input
       this.processOptionBindings();
   
       this.cdRef.detectChanges();
@@ -452,10 +283,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (changes['shouldResetBackground'] && this.shouldResetBackground) {
       this.resetState();
     }
-  
-    // console.timeEnd('[⏱️ SharedOptionComponent Render]');
-    console.timeEnd('[📦 SOC ngOnChanges]');
-  }  
+  }    
 
   ngAfterViewInit(): void {
     console.time('[⏱️ SOC ngAfterViewInit]');
@@ -1664,26 +1492,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   }
   
-  /* generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
-    const correctMessage = this.feedbackService.setCorrectMessage(
-      this.optionsToDisplay?.filter(o => o.correct),
-      this.optionsToDisplay
-    );
-  
-    const config: FeedbackProps = {
-      selectedOption: option,
-      correctMessage,
-      feedback: correctMessage,
-      showFeedback: true,
-      idx: selectedIndex,
-      options: this.optionsToDisplay ?? [],
-      question: this.currentQuestion ?? null
-    };
-
-    console.log('[🧪 Option Feedback]', option.feedback);
-  
-    return config;
-  } */
   generateFeedbackConfig(option: SelectedOption, selectedIndex: number): FeedbackProps {
     console.time("GFC LOG");
     if (!option) {
@@ -1720,15 +1528,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       options: this.optionsToDisplay ?? [],
       question: this.currentQuestion ?? null
     };
-  
-    console.log('[🧪 generateFeedbackConfig]', {
-      optionId: option.optionId,
-      isCorrect,
-      rawFeedback,
-      correctMessage,
-      finalFeedback
-    });
- 
+
     console.timeEnd("GFC LOG");
     return config;
   }
