@@ -191,6 +191,10 @@ export class SelectedOptionService {
   
     const updatedSelections = [...currentSelections, enrichedOption];
     this.selectedOptionsMap.set(qIndex, updatedSelections);
+
+    this.emitImmediateSelection(enrichedOption, updatedSelections.filter(
+      sel => sel.optionId !== enrichedOption.optionId
+    ));
   
     // Broadcast updated selections for this question
     this.selectedOption = updatedSelections;
