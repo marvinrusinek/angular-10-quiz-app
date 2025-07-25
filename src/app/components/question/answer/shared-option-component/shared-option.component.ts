@@ -201,17 +201,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // Update option flags based on selectedOptions array
         this.optionsToDisplay = this.optionsToDisplay.map(opt => {
           const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
+          const isSelected = !!match;
 
           return {
             ...opt,
-            selected: !!match || opt.selected,
-            showIcon: !!match || opt.showIcon,
-            highlight: !!match || opt.highlight
+            selected: isSelected,
+            showIcon: isSelected,
+            highlight: isSelected
           };
         });
-
-        // Also apply any logic from the service/state
-        this.hydrateOptionsFromSelectionState();
 
         // Regenerate bindings
         this.generateOptionBindings();
