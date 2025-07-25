@@ -64,6 +64,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
+  private selectionSub!: Subscription;
 
   private optionBindingsInitialized = false;
   feedbackBindings: FeedbackProps[] = [];
@@ -200,6 +201,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
       });
     console.timeEnd('[🖱️ Subscribe to click$]');
+
+    this.selectionSub = this.selectedOptionService.selectedOption$
+      .pipe(
+        distinctUntilChanged((prev, curr) =>
+          JSON.stringify(prev) === JSON.stringify(curr)
+        )
+      )
+      .subscribe(() => {
+        this.hydrateOptionsFromSelectionState();
+        this.generateOptionBindings();
+      });
   
     console.time('[🎛️ Load user prefs]');
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
@@ -472,6 +484,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+    this.selectionSub?.unsubscribe();
     this.finalRenderReadySub?.unsubscribe();
   }
   
