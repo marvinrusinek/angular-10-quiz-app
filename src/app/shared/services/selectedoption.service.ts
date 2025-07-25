@@ -48,30 +48,12 @@ export class SelectedOptionService {
   constructor() {}
 
   // Method to update the selected option state
-  /* selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
-    if (optionId == null || questionIndex == null || !text) {
-      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
-      return;
-    }
-  
-    const selectedOption: SelectedOption = { optionId, questionIndex, text };
-  
-    if (!this.isValidSelectedOption(selectedOption)) {
-      console.error('SelectedOption is invalid:', selectedOption);
-      return;
-    }
-  
-    this.selectedOptionSubject.next([selectedOption]);
-  
-    if (!isMultiSelect) {
-      this.isOptionSelectedSubject.next(true);
-      this.handleSingleOption(selectedOption, questionIndex, isMultiSelect);
-      this.setNextButtonEnabled(true);
-    }
-  
-    console.info('Selected option emitted:', selectedOption);
-  }  */
-  selectOption(optionId: number, questionIndex: number, text: string, isMultiSelect: boolean): void {
+  selectOption(
+    optionId: number, 
+    questionIndex: number, 
+    text: string, 
+    isMultiSelect: boolean
+  ): void {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
@@ -111,7 +93,6 @@ export class SelectedOptionService {
     console.info('[🧠 selectOption()] Emitted updated selections:', updatedSelections);
   }
   
-
   deselectOption(): void {
     this.selectedOptionSubject.next([]);
     this.isOptionSelectedSubject.next(false);
@@ -420,39 +401,6 @@ export class SelectedOptionService {
   }
 
   // Method to add or remove a selected option for a question
-  /* updateSelectionState(
-    questionIndex: number,
-    option: SelectedOption,
-    isMultiSelect: boolean
-  ): void {
-    if (!this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.set(questionIndex, []);
-    }
-  
-    let options = this.selectedOptionsMap.get(questionIndex)!;
-
-     // For single-answer: overwrite
-     if (!isMultiSelect) {
-       options = [option];
-     } else {
-       // Remove any duplicate first
-       options = options.filter(o => o.optionId !== option.optionId);
-       options.push(option);
-     }
-  
-     const updated = options.map(o => ({
-      ...o,
-      selected: true,
-      highlight: true,
-      showIcon: true
-    }));
-  
-    // RE-SET the deduped array
-    this.selectedOptionsMap.set(questionIndex, updated);
-    this.selectedOptionSubject.next(updated);
-  
-    console.log(`[✅ Updated Option Stored for Q${questionIndex}]`, updated);
-  } */
   public updateSelectionState(
     questionIndex: number,
     selectedOption: SelectedOption,
@@ -483,10 +431,7 @@ export class SelectedOptionService {
     }
   
     this.selectedOptionsMap.set(numericKey, updatedSelections);
-  
-    console.log(`[📌 Updated stored selections for ${key}]`, updatedSelections);
   }
-  
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
     const options = this.selectedOptionsMap.get(questionIndex) || [];
