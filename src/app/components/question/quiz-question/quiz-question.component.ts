@@ -577,12 +577,24 @@ export class QuizQuestionComponent
       this.enforceHydrationFallback();
     }
 
+    if (changes['question']) {
+      // Clear local icon state before changing question
+      this.clearOptionStateForQuestion(this.previousQuestionIndex);
+    }
+
     if (changes['question'] || changes['options']) {
       this.unselectOption();  // clears per-question UI state
       this.handleQuestionAndOptionsChange(
         changes['question'],
         changes['options']
-      );
+      ); 
+
+      // Restore selected + icon state
+      if (this.currentQuestionIndex != null) {
+        this.restoreSelectionsAndIconsForQuestion(this.currentQuestionIndex);
+      }
+
+      this.previousQuestionIndex = this.currentQuestionIndex;
     }
   
     // Emit renderReady when both question and options are valid
@@ -2489,6 +2501,17 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
       return;
     }
+
+    // Set and persist selection & icon state
+    option.selected = true;
+    option.showIcon = true;
+
+    // Update the persistent selection record (per question)
+    this.selectedOptionService.setSelectedOption({
+      ...option,
+      showIcon: true,  // persist icon state
+      selected: true
+    });
   
     try {
       // ───── Core Selection Logic ─────
@@ -2506,7 +2529,7 @@ export class QuizQuestionComponent
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
-  }  
+  }
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
@@ -4400,6 +4423,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
     this.showFeedback = false;
     this.selectedOption = null;
+    this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
     this.quizQuestionManagerService.setExplanationText(null);
   }
 
@@ -5004,4 +5028,31 @@ export class QuizQuestionComponent
     const currentIndex = this.currentQuestionIndex;
     this.selectedOptionService.clearSelectionsForQuestion(currentIndex);
   }
+
+  private clearOptionStateForQuestion(index: number): void {
+    this.selectedOptionService.clearSelectionsForQuestion(index);
+  
+    this.optionsToDisplay?.forEach(opt => {
+      opt.selected = false;
+      opt.showIcon = false;
+    });
+  
+    this.cdRef.detectChanges();
+  }
+  
+  private restoreSelectionsAndIconsForQuestion(index: number): void {
+    // Pull back the stored SelectedOption[] for this question
+    const stored = this.selectedOptionService.getSelectedOptionsForQuestion(index);
+    console.log('[restore] Stored selections:', stored);
+  
+    this.optionsToDisplay?.forEach(opt => {
+      // Find a matching SelectedOption
+      const match = stored.find(s => s.optionId === opt.optionId);
+      opt.selected = !!match;
+      opt.showIcon = !!match?.showIcon;
+    });
+  
+    // Force Angular to pick up the changes immediately
+    this.cdRef.detectChanges();
+  }  
 }
