@@ -208,14 +208,37 @@ export class SelectedOptionService {
       (sel) => sel.optionId === enrichedOption.optionId
     );
 
-    let updatedSelections = currentSelections;
+    let updatedSelections: SelectedOption[];
 
     if (!alreadyExists) {
-      updatedSelections = [...currentSelections, enrichedOption];
-      this.selectedOptionsMap.set(qIndex, updatedSelections);
+      // Add new selection to the current list
+      updatedSelections = [
+        ...currentSelections,
+        {
+          ...enrichedOption,
+          selected: true,
+          highlight: true,
+          showIcon: true
+        }
+      ];
+    } else {
+      // Keep the current selections intact
+      updatedSelections = currentSelections.map(sel =>
+        sel.optionId === enrichedOption.optionId
+          ? {
+              ...sel,
+              selected: true,
+              highlight: true,
+              showIcon: true
+            }
+          : sel
+      );
     }
 
-    // Set selectedOption to *all* current selections for UI/reactive streams
+    // Update the map
+    this.selectedOptionsMap.set(qIndex, updatedSelections);
+
+    // Set selectedOption to all current selections for UI/reactive streams
     this.selectedOption = updatedSelections;
     this.selectedOptionSubject.next(updatedSelections);
   
