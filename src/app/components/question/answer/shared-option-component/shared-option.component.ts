@@ -2138,13 +2138,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const match = allSelected.find(sel => sel.optionId === opt.optionId);
-      const isSelectedNow = !!match;
+      const isSelected = allSelected.some(sel => sel.optionId === opt.optionId);
+      
       return {
         ...opt,
-        selected: isSelectedNow,
-        showIcon: isSelectedNow,
-        highlight: isSelectedNow
+        selected: isSelected,
+        showIcon: isSelected,
+        highlight: isSelected
       };
     });
   
