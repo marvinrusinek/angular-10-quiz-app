@@ -202,15 +202,22 @@ export class SelectedOptionService {
     }
   
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
-  
+
     // Avoid adding duplicates
     const alreadyExists = currentSelections.some(
       (sel) => sel.optionId === enrichedOption.optionId
     );
+
+    let updatedSelections = currentSelections;
+
     if (!alreadyExists) {
-      const updatedSelections = [...currentSelections, enrichedOption];
+      updatedSelections = [...currentSelections, enrichedOption];
       this.selectedOptionsMap.set(qIndex, updatedSelections);
     }
+
+    // Set selectedOption to *all* current selections for UI/reactive streams
+    this.selectedOption = updatedSelections;
+    this.selectedOptionSubject.next(updatedSelections);
   
     console.log('[✅ setSelectedOption] Stored to map:', {
       index: qIndex,
