@@ -2509,8 +2509,8 @@ export class QuizQuestionComponent
     // Update the persistent selection record (per question)
     this.selectedOptionService.setSelectedOption({
       ...option,
-      showIcon: true,  // persist icon state
-      selected: true
+      selected: true,
+      showIcon: true  // persist icon state
     });
   
     try {
