@@ -1846,7 +1846,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
   public generateOptionBindings(): void { 
     console.time('[⚙️ SOC generateOptionBindings]');
-    const currentIndex = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex;
+    const currentIndex = this.currentQuestionIndex;
     console.log('[📌 generateOptionBindings] final index used:', currentIndex);
   
     // Pull selected state for current question
