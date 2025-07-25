@@ -192,11 +192,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       });
   
     this.selectionSub = this.selectedOptionService.selectedOption$
-      .pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)))
-      .subscribe(() => {
+      .pipe(
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      )
+      .subscribe((selectedOptions: SelectedOption[]) => {
+        if (!this.optionsToDisplay?.length) return;
+
+        // Update option flags based on selectedOptions array
+        this.optionsToDisplay = this.optionsToDisplay.map(opt => {
+          const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
+          return {
+            ...opt,
+            selected: !!match,
+            showIcon: !!match,
+            highlight: !!match,
+          };
+        });
+
+        // Also apply any logic from the service/state
         this.hydrateOptionsFromSelectionState();
+
+        // Regenerate bindings
         this.generateOptionBindings();
+
+        // Trigger change detection
+        this.cdRef.detectChanges();
       });
+
   
     // ─── Preferences and IDs ─────────────────────────────────────────────────
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
