@@ -208,6 +208,11 @@ export class SelectedOptionService {
   
     // For single-answer questions, replace stored array
     this.selectedOptionsMap.set(qIndex, [enrichedOption]);
+
+    console.log('[🧠 stored in map]', {
+      index: enrichedOption.questionIndex,
+      stored: this.selectedOptionsMap.get(enrichedOption.questionIndex)
+    });    
   }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
