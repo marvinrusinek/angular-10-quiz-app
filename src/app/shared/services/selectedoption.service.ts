@@ -200,17 +200,14 @@ export class SelectedOptionService {
     if (!this.selectedOptionsMap.has(qIndex)) {
       this.selectedOptionsMap.set(qIndex, []);
     }
+
+    console.log('[✅ setSelectedOption] Stored to map:', {
+      index: enrichedOption.questionIndex,
+      value: this.selectedOptionsMap.get(enrichedOption.questionIndex)
+    });    
   
-    const existingOptions = this.selectedOptionsMap.get(qIndex)!;
-    const existingIndex = existingOptions.findIndex(opt => opt.optionId === enrichedOption.optionId);
-  
-    if (existingIndex !== -1) {
-      // Update existing option in map
-      existingOptions[existingIndex] = enrichedOption;
-    } else {
-      // Add new option to map
-      existingOptions.push(enrichedOption);
-    }
+    // For single-answer questions, replace stored array
+    this.selectedOptionsMap.set(qIndex, [enrichedOption]);
   }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
