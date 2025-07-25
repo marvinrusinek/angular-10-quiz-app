@@ -2512,10 +2512,6 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Set and persist selection & icon state
-    option.selected = true;
-    option.showIcon = true;
-
     // Update the persistent selection record (per question)
     this.selectedOptionService.setSelectedOption({
       ...option,
