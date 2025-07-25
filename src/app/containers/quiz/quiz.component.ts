@@ -3954,6 +3954,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.selectedOptionService.deselectOption();
     this.selectedOptionService.resetSelectionState?.();
 
+    // Force rehydration of icons into the current question
+    this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
+    this.sharedOptionComponent?.generateOptionBindings();
+
     setTimeout(() => {
       this.selectedOptionService.logCurrentState?.();
     }, 0);
