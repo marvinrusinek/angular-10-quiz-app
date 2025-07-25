@@ -274,7 +274,12 @@ export class SelectedOptionService {
   }
 
   clearSelectionsForQuestion(questionIndex: number): void {
-    this.selectedOptionsMap.set(questionIndex, []); // clears selected for that question only
+    if (this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    }
   }
 
   // Method to get the current option selected state
