@@ -2318,12 +2318,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }
     });
   
-    console.log('[✅ After toggle]', this.optionsToDisplay.map(o => ({
-      id: o.optionId,
-      selected: o.selected,
-      showIcon: o.showIcon
-    })));
-  
     this.optionsToDisplay = [...this.optionsToDisplay];  // force change detection
     this.cdRef.detectChanges();
   }
