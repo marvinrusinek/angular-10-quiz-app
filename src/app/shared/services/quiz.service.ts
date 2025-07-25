@@ -1119,9 +1119,8 @@ export class QuizService implements OnDestroy {
   }
 
   setCurrentQuestionIndex(index: number): void {
-    console.warn('[📌 QUIZ SERVICE setCurrentQuestionIndex]', index, {
-      stack: new Error().stack,
-    });
+    console.warn('[📌 QUIZ SERVICE setCurrentQuestionIndex]', index);
+    console.trace('[📍 Index set stack trace]');
     this.currentQuestionIndex = index;
     this.currentQuestionIndexSource.next(index);
   }  
