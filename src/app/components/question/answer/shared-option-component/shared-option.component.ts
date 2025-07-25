@@ -1664,15 +1664,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
   
   public generateOptionBindings(): void { 
-    console.time('[⚙️ SOC generateOptionBindings]');
     const currentIndex = this.quizService.currentQuestionIndex;
-    console.log('[📌 generateOptionBindings] final index used:', currentIndex);
   
     // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
-    console.log('[🔄 restored from map]', storedSelections);
-    console.log(`[🧠 storedSelections Q${currentIndex}]`, storedSelections);
-  
+
     // Patch current options with stored selected state
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = storedSelections.find(s => s.optionId === opt.optionId);
@@ -1683,9 +1679,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         showIcon: match?.showIcon ?? false
       };
     });
-
-    console.log('[🧠 Stored Selections]', storedSelections);
-    console.log('[🧩 Patched Options]', this.optionsToDisplay);
   
     const showMap: Record<number, boolean> = {};
   
@@ -1709,12 +1702,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       binding.option = enriched;
       binding.showFeedbackForOption = showMap;
   
-      console.log('[✅ Final Bindings]', this.optionBindings.map(b => ({
-        id: b.option.optionId,
-        selected: b.option.selected,
-        showIcon: b.option.showIcon
-      })));      
-
       return binding;
     });
   
@@ -1734,12 +1721,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           }
         });
   
-        this.cdRef.detectChanges();
         this.markRenderReady('highlight directives updated');
       });
     });
-  
-    console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
   public hydrateOptionsFromSelectionState(): void {
