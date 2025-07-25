@@ -317,6 +317,11 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     this.clearSoundFlagsForCurrentQuestion(0);
 
+    this.quizService.currentQuestionIndex$.subscribe(index => {
+      console.log('[📡 Parent received current index]', index);
+      this.currentQuestionIndex = index;
+    });
+
     if (this.questionToDisplay$) {
       this.latestQuestionText$ = this.questionToDisplay$.pipe(
         distinctUntilChanged()
