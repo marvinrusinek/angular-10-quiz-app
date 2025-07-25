@@ -201,13 +201,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // Update option flags based on selectedOptions array
         this.optionsToDisplay = this.optionsToDisplay.map(opt => {
           const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
-          const isMatch = !!match;
 
           return {
             ...opt,
-            selected: isMatch || opt.selected,
-            showIcon: isMatch || opt.showIcon,
-            highlight: isMatch || opt.highlight
+            selected: match || opt.selected,
+            showIcon: match || opt.showIcon,
+            highlight: match || opt.highlight
           };
         });
 
@@ -2131,19 +2130,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   applyImmediateSelectionUI(currentOption: Option, previouslySelected: Option[]): void {
     if (!this.optionsToDisplay?.length) return;
-
+  
+    // Clone previous selections and avoid duplicates
     const allSelected = [...previouslySelected];
-
-    // Avoid duplicates (in case the current is already in the selected list)
-    const alreadyIncluded = previouslySelected.some(sel => sel.optionId === currentOption.optionId);
-    if (!alreadyIncluded) {
+    const alreadyExists = previouslySelected.some(sel => sel.optionId === currentOption.optionId);
+    if (!alreadyExists) {
       allSelected.push(currentOption);
     }
   
     // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = allSelected.find(sel => sel.optionId === opt.optionId);
-      const isSelectedNow = !!match || opt.optionId === currentOption.optionId;
+      const isSelectedNow = !!match;
       return {
         ...opt,
         selected: isSelectedNow,
@@ -2155,5 +2153,5 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Rebuild UI bindings and trigger change detection
     this.generateOptionBindings();
     this.cdRef.detectChanges();
-  } 
+  }  
 }
