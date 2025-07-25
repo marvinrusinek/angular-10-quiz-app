@@ -1939,11 +1939,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           sel.questionIndex === (opt as SelectedOption).questionIndex
       );
   
+      if (match) {
+        return {
+          ...opt,
+          selected: true,
+          highlight: true,
+          showIcon: true
+        };
+      }
+  
+      // fallback to unselected/default
       return {
         ...opt,
-        selected: match?.selected ?? false,
-        highlight: match?.highlight ?? false,
-        showIcon: match?.showIcon ?? false
+        selected: false,
+        highlight: false,
+        showIcon: false
       };
     });
   }
