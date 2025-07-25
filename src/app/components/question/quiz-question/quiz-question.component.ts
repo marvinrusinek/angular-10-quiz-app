@@ -5040,19 +5040,13 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
   }
   
-  private restoreSelectionsAndIconsForQuestion(index: number): void {
-    // Pull back the stored SelectedOption[] for this question
-    const stored = this.selectedOptionService.getSelectedOptionsForQuestion(index);
-    console.log('[restore] Stored selections:', stored);
-  
+  restoreSelectionsAndIconsForQuestion(index: number) {
+    const selectedOptions = this.selectedOptionService.getSelectedOptionsForQuestion(index);
     this.optionsToDisplay?.forEach(opt => {
-      // Find a matching SelectedOption
-      const match = stored.find(s => s.optionId === opt.optionId);
+      const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
       opt.selected = !!match;
       opt.showIcon = !!match?.showIcon;
     });
-  
-    // Force Angular to pick up the changes immediately
     this.cdRef.detectChanges();
   }  
 }
