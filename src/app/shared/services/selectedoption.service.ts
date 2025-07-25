@@ -171,6 +171,7 @@ export class SelectedOptionService {
       return;
     }
   
+    // Enrich the selected option with persistent UI flags
     const enrichedOption: SelectedOption = {
       ...option,
       selected: true,
@@ -179,29 +180,33 @@ export class SelectedOptionService {
     };
   
     const qIndex = enrichedOption.questionIndex;
-
+  
+    // Get existing selections for this question (if any)
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
   
-    // Avoid duplication by checking if this option was already selected
-    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
-    if (alreadyExists) {
-      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId}`);
-      return;
-    }
-  
-    const updatedSelections = [...currentSelections, enrichedOption];
-    this.selectedOptionsMap.set(qIndex, updatedSelections);
-
-    this.emitImmediateSelection(enrichedOption, updatedSelections.filter(
+    // Remove any duplicate with the same optionId
+    const deduplicated = currentSelections.filter(
       sel => sel.optionId !== enrichedOption.optionId
-    ));
+    );
   
-    // Broadcast updated selections for this question
+    // Add the new selection
+    const updatedSelections = [...deduplicated, enrichedOption];
+  
+    // Persist the updated list
+    this.selectedOptionsMap.set(qIndex, updatedSelections);
+  
+    // Emit for immediate UI update (exclude the current to mimic previous selections)
+    const previouslySelected = updatedSelections.filter(
+      sel => sel.optionId !== enrichedOption.optionId
+    );
+    this.emitImmediateSelection(enrichedOption, previouslySelected);
+  
+    // Broadcast updated selection state
     this.selectedOption = updatedSelections;
     this.selectedOptionSubject.next(updatedSelections);
     this.isOptionSelectedSubject.next(true);
   
-    // Debug log
+    // Debug logs
     console.log('[🧠 Full stored map]', Array.from(this.selectedOptionsMap.entries()));
     console.log('[🧠 Updated Selections]', {
       index: qIndex,
