@@ -2513,6 +2513,7 @@ export class QuizQuestionComponent
     }
 
     const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
+    console.log('[📋 existingSelections]', existingSelections.map(o => o.optionId));
 
     this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
   
