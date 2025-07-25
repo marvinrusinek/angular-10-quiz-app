@@ -2140,4 +2140,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       b.isSelected = chosen;
     });
   }
+
+  applyImmediateSelectionUI(option: Option, selectedOptions: Option[]): void {
+    if (!this.optionsToDisplay?.length) return;
+  
+    // Combine selectedOptions with the new option (avoid duplicate)
+    const alreadyExists = selectedOptions.some(sel => sel.optionId === option.optionId);
+    const updatedSelections = alreadyExists ? selectedOptions : [...selectedOptions, option];
+  
+    // Apply selected, showIcon, and highlight flags
+    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
+      const match = updatedSelections.find(sel => sel.optionId === opt.optionId);
+      return {
+        ...opt,
+        selected: !!match,
+        showIcon: !!match,
+        highlight: !!match
+      };
+    });
+  
+    this.generateOptionBindings();
+    this.cdRef.detectChanges();
+  }  
 }
