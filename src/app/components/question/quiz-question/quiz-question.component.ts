@@ -2523,8 +2523,10 @@ export class QuizQuestionComponent
       showIcon: true  // persist icon state
     });
 
-    this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
-    this.sharedOptionComponent?.generateOptionBindings();
+    if (this.sharedOptionComponent) {
+      this.sharedOptionComponent.hydrateOptionsFromSelectionState();
+      this.sharedOptionComponent.generateOptionBindings();
+    }
   
     try {
       // ───── Core Selection Logic ─────
