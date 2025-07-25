@@ -2848,7 +2848,7 @@ export class QuizQuestionComponent
       console.warn(
         `[fetchAndUpdateExplanationText] ⚠️ Mismatch detected! Skipping explanation update for Q${questionIndex}.`
       );
-      return ''; // return empty string to ensure consistent return type
+      return '';
     }
   
     try {
@@ -2858,7 +2858,7 @@ export class QuizQuestionComponent
       );
       if (storedExplanation) {
         this.applyExplanation(storedExplanation);
-        return storedExplanation; // return the explanation text
+        return storedExplanation;  // return the explanation text
       }
   
       // Check service cache
@@ -2873,7 +2873,7 @@ export class QuizQuestionComponent
           `explanationText_${questionIndex}`,
           cachedExplanation
         );
-        return cachedExplanation; // return the cached explanation text
+        return cachedExplanation;  // return the cached explanation text
       }
   
       // Fetch explanation from service, only if initialized
@@ -2889,7 +2889,7 @@ export class QuizQuestionComponent
         console.warn(
           `[fetchAndUpdateExplanationText] ⚠️ No explanation text found for Q${questionIndex}`
         );
-        return ''; // return empty string to ensure consistent return type
+        return '';  // return empty string to ensure consistent return type
       }
   
       // Confirm the question index hasn’t changed during async fetch
@@ -2908,17 +2908,16 @@ export class QuizQuestionComponent
       sessionStorage.setItem(`explanationText_${questionIndex}`, explanationText);
       this.applyExplanation(explanationText);
   
-      return explanationText; // ✅ Return the fetched explanation text
+      return explanationText;  // return the fetched explanation text
   
     } catch (error) {
       console.error(
         `[fetchAndUpdateExplanationText] ❌ Error fetching explanation for Q${questionIndex}:`,
         error
       );
-      return ''; // Return empty string in case of error
+      return '';  // return empty string in case of error
     }
   }
-  
 
   private applyExplanation(explanation: string): void {
     this.explanationToDisplay = explanation;
