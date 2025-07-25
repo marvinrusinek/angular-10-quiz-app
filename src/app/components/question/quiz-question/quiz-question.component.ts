@@ -2512,13 +2512,20 @@ export class QuizQuestionComponent
       return;
     }
 
-    // Update the persistent selection record (per question)
-    this.selectedOptionService.setSelectedOption({
+    const enriched: Option = {
       ...option,
       selected: true,
-      showIcon: true,  // persist icon state
-      questionIndex: this.currentQuestionIndex
-    });
+      showIcon: true,
+      highlight: true
+    };
+
+    const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
+
+    // Call the new helper method on the SharedOptionComponent instance
+    this.sharedOptionComponent?.applyImmediateSelectionUI(enriched, existingSelections);
+  
+    // Persist selection
+    this.selectedOptionService.setSelectedOption(enriched);
   
     try {
       // ───── Core Selection Logic ─────
