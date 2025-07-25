@@ -64,12 +64,12 @@ export class QuizQuestionComponent
     selectedOptions: Option[]
   }> = new EventEmitter();
   @Output() questionAnswered = new EventEmitter<QuizQuestion>();
-  @Output() isAnswerSelectedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() explanationToDisplayChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() showExplanationChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() selectionMessageChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() isAnsweredChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() feedbackTextChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() isAnswerSelectedChange = new EventEmitter<boolean>();
+  @Output() explanationToDisplayChange = new EventEmitter<string>();
+  @Output() showExplanationChange = new EventEmitter<boolean>();
+  @Output() selectionMessageChange = new EventEmitter<string>();
+  @Output() isAnsweredChange = new EventEmitter<boolean>();
+  @Output() feedbackTextChange = new EventEmitter<string>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<{
