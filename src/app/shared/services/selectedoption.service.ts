@@ -194,7 +194,24 @@ export class SelectedOptionService {
     this.selectedOption = [enrichedOption];
     this.selectedOptionSubject.next([enrichedOption]);
     this.isOptionSelectedSubject.next(true);
-  }
+  
+    // Persist selection per question index
+    const qIndex = enrichedOption.questionIndex;
+    if (!this.selectedOptionsMap.has(qIndex)) {
+      this.selectedOptionsMap.set(qIndex, []);
+    }
+  
+    const existingOptions = this.selectedOptionsMap.get(qIndex)!;
+    const existingIndex = existingOptions.findIndex(opt => opt.optionId === enrichedOption.optionId);
+  
+    if (existingIndex !== -1) {
+      // Update existing option in map
+      existingOptions[existingIndex] = enrichedOption;
+    } else {
+      // Add new option to map
+      existingOptions.push(enrichedOption);
+    }
+  }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
