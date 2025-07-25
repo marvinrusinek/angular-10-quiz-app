@@ -213,6 +213,7 @@ export class SelectedOptionService {
 
     // Save back to map
     this.selectedOptionsMap.set(qIndex, updatedSelections);
+    console.log('[🧠 Full stored map]', Array.from(this.selectedOptionsMap.entries()));
 
     // Broadcast updates
     this.selectedOption = updatedSelections;

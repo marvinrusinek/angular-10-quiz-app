@@ -2516,7 +2516,8 @@ export class QuizQuestionComponent
     this.selectedOptionService.setSelectedOption({
       ...option,
       selected: true,
-      showIcon: true  // persist icon state
+      showIcon: true,  // persist icon state
+      questionIndex: this.currentQuestionIndex
     });
 
     this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
