@@ -2512,20 +2512,13 @@ export class QuizQuestionComponent
       return;
     }
 
-    const enriched: Option = {
-      ...option,
-      selected: true,
-      showIcon: true,
-      highlight: true
-    };
-
     const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
 
     // Call the new helper method on the SharedOptionComponent instance
-    this.sharedOptionComponent?.applyImmediateSelectionUI(enriched, existingSelections);
+    this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
   
     // Persist selection
-    this.selectedOptionService.setSelectedOption(enriched);
+    this.selectedOptionService.setSelectedOption(option);
   
     try {
       // ───── Core Selection Logic ─────
