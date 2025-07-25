@@ -66,6 +66,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
   private selectionSub!: Subscription;
+  private selectionImmediateSub: Subscription;
 
   private optionBindingsInitialized = false;
   feedbackBindings: FeedbackProps[] = [];
@@ -343,6 +344,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.onDestroy$.next();
     this.onDestroy$.complete();
     this.selectionSub?.unsubscribe();
+    this.selectionImmediateSub?.unsubscribe();
     this.finalRenderReadySub?.unsubscribe();
   }
   
