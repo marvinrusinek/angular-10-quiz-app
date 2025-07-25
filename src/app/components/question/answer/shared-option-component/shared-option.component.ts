@@ -2145,13 +2145,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   applyImmediateSelectionUI(option: Option, selectedOptions: Option[]): void {
     if (!this.optionsToDisplay?.length) return;
   
-    // Combine selectedOptions with the new option (avoid duplicate)
+    // Combine selectedOptions with the newly clicked option (avoid duplicate)
     const alreadyExists = selectedOptions.some(sel => sel.optionId === option.optionId);
     const updatedSelections = alreadyExists ? selectedOptions : [...selectedOptions, option];
   
-    // Apply selected, showIcon, and highlight flags while preserving previous states
+    // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = updatedSelections.find(sel => sel.optionId === opt.optionId);
+      // Determine if this option should have its UI updated
       const shouldUpdate = !!match || opt.optionId === option.optionId;
   
       return {
@@ -2162,6 +2163,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       };
     });
   
+    // Rebuild UI bindings and trigger change detection
     this.generateOptionBindings();
     this.cdRef.detectChanges();
   } 
