@@ -1959,7 +1959,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         questionIndex: currentIndex,
         selected,
         highlight: opt.highlight ?? selected,
-        showIcon: opt.showIcon ?? selected
+        showIcon: opt.showIcon
       };
   
       if (enriched.selected && enriched.optionId != null) {
