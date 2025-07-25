@@ -319,6 +319,14 @@ export class QuizQuestionComponent
 
     this.quizService.currentQuestionIndex$.subscribe(index => {
       console.log('[📡 Parent received current index]', index);
+    
+      // ⬇️ Log a stack trace for tracing unexpected emissions
+      if (index === 1) {
+        console.warn('[🧵 Stack trace for index === 1]', {
+          stack: new Error().stack
+        });
+      }
+    
       this.currentQuestionIndex = index;
     });
 
@@ -405,9 +413,6 @@ export class QuizQuestionComponent
           console.warn(`[⚠️ No valid question returned for index ${questionIndex}]`);
           return;
         }
-    
-        // Set current index in service
-        this.quizService.setCurrentQuestionIndex(questionIndex);
       } catch (err) {
         console.error('[❌ Error during question fetch]', err);
       }
