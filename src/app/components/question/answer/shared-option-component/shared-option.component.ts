@@ -1929,7 +1929,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.timeEnd('[⚙️ SOC generateOptionBindings]');
   }
 
-  private hydrateOptionsFromSelectionState(): void {
+  public hydrateOptionsFromSelectionState(): void {
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
   
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
