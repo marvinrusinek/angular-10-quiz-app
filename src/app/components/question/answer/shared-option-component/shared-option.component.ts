@@ -222,6 +222,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.cdRef.detectChanges();
       });
 
+
+    this.selectionImmediateSub = this.selectedOptionService.immediateSelection$
+      .subscribe(({ option, previouslySelected }) => {
+        this.applyImmediateSelectionUI(option, previouslySelected);
+      });
   
     // ─── Preferences and IDs ─────────────────────────────────────────────────
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
