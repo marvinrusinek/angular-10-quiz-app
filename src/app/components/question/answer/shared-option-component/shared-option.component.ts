@@ -1970,6 +1970,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       binding.option = enriched;
       binding.showFeedbackForOption = showMap;
   
+      console.log('[✅ Final Bindings]', this.optionBindings.map(b => ({
+        id: b.option.optionId,
+        selected: b.option.selected,
+        showIcon: b.option.showIcon
+      })));      
+
       return binding;
     });
   
@@ -2205,9 +2211,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
   } */
   shouldShowIcon(option: Option): boolean {
-    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+    const result = !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+    console.log(`[👁 shouldShowIcon] optionId=${option?.optionId}, showIcon=${option?.showIcon}, showFeedbackMap=${this.showFeedbackForOption?.[option.optionId]}, result=${result}`);
+    return result;
   }
-  
 
   shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
