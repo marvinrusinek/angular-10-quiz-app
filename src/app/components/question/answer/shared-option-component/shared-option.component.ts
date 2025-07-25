@@ -1942,19 +1942,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       if (match) {
         return {
           ...opt,
-          selected: true,
-          highlight: true,
-          showIcon: true
+          selected: match.selected,
+          highlight: match.highlight,
+          showIcon: match.showIcon,
+        };
+      } else {
+        return {
+          ...opt,
+          selected: false,
+          highlight: false,
+          showIcon: false,
         };
       }
-  
-      // fallback to unselected/default
-      return {
-        ...opt,
-        selected: false,
-        highlight: false,
-        showIcon: false
-      };
     });
   }
 
