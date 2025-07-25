@@ -5054,12 +5054,6 @@ export class QuizQuestionComponent
       opt.selected = !!match;
       opt.showIcon = !!match?.showIcon;
     });
-
-    console.log('[🔄 Restoring]', {
-      currentQuestionIndex: index,
-      selectedOptions: this.selectedOptionService.getSelectedOptionsForQuestion(index),
-      optionsToDisplay: this.optionsToDisplay
-    }); 
        
     this.cdRef.detectChanges();
   }  
