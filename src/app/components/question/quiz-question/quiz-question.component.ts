@@ -2514,7 +2514,6 @@ export class QuizQuestionComponent
 
     const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
 
-    // Call the new helper method on the SharedOptionComponent instance
     this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
   
     // Enrich and persist selection state
