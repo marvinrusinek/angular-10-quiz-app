@@ -41,6 +41,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Output() explanationUpdate = new EventEmitter<number>();
   @Output() renderReadyChange = new EventEmitter<boolean>();
   @Input() currentQuestion: QuizQuestion;
+  @Input() currentQuestionIndex!: number;
   @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -1845,7 +1846,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
   public generateOptionBindings(): void { 
     console.time('[⚙️ SOC generateOptionBindings]');
-    const currentIndex = this.quizService.currentQuestionIndex;
+    const currentIndex = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex;
+    console.log('[📌 generateOptionBindings] final index used:', currentIndex);
   
     // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
