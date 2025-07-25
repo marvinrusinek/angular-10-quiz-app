@@ -366,11 +366,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log('[🔥 ngOnChanges fired]', changes);
 
     const shouldRegenerate =
-      changes['optionsToDisplay'] &&
-      Array.isArray(this.optionsToDisplay) &&
-      this.optionsToDisplay.length > 0 &&
-      this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt) ||
-      (changes['config'] && this.config != null);
+      (changes['optionsToDisplay'] &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0 &&
+        this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
+      (changes['config'] && this.config != null) ||
+      (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number');
   
     if (shouldRegenerate) {
       console.time('[⚙️ generateOptionBindings]');
