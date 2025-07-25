@@ -2135,9 +2135,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Clone previous selections and avoid duplicates
     const allSelected = [...previouslySelected];
     const alreadyExists = previouslySelected.some(sel => sel.optionId === currentOption.optionId);
-    if (!alreadyExists) {
-      allSelected.push(currentOption);
-    }
+    if (!alreadyExists) allSelected.push(currentOption);
   
     // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
