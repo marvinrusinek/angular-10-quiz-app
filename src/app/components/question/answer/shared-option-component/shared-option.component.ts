@@ -41,6 +41,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Output() explanationUpdate = new EventEmitter<number>();
   @Output() renderReadyChange = new EventEmitter<boolean>();
   @Input() currentQuestion: QuizQuestion;
+  @Input() currentQuestionIndex!: number;
   @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -372,7 +373,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
       (changes['config'] && this.config != null) ||
       (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number');
-  
+
+    if (changes['currentQuestionIndex']) {
+      console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
+    }
+
     if (shouldRegenerate) {
       console.time('[⚙️ generateOptionBindings]');
       console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
