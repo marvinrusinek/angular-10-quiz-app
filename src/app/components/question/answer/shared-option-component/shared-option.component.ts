@@ -196,12 +196,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
       .subscribe((selectedOptions: SelectedOption[] | null) => {
-        if (!this.optionsToDisplay?.length || !selectedOptions?.length) return;
+        if (!Array.isArray(this.optionsToDisplay) || !this.optionsToDisplay.length) return;
+
+        const validSelections = Array.isArray(selectedOptions)
+          ? selectedOptions.filter(sel => sel && typeof sel.optionId === 'number')
+          : [];
 
         // Update option flags based on selectedOptions array
         this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-          const match = selectedOptions?.find(sel => sel.optionId === opt.optionId);
-          const isSelected = !!match;
+          const isSelected = validSelections.some(sel => sel.optionId === opt.optionId);
 
           return {
             ...opt,
