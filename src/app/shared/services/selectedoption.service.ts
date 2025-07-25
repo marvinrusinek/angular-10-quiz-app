@@ -203,51 +203,24 @@ export class SelectedOptionService {
   
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
 
-    // Avoid adding duplicates
-    const alreadyExists = currentSelections.some(
-      (sel) => sel.optionId === enrichedOption.optionId
+    // Remove any existing entry with the same optionId
+    const filteredSelections = currentSelections.filter(
+      (sel) => sel.optionId !== enrichedOption.optionId
     );
 
-    let updatedSelections: SelectedOption[];
+    // Add the newly selected one
+    const updatedSelections = [...filteredSelections, enrichedOption];
 
-    if (!alreadyExists) {
-      // Add new selection to the current list
-      updatedSelections = [
-        ...currentSelections,
-        {
-          ...enrichedOption,
-          selected: true,
-          highlight: true,
-          showIcon: true
-        }
-      ];
-    } else {
-      // Keep the current selections intact
-      updatedSelections = currentSelections.map(sel =>
-        sel.optionId === enrichedOption.optionId
-          ? {
-              ...sel,
-              selected: true,
-              highlight: true,
-              showIcon: true
-            }
-          : sel
-      );
-    }
-
-    // Update the map
+    // Save back to map
     this.selectedOptionsMap.set(qIndex, updatedSelections);
 
-    // Set selectedOption to all current selections for UI/reactive streams
+    // Broadcast updates
     this.selectedOption = updatedSelections;
     this.selectedOptionSubject.next(updatedSelections);
-  
-    console.log('[✅ setSelectedOption] Stored to map:', {
-      index: qIndex,
-      value: this.selectedOptionsMap.get(qIndex)
-    });
-  
-    console.log('[🧠 stored in map]', {
+    this.isOptionSelectedSubject.next(true);
+
+    // Log for debug
+    console.log('[🧠 Updated Selections]', {
       index: qIndex,
       stored: this.selectedOptionsMap.get(qIndex)
     });
