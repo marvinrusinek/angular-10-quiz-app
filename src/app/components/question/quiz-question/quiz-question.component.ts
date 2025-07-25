@@ -2517,8 +2517,15 @@ export class QuizQuestionComponent
     // Call the new helper method on the SharedOptionComponent instance
     this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
   
-    // Persist selection
-    this.selectedOptionService.setSelectedOption(option);
+    // Enrich and persist selection state
+    const enrichedOption: SelectedOption = {
+      ...option,
+      selected: true,
+      showIcon: true,
+      highlight: true,
+      questionIndex: this.currentQuestionIndex
+    };
+    this.selectedOptionService.setSelectedOption(enrichedOption);
   
     try {
       // ───── Core Selection Logic ─────
