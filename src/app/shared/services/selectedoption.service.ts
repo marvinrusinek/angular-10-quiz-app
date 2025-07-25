@@ -194,7 +194,17 @@ export class SelectedOptionService {
   
     // Persist the updated list
     this.selectedOptionsMap.set(qIndex, updatedSelections);
-  
+ 
+    console.log('[🧠 Full map dump]');
+    for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
+      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
+        id: o?.optionId,
+        selected: o?.selected,
+        showIcon: o?.showIcon
+      })));
+    }
+
+
     // Emit for immediate UI update (exclude the current to mimic previous selections)
     const previouslySelected = updatedSelections.filter(
       sel => sel.optionId !== enrichedOption.optionId
@@ -207,11 +217,18 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(true);
   
     // Debug logs
-    console.log('[🧠 Full stored map]', Array.from(this.selectedOptionsMap.entries()));
-    console.log('[🧠 Updated Selections]', {
-      index: qIndex,
-      stored: updatedSelections
-    });
+    console.log('[🧠 FULL MAP DUMP]');
+    for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
+      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => {
+        if (!o || typeof o !== 'object') return o;
+        return {
+          id: o.optionId,
+          selected: o.selected,
+          showIcon: o.showIcon,
+          highlight: o.highlight
+        };
+      }));
+    }
   }
 
   private isValidSelectedOption(option: SelectedOption): boolean {
