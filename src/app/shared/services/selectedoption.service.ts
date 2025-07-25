@@ -172,41 +172,32 @@ export class SelectedOptionService {
       showIcon: true
     };
   
-    this.selectedOption = [enrichedOption];
-    this.selectedOptionSubject.next([enrichedOption]);
-    this.isOptionSelectedSubject.next(true);
-  
-    // Persist selection per question index
     const qIndex = enrichedOption.questionIndex;
-    if (!this.selectedOptionsMap.has(qIndex)) {
-      this.selectedOptionsMap.set(qIndex, []);
+
+    const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
+  
+    // Avoid duplication by checking if this option was already selected
+    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
+    if (alreadyExists) {
+      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId}`);
+      return;
     }
   
-    const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
-
-    // Remove any existing entry with the same optionId
-    const filteredSelections = currentSelections.filter(
-      (sel) => sel.optionId !== enrichedOption.optionId
-    );
-
-    // Add the newly selected one
-    const updatedSelections = [...filteredSelections, enrichedOption];
-
-    // Save back to map
+    const updatedSelections = [...currentSelections, enrichedOption];
     this.selectedOptionsMap.set(qIndex, updatedSelections);
-    console.log('[🧠 Full stored map]', Array.from(this.selectedOptionsMap.entries()));
-
-    // Broadcast updates
+  
+    // Broadcast updated selections for this question
     this.selectedOption = updatedSelections;
     this.selectedOptionSubject.next(updatedSelections);
     this.isOptionSelectedSubject.next(true);
-
-    // Log for debug
+  
+    // Debug log
+    console.log('[🧠 Full stored map]', Array.from(this.selectedOptionsMap.entries()));
     console.log('[🧠 Updated Selections]', {
       index: qIndex,
-      stored: this.selectedOptionsMap.get(qIndex)
+      stored: updatedSelections
     });
-  }  
+  }
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
