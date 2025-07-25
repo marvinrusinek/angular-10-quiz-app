@@ -193,7 +193,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
-        debounceTime(10),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
       .subscribe((selectedOptions: SelectedOption[] | null) => {
@@ -2145,7 +2144,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   applyImmediateSelectionUI(option: Option, selectedOptions: Option[]): void {
     if (!this.optionsToDisplay?.length) return;
   
-    // Combine selectedOptions with the newly clicked option (avoid duplicate)
+    // Combine selectedOptions with the newly clicked option (if not already tracked) to avoid duplicate
     const alreadyExists = selectedOptions.some(sel => sel.optionId === option.optionId);
     const updatedSelections = alreadyExists ? selectedOptions : [...selectedOptions, option];
   
