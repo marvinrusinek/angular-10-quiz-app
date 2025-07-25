@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -193,6 +193,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
+        debounceTime(10),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
       .subscribe((selectedOptions: SelectedOption[] | null) => {
@@ -2148,18 +2149,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const alreadyExists = selectedOptions.some(sel => sel.optionId === option.optionId);
     const updatedSelections = alreadyExists ? selectedOptions : [...selectedOptions, option];
   
-    // Apply selected, showIcon, and highlight flags
+    // Apply selected, showIcon, and highlight flags while preserving previous states
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
       const match = updatedSelections.find(sel => sel.optionId === opt.optionId);
+      const isMatch = opt.optionId === option.optionId;
+  
       return {
         ...opt,
-        selected: !!match,
-        showIcon: !!match,
-        highlight: !!match
+        selected: !!match || opt.selected || isMatch,
+        showIcon: !!match || opt.showIcon || isMatch,
+        highlight: !!match || opt.highlight || isMatch,
       };
     });
   
     this.generateOptionBindings();
     this.cdRef.detectChanges();
-  }  
+  } 
 }
