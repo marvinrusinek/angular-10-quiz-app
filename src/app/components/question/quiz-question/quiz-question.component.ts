@@ -2519,9 +2519,6 @@ export class QuizQuestionComponent
       showIcon: true,  // persist icon state
       questionIndex: this.currentQuestionIndex
     });
-
-    this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
-    this.sharedOptionComponent?.generateOptionBindings();
   
     try {
       // ───── Core Selection Logic ─────
