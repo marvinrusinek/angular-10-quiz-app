@@ -2282,4 +2282,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log('[APPLY UI] optionsToDisplay state:', 
     this.optionsToDisplay.map(o => ({id:o.optionId, showIcon:o.showIcon})));
   }
+
+  public syncAndPaintAll(): void {
+    if (!this.optionsToDisplay?.length) return;
+
+    // Grab all the SelectedOption objects for this question
+    const all = this.selectedOptionService
+      .getSelectedOptionsForQuestion(this.currentQuestionIndex)
+      .map(s => s.optionId);
+    const selIds = new Set<number>(all);
+
+    // Update flags in-place on the same objects
+    this.optionsToDisplay.forEach(opt => {
+      const isSel = selIds.has(opt.optionId);
+      opt.selected  = isSel;
+      opt.showIcon  = isSel;
+      opt.highlight = isSel;
+    });
+
+    // Rrebuild bindings and trigger one CD cycle
+    this.generateOptionBindings();
+    this.cdRef.detectChanges();
+  }
 }
