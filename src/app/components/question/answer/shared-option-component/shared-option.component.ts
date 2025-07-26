@@ -1733,7 +1733,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     };
   }
   
-  public generateOptionBindings(): void { 
+  /* public generateOptionBindings(): void { 
     const currentIndex = this.quizService.currentQuestionIndex;
     console.log('[📍 currentIndex]', );
     // Pull selected state for current question
@@ -1794,7 +1794,68 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.markRenderReady('highlight directives updated');
       });
     });
-  }
+  } */
+  public generateOptionBindings(): void {
+    // ─── Track performance / debug ─────────────────────────────
+    const currentIndex = this.quizService.currentQuestionIndex;
+    console.log('[📍 currentIndex]', currentIndex);
+  
+    // ─── 1) Pull selected state for current question ────────────
+    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
+  
+    // ─── 2) Patch current options with stored selected state ────
+    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
+      const match = storedSelections.find(s => s.optionId === opt.optionId);
+      return {
+        ...opt,
+        selected:  match?.selected  ?? false,
+        highlight: match?.highlight ?? false,
+        showIcon:  match?.showIcon  ?? false
+      };
+    });
+  
+    // ─── 3) Build the feedback/show map ─────────────────────────
+    const showMap: Record<number, boolean> = {};
+  
+    // ─── 4) Create option bindings ─────────────────────────────
+    this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
+      const selected = !!opt.selected;
+  
+      const enriched: SelectedOption = {
+        ...(opt as SelectedOption),
+        questionIndex: currentIndex,
+        selected,
+        highlight: opt.highlight ?? selected,
+        showIcon: opt.showIcon
+      };
+  
+      if (enriched.selected && enriched.optionId != null) {
+        showMap[enriched.optionId] = true;
+      }
+  
+      const binding = this.getOptionBindings(enriched, idx, selected);
+      binding.option = enriched;
+      binding.showFeedbackForOption = showMap;
+      return binding;
+    });
+  
+    this.showFeedbackForOption = showMap;
+  
+    // ─── 5) Immediate change detection ─────────────────────────
+    this.cdRef.detectChanges();
+  
+    // ─── 6) Synchronous highlight update ───────────────────────
+    this.highlightDirectives?.forEach((d, i) => {
+      try {
+        d.updateHighlight();
+      } catch (err) {
+        console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
+      }
+    });
+  
+    // ─── 7) Mark render ready immediately ──────────────────────
+    this.markRenderReady('highlight directives updated');
+  }  
 
   public hydrateOptionsFromSelectionState(): void {
     const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
