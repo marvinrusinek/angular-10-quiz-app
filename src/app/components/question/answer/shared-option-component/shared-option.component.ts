@@ -225,8 +225,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
 
     this.selectionImmediateSub = this.selectedOptionService.immediateSelection$
-      .subscribe(({ option, previouslySelected }) => {
-        this.applyImmediateSelectionUI(option, previouslySelected);
+      .subscribe(({ option, selectedOptions }) => {
+        this.applyImmediateSelectionUI(option, selectedOptions);
       });
   
     // ─── Preferences and IDs ─────────────────────────────────────────────────
@@ -1697,7 +1697,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
   public generateOptionBindings(): void { 
     const currentIndex = this.quizService.currentQuestionIndex;
-    console.log('[📍 currentIndex]', currentIndex);
+    console.log('[📍 currentIndex]', );
     // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
 
