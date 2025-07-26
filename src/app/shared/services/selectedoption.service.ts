@@ -183,28 +183,46 @@ export class SelectedOptionService {
   
     // Get existing selections for this question (if any)
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
-  
+
     // Only proceed if this optionId isn’t already stored
-    const alreadyExists = currentSelections.some(
-      sel => sel.optionId === enrichedOption.optionId
-    );
+    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
     if (alreadyExists) {
-      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId}`);
+      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId} — skipping re-add but still emitting`);
+      
+      // Still emit to update UI if needed
+      this.emitImmediateSelection(enrichedOption, currentSelections.filter(
+        sel => sel.optionId !== enrichedOption.optionId
+      ));
       return;
     }
   
-    // Add the new selection (no duplicates guaranteed)
+    // Remove any duplicate with the same optionId
+    /* const deduplicated = currentSelections.filter(
+      sel => sel.optionId !== enrichedOption.optionId
+    ); */
+  
+    // Add the new selection
+    // const updatedSelections = [...deduplicated, enrichedOption];
     const updatedSelections = [...currentSelections, enrichedOption];
   
     // Persist the updated list
     this.selectedOptionsMap.set(qIndex, updatedSelections);
-  
+ 
     console.log('[🧠 Full map dump]');
-    console.log(`[📦 Stored Selections for Q${qIndex}]`, updatedSelections);
+    /* for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
+      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
+        id: o?.optionId,
+        selected: o?.selected,
+        showIcon: o?.showIcon
+      })));
+    } */
+    console.log(`[📦 Stored Selections for Q${qIndex}]`, this.selectedOptionsMap.get(qIndex));
     console.log('[🗺️ FULL MAP DUMP]', Array.from(this.selectedOptionsMap.entries()));
-  
+
     // Emit for immediate UI update (exclude the current to mimic previous selections)
-    const previouslySelected = currentSelections;
+    const previouslySelected = updatedSelections.filter(
+      sel => sel.optionId !== enrichedOption.optionId
+    );
     this.emitImmediateSelection(enrichedOption, previouslySelected);
   
     // Broadcast updated selection state
