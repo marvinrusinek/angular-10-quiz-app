@@ -2533,13 +2533,6 @@ export class QuizQuestionComponent
       questionIndex: this.currentQuestionIndex
     };
 
-    // 1) Persist into the service (synchronous)
-    this.selectedOptionService.addSelection(enrichedOption);
-
-    // 2) Immediately update ALL icons in the UI
-    const all = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex);
-    this.sharedOptionComponent.applySelectionsUI(all);
-
     this.selectedOptionService.setSelectedOption(enrichedOption);
   
     try {
