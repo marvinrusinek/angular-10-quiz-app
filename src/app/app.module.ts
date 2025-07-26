@@ -53,6 +53,7 @@ import { QuizNavigationService } from './shared/services/quiz-navigation.service
 import { QuizQuestionLoaderService } from './shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from './shared/services/quizquestionmgr.service';
 import { QuizResolverService } from './shared/services/quiz-resolver.service';
+import { QAResolverService } from './shared/services/qa-resolver.service';
 import { QuizStateService } from './shared/services/quizstate.service';
 import { DynamicComponentService } from './shared/services/dynamic-component.service';
 import { ExplanationTextService } from './shared/services/explanation-text.service';
@@ -137,6 +138,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     QuizQuestionLoaderService,
     QuizQuestionManagerService,
     QuizResolverService,
+    QAResolverService,
     QuizStateService,
     AnswerTrackingService,
     DynamicComponentService,
