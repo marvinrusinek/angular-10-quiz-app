@@ -2357,7 +2357,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  initializeQuizFromRoute(): void {
+  /* initializeQuizFromRoute(): void {
     this.activatedRoute.data.subscribe((data) => {
       if (data.quizData) {
         this.quiz = data.quizData;
@@ -2370,8 +2370,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error('Quiz data is unavailable.');
       }
     });
+  } */
+  initializeQuizFromRoute(): void {
+    this.activatedRoute.data
+      .pipe(
+        // ── Defer everything until just before the next paint ─────────
+        observeOn(animationFrameScheduler),
+  
+        // ── Tear down when your component is destroyed ────────────────
+        takeUntil(this.destroy$),
+  
+        // ── Extract quizData and pre‑load explanations in one flow ────
+        switchMap((data: { quizData?: Quiz }) => {
+          if (!data.quizData) {
+            console.error('Quiz data is unavailable.');
+            this.router.navigate(['/select']);
+            return EMPTY;
+          }
+  
+          // 1) Store the quiz
+          this.quiz = data.quizData;
+  
+          // 2) Kick off your explanation preload
+          return this.ensureExplanationsLoaded().pipe(
+            tap(() => console.log('Explanations preloaded successfully.')),
+            catchError(err => {
+              console.error('Failed to preload explanations', err);
+              return EMPTY;
+            })
+          );
+        })
+      )
+      .subscribe(() => {
+        // ── 3) Once explanations are ready, wire up navigation ───────
+        this.setupNavigation();
+  
+        // ── 4) Trigger a single CD cycle so your UI (quiz/question/options/navigation) 
+        //     appears together, with no flicker ──────────────────────
+        this.cdRef.markForCheck();
+      });
   }
-
+  
   /************* Fetch and display the current question ***************/
   initializeQuestionStreams(): void {
     // Initialize questions stream
