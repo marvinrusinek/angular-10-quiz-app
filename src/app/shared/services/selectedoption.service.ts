@@ -386,7 +386,7 @@ export class SelectedOptionService {
   }
 
   // Add (and persist) one option for a question
-  addSelection(option: SelectedOption | number, optionId?: number): void {
+  /* addSelection(option: SelectedOption | number, optionId?: number): void {
     let qIndex: number;
     let optId: number;
     let enrichedOption: SelectedOption | null = null;
@@ -439,6 +439,14 @@ export class SelectedOptionService {
 
     // Debug the new state
     console.log(`[📦 Q${qIndex} selections]`, updated.map(o => o.optionId));
+  } */
+  addSelection(questionIndex: number, optionId: number): void {
+    let s = this.map.get(questionIndex);
+    if (!s) {
+      s = new Set<number>();
+      this.map.set(questionIndex, s);
+    }
+    s.add(optionId);
   }
 
   // Method to add or remove a selected option for a question
