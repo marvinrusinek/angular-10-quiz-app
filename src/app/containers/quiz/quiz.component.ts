@@ -1280,7 +1280,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private subscribeRouterAndInit(): void {
-    this.routerSubscription = this.activatedRoute.data.subscribe((data) => {
+    this.routerSubscription = this.activatedRoute.data
+    .pipe(
+      // defer until right before the next paint
+      observeOn(animationFrameScheduler),
+      takeUntil(this.destroy$)    // or whatever your teardown notifier is
+    )
+    .subscribe((data: { quizData: Quiz }) => {
       const quizData: Quiz = data.quizData;
       if (
         !quizData ||
