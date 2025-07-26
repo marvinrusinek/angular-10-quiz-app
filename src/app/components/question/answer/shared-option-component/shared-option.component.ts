@@ -192,65 +192,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
       });
   
-    /* this.selectionSub = this.selectedOptionService.selectedOption$
-      .pipe(
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-      )
-      .subscribe((selectedOptions: SelectedOption[] | null) => {
-        if (!Array.isArray(this.optionsToDisplay) || !this.optionsToDisplay.length) return;
-
-        const validSelections = Array.isArray(selectedOptions)
-          ? selectedOptions.filter(sel => sel && typeof sel.optionId === 'number')
-          : [];
-
-        // Update option flags based on selectedOptions array
-        this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-          const isSelected = validSelections.some(sel => sel.optionId === opt.optionId);
-
-          return {
-            ...opt,
-            selected: isSelected,
-            showIcon: isSelected,
-            highlight: isSelected
-          };
-        });
-
-        // Regenerate bindings
-        this.generateOptionBindings();
-
-        // Trigger change detection
-        this.cdRef.detectChanges();
-      }); */
-    /* this.selectionSub = this.selectedOptionService.selectedOption$
-      .pipe(
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-      )
-      .subscribe((selections) => {
-        // Treat null/undefined as an empty array, normalize to a real array
-        const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
-    
-        if (!this.optionsToDisplay?.length) return;
-    
-        // Build a Set of selected IDs
-        const selIds = new Set(selList.map(s => s.optionId));
-    
-        // Update all your options at once
-        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-          ...opt,
-          selected:   selIds.has(opt.optionId),
-          showIcon:   selIds.has(opt.optionId),
-          highlight:  selIds.has(opt.optionId)
-        }));
-    
-        this.applySelectionsUI(selList);
-        this.generateOptionBindings();
-        this.cdRef.detectChanges();
-      }); */
     this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        // defer processing until the next animation frame
-        observeOn(animationFrameScheduler)
+        observeOn(animationFrameScheduler)  // defer processing until the next animation frame
       )
       .subscribe((selections) => {
         // Normalize to an array
