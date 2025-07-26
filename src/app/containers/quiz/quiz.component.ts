@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, H
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -478,39 +478,49 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Assign question and options together when ready
     this.quizStateService.qa$
       .pipe(
-        filter(
-          (d) =>
-            !!d.question && Array.isArray(d.options) && d.options.length > 0
+        filter(d =>
+          !!d.question &&
+          Array.isArray(d.options) &&
+          d.options.length > 0
         ),
-        auditTime(0),
         takeUntil(this.destroy$)
       )
       .subscribe(({ question, options, selectionMessage }) => {
-        this.qaToDisplay = { question, options };
-        this.selectionMessage = selectionMessage;
-
-        const answered =
-          !!question.selectedOptionIds?.length || !!question.answer?.length;
-
-        this.questionToDisplaySubject.next(
-          (question?.questionText ?? '').trim() || 'No question available'
-        );
-
-        if (answered) {
-          this.explanationTextService.explanationText$.next(
-            question.explanation?.trim() ?? ''
+        // Defer the view‐model update until the browser’s next repaint
+        requestAnimationFrame(() => {
+          // Set both question and options together
+          this.qaToDisplay      = { question, options };
+          this.selectionMessage = selectionMessage;
+    
+          // Updating other fields in the same frame
+          const answered =
+            !!question.selectedOptionIds?.length ||
+            !!question.answer?.length;
+    
+          this.questionToDisplaySubject.next(
+            (question.questionText ?? '').trim() ||
+            'No question available'
           );
-          queueMicrotask(() => {
-            this.quizStateService.setDisplayState({
-              mode: 'explanation',
-              answered: true
+    
+          if (answered) {
+            this.explanationTextService.explanationText$.next(
+              question.explanation?.trim() ?? ''
+            );
+            queueMicrotask(() => {
+              this.quizStateService.setDisplayState({
+                mode: 'explanation',
+                answered: true
+              });
             });
-          });
-        }
-
-        this.isQuizReady = true;
-        this.cdRef.markForCheck();
+          }
+    
+          this.isQuizReady = true;
+    
+          // Trigger change‑detection just once
+          this.cdRef.markForCheck();
+        });
       });
+    
 
     this.setupQuiz();
     this.subscribeToRouteParams();
