@@ -222,9 +222,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // Trigger change detection
         this.cdRef.detectChanges();
       }); */
-    
-
-    this.selectionSub = this.selectedOptionService.selectedOption$
+    /* this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
@@ -248,6 +246,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.applySelectionsUI(selList);
         this.generateOptionBindings();
         this.cdRef.detectChanges();
+      }); */
+    this.selectionSub = this.selectedOptionService.selectedOption$
+      .pipe(
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      )
+      .subscribe((selections) => {
+        // Normalize to an array
+        const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
+    
+        // Nothing to do if no options
+        if (!this.optionsToDisplay?.length) return;
+    
+        // One call does it all
+        this.applySelectionsUI(selList);
       });
     
     this.selectionImmediateSub = this.selectedOptionService.immediateSelection$
