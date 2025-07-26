@@ -202,10 +202,13 @@ export class SelectedOptionService {
     // Add the new selection
     // const updatedSelections = [...deduplicated, enrichedOption];
     const updatedSelections = [...currentSelections, enrichedOption];
-  
-    // Persist the updated list
-    this.selectedOptionsMap.set(qIndex, updatedSelections);
- 
+
+    // avoid duplicate optionId, persist the updated list
+    if (!currentSelections.some(sel => sel.optionId === enriched.optionId)) {
+      currentSelections.push(enriched);
+      this.selectedOptionsMap.set(qIndex, updatedSelections);
+    }
+   
     console.log('[🧠 Full map dump]');
     /* for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
       console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
