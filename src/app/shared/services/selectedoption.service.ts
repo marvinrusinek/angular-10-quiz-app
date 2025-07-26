@@ -183,41 +183,28 @@ export class SelectedOptionService {
   
     // Get existing selections for this question (if any)
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
-
+  
     // Only proceed if this optionId isn’t already stored
-    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
+    const alreadyExists = currentSelections.some(
+      sel => sel.optionId === enrichedOption.optionId
+    );
     if (alreadyExists) {
       console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId}`);
       return;
     }
   
-    // Remove any duplicate with the same optionId
-    /* const deduplicated = currentSelections.filter(
-      sel => sel.optionId !== enrichedOption.optionId
-    ); */
-  
-    // Add the new selection
-    // const updatedSelections = [...deduplicated, enrichedOption];
+    // Add the new selection (no duplicates guaranteed)
     const updatedSelections = [...currentSelections, enrichedOption];
   
     // Persist the updated list
     this.selectedOptionsMap.set(qIndex, updatedSelections);
- 
+  
     console.log('[🧠 Full map dump]');
-    /* for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
-      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
-        id: o?.optionId,
-        selected: o?.selected,
-        showIcon: o?.showIcon
-      })));
-    } */
-    console.log(`[📦 Stored Selections for Q${qIndex}]`, this.selectedOptionsMap.get(qIndex));
+    console.log(`[📦 Stored Selections for Q${qIndex}]`, updatedSelections);
     console.log('[🗺️ FULL MAP DUMP]', Array.from(this.selectedOptionsMap.entries()));
-
+  
     // Emit for immediate UI update (exclude the current to mimic previous selections)
-    const previouslySelected = updatedSelections.filter(
-      sel => sel.optionId !== enrichedOption.optionId
-    );
+    const previouslySelected = currentSelections;
     this.emitImmediateSelection(enrichedOption, previouslySelected);
   
     // Broadcast updated selection state
