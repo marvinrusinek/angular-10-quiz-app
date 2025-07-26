@@ -196,14 +196,15 @@ export class SelectedOptionService {
     this.selectedOptionsMap.set(qIndex, updatedSelections);
  
     console.log('[🧠 Full map dump]');
-    for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
+    /* for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
       console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
         id: o?.optionId,
         selected: o?.selected,
         showIcon: o?.showIcon
       })));
-    }
-
+    } */
+    console.log(`[📦 Stored Selections for Q${qIndex}]`, this.selectedOptionsMap.get(qIndex));
+    console.log('[🗺️ FULL MAP DUMP]', Array.from(this.selectedOptionsMap.entries()));
 
     // Emit for immediate UI update (exclude the current to mimic previous selections)
     const previouslySelected = updatedSelections.filter(

@@ -601,7 +601,7 @@ export class QuizQuestionComponent
 
       // Restore selected + icon state
       if (this.currentQuestionIndex != null) {
-        this.restoreSelectionsAndIconsForQuestion(this.currentQuestionIndex);
+        this.restoreSelectionsAndIconsForQuestion(this.quizService.currentQuestionIndex);
       }
 
       this.previousQuestionIndex = this.currentQuestionIndex;
@@ -2512,6 +2512,7 @@ export class QuizQuestionComponent
       return;
     }
 
+    console.log("CQI", this.currentQuestionIndex);
     const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
     console.log('[📋 existingSelections]', existingSelections.map(sel => ({
       id: sel?.optionId,
@@ -5060,6 +5061,7 @@ export class QuizQuestionComponent
   }
   
   restoreSelectionsAndIconsForQuestion(index: number) {
+    console.log("MY INDEX", index);
     const selectedOptions = this.selectedOptionService.getSelectedOptionsForQuestion(index);
     this.optionsToDisplay?.forEach(opt => {
       const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
