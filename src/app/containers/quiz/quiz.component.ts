@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -477,40 +477,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Assign question and options together when ready
     this.quizStateService.qa$
-      .pipe(
-        filter(
-          (d) =>
-            !!d.question && Array.isArray(d.options) && d.options.length > 0
-        ),
-        auditTime(0),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(({ question, options, selectionMessage }) => {
-        this.qaToDisplay = { question, options };
-        this.selectionMessage = selectionMessage;
-
-        const answered =
-          !!question.selectedOptionIds?.length || !!question.answer?.length;
-
-        this.questionToDisplaySubject.next(
-          (question?.questionText ?? '').trim() || 'No question available'
+    .pipe(
+      filter(
+        (d) =>
+          !!d.question &&
+          Array.isArray(d.options) &&
+          d.options.length > 0
+      ),
+      // defer the emission to the next animation frame
+      observeOn(animationFrameScheduler),
+      takeUntil(this.destroy$)
+    )
+    .subscribe(({ question, options, selectionMessage }) => {
+      // 1) update your view model in one go
+      this.qaToDisplay       = { question, options };
+      this.selectionMessage  = selectionMessage;
+  
+      const answered =
+        !!question.selectedOptionIds?.length ||
+        !!question.answer?.length;
+  
+      this.questionToDisplaySubject.next(
+        (question.questionText ?? '').trim() ||
+        'No question available'
+      );
+  
+      if (answered) {
+        this.explanationTextService.explanationText$.next(
+          question.explanation?.trim() ?? ''
         );
-
-        if (answered) {
-          this.explanationTextService.explanationText$.next(
-            question.explanation?.trim() ?? ''
-          );
-          queueMicrotask(() => {
-            this.quizStateService.setDisplayState({
-              mode: 'explanation',
-              answered: true
-            });
+        queueMicrotask(() => {
+          this.quizStateService.setDisplayState({
+            mode: 'explanation',
+            answered: true
           });
-        }
-
-        this.isQuizReady = true;
-        this.cdRef.markForCheck();
-      });
+        });
+      }
+  
+      // Mark ready and trigger change detection
+      this.isQuizReady = true;
+      this.cdRef.markForCheck();
+    });
 
     this.setupQuiz();
     this.subscribeToRouteParams();
