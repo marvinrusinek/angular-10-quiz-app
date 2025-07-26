@@ -2505,18 +2505,6 @@ export class QuizQuestionComponent
       return;
     }
 
-    const q = this.currentQuestionIndex;
-    const opt = event.option;
-
-    // Persist synchronously ──────────────────────────────
-    this.selectedOptionService.addSelection(q, opt);
-
-    // Synchronously repaint *all* icons at once ─────────
-    this.sharedOptionComponent?.syncAndPaintAll();
-
-    // Yield one tick so the browser can paint it ────────
-    await Promise.resolve();
-
     const { option, index, checked, wasReselected } = event;
   
     if (!this.currentQuestion) {
@@ -2524,36 +2512,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    console.log("CQI", this.currentQuestionIndex);
-    const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
-    console.log('[📋 existingSelections]', existingSelections.map(sel => ({
-      id: sel?.optionId,
-      selected: sel?.selected,
-      showIcon: sel?.showIcon,
-      questionIndex: sel?.questionIndex
-    })));
-
-    this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
-  
-    // Enrich and persist selection state
-    const enrichedOption: SelectedOption = {
-      ...option,
-      questionIndex: this.currentQuestionIndex,
-      selected: true,
-      showIcon: true,
-      highlight: true
-    };
-    this.selectedOptionService.addSelection(this.currentQuestionIndex, enrichedOption);
-
-    // Immediately repaint ALL icons
-    //const all = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex);
-    //this.sharedOptionComponent.applySelectionsUI(all);
-    //this.cdRef.detectChanges();
-
-    // YIELD for a single microtask so the UI can actually paint
-    //await Promise.resolve();
-
-    this.selectedOptionService.setSelectedOption(enrichedOption);
+    this.selectedOptionService.setSelectedOption(option);
   
     try {
       // ───── Core Selection Logic ─────
