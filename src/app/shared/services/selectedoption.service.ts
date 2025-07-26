@@ -204,8 +204,8 @@ export class SelectedOptionService {
     const updatedSelections = [...currentSelections, enrichedOption];
 
     // avoid duplicate optionId, persist the updated list
-    if (!currentSelections.some(sel => sel.optionId === enriched.optionId)) {
-      currentSelections.push(enriched);
+    if (!currentSelections.some(sel => sel.optionId === enrichedOption.optionId)) {
+      currentSelections.push(enrichedOption);
       this.selectedOptionsMap.set(qIndex, updatedSelections);
     }
    
