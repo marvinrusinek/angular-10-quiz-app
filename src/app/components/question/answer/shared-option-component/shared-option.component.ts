@@ -229,7 +229,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
       .subscribe((selections) => {
-        // Treat null/undefined as an empty array
+        // Treat null/undefined as an empty array, normalize to a real array
         const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
     
         if (!this.optionsToDisplay?.length) return;
@@ -245,6 +245,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           highlight:  selIds.has(opt.optionId)
         }));
     
+        this.applySelectionsUI(selList);
         this.generateOptionBindings();
         this.cdRef.detectChanges();
       });
