@@ -188,11 +188,6 @@ export class SelectedOptionService {
     const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
     if (alreadyExists) {
       console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId} — skipping re-add but still emitting`);
-      
-      // Still emit to update UI if needed
-      this.emitImmediateSelection(enrichedOption, currentSelections.filter(
-        sel => sel.optionId !== enrichedOption.optionId
-      ));
       return;
     }
   
