@@ -183,14 +183,22 @@ export class SelectedOptionService {
   
     // Get existing selections for this question (if any)
     const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
+
+    // Only proceed if this optionId isn’t already stored
+    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
+    if (alreadyExists) {
+      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId}`);
+      return;
+    }
   
     // Remove any duplicate with the same optionId
-    const deduplicated = currentSelections.filter(
+    /* const deduplicated = currentSelections.filter(
       sel => sel.optionId !== enrichedOption.optionId
-    );
+    ); */
   
     // Add the new selection
-    const updatedSelections = [...deduplicated, enrichedOption];
+    // const updatedSelections = [...deduplicated, enrichedOption];
+    const updatedSelections = [...currentSelections, enrichedOption];
   
     // Persist the updated list
     this.selectedOptionsMap.set(qIndex, updatedSelections);
