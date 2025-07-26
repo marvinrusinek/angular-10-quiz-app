@@ -749,8 +749,4 @@ export class SelectedOptionService {
       return false;
     }
   }
-
-  emitImmediateSelection(option: SelectedOption, selectedOptions: SelectedOption[]): void {
-    this.immediateSelectionSubject.next({ option, selectedOptions });
-  }  
 }
