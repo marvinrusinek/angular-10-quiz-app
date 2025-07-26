@@ -36,7 +36,10 @@ export class SelectedOptionService {
     option: SelectedOption;
     selectedOptions: SelectedOption[];
   }>();
-  immediateSelection$ = this.immediateSelectionSubject.asObservable();
+  public immediateSelection$: Observable<{
+    option: SelectedOption;
+    selectedOptions: SelectedOption[];
+  }> = this.immediateSelectionSubject.asObservable();
 
   stopTimer$ = new Subject<void>();
   stopTimerEmitted = false;
