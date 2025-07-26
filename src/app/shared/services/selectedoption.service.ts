@@ -385,6 +385,20 @@ export class SelectedOptionService {
     }
   }
 
+  // Add (and persist) one option for a question
+  addSelection(option: SelectedOption): void {
+    const q = option.questionIndex!;
+    const list = this.selectedOptionsMap.get(q) || [];
+
+    // Only append if not already in list
+    if (!list.some(sel => sel.optionId === option.optionId)) {
+      list.push({ ...option, selected: true, showIcon: true, highlight: true });
+      this.selectedOptionsMap.set(q, list);
+      // Emit the full list so anyone else can react if they need to
+      this.selectedOptionSubject.next(list);
+    }
+  }
+
   // Method to add or remove a selected option for a question
   public updateSelectionState(
     questionIndex: number,
