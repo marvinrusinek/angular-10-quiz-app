@@ -30,4 +30,4 @@ export class QuizResolverService implements Resolve<Quiz | null> {
       })
     );
   }
-}
+} 
