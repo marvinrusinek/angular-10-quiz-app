@@ -157,94 +157,53 @@ export class SelectedOptionService {
   setSelectedOption(option: SelectedOption | SelectedOption[]): void {
     if (!option) {
       console.log('SelectedOptionService: Clearing selected option');
-      this.selectedOption = [];
+      this.selectedOptionMap.clear();                  // wipe all questions
       this.selectedOptionSubject.next([]);
-      this.showFeedbackForOptionSubject.next({});
       this.isOptionSelectedSubject.next(false);
       this.updateAnsweredState();
       return;
     }
   
     if (Array.isArray(option)) {
-      if (this.areOptionsAlreadySelected(option)) {
-        console.log('SelectedOptionService: Options already selected, skipping');
-        return;
-      }
       console.error('Expected a single SelectedOption, but received an array:', option);
       return;
     }
   
-    // Enrich the selected option with persistent UI flags
-    const enrichedOption: SelectedOption = {
+    // ─── 1) Enrich the incoming option ───────────────────────────
+    const enriched: SelectedOption = {
       ...option,
       selected: true,
       highlight: true,
       showIcon: true
     };
+    const qIndex = enriched.questionIndex;
   
-    const qIndex = enrichedOption.questionIndex;
+    // ─── 2) Grab the existing list for this question ────────────
+    const current = this.selectedOptionsMap.get(qIndex) || [];
   
-    // Get existing selections for this question (if any)
-    const currentSelections = this.selectedOptionsMap.get(qIndex) || [];
-
-    // Only proceed if this optionId isn’t already stored
-    const alreadyExists = currentSelections.some(sel => sel.optionId === enrichedOption.optionId);
-    if (alreadyExists) {
-      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enrichedOption.optionId} — skipping re-add but still emitting`);
-      return;
+    // ─── 3) If this optionId is already in the list, skip the add ─
+    if (current.some(sel => sel.optionId === enriched.optionId)) {
+      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enriched.optionId}`);
+    } else {
+      // ─── 4) Otherwise append it to the end ────────────────────
+      const updated = [...current, enriched];
+      this.selectedOptionsMap.set(qIndex, updated);
     }
   
-    // Remove any duplicate with the same optionId
-    /* const deduplicated = currentSelections.filter(
-      sel => sel.optionId !== enrichedOption.optionId
-    ); */
+    // ─── 5) Read back the full, deduped list ────────────────────
+    const allSelected = this.selectedOptionsMap.get(qIndex)!;
   
-    // Add the new selection
-    // const updatedSelections = [...deduplicated, enrichedOption];
-    const updatedSelections = [...currentSelections, enrichedOption];
-
-    // avoid duplicate optionId, persist the updated list
-    if (!currentSelections.some(sel => sel.optionId === enrichedOption.optionId)) {
-      currentSelections.push(enrichedOption);
-      this.selectedOptionsMap.set(qIndex, updatedSelections);
-    }
-   
-    console.log('[🧠 Full map dump]');
-    /* for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
-      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => ({
-        id: o?.optionId,
-        selected: o?.selected,
-        showIcon: o?.showIcon
-      })));
-    } */
-    console.log(`[📦 Stored Selections for Q${qIndex}]`, this.selectedOptionsMap.get(qIndex));
-    console.log('[🗺️ FULL MAP DUMP]', Array.from(this.selectedOptionsMap.entries()));
-
-    // Emit for immediate UI update (exclude the current to mimic previous selections)
-    /* const previouslySelected = updatedSelections.filter(
-      sel => sel.optionId !== enrichedOption.optionId
-    ); */
-    this.emitImmediateSelection(enrichedOption, updatedSelections);
+    // ─── 6) Emit the full list exactly once ────────────────────
+    this.emitImmediateSelection(enriched, allSelected);
   
-    // Broadcast updated selection state
-    this.selectedOption = updatedSelections;
-    this.selectedOptionSubject.next(updatedSelections);
+    // ─── 7) Broadcast to any other subscribers ─────────────────
+    this.selectedOption = allSelected;
+    this.selectedOptionSubject.next(allSelected);
     this.isOptionSelectedSubject.next(true);
   
-    // Debug logs
-    console.log('[🧠 FULL MAP DUMP]');
-    for (const [qIndex, opts] of this.selectedOptionsMap.entries()) {
-      console.log(`FULL MAP DUMP QUESTION Q${qIndex}:`, opts.map(o => {
-        if (!o || typeof o !== 'object') return o;
-        return {
-          id: o.optionId,
-          selected: o.selected,
-          showIcon: o.showIcon,
-          highlight: o.highlight
-        };
-      }));
-    }
-  }
+    // ─── 8) Debug log so you can inspect the IDs ───────────────
+    console.log(`[📦 Q${qIndex} selections]`, allSelected.map(o => o.optionId));
+  }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
     if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
