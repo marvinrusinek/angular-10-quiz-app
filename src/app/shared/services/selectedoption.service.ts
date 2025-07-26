@@ -390,12 +390,14 @@ export class SelectedOptionService {
     const q = option.questionIndex!;
     const list = this.selectedOptionsMap.get(q) || [];
 
-    // Only append if not already in list
+    // Only add if not already present
     if (!list.some(sel => sel.optionId === option.optionId)) {
-      list.push({ ...option, selected: true, showIcon: true, highlight: true });
-      this.selectedOptionsMap.set(q, list);
-      // Emit the full list so anyone else can react if they need to
-      this.selectedOptionSubject.next(list);
+      // enrich flags
+      const enriched = { ...option, selected: true, showIcon: true, highlight: true };
+      const updated = [...list, enriched];
+      this.selectedOptionsMap.set(q, updated);
+      this.selectedOptionSubject.next(updated);
+      console.log(`[📦 Q${q} selections]`, updated.map(o => o.optionId));
     }
   }
 
