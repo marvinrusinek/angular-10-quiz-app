@@ -2,8 +2,8 @@ import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetecto
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged, observeOn, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -248,7 +248,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }); */
     this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+        // defer processing until the next animation frame
+        observeOn(animationFrameScheduler)
       )
       .subscribe((selections) => {
         // Normalize to an array
