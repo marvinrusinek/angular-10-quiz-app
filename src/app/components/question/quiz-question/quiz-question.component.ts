@@ -2505,18 +2505,6 @@ export class QuizQuestionComponent
       return;
     }
 
-    const q = this.currentQuestionIndex;
-    const opt = event.option;
-
-    // Persist synchronously ──────────────────────────────
-    this.selectedOptionService.addSelection(q, opt);
-
-    // Synchronously repaint *all* icons at once ─────────
-    this.sharedOptionComponent?.syncAndPaintAll();
-
-    // Yield one tick so the browser can paint it ────────
-    await Promise.resolve();
-
     const { option, index, checked, wasReselected } = event;
   
     if (!this.currentQuestion) {
