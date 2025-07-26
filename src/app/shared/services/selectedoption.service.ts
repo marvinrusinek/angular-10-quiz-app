@@ -34,7 +34,7 @@ export class SelectedOptionService {
 
   private immediateSelectionSubject = new Subject<{
     option: SelectedOption;
-    previouslySelected: SelectedOption[];
+    selectedOptions: SelectedOption[];
   }>();
   immediateSelection$ = this.immediateSelectionSubject.asObservable();
 
@@ -215,10 +215,10 @@ export class SelectedOptionService {
     console.log('[🗺️ FULL MAP DUMP]', Array.from(this.selectedOptionsMap.entries()));
 
     // Emit for immediate UI update (exclude the current to mimic previous selections)
-    const previouslySelected = updatedSelections.filter(
+    /* const previouslySelected = updatedSelections.filter(
       sel => sel.optionId !== enrichedOption.optionId
-    );
-    this.emitImmediateSelection(enrichedOption, previouslySelected);
+    ); */
+    this.emitImmediateSelection(enrichedOption, updatedSelections);
   
     // Broadcast updated selection state
     this.selectedOption = updatedSelections;
@@ -724,7 +724,7 @@ export class SelectedOptionService {
     }
   }
 
-  emitImmediateSelection(option: SelectedOption, prev: SelectedOption[]) {
-    this.immediateSelectionSubject.next({ option, previouslySelected: prev });
-  }
+  emitImmediateSelection(option: SelectedOption, selectedOptions: SelectedOption[]): void {
+    this.immediateSelectionSubject.next({ option, selectedOptions });
+  }  
 }
