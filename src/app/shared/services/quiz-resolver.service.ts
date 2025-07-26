@@ -11,7 +11,7 @@ export class QuizResolverService implements Resolve<Quiz | null> {
   constructor(private quizDataService: QuizDataService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<Quiz> {
-    const quizId = route.params['quizId'];
+    const quizId = route.params['quizId']; 
   
     return this.quizDataService.getQuiz(quizId).pipe(
       map((quiz) => {

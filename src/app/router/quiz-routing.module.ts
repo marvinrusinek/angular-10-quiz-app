@@ -28,8 +28,7 @@ const routes: Routes = [
     component: QuizComponent,
     canActivate: [QuizGuard],
     resolve: { 
-      quizData: QuizResolverService,
-      qa: QAResolverService
+      quizData: QuizResolverService
     },
     runGuardsAndResolvers: 'always'
   },
