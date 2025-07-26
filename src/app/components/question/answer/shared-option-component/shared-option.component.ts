@@ -193,7 +193,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.updateOptionAndUI(b, i, { value: b.option.optionId } as MatRadioChange);
       });
   
-    this.selectionSub = this.selectedOptionService.selectedOption$
+    /* this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
@@ -221,9 +221,34 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
         // Trigger change detection
         this.cdRef.detectChanges();
+      }); */
+    
+
+    this.selectionSub = this.selectedOptionService.selectedOption$
+      .pipe(
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      )
+      .subscribe((selections) => {
+        // Treat null/undefined as an empty array
+        const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
+    
+        if (!this.optionsToDisplay?.length) return;
+    
+        // Build a Set of selected IDs
+        const selIds = new Set(selList.map(s => s.optionId));
+    
+        // Update all your options at once
+        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+          ...opt,
+          selected:   selIds.has(opt.optionId),
+          showIcon:   selIds.has(opt.optionId),
+          highlight:  selIds.has(opt.optionId)
+        }));
+    
+        this.generateOptionBindings();
+        this.cdRef.detectChanges();
       });
-
-
+    
     this.selectionImmediateSub = this.selectedOptionService.immediateSelection$
       .subscribe(({ option, selectedOptions }) => {
         this.applyImmediateSelectionUI(option, selectedOptions);
