@@ -186,6 +186,11 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(true);
   
     console.log(`[📦 Q${qIndex} selections]`, current.map(o => o.optionId));
+  }
+
+  setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
+    this.selectedOptionsMap.set(qIndex, selections);
+    this.selectedOptionSubject.next(selections);
   }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
