@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable, EMPTY } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { Quiz }      from '../../shared/models/Quiz.model';
+
+import { Option } from '../../shared/models/Option.model'
+import { Quiz } from '../../shared/models/Quiz.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizDataService } from './quizdata.service';
 
 export interface QAData {
-  question: Question;
+  question: QuizQuestion;
   options:  Option[];
 }
 
