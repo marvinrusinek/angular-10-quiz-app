@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -483,6 +483,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           Array.isArray(d.options) &&
           d.options.length > 0
         ),
+        // defer the subscriber callback until just before the next browser repaint
+        observeOn(animationFrameScheduler),
         takeUntil(this.destroy$)
       )
       .subscribe(({ question, options, selectionMessage }) => {
@@ -1449,7 +1451,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /**** Initialize route parameters and subscribe to updates ****/
-  resolveQuizData(): void {
+  /* resolveQuizData(): void {
     this.activatedRoute.data
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((data: { quizData: Quiz }) => {
@@ -1473,7 +1475,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           });
         }
       });
+  } */
+  resolveQuizData(): void {
+    this.activatedRoute.data
+      .pipe(
+        // wait until the next animation frame so we paint all at once
+        observeOn(animationFrameScheduler),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((data: { quizData: Quiz }) => {
+        const quiz = data.quizData;
+        if (
+          quiz &&
+          Array.isArray(quiz.questions) &&
+          quiz.questions.length > 0
+        ) {
+          // ─── 1) Store the quiz and initialize services ────────────
+          this.selectedQuiz = quiz;
+          this.quizService.setSelectedQuiz(quiz);
+          this.explanationTextService.initializeExplanationTexts(
+            quiz.questions.map(q => q.explanation)
+          );
+  
+          // ─── 2) Kick off your internal quiz setup (sets currentQuestionIndex) ─
+          this.initializeQuiz();
+  
+          // ─── 3) Immediately pull out the first question + options ─────────
+          const idx = this.quizService.currentQuestionIndex;
+          const question = quiz.questions[idx]!;
+          const options  = question.options ?? [];
+  
+          // update your view‐model in one shot
+          this.qaToDisplay      = { question, options };
+          this.selectionMessage = this.selectionMessageService.getCurrentMessage() ?? '';
+          this.isQuizReady      = true;
+  
+          // ─── 4) One change‐detection pass to render both together ────────
+          this.cdRef.markForCheck();
+        } else {
+          console.error('Quiz data is undefined, or there are no questions');
+          this.router.navigate(['/select']).then(() => {
+            console.log('No quiz data available.');
+          });
+        }
+      });
   }
+  
 
   // REMOVE!!
   async fetchQuizData(): Promise<void> {
