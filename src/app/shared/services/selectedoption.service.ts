@@ -154,22 +154,15 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);  // no option selected
   }
 
-  setSelectedOption(option: SelectedOption | SelectedOption[]): void {
+  setSelectedOption(option: SelectedOption): void {
     if (!option) {
-      console.log('SelectedOptionService: Clearing selected option');
-      this.selectedOptionMap.clear();                  // wipe all questions
+      this.selectedOptionsMap.clear();
       this.selectedOptionSubject.next([]);
       this.isOptionSelectedSubject.next(false);
       this.updateAnsweredState();
       return;
     }
   
-    if (Array.isArray(option)) {
-      console.error('Expected a single SelectedOption, but received an array:', option);
-      return;
-    }
-  
-    // ─── 1) Enrich the incoming option ───────────────────────────
     const enriched: SelectedOption = {
       ...option,
       selected: true,
@@ -178,31 +171,21 @@ export class SelectedOptionService {
     };
     const qIndex = enriched.questionIndex;
   
-    // ─── 2) Grab the existing list for this question ────────────
+    // 1) Grab current list (or empty)
     const current = this.selectedOptionsMap.get(qIndex) || [];
   
-    // ─── 3) If this optionId is already in the list, skip the add ─
-    if (current.some(sel => sel.optionId === enriched.optionId)) {
-      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${enriched.optionId}`);
-    } else {
-      // ─── 4) Otherwise append it to the end ────────────────────
-      const updated = [...current, enriched];
-      this.selectedOptionsMap.set(qIndex, updated);
+    // 2) Only add if not already there
+    if (!current.some(sel => sel.optionId === enriched.optionId)) {
+      current.push(enriched);
+      this.selectedOptionsMap.set(qIndex, current);
     }
   
-    // ─── 5) Read back the full, deduped list ────────────────────
-    const allSelected = this.selectedOptionsMap.get(qIndex)!;
-  
-    // ─── 6) Emit the full list exactly once ────────────────────
-    this.emitImmediateSelection(enriched, allSelected);
-  
-    // ─── 7) Broadcast to any other subscribers ─────────────────
-    this.selectedOption = allSelected;
-    this.selectedOptionSubject.next(allSelected);
+    // 3) Synchronously emit the full updated list
+    this.selectedOption = current;
+    this.selectedOptionSubject.next(current);
     this.isOptionSelectedSubject.next(true);
   
-    // ─── 8) Debug log so you can inspect the IDs ───────────────
-    console.log(`[📦 Q${qIndex} selections]`, allSelected.map(o => o.optionId));
+    console.log(`[📦 Q${qIndex} selections]`, current.map(o => o.optionId));
   }  
 
   private isValidSelectedOption(option: SelectedOption): boolean {
