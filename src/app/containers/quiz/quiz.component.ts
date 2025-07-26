@@ -2374,13 +2374,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   initializeQuizFromRoute(): void {
     this.activatedRoute.data
       .pipe(
-        // ── Defer everything until just before the next paint ─────────
+        // Defer everything until just before the next paint
         observeOn(animationFrameScheduler),
   
-        // ── Tear down when your component is destroyed ────────────────
+        // Tear down when your component is destroyed
         takeUntil(this.destroy$),
   
-        // ── Extract quizData and pre‑load explanations in one flow ────
+        // Extract quizData and pre‑load explanations in one flow
         switchMap((data: { quizData?: Quiz }) => {
           if (!data.quizData) {
             console.error('Quiz data is unavailable.');
@@ -2388,10 +2388,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             return EMPTY;
           }
   
-          // 1) Store the quiz
+          // Store the quiz
           this.quiz = data.quizData;
   
-          // 2) Kick off your explanation preload
+          // Kick off your explanation preload
           return this.ensureExplanationsLoaded().pipe(
             tap(() => console.log('Explanations preloaded successfully.')),
             catchError(err => {
@@ -2402,11 +2402,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         })
       )
       .subscribe(() => {
-        // ── 3) Once explanations are ready, wire up navigation ───────
+        // Once explanations are ready, wire up navigation
         this.setupNavigation();
   
-        // ── 4) Trigger a single CD cycle so your UI (quiz/question/options/navigation) 
-        //     appears together, with no flicker ──────────────────────
+        // Trigger a single CD cycle so the UI (quiz/question/options/navigation) 
+        // appears together, with no flicker
         this.cdRef.markForCheck();
       });
   }
