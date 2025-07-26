@@ -2523,9 +2523,6 @@ export class QuizQuestionComponent
     
 
     this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
-
-    const qIndex = this.currentQuestionIndex;
-    const raw = event.option;
   
     // Enrich and persist selection state
     const enrichedOption: SelectedOption = {
@@ -2533,7 +2530,7 @@ export class QuizQuestionComponent
       selected: true,
       showIcon: true,
       highlight: true,
-      questionIndex: qIndex
+      questionIndex: this.currentQuestionIndex
     };
 
     // Compute the new full list for this question
