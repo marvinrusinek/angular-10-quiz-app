@@ -2523,17 +2523,6 @@ export class QuizQuestionComponent
       console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
       return;
     }
-
-    console.log("CQI", this.currentQuestionIndex);
-    const existingSelections = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex) || [];
-    console.log('[📋 existingSelections]', existingSelections.map(sel => ({
-      id: sel?.optionId,
-      selected: sel?.selected,
-      showIcon: sel?.showIcon,
-      questionIndex: sel?.questionIndex
-    })));
-
-    this.sharedOptionComponent?.applyImmediateSelectionUI(option, existingSelections);
   
     // Enrich and persist selection state
     const enrichedOption: SelectedOption = {
@@ -2544,14 +2533,6 @@ export class QuizQuestionComponent
       highlight: true
     };
     this.selectedOptionService.addSelection(this.currentQuestionIndex, enrichedOption);
-
-    // Immediately repaint ALL icons
-    //const all = this.selectedOptionService.getSelectedOptionsForQuestion(this.currentQuestionIndex);
-    //this.sharedOptionComponent.applySelectionsUI(all);
-    //this.cdRef.detectChanges();
-
-    // YIELD for a single microtask so the UI can actually paint
-    //await Promise.resolve();
 
     this.selectedOptionService.setSelectedOption(enrichedOption);
   

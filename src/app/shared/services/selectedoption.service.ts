@@ -33,15 +33,6 @@ export class SelectedOptionService {
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  private immediateSelectionSubject = new Subject<{
-    option: SelectedOption;
-    selectedOptions: SelectedOption[];
-  }>();
-  public immediateSelection$: Observable<{
-    option: SelectedOption;
-    selectedOptions: SelectedOption[];
-  }> = this.immediateSelectionSubject.asObservable();
-
   stopTimer$ = new Subject<void>();
   stopTimerEmitted = false;
 
