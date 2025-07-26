@@ -5070,5 +5070,5 @@ export class QuizQuestionComponent
     });
        
     this.cdRef.detectChanges();
-  }  
+  }
 }
