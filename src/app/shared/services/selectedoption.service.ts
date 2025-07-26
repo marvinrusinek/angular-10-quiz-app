@@ -386,19 +386,59 @@ export class SelectedOptionService {
   }
 
   // Add (and persist) one option for a question
-  addSelection(option: SelectedOption): void {
-    const q = option.questionIndex!;
-    const list = this.selectedOptionsMap.get(q) || [];
+  addSelection(option: SelectedOption | number, optionId?: number): void {
+    let qIndex: number;
+    let optId: number;
+    let enrichedOption: SelectedOption | null = null;
 
-    // Only add if not already present
-    if (!list.some(sel => sel.optionId === option.optionId)) {
-      // enrich flags
-      const enriched = { ...option, selected: true, showIcon: true, highlight: true };
-      const updated = [...list, enriched];
-      this.selectedOptionsMap.set(q, updated);
-      this.selectedOptionSubject.next(updated);
-      console.log(`[📦 Q${q} selections]`, updated.map(o => o.optionId));
+    // Determine which overload was called
+    if (typeof option === 'number') {
+      // Called as addSelection(questionIndex, optionId)
+      qIndex = option;
+      optId  = optionId!;
+    } else {
+      // Called as addSelection(option)
+      enrichedOption = {
+        ...option,
+        selected:  true,
+        showIcon:  true,
+        highlight: true
+      };
+      qIndex = enrichedOption.questionIndex!;
+      optId  = enrichedOption.optionId;
     }
+
+    // Get or initialize the list for this question
+    const current = this.selectedOptionsMap.get(qIndex) || [];
+
+    // Skip if already selected
+    if (current.some(sel => sel.optionId === optId)) {
+      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${optId}`);
+      return;
+    }
+
+    // Build the enriched entry
+    const entry = enrichedOption
+      ? enrichedOption
+      : ({
+          questionIndex: qIndex,
+          optionId:      optId,
+          selected:      true,
+          showIcon:      true,
+          highlight:     true
+        } as SelectedOption);
+
+    // Persist the updated list
+    const updated = [...current, entry];
+    this.selectedOptionsMap.set(qIndex, updated);
+
+    // Broadcast the full, deduplicated list
+    this.selectedOption     = updated;
+    this.selectedOptionSubject.next(updated);
+    this.isOptionSelectedSubject.next(true);
+
+    // Debug the new state
+    console.log(`[📦 Q${qIndex} selections]`, updated.map(o => o.optionId));
   }
 
   // Method to add or remove a selected option for a question
