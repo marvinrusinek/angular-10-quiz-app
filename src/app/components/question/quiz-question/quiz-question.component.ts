@@ -2537,15 +2537,15 @@ export class QuizQuestionComponent
     };
 
     // Compute the new full list for this question
-    const existing = this.selectedOptionService.getSelectedOptionsForQuestion(qIndex) || [];
+    /* const existing = this.selectedOptionService.getSelectedOptionsForQuestion(qIndex) || [];
     const already = existing.some(s => s.optionId === enrichedOption.optionId);
-    const updated = already ? existing : [...existing, enrichedOption];
+    const updated = already ? existing : [...existing, enrichedOption]; */
 
     // Immediately update the UI with the full list
-    this.sharedOptionComponent.applySelectionsUI(updated);
+    // this.sharedOptionComponent.applySelectionsUI(updated);
 
     // 4Persist the full list for later restoration
-    this.selectedOptionService.setSelectionsForQuestion(qIndex, updated);
+    // this.selectedOptionService.setSelectionsForQuestion(qIndex, updated);
 
     this.selectedOptionService.setSelectedOption(enrichedOption);
   
