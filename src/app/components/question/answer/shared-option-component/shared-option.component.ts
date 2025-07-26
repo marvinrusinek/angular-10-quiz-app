@@ -2185,5 +2185,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Rebuild UI bindings and trigger change detection
     this.generateOptionBindings();
     this.cdRef.detectChanges();
-  }  
+  }
+
+  // Immediately updates all icons for the given array of selected options.
+  public applySelectionsUI(selectedOptions: SelectedOption[]): void {
+    if (!this.optionsToDisplay?.length) return;
+
+    // Build a Set for fast lookups
+    const selIds = new Set(selectedOptions.map(s => s.optionId));
+
+    // Sync all three flags in one pass
+    this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+      ...opt,
+      selected:  selIds.has(opt.optionId),
+      showIcon:  selIds.has(opt.optionId),
+      highlight: selIds.has(opt.optionId)
+    }));
+
+    this.generateOptionBindings();
+    this.cdRef.detectChanges();
+  }
 }
