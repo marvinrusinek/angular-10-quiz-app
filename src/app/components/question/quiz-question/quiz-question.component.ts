@@ -2512,18 +2512,6 @@ export class QuizQuestionComponent
       return;
     }
   
-    // Enrich and persist selection state
-    const enrichedOption: SelectedOption = {
-      ...option,
-      questionIndex: this.currentQuestionIndex,
-      selected: true,
-      showIcon: true,
-      highlight: true
-    };
-    this.selectedOptionService.addSelection(this.currentQuestionIndex, enrichedOption);
-
-    this.selectedOptionService.setSelectedOption(enrichedOption);
-  
     try {
       // ───── Core Selection Logic ─────
       this.handleCoreSelection(event);   // selection flags, next button logic
