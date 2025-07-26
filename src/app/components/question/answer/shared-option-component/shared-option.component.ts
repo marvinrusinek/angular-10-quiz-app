@@ -263,10 +263,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.applySelectionsUI(selList);
       });
     
-    this.selectionImmediateSub = this.selectedOptionService.immediateSelection$
-      .subscribe(({ option, selectedOptions }) => {
-        this.applyImmediateSelectionUI(option, selectedOptions);
-      });
   
     // ─── Preferences and IDs ─────────────────────────────────────────────────
     this.highlightCorrectAfterIncorrect = this.userPreferenceService.getHighlightPreference();
@@ -2235,31 +2231,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       b.option.selected = chosen;
       b.isSelected = chosen;
     });
-  }
-
-  applyImmediateSelectionUI(currentOption: Option, previouslySelected: Option[]): void {
-    if (!this.optionsToDisplay?.length) return;
-  
-    // Clone previous selections and avoid duplicates
-    const allSelected = [...previouslySelected];
-    const alreadyExists = previouslySelected.some(sel => sel.optionId === currentOption.optionId);
-    if (!alreadyExists) allSelected.push(currentOption);
-  
-    // Apply updated UI flags for selected, showIcon, and highlight while preserving previous states
-    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const isSelected = allSelected.some(sel => sel.optionId === opt.optionId);
-      
-      return {
-        ...opt,
-        selected: isSelected,
-        showIcon: isSelected,
-        highlight: isSelected
-      };
-    });
-  
-    // Rebuild UI bindings and trigger change detection
-    this.generateOptionBindings();
-    this.cdRef.detectChanges();
   }
 
   // Immediately updates all icons for the given array of selected options.
