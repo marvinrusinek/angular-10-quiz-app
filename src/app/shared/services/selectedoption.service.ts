@@ -440,13 +440,30 @@ export class SelectedOptionService {
     // Debug the new state
     console.log(`[📦 Q${qIndex} selections]`, updated.map(o => o.optionId));
   } */
-  addSelection(questionIndex: number, optionId: number): void {
-    let s = this.map.get(questionIndex);
-    if (!s) {
-      s = new Set<number>();
-      this.map.set(questionIndex, s);
+  public addSelection(questionIndex: number, option: SelectedOption): void {
+    // 1) Get or initialize the list for this question
+    const list = this.selectedOptionsMap.get(questionIndex) || [];
+
+    // 2) If this optionId is already in the list, skip
+    if (list.some(sel => sel.optionId === option.optionId)) {
+      console.log(`[⚠️ Already selected] Q${questionIndex}, Option ${option.optionId}`);
+      return;
     }
-    s.add(optionId);
+
+    // 3) Enrich the option object with your flags
+    const enriched: SelectedOption = {
+      ...option,
+      selected:   true,
+      showIcon:   true,
+      highlight:  true,
+      questionIndex
+    };
+
+    // 4) Append and persist
+    list.push(enriched);
+    this.selectedOptionsMap.set(questionIndex, list);
+
+    console.log(`[📦 Q${questionIndex} selections]`, list.map(o => o.optionId));
   }
 
   // Method to add or remove a selected option for a question
