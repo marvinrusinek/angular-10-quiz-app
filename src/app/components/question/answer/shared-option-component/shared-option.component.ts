@@ -3,7 +3,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioButton, MatRadioChange } from '@angular/material/radio';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { FeedbackProps } from '../../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../../shared/models/Option.model';
@@ -20,7 +20,6 @@ import { SelectedOptionService } from '../../../../shared/services/selectedoptio
 import { SoundService } from '../../../../shared/services/sound.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
-
 
 @Component({
   selector: 'app-shared-option',
