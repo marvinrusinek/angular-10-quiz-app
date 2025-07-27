@@ -2722,6 +2722,12 @@ export class QuizQuestionComponent
     lockedState: LockedState
   ): void {
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+
+    console.log(
+      '[🔒 emitExplanationIfValid]', 
+      'currentIndex=', currentIndex, 
+      'lockedIndex=', lockedState.index
+    );
   
     // Only gate on the question index—drop the timestamp + text checks
     if (currentIndex !== lockedState.index) {
