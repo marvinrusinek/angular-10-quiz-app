@@ -222,7 +222,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what <codelab-quiz-content> shows
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -253,6 +253,56 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : question;
       }),
       distinctUntilChanged()
+    );
+  } */
+  private getCombinedDisplayTextStream(): void {
+    // ─── 1️⃣ click‐driven explanation: always emit on every click
+    const clickExpl$ = this.click$.pipe(
+      map(() => this.explanationText)
+      // ⚠️ no distinctUntilChanged here, so identical strings will still fire
+    );
+  
+    // ─── 2️⃣ your original “base” pipeline, with its own de‑dup
+    const base$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$
+    ]).pipe(
+      map(([
+        state,
+        explanationText,
+        questionText,
+        correctText,
+        shouldDisplayExplanation
+      ]) => {
+        const question    = questionText?.trim();
+        const explanation = (explanationText ?? '').trim();
+        const correct     = (correctText    ?? '').trim();
+  
+        const showExplanation =
+          state.mode === 'explanation' &&
+          explanation &&
+          shouldDisplayExplanation === true;
+  
+        if (showExplanation) {
+          return explanation;  // render explanation once
+        }
+  
+        // Otherwise show question (+ correct count if present)
+        return correct
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      }),
+      // only de‑dupe the base pipeline
+      distinctUntilChanged()
+    );
+  
+    // ─── 3️⃣ merge them, but skip the final distinctUntilChanged
+    this.combinedText$ = merge(
+      clickExpl$,
+      base$
     );
   }
 
