@@ -2520,7 +2520,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2572,7 +2572,55 @@ export class QuizQuestionComponent
       console.error('[onOptionClicked] ❌ Error:', err);
     }
     console.groupEnd();
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // ① Use the index from the event, not the component property
+    const qIdx = event.index;
+    console.group(`[🖱️ onOptionClicked Q${qIdx} — firstClick? ${!this.explanationVisible}]`);
+    console.log('  ▶ before logic:', {
+      visible: this.explanationVisible,
+      text: this.explanationText
+    });
+  
+    // ② Guard clauses
+    if (!event.option) {
+      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+      console.groupEnd();
+      return;
+    }
+    if (!this.currentQuestion) {
+      console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
+      console.groupEnd();
+      return;
+    }
+  
+    // ③ Core selection logic (only for the clicked option)
+    this.selectedOptionService.setSelectedOption(event.option);
+    this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option);
+  
+    // ④ Grab explanation text synchronously
+    const expl = this.currentQuestion.explanation?.trim() ?? 'No explanation available';
+  
+    // ⑤ Display immediately on first click
+    this.displayExplanationText(expl, qIdx);
+  
+    // ⑥ Persist in background (so it doesn’t block the UI)
+    await this.updateExplanationText(qIdx).catch(console.error);
+  
+    // ⑦ Build your feedback text and run any post‑click tasks
+    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+    await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
+  
+    console.groupEnd();
   }
+  
   
 
   private async handleAnswer(option: Option, index: number): Promise<void> {
