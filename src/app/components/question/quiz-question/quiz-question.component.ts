@@ -587,6 +587,12 @@ export class QuizQuestionComponent
       this.enforceHydrationFallback();
     }
 
+    if (changes.currentQuestionIndex && !changes.currentQuestionIndex.firstChange) {
+      // Hide any leftover explanation from the previous question
+      this.explanationVisible = false;
+      this.explanationText    = '';
+    }
+
     if (changes['question']) {
       // Clear local icon state before changing question
       this.clearOptionStateForQuestion(this.previousQuestionIndex);
@@ -1289,6 +1295,10 @@ export class QuizQuestionComponent
 
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
+      // Reset explanation UI for every new question
+      this.explanationVisible = false;
+      this.explanationText    = '';
+      
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
   
@@ -2520,11 +2530,15 @@ export class QuizQuestionComponent
       this.markBindingSelected(option);  // highlight row and mark binding
       this.refreshFeedbackFor(option);   // only show feedback on selected row
   
+      this.explanationText = this.currentQuestion!.explanation?.trim() 
+      || 'No explanation available';
+      this.explanationVisible = true;
+      this.cdRef.detectChanges();
+
       // ───── Update Explanation and Feedback State ─────
-      await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
-      this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
-
-
+      // await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
+      // this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
+      this.updateExplanationText(this.currentQuestionIndex).catch(err => console.error(err));
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
