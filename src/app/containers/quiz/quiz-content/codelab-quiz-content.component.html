@@ -1,5 +1,13 @@
+<!-- 1️⃣ When explanationVisible is true, show explanationText immediately -->
+<ng-container *ngIf="explanationVisible; else questionTpl">
+<h3 question-content [innerHTML]="explanationText"></h3>
+</ng-container>
+
+<!-- 2️⃣ Otherwise fall back to your normal combinedText$ question display -->
+<ng-template #questionTpl>
 <h3 question-content>
   <ng-container *ngIf="combinedText$ | async as combinedText">
     <span [innerHTML]="combinedText"></span>
   </ng-container>
 </h3>
+</ng-template>

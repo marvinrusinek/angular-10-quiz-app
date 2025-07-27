@@ -255,7 +255,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged()
     );
   } */
-  private getCombinedDisplayTextStream(): void {
+  /* private getCombinedDisplayTextStream(): void {
     // ─── 1️⃣ click‐driven explanation: always emit on every click
     const clickExpl$ = this.click$.pipe(
       map(() => this.explanationText)
@@ -304,7 +304,59 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       clickExpl$,
       base$
     );
+  } */
+  private getCombinedDisplayTextStream(): void {
+    // ─── 1️⃣ Local sync explanation: fires immediately when you call this._expl$.next(...)
+    const localExpl$ = this._expl$.asObservable().pipe(
+      // only pass through non‐empty strings
+      filter(expl => typeof expl === 'string' && expl.trim().length > 0)
+    );
+  
+    // ─── 2️⃣ Your original “base” pipeline (unchanged, comments intact)
+    const base$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$
+    ]).pipe(
+      map(([
+        state,
+        explanationText,
+        questionText,
+        correctText,
+        shouldDisplayExplanation
+      ]) => {
+        const question    = questionText?.trim();
+        const explanation = (explanationText ?? '').trim();
+        const correct     = (correctText    ?? '').trim();
+  
+        const showExplanation =
+          state.mode === 'explanation' &&
+          explanation &&
+          shouldDisplayExplanation === true;
+  
+        if (showExplanation) {
+          return explanation;  // render explanation once
+        }
+  
+        // Otherwise show question (+ correct count if present)
+        return correct
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      })
+    );
+  
+    // ─── 3️⃣ Merge them so that localExpl$ always wins on click,
+    //      then de‑duplicate consecutive identical strings
+    this.combinedText$ = merge(
+      localExpl$,
+      base$
+    ).pipe(
+      distinctUntilChanged()
+    );
   }
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
