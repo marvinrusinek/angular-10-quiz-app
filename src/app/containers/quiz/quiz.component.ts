@@ -3416,10 +3416,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
+    this.explanationText = '';
+    this.quizQuestionComponent.explanationVisible = false;
 
     try {
       await this.quizNavigationService.advanceToNextQuestion();
-      this.questionVersion++;
+      // this.questionVersion++;
       console.log('[PARENT] version →', this.questionVersion);
       this.cdRef.markForCheck();
     } catch (err) {
@@ -3429,10 +3431,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   public async advanceToPreviousQuestion(): Promise<void> {
     this.triggerAnimation();
+    this.explanationText = '';
+    this.quizQuestionComponent.explanationVisible = false;
 
     try {
       await this.quizNavigationService.advanceToPreviousQuestion();
-      this.questionVersion++;
+      // this.questionVersion++;
       this.cdRef.markForCheck();
     } catch (err) {
       console.error('[Prev] navigation failed', err);

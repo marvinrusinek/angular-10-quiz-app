@@ -407,7 +407,7 @@ export class QuizQuestionComponent
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
       this.explanationText    = '';
-      
+
       const questionIndex = Number(params.get('questionIndex'));
     
       try {
@@ -1301,6 +1301,7 @@ export class QuizQuestionComponent
       // Reset explanation UI for every new question
       this.explanationVisible = false;
       this.explanationText    = '';
+      this.cdRef.detectChanges();
       
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
