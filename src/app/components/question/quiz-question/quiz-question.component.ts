@@ -200,6 +200,9 @@ export class QuizQuestionComponent
   currentExplanationText = '';
   explanationEmitted = false;
 
+  private _expl$ = new BehaviorSubject<string | null>(null);
+  public explanation$ = this._expl$.asObservable();
+
   private lastSerializedOptions = '';
   private lastSerializedPayload = '';
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
@@ -407,6 +410,7 @@ export class QuizQuestionComponent
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
       this.explanationText    = '';
+      this._expl$.next(null);
 
       const questionIndex = Number(params.get('questionIndex'));
     
@@ -1301,6 +1305,7 @@ export class QuizQuestionComponent
       // Reset explanation UI for every new question
       this.explanationVisible = false;
       this.explanationText    = '';
+      this._expl$.next(null);
       this.cdRef.detectChanges();
       
       const rawParam = params.get('questionIndex');
@@ -2537,7 +2542,8 @@ export class QuizQuestionComponent
       this.explanationText = this.currentQuestion!.explanation?.trim() 
       || 'No explanation available';
       this.explanationVisible = true;
-      this.cdRef.detectChanges();
+      this._expl$.next(this.explanationText);
+      this.cdRef.markForCheck();
 
       // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
