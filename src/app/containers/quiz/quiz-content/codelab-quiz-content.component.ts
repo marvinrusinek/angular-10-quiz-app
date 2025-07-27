@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -94,6 +94,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   combinedText$: Observable<string>;
   isContentAvailable$: Observable<boolean>;
+
+  public click$ = new Subject<void>();
 
   private destroy$ = new Subject<void>();
 
@@ -221,37 +223,55 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$,
-      this.questionToDisplay$,
-      this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$
-    ]).pipe(
-      map((
-        [state, explanationText, questionText,
-        correctText, shouldDisplayExplanation]
-      ) => {
-        const question = questionText?.trim();
-        const explanation = (explanationText ?? '').trim();
-        const correct = (correctText ?? '').trim();
+// ——— Replace your old combinedText$ assignment with this ———
+this.combinedText$ = merge(
+  // 1️⃣ Click‑driven explanation: every option click spits out the raw explanation
+  this.click$.pipe(
+    map(() => {
+      // If you’re storing the current question in a BehaviorSubject:
+      const q = this.currentQuestionSubject.getValue();
+      return q.explanation?.trim() || 'No explanation available';
+    })
+  ),
 
-        const showExplanation =
-          state.mode === 'explanation' &&
-          explanation &&
-          shouldDisplayExplanation === true;
+  // 2️⃣ Base pipeline: question + correct count + service‑driven explanation
+  combineLatest([
+    this.displayState$,
+    this.explanationTextService.explanationText$,
+    this.questionToDisplay$,
+    this.correctAnswersText$,
+    this.explanationTextService.shouldDisplayExplanation$
+  ]).pipe(
+    map(([
+      state,
+      explanationText,
+      questionText,
+      correctText,
+      shouldDisplayExplanation
+    ]) => {
+      const question    = questionText?.trim();
+      const explanation = (explanationText ?? '').trim();
+      const correct     = (correctText    ?? '').trim();
 
-        if (showExplanation) {
-          return explanation;  // render explanation once
-        }
+      const showExplanation =
+        state.mode === 'explanation' &&
+        explanation &&
+        shouldDisplayExplanation === true;
 
-        // Otherwise show question (+ correct count if present)
-        return correct
-          ? `${question} <span class="correct-count">${correctText}</span>`
-          : question;
-      }),
-      distinctUntilChanged()
-    );
+      if (showExplanation) {
+        return explanation;  // render explanation once
+      }
+
+      // Otherwise show question (+ correct count if present)
+      return correct
+        ? `${question} <span class="correct-count">${correctText}</span>`
+        : question;
+    })
+  )
+)
+// 3️⃣ Do not emit duplicate strings in a row
+.pipe(distinctUntilChanged());
+
   }
 
 
