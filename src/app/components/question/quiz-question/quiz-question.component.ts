@@ -2519,6 +2519,8 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    console.group(`🖱️ onOptionClicked Q${this.currentQuestionIndex} — firstClick? ${!this.explanationVisible}`);
+
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
       return;
@@ -2556,6 +2558,7 @@ export class QuizQuestionComponent
     } catch (err) {
       console.error('[onOptionClicked] ❌ Error:', err);
     }
+    console.groupEnd();
   }
 
   private handleCoreSelection(
