@@ -223,57 +223,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
-// ——— Replace your old combinedText$ assignment with this ———
-this.combinedText$ = merge(
-  // 1️⃣ Click‑driven explanation: every option click spits out the raw explanation
-  this.click$.pipe(
-    map(() => {
-      // If you’re storing the current question in a BehaviorSubject:
-      const q = this.currentQuestionSubject.getValue();
-      return q.explanation?.trim() || 'No explanation available';
-    })
-  ),
+    this.combinedText$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$
+    ]).pipe(
+      map((
+        [state, explanationText, questionText,
+        correctText, shouldDisplayExplanation]
+      ) => {
+        const question = questionText?.trim();
+        const explanation = (explanationText ?? '').trim();
+        const correct = (correctText ?? '').trim();
 
-  // 2️⃣ Base pipeline: question + correct count + service‑driven explanation
-  combineLatest([
-    this.displayState$,
-    this.explanationTextService.explanationText$,
-    this.questionToDisplay$,
-    this.correctAnswersText$,
-    this.explanationTextService.shouldDisplayExplanation$
-  ]).pipe(
-    map(([
-      state,
-      explanationText,
-      questionText,
-      correctText,
-      shouldDisplayExplanation
-    ]) => {
-      const question    = questionText?.trim();
-      const explanation = (explanationText ?? '').trim();
-      const correct     = (correctText    ?? '').trim();
+        const showExplanation =
+          state.mode === 'explanation' &&
+          explanation &&
+          shouldDisplayExplanation === true;
 
-      const showExplanation =
-        state.mode === 'explanation' &&
-        explanation &&
-        shouldDisplayExplanation === true;
+        if (showExplanation) {
+          return explanation;  // render explanation once
+        }
 
-      if (showExplanation) {
-        return explanation;  // render explanation once
-      }
-
-      // Otherwise show question (+ correct count if present)
-      return correct
-        ? `${question} <span class="correct-count">${correctText}</span>`
-        : question;
-    })
-  )
-)
-// 3️⃣ Do not emit duplicate strings in a row
-.pipe(distinctUntilChanged());
-
+        // Otherwise show question (+ correct count if present)
+        return correct
+          ? `${question} <span class="correct-count">${correctText}</span>`
+          : question;
+      }),
+      distinctUntilChanged()
+    );
   }
-
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
