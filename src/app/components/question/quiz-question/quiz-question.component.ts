@@ -1302,12 +1302,6 @@ export class QuizQuestionComponent
 
   private async handleRouteChanges(): Promise<void> {
     this.activatedRoute.paramMap.subscribe(async (params) => {
-      // Reset explanation UI for every new question
-      this.explanationVisible = false;
-      this.explanationText    = '';
-      this._expl$.next(null);
-      this.cdRef.detectChanges();
-      
       const rawParam = params.get('questionIndex');
       const parsedParam = Number(rawParam);
   
@@ -1325,6 +1319,12 @@ export class QuizQuestionComponent
         // Sync state before loadQuestion() so it sees the correct 0-based index.
         this.currentQuestionIndex = zeroBasedIndex;
         this.quizService.setCurrentQuestionIndex(zeroBasedIndex);
+
+        // Reset explanation UI for every new question
+        this.explanationVisible = false;
+        this.explanationText    = '';
+        this._expl$.next(null);
+        this.cdRef.detectChanges();
   
         // Load the question using correct index
         const loaded = await this.loadQuestion();  // now uses new index
@@ -2520,6 +2520,7 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {
     console.group(`🖱️ onOptionClicked Q${this.currentQuestionIndex} — firstClick? ${!this.explanationVisible}`);
+    console.log('  ▶ before any logic: visible=', this.explanationVisible, 'text=', this.explanationText);
 
     if (!event.option) {
       console.warn('[⚠️ onOptionClicked] option is null, skipping');
