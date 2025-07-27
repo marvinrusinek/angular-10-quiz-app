@@ -2645,7 +2645,7 @@ export class QuizQuestionComponent
     explanationText: string,
     qIdx: number
   ): void {
-    // Emit through your gate, keyed only on index
+    // Emit based only on index
     this.emitExplanationIfValid(explanationText, qIdx);
   
     // Update the shared service
