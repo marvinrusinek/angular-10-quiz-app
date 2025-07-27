@@ -405,6 +405,9 @@ export class QuizQuestionComponent
 
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
+      this.explanationVisible = false;
+      this.explanationText    = '';
+      
       const questionIndex = Number(params.get('questionIndex'));
     
       try {
@@ -2536,9 +2539,8 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
 
       // ───── Update Explanation and Feedback State ─────
-      // await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
-      // this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
-      this.updateExplanationText(this.currentQuestionIndex).catch(err => console.error(err));
+      await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
+      this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
