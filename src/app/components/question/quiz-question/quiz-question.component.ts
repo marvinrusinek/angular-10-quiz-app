@@ -2579,7 +2579,7 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    // ① Use the index from the event, not the component property
+    this.currentQuestionIndex = event.index;
     const qIdx = event.index;
     console.group(`[🖱️ onOptionClicked Q${qIdx} — firstClick? ${!this.explanationVisible}]`);
     console.log('  ▶ before logic:', {
