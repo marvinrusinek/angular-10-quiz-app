@@ -2673,7 +2673,7 @@ export class QuizQuestionComponent
     this.nextButtonStateService.setNextButtonState(shouldEnableNext);
   }  
 
-  private emitExplanationIfValid(explanationText: string, lockedState: LockedState): void {
+  /* private emitExplanationIfValid(explanationText: string, lockedState: LockedState): void {
     const currentQuestion = this.currentQuestion;
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const currentText = currentQuestion?.questionText?.trim() || '';
@@ -2706,7 +2706,42 @@ export class QuizQuestionComponent
         latest: this.latestOptionClickTimestamp,
       });
     }
-  }
+  } */
+  private emitExplanationIfValid(
+    explanationText: string,
+    lockedState: LockedState
+  ): void {
+    const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+  
+    // Only gate on the question index—drop the timestamp + text checks
+    if (currentIndex !== lockedState.index) {
+      console.warn(
+        `[⛔ Explanation index mismatch] `,
+        { currentIndex, locked: lockedState.index }
+      );
+      return;
+    }
+  
+    // Push straight into service
+    this.explanationTextService.setExplanationText(explanationText);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  
+    // Update quiz state mode once
+    this.quizStateService.setDisplayState({
+      mode: 'explanation',
+      answered: true
+    });
+  
+    this.explanationTextService.emitExplanationIfNeeded(
+      explanationText,
+      lockedState.index
+    );
+  
+    // 3) Finally drive the UI locally
+    this.explanationText    = explanationText;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
+  }  
   
   private markAsAnsweredAndShowExplanation(index: number): void {
     this.quizService.setCurrentQuestionIndex(index);
