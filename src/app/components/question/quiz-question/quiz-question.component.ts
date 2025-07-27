@@ -2645,20 +2645,20 @@ export class QuizQuestionComponent
     explanationText: string,
     qIdx: number
   ): void {
-    // 1) Emit through your gate, keyed only on index
-    this.emitExplanationIfValid(explanationText, { index: qIdx });
+    // Emit through your gate, keyed only on index
+    this.emitExplanationIfValid(explanationText, qIdx);
   
-    // 2) Update the shared service
+    // Update the shared service
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setShouldDisplayExplanation(true);
   
-    // 3) Update quiz state
+    // Update quiz state
     this.quizStateService.setDisplayState({
       mode: 'explanation',
       answered: true
     });
   
-    // 4) Finally drive _this_ component’s UI
+    // Finally drive _this_ component’s UI
     this.explanationText    = explanationText;
     this.explanationVisible = true;
     this.cdRef.detectChanges();
