@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, from, map, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
@@ -42,7 +42,6 @@ import { UserPreferenceService } from '../../../shared/services/user-preference.
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
-
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -2631,11 +2630,6 @@ export class QuizQuestionComponent
     // Extract the text
     const expl = snapshot.explanation?.trim() || 'No explanation available';
 
-    console.log(
-      '[🚀 displayExplanationText]', 
-      { qIdx, expl }
-    );
-
     // Emit and persist
     this.emitExplanationIfValid(expl, {
       index: qIdx,
@@ -4009,8 +4003,7 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(index: number): Promise<string> {
-    const entry = this.explanationTextService.formattedExplanations
-    [index];
+    const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
     // Safety: only run if we’re still on the same question
