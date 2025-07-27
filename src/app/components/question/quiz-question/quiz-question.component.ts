@@ -4009,22 +4009,9 @@ export class QuizQuestionComponent
   }
 
   async updateExplanationText(index: number): Promise<string> {
-    const formatted = this.explanationTextService.formattedExplanations;
-
-    // Convert the Record into an array of { index, text } for logging
-    const logList = Object.entries(formatted).map(([key, val]) => ({
-      index: Number(key),
-      text: val.explanation?.trim() ?? '<empty>'
-    }));
-
-    console.log('[🕵️ formattedExplanations logList]', logList);
-
-    const entry = formatted[index];
+    const entry = this.explanationTextService.formattedExplanations
+    [index];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
-    console.log(`[🕵️ using index ${index}] → "${explanationText}"`);
-
-    // const entry = this.explanationTextService.formattedExplanations[index];
-    //const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
     // Safety: only run if we’re still on the same question
     if (this.currentQuestionIndex !== index) {
