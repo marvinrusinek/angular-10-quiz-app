@@ -2686,7 +2686,7 @@ export class QuizQuestionComponent
     qIdx: number
   ): void {
     // Emit based only on index
-    this.emitExplanationIfValid(explanationText, qIdx);
+    // this.emitExplanationIfValid(explanationText, qIdx);
   
     // Update the shared service
     this.explanationTextService.setExplanationText(explanationText);
