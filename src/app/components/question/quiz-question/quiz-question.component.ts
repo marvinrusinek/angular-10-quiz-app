@@ -2540,7 +2540,7 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges();
 
       // ───── Update Explanation and Feedback State ─────
-      await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
+      await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
       this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
@@ -2617,17 +2617,24 @@ export class QuizQuestionComponent
       return;
     }
 
+    // Extract the text
     const expl = snapshot.explanation?.trim() || 'No explanation available';
+
+    // Emit and persist
     this.emitExplanationIfValid(expl, {
       index: qIdx,
       text: snapshot.questionText?.trim() || '',
       snapshot: structuredClone(snapshot),
       timestamp: Date.now()
     });
-  
     this.explanationTextService.setExplanationText(expl);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+    // NOW drive the component’s local UI immediately
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
   }
   
   // Any async follow-ups
