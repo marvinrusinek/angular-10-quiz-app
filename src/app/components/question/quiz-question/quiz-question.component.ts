@@ -2550,7 +2550,7 @@ export class QuizQuestionComponent
 
       // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
-      this.displayExplanationText(this.currentQuestion!, this.currentQuestionIndex);
+      // this.displayExplanationText(this.currentQuestion!, this.currentQuestionIndex);
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
