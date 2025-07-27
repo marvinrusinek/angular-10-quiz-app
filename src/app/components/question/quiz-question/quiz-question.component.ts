@@ -10,7 +10,6 @@ import { MatRadioButton } from '@angular/material/radio';
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Utils } from '../../../shared/utils/utils';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
-import { LockedState } from '../../../shared/models/LockedState.model';
 import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
 import { OptionBindings } from '../../../shared/models/OptionBindings.model';
@@ -159,6 +158,7 @@ export class QuizQuestionComponent
   resetStateSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
+  private idxSub!: Subscription;
   isMultipleAnswer: boolean;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
@@ -319,6 +319,12 @@ export class QuizQuestionComponent
 
   async ngOnInit(): Promise<void> {
     this.clearSoundFlagsForCurrentQuestion(0);
+
+    this.idxSub = this.quizService.currentQuestionIndex$
+    .subscribe(idx => {
+      console.log('[🔄 QQC index update]', idx);
+      this.currentQuestionIndex = idx;
+    });
 
     this.quizService.currentQuestionIndex$.subscribe(index => {
       console.log('[📡 Parent received current index]', index);
@@ -650,6 +656,7 @@ export class QuizQuestionComponent
     );
     this.destroy$.next();
     this.destroy$.complete();
+    this.idxSub?.unsubscribe();
     this.questionsObservableSubscription?.unsubscribe();
     this.optionSelectionSubscription?.unsubscribe();
     this.selectionMessageSubscription?.unsubscribe();
@@ -2519,6 +2526,9 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    const idx = this.currentQuestionIndex;
+    console.log('[🖱️ onOptionClicked] index=', idx);
+
     console.group(`🖱️ onOptionClicked Q${this.currentQuestionIndex} — firstClick? ${!this.explanationVisible}`);
     console.log('  ▶ before any logic: visible=', this.explanationVisible, 'text=', this.explanationText);
 
@@ -2550,7 +2560,8 @@ export class QuizQuestionComponent
 
       // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
-      this.displayExplanationText(this.currentQuestion!, this.currentQuestionIndex);
+      this.handleAnswer(option, this.currentQuestionIndex);
+      // this.displayExplanationText(this.currentQuestion!, this.currentQuestionIndex);
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
@@ -2561,6 +2572,15 @@ export class QuizQuestionComponent
     }
     console.groupEnd();
   }
+
+  private async handleAnswer(option: Option, index: number): Promise<void> {
+    // Update the explanation text in the service + state
+    const explanation = await this.updateExplanationText(index);
+  
+    // Display _once_, here
+    this.displayExplanationText(explanation, index);
+  }
+  
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
@@ -2621,31 +2641,28 @@ export class QuizQuestionComponent
   }
   
   // Emit/display explanation
-  private displayExplanationText(snapshot: QuizQuestion, qIdx: number): void {
-    if (!snapshot) {
-      console.warn('[⚠️ showExplanationLocked] snapshot is null. Skipping explanation setup.');
-      return;
-    }
-
-    // Extract the text
-    const expl = snapshot.explanation?.trim() || 'No explanation available';
-
-    // Emit and persist
-    this.emitExplanationIfValid(expl, {
-      index: qIdx,
-      text: snapshot.questionText?.trim() || '',
-      snapshot: structuredClone(snapshot),
-      timestamp: Date.now()
-    });
-    this.explanationTextService.setExplanationText(expl);
+  private displayExplanationText(
+    explanationText: string,
+    qIdx: number
+  ): void {
+    // 1) Emit through your gate, keyed only on index
+    this.emitExplanationIfValid(explanationText, { index: qIdx });
+  
+    // 2) Update the shared service
+    this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setShouldDisplayExplanation(true);
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-
-    // NOW drive the component’s local UI immediately
-    this.explanationText    = expl;
+  
+    // 3) Update quiz state
+    this.quizStateService.setDisplayState({
+      mode: 'explanation',
+      answered: true
+    });
+  
+    // 4) Finally drive _this_ component’s UI
+    this.explanationText    = explanationText;
     this.explanationVisible = true;
     this.cdRef.detectChanges();
-  }
+  }  
   
   // Any async follow-ups
   private async postClickTasks(
@@ -2719,21 +2736,21 @@ export class QuizQuestionComponent
   } */
   private emitExplanationIfValid(
     explanationText: string,
-    lockedState: LockedState
+    questionIndex: number
   ): void {
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-
+  
     console.log(
-      '[🔒 emitExplanationIfValid]', 
-      'currentIndex=', currentIndex, 
-      'lockedIndex=', lockedState.index
+      '[🔒 emitExplanationIfValid]',
+      'currentIndex=', currentIndex,
+      'questionIndex=', questionIndex
     );
   
-    // Only gate on the question index—drop the timestamp + text checks
-    if (currentIndex !== lockedState.index) {
+    // Only gate on the question index
+    if (currentIndex !== questionIndex) {
       console.warn(
-        `[⛔ Explanation index mismatch] `,
-        { currentIndex, locked: lockedState.index }
+        `[⛔ Explanation index mismatch]`,
+        { currentIndex, questionIndex }
       );
       return;
     }
@@ -2748,16 +2765,18 @@ export class QuizQuestionComponent
       answered: true
     });
   
+    // Notify any other listeners
     this.explanationTextService.emitExplanationIfNeeded(
       explanationText,
-      lockedState.index
+      questionIndex
     );
   
-    // 3) Finally drive the UI locally
+    // Finally drive the UI locally
     this.explanationText    = explanationText;
     this.explanationVisible = true;
     this.cdRef.detectChanges();
-  }  
+  }
+  
   
   private markAsAnsweredAndShowExplanation(index: number): void {
     this.quizService.setCurrentQuestionIndex(index);
