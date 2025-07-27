@@ -2620,17 +2620,6 @@ export class QuizQuestionComponent
   
     console.groupEnd();
   }
-  
-  
-
-  private async handleAnswer(option: Option, index: number): Promise<void> {
-    // Update the explanation text in the service + state
-    const explanation = await this.updateExplanationText(index);
-  
-    // Display _once_, here
-    this.displayExplanationText(explanation, index);
-  }
-  
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
