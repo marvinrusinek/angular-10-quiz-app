@@ -2522,7 +2522,10 @@ export class QuizQuestionComponent
   
       // ───── Update Explanation and Feedback State ─────
       await this.updateExplanationText(this.currentQuestionIndex);  // sets internal explanation state
-      this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);  // emits and flags explanation
+      this.displayExplanationText(this.currentQuestion, this.currentQuestionIndex);
+
+
+
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
       // ───── Async Tasks (cleanup, emission) ─────
@@ -3928,29 +3931,28 @@ export class QuizQuestionComponent
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
   
-    // Validate that this explanation is for the correct index
+    // Safety: only run if we’re still on the same question
     if (this.currentQuestionIndex !== index) {
-      console.warn(`[🛑 Mismatch] Current index (${this.currentQuestionIndex}) !== locked index (${index}), skipping.`);
+      console.warn(
+        `[🛑 Mismatch] Current index (${this.currentQuestionIndex}) !== locked index (${index}), skipping.`
+      );
       return '';
     }
-  
+
     const qState = this.quizStateService.getQuestionState(this.quizId, index);
-    const isAlreadyDisplayed = qState?.explanationDisplayed;
-    const existingText = qState?.explanationText?.trim();
   
-    const shouldEmit = !isAlreadyDisplayed || existingText !== explanationText;
-  
-    if (shouldEmit) {
-      this.explanationTextService.setExplanationText(explanationText);
-      this.quizStateService.setQuestionState(this.quizId, index, {
-        ...qState,
-        explanationDisplayed: true,
-        explanationText,
-      });
-    }
+    // ——— Remove the “alreadyDisplayed” guard ———
+    // Always overwrite the service’s text and state
+    this.explanationTextService.setExplanationText(explanationText);
+    this.quizStateService.setQuestionState(this.quizId, index, {
+      ...qState,
+      explanationDisplayed: true,
+      explanationText,
+    });
   
     return explanationText;
-  }  
+  }
+  
 
   public async handleOptionSelection(
     option: SelectedOption,
