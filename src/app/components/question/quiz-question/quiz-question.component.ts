@@ -2573,6 +2573,7 @@ export class QuizQuestionComponent
     }
     console.groupEnd();
   }
+  
 
   private async handleAnswer(option: Option, index: number): Promise<void> {
     // Update the explanation text in the service + state
