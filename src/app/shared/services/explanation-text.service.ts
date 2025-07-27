@@ -8,8 +8,8 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
-  explanationSubject = new BehaviorSubject<QuizQuestion | null>(null);
-  explanation$ = this.explanationSubject.asObservable().pipe(debounceTime(30));
+  private explanationTextSubject = new BehaviorSubject<string>('');
+  public explanation$ = this.explanationTextSubject.asObservable();
 
   explanationText$: BehaviorSubject<string | null> = 
     new BehaviorSubject<string | null>('');
@@ -47,7 +47,8 @@ export class ExplanationTextService {
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
-    this.explanationSubject.next(question);
+    const expl = question.explanation?.trim() || 'No explanation available';
+    this.explanationTextSubject.next(expl);
   }
 
   getExplanationText$(): Observable<string | null> {
@@ -545,70 +546,6 @@ export class ExplanationTextService {
     } else {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
     }
-  }
-
-  /* emitExplanationIfValid(
-    explanationText: string,
-    questionIndex: number,
-    lockedQuestionText: string,
-    currentQuestion: QuizQuestion | null
-  ): void {
-    const trimmed = explanationText?.trim();
-    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
-      re0turn;
-    }
-  
-    const currentText = currentQuestion?.questionText?.trim();
-    if (!currentText || currentText !== lockedQuestionText) {
-      console.warn(`[⛔ Skipping stale explanation for Q${questionIndex}]`);
-      console.warn(`Expected: "${lockedQuestionText}", Got: "${currentText}"`);
-      return;
-    }
-  
-    const latest = this.explanationTexts[questionIndex];
-    const isSame = latest === trimmed;
-  
-    if (!isSame) {
-      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
-      this.explanationTexts[questionIndex] = trimmed;
-      this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
-      this.setShouldDisplayExplanation(true);
-      this.lockExplanation();
-      this.latestExplanation = trimmed;
-    } else {
-      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
-    }
-  } */
-  emitExplanationIfValid({
-    explanationText,
-    lockedIndex,
-    lockedQuestionText,
-    lockedQuestionSnapshot
-  }: {
-    explanationText: string;
-    lockedIndex: number;
-    lockedQuestionText: string;
-    lockedQuestionSnapshot: QuizQuestion | null;
-  }): void {
-    const activeQuestion = this.questionStateService.getQuestionByIndex(lockedIndex); // or injected source
-    const activeText = activeQuestion?.questionText?.trim();
-  
-    const isValid =
-      activeText === lockedQuestionText &&
-      activeQuestion?.questionText === lockedQuestionSnapshot?.questionText;
-  
-    if (!isValid) {
-      console.warn('[🚫 stale emit blocked]', {
-        lockedIndex,
-        lockedQuestionText,
-        activeText
-      });
-      return;
-    }
-  
-    this.emitExplanationIfNeeded(explanationText, lockedIndex);
   }
 
   public shouldEmitExplanation(
