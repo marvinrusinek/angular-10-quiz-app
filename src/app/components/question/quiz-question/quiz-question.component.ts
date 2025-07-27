@@ -2579,7 +2579,7 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    this.currentQuestionIndex = event.index;
+    // this.currentQuestionIndex = event.index;
     const qIdx = event.index;
     console.group(`[🖱️ onOptionClicked Q${qIdx} — firstClick? ${!this.explanationVisible}]`);
     console.log('  ▶ before logic:', {
@@ -2593,11 +2593,12 @@ export class QuizQuestionComponent
       console.groupEnd();
       return;
     }
-    if (!this.currentQuestion) {
+    /* if (!this.currentQuestion) {
       console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
       console.groupEnd();
       return;
-    }
+    } */
+    const question = this.questionsArray[qIdx];
   
     // ③ Core selection logic (only for the clicked option)
     this.selectedOptionService.setSelectedOption(event.option);
