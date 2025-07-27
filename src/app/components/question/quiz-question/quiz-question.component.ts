@@ -2551,17 +2551,18 @@ export class QuizQuestionComponent
       this.handleCoreSelection(event);   // selection flags, next button logic
       this.markBindingSelected(option);  // highlight row and mark binding
       this.refreshFeedbackFor(option);   // only show feedback on selected row
-  
+
+      await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
+
       this.explanationText = this.currentQuestion!.explanation?.trim() 
       || 'No explanation available';
-      this.explanationVisible = true;
-      this._expl$.next(this.explanationText);
-      this.cdRef.markForCheck();
+      this.displayExplanationText(this.explanationText, this.currentQuestionIndex);
+      // this.explanationVisible = true;
+      // this._expl$.next(this.explanationText);
+      // this.cdRef.markForCheck();
 
       // ───── Update Explanation and Feedback State ─────
-      await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);  // sets internal explanation state
-      this.handleAnswer(option, this.currentQuestionIndex);
-      // this.displayExplanationText(this.currentQuestion!, this.currentQuestionIndex);
+      //this.handleAnswer(option, this.currentQuestionIndex);
 
       this.feedbackText = await this.generateFeedbackText(this.currentQuestion);  // builds final feedback message
   
