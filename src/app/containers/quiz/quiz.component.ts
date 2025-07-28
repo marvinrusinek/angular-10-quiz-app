@@ -1011,7 +1011,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Try the cache first
     let formatted = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
-    const corrects = this.quizService.correctOptionIndices;
+    const corrects = this.explanationTextService.getCorrectOptionIndices(this.currentQuestion);
 
     if (!formatted) {
       // If it’s not cached yet, format it now…
