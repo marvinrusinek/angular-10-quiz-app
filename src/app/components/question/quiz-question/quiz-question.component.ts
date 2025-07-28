@@ -2608,13 +2608,14 @@ export class QuizQuestionComponent
     }
   
     // ── 3) Fetch the _formatted_ explanation before showing
-    let expl = this.explanationTextService.getFormattedExplanationText(qIdx);
+    let expl = await firstValueFrom(
+      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+    );
     if (!expl) {
-      expl = await this.explanationTextService.formatExplanation(question);
-      expl = expl.trim() || 'No explanation available';
+      expl = question.explanation?.trim() || 'No explanation available';
       this.explanationTextService.setFormattedExplanationText(qIdx, expl);
     }
-
+    
     // ── 4) Display it immediately on click #1
     this.explanationText    = expl;
     this.explanationVisible = true;
