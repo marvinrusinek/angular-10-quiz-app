@@ -1018,7 +1018,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       formatted = this.explanationTextService.formatExplanation(
         this.currentQuestion,
         corrects,
-        this.currentQuestionIndex
+        raw
       );
       // …and cache it under that question’s index
       this.explanationTextService.setFormattedExplanationText(formatted);
