@@ -322,17 +322,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private initializeExplanationTextObservable(): void {
     combineLatest([
       this.quizStateService.currentQuestion$.pipe(
-        map(value => value ?? null),  // Default to `null` if value is `undefined`
+        map(value => value ?? null),  // default to `null` if value is `undefined`
         distinctUntilChanged()
       ),
       this.explanationTextService.isExplanationTextDisplayed$.pipe(
-        map(value => value ?? false),  // Default to `false` if value is `undefined`
+        map(value => value ?? false),  // default to `false` if value is `undefined`
         distinctUntilChanged()
       )
     ]).pipe(
       takeUntil(this.destroy$),
       withLatestFrom(this.questionRendered.pipe(
-        map(value => value ?? false),  // Default to `false` if value is `undefined`
+        map(value => value ?? false),  // default to `false` if value is `undefined`
         distinctUntilChanged()
       )),
       switchMap(([[question, isDisplayed], rendered]) => {
@@ -344,7 +344,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       catchError(error => {
         console.error('Error fetching explanation text:', error);
-        return of('');  // Emit an empty string in case of an error
+        return of('');  // emit an empty string in case of an error
       })
     ).subscribe((explanation: string) => {
       this.explanationToDisplay = explanation;
@@ -382,7 +382,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       if (quizId) {
         this.quizId = quizId;
         this.quizService.quizId = quizId;
-        localStorage.setItem('quizId', quizId);  // Store quizId in localStorage
+        localStorage.setItem('quizId', quizId);  // store quizId in localStorage
         this.currentQuestionIndexValue = zeroBasedIndex;
         await this.loadQuestion(quizId, zeroBasedIndex);
       } else {
