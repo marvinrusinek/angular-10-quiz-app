@@ -265,7 +265,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return explanation;  // render explanation once
         }
 
-        // Otherwise show question (+ correct count if present)
+        // Otherwise show question (and correct count if present)
         return correct
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
