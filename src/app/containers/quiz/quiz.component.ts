@@ -126,6 +126,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   displayExplanation = false;
   explanationText: string | null;
 
+  public explanationTextLocal = '';
+  public explanationVisibleLocal = false;
+
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
     options: Option[];
@@ -1029,7 +1032,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationVisibleLocal = true;
 
     // 3️⃣ Seed the explanation text next
-    this.explanationTextService.setExplanationText(expl);
+    this.explanationTextService.setExplanationText(formatted);
 
     // 4️⃣ Finally mark “should display” so that
     //    showExp = mode==='explanation' && expl && shouldDisplay
