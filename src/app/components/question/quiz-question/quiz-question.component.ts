@@ -2647,53 +2647,38 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {
-    const qIdx = event.index;
-    console.group(`[🖱️ onOptionClicked Q${qIdx} — firstClick? ${!this.explanationVisible}]`);
-  
-    // 0) Guard
+  }): Promise<void> {  
+    // ── Guard ──
     if (!event.option || !this.questionsArray?.length) {
       console.warn('[⚠️ onOptionClicked] missing data, skipping');
       console.groupEnd();
       return;
     }
-  
-    // 1) Core selection logic
+
+    const qIdx = event.index;
+    const question = this.questionsArray[qIdx];
+    console.group(`🖱️ onOptionClicked Q${qIdx}`);
+    if (!question) {
+      console.error(`[❌ No question at index ${qIdx}]`);
+      console.groupEnd();
+      return;
+    }
+
+    // ── 1) Core selection UI (highlight, icons, next‑button) ──
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
   
-    // 2) Snapshot the question by index
-    const question = this.questionsArray[qIdx];
-    if (!question) {
-      console.error(`[❌ onOptionClicked] No question at index ${qIdx}`);
-      console.groupEnd();
-      return;
-    }
-  
-    // 3) Grab the formatted explanation (sync if possible)
-    // If you have a synchronous getter, prefer it:
-    let expl = this.explanationTextService.getFormattedExplanationText(qIdx);
+    // ── 3) Get (or seed) the formatted explanation ──
+    // let expl = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
+    const expl = question.explanation?.trim() || 'No explanation available';
     if (!expl) {
-      // fallback to raw text
       expl = question.explanation?.trim() || 'No explanation available';
-      // *** Pass both index and text here ***
-      this.explanationTextService.setFormattedExplanationText(qIdx, expl);
+      this.explanationTextService.setFormattedExplanationText(expl);
     }
-  
-    // 4) Display immediately on first click
-    this.explanationText    = expl;
-    this.explanationVisible = true;
-    this.cdRef.detectChanges();
-    console.log('[🔆 Immediate display]', expl);
-  
-    // 5) Update quiz state to “explanation” mode
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
-  
-    // 6) Persist “shown” flag for revisits
+    
+
+    // ── 6) Persist shown‑flag for revisits ──
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
@@ -2701,7 +2686,19 @@ export class QuizQuestionComponent
       explanationText: expl,
     });
   
-    // 7) Build feedback text + any post‑click tasks
+    // ── 4) Show it immediately on click #1 ──
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
+    console.log('[🔆 Immediate display]', expl);
+  
+    // ── 5) Update quiz state to “explanation” mode ──
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+  
+    // ── 7) Build feedback text + cleanup ──
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
   
