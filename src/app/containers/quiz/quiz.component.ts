@@ -1006,8 +1006,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Immediately show the explanation text on the first click
     // 1) Grab the right explanation
     const expl =
-    this.questionsArray[event.index].explanation?.trim()
-    || 'No explanation available';
+      this.questionsArray[event.index].explanation?.trim()
+        || 'No explanation available';
+    this.explanationToDisplay = expl;
 
     // 3️⃣ Seed the explanation text next
     this.explanationTextService.setExplanationText(expl);
