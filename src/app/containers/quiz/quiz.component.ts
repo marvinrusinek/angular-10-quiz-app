@@ -1010,14 +1010,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         || 'No explanation available';
     this.explanationToDisplay = expl;
 
-    const formatted = this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-      ?? formatExplanation(rawText);
+    const formatted = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
+      ?? this.explanationTextService.formatExplanation(rawText);
 
     // Cache it for next time
-    this.explanationTextService.setFormattedExplanationText(qIdx, formatted);
+    this.explanationTextService.setFormattedExplanationText(formatted);
 
     // Now display `formatted` immediately
-    this.explanationTextMap[qIdx] = formatted;
+    this.explanationTextService.formattedExplanations = formatted;
 
     // 3️⃣ Seed the explanation text next
     this.explanationTextService.setExplanationText(expl);
