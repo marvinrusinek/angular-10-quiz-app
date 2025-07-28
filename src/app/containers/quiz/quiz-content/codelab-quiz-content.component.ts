@@ -268,7 +268,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const showExplanation =
           state.mode === 'explanation' &&
           explanation &&
-          shouldDisplayExplanation === true;
+          shouldDisplayExplanation;
 
         if (showExplanation) {
           return explanation;  // render explanation once
