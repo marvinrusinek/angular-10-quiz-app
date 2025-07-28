@@ -4328,6 +4328,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
 
+    // Push into the service so combinedText$ can see it
+    this.explanationTextService.setExplanationText(formatted);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+
+    // Flip modes
+    this.quizStateService.setDisplayState({
+      mode: 'explanation',
+      answered: true
+    });
+
     // Set local view flags
     this.explanationTextLocal    = formatted;
     this.explanationVisibleLocal = true;
