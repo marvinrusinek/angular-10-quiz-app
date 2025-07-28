@@ -1010,13 +1010,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
 
     // Try the cache first
-    let formatted = this.explanationTextService.getFormattedExplanationText(qIdx);
+    let formatted = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
+    const corrects = this.quizService.correctOptionIndices;
 
     if (!formatted) {
       // If it’s not cached yet, format it now…
-      formatted = this.explanationTextService.formatExplanation(raw);
+      formatted = this.explanationTextService.formatExplanation(
+        this.currentQuestion,
+        corrects,
+        this.currentQuestionIndex
+      );
       // …and cache it under that question’s index
-      this.explanationTextService.setFormattedExplanationText(qIdx, formatted);
+      this.explanationTextService.setFormattedExplanationText(formatted);
     }
 
     // 2) Now display it immediately (in your component’s local state)
