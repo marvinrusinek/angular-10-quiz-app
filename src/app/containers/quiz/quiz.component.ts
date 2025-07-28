@@ -1037,10 +1037,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       answered: true
     });
 
-    const newMap = new Map(this.selectedOptionService.selectedOptionsMap);
-    newMap.set(qIdx, [event.option]);
-    this.selectedOptionService.selectedOptionsMap = newMap;
-
     // 2) Immediately show *that* formatted text in your local state
     this.explanationTextLocal    = formatted;
     this.explanationVisibleLocal = true;
