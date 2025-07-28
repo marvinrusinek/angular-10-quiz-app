@@ -1004,9 +1004,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswered(true);
 
     // Immediately show the explanation text on the first click
-    const expl = this.currentQuestion.explanation?.trim() || 'No explanation available';
+    // 1) Grab the right explanation
+    const expl = this.questionsArray[event.index].explanation.trim() 
+     || 'No explanation available';
+
+    // 2) Immediately show it
     this.explanationToDisplay = expl;
-    this.cdRef.detectChanges();
+
+    // 3) Then do the rest (sessionStorage, state, feedback, etc.)
+    //    none of this can hide or delay the UI now
+    this.quizStateService.setQuestionState(
+      this.quizId,             // the ID of the current quiz
+      event.index,             // the question index
+      {
+        answered:             true,
+        explanationDisplayed: true,
+        explanationText:      expl
+      }
+    );
 
     // Selection message and button state
     try {
