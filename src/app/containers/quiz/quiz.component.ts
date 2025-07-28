@@ -1005,19 +1005,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Immediately show the explanation text on the first click
     // 1) Grab the right explanation
-    const expl =
-      this.questionsArray[event.index].explanation?.trim()
-        || 'No explanation available';
-    this.explanationToDisplay = expl;
+    // 1) First, get or compute the formatted text for the current question
+    const qIdx   = this.currentQuestionIndex;
+    const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
 
-    const formatted = this.explanationTextService.getFormattedExplanationTextForQuestion(this.currentQuestionIndex)
-      ?? this.explanationTextService.formatExplanation(rawText);
+    // Try the cache first
+    let formatted = this.explanationTextService.getFormattedExplanationText(qIdx);
 
-    // Cache it for next time
-    this.explanationTextService.setFormattedExplanationText(formatted);
+    if (!formatted) {
+      // If it’s not cached yet, format it now…
+      formatted = this.explanationTextService.formatExplanation(raw);
+      // …and cache it under that question’s index
+      this.explanationTextService.setFormattedExplanationText(qIdx, formatted);
+    }
 
-    // Now display `formatted` immediately
-    this.explanationTextService.formattedExplanations = formatted;
+    // 2) Now display it immediately (in your component’s local state)
+    this.explanationTextLocal    = formatted;
+    this.explanationVisibleLocal = true;
 
     // 3️⃣ Seed the explanation text next
     this.explanationTextService.setExplanationText(expl);
