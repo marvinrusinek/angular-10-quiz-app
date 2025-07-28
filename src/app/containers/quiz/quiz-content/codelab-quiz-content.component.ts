@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -29,7 +29,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() questionToDisplay = '';
   @Input() questionToDisplay$!: Observable<string>;
-  @Input() explanationToDisplay = '';
+  // @Input() explanationToDisplay = '';
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion | null>;
   @Input() questions: QuizQuestion[];
@@ -41,6 +41,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() quizData: CombinedQuestionDataType | null = null;
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
+
+  @Input()
+  set explanationToDisplay(value: string) {
+    if (value && value !== this._explanationToDisplay) {
+      this._explanationToDisplay = value;
+      this.explanationText = value;
+      this.explanationVisible = true;
+      // this.cdRef.markForCheck();   ← this only queues up a check
+      this.cdRef.detectChanges();     // ← this runs change‑detection immediately
+    }
+  }
+  private _explanationToDisplay = '';
+  public explanationVisible = false;
+
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
@@ -106,7 +120,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private selectedOptionService: SelectedOptionService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
