@@ -1012,33 +1012,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const qIdx   = this.currentQuestionIndex;
     const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
 
-    // Try the cache first
-    let formatted = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
-    const corrects = this.explanationTextService.getCorrectOptionIndices(this.currentQuestion);
-
+    // Try synchronous cache first
+    let formatted = await firstValueFrom(
+      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+    );
     if (!formatted) {
-      // If it’s not cached yet, format it now…
+      // If not in cache, format and store *by index*
       formatted = this.explanationTextService.formatExplanation(
         this.currentQuestion,
-        corrects,
+        this.currentQuestion.options
+          .filter(o => o.correct)
+          .map(o => o.optionId),
         raw
       );
-      // …and cache it under that question’s index
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
 
-    // 2) Now display it immediately (in your component’s local state)
+    // 2) Immediately show *that* formatted text in your local state
     this.explanationTextLocal    = formatted;
     this.explanationVisibleLocal = true;
+    // Force Angular to render highlight + explanation this very tick
+    this.cdRef.detectChanges();
 
-    // 3️⃣ Seed the explanation text next
+    // 3) Update your shared service/state in the right order
     this.explanationTextService.setExplanationText(formatted);
-
-    // 4️⃣ Finally mark “should display” so that
-    //    showExp = mode==='explanation' && expl && shouldDisplay
     this.explanationTextService.setShouldDisplayExplanation(true);
-
-    // 2️⃣ Flip into “explanation” mode *first*
     this.quizStateService.setDisplayState({
       mode: 'explanation',
       answered: true
