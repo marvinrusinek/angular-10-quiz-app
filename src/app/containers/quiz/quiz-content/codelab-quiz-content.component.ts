@@ -44,12 +44,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   @Input()
   set explanationToDisplay(value: string) {
-    if (value && value !== this._explanationToDisplay) {
-      this._explanationToDisplay = value;
-      this.explanationText = value;
-      this.explanationVisible = true;
-      // this.cdRef.markForCheck();   ← this only queues up a check
-      this.cdRef.detectChanges();     // ← this runs change‑detection immediately
+    if (value) {
+      this.explanationTextLocal  = value;
+      this.explanationVisibleLocal = true;
     }
   }
   private _explanationToDisplay = '';
@@ -97,6 +94,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationText: string | null = null;
   explanationTexts: string[] = [];
 
+  public explanationTextLocal = '';
+  public explanationVisibleLocal = false;
+
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
 
@@ -136,6 +136,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ngOnInit(): void {
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    this.questionToDisplay$.subscribe(_ => {
+      this.explanationTextService.setShouldDisplayExplanation(false);
+    });
 
     this.displayState$ = this.quizStateService.displayState$.pipe(
       tap((state) => console.log('[displayState$ emitted]:', state))
