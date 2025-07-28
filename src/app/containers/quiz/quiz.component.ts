@@ -4249,4 +4249,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   triggerAnimation(): void {
     this.animationState$.next('animationStarted');
   }
+
+  // In CodelabQuizContentComponent (remove the async/Observable plumbing)
+  public async showExplanationForQuestion(qIdx: number): Promise<void> {
+    // Get or compute the *formatted* string
+    let formatted = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
+    if (!formatted) {
+      const raw = this.currentQuestion.explanation?.trim() 
+                || 'No explanation available';
+      const correctIndices = this.currentQuestion.options
+        .filter(o => o.correct)
+        .map(o => o.optionId);
+
+      formatted = this.explanationTextService.formatExplanation(
+        this.currentQuestion,
+        correctIndices,
+        qIdx
+      );
+      this.explanationTextService.setFormattedExplanationText(formatted);
+    }
+
+    // Set local view flags
+    this.explanationTextLocal    = formatted;
+    this.explanationVisibleLocal = true;
+
+    // Force an immediate repaint
+    this.cdRef.detectChanges();
+  }
 }
