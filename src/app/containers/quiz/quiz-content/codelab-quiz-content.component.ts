@@ -252,6 +252,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.correctAnswersText$,
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
+      tap(([state, explanationText, questionText, correctText, shouldDisplay]) => {
+        console.log('[💡 combinedText inputs]',
+          'mode=', state.mode,
+          'explTxt=', explanationText,
+          'quesTxt=', questionText,
+          'corrTxt=', correctText,
+          'showExp=', shouldDisplay
+        );
+      }),
       map((
         [state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
