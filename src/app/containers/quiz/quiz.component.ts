@@ -1010,13 +1010,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // 1) Grab the right explanation
     // 1) First, get or compute the formatted text for the current question
     const qIdx   = this.currentQuestionIndex;
-    const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
 
     // Try synchronous cache first
     let formatted = await firstValueFrom(
       this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
     );
     if (!formatted) {
+      const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
       // If not in cache, format and store *by index*
       formatted = this.explanationTextService.formatExplanation(
         this.currentQuestion,
@@ -1028,19 +1028,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
 
+    // 3) Update your shared service/state in the right order
+    this.explanationTextService.setExplanationText(formatted);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+
+    this.quizStateService.setDisplayState({
+      mode: 'explanation',
+      answered: true
+    });
+
     // 2) Immediately show *that* formatted text in your local state
     this.explanationTextLocal    = formatted;
     this.explanationVisibleLocal = true;
     // Force Angular to render highlight + explanation this very tick
     this.cdRef.detectChanges();
-
-    // 3) Update your shared service/state in the right order
-    this.explanationTextService.setExplanationText(formatted);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.quizStateService.setDisplayState({
-      mode: 'explanation',
-      answered: true
-    });
 
     // Selection message and button state
     try {
