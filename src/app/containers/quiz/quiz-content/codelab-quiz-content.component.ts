@@ -29,7 +29,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() currentQuestion: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() questionToDisplay = '';
   @Input() questionToDisplay$!: Observable<string>;
-  // @Input() explanationToDisplay = '';
+  @Input() explanationToDisplay = '';
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion | null>;
   @Input() questions: QuizQuestion[];
@@ -42,13 +42,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
 
-  @Input()
+  /* @Input()
   set explanationToDisplay(value: string) {
     if (value) {
       this.explanationTextLocal  = value;
       this.explanationVisibleLocal = true;
     }
-  }
+  } */
   private _explanationToDisplay = '';
   public explanationVisible = false;
 
