@@ -2598,22 +2598,42 @@ export class QuizQuestionComponent
       console.groupEnd();
       return;
     } */
-    const question = this.questionsArray[qIdx];
   
     // ③ Core selection logic (only for the clicked option)
     this.selectedOptionService.setSelectedOption(event.option);
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
+
+    const question = this.questionsArray[qIdx];
   
     // ④ Grab explanation text synchronously
     const expl = this.currentQuestion.explanation?.trim() ?? 'No explanation available';
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
   
     // ⑤ Display immediately on first click
-    this.displayExplanationText(expl, qIdx);
+    /* this.displayExplanationText(expl, qIdx);
   
     // ⑥ Persist in background (so it doesn’t block the UI)
-    await this.updateExplanationText(qIdx).catch(console.error);
+    await this.updateExplanationText(qIdx).catch(console.error); */
+
+    try {
+      // a) update service
+      this.explanationTextService.setExplanationText(expl);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      // b) update quiz‐state
+      const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
+      this.quizStateService.setQuestionState(this.quizId, qIdx, {
+        ...prev,
+        explanationDisplayed: true,
+        explanationText: expl
+      });
+    } catch (err) {
+      console.error('[persistExplanation] ❌', err);
+    }
   
     // ⑦ Build your feedback text and run any post‑click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
