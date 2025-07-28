@@ -230,7 +230,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Clear out old explanation
       this.explanationText = '';
       this.explanationVisible = false;
-      // Let Angular render the cleared state
       this.cdRef.detectChanges();
     }
   }
