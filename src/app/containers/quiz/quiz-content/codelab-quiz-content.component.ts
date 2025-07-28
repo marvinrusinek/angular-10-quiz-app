@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BehaviorSubject, combineLatest, firstValueFrom, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -218,7 +218,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.setupCorrectAnswersTextDisplay();
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges) {
     console.log('[🧠 ContentComponent Received]', this.questionText);
     // Run only when the new questionText arrives
     if (!!this.questionText && !this.questionRendered.getValue()) {
