@@ -2656,23 +2656,16 @@ export class QuizQuestionComponent
     }
 
     const qIdx = event.index;
-    const question = this.questionsArray[qIdx];
-    console.group(`🖱️ onOptionClicked Q${qIdx}`);
-    if (!question) {
-      console.error(`[❌ No question at index ${qIdx}]`);
-      console.groupEnd();
-      return;
-    }
 
     // ── 1) Core selection UI (highlight, icons, next‑button) ──
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
-  
-    // ── 3) Get (or seed) the formatted explanation ──
-    // let expl = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
-    const expl = question.explanation?.trim() || 'No explanation available';
 
+    const question = this.questionsArray[qIdx];
+    console.group(`🖱️ onOptionClicked Q${qIdx}`);
+    const expl = question.explanation?.trim() || 'No explanation available';
+    
     // ── 4) Show it immediately on click #1 ──
     this.explanationText    = expl;
     this.explanationVisible = true;
