@@ -2622,6 +2622,12 @@ export class QuizQuestionComponent
     this.cdRef.detectChanges();
     console.log('[🔆 Immediate display]', expl);
 
+    // now *after* we’ve shown it, update the answered/display state
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+
     // ── 5) Persist “shown” state for revisits (in the background)
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
@@ -2648,7 +2654,7 @@ export class QuizQuestionComponent
       checked: true
     });
 
-    this.setAnsweredAndDisplayState();
+    // this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
