@@ -1,11 +1,5 @@
 <h3 question-content>
-  <!-- 1) Show the question text when expl isn’t visible -->
-  <ng-container *ngIf="!explanationVisibleLocal; else showExplanation">
-    <span [innerHTML]="(questionToDisplay$ | async) || ''"></span>
+  <ng-container *ngIf="combinedText$ | async as combinedText">
+    <span [innerHTML]="combinedText"></span>
   </ng-container>
-
-  <!-- 2) Once visible, always show this -->
-  <ng-template #showExplanation>
-    <span [innerHTML]="explanationTextLocal"></span>
-  </ng-template>
 </h3>
