@@ -953,7 +953,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }, 0);
   }
 
-  public async onOptionSelected(
+  /* public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
@@ -1058,7 +1058,66 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
     }
+  } */
+  public async onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): Promise<void> {
+    // Guards and duplicate‑skip logic
+    if (event.index === this.lastLoggedIndex) {
+      console.warn('[🟡 Skipping duplicate event]', event);
+      return;
+    }
+    this.lastLoggedIndex = event.index;
+    if (!isUserAction || !this.resetComplete) {
+      console.warn('[🚫 Blocked: Question not ready or userAction=false]');
+      return;
+    }
+  
+    // Answer‑tracking logic
+    const { option, checked } = event;
+    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
+      this.selectedOptions = checked ? [option] : [];
+    } else {
+      this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
+    }
+  
+    // Mark answered and persist
+    if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+      this.selectedOptionService.setAnswered(true);
+      console.log('[✅ onOptionSelected] Marked as answered');
+    }
+    this.isAnswered = true;
+  
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(
+      `displayMode_${this.currentQuestionIndex}`,
+      'explanation'
+    );
+    sessionStorage.setItem('displayExplanation', 'true');
+  
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    // Show the formatted explanation immediately
+    this.showExplanationForQuestion(this.currentQuestionIndex);
+  
+    // Feedback / next‑button logic
+    try {
+      setTimeout(async () => {
+        await this.setSelectionMessage(true);
+        this.evaluateSelectionMessage();
+        this.nextButtonStateService.evaluateNextButtonState(
+          this.isAnswered,
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
+        );
+      }, 50);
+    } catch (err) {
+      console.error('[❌ setSelectionMessage failed]', err);
+    }
   }
+  
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {
@@ -4251,13 +4310,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.animationState$.next('animationStarted');
   }
 
-  // In CodelabQuizContentComponent (remove the async/Observable plumbing)
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
     // Get or compute the *formatted* string
-    let formatted = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
+    let formatted = await firstValueFrom(
+      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+    );
     if (!formatted) {
-      const raw = this.currentQuestion.explanation?.trim() 
-                || 'No explanation available';
+      const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
       const correctIndices = this.currentQuestion.options
         .filter(o => o.correct)
         .map(o => o.optionId);
