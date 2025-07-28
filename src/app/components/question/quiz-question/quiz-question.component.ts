@@ -2649,14 +2649,14 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {  
+    const qIdx = event.index;
+
     // ── Guard ──
     if (!event.option || !this.questionsArray?.length) {
       console.warn('[⚠️ onOptionClicked] missing data, skipping');
       console.groupEnd();
       return;
     }
-
-    const qIdx = event.index;
 
     // ── 1) Core selection UI (highlight, icons, next‑button) ──
     this.handleCoreSelection(event);
@@ -2665,12 +2665,15 @@ export class QuizQuestionComponent
 
     const question = this.questionsArray[qIdx];
     console.group(`🖱️ onOptionClicked Q${qIdx}`);
-    const expl = question.explanation?.trim() || 'No explanation available';
 
-    // Set *which* question is showing and its text
+    const expl = question.explanation?.trim() || 'No explanation available';
+    this.explanationText    = expl;
+    this.explanationVisible = true;
     this.displayedExplanationIndex = qIdx;
-    this.explanationText = expl;
     this.cdRef.detectChanges();
+
+
+    await this.updateExplanationText(qIdx).catch(console.error);
     
     // ── 4) Show it immediately on click #1 ──
     /* this.explanationVisible = true;
