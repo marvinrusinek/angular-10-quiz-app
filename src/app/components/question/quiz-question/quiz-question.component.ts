@@ -2613,9 +2613,9 @@ export class QuizQuestionComponent
     );
     if (!expl) {
       expl = question.explanation?.trim() || 'No explanation available';
-      this.explanationTextService.setFormattedExplanationText(qIdx, expl);
+      this.explanationTextService.setFormattedExplanationText(expl);
     }
-    
+
     // ── 4) Display it immediately on click #1
     this.explanationText    = expl;
     this.explanationVisible = true;
