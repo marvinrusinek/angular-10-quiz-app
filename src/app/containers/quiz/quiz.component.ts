@@ -1009,18 +1009,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.questionsArray[event.index].explanation?.trim()
     || 'No explanation available';
 
-    // 2️⃣ Flip into “explanation” mode *first*
-    this.quizStateService.setDisplayState({
-      mode: 'explanation',
-      answered: true
-    });
-
     // 3️⃣ Seed the explanation text next
     this.explanationTextService.setExplanationText(expl);
 
     // 4️⃣ Finally mark “should display” so that
     //    showExp = mode==='explanation' && expl && shouldDisplay
     this.explanationTextService.setShouldDisplayExplanation(true);
+
+    // 2️⃣ Flip into “explanation” mode *first*
+    this.quizStateService.setDisplayState({
+      mode: 'explanation',
+      answered: true
+    });
 
     // Selection message and button state
     try {
