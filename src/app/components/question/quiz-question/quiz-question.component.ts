@@ -2601,33 +2601,33 @@ export class QuizQuestionComponent
     this.refreshFeedbackFor(event.option);
 
     const question = this.questionsArray[qIdx];
+    if (!question) {
+      console.error(`[❌ onOptionClicked] No question at index ${qIdx}`);
+      console.groupEnd();
+      return;
+    }
   
-    // ── 3) Let Angular finish all that work,
-    //     then show the explanation in a single, guaranteed pass:
-    setTimeout(() => {
-      const expl = question.explanation?.trim() || 'No explanation available';
+    // ── 3) Fetch the _formatted_ explanation before showing
+    let expl = this.explanationTextService.getFormattedExplanationText(qIdx);
+    if (!expl) {
+      expl = await this.explanationTextService.formatExplanation(question);
+      expl = expl.trim() || 'No explanation available';
+      this.explanationTextService.setFormattedExplanationText(qIdx, expl);
+    }
 
-      // a) drive the service/state
-      this.explanationTextService.setExplanationText(expl);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
-      this.quizStateService.setQuestionState(this.quizId, qIdx, {
-        ...prev,
-        explanationDisplayed: true,
-        explanationText: expl,
-      });
+    // ── 4) Display it immediately on click #1
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
+    console.log('[🔆 Immediate display]', expl);
 
-      // b) update the UI once, after everything else
-      this.explanationText    = expl;
-      this.explanationVisible = true;
-      this.cdRef.detectChanges();
-
-      console.log('[✅ explanation locked in]', expl);
-    }, 0);
-
-    // ── 4) Persist the explanation‐shown flag in the background
-    //     (so revisiting a question re‑displays it)
-    await this.updateExplanationText(qIdx).catch(console.error);
+    // ── 5) Persist “shown” state for revisits (in the background)
+    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
+    this.quizStateService.setQuestionState(this.quizId, qIdx, {
+      ...prev,
+      explanationDisplayed: true,
+      explanationText: expl,
+    });
   
     // ⑦ Build your feedback text and run any post‑click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
