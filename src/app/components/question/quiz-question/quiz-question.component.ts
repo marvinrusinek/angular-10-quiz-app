@@ -2587,59 +2587,47 @@ export class QuizQuestionComponent
       text: this.explanationText
     });
   
-    // ② Guard clauses
-    if (!event.option) {
-      console.warn('[⚠️ onOptionClicked] option is null, skipping');
+    // Guard
+    if (!event.option || !this.questionsArray?.length) {
+      console.warn('[⚠️ onOptionClicked] missing data, skipping');
       console.groupEnd();
       return;
     }
-    /* if (!this.currentQuestion) {
-      console.warn('[⚠️ onOptionClicked] currentQuestion is null, skipping');
-      console.groupEnd();
-      return;
-    } */
   
     // Core selection logic (only for the clicked option)
-    this.selectedOptionService.setSelectedOption(event.option);
+    // this.selectedOptionService.setSelectedOption(event.option);
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
 
     const question = this.questionsArray[qIdx];
   
-    // Grab explanation text synchronously
-    const expl = this.currentQuestion.explanation?.trim() ?? 'No explanation available';
-    this.explanationText    = expl;
-    this.explanationVisible = true;
-    this.cdRef.detectChanges();
-
-    // ─── 2) re‑enforce after other sync code ───
+    // ── 3) Let Angular finish all that work,
+    //     then show the explanation in a single, guaranteed pass:
     setTimeout(() => {
-      this.explanationVisible = true;
-      this.cdRef.detectChanges();
-    }, 0);
-  
-    // Display immediately on first click
-    // this.displayExplanationText(expl, qIdx);
-  
-    // Persist in background (so it doesn’t block the UI)
-    await this.updateExplanationText(qIdx).catch(console.error);
-    
-    try {
-      // Update service
+      const expl = question.explanation?.trim() || 'No explanation available';
+
+      // a) drive the service/state
       this.explanationTextService.setExplanationText(expl);
       this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      // Update quiz‐state
       const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
       this.quizStateService.setQuestionState(this.quizId, qIdx, {
         ...prev,
         explanationDisplayed: true,
-        explanationText: expl
+        explanationText: expl,
       });
-    } catch (err) {
-      console.error('[persistExplanation] ❌', err);
-    }
+
+      // b) update the UI once, after everything else
+      this.explanationText    = expl;
+      this.explanationVisible = true;
+      this.cdRef.detectChanges();
+
+      console.log('[✅ explanation locked in]', expl);
+    }, 0);
+
+    // ── 4) Persist the explanation‐shown flag in the background
+    //     (so revisiting a question re‑displays it)
+    await this.updateExplanationText(qIdx).catch(console.error);
   
     // ⑦ Build your feedback text and run any post‑click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
