@@ -1100,9 +1100,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswered(true);
   
     // Show the formatted explanation immediately
-    this.showExplanationForQuestion(this.currentQuestionIndex);
+    this.showExplanationForQuestion(event.index);
   
-    // Feedback / next‑button logic
+    // Selection message / next‑button logic
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
@@ -1117,7 +1117,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[❌ setSelectionMessage failed]', err);
     }
   }
-  
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {
@@ -4311,7 +4310,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
-    // Get or compute the *formatted* string
+    // Get the formatted explanation text string
     let formatted = await firstValueFrom(
       this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
     );
