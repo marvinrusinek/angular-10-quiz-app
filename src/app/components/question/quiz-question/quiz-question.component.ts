@@ -221,6 +221,7 @@ export class QuizQuestionComponent
     answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
+  displayedExplanationIndex: number | null = null;
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
@@ -2665,12 +2666,16 @@ export class QuizQuestionComponent
     const question = this.questionsArray[qIdx];
     console.group(`🖱️ onOptionClicked Q${qIdx}`);
     const expl = question.explanation?.trim() || 'No explanation available';
+
+    // Set *which* question is showing and its text
+    this.displayedExplanationIndex = qIdx;
+    this.explanationText = expl;
+    this.cdRef.detectChanges();
     
     // ── 4) Show it immediately on click #1 ──
-    this.explanationText    = expl;
-    this.explanationVisible = true;
+    /* this.explanationVisible = true;
     this.cdRef.detectChanges();
-    console.log('[🔆 Immediate display]', expl);
+    console.log('[🔆 Immediate display]', expl); */
 
     // ── 5) Update quiz state to “explanation” mode ──
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
@@ -2679,13 +2684,13 @@ export class QuizQuestionComponent
     this.enableNextButton();
     
     // ── 6) Persist shown‑flag for revisits ──
-    this.explanationTextService.setFormattedExplanationText(expl);
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
       explanationDisplayed: true,
       explanationText: expl,
     });
+    this.explanationTextService.setFormattedExplanationText(expl);
   
     // ── 7) Build feedback text + cleanup ──
     this.feedbackText = await this.generateFeedbackText(question);
