@@ -225,6 +225,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.questionRendered.next(true);
       this.initializeExplanationTextObservable();
     }
+
+    if (changes['question'] && !changes['question'].firstChange) {
+      // Clear out old explanation
+      this.explanationText = '';
+      this.explanationVisible = false;
+      // Let Angular render the cleared state
+      this.cdRef.detectChanges();
+    }
   }
 
   ngOnDestroy(): void {
