@@ -2672,31 +2672,27 @@ export class QuizQuestionComponent
     // ── 3) Get (or seed) the formatted explanation ──
     // let expl = await firstValueFrom(this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx));
     const expl = question.explanation?.trim() || 'No explanation available';
-    if (!expl) {
-      expl = question.explanation?.trim() || 'No explanation available';
-      this.explanationTextService.setFormattedExplanationText(expl);
-    }
-    
 
+    // ── 4) Show it immediately on click #1 ──
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.cdRef.detectChanges();
+    console.log('[🔆 Immediate display]', expl);
+
+    // ── 5) Update quiz state to “explanation” mode ──
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+    
     // ── 6) Persist shown‑flag for revisits ──
+    this.explanationTextService.setFormattedExplanationText(expl);
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
       explanationDisplayed: true,
       explanationText: expl,
     });
-  
-    // ── 4) Show it immediately on click #1 ──
-    this.explanationText    = expl;
-    this.explanationVisible = true;
-    this.cdRef.detectChanges();
-    console.log('[🔆 Immediate display]', expl);
-  
-    // ── 5) Update quiz state to “explanation” mode ──
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
   
     // ── 7) Build feedback text + cleanup ──
     this.feedbackText = await this.generateFeedbackText(question);
