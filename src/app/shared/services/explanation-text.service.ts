@@ -95,7 +95,10 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(trimmed);
   }
 
-  
+  // Synchronous lookup by question index
+  public getFormattedSync(qIdx: number): string | undefined {
+    return this.formattedExplanations[qIdx]?.explanation;
+  }
 
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
