@@ -15,6 +15,7 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
+interface Override { idx: number; html: string; }
 
 @Component({
   selector: 'codelab-quiz-content',
@@ -58,17 +59,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
   
-  private overrideSubject = new BehaviorSubject<string>('');
-  @Input()
-  set explanationOverride(html: string) {
-    this.overrideSubject.next(html);
+  private overrideSubject = new BehaviorSubject<Override>({ idx: -1, html: '' });
+  @Input() set explanationOverride(o: Override) {
+    this.overrideSubject.next(o);
   }
 
-  @Input()
-  set questionIndex(idx: number) {
-    // Clear any old override when we move to a new question
-    this.overrideSubject.next('');
-    // And wake the OnPush view so it falls back to the question
+  @Input() set questionIndex(idx: number) {
+    // whenever question changes, clear override for that slot
+    this.overrideSubject.next({ idx, html: '' });
     this.cdRef.markForCheck();
   }
 
@@ -282,8 +280,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
       ) => {
-        if (override) {
-          return override;
+        if (override.html && override.idx === this.currentQuestionIndex) {
+          return override.html;
         }
         
         const question = questionText?.trim();
