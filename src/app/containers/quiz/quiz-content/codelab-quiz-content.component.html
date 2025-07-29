@@ -1,13 +1,5 @@
 <h3 question-content>
-<!-- 1) If parent gave us an override, show that immediately -->
-<ng-container *ngIf="explanationOverride; else showQuestion">
-  <span [innerHTML]="explanationOverride"></span>
-</ng-container>
-
-<!-- 2) Otherwise fall back to combinedText$ as before -->
-<ng-template #showQuestion>
   <ng-container *ngIf="combinedText$ | async as combinedText">
     <span [innerHTML]="combinedText"></span>
   </ng-container>
-</ng-template>
 </h3>
