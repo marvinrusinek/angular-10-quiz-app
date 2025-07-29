@@ -474,7 +474,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const q: QuizQuestion = this.questionsArray[idx];
         this.showExplanation = false;
         this.explanationText = '';
-        this.questionHtml    = q.questionText;
+
+        if (q && q.questionText) {
+          this.questionHtml = q.questionText.trim();
+        } else {
+          this.questionHtml = ''; 
+        }
+
         this.explanationHtml = '';
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
