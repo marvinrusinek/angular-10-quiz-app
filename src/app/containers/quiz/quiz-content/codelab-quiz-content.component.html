@@ -1,6 +1,5 @@
 <h3 question-content>
-  <!-- When showExplanation=false, show question -->
-  <span *ngIf="!showExplanation" [innerHTML]="questionHtml"></span>
-  <!-- When showExplanation=true, show explanation -->
-  <span *ngIf=" showExplanation" [innerHTML]="explanationHtml"></span>
+  <ng-container *ngIf="combinedText$ | async as combinedText">
+    <span [innerHTML]="combinedText"></span>
+  </ng-container>
 </h3>
