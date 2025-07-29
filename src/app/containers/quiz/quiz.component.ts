@@ -490,6 +490,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
         this.cdRef.detectChanges();
       }); */
+    this.indexSubscription = this.quizService.currentQuestionIndex$
+      .pipe(distinctUntilChanged())
+      .subscribe((idx: number) => {
+        this.explanationOverride = { idx, html: '' };
+      });
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
