@@ -280,7 +280,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
       ) => {
-        if (override.html && override.idx === this.currentQuestionIndex) {
+        if (override.html && override.idx === this.currentQuestionIndexValue) {
           return override.html;
         }
         
