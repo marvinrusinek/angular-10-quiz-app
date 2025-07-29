@@ -4315,6 +4315,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
+    this.showExplanation = true;
+    
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     const raw = question.explanation?.trim() ?? 'No explanation available';
