@@ -274,7 +274,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
+    /* this.combinedText$ = combineLatest([
       this.overrideSubject,
       this.displayState$,
       this.explanationTextService.explanationText$,
@@ -303,6 +303,42 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Otherwise show question (and correct count if present)
         return correct 
           ? `${question} <span class="correct-count">${correctText}</span>` : question;
+      }),
+      distinctUntilChanged()
+    ); */
+    // 1) Your original question/explanation pipeline:
+    const question$ = combineLatest([
+      this.displayState$,
+      this.explanationTextService.explanationText$,
+      this.questionToDisplay$,
+      this.correctAnswersText$,
+      this.explanationTextService.shouldDisplayExplanation$
+    ]).pipe(
+      map(([state, expl, qText, corrText, show]) => {
+        const question    = (qText   || '').trim();
+        const explanation = (expl    || '').trim();
+        const corr        = (corrText|| '').trim();
+
+        if (state.mode === 'explanation' && explanation && show) {
+          return explanation;
+        }
+        return corr
+          ? `${question} <span class="correct-count">${corr}</span>`
+          : question;
+      }),
+      distinctUntilChanged()
+    );
+
+    // 2) The override logic that *switches* into question$ or override
+    this.combinedText$ = this.overrideSubject.pipe(
+      // whenever overrideSubject.next() fires:
+      switchMap(ov => {
+        if (ov.idx === this.currentIndex && ov.html) {
+          // priority: emit override HTML immediately
+          return of(ov.html);
+        }
+        // otherwise fall back to the question$
+        return question$;
       }),
       distinctUntilChanged()
     );
