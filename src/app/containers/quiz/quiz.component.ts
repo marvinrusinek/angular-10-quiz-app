@@ -468,21 +468,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     this.indexSubscription = this.quizService.currentQuestionIndex$
-      // Only react when the index actually changes
-      .pipe(distinctUntilChanged())
       .subscribe(idx => {
-        // Clear the override so the child shows the question again
-        this.explanationOverride = '';
-
-        // Clear the service streams
+        const q = this.questionsArray[idx];
+        this.showExplanation = false;
+        this.explanationText = '';
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
-
-        // Go back into question mode
-        this.quizStateService.setDisplayState({
-          mode: 'question',
-          answered: false
-        });
+        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       });
 
     try {
