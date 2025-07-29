@@ -11,8 +11,6 @@
       <!-- question and options -->
       <ng-container *ngIf="qa">
         <ng-content></ng-content>
-
-        <!-- <pre>QA: {{ qa | json }}</pre> -->
         
         <codelab-quiz-content
           [questionToDisplay$]="questionToDisplay$"
