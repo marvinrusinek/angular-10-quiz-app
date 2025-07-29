@@ -41,7 +41,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() questionText = '';
   @Input() quizData: CombinedQuestionDataType | null = null;
   @Input() combinedText$!: Observable<string>;
-  @Input() questionIndex!: number;
+  // @Input() questionIndex!: number;
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
   public explanationVisible = false;
@@ -62,6 +62,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input()
   set explanationOverride(html: string) {
     this.overrideSubject.next(html);
+  }
+
+  @Input()
+  set questionIndex(idx: number) {
+    // Clear any old override when we move to a new question
+    this.overrideSubject.next('');
+    // And wake the OnPush view so it falls back to the question
+    this.cdRef.markForCheck();
   }
 
   displayMode$: Observable<'question' | 'explanation'>;
@@ -263,6 +271,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
+      this.overrideSubject,
       this.displayState$,
       this.explanationTextService.explanationText$,
       this.questionToDisplay$,
@@ -270,9 +279,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$
     ]).pipe(
       map((
-        [state, explanationText, questionText,
+        [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
       ) => {
+        if (override) {
+          return override;
+        }
+        
         const question = questionText?.trim();
         const explanation = (explanationText ?? '').trim();
         const correct = (correctText ?? '').trim();
