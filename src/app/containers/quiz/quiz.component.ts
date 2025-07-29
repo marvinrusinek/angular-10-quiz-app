@@ -4317,9 +4317,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const raw = question.explanation?.trim() ?? 'No explanation available';
 
     // Get the formatted explanation text string (unwrap the Observable)
-    let formatted = await firstValueFrom(
+    let formatted = (await firstValueFrom(
       this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-    );
+    )) ?? '';
     if (!formatted) {
       const correctIndices = question.options
         .filter(o => o.correct)
