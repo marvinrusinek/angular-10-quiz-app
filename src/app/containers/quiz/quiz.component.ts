@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, H
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, retry,  shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { Utils } from '../../shared/utils/utils';
@@ -4309,10 +4309,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
+    // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     const raw = question.explanation?.trim() ?? 'No explanation available';
 
-    // Get the formatted explanation text string
+    // Get the formatted explanation text string (unwrap the Observable)
     let formatted = await firstValueFrom(
       this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
     );
@@ -4329,11 +4330,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
 
-    // Push into the service so combinedText$ can see it
+    // Push into the three streams synchronously so combinedText$ can see it
     this.explanationTextService.setExplanationText(formatted);
     this.explanationTextService.setShouldDisplayExplanation(true);
-
-    // Flip modes
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
 
     // Set local view flags
