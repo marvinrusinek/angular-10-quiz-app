@@ -4326,9 +4326,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
-    this.showExplanation = true;
-    this.cdRef.detectChanges();
-
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     const raw = question.explanation?.trim() ?? 'No explanation available';
@@ -4358,12 +4355,5 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.cdRef.markForCheck();
-
-    // Set local view flags
-    this.explanationTextLocal = formatted;
-    this.explanationVisibleLocal = true;
-
-    // Force an immediate repaint
-    this.cdRef.detectChanges();
   }
 }
