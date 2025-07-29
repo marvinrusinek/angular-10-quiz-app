@@ -42,7 +42,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() quizData: CombinedQuestionDataType | null = null;
   @Input() combinedText$!: Observable<string>;
   @Input() questionIndex!: number;
-  @Input() explanationOverride = '';
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
   public explanationVisible = false;
@@ -64,7 +63,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   set explanationOverride(html: string) {
     this.overrideSubject.next(html);
   }
-  
+
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
   explanationDisplayed = false;
