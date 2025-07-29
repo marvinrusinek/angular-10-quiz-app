@@ -1073,15 +1073,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     isUserAction: boolean = true
   ): Promise<void> {
     // Guards and duplicate‑skip logic
-    if (event.index === this.lastLoggedIndex) {
-      console.warn('[🟡 Skipping duplicate event]', event);
-      return;
-    }
+    if (!isUserAction || !this.resetComplete) return;
+    if (event.index === this.lastLoggedIndex) return;
     this.lastLoggedIndex = event.index;
-    if (!isUserAction || !this.resetComplete) {
-      console.warn('[🚫 Blocked: Question not ready or userAction=false]');
-      return;
-    }
   
     // Answer‑tracking logic
     const { option, checked } = event;
