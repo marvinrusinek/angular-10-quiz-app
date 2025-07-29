@@ -1087,14 +1087,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.log('[✅ onOptionSelected] Marked as answered');
     }
     this.isAnswered = true;
-  
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(
-      `displayMode_${this.currentQuestionIndex}`,
-      'explanation'
-    );
-    sessionStorage.setItem('displayExplanation', 'true');
-  
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
@@ -1115,6 +1107,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } catch (err) {
       console.error('[❌ setSelectionMessage failed]', err);
     }
+
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(
+      `displayMode_${this.currentQuestionIndex}`,
+      'explanation'
+    );
+    sessionStorage.setItem('displayExplanation', 'true');
   }
 
   // REMOVE!!
