@@ -95,6 +95,8 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(trimmed);
   }
 
+  
+
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
     this.formattedExplanationSubject.next(trimmed);
