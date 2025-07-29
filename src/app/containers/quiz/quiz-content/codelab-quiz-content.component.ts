@@ -117,6 +117,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return this._showExplanation;
   }
 
+  @Input() questionHtml    = '';
+  @Input() explanationHtml = '';
+
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,

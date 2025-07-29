@@ -130,6 +130,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public explanationTextLocal = '';
   public explanationVisibleLocal = false;
   explanationOverride = '';
+  public questionHtml    = '';
+  public explanationHtml = '';
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -469,9 +471,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.indexSubscription = this.quizService.currentQuestionIndex$
       .subscribe(idx => {
-        const q = this.questionsArray[idx];
+        const q: QuizQuestion = this.questionsArray[idx];
         this.showExplanation = false;
         this.explanationText = '';
+        this.questionHtml    = q.questionText;
+        this.explanationHtml = '';
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
