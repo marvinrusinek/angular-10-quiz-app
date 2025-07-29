@@ -2674,6 +2674,11 @@ export class QuizQuestionComponent
 
 
     await this.updateExplanationText(qIdx).catch(console.error);
+
+    const formattedExplanation =
+      this.explanationTextService.formattedExplanations[qIdx]?.explanation ??
+      question.explanation?.trim() ??
+      'No explanation available';
     
     // ── 4) Show it immediately on click #1 ──
     /* this.explanationVisible = true;
@@ -2691,7 +2696,7 @@ export class QuizQuestionComponent
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
       explanationDisplayed: true,
-      explanationText: expl,
+      explanationText: formattedExplanation
     });
     this.explanationTextService.setFormattedExplanationText(expl);
   
