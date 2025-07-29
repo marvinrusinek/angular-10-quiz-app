@@ -4309,13 +4309,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
+    const question = this.questionsArray[qIdx];
+    const raw = question.explanation?.trim() ?? 'No explanation available';
+
     // Get the formatted explanation text string
     let formatted = await firstValueFrom(
       this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
     );
     if (!formatted) {
-      const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
-      const correctIndices = this.currentQuestion.options
+      const correctIndices = question.options
         .filter(o => o.correct)
         .map(o => o.optionId);
 
@@ -4332,10 +4334,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.setShouldDisplayExplanation(true);
 
     // Flip modes
-    this.quizStateService.setDisplayState({
-      mode: 'explanation',
-      answered: true
-    });
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
 
     // Set local view flags
     this.explanationTextLocal = formatted;
