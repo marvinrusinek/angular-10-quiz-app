@@ -102,6 +102,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   routerSubscription: Subscription;
   questionAndOptionsSubscription: Subscription;
   optionSelectedSubscription: Subscription;
+  indexSubscription!: Subscription;
   subscriptions: Subscription = new Subscription();
   private subs = new Subscription();
   resources: Resource[];
@@ -466,14 +467,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    this.quizService.currentQuestionIndex$
+    this.indexSubscription = this.quizService.currentQuestionIndex$
+      // Only react when the index actually changes
+      .pipe(distinctUntilChanged())
       .subscribe(idx => {
-        // Clear the explanation text
+        // Clear the override so the child shows the question again
+        this.explanationOverride = '';
+
+        // Clear the service streams
         this.explanationTextService.setExplanationText('');
-        // Hide it
         this.explanationTextService.setShouldDisplayExplanation(false);
-        // Flip back into “question” mode
-        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+        // Go back into question mode
+        this.quizStateService.setDisplayState({
+          mode: 'question',
+          answered: false
+        });
       });
 
     try {
@@ -1204,6 +1213,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.subscriptions.unsubscribe();
     this.routeSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+    this.indexSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.optionSelectedSubscription?.unsubscribe();
     this.timerService.stopTimer(null);
