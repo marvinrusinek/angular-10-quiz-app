@@ -45,7 +45,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() explanationOverride = '';
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
-  @Input() showExplanation = false;
   public explanationVisible = false;
 
   shouldDisplayCorrectAnswers = false;
@@ -105,6 +104,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   public click$ = new Subject<void>();
 
   private destroy$ = new Subject<void>();
+
+  private _showExplanation = false;
+
+  @Input()
+  set showExplanation(value: boolean) {
+    this._showExplanation = value;
+    // tell Angular to check this component on the next CD cycle
+    this.cdRef.markForCheck();
+  }
+  get showExplanation() {
+    return this._showExplanation;
+  }
 
   constructor(
     private quizService: QuizService,
