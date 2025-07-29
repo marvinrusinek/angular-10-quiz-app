@@ -115,8 +115,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input()
   set showExplanation(value: boolean) {
     this._showExplanation = value;
-    // tell Angular to check this component on the next CD cycle
-    this.cdRef.markForCheck();
+    this.cdRef.markForCheck();  // tell Angular to check this component on the next CD cycle
   }
   get showExplanation() {
     return this._showExplanation;
