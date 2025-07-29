@@ -469,8 +469,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    this.indexSubscription = this.quizService.currentQuestionIndex$
+    /* this.indexSubscription = this.quizService.currentQuestionIndex$
       .subscribe(idx => {
+        this.explanationOverride = '';
+        this.explanationTextService.setExplanationText('');
+        this.explanationTextService.setShouldDisplayExplanation(false);
+
         const q: QuizQuestion = this.questionsArray[idx];
         this.showExplanation = false;
         this.explanationText = '';
@@ -482,10 +486,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         }
 
         this.explanationHtml = '';
-        this.explanationTextService.setExplanationText('');
-        this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-      });
+        this.cdRef.detectChanges();
+      }); */
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
