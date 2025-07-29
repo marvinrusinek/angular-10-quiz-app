@@ -43,7 +43,6 @@ import { SharedVisibilityService } from '../../shared/services/shared-visibility
 import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 import { ChangeRouteAnimation } from '../../animations/animations';
-import { raceWith } from 'rxjs/operators';
 
 type AnimationState = 'animationStarted' | 'none';
 
@@ -4339,7 +4338,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
 
     // Set local view flags
-    this.explanationTextLocal    = formatted;
+    this.explanationTextLocal = formatted;
     this.explanationVisibleLocal = true;
 
     // Force an immediate repaint
