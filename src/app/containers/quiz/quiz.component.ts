@@ -51,6 +51,7 @@ export interface LoadedQuestionData {
   options: Option[];
   explanation: string;
 }
+interface Override { idx: number; html: string; }
 
 @Component({
   selector: 'codelab-quiz-component',
@@ -129,7 +130,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   public explanationTextLocal = '';
   public explanationVisibleLocal = false;
-  explanationOverride = '';
+  public explanationOverride: Override = { idx: -1, html: '' };
   public questionHtml    = '';
   public explanationHtml = '';
 
