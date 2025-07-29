@@ -59,13 +59,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
   
-  private overrideSubject = new BehaviorSubject<Override>({ idx: -1, html: '' });
-  @Input() set explanationOverride(o: Override) {
+  private overrideSubject = new BehaviorSubject<{idx: number; html: string}>({idx: -1, html: ''});
+  private currentIndex = -1;
+
+  @Input()
+  set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
   }
 
-  @Input() set questionIndex(idx: number) {
-    // whenever question changes, clear override for that slot
+  @Input()
+  set questionIndex(idx: number) {
+    // 2) remember the index AND clear any old override
+    this.currentIndex = idx;
     this.overrideSubject.next({ idx, html: '' });
     this.cdRef.markForCheck();
   }
@@ -280,7 +285,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation]
       ) => {
-        if (override.html && override.idx === this.currentQuestionIndexValue) {
+        if (override.html && override.idx === this.currentIndex) {
           return override.html;
         }
         
