@@ -40,6 +40,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() correctAnswersText = '';
   @Input() questionText = '';
   @Input() quizData: CombinedQuestionDataType | null = null;
+  @Input() combinedText$!: Observable<string>;
+  @Input() questionIndex!: number;
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
   public explanationVisible = false;
@@ -47,7 +49,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   shouldDisplayCorrectAnswers = false;
   private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
-  questionIndex: number;
   currentQuestionIndexValue: number;
   currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
   currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
@@ -97,8 +98,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
-
-  combinedText$: Observable<string>;
   isContentAvailable$: Observable<boolean>;
 
   public click$ = new Subject<void>();
@@ -225,6 +224,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     if (changes['question'] && !changes['question'].firstChange) {
       // Clear out old explanation
       this.explanationText = '';
+      this.explanationTextLocal = '';
       this.explanationVisible = false;
       this.cdRef.detectChanges();
     }
