@@ -3119,6 +3119,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.explanationTextService.lockExplanation();
       this.showExplanation = true;
+      this.cdRef.detectChanges();
     } else if (shouldDisableExplanation) {
       this.explanationToDisplay = '';
 
@@ -4316,7 +4317,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   public async showExplanationForQuestion(qIdx: number): Promise<void> {
     this.showExplanation = true;
-    
+    this.cdRef.detectChanges();
+
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     const raw = question.explanation?.trim() ?? 'No explanation available';
