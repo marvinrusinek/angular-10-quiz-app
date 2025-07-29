@@ -13,13 +13,10 @@
         <ng-content></ng-content>
         
         <codelab-quiz-content
-          [displayState$]             ="quizStateService.displayState$"
-          [explanationText$]          ="explanationTextService.explanationText$"
-          [questionToDisplay$]        ="questionToDisplay$"
-          [correctAnswersText$]       ="correctAnswersText$"
-          [shouldDisplayExplanation$] ="explanationTextService.shouldDisplayExplanation$"
-          [questionIndex]             ="currentQuestionIndex"
-          [explanationOverride]       ="explanationOverride"
+          [questionToDisplay$]="questionToDisplay$"
+          [explanationToDisplay]="explanationToDisplay"
+          [explanationOverride]="explanationOverride"
+          [showExplanation]="showExplanation"
         ></codelab-quiz-content>
         
         <codelab-quiz-question
