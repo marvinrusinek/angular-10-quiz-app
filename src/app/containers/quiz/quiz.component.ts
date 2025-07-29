@@ -465,6 +465,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
+    this.quizService.currentQuestionIndex$
+      .subscribe(idx => {
+        // Clear the explanation text
+        this.explanationTextService.setExplanationText('');
+        // Hide it
+        this.explanationTextService.setShouldDisplayExplanation(false);
+        // Flip back into “question” mode
+        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+      });
+
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
       if (!questions?.length) {
