@@ -254,8 +254,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     if (changes['question'] && !changes['question'].firstChange) {
       // Clear out old explanation
-      const idx = changes['questionIndex'].currentValue as number;
-      this.overrideSubject.next({ idx, html: '' });
+      this.currentIndex = this.questionIndex;
+      this.overrideSubject.next({ idx: this.currentIndex, html: '' });
       this.explanationText = '';
       this.explanationTextLocal = '';
       this.explanationVisible = false;
