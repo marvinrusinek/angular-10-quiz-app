@@ -246,6 +246,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnChanges(changes: SimpleChanges) {
     console.log('[🧠 ContentComponent Received]', this.questionText);
+    if (changes['explanationOverride']) {
+      this.overrideSubject.next(this.explanationOverride);
+      this.cdRef.markForCheck();
+    }
+
     // Run only when the new questionText arrives
     if (!!this.questionText && !this.questionRendered.getValue()) {
       this.questionRendered.next(true);
