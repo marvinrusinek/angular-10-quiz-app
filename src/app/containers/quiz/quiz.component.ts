@@ -4326,7 +4326,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         .map(o => o.optionId);
 
       formatted = this.explanationTextService.formatExplanation(
-        this.currentQuestion,
+        question,
         correctIndices,
         raw
       );
