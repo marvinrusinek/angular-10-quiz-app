@@ -4360,6 +4360,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationToDisplay = formatted;
     // this.explanationOverride = formatted;
     this.explanationOverride = { idx: qIdx, html: formatted };
+    this.cdRef.detectChanges();
 
     // Push into the three streams synchronously so combinedText$ can see it
     this.explanationTextService.setExplanationText(formatted);

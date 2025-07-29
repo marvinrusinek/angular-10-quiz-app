@@ -59,7 +59,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
   
-  private overrideSubject = new BehaviorSubject<{idx: number; html: string}>({idx: -1, html: ''});
+  private overrideSubject = new BehaviorSubject<{idx: number; html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
 
   @Input()
