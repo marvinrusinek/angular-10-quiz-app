@@ -4365,7 +4365,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correctIndices,
         raw
       );
-      this.explanationTextService.setFormattedExplanationText(formatted);
+      this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
     }
 
     this.explanationToDisplay = formatted;
