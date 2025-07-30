@@ -21,6 +21,7 @@ import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
+import { CodelabQuizContentComponent } from '../../containers/quiz/quiz-content/codelab-quiz-content.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
@@ -68,6 +69,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   sharedOptionComponent!: SharedOptionComponent;
   @ViewChild('nextButton', { static: false })
   nextButtonTooltip!: MatTooltip;
+  @ViewChild(CodelabQuizContentComponent, { read: ChangeDetectorRef })
+  private contentCd!: ChangeDetectorRef;
   @Input() data: QuizQuestion;
   @Input() selectedQuiz: Quiz = {} as Quiz;
   @Input() currentQuestion: QuizQuestion | null = null;
@@ -1124,6 +1127,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Show the formatted explanation immediately
     this.showExplanationForQuestion(this.currentQuestionIndex);
+    this.contentCd.detectChanges();
   
     // Selection message / next‑button logic
     try {
