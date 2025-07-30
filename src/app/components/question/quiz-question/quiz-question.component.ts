@@ -125,6 +125,7 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
   private navigatingBackwards = false;
+  lastLoggedIndex: number;
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -2649,7 +2650,14 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {  
-    const qIdx = event.index;
+    const qIdx = this.currentQuestionIndex;
+    const question = this.questionsArray[qIdx];
+
+    if (event.index === this.lastLoggedIndex) {
+      console.warn('[🟡 Duplicate click, skipping]');
+      return;
+    }
+    this.lastLoggedIndex = event.index;
 
     // ── Guard ──
     if (!event.option || !this.questionsArray?.length) {
@@ -2658,33 +2666,50 @@ export class QuizQuestionComponent
       return;
     }
 
-    // ── 1) Core selection UI (highlight, icons, next‑button) ──
-    this.handleCoreSelection(event);
-    this.markBindingSelected(event.option);
-    this.refreshFeedbackFor(event.option);
+    // ─── 1) IMMEDIATELY show cached or raw explanation ───
+    // Try cache first
+    const cachedEntry = this.explanationTextService.formattedExplanations[qIdx];
+    const raw = question.explanation?.trim() || 'No explanation available';
+    const immediate = (cachedEntry?.explanation?.trim()) || raw;
 
-    const question = this.questionsArray[qIdx];
-    console.group(`🖱️ onOptionClicked Q${qIdx}`);
-
-    // const expl = question.explanation?.trim() || 'No explanation available';
-    let expl = await firstValueFrom(
-      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-    );
-    if (!expl || !expl.trim()) {
-      const formatted = await firstValueFrom(
-        this.explanationTextService.formatExplanationText(question, qIdx)
-      );
-      expl =
-        formatted?.explanation?.trim() ||
-        question.explanation?.trim() ||
-        'No explanation available';
-    }
-    
-    this.explanationText    = expl;
+    this.explanationText = immediate;
     this.explanationVisible = true;
     this.displayedExplanationIndex = qIdx;
     this.cdRef.detectChanges();
 
+    // ─── 2) THEN asynchronously fetch/format the “full” explanation ───
+    let expl = cachedEntry?.explanation;
+    if (!expl) {
+      try {
+        // first try your formatted‑observable
+        expl = (await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+        ))?.trim();
+      } catch { /* ignore */ }
+      if (!expl) {
+        // fall back to your formatter if that fails
+        const formatted = await firstValueFrom(
+          this.explanationTextService.formatExplanationText(question, qIdx)
+        );
+        expl = formatted?.explanation?.trim() || raw;
+      }
+      // cache it for next time
+      this.explanationTextService.formattedExplanations[qIdx] = {
+        questionIndex: qIdx,
+        explanation:   expl
+      };
+    }
+
+    // ─── 3) If it’s changed, patch it in synchronously ───
+    if (expl !== this.explanationText) {
+      this.explanationText = expl;
+      this.cdRef.detectChanges();
+    }
+    
+    // ── 1) Core selection UI (highlight, icons, next‑button) ──
+    this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option);
 
     await this.updateExplanationText(qIdx).catch(console.error);
 
