@@ -2650,7 +2650,7 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    const qIdx = this.currentQuestionIndex;
+    const qIdx    = this.currentQuestionIndex;
     const question = this.questionsArray[qIdx];
   
     // —── 0) Guards & de‑duplication ──—
@@ -2665,6 +2665,7 @@ export class QuizQuestionComponent
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
   
+    // —── 2) Compute (or fetch) the *formatted* explanation synchronously ──—
     const raw = (question.explanation || 'No explanation available').trim();
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
     if (!formatted) {
@@ -2673,31 +2674,37 @@ export class QuizQuestionComponent
         question.options.filter(o => o.correct).map(o => o.optionId),
         raw
       );
+      // ←— **Two args**: questionIndex + text
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
-
-    // —─ 2) IMMEDIATELY push into the three service streams ─—
+  
+    // —── 3) **Immediately** flip your service streams into “explanation” mode ──—
     this.explanationTextService.setExplanationText(formatted);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-
-    // —─ 3) Wake the OnPush child right now ─—
-    this.cdRef.detectChanges();
   
-    // —── 5) Persist via updateExplanationText (sets state, stores it) ──—
+    // ←— Wake ALL OnPush children (including your <codelab-quiz-content>) now
+    this.cdRef.markForCheck();
+  
+    // —── 4) Persist “shown” flag in your service (and storage) ──—
     await this.updateExplanationText(qIdx).catch(console.error);
   
-    // —── 6) Flip into “explanation” mode & enable next button ──—
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    // —── 5) Enable next button + mark answered (if not already) ───
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
   
-    // —── 7) Final feedback + cleanup ──—
+    // —── 6) Build feedback text + any post‐click tasks ───
     this.feedbackText = await this.generateFeedbackText(question);
-    await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
+    await this.postClickTasks(
+      event.option,
+      qIdx,
+      event.checked,
+      event.wasReselected
+    );
   
     console.groupEnd();
   }
+  
   
   
 
