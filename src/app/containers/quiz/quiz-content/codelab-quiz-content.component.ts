@@ -311,42 +311,50 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged()
     ); */
-    // 1) Your original question/explanation pipeline:
-    const question$ = combineLatest([
-      this.displayState$,
-      this.explanationTextService.explanationText$,
-      this.questionToDisplay$,
-      this.correctAnswersText$,
-      this.explanationTextService.shouldDisplayExplanation$
-    ]).pipe(
-      map(([state, expl, qText, corrText, show]) => {
-        const question    = (qText   || '').trim();
-        const explanation = (expl    || '').trim();
-        const corr        = (corrText|| '').trim();
-
-        if (state.mode === 'explanation' && explanation && show) {
-          return explanation;
-        }
-        return corr
-          ? `${question} <span class="correct-count">${corr}</span>`
-          : question;
-      }),
-      distinctUntilChanged()
-    );
-
-    // 2) The override logic that *switches* into question$ or override
     this.combinedText$ = this.overrideSubject.pipe(
-      // whenever overrideSubject.next() fires:
-      switchMap(ov => {
-        if (ov.idx === this.currentIndex && ov.html) {
-          // priority: emit override HTML immediately
-          return of(ov.html);
+      // 1) Whenever you call overrideSubject.next(), switchMap runs:
+      switchMap(override => {
+        // 2) If it's for THIS question and non‑empty, emit it immediately:
+        if (override.idx === this.currentIndex && override.html) {
+          return of(override.html);
         }
-        // otherwise fall back to the question$
-        return question$;
+        // 3) Otherwise fall back to your exact same combinedLatest logic:
+        return combineLatest([
+          this.displayState$,
+          this.explanationTextService.explanationText$,
+          this.questionToDisplay$,
+          this.correctAnswersText$,
+          this.explanationTextService.shouldDisplayExplanation$
+        ]).pipe(
+          map(([
+            state,
+            explanationText,
+            questionText,
+            correctText,
+            shouldDisplayExplanation
+          ]) => {
+            const question    = questionText?.trim();
+            const explanation = (explanationText ?? '').trim();
+            const correct     = (correctText ?? '').trim();
+    
+            if (
+              state.mode === 'explanation' &&
+              explanation &&
+              shouldDisplayExplanation
+            ) {
+              return explanation;  // render explanation once
+            }
+            return correct
+              ? `${question} <span class="correct-count">${correctText}</span>`
+              : question;
+          }),
+          distinctUntilChanged()
+        );
       }),
+      // 4) And dedupe duplicate emissions just once at the end
       distinctUntilChanged()
     );
+    
   }
   
   private emitContentAvailableState(): void {
