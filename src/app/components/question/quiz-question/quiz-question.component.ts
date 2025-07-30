@@ -2649,101 +2649,77 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {  
+  }): Promise<void> {
     const qIdx = this.currentQuestionIndex;
     const question = this.questionsArray[qIdx];
-
-    if (event.index === this.lastLoggedIndex) {
-      console.warn('[🟡 Duplicate click, skipping]');
+  
+    // —── 0) Guards & de‑duplication ──—
+    if (!event.option || event.index === this.lastLoggedIndex) {
+      console.warn('[🟡 onOptionClicked] duplicate or null option, skipping');
       return;
     }
     this.lastLoggedIndex = event.index;
-
-    // ── Guard ──
-    if (!event.option || !this.questionsArray?.length) {
-      console.warn('[⚠️ onOptionClicked] missing data, skipping');
-      console.groupEnd();
-      return;
-    }
-
-    // ─── 1) IMMEDIATELY show cached or raw explanation ───
-    // Try cache first
-    const cachedEntry = this.explanationTextService.formattedExplanations[qIdx];
-    const raw = question.explanation?.trim() || 'No explanation available';
-    const immediate = (cachedEntry?.explanation?.trim()) || raw;
-
-    this.explanationText = immediate;
-    this.explanationVisible = true;
-    this.displayedExplanationIndex = qIdx;
-    this.cdRef.detectChanges();
-
-    // ─── 2) THEN asynchronously fetch/format the “full” explanation ───
-    let expl = cachedEntry?.explanation;
-    if (!expl) {
-      try {
-        // first try your formatted‑observable
-        expl = (await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-        ))?.trim();
-      } catch { /* ignore */ }
-      if (!expl) {
-        // fall back to your formatter if that fails
-        const formatted = await firstValueFrom(
-          this.explanationTextService.formatExplanationText(question, qIdx)
-        );
-        expl = formatted?.explanation?.trim() || raw;
-      }
-      // cache it for next time
-      this.explanationTextService.formattedExplanations[qIdx] = {
-        questionIndex: qIdx,
-        explanation:   expl
-      };
-    }
-
-    // ─── 3) If it’s changed, patch it in synchronously ───
-    if (expl !== this.explanationText) {
-      this.explanationText = expl;
-      this.cdRef.detectChanges();
-    }
-    
-    // ── 1) Core selection UI (highlight, icons, next‑button) ──
+  
+    // —── 1) Core selection UI (highlight, feedback, next‑button) ──—
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
-
+  
+    // —── 2) Immediately show *something* so the user sees an explanation on click #1 ──—
+    // Try the cache first:
+    const cached = this.explanationTextService.formattedExplanations[qIdx];
+    const raw    = question.explanation?.trim() || 'No explanation available';
+    const immediate = (cached && cached.explanation.trim()) || raw;
+  
+    this.explanationText    = immediate;
+    this.explanationVisible = true;
+    this.displayedExplanationIndex = qIdx;
+    this.cdRef.detectChanges();  // Wake your OnPush child right now
+  
+    // —── 3) In the background, build the *full* formatted explanation ──—
+    let full = cached?.explanation;
+    if (!full) {
+      try {
+        full = (await firstValueFrom(
+          this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+        ))?.trim() || '';
+      } catch {
+        full = '';
+      }
+      if (!full) {
+        const formatted = await firstValueFrom(
+          this.explanationTextService.formatExplanationText(question, qIdx)
+        );
+        full = formatted?.explanation?.trim() || raw;
+      }
+      // cache for next time (include questionIndex)
+      this.explanationTextService.formattedExplanations[qIdx] = {
+        questionIndex: qIdx,
+        explanation:   full
+      };
+    }
+  
+    // —── 4) If it changed, patch in the “full” text ──—
+    if (full !== this.explanationText) {
+      this.explanationText = full;
+      this.cdRef.detectChanges();
+    }
+  
+    // —── 5) Persist via updateExplanationText (sets state, stores it) ──—
     await this.updateExplanationText(qIdx).catch(console.error);
-
-    const formattedExplanation =
-      this.explanationTextService.formattedExplanations[qIdx]?.explanation ??
-      question.explanation?.trim() ??
-      'No explanation available';
-    
-    // ── 4) Show it immediately on click #1 ──
-    /* this.explanationVisible = true;
-    this.cdRef.detectChanges();
-    console.log('[🔆 Immediate display]', expl); */
-
-    // ── 5) Update quiz state to “explanation” mode ──
+  
+    // —── 6) Flip into “explanation” mode & enable next button ──—
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
-    
-    // ── 6) Persist shown‑flag for revisits ──
-    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
-    this.quizStateService.setQuestionState(this.quizId, qIdx, {
-      ...prev,
-      explanationDisplayed: true,
-      explanationText: formattedExplanation
-    });
-    this.explanationTextService.setFormattedExplanationText(expl);
   
-    // ── 7) Build feedback text + cleanup ──
+    // —── 7) Final feedback + cleanup ──—
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
   
     console.groupEnd();
   }
+  
   
 
   private handleCoreSelection(
