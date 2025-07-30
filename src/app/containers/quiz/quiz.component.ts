@@ -19,9 +19,6 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizResource } from '../../shared/models/QuizResource.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
-import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
-import { CodelabQuizContentComponent } from '../../containers/quiz/quiz-content/codelab-quiz-content.component';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
 import { QuizInitializationService } from '../../shared/services/quiz-initialization.service';
@@ -43,6 +40,9 @@ import { ResetBackgroundService } from '../../shared/services/reset-background.s
 import { SharedVisibilityService } from '../../shared/services/shared-visibility.service';
 import { SoundService } from '../../shared/services/sound.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
+import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
+import { SharedOptionComponent } from '../../components/question/answer/shared-option-component/shared-option.component';
+import { CodelabQuizContentComponent } from '../../containers/quiz/quiz-content/codelab-quiz-content.component';
 import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
