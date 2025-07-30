@@ -2666,7 +2666,20 @@ export class QuizQuestionComponent
     const question = this.questionsArray[qIdx];
     console.group(`🖱️ onOptionClicked Q${qIdx}`);
 
-    const expl = question.explanation?.trim() || 'No explanation available';
+    // const expl = question.explanation?.trim() || 'No explanation available';
+    let expl = await firstValueFrom(
+      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
+    );
+    if (!expl || !expl.trim()) {
+      const formatted = await firstValueFrom(
+        this.explanationTextService.formatExplanationText(question, qIdx)
+      );
+      expl =
+        formatted?.explanation?.trim() ||
+        question.explanation?.trim() ||
+        'No explanation available';
+    }
+    
     this.explanationText    = expl;
     this.explanationVisible = true;
     this.displayedExplanationIndex = qIdx;
