@@ -2649,23 +2649,86 @@ export class QuizQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
+  }): Promise<void> {  
+    const qIdx = this.currentQuestionIndex;
+
+    // ── Guard ──
+    if (!event.option || !this.questionsArray?.length) {
+      console.warn('[⚠️ onOptionClicked] missing data, skipping');
+      console.groupEnd();
+      return;
+    }
+
+    // ── 1) Core selection UI (highlight, icons, next‑button) ──
+    this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option);
+
+    const question = this.questionsArray[qIdx];
+    console.group(`🖱️ onOptionClicked Q${qIdx}`);
+
+    const expl = question.explanation?.trim() || 'No explanation available';
+    this.explanationText    = expl;
+    this.explanationVisible = true;
+    this.displayedExplanationIndex = qIdx;
+    this.cdRef.detectChanges();
+
+
+    await this.updateExplanationText(qIdx).catch(console.error);
+
+    const formattedExplanation =
+      this.explanationTextService.formattedExplanations[qIdx]?.explanation ??
+      question.explanation?.trim() ??
+      'No explanation available';
+    
+    // ── 4) Show it immediately on click #1 ──
+    /* this.explanationVisible = true;
+    this.cdRef.detectChanges();
+    console.log('[🔆 Immediate display]', expl); */
+
+    // ── 5) Update quiz state to “explanation” mode ──
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+    
+    // ── 6) Persist shown‑flag for revisits ──
+    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
+    this.quizStateService.setQuestionState(this.quizId, qIdx, {
+      ...prev,
+      explanationDisplayed: true,
+      explanationText: formattedExplanation
+    });
+    this.explanationTextService.setFormattedExplanationText(expl);
+  
+    // ── 7) Build feedback text + cleanup ──
+    this.feedbackText = await this.generateFeedbackText(question);
+    await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
+  
+    console.groupEnd();
+  }
+  /* public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
   }): Promise<void> {
     const qIdx    = this.currentQuestionIndex;
     const question = this.questionsArray[qIdx];
   
-    // —── 0) Guards & de‑duplication ──—
+    // Guards and de‑duplication
     if (!event.option || event.index === this.lastLoggedIndex) {
       console.warn('[🟡 onOptionClicked] duplicate or null option, skipping');
       return;
     }
     this.lastLoggedIndex = event.index;
   
-    // —── 1) Core selection UI (highlight, feedback, next‑button) ──—
+    // Core selection UI (highlight, feedback, next‑button)
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
   
-    // —── 2) Compute (or fetch) the *formatted* explanation synchronously ──—
+    // Fetch the formatted explanation synchronously
     const raw = (question.explanation || 'No explanation available').trim();
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
     if (!formatted) {
@@ -2677,26 +2740,25 @@ export class QuizQuestionComponent
         corrects,
         raw
       );
-      // ←— **Two args**: questionIndex + text
       this.explanationTextService.setFormattedExplanationText(formatted);
     }
   
-    // —── 3) **Immediately** flip your service streams into “explanation” mode ──—
+    // Immediately flip service streams into “explanation” mode
     this.explanationTextService.setExplanationText(formatted);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-    // ←— Wake ALL OnPush children (including your <codelab-quiz-content>) now
+    // Wake ALL OnPush children (including <codelab-quiz-content>) now
     this.cdRef.markForCheck();
   
-    // —── 4) Persist “shown” flag in your service (and storage) ──—
+    // Persist “shown” flag in service (and storage) ──—
     await this.updateExplanationText(qIdx).catch(console.error);
   
-    // —── 5) Enable next button + mark answered (if not already) ───
+    // Enable next button and mark answered (if not already)
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
   
-    // —── 6) Build feedback text + any post‐click tasks ───
+    // Build feedback text and any post‐click tasks
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(
       event.option!,
@@ -2706,7 +2768,7 @@ export class QuizQuestionComponent
     );
   
     console.groupEnd();
-  }
+  } */
   
   
   
