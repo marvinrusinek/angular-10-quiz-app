@@ -2665,45 +2665,24 @@ export class QuizQuestionComponent
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
   
-    // —── 2) Immediately show *something* so the user sees an explanation on click #1 ──—
-    // Try the cache first:
-    const cached = this.explanationTextService.formattedExplanations[qIdx];
-    const raw    = question.explanation?.trim() || 'No explanation available';
-    const immediate = (cached && cached.explanation.trim()) || raw;
-  
-    this.explanationText    = immediate;
-    this.explanationVisible = true;
-    this.displayedExplanationIndex = qIdx;
-    this.cdRef.detectChanges();  // Wake your OnPush child right now
-  
-    // —── 3) In the background, build the *full* formatted explanation ──—
-    let full = cached?.explanation;
-    if (!full) {
-      try {
-        full = (await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-        ))?.trim() || '';
-      } catch {
-        full = '';
-      }
-      if (!full) {
-        const formatted = await firstValueFrom(
-          this.explanationTextService.formatExplanationText(question, qIdx)
-        );
-        full = formatted?.explanation?.trim() || raw;
-      }
-      // cache for next time (include questionIndex)
-      this.explanationTextService.formattedExplanations[qIdx] = {
-        questionIndex: qIdx,
-        explanation:   full
-      };
+    const raw = (question.explanation || 'No explanation available').trim();
+    let formatted = this.explanationTextService.getFormattedSync(qIdx);
+    if (!formatted) {
+      formatted = this.explanationTextService.formatExplanation(
+        question,
+        question.options.filter(o => o.correct).map(o => o.optionId),
+        raw
+      );
+      this.explanationTextService.setFormattedExplanationText(formatted);
     }
-  
-    // —── 4) If it changed, patch in the “full” text ──—
-    if (full !== this.explanationText) {
-      this.explanationText = full;
-      this.cdRef.detectChanges();
-    }
+
+    // —─ 2) IMMEDIATELY push into the three service streams ─—
+    this.explanationTextService.setExplanationText(formatted);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+
+    // —─ 3) Wake the OnPush child right now ─—
+    this.cdRef.detectChanges();
   
     // —── 5) Persist via updateExplanationText (sets state, stores it) ──—
     await this.updateExplanationText(qIdx).catch(console.error);
