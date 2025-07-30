@@ -1123,7 +1123,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setAnswered(true);
   
     // Show the formatted explanation immediately
-    await this.showExplanationForQuestion(this.currentQuestionIndex);
+    this.showExplanationForQuestion(this.currentQuestionIndex);
   
     // Selection message / next‑button logic
     try {
