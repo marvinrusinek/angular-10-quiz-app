@@ -493,7 +493,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.indexSubscription = this.quizService.currentQuestionIndex$
       .pipe(distinctUntilChanged())
       .subscribe((idx: number) => {
+        const q = this.questionsArray[idx];
+        this.questionHtml = q.questionText.trim();
+        this.explanationHtml = '';
+        this.showExplanation = false;
         this.explanationOverride = { idx, html: '' };
+
+        this.explanationTextService.setShouldDisplayExplanation(false);
+        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       });
 
     try {
@@ -4334,7 +4341,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.animationState$.next('animationStarted');
   }
 
-  public async showExplanationForQuestion(qIdx: number): Promise<void> {
+  public showExplanationForQuestion(qIdx: number): void {
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     const raw = question.explanation?.trim() ?? 'No explanation available';
