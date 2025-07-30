@@ -2669,9 +2669,12 @@ export class QuizQuestionComponent
     const raw = (question.explanation || 'No explanation available').trim();
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
     if (!formatted) {
+      const corrects = question.options
+        .filter(o => o.correct)
+        .map(o => o.optionId);
       formatted = this.explanationTextService.formatExplanation(
         question,
-        question.options.filter(o => o.correct).map(o => o.optionId),
+        corrects,
         raw
       );
       // ←— **Two args**: questionIndex + text
@@ -2696,7 +2699,7 @@ export class QuizQuestionComponent
     // —── 6) Build feedback text + any post‐click tasks ───
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(
-      event.option,
+      event.option!,
       qIdx,
       event.checked,
       event.wasReselected
