@@ -264,7 +264,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationText = '';
       this.explanationTextLocal = '';
       this.explanationVisible = false;
-      this.cdRef.detectChanges();
+      this.cdRef.markForCheck();
     }
   }
 
