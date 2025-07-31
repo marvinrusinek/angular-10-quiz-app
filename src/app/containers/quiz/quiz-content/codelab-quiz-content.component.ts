@@ -17,7 +17,6 @@ import { QuizQuestionComponent } from '../../../components/question/quiz-questio
 
 interface Override { idx: number; html: string; }
 
-
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
