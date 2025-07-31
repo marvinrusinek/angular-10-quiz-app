@@ -1026,4 +1026,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private isSingleAnswerWithExplanation(isMultipleAnswer: boolean, isExplanationDisplayed: boolean): boolean {
     return !isMultipleAnswer && isExplanationDisplayed;
   }
+
+  public showLocalExplanationText(html: string) {
+    this.localExplanationText = html;
+    this.showLocalExplanation = true;
+    this.cdRef.markForCheck();
+  }
 }
