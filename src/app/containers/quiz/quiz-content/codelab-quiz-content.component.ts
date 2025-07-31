@@ -311,7 +311,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged()
     ); */
-    this.combinedText$ = this.overrideSubject.pipe(
+    /* this.combinedText$ = this.overrideSubject.pipe(
       // 1) Whenever you call overrideSubject.next(), switchMap runs:
       switchMap(override => {
         // 2) If it's for THIS question and non‑empty, emit it immediately:
@@ -353,7 +353,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       // 4) And dedupe duplicate emissions just once at the end
       distinctUntilChanged()
-    );
+    ); */
+    // Include override + your five existing streams in ONE combineLatest
+  this.combinedText$ = combineLatest([
+    // 1) Always start with the last override (or empty)
+    this.overrideSubject.pipe(startWith({ idx: -1, html: '' })),
+
+    // 2) Your existing streams
+    this.displayState$,
+    this.explanationTextService.explanationText$,
+    this.questionToDisplay$,
+    this.correctAnswersText$,
+    this.explanationTextService.shouldDisplayExplanation$
+  ]).pipe(
+    map(([override, state, explanationText, questionText, correctText, shouldDisplayExplanation]) => {
+      const q   = (questionText    || '').trim();
+      const ex  = (explanationText || '').trim();
+      const cr  = (correctText     || '').trim();
+
+      // 1) If you have a non-empty override for this question, show it
+      if (override.idx === this.questionIndex && override.html) {
+        return override.html;
+      }
+
+      // 2) Otherwise if we’re in explanation mode, show the service’s explanation
+      if (state.mode === 'explanation' && ex && shouldDisplayExplanation) {
+        return ex;
+      }
+
+      // 3) Fallback to the question (with correct‐count if present)
+      return cr
+        ? `${q} <span class="correct-count">${cr}</span>`
+        : q;
+    }),
+    distinctUntilChanged()
+  );
     
   }
   
