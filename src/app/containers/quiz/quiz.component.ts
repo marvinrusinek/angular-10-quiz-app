@@ -1116,18 +1116,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
     }
   
+    // Show the formatted explanation immediately
+    this.showExplanationForQuestion(this.currentQuestionIndex);
+    this.contentCd.detectChanges();
+
     // Mark answered and persist
     if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
       this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Marked as answered');
     }
     this.isAnswered = true;
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
-  
-    // Show the formatted explanation immediately
-    this.showExplanationForQuestion(this.currentQuestionIndex);
-    this.contentCd.detectChanges();
   
     // Selection message / next‑button logic
     try {
