@@ -27,6 +27,7 @@
           [shouldRenderOptions]="shouldRenderOptions"
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
+          (optionClicked)="onOptionSelected($event)"
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
         ></codelab-quiz-question>

@@ -2667,6 +2667,11 @@ export class QuizQuestionComponent
     const question = this.questionsArray[qIdx];
     console.group(`🖱️ onOptionClicked Q${qIdx}`);
 
+    this.optionClicked.emit({
+      option: event.option,
+      checked: event.checked
+    });
+
     const expl = question.explanation?.trim() || 'No explanation available';
     this.explanationText    = expl;
     this.explanationVisible = true;
