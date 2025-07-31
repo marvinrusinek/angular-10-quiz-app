@@ -503,6 +503,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationHtml = '';
         this.showExplanation = false;
         this.explanationOverride = { idx, html: '' };
+        this.showLocalExplanation = false;
+        this.localExplanationText = '';
 
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
