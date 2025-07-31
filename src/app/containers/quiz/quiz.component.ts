@@ -1107,6 +1107,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!isUserAction || !this.resetComplete) return;
     if (event.index === this.lastLoggedIndex) return;
     this.lastLoggedIndex = event.index;
+
+    // Show the formatted explanation immediately
+    this.showExplanationForQuestion(this.currentQuestionIndex);
+    this.contentCd.detectChanges();
   
     // Answer‑tracking logic
     const { option, checked } = event;
@@ -1115,10 +1119,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     } else {
       this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
     }
-  
-    // Show the formatted explanation immediately
-    this.showExplanationForQuestion(this.currentQuestionIndex);
-    this.contentCd.detectChanges();
 
     // Mark answered and persist
     if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
