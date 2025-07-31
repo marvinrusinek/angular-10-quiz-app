@@ -45,6 +45,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // @Input() questionIndex!: number;
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
+  @Input() localExplanationText = '';
+  @Input() showLocalExplanation = false;
   public explanationVisible = false;
 
   shouldDisplayCorrectAnswers = false;
