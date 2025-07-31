@@ -71,11 +71,7 @@ export class QuizQuestionComponent
   @Output() feedbackTextChange = new EventEmitter<string>();
   @Output() isAnswered = false;
   @Output() answerSelected = new EventEmitter<boolean>();
-  @Output() optionSelected = new EventEmitter<{
-    option: SelectedOption,
-    index: number,
-    checked: boolean
-  }>();
+  @Output() optionSelected = new EventEmitter<SelectedOption>();
   @Output() displayStateChange = new EventEmitter<{
     mode: 'question' | 'explanation',
     answered: boolean
@@ -2667,10 +2663,11 @@ export class QuizQuestionComponent
     const question = this.questionsArray[qIdx];
     console.group(`🖱️ onOptionClicked Q${qIdx}`);
 
-    this.optionClicked.emit({
-      option: event.option,
-      checked: event.checked
-    });
+    const sel: SelectedOption = {
+      ...event.option,
+      questionIndex: this.currentQuestionIndex
+    };
+    this.optionSelected.emit(sel);
 
     const expl = question.explanation?.trim() || 'No explanation available';
     this.explanationText    = expl;
@@ -3054,7 +3051,13 @@ export class QuizQuestionComponent
 
     console.log('[🧪 QQC] finalizeAfterClick wasPreviouslySelected:', wasPreviouslySelected);
     await this.finalizeSelection(option, index, wasPreviouslySelected);
-    this.optionSelected.emit({ option, index, checked: true });
+    
+    const sel: SelectedOption = {
+      ...option,
+      questionIndex: lockedIndex
+    };
+    this.optionSelected.emit(sel);
+
     this.cdRef.markForCheck();
   }
 
@@ -4697,7 +4700,7 @@ export class QuizQuestionComponent
     this.isOptionSelected = true;
     this.isAnswered = this.selectedOptions.length > 0;
     this.isAnswerSelectedChange.emit(this.isAnswered);
-    this.optionSelected.emit({ option, index: optionIndex, checked: true });
+    this.optionSelected.emit(selectedOption);
 
     this.selectionChanged.emit({
       question: currentQuestion,
