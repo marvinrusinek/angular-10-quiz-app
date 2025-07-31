@@ -136,6 +136,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public explanationOverride: Override = { idx: -1, html: '' };
   public questionHtml    = '';
   public explanationHtml = '';
+  public localExplanationText = '';
+  public showLocalExplanation = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
     question: QuizQuestion;
@@ -1178,6 +1180,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Cache it under this question’s index
       this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
     }
+
+    this.localExplanationText = formatted;
+    this.showLocalExplanation = true;
   
     // ─── 2) Immediately flip into “explanation” mode **before** rendering ───
     this.explanationTextService.setExplanationText(formatted);
