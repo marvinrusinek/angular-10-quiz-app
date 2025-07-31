@@ -3058,6 +3058,9 @@ export class QuizQuestionComponent
     };
     this.optionSelected.emit(sel);
 
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+
     this.cdRef.markForCheck();
   }
 
