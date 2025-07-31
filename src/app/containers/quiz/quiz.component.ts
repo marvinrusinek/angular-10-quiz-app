@@ -1099,7 +1099,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[❌ setSelectionMessage failed]', err);
     }
   } */
-  public async onOptionSelected(
+  /* public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
@@ -1149,7 +1149,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       'explanation'
     );
     sessionStorage.setItem('displayExplanation', 'true');
+  } */
+  public async onOptionSelected(
+    event: { option: SelectedOption; index: number; checked: boolean },
+    isUserAction: boolean = true
+  ): Promise<void> {
+    // ─── 0) Guards & de-duplication ───
+    if (!isUserAction || !this.resetComplete) return;
+    if (event.index === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = event.index;
+  
+    const qIdx     = this.currentQuestionIndex;
+    const question = this.questionsArray[qIdx];
+  
+    // ─── 1) Compute (or fetch) the fully formatted explanation ───
+    const raw = (question.explanation || 'No explanation available').trim();
+    let formatted = this.explanationTextService.getFormattedSync(qIdx);
+    if (!formatted) {
+      const correctIds = question.options
+        .filter(o => o.correct)
+        .map(o => o.optionId);
+  
+      formatted = this.explanationTextService.formatExplanation(
+        question,
+        correctIds,
+        raw
+      );
+      // Cache it under this question’s index
+      this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
+    }
+  
+    // ─── 2) Immediately flip into “explanation” mode **before** rendering ───
+    this.explanationTextService.setExplanationText(formatted);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+    // 🔥 Force your OnPush <codelab-quiz-content> to update right now
+    this.contentCd.detectChanges();
+  
+    // ─── 3) Highlight & feedback (so it still fires instantly) ───
+    /* this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option); */
+  
+    // ─── 4) Persist & enable “Next” ───
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    // ─── 5) Save explanation-shown state in your service/storage ───
+    // await this.updateExplanationText(qIdx).catch(console.error);
+  
+    // ─── 6) Build feedback text + any post-click tasks ───
+    /* this.feedbackText = await this.generateFeedbackText(question);
+    await this.postClickTasks(
+      event.option!,
+      qIdx,
+      event.checked,
+      event.wasReselected
+    ); */
   }
+  
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {
