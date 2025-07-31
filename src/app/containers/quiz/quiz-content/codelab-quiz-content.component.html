@@ -1,14 +1,13 @@
-<!-- codelab-quiz-content.component.html -->
 <h3 question-content>
-<!-- 1) If parent has set showLocalExplanation, show that text -->
-<ng-container *ngIf="showLocalExplanation; else fallback">
-  <span [innerHTML]="localExplanationText"></span>
-</ng-container>
-
-<!-- 2) Otherwise use your existing combinedText$ stream -->
-<ng-template #fallback>
-  <ng-container *ngIf="combinedText$ | async as combinedText">
-    <span [innerHTML]="combinedText"></span>
+  <!-- 1) If parent has set showLocalExplanation, show that text -->
+  <ng-container *ngIf="showLocalExplanation; else fallback">
+    <span [innerHTML]="localExplanationText"></span>
   </ng-container>
-</ng-template>
+
+  <!-- 2) Otherwise use existing combinedText$ stream -->
+  <ng-template #fallback>
+    <ng-container *ngIf="combinedText$ | async as combinedText">
+      <span [innerHTML]="combinedText"></span>
+    </ng-container>
+  </ng-template>
 </h3>
