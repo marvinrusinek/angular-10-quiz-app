@@ -1185,6 +1185,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.localExplanationText = formatted;
     this.showLocalExplanation = true;
+    this.contentCd.detectChanges();
   
     // ─── 2) Immediately flip into “explanation” mode **before** rendering ───
     this.explanationTextService.setExplanationText(formatted);
