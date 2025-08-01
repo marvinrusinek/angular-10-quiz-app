@@ -980,228 +980,87 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }, 0);
   }
 
-  /* public async onOptionSelected(
+  public async onOptionSelected(
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    // Guards and de-duplication
+    if (!isUserAction || !this.resetComplete) return;
     if (event.index === this.lastLoggedIndex) {
       console.warn('[🟡 Skipping duplicate event]', event);
       return;
     }
     this.lastLoggedIndex = event.index;
-
-    if (!isUserAction) return;
-
+  
     const { option, checked } = event;
-    console.log('[🟢 onOptionSelected triggered]', {
-      index: this.currentQuestionIndex,
-      option,
-      checked,
-    });
-
-    if (!this.resetComplete) {
-      console.warn('[🚫 Blocked: Question not ready]');
-      return;
-    }
-
-    // Handle single vs. multiple answer
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
-    }
-
-    // Mark as answered only once
-    const alreadyAnswered =
-      this.selectedOptionService.isAnsweredSubject.getValue();
-    if (!alreadyAnswered) {
-      this.selectedOptionService.setAnswered(true);
-      console.log('[✅ onOptionSelected] Marked as answered');
-    } else {
-      console.log('[ℹ️ onOptionSelected] Already answered');
-    }
-
-    this.isAnswered = true;
-
-    // Persist state
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(
-      `displayMode_${this.currentQuestionIndex}`,
-      'explanation'
-    );
-    sessionStorage.setItem('displayExplanation', 'true');
-
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-
-    // Immediately show the explanation text on the first click
-    // 1) Grab the right explanation
-    // 1) First, get or compute the formatted text for the current question
-    const qIdx   = this.currentQuestionIndex;
-
-    // Try synchronous cache first
-    let formatted = await firstValueFrom(
-      this.explanationTextService.getFormattedExplanationTextForQuestion(qIdx)
-    );
-    if (!formatted) {
-      const raw    = this.currentQuestion.explanation?.trim() || 'No explanation available';
-      // If not in cache, format and store *by index*
-      formatted = this.explanationTextService.formatExplanation(
-        this.currentQuestion,
-        this.currentQuestion.options
-          .filter(o => o.correct)
-          .map(o => o.optionId),
-        raw
-      );
-      this.explanationTextService.setFormattedExplanationText(formatted);
-    }
-
-    // 3) Update your shared service/state in the right order
-    this.explanationTextService.setExplanationText(formatted);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-
-    this.quizStateService.setDisplayState({
-      mode: 'explanation',
-      answered: true
-    });
-
-    // 2) Immediately show *that* formatted text in your local state
-    this.explanationTextLocal    = formatted;
-    this.explanationVisibleLocal = true;
-    // Force Angular to render highlight + explanation this very tick
-    this.cdRef.detectChanges();
-
-    // Selection message and button state
-    try {
-      setTimeout(async () => {
-        await this.setSelectionMessage(true);
-        this.evaluateSelectionMessage();
-        this.nextButtonStateService.evaluateNextButtonState(
-          this.isAnswered,
-          this.quizStateService.isLoadingSubject.getValue(),
-          this.quizStateService.isNavigatingSubject.getValue()
-        );
-      }, 50);
-    } catch (err) {
-      console.error('[❌ setSelectionMessage failed]', err);
-    }
-  } */
-  /* public async onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): Promise<void> {
-    // Guards and duplicate‑skip logic
-    if (!isUserAction || !this.resetComplete) return;
-    if (event.index === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = event.index;
-
-    // Show the formatted explanation immediately
-    this.showExplanationForQuestion(this.currentQuestionIndex);
-    this.contentCd.detectChanges();
-  
-    // Answer‑tracking logic
-    const { option, checked } = event;
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      this.selectedOptions = checked ? [option] : [];
-    } else {
-      this.answerTrackingService.updateMultipleAnswerSelection(option, checked);
-    }
-
-    // Mark answered and persist
-    if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-      this.selectedOptionService.setAnswered(true);
-    }
-    this.isAnswered = true;
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-  
-    // Selection message / next‑button logic
-    try {
-      setTimeout(async () => {
-        await this.setSelectionMessage(true);
-        this.evaluateSelectionMessage();
-        this.nextButtonStateService.evaluateNextButtonState(
-          this.isAnswered,
-          this.quizStateService.isLoadingSubject.getValue(),
-          this.quizStateService.isNavigatingSubject.getValue()
-        );
-      }, 50);
-    } catch (err) {
-      console.error('[❌ setSelectionMessage failed]', err);
-    }
-
-    sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(
-      `displayMode_${this.currentQuestionIndex}`,
-      'explanation'
-    );
-    sessionStorage.setItem('displayExplanation', 'true');
-  } */
-  public async onOptionSelected(
-    event: { option: SelectedOption; index: number; checked: boolean },
-    isUserAction: boolean = true
-  ): Promise<void> {
-    // ─── 0) Guards & de-duplication ───
-    if (!isUserAction || !this.resetComplete) return;
-    if (event.index === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = event.index;
-  
-    const qIdx     = this.currentQuestionIndex;
+    const qIdx = this.currentQuestionIndex;
     const question = this.questionsArray[qIdx];
-  
-    // ─── 1) Compute (or fetch) the fully formatted explanation ───
+    
+    // Fetch the fully-formatted explanation
     const raw = (question.explanation || 'No explanation available').trim();
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
     if (!formatted) {
       const correctIds = question.options
         .filter(o => o.correct)
         .map(o => o.optionId);
-  
       formatted = this.explanationTextService.formatExplanation(
         question,
         correctIds,
         raw
       );
-      // Cache it under this question’s index
+      // Cache under question index
       this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
     }
-
-    this.localExplanationText = formatted;
-    this.showLocalExplanation = true;
-    this.explanationToDisplay = formatted;
-    this.showExplanation = true;
+  
+    // Immediately show that explanation on first click
+    this.localExplanationText  = formatted;
+    this.showLocalExplanation  = true;
+    this.explanationToDisplay  = formatted;
+    this.showExplanation       = true;
+    // wake OnPush content
     this.contentCd.detectChanges();
   
-    // ─── 2) Immediately flip into “explanation” mode **before** rendering ───
+    // Flip into “explanation” mode in your shared services
     this.explanationTextService.setExplanationText(formatted);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-    // 🔥 Force your OnPush <codelab-quiz-content> to update right now
+    // if still OnPush, ensure the child picks it up
     this.contentCd.detectChanges();
   
-    // ─── 3) Highlight & feedback (so it still fires instantly) ───
-    /* this.handleCoreSelection(event);
-    this.markBindingSelected(event.option);
-    this.refreshFeedbackFor(event.option); */
-  
-    // ─── 4) Persist & enable “Next” ───
+    // Mark answered and enable Next
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
+  
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
-    // ─── 5) Save explanation-shown state in your service/storage ───
-    // await this.updateExplanationText(qIdx).catch(console.error);
+    // Persist per-question “seen” flag
+    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
+    this.quizStateService.setQuestionState(this.quizId, qIdx, {
+      ...prev,
+      explanationDisplayed: true,
+      explanationText: formatted
+    });
   
-    // ─── 6) Build feedback text + any post-click tasks ───
-    /* this.feedbackText = await this.generateFeedbackText(question);
-    await this.postClickTasks(
-      event.option!,
-      qIdx,
-      event.checked,
-      event.wasReselected
-    ); */
+    // Selection message / next-button logic (try/catch)
+    try {
+      setTimeout(async () => {
+        await this.setSelectionMessage(true);
+        this.evaluateSelectionMessage();
+        this.nextButtonStateService.evaluateNextButtonState(
+          this.isAnswered,
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
+        );
+      }, 50);
+    } catch (err) {
+      console.error('[❌ setSelectionMessage failed]', err);
+    }
+  
+    // Persist state in sessionStorage
+    sessionStorage.setItem('isAnswered', 'true');
+    sessionStorage.setItem(`displayMode_${qIdx}`, 'explanation');
+    sessionStorage.setItem('displayExplanation', 'true');
   }
   
 
