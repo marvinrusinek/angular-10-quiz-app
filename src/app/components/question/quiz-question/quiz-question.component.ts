@@ -2545,6 +2545,11 @@ export class QuizQuestionComponent
     };
     this.optionSelected.emit(sel);
 
+    this.sharedOptionComponent.optionBindings.forEach(binding => {
+      binding.isSelected = false;
+      binding.directiveInstance?.updateHighlight();
+    });
+
     const expl = question.explanation?.trim() || 'No explanation available';
     this.explanationText = expl;
     this.explanationVisible = true;
