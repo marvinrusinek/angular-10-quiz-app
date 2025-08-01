@@ -2551,7 +2551,6 @@ export class QuizQuestionComponent
     this.displayedExplanationIndex = qIdx;
     this.cdRef.detectChanges();
 
-
     await this.updateExplanationText(qIdx).catch(console.error);
 
     const formattedExplanation =
