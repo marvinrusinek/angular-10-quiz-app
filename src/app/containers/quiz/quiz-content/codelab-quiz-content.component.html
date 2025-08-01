@@ -1,5 +1,13 @@
 <h3 question-content>
-  <ng-container *ngIf="combinedText$ | async as combinedText">
-    <span [innerHTML]="combinedText"></span>
+  <!-- local override if set -->
+  <ng-container *ngIf="showLocalExplanation; else rxContent">
+    <span [innerHTML]="localExplanationText"></span>
   </ng-container>
+
+  <!-- otherwise original RxJS logic -->
+  <ng-template #rxContent>
+    <ng-container *ngIf="combinedText$ | async as text">
+      <span [innerHTML]="text"></span>
+    </ng-container>
+  </ng-template>
 </h3>
