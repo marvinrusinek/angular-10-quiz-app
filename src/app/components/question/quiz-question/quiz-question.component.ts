@@ -2647,21 +2647,19 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {  
     const qIdx = this.currentQuestionIndex;
+    const question = this.questionsArray[qIdx];
 
-    // ── Guard ──
+    // Guard
     if (!event.option || !this.questionsArray?.length) {
       console.warn('[⚠️ onOptionClicked] missing data, skipping');
       console.groupEnd();
       return;
     }
 
-    // ── 1) Core selection UI (highlight, icons, next‑button) ──
+    // Core selection UI (highlight, icons, next‑button)
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
-
-    const question = this.questionsArray[qIdx];
-    console.group(`🖱️ onOptionClicked Q${qIdx}`);
 
     const sel: SelectedOption = {
       ...event.option,
@@ -2670,7 +2668,7 @@ export class QuizQuestionComponent
     this.optionSelected.emit(sel);
 
     const expl = question.explanation?.trim() || 'No explanation available';
-    this.explanationText    = expl;
+    this.explanationText = expl;
     this.explanationVisible = true;
     this.displayedExplanationIndex = qIdx;
     this.cdRef.detectChanges();
@@ -2683,18 +2681,13 @@ export class QuizQuestionComponent
       question.explanation?.trim() ??
       'No explanation available';
     
-    // ── 4) Show it immediately on click #1 ──
-    /* this.explanationVisible = true;
-    this.cdRef.detectChanges();
-    console.log('[🔆 Immediate display]', expl); */
-
-    // ── 5) Update quiz state to “explanation” mode ──
+    // Update quiz state to “explanation” mode
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
     this.enableNextButton();
     
-    // ── 6) Persist shown‑flag for revisits ──
+    // Persist shown‑flag for revisits
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
@@ -2703,78 +2696,11 @@ export class QuizQuestionComponent
     });
     this.explanationTextService.setFormattedExplanationText(expl);
   
-    // ── 7) Build feedback text + cleanup ──
+    // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
-  
-    console.groupEnd();
   }
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    const qIdx    = this.currentQuestionIndex;
-    const question = this.questionsArray[qIdx];
   
-    // Guards and de‑duplication
-    if (!event.option || event.index === this.lastLoggedIndex) {
-      console.warn('[🟡 onOptionClicked] duplicate or null option, skipping');
-      return;
-    }
-    this.lastLoggedIndex = event.index;
-  
-    // Core selection UI (highlight, feedback, next‑button)
-    this.handleCoreSelection(event);
-    this.markBindingSelected(event.option);
-    this.refreshFeedbackFor(event.option);
-  
-    // Fetch the formatted explanation synchronously
-    const raw = (question.explanation || 'No explanation available').trim();
-    let formatted = this.explanationTextService.getFormattedSync(qIdx);
-    if (!formatted) {
-      const corrects = question.options
-        .filter(o => o.correct)
-        .map(o => o.optionId);
-      formatted = this.explanationTextService.formatExplanation(
-        question,
-        corrects,
-        raw
-      );
-      this.explanationTextService.setFormattedExplanationText(formatted);
-    }
-  
-    // Immediately flip service streams into “explanation” mode
-    this.explanationTextService.setExplanationText(formatted);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-    // Wake ALL OnPush children (including <codelab-quiz-content>) now
-    this.cdRef.markForCheck();
-  
-    // Persist “shown” flag in service (and storage) ──—
-    await this.updateExplanationText(qIdx).catch(console.error);
-  
-    // Enable next button and mark answered (if not already)
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(true);
-  
-    // Build feedback text and any post‐click tasks
-    this.feedbackText = await this.generateFeedbackText(question);
-    await this.postClickTasks(
-      event.option!,
-      qIdx,
-      event.checked,
-      event.wasReselected
-    );
-  
-    console.groupEnd();
-  } */
-  
-  
-  
-
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
   ): void {
