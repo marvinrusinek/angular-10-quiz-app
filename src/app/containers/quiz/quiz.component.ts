@@ -984,7 +984,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
-    // Guards and de-duplication
+    // ─── 0) Guards and de-duplication
     if (!isUserAction || !this.resetComplete) return;
     if (event.index === this.lastLoggedIndex) {
       console.warn('[🟡 Skipping duplicate event]', event);
@@ -992,14 +992,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     this.lastLoggedIndex = event.index;
   
-    // Immediately show the explanation for this question
+    // Show the explanation on first click
     const qIdx = this.currentQuestionIndex;
     this.showExplanationForQuestion(qIdx);
   
-    // Mark answered and enable Next
-    this.selectedOptionService.setAnswered(true);
+    // Mark as answered and enable Next
+    if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
+      this.selectedOptionService.setAnswered(true);
+    }
     this.nextButtonStateService.setNextButtonState(true);
-  
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
   
@@ -1017,9 +1018,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.setSelectionMessage(true);
         this.evaluateSelectionMessage();
         this.nextButtonStateService.evaluateNextButtonState(
-          this.selectedOptionService.isAnsweredSubject.getValue(),  // answered
-          this.quizStateService.isLoadingSubject.getValue(),  // loading
-          this.quizStateService.isNavigatingSubject.getValue()  // navigating
+          this.selectedOptionService.isAnsweredSubject.getValue(),
+          this.quizStateService.isLoadingSubject.getValue(),
+          this.quizStateService.isNavigatingSubject.getValue()
         );
       }, 50);
     } catch (err) {
