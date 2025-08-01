@@ -475,31 +475,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    /* this.indexSubscription = this.quizService.currentQuestionIndex$
-      .subscribe(idx => {
-        this.explanationOverride = '';
-        this.explanationTextService.setExplanationText('');
-        this.explanationTextService.setShouldDisplayExplanation(false);
-
-        const q: QuizQuestion = this.questionsArray[idx];
-        this.showExplanation = false;
-        this.explanationText = '';
-
-        if (q && q.questionText) {
-          this.questionHtml = q.questionText.trim();
-        } else {
-          this.questionHtml = ''; 
-        }
-
-        this.explanationHtml = '';
-        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-        this.cdRef.detectChanges();
-      }); */
     this.indexSubscription = this.quizService.currentQuestionIndex$
       .pipe(distinctUntilChanged())
       .subscribe((idx: number) => {
         const q = this.questionsArray[idx];
         this.currentQuestionIndex = idx;
+        this.lastLoggedIndex = -1;
         this.questionHtml = q.questionText.trim();
         this.explanationHtml = '';
         this.showExplanation = false;
@@ -507,9 +488,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.explanationOverride = { idx, html: '' };
         this.showLocalExplanation = false;
         this.localExplanationText = '';
-
-        // **RESET the duplicate-skip index**
-        this.lastLoggedIndex = -1;
 
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
