@@ -984,7 +984,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
-    // ─── 0) Guards and de-duplication
+    // Guards and de-duplication
     if (!isUserAction || !this.resetComplete) return;
     if (event.index === this.lastLoggedIndex) {
       console.warn('[🟡 Skipping duplicate event]', event);
