@@ -992,7 +992,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     this.lastLoggedIndex = event.index;
   
-    const { option, checked } = event;
     const qIdx = this.currentQuestionIndex;
     const question = this.questionsArray[qIdx];
     
