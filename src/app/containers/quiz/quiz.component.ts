@@ -502,6 +502,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionHtml = q.questionText.trim();
         this.explanationHtml = '';
         this.showExplanation = false;
+        this.explanationToDisplay = '';
         this.explanationOverride = { idx, html: '' };
         this.showLocalExplanation = false;
         this.localExplanationText = '';
@@ -1185,6 +1186,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.localExplanationText = formatted;
     this.showLocalExplanation = true;
+    this.explanationToDisplay = formatted;
+    this.showExplanation = true;
     this.contentCd.detectChanges();
   
     // ─── 2) Immediately flip into “explanation” mode **before** rendering ───
