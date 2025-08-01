@@ -508,6 +508,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.showLocalExplanation = false;
         this.localExplanationText = '';
 
+        // **RESET the duplicate-skip index**
+        this.lastLoggedIndex = -1;
+
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       });
