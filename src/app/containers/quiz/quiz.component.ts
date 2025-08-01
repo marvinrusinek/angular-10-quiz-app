@@ -992,39 +992,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     this.lastLoggedIndex = event.index;
   
+    // Immediately show the explanation for this question
     const qIdx = this.currentQuestionIndex;
-    const question = this.questionsArray[qIdx];
-    
-    // Fetch the fully-formatted explanation
-    const raw = (question.explanation || 'No explanation available').trim();
-    let formatted = this.explanationTextService.getFormattedSync(qIdx);
-    if (!formatted) {
-      const correctIds = question.options
-        .filter(o => o.correct)
-        .map(o => o.optionId);
-      formatted = this.explanationTextService.formatExplanation(
-        question,
-        correctIds,
-        raw
-      );
-      // Cache under question index
-      this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
-    }
-  
-    // Immediately show that explanation on first click
-    this.localExplanationText  = formatted;
-    this.showLocalExplanation  = true;
-    this.explanationToDisplay  = formatted;
-    this.showExplanation       = true;
-    // wake OnPush content
-    this.contentCd.detectChanges();
-  
-    // Flip into “explanation” mode in your shared services
-    this.explanationTextService.setExplanationText(formatted);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    // if still OnPush, ensure the child picks it up
-    this.contentCd.detectChanges();
+    this.showExplanationForQuestion(qIdx);
   
     // Mark answered and enable Next
     this.selectedOptionService.setAnswered(true);
@@ -1038,18 +1008,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
       explanationDisplayed: true,
-      explanationText: formatted
+      explanationText: this.explanationToDisplay
     });
   
-    // Selection message / next-button logic (try/catch)
+    // Selection message / next-button logic
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
         this.evaluateSelectionMessage();
         this.nextButtonStateService.evaluateNextButtonState(
-          this.isAnswered,
-          this.quizStateService.isLoadingSubject.getValue(),
-          this.quizStateService.isNavigatingSubject.getValue()
+          this.selectedOptionService.isAnsweredSubject.getValue(),  // answered
+          this.quizStateService.isLoadingSubject.getValue(),  // loading
+          this.quizStateService.isNavigatingSubject.getValue()  // navigating
         );
       }, 50);
     } catch (err) {
@@ -1061,7 +1031,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     sessionStorage.setItem(`displayMode_${qIdx}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   }
-  
 
   // REMOVE!!
   private isAnyOptionSelected(): boolean {
