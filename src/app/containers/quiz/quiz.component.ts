@@ -499,6 +499,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .pipe(distinctUntilChanged())
       .subscribe((idx: number) => {
         const q = this.questionsArray[idx];
+        this.currentQuestionIndex = idx;
         this.questionHtml = q.questionText.trim();
         this.explanationHtml = '';
         this.showExplanation = false;
