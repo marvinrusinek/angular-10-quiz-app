@@ -2006,14 +2006,29 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
 
-  public shouldShowIcon(option: Option): boolean {
+  /* public shouldShowIcon(option: Option): boolean {
     // persistent icon if this index was ever selected
-    if (this.selectedOptionService.selectedOptionIndices.has(idx)) {
+    if (this.selectedOptionService.selectedOptionIndices.has(option.optionId)) {
       return true;
     }
 
     return this.isSelected || 
       !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+  } */
+  public shouldShowIcon(option: Option): boolean {
+    // Grab the array of selected IDs for this question (or [] if none)
+    const arr: number[] =
+      this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] 
+      || [];
+  
+    // If my optionId is in that array, show the icon
+    if (arr.includes(option.optionId)) {
+      return true;
+    }
+  
+    // Otherwise fall back to your other flags
+    return this.isSelected || !!(option.showIcon
+        || this.showFeedbackForOption?.[option.optionId]);
   }
 
   shouldShowFeedback(index: number): boolean {
