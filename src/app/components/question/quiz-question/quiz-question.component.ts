@@ -514,7 +514,7 @@ export class QuizQuestionComponent
     // Defer renderReady subscription until ViewChild is actually initialized
     setTimeout(() => {
       if (this.sharedOptionComponent) {
-        this.subscribeToRenderReady();  // <-- Now safe to access
+        this.subscribeToRenderReady();
       } else {
         console.warn('[⚠️ sharedOptionComponent not ready in ngAfterViewInit]');
       }
@@ -542,13 +542,11 @@ export class QuizQuestionComponent
         this.renderReady = false;
         this.hydrationInProgress = true;
       
-        console.time('🎯 Time to render options');
-      
         // Extract and assign payload
         const { question, options, explanation } = payload;
         this.currentQuestion = question;
         this.explanationToDisplay = explanation?.trim() || '';
-        this.optionsToDisplay = structuredClone(options);  // Ensure isolation
+        this.optionsToDisplay = structuredClone(options);  // ensure isolation
       
         // Initialize option bindings if needed
         if (this.sharedOptionComponent) {
@@ -560,9 +558,8 @@ export class QuizQuestionComponent
           this.renderReady = true;
           this.hydrationInProgress = false;
           this.cdRef.detectChanges();  // trigger OnPush refresh
-          console.timeEnd('🎯 Time to render options');
         }, 0);
-      });      
+      });
   
     const index = this.currentQuestionIndex;
   
@@ -583,16 +580,9 @@ export class QuizQuestionComponent
     } else {
       console.error(`[ngAfterViewInit] ❌ No question found at index ${index}`);
     }
-
-    setTimeout(() => {
-      console.timeEnd('🎯 Time to render options');
-      console.log('[📦 Delayed render log — options assumed visible]');
-    }, 0);
   }  
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('[🔁 ngOnChanges] triggered with changes:', changes);
-
     if (changes.questionPayload && this.questionPayload) {
       this.hydrateFromPayload(this.questionPayload);
       this.questionPayloadSubject.next(this.questionPayload);
