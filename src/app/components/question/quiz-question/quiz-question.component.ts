@@ -2551,6 +2551,16 @@ export class QuizQuestionComponent
 
     this.playSoundForOption(event.option);
 
+    // Sync into service so shouldShowIcon() sees it
+    this.selectedOptionService.selectedOptionIndices[this.questionIndex] =
+      Array.from(this.selectedIndices);
+
+    this.sharedOptionComponent.optionBindings.forEach(binding => {
+        // binding.index is the option’s index in the question
+        binding.isSelected = this.selectedIndices.has(binding.index);
+        binding.directiveInstance?.updateHighlight();
+      });
+
     // Core selection UI (highlight, icons, next‑button)
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
@@ -2561,13 +2571,6 @@ export class QuizQuestionComponent
       questionIndex: this.currentQuestionIndex
     };
     this.optionSelected.emit(sel);
-
-    this.sharedOptionComponent.optionBindings.forEach(binding => {
-      // binding.isSelected = false;
-      // binding.index is the option’s index in the question
-      binding.isSelected = this.selectedIndices.has(binding.index);
-      binding.directiveInstance?.updateHighlight();
-    });
 
     const expl = question.explanation?.trim() || 'No explanation available';
     this.explanationText = expl;
@@ -2596,10 +2599,6 @@ export class QuizQuestionComponent
       explanationText: formattedExplanation
     });
     this.explanationTextService.setFormattedExplanationText(expl);
-
-    // Sync into service so shouldShowIcon() sees it
-    this.selectedOptionService.selectedOptionIndices[this.questionIndex] =
-      Array.from(this.selectedIndices);
   
     // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
