@@ -11,7 +11,7 @@ import { SelectedOption } from '../../shared/models/SelectedOption.model';
 export class SelectedOptionService {
   selectedOption: SelectedOption | SelectedOption[] = null;
   selectedOptionsMap = new Map<number, SelectedOption[]>();
-  private selectedOptionIndices: { [key: number]: number[] } = {};
+  selectedOptionIndices: { [key: number]: number[] } = {};
 
   selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
   selectedOption$ = this.selectedOptionSubject.asObservable();
