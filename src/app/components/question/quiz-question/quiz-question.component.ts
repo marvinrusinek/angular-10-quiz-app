@@ -2691,7 +2691,7 @@ export class QuizQuestionComponent
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
   } */
   /** Called when a user clicks an option row */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2741,7 +2741,75 @@ export class QuizQuestionComponent
     this.refreshFeedbackFor(event.option);
 
     this.nextButtonStateService.setNextButtonState(true);
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index:  number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // ── 0) Guard & dedupe ──
+    if (!event.option) return;
+    if (event.index === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = event.index;
+  
+    const qIdx = this.currentQuestionIndex;
+    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
+  
+    // ── 1) Core selection & navigation ──
+    // (highlights row, marks answered, enables Next, handles any auto-advance)
+    this.handleCoreSelection(event);
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    // ── 2) Update & repaint ✓-icons ──
+    if (isSingle) {
+      this.selectedIndices.clear();
+    }
+    if (isSingle || !this.selectedIndices.has(event.index)) {
+      this.selectedIndices.add(event.index);
+    } else {
+      this.selectedIndices.delete(event.index);
+    }
+  
+    // repaint every row
+    this.sharedOptionComponent.optionBindings.forEach(b => {
+      b.isSelected = this.selectedIndices.has(b.index);
+      b.directiveInstance?.updateHighlight();
+    });
+  
+    // ── 3) Play sound ──
+    this.playSoundForOption(event.option);
+  
+    // ── 4) Emit & show explanation on click #1 ──
+    this.optionSelected.emit({
+      ...event.option,
+      questionIndex: qIdx
+    });
+  
+    const raw = (this.currentQuestion.explanation || 'No explanation available').trim();
+    this.explanationTextService.setExplanationText(raw);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+    // force OnPush to redraw icons + explanation
+    this.cdRef.detectChanges();
+  
+    // ── 5) Persist & format explanation behind the scenes ──
+    await this.updateExplanationText(qIdx).catch(console.error);
+  
+    // ── 6) Feedback + post-click cleanup ──
+    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+    await this.postClickTasks(
+      event.option,
+      event.index,
+      event.checked,
+      event.wasReselected
+    );
   }
+  
   
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
