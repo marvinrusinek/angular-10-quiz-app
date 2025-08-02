@@ -23,7 +23,7 @@
           [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
-          (click)="logBinding(b, i); handleClick(b, i)"
+          (click)="handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)">
 
           <div class="option-wrapper">
@@ -64,7 +64,7 @@
             [appHighlightInputType]="'checkbox'"
             [appHighlightReset]="shouldResetBackground"
             [checked]="b.option.selected"
-            (click)="logBinding(b, i); handleClick(b, i)"
+            (click)="handleClick(b, i)"
             (change)="updateOptionAndUI(b, i, $event)">
 
             <div class="option-wrapper">
