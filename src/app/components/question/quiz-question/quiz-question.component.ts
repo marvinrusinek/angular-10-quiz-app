@@ -2537,7 +2537,7 @@ export class QuizQuestionComponent
     const optIdx = event.index;
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
 
-    // 1) Update our local Set of selected indices
+    // Update our local Set of selected indices
     if (isSingle) {
       this.selectedIndices.clear();
       this.selectedIndices.add(optIdx);
@@ -2556,10 +2556,10 @@ export class QuizQuestionComponent
       Array.from(this.selectedIndices);
 
     this.sharedOptionComponent.optionBindings.forEach(binding => {
-        // binding.index is the option’s index in the question
-        binding.isSelected = this.selectedIndices.has(binding.index);
-        binding.directiveInstance?.updateHighlight();
-      });
+      // binding.index is the option’s index in the question
+      binding.isSelected = this.selectedIndices.has(binding.index);
+      binding.directiveInstance?.updateHighlight();
+    });
 
     // Core selection UI (highlight, icons, next‑button)
     this.handleCoreSelection(event);
