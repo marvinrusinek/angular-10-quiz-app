@@ -2013,9 +2013,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       option.optionId = option.optionId ?? index;
     }
   }
-  
-  shouldShowIcon(option: Option): boolean {
-    return !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
+
+  public shouldShowIcon(option: Option): boolean {
+    return this.isSelected || 
+      !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
   }
 
   shouldShowFeedback(index: number): boolean {
