@@ -2533,6 +2533,7 @@ export class QuizQuestionComponent
       console.groupEnd();
       return;
     }
+    this.playSoundForOption(event.option);
 
     // Core selection UI (highlight, icons, next‑button)
     this.handleCoreSelection(event);
@@ -2580,7 +2581,6 @@ export class QuizQuestionComponent
   
     // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
-    this.playSoundForOption(event.option);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
   }
   
