@@ -2717,14 +2717,6 @@ export class QuizQuestionComponent
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
-    this.nextButtonStateService.evaluateNextButtonState(
-      true,
-      this.quizStateService.isLoadingSubject.getValue(),
-      this.quizStateService.isNavigatingSubject.getValue()
-    );
-
-    // Force OnPush to update icons and explanation text
     this.cdRef.markForCheck();
   
     // Persist and format explanation
