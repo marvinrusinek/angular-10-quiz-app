@@ -2519,7 +2519,7 @@ export class QuizQuestionComponent
     this.showFeedbackForOption = {};
   }
 
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2599,6 +2599,92 @@ export class QuizQuestionComponent
       explanationText: formattedExplanation
     });
     this.explanationTextService.setFormattedExplanationText(expl);
+  
+    // Build feedback text and cleanup
+    this.feedbackText = await this.generateFeedbackText(question);
+    await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {  
+    const qIdx = this.currentQuestionIndex;
+    const question = this.questionsArray[qIdx];
+
+    // Guard
+    if (!event.option || !this.questionsArray?.length) {
+      console.warn('[⚠️ onOptionClicked] missing data, skipping');
+      return;
+    }
+
+    const optIdx = event.index;
+    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
+
+    // 1) Update our local Set of selected indices
+    if (isSingle) {
+      this.selectedIndices.clear();
+      this.selectedIndices.add(optIdx);
+    } else {
+      if (this.selectedIndices.has(optIdx)) {
+        this.selectedIndices.delete(optIdx);
+      } else {
+        this.selectedIndices.add(optIdx);
+      }
+    }
+
+    this.playSoundForOption(event.option);
+
+    // Core selection UI (highlight, icons, next‑button)
+    this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option);
+
+    const sel: SelectedOption = {
+      ...event.option,
+      questionIndex: this.currentQuestionIndex
+    };
+    this.optionSelected.emit(sel);
+
+    this.sharedOptionComponent.optionBindings.forEach(binding => {
+      // binding.isSelected = false;
+      // binding.index is the option’s index in the question
+      binding.isSelected = this.selectedIndices.has(binding.index);
+      binding.directiveInstance?.updateHighlight();
+    });
+
+    const expl = question.explanation?.trim() || 'No explanation available';
+    this.explanationText = expl;
+    this.explanationVisible = true;
+    this.displayedExplanationIndex = qIdx;
+    this.cdRef.detectChanges();
+
+    await this.updateExplanationText(qIdx).catch(console.error);
+
+    const formattedExplanation =
+      this.explanationTextService.formattedExplanations[qIdx]?.explanation ??
+      question.explanation?.trim() ??
+      'No explanation available';
+    
+    // Update quiz state to “explanation” mode
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.selectedOptionService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+    
+    // Persist shown‑flag for revisits
+    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
+    this.quizStateService.setQuestionState(this.quizId, qIdx, {
+      ...prev,
+      explanationDisplayed: true,
+      explanationText: formattedExplanation
+    });
+    this.explanationTextService.setFormattedExplanationText(expl);
+
+    // Sync into service so shouldShowIcon() sees it
+    this.selectedOptionService.selectedOptionIndices[this.questionIndex] =
+      Array.from(this.selectedIndices);
   
     // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
