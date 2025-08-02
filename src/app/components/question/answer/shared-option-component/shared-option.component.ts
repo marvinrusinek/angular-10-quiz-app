@@ -198,18 +198,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // defer processing until the next animation frame
         observeOn(animationFrameScheduler)
       )
-      .subscribe((selections) => {
+      .subscribe((incoming) => {
         // Normalize to an array
-        const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
+        /* const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
 
-        this.isSelected = selections.includes(this.selectedOption.optionId);
-        this.cdRef.markForCheck();
+        //this.isSelected = selections.includes(this.selectedOption.optionId);
+        //this.cdRef.markForCheck();
     
         // Nothing to do if no options
         if (!this.optionsToDisplay?.length) return;
     
         // One call does it all
-        this.applySelectionsUI(selList);
+        this.applySelectionsUI(selList); */
+       // 1) Normalize to an array of SelectedOption
+       const selList: SelectedOption[] = Array.isArray(incoming)
+        ? incoming
+        : incoming
+          ? [incoming]
+          : [];
+
+      // 2) Extract just the numeric IDs
+      const selectedIds = selList.map(s => s.optionId);
+
+      // 3) Now compare against this row’s @Input() optionId
+      this.isSelected = selectedIds.includes(this.selectedOptionId);
+
+      // 4) Trigger OnPush check
+      this.cdRef.markForCheck();
       });
     
   
