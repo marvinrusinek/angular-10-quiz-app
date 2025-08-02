@@ -2007,6 +2007,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   public shouldShowIcon(option: Option): boolean {
+    // persistent icon if this index was ever selected
+    if (this.selectedOptionService.selectedOptionIndices.has(idx)) {
+      return true;
+    }
+
     return this.isSelected || 
       !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
   }

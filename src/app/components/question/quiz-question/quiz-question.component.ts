@@ -2534,8 +2534,8 @@ export class QuizQuestionComponent
       return;
     }
 
-    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     const optIdx = event.index;
+    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
 
     // 1) Update our local Set of selected indices
     if (isSingle) {
