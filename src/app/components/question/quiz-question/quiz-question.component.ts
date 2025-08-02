@@ -2747,6 +2747,11 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
+    this.nextButtonStateService.evaluateNextButtonState(
+      true,
+      this.quizStateService.isLoadingSubject.getValue(),
+      this.quizStateService.isNavigatingSubject.getValue()
+    );
   }  
   
   private handleCoreSelection(

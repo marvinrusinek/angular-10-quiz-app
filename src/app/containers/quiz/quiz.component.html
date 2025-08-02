@@ -13,13 +13,8 @@
         <ng-content></ng-content>
         
         <codelab-quiz-content
-          #contentComp
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
-          [localExplanationText]="localExplanationText"
-          [showLocalExplanation]="showLocalExplanation"
-          [explanationText]="explanationToDisplay"
-          [showExplanation]="showExplanation"
         ></codelab-quiz-content>
         
         <codelab-quiz-question
