@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
@@ -8,9 +8,11 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-  public isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject.asObservable().pipe(
+  public readonly isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject;
+  /* this.isButtonEnabledSubject.asObservable().pipe(
     shareReplay(1)
-  );
+  ); */
+
 
   public nextButtonTooltip$ = this.isButtonEnabled$.pipe(
     map((enabled) => (enabled ? 'Next' : 'Please select an option to continue...')),
