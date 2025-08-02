@@ -227,6 +227,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.isSelected = false;
       }
 
+      this.applySelectionsUI(selList);
+
       // 4) Trigger OnPush check
       this.cdRef.markForCheck();
       });
