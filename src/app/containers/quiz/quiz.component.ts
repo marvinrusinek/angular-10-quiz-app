@@ -514,8 +514,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           Array.isArray(d.options) &&
           d.options.length > 0
         ),
-        // defer the subscriber callback until just before the next browser repaint
-        observeOn(animationFrameScheduler),
         takeUntil(this.destroy$)
       )
       .subscribe(({ question, options, selectionMessage }) => {
@@ -1297,8 +1295,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private subscribeRouterAndInit(): void {
     this.routerSubscription = this.activatedRoute.data
     .pipe(
-      // defer until right before the next paint
-      observeOn(animationFrameScheduler),
       takeUntil(this.destroy$)    // or whatever your teardown notifier is
     )
     .subscribe((data: { quizData: Quiz }) => {
@@ -1500,8 +1496,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /* resolveQuizData(): void {
     this.activatedRoute.data
       .pipe(
-        // wait until the next animation frame so we paint all at once
-        observeOn(animationFrameScheduler),
         takeUntil(this.unsubscribe$)
       )
       .subscribe((data: { quizData: Quiz }) => {
@@ -2372,26 +2366,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  /* initializeQuizFromRoute(): void {
-    this.activatedRoute.data.subscribe((data) => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-
-        this.ensureExplanationsLoaded().subscribe(() => {
-          console.log('Explanations preloaded successfully.');
-          this.setupNavigation();
-        });
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    });
-  } */
   initializeQuizFromRoute(): void {
     this.activatedRoute.data
-      .pipe(
-        // Defer everything until just before the next paint
-        observeOn(animationFrameScheduler),
-  
+      .pipe(  
         // Tear down when your component is destroyed
         takeUntil(this.destroy$),
   
