@@ -2594,6 +2594,10 @@ export class QuizQuestionComponent
       explanationText: formattedExplanation
     });
     this.explanationTextService.setFormattedExplanationText(expl);
+
+    // Sync into service so shouldShowIcon() sees it
+    this.selectedOptionService.selectedOptionIndices[this.questionIndex] =
+      Array.from(this.selectedIndices);
   
     // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
