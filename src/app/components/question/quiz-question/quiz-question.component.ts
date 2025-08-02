@@ -2740,6 +2740,7 @@ export class QuizQuestionComponent
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
 
+    this.handleCoreSelection(event);
     this.nextButtonStateService.setNextButtonState(true);
   }  
   
