@@ -2716,6 +2716,14 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
+    this.nextButtonStateService.evaluateNextButtonState(
+      true,
+      this.quizStateService.isLoadingSubject.getValue(),
+      this.quizStateService.isNavigatingSubject.getValue()
+    );
+
     // Force OnPush to update icons and explanation text
     this.cdRef.markForCheck();
   
@@ -2736,13 +2744,6 @@ export class QuizQuestionComponent
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
-    this.nextButtonStateService.evaluateNextButtonState(
-      true,
-      this.quizStateService.isLoadingSubject.getValue(),
-      this.quizStateService.isNavigatingSubject.getValue()
-    );
-    this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
   }  
   
   private handleCoreSelection(
