@@ -3409,9 +3409,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
-    this.quizQuestionComponent.explanationText = '';
-    this.quizQuestionComponent.explanationVisible = false;
-    this.cdRef.detectChanges();
+    //this.quizQuestionComponent.explanationText = '';
+    //this.quizQuestionComponent.explanationVisible = false;
+    //this.cdRef.detectChanges();
 
     try {
       await this.quizNavigationService.advanceToNextQuestion();
