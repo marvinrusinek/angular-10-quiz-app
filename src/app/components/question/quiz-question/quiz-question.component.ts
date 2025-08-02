@@ -2604,7 +2604,7 @@ export class QuizQuestionComponent
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2689,6 +2689,58 @@ export class QuizQuestionComponent
     // Build feedback text and cleanup
     this.feedbackText = await this.generateFeedbackText(question);
     await this.postClickTasks(event.option, qIdx, event.checked, event.wasReselected);
+  } */
+  /** Called when a user clicks an option row */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // Core selection: mark answered, enable “Next”, handle auto-advance
+    this.handleCoreSelection({ option: event.option, index: event.index, checked: true });
+    this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
+  
+    // Update the Set of selected indices
+    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
+    if (isSingle) {
+      this.selectedIndices.clear();
+      this.selectedIndices.add(event.index);
+    } else {
+        this.selectedIndices.has(event.index)
+          ? this.selectedIndices.delete(event.index)
+          : this.selectedIndices.add(event.index);
+      }
+    
+    // Emit so the parent shows explanation on first click
+    this.optionSelected.emit({
+      ...event.option,
+      questionIndex: this.questionIndex
+    });
+  
+    // Immediately show the raw explanation
+    const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
+    this.explanationTextService.setExplanationText(raw);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  
+    // Force OnPush to update icons and explanation text
+    this.cdRef.markForCheck();
+  
+    // Persist and format explanation
+    await this.updateExplanationText(event.index).catch(console.error);
+  
+    // Build feedback text and post-click tasks
+    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+    await this.postClickTasks(event.option, event.index, true, false);
+
+    this.handleCoreSelection(event);
+    this.markBindingSelected(event.option);
+    this.refreshFeedbackFor(event.option);
+
+    this.nextButtonStateService.setNextButtonState(true);
   }
   
   private handleCoreSelection(
@@ -5255,7 +5307,6 @@ export class QuizQuestionComponent
   }
   
   restoreSelectionsAndIconsForQuestion(index: number) {
-    console.log("MY INDEX", index);
     const selectedOptions = this.selectedOptionService.getSelectedOptionsForQuestion(index);
     this.optionsToDisplay?.forEach(opt => {
       const match = selectedOptions.find(sel => sel.optionId === opt.optionId);
