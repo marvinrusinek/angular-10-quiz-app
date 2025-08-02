@@ -122,7 +122,7 @@ export class QuizQuestionComponent
   fixedQuestionIndex = 0;
   private navigatingBackwards = false;
   lastLoggedIndex: number;
-  
+  public selectedIndices = new Set<number>();
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -2540,12 +2540,12 @@ export class QuizQuestionComponent
     // 1) Update our local Set of selected indices
     if (isSingle) {
       this.selectedIndices.clear();
-      this.selectedIndices.add(optionIndex);
+      this.selectedIndices.add(event.index);
     } else {
-      if (this.selectedIndices.has(optionIndex)) {
-        this.selectedIndices.delete(optionIndex);
+      if (this.selectedIndices.has(event.index)) {
+        this.selectedIndices.delete(event.index);
       } else {
-        this.selectedIndices.add(optionIndex);
+        this.selectedIndices.add(event.index);
       }
     }
 
