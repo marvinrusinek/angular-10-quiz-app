@@ -221,7 +221,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       const selectedIds = selList.map(s => s.optionId);
 
       // 3) Now compare against this row’s @Input() optionId
-      this.isSelected = selectedIds.includes(this.selectedOptionId);
+      if (this.selectedOptionId != null) {
+        this.isSelected = selectedIds.includes(this.selectedOptionId);
+      } else {
+        this.isSelected = false;
+      }
 
       // 4) Trigger OnPush check
       this.cdRef.markForCheck();
