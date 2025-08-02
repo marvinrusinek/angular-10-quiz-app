@@ -174,6 +174,14 @@ export class QuizNavigationService {
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+    console.log('⏭️ Attempt nav:', {
+      offset,
+      isEnabled:    this.nextButtonStateService.isButtonCurrentlyEnabled(),
+      isAnswered:   this.selectedOptionService.getAnsweredState(),
+      isLoading:    this.quizStateService.isLoadingSubject.getValue(),
+      isNavigating: this.quizStateService.isNavigatingSubject.getValue()
+    });
+    
   
     if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
