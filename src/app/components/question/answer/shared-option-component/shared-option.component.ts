@@ -199,39 +199,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         observeOn(animationFrameScheduler)
       )
       .subscribe((incoming) => {
-        // Normalize to an array
-        /* const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
+        const selList: SelectedOption[] = Array.isArray(incoming)
+          ? incoming
+          : incoming
+            ? [incoming]
+            : [];
+        
+        this.applySelectionsUI(selList);
 
-        //this.isSelected = selections.includes(this.selectedOption.optionId);
-        //this.cdRef.markForCheck();
-    
-        // Nothing to do if no options
-        if (!this.optionsToDisplay?.length) return;
-    
-        // One call does it all
-        this.applySelectionsUI(selList); */
-       // 1) Normalize to an array of SelectedOption
-       const selList: SelectedOption[] = Array.isArray(incoming)
-        ? incoming
-        : incoming
-          ? [incoming]
-          : [];
+        // Extract just the numeric IDs
+        const selectedIds = selList.map(s => s.optionId);
 
-      // 2) Extract just the numeric IDs
-      const selectedIds = selList.map(s => s.optionId);
+        // Now compare against this row’s @Input() optionId
+        if (this.selectedOptionId != null) {
+          this.isSelected = selectedIds.includes(this.selectedOptionId);
+        } else {
+          this.isSelected = false;
+        }
 
-      // 3) Now compare against this row’s @Input() optionId
-      if (this.selectedOptionId != null) {
-        this.isSelected = selectedIds.includes(this.selectedOptionId);
-      } else {
-        this.isSelected = false;
-      }
-
-      this.applySelectionsUI(selList);
-
-      // 4) Trigger OnPush check
-      this.cdRef.markForCheck();
-      });
+        // Trigger OnPush check
+        this.cdRef.markForCheck();
+        });
     
   
     // ─── Preferences and IDs ─────────────────────────────────────────────────
