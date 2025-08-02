@@ -198,9 +198,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // defer processing until the next animation frame
         observeOn(animationFrameScheduler)
       )
-      .subscribe((incoming) => {
+      .subscribe((selections) => {
         // Normalize to an array
-        /* const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
+        const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
 
         this.isSelected = selections.includes(this.selectedOption.optionId);
         this.cdRef.markForCheck();
@@ -209,25 +209,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         if (!this.optionsToDisplay?.length) return;
     
         // One call does it all
-        this.applySelectionsUI(selList); */
-
-        const selList: SelectedOption[] = Array.isArray(incoming)
-          ? incoming
-          : (incoming ? [incoming] : []);
-
-        // 2) Extract the list of selected optionIds
-        const selectedIds = selList.map(s => s.optionId);
-
-        // 3) Now set your flag by checking if this.option.optionId is in that list
-        this.isSelected = selectedIds.includes(this.option.optionId);
-
-        // 4) Trigger change detection
-        this.cdRef.markForCheck();
-
-        // 5) If you still need to apply more UI updates for all rows:
-        if (this.optionsToDisplay?.length) {
-          this.applySelectionsUI(selList);
-        }
+        this.applySelectionsUI(selList);
       });
     
   
