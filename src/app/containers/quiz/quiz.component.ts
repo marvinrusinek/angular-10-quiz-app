@@ -3443,8 +3443,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       this.selectedOptionService.setAnswered(false);
       this.nextButtonStateService.setNextButtonState(false);
-      this.selectedIndices.clear();
-  
+      this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] = [];
     } catch (err) {
       console.error('[Next] navigation failed', err);
     } finally {
