@@ -3427,6 +3427,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.triggerAnimation();
   
     try {
+      if (!(await firstValueFrom(this.nextButtonStateService.isButtonEnabled$))) return;
+
       // 2) Actually advance the quiz index
       await this.quizNavigationService.advanceToNextQuestion();
       
@@ -3440,7 +3442,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-      this.selectedIndices.clear();  // clear out any old ✓-icons
+      // this.selectedIndices.clear();  // clear out any old ✓-icons
   
     } catch (err) {
       console.error('[Next] navigation failed', err);
