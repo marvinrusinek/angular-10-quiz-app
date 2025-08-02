@@ -8,7 +8,7 @@
       class="options-group options"
       formControlName="selectedOptionId">
       
-      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
         class="option-container">
 
         <mat-radio-button
@@ -48,7 +48,7 @@
 
     <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
     <div *ngIf="type === 'multiple'" class="options-group options">
-      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByOptionId"
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
         class="option-container">
 
         <label class="option-row multiple-option">

@@ -3407,7 +3407,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
     //this.quizQuestionComponent.explanationText = '';
     //this.quizQuestionComponent.explanationVisible = false;
@@ -3415,13 +3415,41 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       await this.quizNavigationService.advanceToNextQuestion();
-      // this.questionVersion++;
+      this.questionVersion++;
       console.log('[PARENT] version →', this.questionVersion);
       this.cdRef.markForCheck();
     } catch (err) {
       console.error('[Next] navigation failed', err);
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    // 1) Play your page-turn animation
+    this.triggerAnimation();
+  
+    try {
+      // 2) Actually advance the quiz index
+      await this.quizNavigationService.advanceToNextQuestion();
+      
+      // 3) Bump your version so Angular re-renders for the new question
+      this.questionVersion++;
+      console.log('[PARENT] version →', this.questionVersion);
+  
+      // 4) Reset per-question UI state:
+      this.selectedOptionService.setAnswered(false);
+      this.nextButtonStateService.setNextButtonState(false);
+      this.explanationTextService.setExplanationText('');
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+      this.selectedIndices.clear();  // clear out any old ✓-icons
+  
+    } catch (err) {
+      console.error('[Next] navigation failed', err);
+    } finally {
+      // 5) Finally, mark for check to force OnPush components to pick up all the above
+      this.cdRef.markForCheck();
+    }
   }
+  
 
   public async advanceToPreviousQuestion(): Promise<void> {
     this.triggerAnimation();

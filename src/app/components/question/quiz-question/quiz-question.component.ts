@@ -2742,8 +2742,7 @@ export class QuizQuestionComponent
 
     // ── 6) *Now* run your core selection/navigation logic ──
     //    (highlights row, marks answered, enables Next, auto-advance)
-    this.handleCoreSelection(event);
-    this.nextButtonStateService.setNextButtonState(true);
+    // this.handleCoreSelection(event);
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
@@ -2752,6 +2751,8 @@ export class QuizQuestionComponent
       this.quizStateService.isLoadingSubject.getValue(),
       this.quizStateService.isNavigatingSubject.getValue()
     );
+    this.nextButtonStateService.setNextButtonState(true);
+    this.enableNextButton();
   }  
   
   private handleCoreSelection(
