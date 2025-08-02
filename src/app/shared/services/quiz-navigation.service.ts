@@ -155,6 +155,14 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<void> {
+    console.log('⏭️ [NAV ATTEMPT] offset, enabled, answered, loading, navigating:', {
+      offset,
+      isEnabled:    this.nextButtonStateService.isButtonCurrentlyEnabled(),
+      isAnswered:   this.selectedOptionService.getAnsweredState(),
+      isLoading:    this.quizStateService.isLoadingSubject.getValue(),
+      isNavigating: this.quizStateService.isNavigatingSubject.getValue()
+    });
+
     const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
     let currentIndex = routeParams
       ? parseInt(routeParams.get('questionIndex') ?? '', 10) - 1
@@ -174,14 +182,6 @@ export class QuizNavigationService {
     const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-    console.log('⏭️ Attempt nav:', {
-      offset,
-      isEnabled:    this.nextButtonStateService.isButtonCurrentlyEnabled(),
-      isAnswered:   this.selectedOptionService.getAnsweredState(),
-      isLoading:    this.quizStateService.isLoadingSubject.getValue(),
-      isNavigating: this.quizStateService.isNavigatingSubject.getValue()
-    });
-    
   
     if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
