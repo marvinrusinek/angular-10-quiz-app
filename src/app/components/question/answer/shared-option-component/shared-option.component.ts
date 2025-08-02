@@ -2023,7 +2023,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       || !!this.showFeedbackForOption?.[option.optionId];
   }
 
-  shouldShowFeedback(index: number): boolean {
+  public shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
     return (
       this.showFeedback &&
