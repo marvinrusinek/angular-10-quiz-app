@@ -534,14 +534,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.warn('[🧨 optionBindings REASSIGNED]', JSON.stringify(this.optionBindings, null, 2));
   }
 
-  logBinding(binding: OptionBindings, i: number): void {
-    console.log(`[🧪 PRE-CLICK BINDING ${i}]`, {
-      selected: binding.option.selected,
-      highlight: binding.option.highlight,
-      showIcon: binding.option.showIcon,
-    });
-  }  
-
   handleClick(optionBinding: OptionBindings, index: number): void {
     const optionId = optionBinding.option.optionId;
     const questionIndex = this.quizService.getCurrentQuestionIndex();
