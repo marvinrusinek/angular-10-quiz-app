@@ -2531,7 +2531,6 @@ export class QuizQuestionComponent
     // Guard
     if (!event.option || !this.questionsArray?.length) {
       console.warn('[⚠️ onOptionClicked] missing data, skipping');
-      console.groupEnd();
       return;
     }
 
