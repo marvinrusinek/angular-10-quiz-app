@@ -2698,7 +2698,7 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {
     // Core selection: mark answered, enable “Next”, handle auto-advance
-    this.handleCoreSelection({ option: event.option, index: event.index, checked: true });
+    // this.handleCoreSelection({ option: event.option, index: event.index, checked: true });
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
@@ -2740,8 +2740,13 @@ export class QuizQuestionComponent
     this.markBindingSelected(event.option);
     this.refreshFeedbackFor(event.option);
 
+    // ── 6) *Now* run your core selection/navigation logic ──
+    //    (highlights row, marks answered, enables Next, auto-advance)
     this.handleCoreSelection(event);
     this.nextButtonStateService.setNextButtonState(true);
+    this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
   }  
   
   private handleCoreSelection(
