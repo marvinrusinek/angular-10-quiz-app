@@ -3423,31 +3423,33 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    // 1) Play your page-turn animation
+    // Play page-turn animation
     this.triggerAnimation();
   
     try {
       if (!(await firstValueFrom(this.nextButtonStateService.isButtonEnabled$))) return;
 
-      // 2) Actually advance the quiz index
+      // Actually advance the quiz index
       await this.quizNavigationService.advanceToNextQuestion();
       
-      // 3) Bump your version so Angular re-renders for the new question
+      // Bump version so Angular re-renders for the new question
       this.questionVersion++;
       console.log('[PARENT] version →', this.questionVersion);
   
-      // 4) Reset per-question UI state:
+      // Reset per-question UI state:
       this.selectedOptionService.setAnswered(false);
       this.nextButtonStateService.setNextButtonState(false);
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] = [];  // clear out any old ✓-icons
-  
+
+      // Trigger change detection for OnPush
+      this.cdRef.markForCheck();
     } catch (err) {
       console.error('[Next] navigation failed', err);
     } finally {
-      // 5) Finally, mark for check to force OnPush components to pick up all the above
+      // Finally, mark for check to force OnPush components to pick up all the above
       this.cdRef.markForCheck();
     }
   }
