@@ -3425,19 +3425,19 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
   
-    // ——— Unblock the navigation guard ———
-    // mark “answered” in the service
+    // Unblock the navigation guard
+    // Mark “answered” in the service
     this.selectedOptionService.setAnswered(true);
-    // mark “Next” as enabled
+    // Mark “Next” as enabled
     this.nextButtonStateService.setNextButtonState(true);
   
     try {
-      // now the guard inside advanceToNextQuestion() will pass
+      // Now the guard inside advanceToNextQuestion() will pass
       await this.quizNavigationService.advanceToNextQuestion();
-      this.questionVersion++;  // bump your version so the view actually updates
+      this.questionVersion++;  // bump version so the view actually updates
       console.log('[PARENT] navigated to question version →', this.questionVersion);
   
-      // ——— Reset per-question UI ———
+      // Reset per-question UI
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
