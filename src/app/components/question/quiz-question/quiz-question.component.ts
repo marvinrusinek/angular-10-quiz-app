@@ -2535,16 +2535,17 @@ export class QuizQuestionComponent
     }
 
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
+    const optIdx = event.index;
 
     // 1) Update our local Set of selected indices
     if (isSingle) {
       this.selectedIndices.clear();
-      this.selectedIndices.add(event.index);
+      this.selectedIndices.add(optIdx);
     } else {
-      if (this.selectedIndices.has(event.index)) {
-        this.selectedIndices.delete(event.index);
+      if (this.selectedIndices.has(optIdx)) {
+        this.selectedIndices.delete(optIdx);
       } else {
-        this.selectedIndices.add(event.index);
+        this.selectedIndices.add(optIdx);
       }
     }
 
