@@ -198,7 +198,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // defer processing until the next animation frame
         observeOn(animationFrameScheduler)
       )
-      .subscribe((selections) => {
+      .subscribe((incoming) => {
         // Normalize to an array
         /* const selList: SelectedOption[] = Array.isArray(selections) ? selections : [];
 
