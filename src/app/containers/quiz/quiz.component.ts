@@ -2366,24 +2366,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       });
   }
 
-  /* initializeQuizFromRoute(): void {
-    this.activatedRoute.data.subscribe((data) => {
-      if (data.quizData) {
-        this.quiz = data.quizData;
-
-        this.ensureExplanationsLoaded().subscribe(() => {
-          console.log('Explanations preloaded successfully.');
-          this.setupNavigation();
-        });
-      } else {
-        console.error('Quiz data is unavailable.');
-      }
-    });
-  } */
   initializeQuizFromRoute(): void {
     this.activatedRoute.data
       .pipe(
-        // Tear down when your component is destroyed
+        // Tear down when component is destroyed
         takeUntil(this.destroy$),
   
         // Extract quizData and pre‑load explanations in one flow
