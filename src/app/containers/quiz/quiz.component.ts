@@ -3423,37 +3423,34 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    // Play page-turn animation
     this.triggerAnimation();
   
-    try {
-      if (!(await firstValueFrom(this.nextButtonStateService.isButtonEnabled$))) return;
-
-      // Actually advance the quiz index
-      await this.quizNavigationService.advanceToNextQuestion();
-      
-      // Bump version so Angular re-renders for the new question
-      this.questionVersion++;
-      console.log('[PARENT] version →', this.questionVersion);
+    // ——— Unblock the navigation guard ———
+    // mark “answered” in the service
+    this.selectedOptionService.setAnswered(true);
+    // mark “Next” as enabled
+    this.nextButtonStateService.setNextButtonState(true);
   
-      // Reset per-question UI state:
-      this.selectedOptionService.setAnswered(false);
-      this.nextButtonStateService.setNextButtonState(false);
+    try {
+      // now the guard inside advanceToNextQuestion() will pass
+      await this.quizNavigationService.advanceToNextQuestion();
+      this.questionVersion++;  // bump your version so the view actually updates
+      console.log('[PARENT] navigated to question version →', this.questionVersion);
+  
+      // ——— Reset per-question UI ———
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-      this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] = [];  // clear out any old ✓-icons
-
-      // Trigger change detection for OnPush
-      this.cdRef.markForCheck();
+      this.selectedOptionService.setAnswered(false);
+      this.nextButtonStateService.setNextButtonState(false);
+      this.selectedIndices.clear();
+  
     } catch (err) {
       console.error('[Next] navigation failed', err);
     } finally {
-      // Finally, mark for check to force OnPush components to pick up all the above
       this.cdRef.markForCheck();
     }
-  }
-  
+  }  
 
   public async advanceToPreviousQuestion(): Promise<void> {
     this.triggerAnimation();
