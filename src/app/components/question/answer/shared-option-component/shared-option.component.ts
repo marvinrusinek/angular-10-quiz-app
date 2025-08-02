@@ -2006,15 +2006,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
 
-  /* public shouldShowIcon(option: Option): boolean {
-    // persistent icon if this index was ever selected
-    if (this.selectedOptionService.selectedOptionIndices.has(option.optionId)) {
-      return true;
-    }
-
-    return this.isSelected || 
-      !!(option?.showIcon || this.showFeedbackForOption?.[option.optionId]);
-  } */
   public shouldShowIcon(option: Option): boolean {
     // Grab the array of selected IDs for this question (or [] if none)
     const arr: number[] =
@@ -2026,9 +2017,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return true;
     }
   
-    // Otherwise fall back to your other flags
-    return this.isSelected || !!(option.showIcon
-        || this.showFeedbackForOption?.[option.optionId]);
+    // Otherwise fall back to other flags
+    return arr.includes(option.optionId)
+      || !!option?.showIcon
+      || !!this.showFeedbackForOption?.[option.optionId];
   }
 
   shouldShowFeedback(index: number): boolean {
