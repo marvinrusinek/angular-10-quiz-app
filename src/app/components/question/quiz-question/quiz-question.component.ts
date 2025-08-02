@@ -122,6 +122,7 @@ export class QuizQuestionComponent
   fixedQuestionIndex = 0;
   private navigatingBackwards = false;
   lastLoggedIndex: number;
+  
 
   combinedQuestionData$: Subject<{
     questionText: string,
@@ -2533,6 +2534,21 @@ export class QuizQuestionComponent
       console.groupEnd();
       return;
     }
+
+    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
+
+    // 1) Update our local Set of selected indices
+    if (isSingle) {
+      this.selectedIndices.clear();
+      this.selectedIndices.add(optionIndex);
+    } else {
+      if (this.selectedIndices.has(optionIndex)) {
+        this.selectedIndices.delete(optionIndex);
+      } else {
+        this.selectedIndices.add(optionIndex);
+      }
+    }
+
     this.playSoundForOption(event.option);
 
     // Core selection UI (highlight, icons, next‑button)
