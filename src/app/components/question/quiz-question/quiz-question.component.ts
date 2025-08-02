@@ -2563,7 +2563,9 @@ export class QuizQuestionComponent
     this.optionSelected.emit(sel);
 
     this.sharedOptionComponent.optionBindings.forEach(binding => {
-      binding.isSelected = false;
+      // binding.isSelected = false;
+      // binding.index is the option’s index in the question
+      binding.isSelected = this.selectedIndices.has(binding.index);
       binding.directiveInstance?.updateHighlight();
     });
 
