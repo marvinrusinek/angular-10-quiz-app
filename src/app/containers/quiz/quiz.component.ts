@@ -1012,8 +1012,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     let isAnswered = false;
 
     if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
-      const options = this.quizService.getOptions(this.currentQuestionIndex);
-      const isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelected(options);
+      const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
+      const isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelected(options, this.currentQuestionIndex);
     } else {
       isAnswered = this.selectedOptionService.isAnyOptionSelected(event.index);
     }
