@@ -1006,8 +1006,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Mark as answered and enable Next
     this.selectedOptionService.setAnswered(true);
-    //this.quizStateService.setAnswerSelected(true);
-    //this.quizStateService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
     this.cdRef.markForCheck();
   
