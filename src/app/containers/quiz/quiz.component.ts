@@ -3421,7 +3421,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[Next] navigation failed', err);
     }
   } */
-  public async advanceToNextQuestion(): Promise<void> {
+  /* public async advanceToNextQuestion(): Promise<void> {
     this.triggerAnimation();
   
     // Unblock the navigation guard
@@ -3452,6 +3452,22 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.cdRef.markForCheck();
     }
+  } */
+  public async advanceToNextQuestion(): Promise<void> {
+    // animate or any prep
+    this.triggerAnimation();
+    // fire the real navigation
+    await this.quizNavigationService.advanceToNextQuestion();
+    this.questionVersion++;
+
+    // reset everything for the new question
+    this.nextButtonStateService.setNextButtonState(false);
+    this.selectedOptionService.setAnswered(false);
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+    this.cdRef.markForCheck();
   }
 
   public async advanceToPreviousQuestion(): Promise<void> {
