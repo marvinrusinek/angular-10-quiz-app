@@ -3504,9 +3504,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       // Increment question version used for tracking / force-refresh
       this.questionVersion++;
   
-      console.log('[✅ Navigation to next question successful]');
+      console.log('[✅ Navigation to previous question successful]');
     } catch (error) {
-      console.error('[❌ Error in advanceToNextQuestion]', error);
+      console.error('[❌ Error in advanceToPreviousQuestion]', error);
     }
   }
 
