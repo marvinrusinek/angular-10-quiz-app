@@ -1008,19 +1008,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Show the explanation on first click
     const qIdx = this.currentQuestionIndex;
     this.showExplanationForQuestion(qIdx);
-
+    const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
     let isAnswered: boolean = false;
 
     if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
-      const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
       isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelected(options, this.currentQuestionIndex);
     } else {
       isAnswered = this.selectedOptionService.isQuestionAnswered(this.currentQuestionIndex);
     }
     // Mark as answered and enable Next
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(isAnswered); 
-    this.cdRef.markForCheck();
+    if (isAnswered) {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(isAnswered); 
+    }
+    // this.cdRef.markForCheck();
     console.log('[PARENT] onOptionSelected → about to enable Next');
   
     // Persist per-question “seen” flag
