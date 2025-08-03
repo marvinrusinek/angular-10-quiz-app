@@ -178,17 +178,16 @@ export class QuizNavigationService {
     }
   
     // Guard conditions
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
+    // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    // const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
-    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
+    // if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
+    if (isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
-        isEnabled,
-        isAnswered,
         isLoading,
-        isNavigating,
+        isNavigating
       });
       return;
     }
