@@ -2710,10 +2710,7 @@ export class QuizQuestionComponent
       }
     
     // Emit so the parent shows explanation on first click
-    this.optionSelected.emit({
-      ...evtOpt,
-      questionIndex: this.questionIndex
-    });
+    this.optionSelected.emit({ ...evtOpt, questionIndex: this.questionIndex });
   
     // Immediately show the raw explanation
     const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
