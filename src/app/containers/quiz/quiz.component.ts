@@ -998,9 +998,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
       this.selectedOptionService.setAnswered(true);
     }
-    this.nextButtonStateService.setNextButtonState(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
+    this.nextButtonStateService.setNextButtonState(true);
+    this.cdRef.markForCheck();
   
     // Persist per-question “seen” flag
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
@@ -3428,7 +3429,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     'isEnabled=',
     await firstValueFrom(this.nextButtonStateService.isButtonEnabled$)
     );
-    
+
     this.triggerAnimation();
   
     // Unblock the navigation guard
