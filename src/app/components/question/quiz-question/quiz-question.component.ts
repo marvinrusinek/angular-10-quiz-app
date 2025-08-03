@@ -2691,24 +2691,27 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
+    const evIdx = event.index;
+    const evOpt = event.option;
+
     // Guard and dedupe
-    if (!event.option || event.index === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = event.index;
+    if (!evOpt || evIdx === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = evIdx;
   
     // Update the Set of selected indices
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle) {
       this.selectedIndices.clear();
-      this.selectedIndices.add(event.index);
+      this.selectedIndices.add(evIdx);
     } else {
-        this.selectedIndices.has(event.index)
-          ? this.selectedIndices.delete(event.index)
-          : this.selectedIndices.add(event.index);
+        this.selectedIndices.has(evIdx)
+          ? this.selectedIndices.delete(evIdx)
+          : this.selectedIndices.add(evIdx);
       }
     
     // Emit so the parent shows explanation on first click
     this.optionSelected.emit({
-      ...event.option,
+      ...evOpt,
       questionIndex: this.questionIndex
     });
   
@@ -2726,7 +2729,7 @@ export class QuizQuestionComponent
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-    await this.postClickTasks(event.option, event.index, true, false);
+    await this.postClickTasks(evOpt, evIdx, true, false);
 
     this.handleCoreSelection(event);
     this.markBindingSelected(event.option);
