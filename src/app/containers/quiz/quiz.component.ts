@@ -1009,7 +1009,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const qIdx = this.currentQuestionIndex;
     this.showExplanationForQuestion(qIdx);
 
-    let isAnswered;
+    let isAnswered: boolean = false;
 
     if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
       const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
@@ -1021,7 +1021,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     console.log('[PARENT] onOptionSelected → about to enable Next');
     // Mark as answered and enable Next
     this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(true);
+    this.nextButtonStateService.setNextButtonState(isAnswered);
     this.cdRef.markForCheck();
   
     // Persist per-question “seen” flag
