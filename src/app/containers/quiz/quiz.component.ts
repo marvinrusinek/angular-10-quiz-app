@@ -995,9 +995,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.showExplanationForQuestion(qIdx);
   
     // Mark as answered and enable Next
-    if (!this.selectedOptionService.isAnsweredSubject.getValue()) {
-      this.selectedOptionService.setAnswered(true);
-    }
+    this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
