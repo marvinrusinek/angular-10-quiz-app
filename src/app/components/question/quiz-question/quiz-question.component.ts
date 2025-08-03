@@ -2718,9 +2718,6 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
-    this.nextButtonStateService.setNextButtonState(true);
-    this.cdRef.markForCheck();
-  
     // Persist and format explanation
     await this.updateExplanationText(evtIdx).catch(console.error);
 
