@@ -3429,53 +3429,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   /************************ paging functions *********************/
-  /* public async advanceToNextQuestion(): Promise<void> {
-    this.triggerAnimation();
-    //this.quizQuestionComponent.explanationText = '';
-    //this.quizQuestionComponent.explanationVisible = false;
-    //this.cdRef.detectChanges();
-
-    try {
-      await this.quizNavigationService.advanceToNextQuestion();
-      this.questionVersion++;
-      console.log('[PARENT] version →', this.questionVersion);
-      this.cdRef.markForCheck();
-    } catch (err) {
-      console.error('[Next] navigation failed', err);
-    }
-  } */
-  /* public async advanceToNextQuestion(): Promise<void> {
-    this.triggerAnimation();
-  
-    // Unblock the navigation guard
-    // Mark “answered” in the service
-    this.selectedOptionService.setAnswered(true);
-    // Mark “Next” as enabled
-    this.nextButtonStateService.setNextButtonState(true);
-  
-    try {
-      // Now the guard inside advanceToNextQuestion() will pass
-      await this.quizNavigationService.advanceToNextQuestion();
-      this.questionVersion++;  // bump version so the view actually updates
-      console.log('[PARENT] navigated to question version →', this.questionVersion);
-    } catch (err) {
-      console.error('[Next] navigation failed', err);
-    } finally {
-      // Reset per‐question UI
-      this.explanationTextService.setExplanationText('');
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-      this.selectedOptionService.setAnswered(false);
-
-      // Disable Next for Q
-      this.nextButtonStateService.setNextButtonState(false);
-
-      // Clear any old selections
-      this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] = [];
-
-      this.cdRef.markForCheck();
-    }
-  } */
   public async advanceToNextQuestion(): Promise<void> {
     try {
       // Trigger UI animation before navigation
