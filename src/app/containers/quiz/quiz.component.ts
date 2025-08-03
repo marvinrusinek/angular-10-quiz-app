@@ -2689,7 +2689,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     );
   }
 
-  private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+  private async isQuestionMarkedAsAnswered(questionIndex: number): Promise<boolean> {
     try {
       const isAnswered$ = this.quizService.isAnswered(questionIndex);
 
@@ -2722,7 +2722,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.isAnswered = false;
 
           // Check if the current question is answered
-          const answered = await this.isQuestionAnswered(index);
+          const answered = await this.isQuestionMarkedAsAnswered(index);
 
           this.isAnswered = answered;
           console.log(

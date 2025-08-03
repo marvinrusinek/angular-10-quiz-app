@@ -1354,7 +1354,7 @@ export class QuizQuestionComponent
         }
   
         // Handle explanation if previously answered
-        const isAnswered = await this.isQuestionAnswered(zeroBasedIndex);
+        const isAnswered = await this.isAnyOptionSelected(zeroBasedIndex);
         if (isAnswered) {
           await this.fetchAndUpdateExplanationText(zeroBasedIndex);
   
@@ -1470,7 +1470,7 @@ export class QuizQuestionComponent
     index: number,
     question: QuizQuestion
   ): void {
-    if (this.isQuestionAnswered(index) && this.shouldDisplayExplanation) {
+    if (this.isAnyOptionSelected(index) && this.shouldDisplayExplanation) {
       const explanationText =
         this.explanationTextService.prepareExplanationText(question);
       this.explanationToDisplay = explanationText;
@@ -2404,7 +2404,7 @@ export class QuizQuestionComponent
     return this.selectionMessage !== newMessage;
   }
 
-  private async isQuestionAnswered(questionIndex: number): Promise<boolean> {
+  private async isAnyOptionSelected(questionIndex: number): Promise<boolean> {
     this.resetStateForNewQuestion();
     try {
       return await firstValueFrom(this.quizService.isAnswered(questionIndex));
@@ -3828,7 +3828,7 @@ export class QuizQuestionComponent
       };
 
       // Determine if the current question is answered
-      const isAnswered = await this.isQuestionAnswered(
+      const isAnswered = await this.isAnyOptionSelected(
         this.currentQuestionIndex
       );
 
@@ -4708,7 +4708,7 @@ export class QuizQuestionComponent
 
       explanation$.subscribe({
         next: (explanationText: string) => {
-          if (this.isQuestionAnswered(questionIndex)) {
+          if (this.isAnyOptionSelected(questionIndex)) {
             this.currentQuestionIndex = questionIndex;
             this.explanationToDisplay =
               explanationText || 'No explanation available';
@@ -4937,7 +4937,7 @@ export class QuizQuestionComponent
         .then(() => {
           if (
             this.shouldDisplayExplanation &&
-            this.isQuestionAnswered(adjustedIndex)
+            this.isAnyOptionSelected(adjustedIndex)
           ) {
             // Clear any previous explanation state
             this.clearExplanationState();
