@@ -996,8 +996,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Mark as answered and enable Next
     this.selectedOptionService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
+    //this.quizStateService.setAnswerSelected(true);
+    //this.quizStateService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
     this.cdRef.markForCheck();
   
@@ -3422,17 +3422,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    // Defensive‐click guard
-    /* const canAdvance = await firstValueFrom(
-      this.nextButtonStateService.isButtonEnabled$
-    );
-    if (!canAdvance) {
-      console.warn('[PARENT] Next clicked but not enabled—bailing');
-      return;
-    } */
-
-    console.log('[PARENT] advancing to next question');
-
     this.triggerAnimation();
   
     // Unblock the navigation guard
@@ -3463,7 +3452,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.cdRef.markForCheck();
     }
-  }  
+  }
 
   public async advanceToPreviousQuestion(): Promise<void> {
     this.triggerAnimation();
