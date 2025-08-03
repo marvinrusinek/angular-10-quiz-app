@@ -112,6 +112,6 @@ export class NextButtonStateService {
   }
 
   reset(): void {
-    this.setButtonEnabled(false);
+    this.setNextButtonState(false);
   }
 }
