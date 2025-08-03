@@ -479,19 +479,29 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       .pipe(distinctUntilChanged())
       .subscribe((idx: number) => {
         const q = this.questionsArray[idx];
+
+        // Update local view model
         this.currentQuestionIndex = idx;
-        this.lastLoggedIndex = -1;
-        this.questionHtml = q.questionText.trim();
-        this.explanationHtml = '';
-        this.showExplanation = false;
+        this.lastLoggedIndex      = -1;
+        this.questionHtml         = q.questionText.trim();
+        this.explanationHtml      = '';
+        this.showExplanation      = false;
         this.explanationToDisplay = '';
-        this.explanationOverride = { idx, html: '' };
+        this.explanationOverride  = { idx, html: '' };
         this.showLocalExplanation = false;
         this.localExplanationText = '';
 
+        // Reset shared “explanation” state
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+        // Clear any per-question selections
+        this.selectedOptionService.selectedOptionIndices[idx] = [];
+
+        // Wake OnPush so the template updates
+        this.cdRef.markForCheck();
       });
+
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
