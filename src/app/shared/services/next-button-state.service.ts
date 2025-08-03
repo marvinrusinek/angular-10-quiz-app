@@ -8,11 +8,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-  public readonly isButtonEnabled$: Observable<boolean> = this.isButtonEnabledSubject;
-  /* this.isButtonEnabledSubject.asObservable().pipe(
-    shareReplay(1)
-  ); */
-
+  public isButtonEnabled$ = this.isButtonEnabledSubject.asObservable();
 
   public nextButtonTooltip$ = this.isButtonEnabled$.pipe(
     map((enabled) => (enabled ? 'Next' : 'Please select an option to continue...')),
