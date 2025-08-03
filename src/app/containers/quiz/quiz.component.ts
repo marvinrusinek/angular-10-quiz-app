@@ -3423,13 +3423,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   } */
   public async advanceToNextQuestion(): Promise<void> {
     // Defensive‐click guard
-    const canAdvance = await firstValueFrom(
+    /* const canAdvance = await firstValueFrom(
       this.nextButtonStateService.isButtonEnabled$
     );
     if (!canAdvance) {
       console.warn('[PARENT] Next clicked but not enabled—bailing');
       return;
-    }
+    } */
 
     console.log('[PARENT] advancing to next question');
 
