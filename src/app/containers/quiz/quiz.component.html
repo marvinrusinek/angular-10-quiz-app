@@ -78,6 +78,7 @@
               (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
+              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               [class.disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               [ngStyle]="nextButtonStateService.nextButtonStyle"
               aria-label="Next Question"
