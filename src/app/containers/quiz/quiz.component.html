@@ -75,9 +75,10 @@
               type="button"
               #nextButton="matTooltip"
               mat-icon-button
-              (click)="console.log('🔥 Next button clicked!');advanceToNextQuestion()"
+              (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
+              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               [ngStyle]="nextButtonStateService.nextButtonStyle"
               aria-label="Next Question"
             >
