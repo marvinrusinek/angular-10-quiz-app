@@ -562,6 +562,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       });
     
+    this.nextButtonStateService.isButtonEnabled$
+      .subscribe(enabled =>
+        console.log('[PARENT] nextButtonEnabled? →', enabled)
+      );
 
     this.setupQuiz();
     this.subscribeToRouteParams();
@@ -992,6 +996,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     event: { option: SelectedOption; index: number; checked: boolean },
     isUserAction: boolean = true
   ): Promise<void> {
+    console.log("MY LOG OOS");
     // Guards and de-duplication
     if (!isUserAction || !this.resetComplete) return;
     if (event.index === this.lastLoggedIndex) {
@@ -1004,6 +1009,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const qIdx = this.currentQuestionIndex;
     this.showExplanationForQuestion(qIdx);
   
+    console.log('[PARENT] onOptionSelected → about to enable Next');
     // Mark as answered and enable Next
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
