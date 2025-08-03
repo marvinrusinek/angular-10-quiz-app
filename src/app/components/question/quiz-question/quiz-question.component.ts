@@ -257,7 +257,7 @@ export class QuizQuestionComponent
     protected dynamicComponentService: DynamicComponentService,
     protected explanationTextService: ExplanationTextService,
     protected feedbackService: FeedbackService,
-    protected nextButtonStateService: NextButtonStateService,
+    public nextButtonStateService: NextButtonStateService,
     protected resetBackgroundService: ResetBackgroundService,
     protected resetStateService: ResetStateService,
     protected selectedOptionService: SelectedOptionService,

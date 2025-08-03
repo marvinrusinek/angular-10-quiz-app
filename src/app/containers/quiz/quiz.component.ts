@@ -3423,6 +3423,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
+    console.log('[Next] advanceToNextQuestion() called, isAnswered=',
+    this.selectedOptionService.getAnsweredState(),
+    'isEnabled=',
+    await firstValueFrom(this.nextButtonStateService.isButtonEnabled$)
+    );
+    
     this.triggerAnimation();
   
     // Unblock the navigation guard
