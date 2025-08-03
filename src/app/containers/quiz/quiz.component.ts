@@ -1008,6 +1008,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Show the explanation on first click
     const qIdx = this.currentQuestionIndex;
     this.showExplanationForQuestion(qIdx);
+
+    let isAnswered = false;
+
+    if (this.currentQuestion?.type === 'multiple') {
+      isAnswered = this.selectedOptionService.areAllCorrectAnswersSelected(event.index);
+    } else {
+      isAnswered = this.selectedOptionService.isAnyOptionSelected(event.index);
+    }
   
     console.log('[PARENT] onOptionSelected → about to enable Next');
     // Mark as answered and enable Next
