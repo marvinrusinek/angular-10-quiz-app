@@ -2687,13 +2687,13 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    // Guard and dedupe
-    if (!event.option || event.index === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = event.index;
-
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
+
+    // Guard and dedupe
+    if (!event.option || event.index === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = event.index;
   
     // Update the Set of selected indices
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
