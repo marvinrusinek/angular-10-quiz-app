@@ -630,7 +630,7 @@ export class SelectedOptionService {
     });
   }
 
-  public isAnyOptionSelected(questionIndex: number): boolean {
+  public isQuestionAnswered(questionIndex: number): boolean {
     const options = this.selectedOptionsMap.get(questionIndex);
     return Array.isArray(options) && options.length > 0;
   }
