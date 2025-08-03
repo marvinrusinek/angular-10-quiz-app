@@ -76,10 +76,9 @@
               type="button"
               #nextButton="matTooltip"
               mat-icon-button
-              (click)="advanceToNextQuestion()"
+              (click)="console.log('🔥 Next button INLINE click fired!'); advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
-              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               [ngStyle]="nextButtonStateService.nextButtonStyle"
               aria-label="Next Question"
             >
