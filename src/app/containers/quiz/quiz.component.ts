@@ -3477,33 +3477,36 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    // animate or any prep
-    this.triggerAnimation();
-    // fire the real navigation
-    await this.quizNavigationService.advanceToNextQuestion();
-    this.questionVersion++;
-
-    // reset everything for the new question
-    this.nextButtonStateService.setNextButtonState(false);
-    this.selectedOptionService.setAnswered(false);
-    this.explanationTextService.setExplanationText('');
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-
-    this.cdRef.markForCheck();
-  }
-
-  public async advanceToPreviousQuestion(): Promise<void> {
-    this.triggerAnimation();
-    this.explanationText = '';
-    this.quizQuestionComponent.explanationVisible = false;
-
     try {
+      // Trigger UI animation before navigation
+      this.triggerAnimation();
+  
+      // Delegate actual route navigation to the service
+      await this.quizNavigationService.advanceToNextQuestion();
+  
+      // Increment question version used for tracking / force-refresh
+      this.questionVersion++;
+  
+      console.log('[✅ Navigation to next question successful]');
+    } catch (error) {
+      console.error('[❌ Error in advanceToNextQuestion]', error);
+    }
+  }
+  
+  public async advanceToPreviousQuestion(): Promise<void> {
+    try {
+      // Trigger UI animation before navigation
+      this.triggerAnimation();
+  
+      // Delegate actual route navigation to the service
       await this.quizNavigationService.advanceToPreviousQuestion();
-      // this.questionVersion++;
-      this.cdRef.markForCheck();
-    } catch (err) {
-      console.error('[Prev] navigation failed', err);
+  
+      // Increment question version used for tracking / force-refresh
+      this.questionVersion++;
+  
+      console.log('[✅ Navigation to next question successful]');
+    } catch (error) {
+      console.error('[❌ Error in advanceToNextQuestion]', error);
     }
   }
 
