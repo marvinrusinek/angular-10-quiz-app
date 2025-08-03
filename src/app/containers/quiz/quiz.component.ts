@@ -1015,7 +1015,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
       isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelected(options, this.currentQuestionIndex);
     } else {
-      isAnswered = this.selectedOptionService.isQuestionAnswered(this.currentQuestionIndex);
+      isAnswered = this.selectedOptionService.isAnyOptionSelected(this.currentQuestionIndex);
     }
     // Mark as answered and enable Next
     this.selectedOptionService.setAnswered(true);
