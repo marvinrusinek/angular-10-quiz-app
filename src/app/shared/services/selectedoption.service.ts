@@ -140,7 +140,7 @@ export class SelectedOptionService {
 
   setNextButtonEnabled(enabled: boolean): void {
     this.isNextButtonEnabledSubject.next(enabled);  // update the button's enabled state
-  }  
+  }
 
   clearSelection(): void {
     this.isOptionSelectedSubject.next(false);  // no option selected
@@ -630,7 +630,7 @@ export class SelectedOptionService {
     });
   }
 
-  public isQuestionAnswered(questionIndex: number): boolean {
+  public isAnyOptionSelected(questionIndex: number): boolean {
     const options = this.selectedOptionsMap.get(questionIndex);
     return Array.isArray(options) && options.length > 0;
   }
