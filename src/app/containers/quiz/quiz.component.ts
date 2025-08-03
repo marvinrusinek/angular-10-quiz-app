@@ -4294,7 +4294,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     this.explanationToDisplay = formatted;
-    // this.explanationOverride = formatted;
     this.explanationOverride = { idx: qIdx, html: formatted };
     this.showExplanation = true;
     this.cdRef.detectChanges();
