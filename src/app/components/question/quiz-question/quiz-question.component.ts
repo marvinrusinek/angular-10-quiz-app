@@ -2691,27 +2691,27 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
-    const evIdx = event.index;
-    const evOpt = event.option;
+    const evtIdx = event.index;
+    const evtOpt = event.option;
 
     // Guard and dedupe
-    if (!evOpt || evIdx === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = evIdx;
+    if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = evtIdx;
   
     // Update the Set of selected indices
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle) {
       this.selectedIndices.clear();
-      this.selectedIndices.add(evIdx);
+      this.selectedIndices.add(evtIdx);
     } else {
-        this.selectedIndices.has(evIdx)
-          ? this.selectedIndices.delete(evIdx)
-          : this.selectedIndices.add(evIdx);
+        this.selectedIndices.has(evtIdx)
+          ? this.selectedIndices.delete(evtIdx)
+          : this.selectedIndices.add(evtIdx);
       }
     
     // Emit so the parent shows explanation on first click
     this.optionSelected.emit({
-      ...evOpt,
+      ...evtOpt,
       questionIndex: this.questionIndex
     });
   
@@ -2725,15 +2725,15 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck();
   
     // Persist and format explanation
-    await this.updateExplanationText(event.index).catch(console.error);
+    await this.updateExplanationText(evtIdx).catch(console.error);
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-    await this.postClickTasks(evOpt, evIdx, true, false);
+    await this.postClickTasks(evtOpt, evtIdx, true, false);
 
     this.handleCoreSelection(event);
-    this.markBindingSelected(event.option);
-    this.refreshFeedbackFor(event.option);
+    this.markBindingSelected(evtOpt);
+    this.refreshFeedbackFor(evtOpt);
   }  
   
   private handleCoreSelection(
