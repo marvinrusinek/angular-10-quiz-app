@@ -268,7 +268,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     private answerTrackingService: AnswerTrackingService,
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
-    private nextButtonStateService: NextButtonStateService,
+    public nextButtonStateService: NextButtonStateService,
     private selectionMessageService: SelectionMessageService,
     private selectedOptionService: SelectedOptionService,
     private renderStateService: RenderStateService,
