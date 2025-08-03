@@ -3424,11 +3424,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   } */
   public async advanceToNextQuestion(): Promise<void> {
-    console.log('[Next] advanceToNextQuestion() called, isAnswered=',
-    this.selectedOptionService.getAnsweredState(),
-    'isEnabled=',
-    await firstValueFrom(this.nextButtonStateService.isButtonEnabled$)
+    // Defensive‐click guard
+    const canAdvance = await firstValueFrom(
+      this.nextButtonStateService.isButtonEnabled$
     );
+    if (!canAdvance) {
+      console.warn('[PARENT] Next clicked but not enabled—bailing');
+      return;
+    }
+
+    console.log('[PARENT] advancing to next question');
 
     this.triggerAnimation();
   
@@ -3443,17 +3448,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       await this.quizNavigationService.advanceToNextQuestion();
       this.questionVersion++;  // bump version so the view actually updates
       console.log('[PARENT] navigated to question version →', this.questionVersion);
-  
-      // Reset per-question UI
+    } catch (err) {
+      console.error('[Next] navigation failed', err);
+    } finally {
+      // Reset per‐question UI
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.quizStateService.setDisplayState({ mode: 'question', answered: false });
       this.selectedOptionService.setAnswered(false);
+
+      // Disable Next for Q
       this.nextButtonStateService.setNextButtonState(false);
+
+      // Clear any old selections
       this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] = [];
-    } catch (err) {
-      console.error('[Next] navigation failed', err);
-    } finally {
+
       this.cdRef.markForCheck();
     }
   }  
