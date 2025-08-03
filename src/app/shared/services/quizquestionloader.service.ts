@@ -105,9 +105,9 @@ export class QuizQuestionLoaderService {
     private router: Router
   ) {}
 
-  async loadQuestionContents(questionIndex: number): Promise<void> {
+  public async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
-      // Prevent stale rendering
+      // ───── Reset visual/UI state before rendering ─────
       this.hasContentLoaded = false;
       this.hasOptionsLoaded = false;
       this.shouldRenderOptions = false;
@@ -115,17 +115,19 @@ export class QuizQuestionLoaderService {
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
   
-      // Reset state before fetching new data
+      // ───── Reset any previous data ─────
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionData = null;
   
+      // ───── Validate quizId before proceeding ─────
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
-        console.warn(`[QuizComponent] ❌ No quiz ID available. Cannot load question contents.`);
+        console.warn(`[QuizQuestionLoaderService] ❌ No quiz ID available. Cannot load question contents.`);
         return;
       }
   
+      // ───── Attempt to fetch question, options, and explanation in parallel ─────
       try {
         type FetchedData = {
           question: QuizQuestion | null;
@@ -140,66 +142,72 @@ export class QuizQuestionLoaderService {
           : of('');
   
         const data: FetchedData = await lastValueFrom(
-          forkJoin({ question: question$, options: options$, explanation: explanation$ }).pipe(
-            catchError(error => {
-              console.error(
-                `[QuizComponent] ❌ Error in forkJoin for Q${questionIndex}:`,
-                error
-              );
-              return of({ question: null, options: [], explanation: '' } as FetchedData);
+          forkJoin({
+            question: question$,
+            options: options$,
+            explanation: explanation$,
+          }).pipe(
+            catchError((error) => {
+              console.error(`[QuizQuestionLoaderService] ❌ Error in forkJoin for Q${questionIndex}:`, error);
+              return of({
+                question: null,
+                options: [],
+                explanation: '',
+              } as FetchedData);
             })
           )
         );
   
-        // All‑or‑nothing guard: require questionText and at least one option
+        // ───── Guard against incomplete question data ─────
         if (
           !data.question?.questionText?.trim() ||
           !Array.isArray(data.options) ||
           data.options.length === 0
         ) {
-          console.warn(
-            `[QuizComponent] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`
-          );
+          console.warn(`[QuizQuestionLoaderService] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`);
           this.isLoading = false;
           return;
         }
+
+        // Reset UI state for this new question
+        this.nextButtonStateService.setNextButtonState(false);
+        this.selectedOptionService.setAnswered(false);
+        this.explanationTextService.setExplanationText('');
+        this.explanationTextService.setShouldDisplayExplanation(false);
+        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-        // Extract correct options for the current question
-        const correctOptions = data.options.filter(opt => opt.correct);
+        // ───── Generate feedback message for current question ─────
+        const correctOptions = data.options.filter((opt) => opt.correct);
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
   
-        // Ensure `generateFeedbackForOptions` receives correct data for each question
-        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(
-          correctOptions,
-          data.options
-        );
-  
-        // Apply the same feedback message to all options
-        const updatedOptions = data.options.map(opt => ({
+        // ───── Apply feedback to each option ─────
+        const updatedOptions = data.options.map((opt) => ({
           ...opt,
-          feedback: feedbackMessage
+          feedback: feedbackMessage,
         }));
   
-        // Set values only after ensuring correct mapping
+        // ───── Apply loaded values to local state ─────
         this.optionsToDisplay = [...updatedOptions];
         this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
   
-        console.log('[🧪 optionsToDisplay assigned]', this.optionsToDisplay);
-  
         this.questionData = data.question ?? ({} as QuizQuestion);
-
+        this.explanationToDisplay = data.explanation ?? '';
         this.isQuestionDisplayed = true;
+  
+        console.log('[🧪 loadQuestionContents] optionsToDisplay assigned:', this.optionsToDisplay);
+  
+        // ───── Final loading flag ─────
         this.isLoading = false;
+  
       } catch (error) {
-        console.error(
-          `[QuizComponent] ❌ Error loading question contents for Q${questionIndex}:`,
-          error
-        );
+        console.error(`[QuizQuestionLoaderService] ❌ Error loading question contents for Q${questionIndex}:`, error);
         this.isLoading = false;
       }
     } catch (error) {
-      console.error(`[QuizComponent] ❌ Unexpected error:`, error);
+      console.error(`[QuizQuestionLoaderService] ❌ Unexpected outer error:`, error);
       this.isLoading = false;
+      // Optional: trigger UI update manually if using ChangeDetectionStrategy.OnPush
       // this.cdRef.detectChanges();
     }
   }

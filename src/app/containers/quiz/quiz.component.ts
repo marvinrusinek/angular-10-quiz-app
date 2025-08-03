@@ -621,7 +621,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async ngAfterViewInit(): Promise<void> {
-    this.loadQuestionContents(this.currentQuestionIndex);
+    this.quizQuestionLoaderService.loadQuestionContents(this.currentQuestionIndex);
 
     // If the loader queued options before the child existed, apply them now
     if (this.quizQuestionLoaderService.pendingOptions?.length) {
