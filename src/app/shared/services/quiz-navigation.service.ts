@@ -284,13 +284,21 @@ export class QuizNavigationService {
       });
   
       // Navigate to dummy route first, then back to trigger full reload
+      await this.waitForUrl(routeUrl);
       return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
         this.router.navigateByUrl(routeUrl)
       );
     }
   
     try {
-      return await this.router.navigateByUrl(routeUrl);
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      if (!navSuccess) {
+        console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
+        return false;
+      }
+
+      await this.waitForUrl(routeUrl);  // wait for NavigationEnd to confirm router settled
+      return true;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
