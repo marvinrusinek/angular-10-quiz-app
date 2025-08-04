@@ -195,10 +195,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
     this.renderer.setStyle(el, 'pointer-events', value);
   }
 
-  private setCursor(element: HTMLElement, value: string): void {
-    this.renderer.setStyle(element, 'cursor', value);
-  }
-
   public paintNow(): void {
     this.updateHighlight();
   }
