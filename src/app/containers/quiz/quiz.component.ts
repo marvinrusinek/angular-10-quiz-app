@@ -483,7 +483,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Update local view model
         this.currentQuestionIndex = idx;
         this.lastLoggedIndex      = -1;
-        this.questionHtml         = q.questionText.trim();
+        // this.questionHtml         = q.questionText.trim();
         this.explanationHtml      = '';
         this.showExplanation      = false;
         this.explanationToDisplay = '';
