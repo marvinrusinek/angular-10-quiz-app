@@ -4254,7 +4254,7 @@ export class QuizQuestionComponent
   }
 
   private isFormValid(): boolean {
-    return this.questionForm?.valid ?? false; // Check form validity, ensure form is defined
+    return this.questionForm?.valid ?? false;  // check form validity, ensure form is defined
   }
 
   private async checkAndHandleCorrectAnswer(): Promise<void> {
@@ -5104,11 +5104,6 @@ export class QuizQuestionComponent
 
   public isQuestionReady(): boolean {
     return !!this.currentQuestion && Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length > 0;
-  }
-
-  private clearOptionIcons(): void {
-    const currentIndex = this.currentQuestionIndex;
-    this.selectedOptionService.clearSelectionsForQuestion(currentIndex);
   }
 
   private clearOptionStateForQuestion(index: number): void {
