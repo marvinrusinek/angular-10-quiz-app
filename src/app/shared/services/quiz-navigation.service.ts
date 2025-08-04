@@ -7,6 +7,7 @@ import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
+import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
 import { QuizService } from './quiz.service';
@@ -60,6 +61,7 @@ export class QuizNavigationService {
   renderReset$ = this.renderResetSubject.asObservable();
   
   constructor(
+    private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizService: QuizService,
@@ -104,7 +106,15 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<void> {
+    // Immediately reset explanation-related state to avoid stale data
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+  
+    // Clear the old Q&A state before starting navigation
     this.quizQuestionLoaderService.clearQA();
+  
+    // Defer navigation until state is clean
     await this.navigateWithOffset(1);
   }
   
