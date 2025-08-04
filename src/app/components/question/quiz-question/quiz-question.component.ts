@@ -286,6 +286,10 @@ export class QuizQuestionComponent
   }
 
   @Input() set questionPayload(value: QuestionPayload | null) {
+    console.log('[📥 @Input questionPayload] received:', value);
+    console.timeEnd('[🚀 Sent QA to QQC]');
+    console.time('[📥 QQC @Input questionPayload]');
+  
     if (!value) {
       console.warn('[⚠️ Skipping: value is null]');
       return;
@@ -294,6 +298,8 @@ export class QuizQuestionComponent
     try {
       this._questionPayload = value;
       this.questionPayloadSubject.next(value);
+      console.log('[🔁 About to hydrate payload]');
+      console.timeEnd('[📥 QQC @Input questionPayload]');
       this.hydrateFromPayload(value);
     } catch (err) {
       console.error('[❌ Error during hydrateFromPayload]', err);
@@ -305,7 +311,9 @@ export class QuizQuestionComponent
   }
 
   private resetUIForNewQuestion(): void {
+    console.log('[QQC] ✅ Running resetUIForNewQuestion()');
     this.sharedOptionComponent?.resetUIForNewQuestion();
+    // add any additional resets needed here
   }
 
   async ngOnInit(): Promise<void> {
@@ -313,13 +321,14 @@ export class QuizQuestionComponent
 
     this.idxSub = this.quizService.currentQuestionIndex$
     .subscribe(idx => {
+      console.log('[🔄 QQC index update]', idx);
       this.currentQuestionIndex = idx;
     });
 
     this.quizService.currentQuestionIndex$.subscribe(index => {
       console.log('[📡 Parent received current index]', index);
     
-      // ⬇Log a stack trace for tracing unexpected emissions
+      // ⬇️ Log a stack trace for tracing unexpected emissions
       if (index === 1) {
         console.warn('[🧵 Stack trace for index === 1]', {
           stack: new Error().stack
@@ -338,21 +347,27 @@ export class QuizQuestionComponent
     this.quizService.questionPayload$
       .pipe(
         filter((payload): payload is QuestionPayload => !!payload),
+        tap(() => console.time('🕒 QQC render')),
         tap((payload) => {
           this.currentQuestion = payload.question;
           this.optionsToDisplay = payload.options;
           this.explanationToDisplay = payload.explanation ?? '';
-        })
+        }),
+        tap(() => console.timeEnd('🕒 QQC render'))
       )
       .subscribe((payload) => {
+        console.time('[📥 QQC received QA]');
         console.log('[📥 QQC got payload]', payload);
+        console.timeEnd('[📥 QQC received QA]');
       });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
+      console.log('[QQC] 📦 navigationSuccess$ received — general navigation');
       this.resetUIForNewQuestion();
     });
 
     this.quizNavigationService.navigatingBack$.subscribe(() => {
+      console.log('[QQC] 🔙 navigatingBack$ received');
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.isNavigatingBackwards = true;
       }
@@ -362,8 +377,11 @@ export class QuizQuestionComponent
     this.quizNavigationService.navigationToQuestion$.subscribe(({ question, options }) => {
       if (question?.questionText && options?.length) {
         if (!this.containerInitialized && this.dynamicAnswerContainer) {
+          console.time('[🛠️ loadDynamicComponent ngOnInit]');
           this.loadDynamicComponent(question, options);
           this.containerInitialized = true;
+          console.timeEnd('[🛠️ loadDynamicComponent ngOnInit]');
+    
           console.log('[✅ Component injected dynamically from navigation]');
         } else {
           console.log('[🧊 Skipping re-injection — already initialized]');
