@@ -170,11 +170,11 @@ export class QuizQuestionLoaderService {
         }
 
         // Reset UI state for this new question
-        this.nextButtonStateService.setNextButtonState(false);
+        /* this.nextButtonStateService.setNextButtonState(false);
         this.selectedOptionService.setAnswered(false);
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
-        this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+        this.quizStateService.setDisplayState({ mode: 'question', answered: false }); */
   
         // ───── Generate feedback message for current question ─────
         const correctOptions = data.options.filter((opt) => opt.correct);
