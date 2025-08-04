@@ -106,32 +106,14 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<boolean> {
-    // Immediately reset explanation-related state to avoid stale data
-    this.explanationTextService.setExplanationText('');
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-  
-    // Clear the old Q&A state before starting navigation
-    this.quizQuestionLoaderService.clearQA();
-  
-    // Defer navigation until state is clean
-    await this.navigateWithOffset(1);
-
+    this.resetExplanationAndState();
+    await this.navigateWithOffset(1);  // defer navigation until state is clean
     return true;
   }
   
   public async advanceToPreviousQuestion(): Promise<boolean> {
-    // Immediately reset explanation-related state to avoid stale data
-    this.explanationTextService.setExplanationText('');
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-
-    // Clear the old Q&A state before starting navigation
-    this.quizQuestionLoaderService.clearQA();
-
-    // Defer navigation until state is clean
-    await this.navigateWithOffset(-1);
-
+    this.resetExplanationAndState();
+    await this.navigateWithOffset(-1);  // defer navigation until state is clean
     return true;
   }
 
@@ -358,6 +340,16 @@ export class QuizNavigationService {
     } catch (err) {
       console.error(`[resetUIAndNavigate] ❌ Error during reset:`, err);
     }
+  }
+
+  private resetExplanationAndState(): void {
+    // Immediately reset explanation-related state to avoid stale data
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+  
+    // Clear the old Q&A state before starting navigation
+    this.quizQuestionLoaderService.clearQA();
   }
 
   private handleQuizCompletion(): void {
