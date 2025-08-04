@@ -284,10 +284,15 @@ export class QuizNavigationService {
       });
   
       // Navigate to dummy route first, then back to trigger full reload
-      await this.waitForUrl(routeUrl);
-      return this.router.navigateByUrl('/', { skipLocationChange: true }).then(() =>
-        this.router.navigateByUrl(routeUrl)
-      );
+      const reloadSuccess = await this.router
+      .navigateByUrl('/', { skipLocationChange: true })
+      .then(() => this.router.navigateByUrl(routeUrl));
+
+      if (reloadSuccess) {
+        await this.waitForUrl(routeUrl);  // wait after successful route
+      }
+
+      return reloadSuccess;
     }
   
     try {
