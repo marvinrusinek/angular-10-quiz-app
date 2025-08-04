@@ -288,15 +288,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation, currentIndex]
       ) => {
-        console.log('[🧪 COMBINED TEXT STREAM]', {
+        /* console.log('[🧪 COMBINED TEXT STREAM]', {
           override,
           state,
           explanationText,
           questionText,
           correctText,
           shouldDisplayExplanation,
-          currentIndex
-        });
+          currentIndex: this.currentIndex,
+          liveIndex: this.quizService.getCurrentQuestionIndex()
+        }); */
         
         if (override.html && override.idx === this.currentIndex) {
           return override.html;
@@ -306,13 +307,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const explanation = (explanationText ?? '').trim();
         const correct = (correctText ?? '').trim();
 
-        const isCurrentIndex = this.currentIndex === currentIndex;
+        // const isCurrentIndex = this.currentIndex === currentIndex;
+        this.currentIndex = this.quizService.getCurrentQuestionIndex();
        
         const showExplanation =
           state.mode === 'explanation' &&
           explanation &&
           shouldDisplayExplanation &&
-          isCurrentIndex;
+          this.currentIndex;
         if (showExplanation) {
           return explanation || '[⚠️ No explanation found]';  // render explanation once
         }
