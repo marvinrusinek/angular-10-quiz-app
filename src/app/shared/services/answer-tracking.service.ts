@@ -31,7 +31,6 @@ export class AnswerTrackingService {
   public processOptionSelection(
     option: SelectedOption,
     checked: boolean,
-    currentQuestion: QuizQuestion,
     questionIndex: number,
     type: QuestionType,
     alreadyAnswered: boolean
