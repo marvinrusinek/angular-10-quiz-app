@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, take } from 'rxjs/operators';
+import { catchError, filter, first, map, take } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
@@ -379,6 +379,17 @@ export class QuizNavigationService {
 
   emitNavigationToQuestion(question: QuizQuestion, options: Option[]): void {
     this.navigationToQuestionSubject.next({ question, options });
+  }
+
+  private waitForUrl(url: string): Promise<void> {
+    return firstValueFrom(
+      this.router.events.pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        map(e => e.urlAfterRedirects || (e as NavigationEnd).url),
+        filter(u => u === url),
+        first()
+      )
+    );
   }
 
   private getQuizId(): string | null {
