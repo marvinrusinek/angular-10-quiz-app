@@ -288,6 +288,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [override, state, explanationText, questionText,
         correctText, shouldDisplayExplanation, currentIndex]
       ) => {
+        console.log('[🧪 COMBINED TEXT STREAM]', {
+          override,
+          state,
+          explanationText,
+          questionText,
+          correctText,
+          shouldDisplayExplanation,
+          currentIndex
+        });
+        
         if (override.html && override.idx === this.currentIndex) {
           return override.html;
         }
