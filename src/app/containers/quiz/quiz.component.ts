@@ -947,12 +947,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   // REMOVE!!
-  private isAnyOptionSelected(): boolean {
-    const result = this.selectedOptions.length > 0;
-    return result;
-  }
-
-  // REMOVE!!
   private resetQuestionState(): void {
     // Remove stale question so template can’t render old text
     this.currentQuestion = null;
