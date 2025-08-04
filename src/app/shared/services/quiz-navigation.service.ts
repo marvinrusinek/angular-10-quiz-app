@@ -157,13 +157,6 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
-    console.log('[⏱ State Flags]', {
-      isLoading: this.quizStateService.isLoadingSubject.getValue(),
-      isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
-      isAnswered: this.selectedOptionService.getAnsweredState(),
-      buttonEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
-    });
-
     const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
     let currentIndex = routeParams
       ? parseInt(routeParams.get('questionIndex') ?? '', 10) - 1
@@ -181,6 +174,14 @@ export class QuizNavigationService {
     // Guard against loading or navigating
     // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     // const isAnswered = this.selectedOptionService.getAnsweredState();
+    console.log('[🔍 NAV DEBUG]', {
+      offset,
+      currentUrl: this.router.url,
+      isLoading: this.quizStateService.isLoadingSubject.getValue(),
+      isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
+      currentIndex: this.quizService.getCurrentQuestionIndex(),
+    });
+
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
   
