@@ -105,16 +105,14 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<boolean> {
+  public async advanceToNextQuestion(): Promise<void> {
     this.resetExplanationAndState();
     await this.navigateWithOffset(1);  // defer navigation until state is clean
-    return true;
   }
   
-  public async advanceToPreviousQuestion(): Promise<boolean> {
+  public async advanceToPreviousQuestion(): Promise<void> {
     this.resetExplanationAndState();
     await this.navigateWithOffset(-1);  // defer navigation until state is clean
-    return true;
   }
 
   advanceToResults(): void {
