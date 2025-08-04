@@ -15,8 +15,6 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
-interface Override { idx: number; html: string; }
-
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
@@ -64,14 +62,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private overrideSubject = new BehaviorSubject<{idx: number; html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
 
-  @Input()
-  set explanationOverride(o: {idx: number; html: string}) {
+  @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
   }
 
-  @Input()
-  set questionIndex(idx: number) {
-    // 2) remember the index AND clear any old override
+  @Input() set questionIndex(idx: number) {
+    // Remember the index and clear any old override
     this.currentIndex = idx;
     this.overrideSubject.next({ idx, html: '' });
     this.cdRef.markForCheck();
