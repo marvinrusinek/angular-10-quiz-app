@@ -281,11 +281,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.explanationText$,
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+      this.quizService.currentQuestionIndex$
     ]).pipe(
       map((
         [override, state, explanationText, questionText,
-        correctText, shouldDisplayExplanation]
+        correctText, shouldDisplayExplanation, currentIndex]
       ) => {
         if (override.html && override.idx === this.currentIndex) {
           return override.html;
@@ -295,7 +296,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const explanation = (explanationText ?? '').trim();
         const correct = (correctText ?? '').trim();
 
-        const isCurrentIndex = this.currentIndex === this.quizService.getCurrentQuestionIndex();
+        const isCurrentIndex = this.currentIndex === currentIndex;
        
         const showExplanation =
           state.mode === 'explanation' &&
