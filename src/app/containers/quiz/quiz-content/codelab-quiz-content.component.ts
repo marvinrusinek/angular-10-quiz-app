@@ -40,7 +40,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() questionText = '';
   @Input() quizData: CombinedQuestionDataType | null = null;
   @Input() combinedText$!: Observable<string>;
-  // @Input() questionIndex!: number;
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation'; answered: boolean }>;
   @Input() displayVariables: { question: string; explanation: string };
   @Input() localExplanationText = '';
@@ -81,8 +80,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isExplanationTextDisplayed$: Observable<boolean>;
   private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
   nextExplanationText = '';
-  formattedExplanation = '';
-  // formattedExplanation$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  formattedExplanation = '';;
   formattedExplanation$ = this.explanationTextService.formattedExplanation$;
 
   numberOfCorrectAnswers = 0;
