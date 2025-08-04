@@ -157,12 +157,11 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
-    console.log('⏭️ [NAV ATTEMPT] offset, enabled, answered, loading, navigating:', {
-      offset,
-      isEnabled:    this.nextButtonStateService.isButtonCurrentlyEnabled(),
-      isAnswered:   this.selectedOptionService.getAnsweredState(),
-      isLoading:    this.quizStateService.isLoadingSubject.getValue(),
-      isNavigating: this.quizStateService.isNavigatingSubject.getValue()
+    console.log('[⏱ State Flags]', {
+      isLoading: this.quizStateService.isLoadingSubject.getValue(),
+      isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
+      isAnswered: this.selectedOptionService.getAnsweredState(),
+      buttonEnabled: this.nextButtonStateService.isButtonCurrentlyEnabled()
     });
 
     const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
