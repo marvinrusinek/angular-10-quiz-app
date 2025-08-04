@@ -156,7 +156,7 @@ export class QuizNavigationService {
     }
   }
 
-  private async navigateWithOffset(offset: number): Promise<void> {
+  private async navigateWithOffset(offset: number): Promise<boolean> {
     console.log('⏭️ [NAV ATTEMPT] offset, enabled, answered, loading, navigating:', {
       offset,
       isEnabled:    this.nextButtonStateService.isButtonCurrentlyEnabled(),
@@ -179,7 +179,7 @@ export class QuizNavigationService {
       return;
     }
   
-    // Guard conditions
+    // Guard against loading or navigating
     // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
     // const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
@@ -200,7 +200,7 @@ export class QuizNavigationService {
       return;
     }
 
-    // Fetch the quiz that matches the current route
+    // Fetch the quiz metadata that matches the current route
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizDataService.getQuiz(effectiveQuizId).pipe(
         filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
@@ -248,6 +248,8 @@ export class QuizNavigationService {
       } else {
         console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
       }
+
+      return navSuccess;
     } catch (err) {
       console.error('[❌ navigateWithOffset error]', err);
     } finally {
