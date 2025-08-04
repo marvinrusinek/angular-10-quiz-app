@@ -289,7 +289,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         correctText, shouldDisplayExplanation, currentIndex]
       ) => {
         this.currentIndex = currentIndex;
-        
+
         if (override.html && override.idx === this.currentIndex) {
           return override.html;
         }
@@ -303,7 +303,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanation &&
           shouldDisplayExplanation;
         if (showExplanation) {
-          return explanation;  // render explanation once
+          return explanation || '[⚠️ No explanation found]';  // render explanation once
         }
 
         // Otherwise show question (and correct count if present)
