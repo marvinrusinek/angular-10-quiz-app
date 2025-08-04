@@ -914,7 +914,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectedOptionService.setAnswered(true);
       this.nextButtonStateService.setNextButtonState(isAnswered); 
     }
-    // this.cdRef.markForCheck();
+    this.cdRef.markForCheck();
     console.log('[PARENT] onOptionSelected → about to enable Next');
   
     // Persist per-question “seen” flag
