@@ -105,7 +105,7 @@ export class QuizNavigationService {
     );
   }
 
-  public async advanceToNextQuestion(): Promise<void> {
+  public async advanceToNextQuestion(): Promise<boolean> {
     // Immediately reset explanation-related state to avoid stale data
     this.explanationTextService.setExplanationText('');
     this.explanationTextService.setShouldDisplayExplanation(false);
@@ -116,11 +116,23 @@ export class QuizNavigationService {
   
     // Defer navigation until state is clean
     await this.navigateWithOffset(1);
+
+    return true;
   }
   
-  public async advanceToPreviousQuestion(): Promise<void> {
+  public async advanceToPreviousQuestion(): Promise<boolean> {
+    // Immediately reset explanation-related state to avoid stale data
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+    // Clear the old Q&A state before starting navigation
     this.quizQuestionLoaderService.clearQA();
+
+    // Defer navigation until state is clean
     await this.navigateWithOffset(-1);
+
+    return true;
   }
 
   advanceToResults(): void {
