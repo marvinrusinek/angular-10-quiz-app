@@ -290,7 +290,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         correctText, shouldDisplayExplanation]
       ) => {
         if (override.html && override.idx === this.currentIndex) {
-          return of(override.html);
+          return override.html;
         }
         
         const question = questionText?.trim();
