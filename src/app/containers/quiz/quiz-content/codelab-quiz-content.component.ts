@@ -303,7 +303,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanation &&
           shouldDisplayExplanation;
         if (showExplanation) {
-          return explanation || '[⚠️ No explanation found]';  // render explanation once
+          return explanation;  // render explanation once
         }
 
         // Otherwise show question (and correct count if present)
