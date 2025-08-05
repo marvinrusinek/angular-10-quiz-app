@@ -562,10 +562,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       });
     
-    /* this.nextButtonStateService.isButtonEnabled$
-      .subscribe(enabled =>
-        console.log('[PARENT] nextButtonEnabled? →', enabled)
-      ); */
     this.nextButtonStateService.isButtonEnabled$
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled: boolean) => {
@@ -3316,16 +3312,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   /************************ paging functions *********************/
   public async advanceToNextQuestion(): Promise<void> {
     try {
-      // Trigger UI animation before navigation
       this.triggerAnimation();
   
-      // Delegate actual route navigation to the service
-      await this.quizNavigationService.advanceToNextQuestion();
+      const success = await this.quizNavigationService.advanceToNextQuestion();
   
-      // Increment question version used for tracking / force-refresh
-      this.questionVersion++;
-  
-      console.log('[✅ Navigation to next question successful]');
+      if (success) {
+        this.questionVersion++;
+        console.log('[✅ Navigation to next question successful]');
+      } else {
+        console.warn('[⚠️ Navigation to next question failed]');
+      }
     } catch (error) {
       console.error('[❌ Error in advanceToNextQuestion]', error);
     }
