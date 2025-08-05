@@ -78,12 +78,12 @@
               #nextButton="matTooltip"
               mat-icon-button
               [disabled]="!isNextButtonEnabled"
-              (click)="advanceToNextQuestion()"
+              (click)="console.log('CLICKED DIRECTLY');advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
               [ngStyle]="nextButtonStateService.nextButtonStyle"
               aria-label="Next Question"
-            >
+            >TEST NEXT
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
