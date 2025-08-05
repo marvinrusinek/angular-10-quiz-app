@@ -3968,10 +3968,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.cdRef.detectChanges();
     }, 50);
 
-    setTimeout(() => {
-      this.selectedOptionService.logCurrentState?.();
-    }, 0);
-
     this.soundService.reset();  // allow sounds to play again
     this.soundService.clearPlayedOptionsForQuestion(0);
     this.timerService.stopTimer?.();
