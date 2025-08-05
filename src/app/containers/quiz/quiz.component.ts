@@ -562,10 +562,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         });
       });
     
-    this.nextButtonStateService.isButtonEnabled$
+    /* this.nextButtonStateService.isButtonEnabled$
       .subscribe(enabled =>
         console.log('[PARENT] nextButtonEnabled? →', enabled)
-      );
+      ); */
+    this.nextButtonStateService.isButtonEnabled$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((enabled) => {
+        this.isNextButtonEnabled = enabled;
+      });
 
     this.setupQuiz();
     this.subscribeToRouteParams();
