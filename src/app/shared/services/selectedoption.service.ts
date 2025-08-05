@@ -90,7 +90,7 @@ export class SelectedOptionService {
         return;
       }
   
-      const allCorrect = await this.areAllCorrectAnswersSelected(selectedOptions, questionIndex);
+      const allCorrect = await this.areAllCorrectAnswersSelectedSync(questionIndex);
   
       if (allCorrect) {
         this.setNextButtonEnabled(true);
@@ -569,17 +569,12 @@ export class SelectedOptionService {
       this.isAnsweredSubject.next(isAnswered);
 
       // Validate if all correct answers are selected
-      this.areAllCorrectAnswersSelected(validatedOptions, questionIndex)
-        .then((allCorrectAnswersSelected) => {
-          if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
-            console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
-            this.stopTimer$.next();
-            this.stopTimerEmitted = true;
-          }
-        })
-        .catch((error) => {
-          console.error('[updateAnsweredState] Error checking correct answers:', error);
-        });
+      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelectedSync(questionIndex);
+      if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
+        console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
+        this.stopTimer$.next();
+        this.stopTimerEmitted = true;
+      }
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
@@ -599,7 +594,7 @@ export class SelectedOptionService {
     }
   }
 
-  public areAllCorrectAnswersSelected(
+  /* public areAllCorrectAnswersSelected(
     selectedOptions: SelectedOption[],
     questionIndex: number
   ): Promise<boolean> {
@@ -639,8 +634,18 @@ export class SelectedOptionService {
       const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
       resolve(allCorrectSelected);
     });
-  }
+  } */
+  public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
+    const selected = this.selectedOptionsMap.get(questionIndex) || [];
   
+    const correctOptionIds = selected
+      .filter((opt) => opt.correct)
+      .map((opt) => opt.optionId);
+  
+    const selectedIds = selected.map((opt) => opt.optionId);
+  
+    return correctOptionIds.length > 0 && correctOptionIds.every(id => selectedIds.includes(id));
+  }
 
   public isQuestionAnswered(questionIndex: number): boolean {
     const options = this.selectedOptionsMap.get(questionIndex);
