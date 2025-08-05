@@ -905,7 +905,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     let isAnswered: boolean = false;
 
     if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
-      isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelected(options, this.currentQuestionIndex);
+      isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
     } else {
       isAnswered = this.selectedOptionService.isQuestionAnswered(this.currentQuestionIndex);
     }
@@ -3031,11 +3031,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectedOptionService.getSelectedOptions().length > 0;
 
     // Validate that all correct options are selected
-    this.selectedOptionService
-      .areAllCorrectAnswersSelected(
-        this.optionsToDisplay,
-        this.currentQuestionIndex
-      )
+    this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex)
       .then((areAllCorrectSelected) => {
         // Log the validation result
         console.log('[checkIfAnswered] Validation Result:', {
