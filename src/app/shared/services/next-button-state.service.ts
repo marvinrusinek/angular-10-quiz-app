@@ -85,11 +85,11 @@ export class NextButtonStateService {
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      this.isEnabled = true;
+      this.isEnabled = isEnabled;
       this.isButtonEnabledSubject.next(isEnabled);
       this.nextButtonStyle = {
-        opacity: '1',
-        'pointer-events': 'auto'
+        opacity: isEnabled ? '1' : '0.5',
+        'pointer-events': isEnabled ? 'auto' : 'none'
       };
     });
   }
