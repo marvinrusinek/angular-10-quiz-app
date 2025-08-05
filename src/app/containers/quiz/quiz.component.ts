@@ -568,7 +568,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       ); */
     this.nextButtonStateService.isButtonEnabled$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled) => {
+      .subscribe((enabled: boolean) => {
         this.isNextButtonEnabled = enabled;
       });
 
