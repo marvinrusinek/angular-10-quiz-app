@@ -62,6 +62,12 @@ export class NextButtonStateService {
         )
       )
       .subscribe(([isAnswered, isLoading, isNavigating]) => {
+        console.log('[📦 NextButtonState Inputs]', {
+          isAnswered,
+          isLoading,
+          isNavigating
+        });
+      
         const isEnabled = isAnswered && !isLoading && !isNavigating;
         this.updateAndSyncNextButtonState(isEnabled);
       });
