@@ -2800,8 +2800,7 @@ export class QuizQuestionComponent
 
   handleSelectionMessageUpdate(): void {
     const options = this.optionsToDisplay ?? [];
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelected(
-      options,
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
       this.currentQuestionIndex
     );
 
@@ -3014,8 +3013,7 @@ export class QuizQuestionComponent
     try {
       // Check if all correct options are selected
       const allCorrectSelected =
-        await this.selectedOptionService.areAllCorrectAnswersSelected(
-          this.currentQuestion.options,
+        await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
           this.currentQuestionIndex
         );
 
@@ -3202,8 +3200,7 @@ export class QuizQuestionComponent
 
       // Check if all correct answers are selected
       const allCorrectSelected =
-        await this.selectedOptionService.areAllCorrectAnswersSelected(
-          this.currentQuestion.options,
+        await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
           this.currentQuestionIndex
         );
 
@@ -3318,8 +3315,7 @@ export class QuizQuestionComponent
         }
 
         const allCorrectSelected =
-          await this.selectedOptionService.areAllCorrectAnswersSelected(
-            this.currentQuestion.options,
+          await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
             this.currentQuestionIndex
           );
         stopTimer = allCorrectSelected;
@@ -4378,8 +4374,7 @@ export class QuizQuestionComponent
   
       // Check if all correct answers are selected
       const allCorrectSelected =
-        await this.selectedOptionService.areAllCorrectAnswersSelected(
-          currentQuestion.options,
+        await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
           this.currentQuestionIndex
         );
       console.log(
