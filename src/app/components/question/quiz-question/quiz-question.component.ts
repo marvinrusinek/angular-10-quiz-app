@@ -2570,7 +2570,7 @@ export class QuizQuestionComponent
       checked: true
     });
 
-    // this.setAnsweredAndDisplayState();
+    this.setAnsweredAndDisplayState();
   
     this.selectedOptionService.setAnswered(true);
     this.nextButtonStateService.setNextButtonState(true);
