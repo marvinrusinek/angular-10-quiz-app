@@ -89,6 +89,19 @@ export class SelectedOptionService {
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
+    } else {
+      // Handle multi-select case
+      const currentIndex = isMultiSelect
+        ? this.selectedOptions[0]?.questionIndex
+        : this.selectedOption?.questionIndex;
+    
+      if (this.areAllCorrectAnswersSelected(currentIndex)) {
+        this.setNextButtonEnabled(true);
+        console.log('[✅ Multi-select → all correct options selected → Next enabled]');
+      } else {
+        this.setNextButtonEnabled(false);
+        console.log('[⛔ Multi-select → waiting for more correct selections]');
+      }
     }
   
     console.info('[🧠 selectOption()] Emitted updated selections:', updatedSelections);
