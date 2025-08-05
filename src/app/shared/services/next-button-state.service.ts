@@ -95,10 +95,6 @@ export class NextButtonStateService {
   }
 
   public setNextButtonState(enabled: boolean): void {
-    console.group(`[NEXT STATE] → ${enabled ? 'ENABLED' : 'DISABLED'}`);
-    console.trace();  // shows who called it
-    console.groupEnd();
-
     this.isEnabled = enabled;
     this.isButtonEnabledSubject.next(enabled);
   }
