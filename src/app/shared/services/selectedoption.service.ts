@@ -49,12 +49,12 @@ export class SelectedOptionService {
   constructor() {}
 
   // Method to update the selected option state
-  selectOption(
+  public async selectOption(
     optionId: number, 
     questionIndex: number, 
     text: string, 
     isMultiSelect: boolean
-  ): void {
+  ): Promise<void> {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
@@ -69,33 +69,30 @@ export class SelectedOptionService {
       showIcon: true
     };
   
-    // Get current stored selections
     const currentSelections = this.getSelectedOptions();
-  
-    // Remove any existing entry with same optionId + questionIndex
     const filteredSelections = currentSelections.filter(
       s => !(s.optionId === optionId && s.questionIndex === questionIndex)
     );
-  
-    // Add the new one
     const updatedSelections = [...filteredSelections, newSelection];
   
-    // Emit updated list
     this.selectedOptionSubject.next(updatedSelections);
-  
-    // Save internally if needed
     this.selectedOptionsMap.set(questionIndex, updatedSelections);
   
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
     } else {
-      // Handle multi-select case
-      const currentIndex = isMultiSelect
-        ? this.selectedOptions[0]?.questionIndex
-        : this.selectedOption?.questionIndex;
-    
-      if (this.areAllCorrectAnswersSelected(currentIndex)) {
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+  
+      if (selectedOptions.length === 0) {
+        console.warn('[⚠️ No selected options found for multi-select]');
+        this.setNextButtonEnabled(false);
+        return;
+      }
+  
+      const allCorrect = await this.areAllCorrectAnswersSelected(selectedOptions, questionIndex);
+  
+      if (allCorrect) {
         this.setNextButtonEnabled(true);
         console.log('[✅ Multi-select → all correct options selected → Next enabled]');
       } else {
@@ -602,16 +599,19 @@ export class SelectedOptionService {
     }
   }
 
-  areAllCorrectAnswersSelected(questionOptions: Option[], questionIndex: number): Promise<boolean> {
+  public areAllCorrectAnswersSelected(
+    selectedOptions: SelectedOption[],
+    questionIndex: number
+  ): Promise<boolean> {
     return new Promise((resolve) => {
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
+      if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
         console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
         resolve(false);
         return;
       }
   
       // Normalize options to ensure `correct` is defined
-      const normalizedOptions = questionOptions.map((option, index) => ({
+      const normalizedOptions = selectedOptions.map((option, index) => ({
         ...option,
         correct: !!option.correct,
         optionId: option.optionId ?? index + 1,
@@ -627,21 +627,20 @@ export class SelectedOptionService {
         return;
       }
   
-      // Retrieve selected options for the current question index
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-      const selectedOptionIds = selectedOptions.map((option) => option.optionId);
-      
+      const selectedFromMap = this.selectedOptionsMap.get(questionIndex) || [];
+      const selectedOptionIds = selectedFromMap.map((option) => option.optionId);
+  
       if (selectedOptionIds.length === 0) {
         console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
         resolve(false);
         return;
       }
   
-      // Validate that all correct options are selected
       const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
       resolve(allCorrectSelected);
     });
   }
+  
 
   public isQuestionAnswered(questionIndex: number): boolean {
     const options = this.selectedOptionsMap.get(questionIndex);
