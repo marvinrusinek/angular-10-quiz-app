@@ -285,31 +285,39 @@ export class QuizNavigationService {
       });
   
       // Navigate to dummy route first, then back to trigger full reload
-      const reloadSuccess = await this.router
-      .navigateByUrl('/', { skipLocationChange: true })
-      .then(() => this.router.navigateByUrl(routeUrl));
-
-      if (reloadSuccess) {
-        await this.waitForUrl(routeUrl);  // wait after successful route
+      const dummySuccess = await this.router.navigateByUrl('/', {
+        skipLocationChange: true,
+      });
+  
+      if (!dummySuccess) {
+        console.error('[❌ Dummy navigation failed]');
+        return false;
       }
-
+  
+      const reloadSuccess = await this.router.navigateByUrl(routeUrl);
+      if (reloadSuccess) {
+        await this.waitForUrl(routeUrl); // Ensure route change completed
+      }
+  
       return reloadSuccess;
     }
   
+    // Normal navigation case
     try {
       const navSuccess = await this.router.navigateByUrl(routeUrl);
       if (!navSuccess) {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
       }
-
-      await this.waitForUrl(routeUrl);  // wait for NavigationEnd to confirm router settled
+  
+      await this.waitForUrl(routeUrl);
       return true;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
   }
+  
   
   public async resetUIAndNavigate(index: number): Promise<void> {
     try {
