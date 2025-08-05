@@ -3031,26 +3031,23 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.selectedOptionService.getSelectedOptions().length > 0;
 
     // Validate that all correct options are selected
-    this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex)
-      .then((areAllCorrectSelected) => {
-        // Log the validation result
-        console.log('[checkIfAnswered] Validation Result:', {
-          isAnyOptionSelected,
-          areAllCorrectSelected,
-        });
-
-        // Invoke the callback with the combined result
-        callback(isAnyOptionSelected || areAllCorrectSelected);
-      })
-      .catch((error) => {
-        console.error(
-          '[checkIfAnswered] Error checking if all correct answers are selected:',
-          error
-        );
-
-        // Return false in case of an error
-        callback(false);
+    try {
+      const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
+    
+      console.log('[checkIfAnswered] Validation Result:', {
+        isAnyOptionSelected,
+        areAllCorrectSelected,
       });
+    
+      callback(isAnyOptionSelected || areAllCorrectSelected);
+    } catch (error) {
+      console.error(
+        '[checkIfAnswered] Error checking if all correct answers are selected:',
+        error
+      );
+    
+      callback(false);  // fallback
+    }
   }
 
   private handleTimer(hasAnswered: boolean): void {
