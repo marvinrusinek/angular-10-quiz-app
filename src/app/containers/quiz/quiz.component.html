@@ -81,13 +81,15 @@
               (click)="console.log('CLICKED DIRECTLY');advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
-              [ngStyle]="nextButtonStateService.nextButtonStyle"
+              [ngStyle]="nextButtonStateService.nextButtonStyle"              
               aria-label="Next Question"
-            >TEST NEXT
+            >
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
           <!--[disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"-->
+          <!--[disabled]="!isNextButtonEnabled"-->
+          <!--[ngStyle]="nextButtonStateService.nextButtonStyle"-->
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
               type="submit"
