@@ -77,8 +77,8 @@
               type="button"
               #nextButton="matTooltip"
               mat-icon-button
-              [attr.disabled]="!isNextButtonEnabled ? true : null"
-              (click)="console.log('CLICKED DIRECTLY');advanceToNextQuestion()"
+              [disabled]="!isNextButtonEnabled"
+              (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"
               [ngStyle]="nextButtonStateService.nextButtonStyle"              
