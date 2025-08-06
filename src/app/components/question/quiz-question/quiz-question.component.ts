@@ -2548,7 +2548,7 @@ export class QuizQuestionComponent
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     // Persist and format explanation
-    await this.updateExplanationText(evtIdx).catch(console.error);
+    await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
