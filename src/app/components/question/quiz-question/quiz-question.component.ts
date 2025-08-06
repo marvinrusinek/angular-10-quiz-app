@@ -2516,19 +2516,21 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    this.selectedOptionService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-
-    const questionIdx = this.currentQuestionIndex;
     const evtIdx = event.index;
     const evtOpt = event.option;
 
     // Guard and dedupe
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
     this.lastLoggedIndex = evtIdx;
+
+    const questionIdx = this.currentQuestionIndex;
+
+    // Mark question as answered
+    this.selectedOptionService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+    this.quizStateService.setAnswered(true);
   
-    // Update the Set of selected indices
+    // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle) {
       this.selectedIndices.clear();
@@ -2537,19 +2539,22 @@ export class QuizQuestionComponent
         this.selectedIndices.has(evtIdx)
           ? this.selectedIndices.delete(evtIdx)
           : this.selectedIndices.add(evtIdx);
-      }
+    }
+
+    // Prepare formatted explanation (ensure it matches the correct question)
+    const explanationText = await this.updateExplanationText(questionIdx).catch((err) => {
+      console.error('[❌ Failed to update explanation]', err);
+      return 'No explanation available';
+    });
     
     // Emit so the parent shows explanation on first click
     this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
   
     // Immediately show the raw explanation
-    const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
-    this.explanationTextService.setExplanationText(raw);
+    // const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
+    this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-  
-    // Persist and format explanation
-    await this.updateExplanationText(questionIdx).catch(console.error);
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
