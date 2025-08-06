@@ -66,7 +66,7 @@ export class NextButtonStateService {
         this.nextButtonStyle = {
           opacity: enabled ? '1' : '0.5',
           cursor: enabled ? 'pointer' : 'not-allowed',
-          'pointer-events': 'auto'  // ✅ keep always enabled
+          'pointer-events': 'auto'  // keep always enabled
         };
         this.updateAndSyncNextButtonState(enabled);
       });
@@ -95,7 +95,7 @@ export class NextButtonStateService {
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
         cursor: isEnabled ? 'pointer' : 'not-allowed',
-        'pointer-events': 'auto'  // ✅ keep always enabled
+        'pointer-events': 'auto'  // keep always enabled
       };
     });
   }
