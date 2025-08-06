@@ -41,8 +41,9 @@ export class AnswerTrackingService {
       this.updateMultipleAnswerSelection(option, checked);
     }
   
+    // Centralize state logic
     if (!alreadyAnswered) {
-      this.selectedOptionService.setAnswered(true);
+      this.selectedOptionService.setAnswered(true);  // handles storage and emission
       console.log('[✅ processOptionSelection] Marked as answered');
     } else {
       console.log('[ℹ️ processOptionSelection] Already answered');
