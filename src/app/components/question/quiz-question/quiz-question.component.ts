@@ -2528,7 +2528,6 @@ export class QuizQuestionComponent
     // Mark question as answered
     this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
   
     // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
@@ -2577,10 +2576,6 @@ export class QuizQuestionComponent
     });
 
     this.setAnsweredAndDisplayState();
-  
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.setNextButtonState(true);
-    this.enableNextButton();
     this.cdRef.detectChanges();
   }
  
