@@ -2520,6 +2520,7 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected(true);
     this.quizStateService.setAnswered(true);
 
+    const questionIdx = this.currentQuestionIndex;
     const evtIdx = event.index;
     const evtOpt = event.option;
 
@@ -2539,7 +2540,7 @@ export class QuizQuestionComponent
       }
     
     // Emit so the parent shows explanation on first click
-    this.optionSelected.emit({ ...evtOpt, questionIndex: this.questionIndex });
+    this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
   
     // Immediately show the raw explanation
     const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
@@ -2548,7 +2549,7 @@ export class QuizQuestionComponent
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
   
     // Persist and format explanation
-    await this.updateExplanationText(this.currentQuestionIndex).catch(console.error);
+    await this.updateExplanationText(questionIdx).catch(console.error);
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
