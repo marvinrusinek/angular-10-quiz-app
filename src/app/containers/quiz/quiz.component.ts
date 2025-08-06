@@ -566,6 +566,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled: boolean) => {
         this.isNextButtonEnabled = enabled;
+        this.cdRef.markForCheck();  // force UI update when button state changes
       });
 
     this.setupQuiz();
