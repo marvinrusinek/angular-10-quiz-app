@@ -2526,9 +2526,9 @@ export class QuizQuestionComponent
     const questionIdx = this.currentQuestionIndex;
 
     // Mark question as answered
-    this.selectedOptionService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
-  
+    this.setAnsweredAndDisplayState();
+
     // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle) {
