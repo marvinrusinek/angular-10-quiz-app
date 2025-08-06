@@ -4007,6 +4007,7 @@ export class QuizQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    console.warn('[🧠 updateExplanationText CALLED]', { index, currentIndex: this.currentQuestionIndex });
   
     // Safety: only run if we’re still on the same question
     if (this.currentQuestionIndex !== index) {

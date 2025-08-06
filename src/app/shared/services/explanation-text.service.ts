@@ -78,6 +78,7 @@ export class ExplanationTextService {
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
     const already = this.latestExplanation?.trim();
+    console.warn('[📤 setExplanationText CALLED]', explanation);
   
     if (this.explanationLocked && trimmed === '') {
       console.warn('[🛡️ Blocked reset: explanation is locked]');
