@@ -913,6 +913,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     }
     // Mark as answered and enable Next
     if (isAnswered) {
+      console.log('[✅ Option selected – enabling Next]');
       this.selectedOptionService.setAnswered(true);
       this.nextButtonStateService.setNextButtonState(isAnswered); 
     }

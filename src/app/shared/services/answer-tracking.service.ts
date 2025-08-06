@@ -48,9 +48,6 @@ export class AnswerTrackingService {
       console.log('[ℹ️ processOptionSelection] Already answered');
     }
   
-    this.quizStateService.setAnswerSelected(true);
-    this.quizStateService.setAnswered(true);
-  
     sessionStorage.setItem('isAnswered', 'true');
     sessionStorage.setItem(`displayMode_${questionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
