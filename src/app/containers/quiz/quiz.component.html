@@ -77,16 +77,17 @@
               type="button"
               #nextButton="matTooltip"
               mat-icon-button
-              [disabled]="!isNextButtonEnabled"
+              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
-              [matTooltip]="nextButtonTooltip$ | async"
-              [ngStyle]="nextButtonStateService.nextButtonStyle"              
+              [matTooltip]="nextButtonTooltip$ | async"     
+              [ngStyle]="nextButtonStateService.nextButtonStyle"         
               aria-label="Next Question"
             >
               <i class="material-icons">navigate_next</i>
             </button>
           </div>
+          
           <!--[disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"-->
           <!--[disabled]="!isNextButtonEnabled"-->
           <!--[ngStyle]="nextButtonStateService.nextButtonStyle"-->
