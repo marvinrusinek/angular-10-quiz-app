@@ -29,7 +29,6 @@
           (optionClicked)="onQuizOptionSelected($event)"
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
-          (nextButtonState)="nextButtonStateService.updateAndSyncNextButtonState($event)"
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
@@ -76,8 +75,7 @@
             <button
               type="button"
               #nextButton="matTooltip"
-              mat-icon-button
-              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
+              mat-icon-button            
               (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"     
@@ -88,9 +86,6 @@
             </button>
           </div>
           
-          <!--[disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"-->
-          <!--[disabled]="!isNextButtonEnabled"-->
-          <!--[ngStyle]="nextButtonStateService.nextButtonStyle"-->
           <div class="show-score-nav" [hidden]="shouldHideShowResultsButton">
             <button
               type="submit"
