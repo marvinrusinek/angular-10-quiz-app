@@ -3315,14 +3315,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   }
 
   /************************ paging functions *********************/
-  testClick(): void {
-    console.log('[TEST BUTTON CLICKED]');
-    this.advanceToNextQuestion();
-  }
-
   public async advanceToNextQuestion(): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion() called]');
-
     try {
       this.triggerAnimation();
   
@@ -3338,24 +3331,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       console.error('[❌ Error in advanceToNextQuestion]', error);
     }
   }
-  
+
   public async advanceToPreviousQuestion(): Promise<void> {
     try {
-      // Trigger UI animation before navigation
       this.triggerAnimation();
   
-      // Delegate actual route navigation to the service
-      await this.quizNavigationService.advanceToPreviousQuestion();
+      const success = await this.quizNavigationService.advanceToPreviousQuestion();
   
-      // Increment question version used for tracking / force-refresh
-      this.questionVersion++;
-  
-      console.log('[✅ Navigation to previous question successful]');
+      if (success) {
+        this.questionVersion++;
+        console.log('[✅ Navigation to previous question successful]');
+      } else {
+        console.warn('[⚠️ Navigation to previous question failed]');
+      }
     } catch (error) {
       console.error('[❌ Error in advanceToPreviousQuestion]', error);
     }
   }
-
+  
   // REMOVE!!
   advanceToResults(): void {
     if (this.navigatingToResults) {
