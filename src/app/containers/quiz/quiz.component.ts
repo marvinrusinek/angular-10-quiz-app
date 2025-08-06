@@ -3315,38 +3315,31 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   }
 
   /************************ paging functions *********************/
-  public async advanceToNextQuestion(): Promise<void> {
+  private async advanceQuestion(direction: 'next' | 'previous'): Promise<void> {
     try {
       this.triggerAnimation();
   
-      const success = await this.quizNavigationService.advanceToNextQuestion();
+      const success = direction === 'next'
+        ? await this.quizNavigationService.advanceToNextQuestion()
+        : await this.quizNavigationService.advanceToPreviousQuestion();
   
       if (success) {
         this.questionVersion++;
-        console.log('[✅ Navigation to next question successful]');
+        console.log(`[✅ Navigation to ${direction} question successful]`);
       } else {
-        console.warn('[⚠️ Navigation to next question failed]');
+        console.warn(`[⚠️ Navigation to ${direction} question failed]`);
       }
     } catch (error) {
-      console.error('[❌ Error in advanceToNextQuestion]', error);
+      console.error(`[❌ Error in advanceTo${direction === 'next' ? 'Next' : 'Previous'}Question]`, error);
     }
   }
-
-  public async advanceToPreviousQuestion(): Promise<void> {
-    try {
-      this.triggerAnimation();
   
-      const success = await this.quizNavigationService.advanceToPreviousQuestion();
+  public advanceToNextQuestion(): Promise<void> {
+    return this.advanceQuestion('next');
+  }
   
-      if (success) {
-        this.questionVersion++;
-        console.log('[✅ Navigation to previous question successful]');
-      } else {
-        console.warn('[⚠️ Navigation to previous question failed]');
-      }
-    } catch (error) {
-      console.error('[❌ Error in advanceToPreviousQuestion]', error);
-    }
+  public advanceToPreviousQuestion(): Promise<void> {
+    return this.advanceQuestion('previous');
   }
   
   // REMOVE!!
