@@ -57,19 +57,16 @@ export class NextButtonStateService {
 
     this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
       .pipe(
-        distinctUntilChanged(([a1, b1, c1], [a2, b2, c2]) => 
-          a1 === a2 && b1 === b2 && c1 === c2
-        )
+        map(([answered, loading, navigating]) => answered && !loading && !navigating),
+        distinctUntilChanged()
       )
-      .subscribe(([isAnswered, isLoading, isNavigating]) => {
-        console.log('[📦 NextButtonState Inputs]', {
-          isAnswered,
-          isLoading,
-          isNavigating
-        });
-      
-        const isEnabled = isAnswered && !isLoading && !isNavigating;
-        this.updateAndSyncNextButtonState(isEnabled);
+      .subscribe((enabled: boolean) => {
+        this.isButtonEnabledSubject.next(enabled);
+        this.nextButtonStyle = {
+          opacity: enabled ? '1' : '0.5',
+          'pointer-events': enabled ? 'auto' : 'none'
+        };
+        this.updateAndSyncNextButtonState(enabled);
       });
   }
 
