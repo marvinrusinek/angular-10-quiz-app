@@ -4105,13 +4105,9 @@ export class QuizQuestionComponent
   
       // Trigger explanation evaluation immediately
       this.explanationTextService.triggerExplanationEvaluation();
-  
-      // Enable the Next button immediately
-      this.selectedOptionService.setAnswered(true, true);  // always emit
-      this.quizStateService.setAnswered(true);  // update quiz-level answered state
-      //this.nextButtonStateService.syncNextButtonState();  // let the observable handle enable logic
-      const isSelected = this.answerTrackingService.isAnyOptionSelected();
-      this.nextButtonStateService.setNextButtonState(isSelected);
+
+      // Update state
+      this.setAnsweredAndDisplayState();
     } catch (error) {
       console.error('Error during option selection:', error);
     }
