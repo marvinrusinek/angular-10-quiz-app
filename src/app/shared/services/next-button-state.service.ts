@@ -17,7 +17,8 @@ export class NextButtonStateService {
 
   public nextButtonStyle: { [key: string]: string } = {
     opacity: '0.5',
-    'pointer-events': 'none'
+    cursor: 'not-allowed',
+    'pointer-events': 'auto'  // always allow click events
   };
 
   private nextButtonStateSubscription?: Subscription;
@@ -63,8 +64,9 @@ export class NextButtonStateService {
       .subscribe((enabled: boolean) => {
         this.isButtonEnabledSubject.next(enabled);
         this.nextButtonStyle = {
-          opacity: enabled ? '1' : '0.5',
-          'pointer-events': enabled ? 'auto' : 'none'
+          opacity: isEnabled ? '1' : '0.5',
+          cursor: isEnabled ? 'pointer' : 'not-allowed',
+          'pointer-events': 'auto'  // ✅ keep always enabled
         };
         this.updateAndSyncNextButtonState(enabled);
       });
@@ -92,7 +94,8 @@ export class NextButtonStateService {
       this.isButtonEnabledSubject.next(isEnabled);
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
-        'pointer-events': isEnabled ? 'auto' : 'none'
+        cursor: isEnabled ? 'pointer' : 'not-allowed',
+        'pointer-events': 'auto'  // ✅ keep always enabled
       };
     });
   }
