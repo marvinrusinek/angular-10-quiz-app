@@ -62,12 +62,6 @@ export class NextButtonStateService {
         distinctUntilChanged()
       )
       .subscribe((enabled: boolean) => {
-        this.isButtonEnabledSubject.next(enabled);
-        this.nextButtonStyle = {
-          opacity: enabled ? '1' : '0.5',
-          cursor: enabled ? 'pointer' : 'not-allowed',
-          'pointer-events': 'auto'  // keep always enabled
-        };
         this.updateAndSyncNextButtonState(enabled);
       });
   }
