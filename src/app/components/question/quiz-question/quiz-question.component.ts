@@ -2551,8 +2551,8 @@ export class QuizQuestionComponent
     this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
   
     // Immediately show the raw explanation
-    // const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
-    this.explanationTextService.setExplanationText(explanationText);
+    const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
+    this.explanationTextService.setExplanationText(raw);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
 
