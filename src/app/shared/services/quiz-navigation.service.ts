@@ -172,8 +172,8 @@ export class QuizNavigationService {
     }
   
     // Guard against loading or navigating
-    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    const isAnswered = this.selectedOptionService.getAnsweredState();
+    // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    // const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
 
@@ -185,12 +185,9 @@ export class QuizNavigationService {
     console.log('quizState.isNavigating:', this.quizStateService.isNavigatingSubject.getValue());
     console.groupEnd();
      
-    // if (isLoading || isNavigating) {
-    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
+    if (isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
         offset,
-        isEnabled,
-        isAnswered,
         isLoading,
         isNavigating
       });
