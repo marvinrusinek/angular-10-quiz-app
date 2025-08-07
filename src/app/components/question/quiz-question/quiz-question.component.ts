@@ -2539,15 +2539,26 @@ export class QuizQuestionComponent
     if (isSingle && evtOpt) {
       this.selectedIndices.clear();
       this.selectedIndices.add(evtIdx);
-
-      // Update the service state for single answer
+    
+      // ✅ Tell the service this option is selected
       this.selectedOptionService.setSelectedOption(evtOpt);
+    
+      // ✅ Immediately enable Next for single-answer
+      this.nextButtonStateService.setNextButtonEnabled(true);
+      this.quizStateService.setAnswerSelected(true);
+      this.selectedOptionService.setAnswered(true);
     } else {
-        this.selectedIndices.has(evtIdx)
-          ? this.selectedIndices.delete(evtIdx)
-          : this.selectedIndices.add(evtIdx);
-
-        this.selectedOptionService.setSelectedOption(evtOpt);
+      this.selectedIndices.has(evtIdx)
+        ? this.selectedIndices.delete(evtIdx)
+        : this.selectedIndices.add(evtIdx);
+    
+      this.selectedOptionService.setSelectedOption(evtOpt);
+    
+      // ✅ Evaluate Next button dynamically for multi-answer
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(
+        this.currentQuestionIndex,
+        true // isMultiSelect
+      );
     }
 
     // Prepare formatted explanation (ensure it matches the correct question)
