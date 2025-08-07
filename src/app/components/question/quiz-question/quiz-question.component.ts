@@ -2532,6 +2532,8 @@ export class QuizQuestionComponent
     // Mark question as answered
     this.quizStateService.setAnswerSelected(true);
 
+    this.selectedOptionService.setSelectedOption(evtOpt);
+
     // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle) {
@@ -2557,6 +2559,7 @@ export class QuizQuestionComponent
     this.explanationTextService.setExplanationText(raw);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
 
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
