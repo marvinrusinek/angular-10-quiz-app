@@ -62,6 +62,7 @@ export class NextButtonStateService {
         distinctUntilChanged()
       )
       .subscribe((enabled: boolean) => {
+        this.isButtonEnabledSubject.next(enabled);
         this.updateAndSyncNextButtonState(enabled);
       });
   }
