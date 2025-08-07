@@ -4047,6 +4047,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
 
                   console.log('[🧽 Clearing sound flags for Q0 AFTER full init]');
                   this.soundService.clearPlayedOptionsForQuestion(0);
+
+                  this.quizStateService.setLoading(false);
                 }, 0);
 
                 console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
