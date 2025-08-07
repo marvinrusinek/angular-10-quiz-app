@@ -2540,11 +2540,11 @@ export class QuizQuestionComponent
       this.selectedIndices.clear();
       this.selectedIndices.add(evtIdx);
     
-      // ✅ Tell the service this option is selected
+      // Tell the service this option is selected
       this.selectedOptionService.setSelectedOption(evtOpt);
     
-      // ✅ Immediately enable Next for single-answer
-      this.nextButtonStateService.setNextButtonEnabled(true);
+      // Immediately enable Next for single-answer
+      this.nextButtonStateService.setNextButtonState(true);
       this.quizStateService.setAnswerSelected(true);
       this.selectedOptionService.setAnswered(true);
     } else {
