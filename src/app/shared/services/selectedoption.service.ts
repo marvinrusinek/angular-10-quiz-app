@@ -157,7 +157,7 @@ export class SelectedOptionService {
     this.isOptionSelectedSubject.next(false);  // no option selected
   }
 
-  setSelectedOption(option: SelectedOption): void {
+  setSelectedOption(option: SelectedOption | null, questionIndex?: number): void {
     console.log('[🟢 setSelectedOption called]', {
       optionId: option?.optionId,
       questionIndex: option?.questionIndex
@@ -170,34 +170,32 @@ export class SelectedOptionService {
       this.updateAnsweredState();
       return;
     }
+
+    const qIndex = questionIndex ?? option.questionIndex;
+    if (qIndex == null) {
+      console.error('[setSelectedOption] Missing questionIndex', { option, questionIndex });
+      return;
+    }
   
     const enriched: SelectedOption = {
       ...option,
+      questionIndex: qIndex,
       selected: true,
       highlight: true,
       showIcon: true
     };
-    const qIndex = enriched.questionIndex;
   
     // Grab current list (or empty)
-    /* const current = this.selectedOptionsMap.get(qIndex) || [];
-  
+    const current = this.selectedOptionsMap.get(qIndex) || [];
     // Only add if not already there
     if (!current.some(sel => sel.optionId === enriched.optionId)) {
       current.push(enriched);
-      this.selectedOptionsMap.set(qIndex, current);
     }
+    this.selectedOptionsMap.set(qIndex, current);
   
     // Synchronously emit the full updated list
     this.selectedOption = current;
     this.selectedOptionSubject.next(current);
-    this.isOptionSelectedSubject.next(true); */
-
-    // Overwrite all previous selections for single-answer
-    this.selectedOptionsMap.set(qIndex, [enriched]);
-
-    this.selectedOption = [enriched];
-    this.selectedOptionSubject.next([enriched]);
     this.isOptionSelectedSubject.next(true);
   }
 
