@@ -308,7 +308,7 @@ export class QuizNavigationService {
   
       const reloadSuccess = await this.router.navigateByUrl(routeUrl);
       if (reloadSuccess) {
-        await this.waitForUrl(routeUrl); // Ensure route change completed
+        await this.waitForUrl(routeUrl);  // ensure route change completed
       }
   
       return reloadSuccess;
