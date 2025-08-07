@@ -740,18 +740,18 @@ export class SelectedOptionService {
     }
   }
 
-  public async evaluateNextButtonStateForQuestion(questionIndex: number): Promise<void> {
-    const isMultiSelect = this.isMultiSelectQuestion(questionIndex);
-  
+  public async evaluateNextButtonStateForQuestion(
+    questionIndex: number,
+    isMultiSelect: boolean
+  ): Promise<void> {
     if (!isMultiSelect) {
-      this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
+      this.isOptionSelectedSubject.next(true);
       console.log('[🔓 Next Enabled] Called for questionIndex:', questionIndex);
     } else {
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
   
       if (selectedOptions.length === 0) {
-        console.warn('[⚠️ No selected options found for multi-select]');
         this.setNextButtonEnabled(false);
         console.log('[⛔ Next Disabled] No options selected for multi-select');
         return;
