@@ -2539,10 +2539,16 @@ export class QuizQuestionComponent
     if (isSingle && evtOpt) {
       this.selectedIndices.clear();
       this.selectedIndices.add(evtIdx);
+
+      // Update the service state for single answer
+      this.selectedOptionService.setSelectedOption(evtOpt);
     } else {
         this.selectedIndices.has(evtIdx)
           ? this.selectedIndices.delete(evtIdx)
           : this.selectedIndices.add(evtIdx);
+
+        // Update selected options map for multi-select
+        this.selectedOptionService.setSelectedForQuestion(this.currentQuestionIndex, [...this.selectedIndices]);
     }
 
     // Prepare formatted explanation (ensure it matches the correct question)
