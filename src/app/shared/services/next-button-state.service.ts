@@ -47,7 +47,6 @@ export class NextButtonStateService {
   }
 
   public initializeNextButtonStateStream(
-    isAnswered$: Observable<boolean>,
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>
   ): void {
@@ -57,13 +56,25 @@ export class NextButtonStateService {
     }
     this.initialized = true;
 
+    // Include isAnswered$ from SelectedOptionService
+    const isAnswered$ = this.selectedOptionService.isAnswered$;
+
     this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
       .pipe(
-        map(([answered, loading, navigating]) => answered && !loading && !navigating),
-        distinctUntilChanged()
-      )
+        map(([answered, loading, navigating]) => {
+          const enabled = answered && !loading && !navigating;
+          console.log('[🧮 Next button state evaluation]', { answered, loading, navigating, enabled });
+          return enabled;
+        }))
       .subscribe((enabled: boolean) => {
         this.isButtonEnabledSubject.next(enabled);
+    
+        this.nextButtonStyle = {
+          opacity: enabled ? '1' : '0.5',
+          cursor: enabled ? 'pointer' : 'not-allowed',
+          'pointer-events': 'auto'
+        };
+    
         this.updateAndSyncNextButtonState(enabled);
       });
   }
