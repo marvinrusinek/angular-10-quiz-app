@@ -745,6 +745,8 @@ export class SelectedOptionService {
     questionIndex: number,
     isMultiSelect: boolean
   ): Promise<void> {
+    console.log('[🔍 evalNextBtn] Index:', questionIndex, 'Multi:', isMultiSelect);
+
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
   
     console.group(`[🧪 evaluateNextButtonStateForQuestion] Q${questionIndex}`);
