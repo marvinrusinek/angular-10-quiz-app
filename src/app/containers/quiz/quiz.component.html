@@ -75,7 +75,8 @@
             <button
               type="button"
               #nextButton="matTooltip"
-              mat-icon-button            
+              mat-icon-button
+              [disabled]="!(nextButtonStateService.isButtonEnabled$ | async)"
               (click)="advanceToNextQuestion()"
               matTooltipPosition="above"
               [matTooltip]="nextButtonTooltip$ | async"     
