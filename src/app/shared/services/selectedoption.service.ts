@@ -163,7 +163,7 @@ export class SelectedOptionService {
       optionId: option?.optionId,
       questionIndex: option?.questionIndex
     });
-    
+
     if (!option) {
       this.selectedOptionsMap.clear();
       this.selectedOptionSubject.next([]);
@@ -181,7 +181,7 @@ export class SelectedOptionService {
     const qIndex = enriched.questionIndex;
   
     // Grab current list (or empty)
-    const current = this.selectedOptionsMap.get(qIndex) || [];
+    /* const current = this.selectedOptionsMap.get(qIndex) || [];
   
     // Only add if not already there
     if (!current.some(sel => sel.optionId === enriched.optionId)) {
@@ -192,6 +192,13 @@ export class SelectedOptionService {
     // Synchronously emit the full updated list
     this.selectedOption = current;
     this.selectedOptionSubject.next(current);
+    this.isOptionSelectedSubject.next(true); */
+
+    // Overwrite all previous selections for single-answer
+    this.selectedOptionsMap.set(qIndex, [enriched]);
+
+    this.selectedOption = [enriched];
+    this.selectedOptionSubject.next([enriched]);
     this.isOptionSelectedSubject.next(true);
   }
 
