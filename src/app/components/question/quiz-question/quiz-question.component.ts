@@ -2537,28 +2537,17 @@ export class QuizQuestionComponent
     // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
     if (isSingle && evtOpt) {
+      // Clear and set selected index
       this.selectedIndices.clear();
       this.selectedIndices.add(evtIdx);
     
-      // Tell the service this option is selected
+      // Tell SelectedOptionService what is selected
       this.selectedOptionService.setSelectedOption(evtOpt);
     
-      // Immediately enable Next for single-answer
+      // Enable Next button + mark answered state
       this.nextButtonStateService.setNextButtonState(true);
       this.quizStateService.setAnswerSelected(true);
       this.selectedOptionService.setAnswered(true);
-    } else {
-      this.selectedIndices.has(evtIdx)
-        ? this.selectedIndices.delete(evtIdx)
-        : this.selectedIndices.add(evtIdx);
-    
-      this.selectedOptionService.setSelectedOption(evtOpt);
-    
-      // Evaluate Next button dynamically for multi-answer
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(
-        this.currentQuestionIndex,
-        true  // isMultiSelect
-      );
     }
 
     // Prepare formatted explanation (ensure it matches the correct question)
