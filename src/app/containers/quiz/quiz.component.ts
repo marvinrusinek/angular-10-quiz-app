@@ -4110,7 +4110,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   public showExplanationForQuestion(qIdx: number): void {
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
-    const raw      = (question.explanation || 'No explanation available').trim();
+    const raw = (question.explanation || 'No explanation available').trim();
 
     // Get the formatted explanation text string (unwrap the Observable)
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
