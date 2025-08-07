@@ -159,6 +159,11 @@ export class SelectedOptionService {
   }
 
   setSelectedOption(option: SelectedOption): void {
+    console.log('[🟢 setSelectedOption called]', {
+      optionId: option?.optionId,
+      questionIndex: option?.questionIndex
+    });
+    
     if (!option) {
       this.selectedOptionsMap.clear();
       this.selectedOptionSubject.next([]);

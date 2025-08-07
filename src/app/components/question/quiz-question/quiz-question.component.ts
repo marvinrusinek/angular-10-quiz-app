@@ -2536,7 +2536,7 @@ export class QuizQuestionComponent
 
     // Update selection tracking
     const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
-    if (isSingle) {
+    if (isSingle && evtOpt) {
       this.selectedIndices.clear();
       this.selectedIndices.add(evtIdx);
     } else {
