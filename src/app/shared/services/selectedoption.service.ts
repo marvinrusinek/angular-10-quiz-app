@@ -757,15 +757,14 @@ export class SelectedOptionService {
         return;
       }
   
-      const allCorrect = await this.areAllCorrectAnswersSelectedSync(questionIndex);
-  
-      if (allCorrect) {
+      if (selectedOptions.length > 0) {
         this.setNextButtonEnabled(true);
-        console.log('[✅ Multi-select → all correct options selected → Next enabled]');
+        console.log('[✅ Multi-select → at least one option selected → Next enabled]');
       } else {
         this.setNextButtonEnabled(false);
-        console.log('[⛔ Multi-select → waiting for more correct selections]');
+        console.log('[⛔ Multi-select → no options selected]');
       }
+
     }
   }  
 }
