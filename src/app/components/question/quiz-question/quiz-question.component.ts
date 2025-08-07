@@ -2528,27 +2528,30 @@ export class QuizQuestionComponent
     this.lastLoggedIndex = evtIdx;
 
     const questionIdx = this.currentQuestionIndex;
+    const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
+    const isSingle = !isMultiSelect;
+
+    // Persist the selection with an explicit index (fixes first-click issues)
+    this.selectedOptionService.setSelectedOption(evtOpt);
+
+    if (isSingle) {
+      // Single-answer → enable Next immediately, deterministically
+      this.selectedOptionService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    } else {
+      // 🔹 3) Multi-answer → enable when there's any selection in the map
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(
+        questionIdx,
+        true
+      );
+    }
+
+    this.selectedIndices.clear();
+    this.selectedIndices.add(evtIdx);
 
     // Mark question as answered
     this.quizStateService.setAnswerSelected(true);
-
-    this.selectedOptionService.setSelectedOption(evtOpt);
-
-    // Update selection tracking
-    const isSingle = this.currentQuestion.type === QuestionType.SingleAnswer;
-    if (isSingle && evtOpt) {
-      // Clear and set selected index
-      this.selectedIndices.clear();
-      this.selectedIndices.add(evtIdx);
-    
-      // Tell SelectedOptionService what is selected
-      this.selectedOptionService.setSelectedOption(evtOpt);
-    
-      // Enable Next button + mark answered state
-      this.nextButtonStateService.setNextButtonState(true);
-      this.quizStateService.setAnswerSelected(true);
-      this.selectedOptionService.setAnswered(true);
-    }
 
     // Prepare formatted explanation (ensure it matches the correct question)
     const explanationText = await this.updateExplanationText(questionIdx).catch((err) => {
