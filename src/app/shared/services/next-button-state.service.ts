@@ -5,7 +5,6 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { QuizStateService } from '../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class NextButtonStateService {
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
