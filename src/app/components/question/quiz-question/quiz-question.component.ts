@@ -2540,7 +2540,7 @@ export class QuizQuestionComponent
       this.quizStateService.setAnswerSelected(true);
       this.nextButtonStateService.setNextButtonState(true);
     } else {
-      // 🔹 3) Multi-answer → enable when there's any selection in the map
+      // Multi-answer → enable when there's any selection in the map
       this.selectedOptionService.evaluateNextButtonStateForQuestion(
         questionIdx,
         true
