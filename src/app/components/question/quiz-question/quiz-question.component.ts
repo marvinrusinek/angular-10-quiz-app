@@ -2547,8 +2547,7 @@ export class QuizQuestionComponent
           ? this.selectedIndices.delete(evtIdx)
           : this.selectedIndices.add(evtIdx);
 
-        // Update selected options map for multi-select
-        this.selectedOptionService.setSelectedForQuestion(this.currentQuestionIndex, [...this.selectedIndices]);
+        this.selectedOptionService.setSelectedOption(evtOpt);
     }
 
     // Prepare formatted explanation (ensure it matches the correct question)
