@@ -6,7 +6,6 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
-
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
   selectedOption: SelectedOption | SelectedOption[] = null;
