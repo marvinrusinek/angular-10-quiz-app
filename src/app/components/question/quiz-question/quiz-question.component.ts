@@ -1320,7 +1320,6 @@ export class QuizQuestionComponent
         this.explanationVisible = false;
         this.explanationText    = '';
         this._expl$.next(null);
-        this.cdRef.detectChanges();
   
         // Load the question using correct index
         const loaded = await this.loadQuestion();  // now uses new index
