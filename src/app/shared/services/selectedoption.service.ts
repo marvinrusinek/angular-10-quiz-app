@@ -174,22 +174,24 @@ export class SelectedOptionService {
     };
     const qIndex = enriched.questionIndex;
   
-    // 1) Grab current list (or empty)
+    // Grab current list (or empty)
     const current = this.selectedOptionsMap.get(qIndex) || [];
   
-    // 2) Only add if not already there
+    // Only add if not already there
     if (!current.some(sel => sel.optionId === enriched.optionId)) {
       current.push(enriched);
       this.selectedOptionsMap.set(qIndex, current);
     }
   
-    // 3) Synchronously emit the full updated list
+    // Synchronously emit the full updated list
     this.selectedOption = current;
     this.selectedOptionSubject.next(current);
     this.isOptionSelectedSubject.next(true);
-  
-    console.log(`[📦 Q${qIndex} selections]`, current.map(o => o.optionId));
   }
+
+  setSelectedOptions(options: SelectedOption[]): void {
+    this.selectedOptionSubject.next(options);
+  }  
 
   setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
     this.selectedOptionsMap.set(qIndex, selections);
