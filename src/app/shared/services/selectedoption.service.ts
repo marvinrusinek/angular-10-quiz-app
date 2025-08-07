@@ -744,27 +744,29 @@ export class SelectedOptionService {
     questionIndex: number,
     isMultiSelect: boolean
   ): Promise<void> {
+    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+  
+    console.group(`[🧪 evaluateNextButtonStateForQuestion] Q${questionIndex}`);
+    console.log('→ isMultiSelect:', isMultiSelect);
+    console.log('→ selectedOptions:', selectedOptions);
+    console.groupEnd();
+  
     if (!isMultiSelect) {
       this.setNextButtonEnabled(true);
       this.isOptionSelectedSubject.next(true);
-      console.log('[🔓 Next Enabled] Called for questionIndex:', questionIndex);
+      console.log('[🔓 Next Enabled] Single-select question');
+      return;
+    }
+  
+    // Multiselect logic: Enable "Next" as soon as any selection is made
+    if (selectedOptions.length > 0) {
+      this.setNextButtonEnabled(true);
+      this.isOptionSelectedSubject.next(true);
+      console.log('[✅ Multi-select → at least one option selected → Next enabled]');
     } else {
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-  
-      if (selectedOptions.length === 0) {
-        this.setNextButtonEnabled(false);
-        console.log('[⛔ Next Disabled] No options selected for multi-select');
-        return;
-      }
-  
-      if (selectedOptions.length > 0) {
-        this.setNextButtonEnabled(true);
-        console.log('[✅ Multi-select → at least one option selected → Next enabled]');
-      } else {
-        this.setNextButtonEnabled(false);
-        console.log('[⛔ Multi-select → no options selected]');
-      }
-
+      this.setNextButtonEnabled(false);
+      this.isOptionSelectedSubject.next(false);
+      console.warn('[⛔ Multi-select → no options selected → Next disabled]');
     }
   }  
 }
