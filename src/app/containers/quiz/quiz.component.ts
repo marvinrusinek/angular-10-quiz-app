@@ -3319,6 +3319,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   private async advanceQuestion(direction: 'next' | 'previous'): Promise<void> {
     try {
       this.triggerAnimation();
+
+      this.selectedOptionService.setAnswered(false);
   
       const success = direction === 'next'
         ? await this.quizNavigationService.advanceToNextQuestion()
