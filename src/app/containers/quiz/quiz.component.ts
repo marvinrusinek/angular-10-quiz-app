@@ -3978,6 +3978,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
 
+    // Full reset for selection and button state
+    this.selectedOptionService.selectedOptionsMap.clear();
+    this.selectedOptionService.setAnswered(false);
+    this.nextButtonStateService.setNextButtonState(false);
+    this.lastLoggedIndex = -1;  // prevents "same index" dedupe from eating first click
+
+    // Reset explanation display state
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+    // Clear any leftover selectedIndices in QuizQuestionComponent if available
+    this.quizQuestionComponent?.selectedIndices?.clear?.();
+
     // Navigate to the first question
     this.router
       .navigate(['/question', this.quizId, 1])
