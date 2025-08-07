@@ -2563,9 +2563,6 @@ export class QuizQuestionComponent
     this.refreshFeedbackFor(evtOpt);
 
     const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
-    this.selectedOptionService.evaluateNextButtonStateForQuestion(
-      this.currentQuestionIndex, isMultiSelect
-    );
   }  
   
   private handleCoreSelection(
@@ -2580,6 +2577,9 @@ export class QuizQuestionComponent
     });
 
     this.setAnsweredAndDisplayState();
+    this.selectedOptionService.evaluateNextButtonStateForQuestion(
+      this.currentQuestionIndex, isMultiSelect
+    );
     this.cdRef.detectChanges();
   }
  
