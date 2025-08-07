@@ -236,15 +236,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   public override async onOptionClicked(
     event: { option: SelectedOption; index: number; checked: boolean }
   ): Promise<void> {
-    console.log('[CLICK HANDLER]', 'ANS');
-    console.log('[✅ AnswerComponent] optionClicked.emit firing', event);
-    this.selectedOptionService.setAnswered(true);
-    this.nextButtonStateService.syncNextButtonState();
-
     const { option, index, checked } = event;  // destructure the event object
 
-    console.log('AnswerComponent: onOptionClicked called with:', { option, index, checked });
-  
     // Handle single-answer questions
     if (this.type === 'single') {
       this.selectedOptionIndex = index;
@@ -285,7 +278,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         this.selectedOptionService.setSelectedOption(this.selectedOption);
         console.log('AnswerComponent: SelectedOptionService updated with:', this.selectedOption);
       } else if (this.selectedOptions.length > 0) {
-        this.selectedOptionService.setSelectedOption(this.selectedOptions);
+        this.selectedOptionService.setSelectedOptions(this.selectedOptions);
         console.log('AnswerComponent: SelectedOptionService updated with multiple options:', this.selectedOptions);
       }
     } else {
