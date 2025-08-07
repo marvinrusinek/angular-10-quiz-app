@@ -2554,10 +2554,10 @@ export class QuizQuestionComponent
     
       this.selectedOptionService.setSelectedOption(evtOpt);
     
-      // ✅ Evaluate Next button dynamically for multi-answer
+      // Evaluate Next button dynamically for multi-answer
       this.selectedOptionService.evaluateNextButtonStateForQuestion(
         this.currentQuestionIndex,
-        true // isMultiSelect
+        true  // isMultiSelect
       );
     }
 
