@@ -2561,6 +2561,10 @@ export class QuizQuestionComponent
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
+
+    this.selectedOptionService.evaluateNextButtonStateForQuestion(
+      this.currentQuestionIndex
+    );
   }  
   
   private handleCoreSelection(
@@ -2575,9 +2579,6 @@ export class QuizQuestionComponent
     });
 
     this.setAnsweredAndDisplayState();
-    this.selectedOptionService.evaluateNextButtonStateForQuestion(
-      this.currentQuestionIndex
-    );
     this.cdRef.detectChanges();
   }
  
