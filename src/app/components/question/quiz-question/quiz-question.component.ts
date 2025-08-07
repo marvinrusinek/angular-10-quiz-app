@@ -2568,25 +2568,34 @@ export class QuizQuestionComponent
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
-  }  
-  
+  }
+
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
   ): void {
+    const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
+  
+    // Perform selection tracking immediately
     this.performInitialSelectionFlow(ev, ev.option);
-
     this.handleInitialSelection({
       option: ev.option,
       index: ev.index,
       checked: true
     });
-
+  
+    // Force state update before Next button eval
     this.setAnsweredAndDisplayState();
-
-    const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
+  
+    // Track selection state immediately
+    this.selectedOptionService.setSelectedOption(ev.option);
+  
+    // Call Next button logic immediately
     this.selectedOptionService.evaluateNextButtonStateForQuestion(
-      this.currentQuestionIndex, isMultiSelect
+      this.currentQuestionIndex,
+      isMultiSelect
     );
+  
+    // Final UI updates
     this.cdRef.detectChanges();
   }
  
