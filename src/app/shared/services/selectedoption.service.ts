@@ -607,47 +607,6 @@ export class SelectedOptionService {
     }
   }
 
-  /* public areAllCorrectAnswersSelected(
-    selectedOptions: SelectedOption[],
-    questionIndex: number
-  ): Promise<boolean> {
-    return new Promise((resolve) => {
-      if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
-        console.warn('[areAllCorrectAnswersSelected] No options provided for question index:', questionIndex);
-        resolve(false);
-        return;
-      }
-  
-      // Normalize options to ensure `correct` is defined
-      const normalizedOptions = selectedOptions.map((option, index) => ({
-        ...option,
-        correct: !!option.correct,
-        optionId: option.optionId ?? index + 1,
-      }));
-  
-      // Extract correct option IDs
-      const correctOptionIds = normalizedOptions
-        .filter((option) => option.correct)
-        .map((option) => option.optionId);
-  
-      if (correctOptionIds.length === 0) {
-        resolve(false);
-        return;
-      }
-  
-      const selectedFromMap = this.selectedOptionsMap.get(questionIndex) || [];
-      const selectedOptionIds = selectedFromMap.map((option) => option.optionId);
-  
-      if (selectedOptionIds.length === 0) {
-        console.info('[areAllCorrectAnswersSelected] No options selected for question index:', questionIndex);
-        resolve(false);
-        return;
-      }
-  
-      const allCorrectSelected = correctOptionIds.every((id) => selectedOptionIds.includes(id));
-      resolve(allCorrectSelected);
-    });
-  } */
   public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
     const selected = this.selectedOptionsMap.get(questionIndex) || [];
   
