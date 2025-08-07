@@ -739,4 +739,33 @@ export class SelectedOptionService {
       return false;
     }
   }
+
+  public async evaluateNextButtonStateForQuestion(questionIndex: number): Promise<void> {
+    const isMultiSelect = this.isMultiSelectQuestion(questionIndex);
+  
+    if (!isMultiSelect) {
+      this.isOptionSelectedSubject.next(true);
+      this.setNextButtonEnabled(true);
+      console.log('[🔓 Next Enabled] Called for questionIndex:', questionIndex);
+    } else {
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+  
+      if (selectedOptions.length === 0) {
+        console.warn('[⚠️ No selected options found for multi-select]');
+        this.setNextButtonEnabled(false);
+        console.log('[⛔ Next Disabled] No options selected for multi-select');
+        return;
+      }
+  
+      const allCorrect = await this.areAllCorrectAnswersSelectedSync(questionIndex);
+  
+      if (allCorrect) {
+        this.setNextButtonEnabled(true);
+        console.log('[✅ Multi-select → all correct options selected → Next enabled]');
+      } else {
+        this.setNextButtonEnabled(false);
+        console.log('[⛔ Multi-select → waiting for more correct selections]');
+      }
+    }
+  }  
 }

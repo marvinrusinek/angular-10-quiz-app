@@ -2575,6 +2575,9 @@ export class QuizQuestionComponent
     });
 
     this.setAnsweredAndDisplayState();
+    this.selectedOptionService.evaluateNextButtonStateForQuestion(
+      this.currentQuestionIndex
+    );
     this.cdRef.detectChanges();
   }
  
