@@ -107,14 +107,7 @@ export class QuizNavigationService {
 
   public async advanceToNextQuestion(): Promise<boolean> {
     this.resetExplanationAndState();
-
-    const result = await this.navigateWithOffset(1);
-
-    console.log('[🔍 advanceToNextQuestion result]', result);
-
-    return result;
-
-    // return await this.navigateWithOffset(1);  // defer navigation until state is clean
+    return await this.navigateWithOffset(1);  // defer navigation until state is clean
   }
   
   public async advanceToPreviousQuestion(): Promise<boolean> {
@@ -179,22 +172,25 @@ export class QuizNavigationService {
     }
   
     // Guard against loading or navigating
-    // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    // const isAnswered = this.selectedOptionService.getAnsweredState();
-    console.log('[🔍 NAV DEBUG]', {
-      offset,
-      currentUrl: this.router.url,
-      isLoading: this.quizStateService.isLoadingSubject.getValue(),
-      isNavigating: this.quizStateService.isNavigatingSubject.getValue(),
-      currentIndex: this.quizService.getCurrentQuestionIndex(),
-    });
-
+    const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
+    const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-    // if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
-    if (isLoading || isNavigating) {
+
+    console.group('[🟡 NAV BLOCK CHECK]');
+    console.log('offset:', offset);
+    console.log('isLoading:', isLoading);
+    console.log('isNavigating:', isNavigating);
+    console.log('quizState.isLoading:', this.quizStateService.isLoadingSubject.getValue());
+    console.log('quizState.isNavigating:', this.quizStateService.isNavigatingSubject.getValue());
+    console.groupEnd();
+     
+    // if (isLoading || isNavigating) {
+    if ((offset > 0 && (!isEnabled || !isAnswered)) || isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', {
+        offset,
+        isEnabled,
+        isAnswered,
         isLoading,
         isNavigating
       });
@@ -285,6 +281,15 @@ export class QuizNavigationService {
     const routeUrl = `/question/${quizId}/${index + 1}`;
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
+
+    // Log navigation attempt
+    console.group('[🚦 NAVIGATION ATTEMPT]');
+    console.log('→ Target Index:', index);
+    console.log('→ quizId:', quizId);
+    console.log('→ routeUrl:', routeUrl);
+    console.log('→ currentUrl:', currentUrl);
+    console.log('→ currentIndex:', currentIndex);
+    console.groupEnd();
   
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
