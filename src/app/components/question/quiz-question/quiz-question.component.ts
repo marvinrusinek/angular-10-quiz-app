@@ -2561,8 +2561,6 @@ export class QuizQuestionComponent
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
-
-    const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
   }  
   
   private handleCoreSelection(
@@ -2577,6 +2575,8 @@ export class QuizQuestionComponent
     });
 
     this.setAnsweredAndDisplayState();
+
+    const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
     this.selectedOptionService.evaluateNextButtonStateForQuestion(
       this.currentQuestionIndex, isMultiSelect
     );
