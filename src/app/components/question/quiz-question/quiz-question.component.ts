@@ -1801,6 +1801,11 @@ export class QuizQuestionComponent
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.resetTexts();  // clean slate before loading new question
     this.startLoading();
+
+    // Reset selection and button state before processing question
+    this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
+    this.selectedOptionService.setAnswered(false);
+    this.nextButtonStateService.reset();
   
     try {
       this.selectedOptionId = null;
