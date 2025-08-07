@@ -2562,8 +2562,9 @@ export class QuizQuestionComponent
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
 
+    const isMultiSelect = this.question?.type === QuestionType.MultipleAnswer;
     this.selectedOptionService.evaluateNextButtonStateForQuestion(
-      this.currentQuestionIndex
+      this.currentQuestionIndex, isMultiSelect
     );
   }  
   
