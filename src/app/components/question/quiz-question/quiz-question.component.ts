@@ -2591,10 +2591,11 @@ export class QuizQuestionComponent
     // Force state update before Next button eval
     this.setAnsweredAndDisplayState();
   
-    // Track selection state immediately
-    this.selectedOptionService.setSelectedOption(ev.option);
-  
     // Call Next button logic immediately
+    if (ev.option) {
+      this.selectedOptionService.setSelectedOption(ev.option);
+    }
+
     this.selectedOptionService.evaluateNextButtonStateForQuestion(
       this.currentQuestionIndex,
       this.question?.type === QuestionType.MultipleAnswer
