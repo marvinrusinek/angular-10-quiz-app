@@ -2592,7 +2592,7 @@ export class QuizQuestionComponent
     // Call Next button logic immediately
     this.selectedOptionService.evaluateNextButtonStateForQuestion(
       this.currentQuestionIndex,
-      isMultiSelect
+      this.question?.type === QuestionType.MultipleAnswer
     );
   
     // Final UI updates
