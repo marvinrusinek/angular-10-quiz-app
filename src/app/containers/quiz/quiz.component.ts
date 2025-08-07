@@ -3338,6 +3338,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   }
   
   public advanceToNextQuestion(): Promise<void> {
+    console.log('[🟢 advanceToNextQuestion() called] Q:', this.currentQuestionIndex);
     return this.advanceQuestion('next');
   }
   
