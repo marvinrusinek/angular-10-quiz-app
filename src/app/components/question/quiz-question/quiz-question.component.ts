@@ -682,6 +682,7 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
     this.displayModeSubscription?.unsubscribe();
     this.renderReadySubscription?.unsubscribe();
+    this.timerSub?.unsubscribe();
   }
 
   // Listen for the visibility change event
