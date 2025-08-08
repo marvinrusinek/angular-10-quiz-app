@@ -712,7 +712,6 @@ export class SelectedOptionService {
     }
   }
 
-  // SelectedOptionService
   public evaluateNextButtonStateForQuestion(
     questionIndex: number,
     isMultiSelect: boolean
@@ -723,7 +722,7 @@ export class SelectedOptionService {
 
       if (!isMultiSelect) {
         // Single → deterministic on first selection
-        this.setAnswered(true);                         // 🔑 stream sees answered=true
+        this.setAnswered(true);  // stream sees answered=true
         this.isOptionSelectedSubject.next(true);
         this.nextButtonStateService.setNextButtonState(true);
         console.log('[🔓 Next Enabled] Single → first selection');
@@ -733,7 +732,7 @@ export class SelectedOptionService {
       // Multi → enable on ANY selection (your policy)
       const anySelected = selected.length > 0;
 
-      // 🔑 CRITICAL: tell the stream it's answered so it won’t re-disable the button
+      // Tell the stream it's answered so it won’t re-disable the button
       this.setAnswered(anySelected);
 
       this.isOptionSelectedSubject.next(anySelected);
@@ -746,5 +745,4 @@ export class SelectedOptionService {
       );
     });
   }
-
 }
