@@ -5185,7 +5185,7 @@ export class QuizQuestionComponent
   
     this.cdRef.detectChanges();
   }
-  
+
   restoreSelectionsAndIconsForQuestion(index: number) {
     const selectedOptions = this.selectedOptionService.getSelectedOptionsForQuestion(index);
     this.optionsToDisplay?.forEach(opt => {
