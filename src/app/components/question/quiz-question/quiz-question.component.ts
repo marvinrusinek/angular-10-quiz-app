@@ -2714,14 +2714,10 @@ export class QuizQuestionComponent
     // Keep your original dedupe semantics (option-index based)
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
 
-    if (this._processingClick &&
-      this._processingPair &&
-      this._processingPair.q === lockedIndex &&
-      this._processingPair.o === evtIdx) {
-    return;  // same (q,opt) still being processed this tick
-    }
-    this._processingClick = true;
-    this._processingPair = { q: lockedIndex, o: evtIdx };
+    const key = `${lockedIndex}:${evtIdx}`;
+    if (this._clickInFlight && this._inFlightKey === key) return;
+    this._clickInFlight = true;
+    this._inFlightKey = key;
 
     const sameQuestion = lockedIndex === this.lastLoggedQuestionIndex;
     const sameOptionOnSameQuestion = sameQuestion && (evtIdx === this.lastLoggedIndex);
