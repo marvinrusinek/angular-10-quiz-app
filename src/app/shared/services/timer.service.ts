@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
 import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 
@@ -33,7 +33,7 @@ export class TimerService {
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
 
-  constructor() {}
+  constructor(private ngZone: NgZone) {}
 
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
@@ -45,7 +45,7 @@ export class TimerService {
       console.log(`[TimerService] ⚠️ Timer restart prevented.`);
       return;
     }
-
+  
     if (this.isTimerRunning) {
       console.info('[TimerService] Timer is already running. Start ignored.');
       return; // prevent restarting an already running timer
@@ -55,13 +55,30 @@ export class TimerService {
     this.isCountdown = isCountdown;
     this.elapsedTime = 0;
   
-    const timer$ = timer(0, 1000).pipe(
+    // 🔹 Show initial value immediately (inside Angular so UI updates right away)
+    this.ngZone.run(() => {
+      this.elapsedTimeSubject.next(0);
+      // If you also expose a remaining countdown stream, emit it here too:
+      // this.remainingTimeSubject.next(duration);
+    });
+  
+    // 🔹 Start ticking after 1s so the initial value stays visible for a second
+    const timer$ = timer(1000, 1000).pipe(
       tap((tick) => {
-        this.elapsedTime = tick;
-        this.elapsedTimeSubject.next(this.elapsedTime);
+        // tick starts at 0 after 1s → elapsed = tick + 1 (1,2,3,…)
+        const elapsed = tick + 1;
+  
+        // ✅ Re-enter Angular so async pipes trigger change detection on every tick
+        this.ngZone.run(() => {
+          this.elapsedTime = elapsed;
+          this.elapsedTimeSubject.next(this.elapsedTime);
+  
+          // If you maintain a remaining countdown stream, update it here:
+          // if (this.isCountdown) this.remainingTimeSubject.next(Math.max(duration - elapsed, 0));
+        });
   
         // If we are in countdown mode and we've reached the duration, stop automatically
-        if (isCountdown && tick >= duration) {
+        if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.stopTimer();
         }
@@ -69,14 +86,15 @@ export class TimerService {
       takeUntil(this.isStop),
       finalize(() => {
         console.log('[TimerService] Timer finalized.');
-        this.isTimerRunning = false;  // reset running state when timer completes
+        // reset running state when timer completes (inside Angular)
+        this.ngZone.run(() => { this.isTimerRunning = false; });
       })
     );
   
     this.timerSubscription = timer$.subscribe();
   
     console.log('[TimerService] Timer started successfully.');
-  }  
+  }   
 
   // Stops the timer
   stopTimer(callback?: (elapsedTime: number) => void): void {
