@@ -4315,7 +4315,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       this.quizStateService.setAnswerSelected(false);
     
       // Mark interactive so first click is processed immediately
-      // let the UI settle, then mark ready
       queueMicrotask(() => {
         this.quizStateService.setInteractionReady?.(true);
 
@@ -4324,7 +4323,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
           this.timerService.resetTimer?.();
           this.timerService.startTimer(this.timerService.timePerQuestion);
         });
-      })
+      });
   
       // Regenerate option bindings
       queueMicrotask(() => {
