@@ -220,6 +220,9 @@ export class QuizQuestionComponent
 
   private _processingClick = false;
   private _processingPair: { q: number; o: number } | null = null;
+
+  private _clickInFlight = false;
+  private _inFlightKey: string | null = null;
   
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
