@@ -42,7 +42,8 @@ import {
   take,
   takeUntil,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
@@ -495,7 +496,9 @@ export class QuizQuestionComponent
     });
 
     this.timerSub.add(
-      this.timerService.expired$.subscribe(() => this.onTimerExpired())
+      this.timerService.expired$
+        .pipe(withLatestFrom(this.quizService.currentQuestionIndex$))
+        .subscribe(([_, idx]) => this.onTimerExpired(idx))
     );
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
@@ -5957,7 +5960,7 @@ export class QuizQuestionComponent
   }
 
   // Called when the countdown hits zero
-  private async onTimerExpired(): Promise<void> {
+  /* private async onTimerExpired(): Promise<void> {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
   
     // Tolerate initial load (Q1) where _timerForIndex may be unset
@@ -6009,5 +6012,46 @@ export class QuizQuestionComponent
   
     this.isFormatting = false;
     this.cdRef.markForCheck?.();
-  }  
+  } */
+  private async onTimerExpired(): Promise<void> {
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    if (this._timerForIndex == null) this._timerForIndex = lockedIndex;
+    if (this._timerForIndex !== lockedIndex) return;
+    if (this._expiryHandledForIndex === lockedIndex) return;
+    this._expiryHandledForIndex = lockedIndex;
+  
+    // open the pipeline so formatting actually runs for Q2+
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.displayExplanation = true;
+    this.showExplanationChange?.emit(true);
+  
+    // await formatted, fallback to raw once
+    let text = '';
+    try {
+      const out = await this.updateExplanationText(lockedIndex);
+      text = (out ?? '').trim?.() ?? '';
+    } catch {}
+    if (!text) {
+      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+    }
+  
+    // render once with final text + enable Next
+    this.explanationTextService.setExplanationText(text);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
+  
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+  
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
+  
+    this.cdRef.markForCheck?.();
+  }    
 }
