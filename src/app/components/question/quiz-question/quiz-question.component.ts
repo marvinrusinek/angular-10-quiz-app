@@ -5606,5 +5606,55 @@ export class QuizQuestionComponent
     this.hardResetClickGuards();
     this.resetExplanation();
     this.resetPerQuestionState(index);
-  }  
+  }
+
+  // Called when the countdown hits zero
+  private async onTimerExpired(): Promise<void> {
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+  
+    // Don’t run twice for the same question
+    if (this._expiryHandledForIndex === lockedIndex) return;
+    this._expiryHandledForIndex = lockedIndex;
+  
+    // Compute formatted text first
+    let formatted = '';
+    try {
+      const out = await this.updateExplanationText(lockedIndex);
+      formatted = (out ?? '').trim?.() ?? '';
+    } catch (err) {
+      console.error('[onTimerExpired] format failed, falling back to raw', err);
+    }
+  
+    const text =
+      formatted ||
+      (this.currentQuestion?.explanation ?? '').trim() ||
+      'No explanation available';
+  
+    // Now flip the UI ONCE with formatted text
+    // Local fields / outputs:
+    this.displayExplanation = true;
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
+    this.showExplanationChange?.emit(true);
+  
+    // If your template uses the service streams:
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setExplanationText(text);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+  
+    // Mark as answered and enable Next
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+  
+    const isMulti = this.currentQuestion.type === QuestionType.MultipleAnswer;
+    if (isMulti) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
+  
+    this.cdRef.markForCheck?.();
+  }
 }
