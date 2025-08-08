@@ -5957,39 +5957,33 @@ export class QuizQuestionComponent
   private async onTimerExpired(): Promise<void> {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
   
-    // Ignore expiries from old questions and only run once per question
+    // Tolerate initial load (Q1) where _timerForIndex may be unset
+    if (this._timerForIndex == null) {
+      this._timerForIndex = lockedIndex;
+    }
+  
+    // Ignore expiries that don't belong to the current question
     if (this._timerForIndex !== lockedIndex) return;
+  
+    // Only handle once per question
     if (this._expiryHandledForIndex === lockedIndex) return;
     this._expiryHandledForIndex = lockedIndex;
   
-    this.isFormatting = true; // show “Formatting…” if you wired it
+    this.isFormatting = true;
   
-    // Kick formatting for THIS index (non-blocking if your impl returns void)
-    try { await this.updateExplanationText(lockedIndex); } catch {}
-  
+    // Await formatted text; fallback to raw if needed
     let text = '';
-  
     try {
-      // Wait for the first non-empty formatted string for this same question index
-      text = await firstValueFrom(
-        combineLatest([
-          this.explanationTextService.formattedExplanation$,      // string
-          this.quizService.currentQuestionIndex$                  // number
-        ]).pipe(
-          filter(([s, idx]) => idx === lockedIndex && !!s && !!s.trim()),
-          map(([s]) => (s ?? '').trim()),
-          take(1),
-          timeout({ first: 1500 }) // don’t hang forever if formatter is slow
-        )
-      );
-    } catch {
-      // 3) Fallback if formatter didn’t emit in time
-      text =
-        (this.currentQuestion?.explanation ?? '').trim() ||
-        'No explanation available';
+      const out = await this.updateExplanationText(lockedIndex);
+      text = (out ?? '').trim?.() ?? '';
+    } catch (e) {
+      console.error('[onTimerExpired] format failed; fallback to raw', e);
+    }
+    if (!text) {
+      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
     }
   
-    // Flip UI ONCE with final (formatted or fallback) text
+    // Flip UI once with final text
     this.displayExplanation = true;
     this.explanationToDisplay = text;
     this.explanationToDisplayChange?.emit(text);
@@ -5999,7 +5993,6 @@ export class QuizQuestionComponent
     this.explanationTextService.setExplanationText(text);
     this.explanationTextService.setShouldDisplayExplanation(true);
   
-    // Mark answered + enable Next
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
@@ -6013,5 +6006,5 @@ export class QuizQuestionComponent
   
     this.isFormatting = false;
     this.cdRef.markForCheck?.();
-  }
+  }  
 }
