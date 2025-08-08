@@ -264,6 +264,8 @@ export class QuizQuestionComponent
 
   private _clickGate = false; // same-tick re-entrancy guard
 
+  private timerSub = new Subscription();
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -348,7 +350,7 @@ export class QuizQuestionComponent
     this.quizService.currentQuestionIndex$.subscribe(index => {
       console.log('[📡 Parent received current index]', index);
     
-      // ⬇️ Log a stack trace for tracing unexpected emissions
+      // ⬇Log a stack trace for tracing unexpected emissions
       if (index === 1) {
         console.warn('[🧵 Stack trace for index === 1]', {
           stack: new Error().stack
@@ -431,6 +433,9 @@ export class QuizQuestionComponent
       this.resetUIForNewQuestion();
     });
 
+    this.timerSub.add(
+      this.timerService.expired$.subscribe(() => this.onTimerExpired())
+    );
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
@@ -674,6 +679,7 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
     this.displayModeSubscription?.unsubscribe();
     this.renderReadySubscription?.unsubscribe();
+    this.timerSub?.unsubscribe();
   }
 
   // Listen for the visibility change event
