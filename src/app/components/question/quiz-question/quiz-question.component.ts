@@ -679,9 +679,18 @@ export class QuizQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
+    // Pause immediately when tab is hidden and bail
+    if (document.visibilityState === 'hidden') {
+      this.timerService.pauseTimer();
+      return;
+    }
+
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
+
+        // Resume on the next frame so the UI can settle
+        requestAnimationFrame(() => this.timerService.resumeTimer());
 
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
