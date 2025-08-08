@@ -5,6 +5,7 @@ import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { NextButtonStateService } from '../../shared/services/next-button-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -45,7 +46,9 @@ export class SelectedOptionService {
     return this.isNextButtonEnabledSubject.asObservable();
   }
 
-  constructor() {}
+  constructor(
+    private nextButtonStateService: NextButtonStateService
+  ) {}
 
   // Method to update the selected option state
   public async selectOption(
@@ -709,27 +712,39 @@ export class SelectedOptionService {
     }
   }
 
-  public async evaluateNextButtonStateForQuestion(
+  // SelectedOptionService
+  public evaluateNextButtonStateForQuestion(
     questionIndex: number,
     isMultiSelect: boolean
-  ): Promise<void> {
-    console.log('[🔍 EVAL NEXT BUTTON]', { questionIndex, isMultiSelect });
-  
-    if (!isMultiSelect) {
-      this.setNextButtonEnabled(true);
-      this.isOptionSelectedSubject.next(true);
-      console.log('[✅ Single-answer → Next enabled]');
-    } else {
-      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-      console.log('[🧪 Multi selectedOptions]', selectedOptions);
-  
-      if (selectedOptions.length > 0) {
-        this.setNextButtonEnabled(true);
-        console.log('[✅ Multi-answer → at least one selected → Next enabled]');
-      } else {
-        this.setNextButtonEnabled(false);
-        console.log('[⛔ Multi-answer → none selected]');
+  ): void {
+    // Defer to ensure setSelectedOption has updated the map this tick
+    queueMicrotask(() => {
+      const selected = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+      if (!isMultiSelect) {
+        // Single → deterministic on first selection
+        this.setAnswered(true);                         // 🔑 stream sees answered=true
+        this.isOptionSelectedSubject.next(true);
+        this.nextButtonStateService.setNextButtonState(true);
+        console.log('[🔓 Next Enabled] Single → first selection');
+        return;
       }
-    }
-  }  
+
+      // Multi → enable on ANY selection (your policy)
+      const anySelected = selected.length > 0;
+
+      // 🔑 CRITICAL: tell the stream it's answered so it won’t re-disable the button
+      this.setAnswered(anySelected);
+
+      this.isOptionSelectedSubject.next(anySelected);
+      this.nextButtonStateService.setNextButtonState(anySelected);
+
+      console.log(
+        anySelected
+          ? '[✅ Multi] at least one selected → Next enabled'
+          : '[⛔ Multi] none selected → Next disabled'
+      );
+    });
+  }
+
 }
