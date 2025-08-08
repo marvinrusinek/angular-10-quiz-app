@@ -5603,8 +5603,11 @@ export class QuizQuestionComponent
    
   // Per-question “next + selections” reset done from the child
   public resetPerQuestionState(index: number): void {
-    this.nextButtonStateService.reset?.(); // if you have it
+    this.nextButtonStateService.reset?.();
     this.selectedOptionService.clearSelectionsForQuestion?.(index);
+
+    // Allow expiry to run again for the new question
+    this._expiryHandledForIndex = null;
   }
   
   // One call to reset everything the child controls for a given question
