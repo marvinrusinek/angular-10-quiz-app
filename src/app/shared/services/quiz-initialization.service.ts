@@ -688,7 +688,8 @@ export class QuizInitializationService {
     this.nextButtonStateService.initializeNextButtonStateStream(
       this.selectedOptionService.isAnswered$,
       this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
+      this.quizStateService.isNavigating$,
+      this.quizStateService.interactionReady$
     );
 
     // Next button enabled state
