@@ -4300,7 +4300,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     // Reset sounds/timer
     this.soundService.reset?.();
     this.timerService.stopTimer?.();
-    this.timerService.startTimer(this.timerService.timePerQuestion);
   
     // Navigate to Q1
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
@@ -4316,7 +4315,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       this.quizStateService.setAnswerSelected(false);
     
       // Mark interactive so first click is processed immediately
-      queueMicrotask(() => this.quizStateService.setInteractionReady?.(true));
+      // let the UI settle, then mark ready
+      queueMicrotask(() => {
+        this.quizStateService.setInteractionReady?.(true);
+
+        // Start the timer on the next frame so the UI has painted
+        requestAnimationFrame(() => {
+          this.timerService.resetTimer?.();
+          this.timerService.startTimer(this.timerService.timePerQuestion);
+        });
+      })
   
       // Regenerate option bindings
       queueMicrotask(() => {
