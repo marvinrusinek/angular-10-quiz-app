@@ -601,6 +601,9 @@ export class QuizQuestionComponent
     this._ready.next(this.dynamicAnswerContainer);
     this._ready.complete();
 
+    const idx = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    if (this._timerForIndex == null) this.resetForQuestion(idx);  // starts timer for Q1
+
     // Defer renderReady subscription until ViewChild is actually initialized
     setTimeout(() => {
       if (this.sharedOptionComponent) {
