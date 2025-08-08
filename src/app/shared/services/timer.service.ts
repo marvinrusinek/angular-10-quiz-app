@@ -52,6 +52,7 @@ export class TimerService {
     }
   
     this.isTimerRunning = true;  // mark timer as running
+    this.isCountdown = isCountdown;
     this.elapsedTime = 0;
   
     const timer$ = timer(0, 1000).pipe(
