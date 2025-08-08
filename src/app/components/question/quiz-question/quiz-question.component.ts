@@ -2914,16 +2914,16 @@ export class QuizQuestionComponent
       // ───────────────────────────────────────────────
       {
         const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-        // 1) push raw so something appears immediately
+        // Push raw so something appears immediately
         this.explanationTextService.setExplanationText(raw);
         this.explanationTextService.setShouldDisplayExplanation(true);
 
-        // 2) put UI into explanation mode + answered now
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true, index: lockedIndex });
+        // Put UI into explanation mode + answered now
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.quizStateService.setAnswered(true);
         this.quizStateService.setAnswerSelected(true);
 
-        // 3) Next button now
+        // Next button now
         if (isSingle) {
           this.selectedOptionService.setAnswered(true);
           this.nextButtonStateService.setNextButtonState(true);
