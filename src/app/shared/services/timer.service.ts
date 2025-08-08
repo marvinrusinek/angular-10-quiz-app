@@ -48,33 +48,28 @@ export class TimerService {
   
     if (this.isTimerRunning) {
       console.info('[TimerService] Timer is already running. Start ignored.');
-      return; // prevent restarting an already running timer
+      return;  // prevent restarting an already running timer
     }
   
     this.isTimerRunning = true;  // mark timer as running
     this.isCountdown = isCountdown;
     this.elapsedTime = 0;
   
-    // 🔹 Show initial value immediately (inside Angular so UI updates right away)
+    // Show initial value immediately (inside Angular so UI updates right away)
     this.ngZone.run(() => {
       this.elapsedTimeSubject.next(0);
-      // If you also expose a remaining countdown stream, emit it here too:
-      // this.remainingTimeSubject.next(duration);
     });
   
-    // 🔹 Start ticking after 1s so the initial value stays visible for a second
+    // Start ticking after 1s so the initial value stays visible for a second
     const timer$ = timer(1000, 1000).pipe(
       tap((tick) => {
-        // tick starts at 0 after 1s → elapsed = tick + 1 (1,2,3,…)
+        // Tick starts at 0 after 1s → elapsed = tick + 1 (1,2,3,…)
         const elapsed = tick + 1;
   
-        // ✅ Re-enter Angular so async pipes trigger change detection on every tick
+        // Re-enter Angular so async pipes trigger change detection on every tick
         this.ngZone.run(() => {
           this.elapsedTime = elapsed;
           this.elapsedTimeSubject.next(this.elapsedTime);
-  
-          // If you maintain a remaining countdown stream, update it here:
-          // if (this.isCountdown) this.remainingTimeSubject.next(Math.max(duration - elapsed, 0));
         });
   
         // If we are in countdown mode and we've reached the duration, stop automatically
@@ -86,7 +81,7 @@ export class TimerService {
       takeUntil(this.isStop),
       finalize(() => {
         console.log('[TimerService] Timer finalized.');
-        // reset running state when timer completes (inside Angular)
+        // Reset running state when timer completes (inside Angular)
         this.ngZone.run(() => { this.isTimerRunning = false; });
       })
     );
