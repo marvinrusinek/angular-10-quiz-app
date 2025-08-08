@@ -5,6 +5,7 @@ import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 30;
+  private currentDuration = this.timePerQuestion;
   private elapsedTime = 0;
   completionTime: number;
   elapsedTimes: number[] = [];
