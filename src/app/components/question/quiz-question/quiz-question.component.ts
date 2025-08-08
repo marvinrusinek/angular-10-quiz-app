@@ -1420,12 +1420,22 @@ export class QuizQuestionComponent
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
     console.log('[✅ FINAL OPTIONS LOADED]', question.options);
-
+  
+    // 🔒 Block interaction while options are (re)binding
+    this.quizStateService.setInteractionReady?.(false);
+    this.quizStateService.setLoading?.(true);
+  
     if (!question || !question.options?.length) {
       console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
+  
+      // Even on early return, don’t leave the app stuck "loading"
+      queueMicrotask(() => {
+        this.quizStateService.setLoading?.(false);
+        // intentionally keep interactionReady=false since there are no options
+      });
       return;
     }
-
+  
     if (this.optionsToDisplay.length !== question.options.length) {
       console.warn(
         `[DEBUG] ❌ Clearing optionsToDisplay at:`,
@@ -1433,17 +1443,21 @@ export class QuizQuestionComponent
       );
       this.optionsToDisplay = [];
     }
-
+  
     this.optionsToDisplay = [...question.options];
-
+  
     const currentQuestion = this.quizService.currentQuestion.getValue();
     if (!currentQuestion) {
       console.error(
         '[loadOptionsForQuestion] ❌ No current question available in QuizService.'
       );
+      queueMicrotask(() => {
+        this.quizStateService.setLoading?.(false);
+        // interactionReady remains false
+      });
       return;
     }
-
+  
     this.optionsToDisplay = [...(currentQuestion.options ?? [])].map(
       (option) => ({
         ...option,
@@ -1454,7 +1468,7 @@ export class QuizQuestionComponent
         correct: option.correct ?? false,
       })
     );
-
+  
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
@@ -1462,6 +1476,39 @@ export class QuizQuestionComponent
         '[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.'
       );
     }
+  
+    // ─────────────────────────────────────────────────────────────
+    // ✅ AFTER options are set, wait one microtask so bindings/DOM settle,
+    //    then flip loading→false and interactionReady→true so first click counts.
+    //    Also reset click dedupe and pre-evaluate Next for multi if needed.
+    // ─────────────────────────────────────────────────────────────
+    queueMicrotask(() => {
+      // If you normally call generateOptionBindings elsewhere, this is safe/no-op.
+      this.sharedOptionComponent?.generateOptionBindings?.();
+      this.cdRef?.detectChanges?.();
+  
+      // UI is now interactive
+      this.quizStateService.setLoading?.(false);
+      this.quizStateService.setInteractionReady?.(true);
+  
+      // Reset the “same index” dedupe so the first click on a new question isn’t ignored
+      (this as any).lastLoggedIndex = -1;
+  
+      // Multi-select: ensure first selection enables Next after restart/navigation
+      const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+      if (isMulti) {
+        this.selectedOptionService.evaluateNextButtonStateForQuestion(
+          this.currentQuestionIndex,
+          true
+        );
+      }
+  
+      console.log('[🟢 Interaction Ready]', {
+        qIndex: this.currentQuestionIndex,
+        isMulti,
+        optCount: this.optionsToDisplay?.length ?? 0
+      });
+    });
   }
 
   // Method to conditionally update the explanation when the question is answered
