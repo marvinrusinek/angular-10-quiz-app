@@ -653,37 +653,14 @@ export class QuizInitializationService {
     });
   }
 
-  /* initializeAnswerSync(): void {
-    this.subscribeToOptionSelection();
-  
-    // Properly initialize next button state stream
-    this.nextButtonStateService.initializeNextButtonStateStream(
-      this.selectedOptionService.isAnswered$,
-      this.quizStateService.isLoading$,
-      this.quizStateService.isNavigating$
-    );
-  
-    // Use takeUntil for cleanup
-    this.selectedOptionService.isNextButtonEnabled$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled: boolean) => {
-        this.isNextButtonEnabled = enabled;
-      });
-  
-    this.selectedOptionService.isOptionSelected$()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isSelected: boolean) => {
-        this.isCurrentQuestionAnswered = isSelected;
-      });
-  
-    this.subscribeToSelectionMessage();
-  } */
   initializeAnswerSync(
     onNextButtonEnabled: (enabled: boolean) => void,
     onOptionSelected: (selected: boolean) => void,
     onSelectionMessageChanged: (message: string) => void,
     destroy$: Subject<void>
   ): void {
+    this.subscribeToOptionSelection();
+
     // Initialize next button logic
     this.nextButtonStateService.initializeNextButtonStateStream(
       this.selectedOptionService.isAnswered$,
@@ -707,6 +684,8 @@ export class QuizInitializationService {
     this.selectionMessageService.selectionMessage$
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(destroy$))
       .subscribe(onSelectionMessageChanged);
+    
+    this.subscribeToSelectionMessage();
   }
 
   private subscribeToOptionSelection(): void {
