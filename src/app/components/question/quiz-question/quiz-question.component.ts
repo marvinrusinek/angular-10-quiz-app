@@ -210,6 +210,8 @@ export class QuizQuestionComponent
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
 
+  private _expiryHandledForIndex: number | null = null;
+
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
@@ -5614,34 +5616,43 @@ export class QuizQuestionComponent
 
   // Called when the countdown hits zero
   private async onTimerExpired(): Promise<void> {
-    if (this.explanationTextService?.isExplanationLocked?.() ||
-        (await this.explanationTextService?.shouldDisplayExplanation$?.pipe?.(take(1))?.toPromise?.()) === true ||
-        this.displayExplanation === true) {
-      return;
-    }
-
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-
-    // Show raw immediately so the user sees something now
-    const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-
-    // If your template uses local fields / outputs:
+  
+    // Don’t run twice for the same question
+    if (this._expiryHandledForIndex === lockedIndex) return;
+    this._expiryHandledForIndex = lockedIndex;
+  
+    // Compute formatted text first
+    let formatted = '';
+    try {
+      const out = await this.updateExplanationText(lockedIndex);
+      formatted = (out ?? '').trim?.() ?? '';
+    } catch (err) {
+      console.error('[onTimerExpired] format failed, falling back to raw', err);
+    }
+  
+    const text =
+      formatted ||
+      (this.currentQuestion?.explanation ?? '').trim() ||
+      'No explanation available';
+  
+    // Now flip the UI ONCE with formatted text
+    // Local fields / outputs:
     this.displayExplanation = true;
-    this.explanationToDisplay = raw;
-    this.explanationToDisplayChange?.emit(raw);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
     this.showExplanationChange?.emit(true);
-
+  
     // If your template uses the service streams:
     this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setExplanationText(raw);
+    this.explanationTextService.setExplanationText(text);
     this.explanationTextService.setShouldDisplayExplanation(true);
-
-    // Global state: flip to explanation + answered
+  
+    // Mark as answered and enable Next
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
-
-    // Enable Next (single) or evaluate (multi)
+  
     const isMulti = this.currentQuestion.type === QuestionType.MultipleAnswer;
     if (isMulti) {
       this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
@@ -5649,22 +5660,7 @@ export class QuizQuestionComponent
       this.selectedOptionService.setAnswered(true);
       this.nextButtonStateService.setNextButtonState(true);
     }
-
-    this.cdRef.detectChanges?.();
-
-    // Replace with formatted text when ready (don’t block UI)
-    try {
-      const formatted = await this.updateExplanationText(lockedIndex);
-      const clean = (formatted ?? '').trim?.() ?? '';
-      if (clean && (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex) {
-        // update both paths so either template updates
-        this.explanationTextService.setExplanationText(clean);
-        this.explanationToDisplay = clean;
-        this.explanationToDisplayChange?.emit(clean);
-        this.cdRef.markForCheck?.();
-      }
-    } catch (err) {
-      console.error('[onTimerExpired] ❌ format explanation failed', err);
-    }
+  
+    this.cdRef.markForCheck?.();
   }
 }
