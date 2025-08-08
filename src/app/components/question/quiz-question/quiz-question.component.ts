@@ -2572,7 +2572,7 @@ export class QuizQuestionComponent
   }
 
   // Called when a user clicks an option row
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2670,7 +2670,106 @@ export class QuizQuestionComponent
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // Gate super-fast clicks until UI is ready; replay once ready (unchanged)
+    if (!this.quizStateService.isInteractionReady()) {
+      if (this.waitingForReady) return;  // avoid piling duplicates
+      this.waitingForReady = true;
+      this.deferredClick = event;
+  
+      this.quizStateService.interactionReady$
+        .pipe(filter(Boolean), take(1))
+        .subscribe(() => {
+          this.waitingForReady = false;
+          const e = this.deferredClick;
+          this.deferredClick = undefined;
+          if (e) this.onOptionClicked(e);  // re-run once UI is ready
+        });
+  
+      return;  // bail now; we’ll replay the click when ready
+    }
+  
+    // NEW: capture a stable question index; DO NOT change your dedupe to use it
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+  
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+  
+    // Keep your original dedupe semantics (option-index based)
+    if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
+    this.lastLoggedIndex = evtIdx;
+  
+    const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
+    const isSingle = !isMultiSelect;
+  
+    // Persist the selection with an explicit index (fixes first-click drift)
+    this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
+  
+    // Selection bookkeeping (kept)
+    this.selectedIndices.clear();
+    this.selectedIndices.add(evtIdx);
+  
+    // ───────────────────────────────────────────────
+    // 🔹 SHOW EXPLANATION NOW (sync) — unchanged behavior
+    //     Raw immediately, then async format (do not await)
+    // ───────────────────────────────────────────────
+    {
+      const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+      this.explanationTextService.setExplanationText(raw);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      // keep your display state sync so template flips to explanation immediately
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.cdRef.markForCheck?.();
+  
+      // async formatting (DO NOT await)
+      this.updateExplanationText(lockedIndex)
+        .then((formatted) => {
+          const clean = (formatted ?? '').trim?.() ?? '';
+          // guard against race with navigation
+          if (clean && (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex) {
+            this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
+          }
+        })
+        .catch((err) => {
+          console.error('[❌ format explanation failed]', err);
+        });
+    }
+  
+    // ⛳ Atomic commit for answered + Next-enabled — but in a microtask only
+    // (so change detection sees a consistent state without delaying explanation)
+    queueMicrotask(() => {
+      this.quizStateService.setAnswerSelected(true); // downstream “answered”
+      if (isSingle) {
+        this.selectedOptionService.setAnswered(true);
+        this.nextButtonStateService.setNextButtonState(true);
+      } else {
+        // evaluate based on multi-select rules for THIS question
+        this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
+      }
+      this.cdRef.markForCheck?.();
+    });
+  
+    // Notify parent on first click (kept)
+    this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
+  
+    // Build feedback text and post-click tasks (kept)
+    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+    await this.postClickTasks(evtOpt, evtIdx, true, false);
+  
+    // Existing follow-ups (kept)
+    this.handleCoreSelection(event);
+    this.markBindingSelected(evtOpt);
+    this.refreshFeedbackFor(evtOpt);
   }
+  
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
