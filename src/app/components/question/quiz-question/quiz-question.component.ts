@@ -2701,6 +2701,9 @@ export class QuizQuestionComponent
   
     const evtIdx = event.index;
     const evtOpt = event.option;
+
+    // If we navigated, clear prior option dedupe
+    this.resetDedupeFor(lockedIndex);
   
     // Keep your original dedupe semantics (option-index based)
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
@@ -2779,6 +2782,13 @@ export class QuizQuestionComponent
     this.refreshFeedbackFor(evtOpt);
   }
   
+  private resetDedupeFor(index: number): void {
+    // New question → forget previous option index so first click isn't swallowed
+    if (index !== this.lastLoggedQuestionIndex) {
+      this.lastLoggedQuestionIndex = index;
+      this.lastLoggedIndex = -1;
+    }
+  }
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
