@@ -42,6 +42,7 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -163,7 +164,6 @@ export class QuizQuestionComponent
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
   private idxSub!: Subscription;
-  private timerSub = new Subscription();
   isMultipleAnswer: boolean;
   isExplanationTextDisplayed = false;
   isNavigatingToPrevious = false;
@@ -209,10 +209,6 @@ export class QuizQuestionComponent
 
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
-
-  private _expiryHandledForIndex: number | null = null;
-  private _timerForIndex: number | null = null;
-  public isFormatting = false;
 
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
@@ -367,10 +363,6 @@ export class QuizQuestionComponent
         distinctUntilChanged()
       );
     }
-
-    this.timerSub.add(
-      this.timerService.expired$.subscribe(() => this.onTimerExpired())
-    );
 
     this.quizService.questionPayload$
       .pipe(
@@ -682,7 +674,6 @@ export class QuizQuestionComponent
     this.resetStateSubscription?.unsubscribe();
     this.displayModeSubscription?.unsubscribe();
     this.renderReadySubscription?.unsubscribe();
-    this.timerSub?.unsubscribe();
   }
 
   // Listen for the visibility change event
@@ -5606,16 +5597,8 @@ export class QuizQuestionComponent
    
   // Per-question “next + selections” reset done from the child
   public resetPerQuestionState(index: number): void {
-    this.nextButtonStateService.reset?.();
+    this.nextButtonStateService.reset?.(); // if you have it
     this.selectedOptionService.clearSelectionsForQuestion?.(index);
-
-    // Allow expiry to run again for the new question
-    this._expiryHandledForIndex = null;  // allow expiry handler to run for this Q
-    this._timerForIndex = index;  // mark timer ownership
-
-    // Restart per-question timer
-    this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, true);
   }
   
   // One call to reset everything the child controls for a given question
@@ -5623,55 +5606,5 @@ export class QuizQuestionComponent
     this.hardResetClickGuards();
     this.resetExplanation();
     this.resetPerQuestionState(index);
-  }
-
-  // Called when the countdown hits zero
-  private async onTimerExpired(): Promise<void> {
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-  
-    // Don’t run twice for the same question
-    if (this._expiryHandledForIndex === lockedIndex) return;
-    this._expiryHandledForIndex = lockedIndex;
-  
-    // Compute formatted text first
-    let formatted = '';
-    try {
-      const out = await this.updateExplanationText(lockedIndex);
-      formatted = (out ?? '').trim?.() ?? '';
-    } catch (err) {
-      console.error('[onTimerExpired] format failed, falling back to raw', err);
-    }
-  
-    const text =
-      formatted ||
-      (this.currentQuestion?.explanation ?? '').trim() ||
-      'No explanation available';
-  
-    // Now flip the UI ONCE with formatted text
-    // Local fields / outputs:
-    this.displayExplanation = true;
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
-    this.showExplanationChange?.emit(true);
-  
-    // If your template uses the service streams:
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setExplanationText(text);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-  
-    // Mark as answered and enable Next
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-  
-    const isMulti = this.currentQuestion.type === QuestionType.MultipleAnswer;
-    if (isMulti) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
-  
-    this.cdRef.markForCheck?.();
-  }
+  }  
 }
