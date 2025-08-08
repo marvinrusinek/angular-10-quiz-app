@@ -217,6 +217,9 @@ export class QuizQuestionComponent
 
   private deferredClick?: { option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean };
   private waitingForReady = false;
+
+  private _processingClick = false;
+  private _processingPair: { q: number; o: number } | null = null;
   
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
@@ -2703,10 +2706,19 @@ export class QuizQuestionComponent
     const evtOpt = event.option;
 
     // If we navigated, clear prior option dedupe
-    this.resetDedupeFor(lockedIndex);
+    // this.resetDedupeFor(lockedIndex);
   
     // Keep your original dedupe semantics (option-index based)
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
+
+    if (this._processingClick &&
+      this._processingPair &&
+      this._processingPair.q === lockedIndex &&
+      this._processingPair.o === evtIdx) {
+    return;  // same (q,opt) still being processed this tick
+    }
+    this._processingClick = true;
+    this._processingPair = { q: lockedIndex, o: evtIdx };
 
     const sameQuestion = lockedIndex === this.lastLoggedQuestionIndex;
     const sameOptionOnSameQuestion = sameQuestion && (evtIdx === this.lastLoggedIndex);
