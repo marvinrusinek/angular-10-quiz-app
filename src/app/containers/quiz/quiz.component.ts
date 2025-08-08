@@ -3957,7 +3957,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     this.optionsToDisplay = [];
   }
 
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
     this.selectedOptionService.deselectOption();
@@ -4110,7 +4110,167 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       .catch((error) => {
         console.error('❌ Navigation error on restart:', error);
       });
-  }
+  } */
+  restartQuiz(): void {
+    this.selectedOptionService.clearSelectedOption();
+    this.selectedOptionService.clearSelection();
+    this.selectedOptionService.deselectOption();
+    this.selectedOptionService.resetSelectionState?.();
+  
+    // Force rehydration of icons into the current question
+    // Delay to ensure options load before hydrating
+    setTimeout(() => {
+      this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
+      this.sharedOptionComponent?.generateOptionBindings();
+      this.cdRef.detectChanges();
+    }, 50);
+  
+    this.soundService.reset();  // allow sounds to play again
+    this.soundService.clearPlayedOptionsForQuestion(0);
+    this.timerService.stopTimer?.();
+  
+    // Cleanup the previous stream before resetting
+    this.nextButtonStateService.cleanupNextButtonStateStream();
+  
+    // ─────────── NEW: Full reset for selection and button state ───────────
+    this.selectedOptionService.selectedOptionsMap.clear();
+    this.quizQuestionComponent?.selectedIndices?.clear?.();
+    this.selectedOptionService.setAnswered(false);
+    this.nextButtonStateService.setNextButtonEnabled(false); // fixed method name
+    this.lastLoggedIndex = -1;  // prevents "same index" dedupe from eating first click
+  
+    // Reset explanation display state
+    this.explanationTextService.setExplanationText('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+  
+    // Navigate to the first question
+    this.router
+      .navigate(['/question', this.quizId, 1])
+      .then(() => {
+        // Wait for routing and DOM to settle
+        setTimeout(async () => {
+          try {
+            // Reset child component state
+            if (this.quizQuestionComponent) {
+              await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+  
+              const firstQuestion = this.questions[0];
+              if (firstQuestion) {
+                const enrichedOptions: SelectedOption[] =
+                  firstQuestion.options.map((opt, idx) => {
+                    const enriched = {
+                      ...opt,
+                      questionIndex: 0,
+                      selected: false,
+                      highlight: false,
+                      showIcon: false
+                    };
+  
+                    firstQuestion.options.forEach((opt, idx) => {
+                      console.log(`[🧪 ORIGINAL Q1 Option ${idx}]`, opt);
+                    });
+  
+                    console.log(`[🔁 Enriched Q1 Option ${idx}]`, enriched);
+                    return enriched;
+                  });
+                enrichedOptions.forEach((opt, i) => {
+                  console.log(
+                    `[🔍 Enriched Q1 Option ${i}]`, JSON.stringify(opt, null, 2)
+                  );
+                });
+  
+                this.quizQuestionComponent.loadDynamicComponent(firstQuestion, enrichedOptions);
+                this.quizQuestionComponent.loadOptionsForQuestion({
+                  ...firstQuestion,
+                  options: enrichedOptions
+                });
+  
+                // Set index immediately after loading Q1
+                this.currentQuestionIndex = 0;
+                this.quizService.setCurrentQuestionIndex(0);
+  
+                // Wait for dynamic component to initialize properly
+                setTimeout(() => {
+                  this.initializeCurrentQuestion?.();
+  
+                  // Generate bindings and clear sounds after everything is ready
+                  this.sharedOptionComponent?.generateOptionBindings?.();
+  
+                  console.log('[🧽 Clearing sound flags for Q0 AFTER full init]');
+                  this.soundService.clearPlayedOptionsForQuestion(0);
+  
+                  this.quizStateService.setLoading(false);
+  
+                  // ─────────── NEW: Force initial evaluation for Q1 ───────────
+                  const isMulti =
+                    firstQuestion.type === QuestionType.MultipleAnswer;
+                  this.selectedOptionService.evaluateNextButtonStateForQuestion(
+                    0,
+                    isMulti
+                  );
+                }, 0);
+  
+                console.log('[🧽 Clearing sound flags for Q0 AFTER options load]');
+                this.soundService.clearPlayedOptionsForQuestion(0);
+              } else {
+                console.error('❌ First question not found.');
+              }
+            } else {
+              console.warn('⚠️ QuizQuestionComponent not yet available.');
+            }
+  
+            // Reset UI and options
+            this.resetUI();
+            this.resetOptionState();
+            this.initializeFirstQuestion();
+  
+            setTimeout(() => {
+              this.sharedOptionComponent?.generateOptionBindings?.();
+            }, 0);
+  
+            // Sync index post-render
+            this.quizService.setCurrentQuestionIndex(0);
+            this.quizService.updateBadgeText(1, this.totalQuestions);
+  
+            // Reset explanation state
+            this.explanationTextService.setResetComplete(false);
+            this.explanationTextService.resetExplanationText();
+            this.explanationTextService.unlockExplanation();
+            this.explanationTextService.setShouldDisplayExplanation(false);
+  
+            // Delay to ensure view and component fully initialize before updating explanation
+            setTimeout(async () => {
+              await this.quizQuestionComponent?.updateExplanationText(0);
+  
+              // Wait until explanation content is actually available
+              await firstValueFrom(
+                this.explanationTextService.formattedExplanation$.pipe(
+                  filter((text) => !!text?.trim()),
+                  take(1)
+                )
+              );
+  
+              // Now allow explanation to display
+              this.explanationTextService.setResetComplete(true);
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              this.explanationTextService.lockExplanation();
+              setTimeout(() => {
+                this.explanationTextService.triggerExplanationEvaluation();
+              }, 10);
+  
+              // Start timer only after UI and logic settle
+              this.timerService.startTimer(this.timerService.timePerQuestion);  // reset timer after quiz reset
+            }, 100);  // delay for explanation logic/DOM to stabilize
+          } catch (error) {
+            console.error('❌ Error restarting quiz:', error);
+          }
+        }, 50);  // small delay after navigation
+      })
+      .catch((error) => {
+        console.error('❌ Navigation error on restart:', error);
+      });
+  }  
 
   private tryRenderGate(): void {
     if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
