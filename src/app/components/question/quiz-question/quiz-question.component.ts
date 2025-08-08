@@ -5208,7 +5208,7 @@ export class QuizQuestionComponent
       opt.selected = false;
       opt.showIcon = false;
     });
-  
+
     this.cdRef.detectChanges();
   }
 
