@@ -5319,7 +5319,7 @@ export class QuizQuestionComponent
 
     // If lock exists, only skip when *not* forced
     const locked =
-      this.explanationTextService.isExplanationLocked?.(qIndex) ??
+      this.explanationTextService.isExplanationLocked?.() ??
       this.explanationTextService.isExplanationLocked?.(); // fallback to legacy
     if (!force && locked) {
       console.log('[🛡️ resetExplanation] Blocked — lock is active.', {
