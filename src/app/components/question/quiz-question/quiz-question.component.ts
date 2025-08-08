@@ -2584,10 +2584,7 @@ export class QuizQuestionComponent
           this.waitingForReady = false;
           const e = this.deferredClick;
           this.deferredClick = undefined;
-          if (e) {
-            // Re-run the click once UI is ready
-            this.onOptionClicked(e);
-          }
+          if (e) this.onOptionClicked(e);  // re-run once UI is ready
         });
   
       return;  // bail now; we’ll replay the click when ready
@@ -2604,6 +2601,16 @@ export class QuizQuestionComponent
     const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
     const isSingle = !isMultiSelect;
 
+    // 🔒 Guard and de-dupe
+    // Only dedupe SINGLE-answer; let MULTI accept repeated index clicks.
+    if (isSingle) {
+      if (evtIdx === this.lastLoggedIndex) return;
+      this.lastLoggedIndex = evtIdx;
+    } else {
+      // ensure a fresh first-click is never swallowed after nav/restart
+      this.lastLoggedIndex = -1;
+    }
+
     // Persist the selection with an explicit index (fixes first-click issues)
     this.selectedOptionService.setSelectedOption(evtOpt);
 
@@ -2613,11 +2620,13 @@ export class QuizQuestionComponent
       this.quizStateService.setAnswerSelected(true);
       this.nextButtonStateService.setNextButtonState(true);
     } else {
-      // Multi-answer → enable when there's any selection in the map
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(
-        questionIdx,
-        true
-      );
+      // Multi-answer → evaluate AFTER the selection is stored (microtask = no race)
+      queueMicrotask(() => {
+        this.selectedOptionService.evaluateNextButtonStateForQuestion(
+          questionIdx,
+          true
+        );
+      });
     }
 
     this.selectedIndices.clear();
