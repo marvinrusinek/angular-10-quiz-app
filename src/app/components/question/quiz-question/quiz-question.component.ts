@@ -202,7 +202,7 @@ export class QuizQuestionComponent
   public explanation$ = this._expl$.asObservable();
 
   private lastSerializedOptions = '';
-  private lastSerializedPayload = '';
+  lastSerializedPayload = '';
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   private hydrationInProgress = false;
 
@@ -210,6 +210,9 @@ export class QuizQuestionComponent
   public finalRenderReady$ = this.finalRenderReadySubject.asObservable();
   public finalRenderReady = false;
   public internalBufferReady = false;
+
+  private deferredClick?: { option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean };
+  private waitingForReady = false;
   
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation',
@@ -2567,6 +2570,29 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    if (!this.quizStateService.isInteractionReady()) {
+      if (this.waitingForReady) return;                 // avoid piling duplicates
+      this.waitingForReady = true;
+      this.deferredClick = event;
+  
+      this.quizStateService.interactionReady$
+        .pipe(
+          filter(Boolean),
+          take(1)
+        )
+        .subscribe(() => {
+          this.waitingForReady = false;
+          const e = this.deferredClick;
+          this.deferredClick = undefined;
+          if (e) {
+            // Re-run the click once UI is ready
+            this.onOptionClicked(e);
+          }
+        });
+  
+      return;  // bail now; we’ll replay the click when ready
+    }
+
     const evtIdx = event.index;
     const evtOpt = event.option;
 
