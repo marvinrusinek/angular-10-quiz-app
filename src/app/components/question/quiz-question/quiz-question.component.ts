@@ -2704,6 +2704,14 @@ export class QuizQuestionComponent
   
     // Keep your original dedupe semantics (option-index based)
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
+
+    const sameQuestion = lockedIndex === this.lastLoggedQuestionIndex;
+    const sameOptionOnSameQuestion = sameQuestion && (evtIdx === this.lastLoggedIndex);
+
+    if (sameOptionOnSameQuestion) return;
+    
+    // Update dedupe trackers
+    this.lastLoggedQuestionIndex = lockedIndex;
     this.lastLoggedIndex = evtIdx;
   
     const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
