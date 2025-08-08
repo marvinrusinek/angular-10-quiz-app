@@ -2794,7 +2794,7 @@ export class QuizQuestionComponent
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2883,7 +2883,97 @@ export class QuizQuestionComponent
       // release guard after this tick so a new click can proceed
       queueMicrotask(() => { this._clickGate = false; });
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // ✅ Wait instead of "return and replay" – prevents guaranteed 2nd click
+    if (!this.quizStateService.isInteractionReady()) {
+      await firstValueFrom(this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1)));
+    }
+
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+
+    if (!evtOpt) return;
+
+    // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
+    if (this._clickGate) return;
+    this._clickGate = true;
+
+    try {
+      const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
+      const isSingle = !isMultiSelect;
+
+      // ───────────────────────────────────────────────
+      // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
+      // ───────────────────────────────────────────────
+      {
+        const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+        // 1) push raw so something appears immediately
+        this.explanationTextService.setExplanationText(raw);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+
+        // 2) put UI into explanation mode + answered now
+        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true, index: lockedIndex });
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setAnswerSelected(true);
+
+        // 3) Next button now
+        if (isSingle) {
+          this.selectedOptionService.setAnswered(true);
+          this.nextButtonStateService.setNextButtonState(true);
+        } else {
+          this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
+        }
+
+        this.cdRef.markForCheck?.();
+      }
+
+      // Persist the selection for THIS question (kept)
+      this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
+
+      // Selection bookkeeping (kept)
+      this.selectedIndices.clear();
+      this.selectedIndices.add(evtIdx);
+
+      // 🧵 Kick formatting but DO NOT block paint
+      this.updateExplanationText(lockedIndex)
+        .then((formatted) => {
+          const clean = (formatted ?? '').trim?.() ?? '';
+          if (clean && (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex) {
+            this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
+          }
+        })
+        .catch((err) => console.error('[❌ format explanation failed]', err));
+
+      // 🚦 Defer heavy work to next animation frame so first click paints immediately
+      requestAnimationFrame(() => {
+        // Parent notify first (non-blocking)
+        this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
+
+        // Run the awaits without blocking the first paint
+        (async () => {
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
+          await this.postClickTasks(evtOpt, evtIdx, true, false);
+
+          // Existing follow-ups (kept)
+          this.handleCoreSelection(event);
+          this.markBindingSelected(evtOpt);
+          this.refreshFeedbackFor(evtOpt);
+        })().catch(err => console.error('[postClickTasks] error', err));
+      });
+    } finally {
+      // Release reentrancy guard after this tick
+      queueMicrotask(() => { this._clickGate = false; });
+    }
   }
+
   
   
   private resetDedupeFor(index: number): void {
