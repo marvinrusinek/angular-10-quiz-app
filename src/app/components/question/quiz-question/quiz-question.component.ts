@@ -2578,6 +2578,7 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    // Gate super-fast clicks until UI is ready; replay once ready
     if (!this.quizStateService.isInteractionReady()) {
       if (this.waitingForReady) return;  // avoid piling duplicates
       this.waitingForReady = true;
@@ -2598,7 +2599,7 @@ export class QuizQuestionComponent
     const evtIdx = event.index;
     const evtOpt = event.option;
   
-    // Guard and dedupe
+    // Guard and simple dedupe (kept): ignore missing option or exact same index twice
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
     this.lastLoggedIndex = evtIdx;
   
@@ -2609,13 +2610,12 @@ export class QuizQuestionComponent
     // Persist the selection with an explicit index (fixes first-click issues)
     this.selectedOptionService.setSelectedOption(evtOpt, questionIdx);
   
+    // Single → enable Next deterministically; Multi → evaluate after map update
     if (isSingle) {
-      // Single-answer → enable Next immediately, deterministically
       this.selectedOptionService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
       this.nextButtonStateService.setNextButtonState(true);
     } else {
-      // Multi-answer → evaluate AFTER the selection is stored (microtask = no race)
       queueMicrotask(() => {
         this.selectedOptionService.evaluateNextButtonStateForQuestion(
           questionIdx,
@@ -2624,59 +2624,53 @@ export class QuizQuestionComponent
       });
     }
   
+    // Selection bookkeeping (kept)
     this.selectedIndices.clear();
     this.selectedIndices.add(evtIdx);
   
-    // Mark question as answered
+    // Mark question as answered for downstream logic (kept)
     this.quizStateService.setAnswerSelected(true);
   
     // ───────────────────────────────────────────────
-    // ✅ Show explanation on the FIRST click for this question
-    //    1) Show RAW immediately (instant feedback)
-    //    2) Kick off async formatting; when ready, replace once
+    // 🔹 SHOW EXPLANATION *NOW* (synchronous, first click)
+    //     1) Show RAW immediately so user sees feedback
+    //     2) Put UI into explanation mode
+    //     3) Kick off formatting asynchronously; replace when ready
     // ───────────────────────────────────────────────
-    if (this.lastExplanationShownIndex !== questionIdx && !this.explanationInFlight) {
-      this.explanationInFlight = true;
-  
-      // Emit so the parent shows explanation on first click
-      this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
-  
-      // Immediately show the raw explanation
-      const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
+    {
+      const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
       this.explanationTextService.setExplanationText(raw);
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
+      this.cdRef.markForCheck?.();
   
-      // Kick off async formatting; DO NOT await
+      // async formatting (DO NOT await)
       this.updateExplanationText(questionIdx)
         .then((formatted) => {
           const clean = (formatted ?? '').trim?.() ?? '';
-          // Replace only if still on same question and we have text
           if (clean && this.currentQuestionIndex === questionIdx) {
             this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
           }
         })
         .catch((err) => {
-          console.error('[❌ Failed to update explanation]', err);
-        })
-        .finally(() => {
-          this.explanationInFlight = false;
-          this.lastExplanationShownIndex = questionIdx;
+          console.error('[❌ format explanation failed]', err);
         });
-    } else {
-      // Still emit selection (keeps parent in sync), but don't re-trigger explanation flow
-      this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
     }
   
-    // Build feedback text and post-click tasks
+    // Notify parent on first click (kept)
+    this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
+  
+    // Build feedback text and post-click tasks (kept)
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
     await this.postClickTasks(evtOpt, evtIdx, true, false);
   
+    // Existing follow-ups (kept)
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
-  }  
+  }
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
