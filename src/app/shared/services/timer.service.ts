@@ -9,8 +9,8 @@ export class TimerService {
   completionTime: number;
   elapsedTimes: number[] = [];
 
-  isTimerRunning = false; // Tracks whether the timer is currently running
-  isCountdown = true; // Tracks the timer mode (true = countdown, false = stopwatch)
+  isTimerRunning = false;  // tracks whether the timer is currently running
+  isCountdown = true;  // tracks the timer mode (true = countdown, false = stopwatch)
   isTimerStoppedForCurrentQuestion = false;
 
   // Signals
@@ -48,10 +48,10 @@ export class TimerService {
 
     if (this.isTimerRunning) {
       console.info('[TimerService] Timer is already running. Start ignored.');
-      return; // Prevent restarting an already running timer
+      return; // prevent restarting an already running timer
     }
   
-    this.isTimerRunning = true; // Mark timer as running
+    this.isTimerRunning = true;  // mark timer as running
     this.elapsedTime = 0;
   
     const timer$ = timer(0, 1000).pipe(
@@ -68,7 +68,7 @@ export class TimerService {
       takeUntil(this.isStop),
       finalize(() => {
         console.log('[TimerService] Timer finalized.');
-        this.isTimerRunning = false; // Reset running state when timer completes
+        this.isTimerRunning = false;  // reset running state when timer completes
       })
     );
   
@@ -86,9 +86,9 @@ export class TimerService {
       return;
     }
 
-    this.isTimerRunning = false; // Mark the timer as stopped
-    this.isTimerStoppedForCurrentQuestion = true; // ✅ Prevent restart for current question
-    this.stopSubject.next(); // Emit stop signal to stop the timer
+    this.isTimerRunning = false;  // mark the timer as stopped
+    this.isTimerStoppedForCurrentQuestion = true;  // prevent restart for current question
+    this.stopSubject.next();  // emit stop signal to stop the timer
     this.isStop.next();
 
     if (this.timerSubscription) {
@@ -117,10 +117,10 @@ export class TimerService {
 
     this.elapsedTime = 0;
     this.isTimerRunning = false;
-    this.isTimerStoppedForCurrentQuestion = false; // Allow restart for the new question
+    this.isTimerStoppedForCurrentQuestion = false;  // allow restart for the new question
 
-    this.isReset.next(); // Signal to reset
-    this.elapsedTimeSubject.next(0); // Reset elapsed time for observers
+    this.isReset.next();  // signal to reset
+    this.elapsedTimeSubject.next(0);  // reset elapsed time for observers
     console.log('Timer reset successfully.');
   }
 
