@@ -257,6 +257,8 @@ export class QuizQuestionComponent
   private latestOptionClickTimestamp = 0;
   private hasAutoAdvancedFromQ1 = false;
 
+  private _clickGate = false; // same-tick re-entrancy guard
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
