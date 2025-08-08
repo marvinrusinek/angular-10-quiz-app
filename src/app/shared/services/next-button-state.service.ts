@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 
 import { QuizStateService } from '../../shared/services/quizstate.service';
@@ -51,7 +51,7 @@ export class NextButtonStateService {
     isAnswered$: Observable<boolean>,
     isLoading$: Observable<boolean>,
     isNavigating$: Observable<boolean>,
-    interactionReady$: Observable<boolean>
+    interactionReady$?: Observable<boolean>
   ): void {
     if (this.initialized) {
       console.warn('[🛑 initializeNextButtonStateStream] Already initialized');
@@ -59,11 +59,13 @@ export class NextButtonStateService {
     }
     this.initialized = true;
 
+    const ready$ = interactionReady$ ?? of(true); 
+
     this.nextButtonStateSubscription = combineLatest([
       isAnswered$,
       isLoading$,
       isNavigating$,
-      interactionReady$
+      ready$
     ])
     .pipe(
       distinctUntilChanged(
@@ -71,7 +73,7 @@ export class NextButtonStateService {
       )
     )
     .subscribe(([isAnswered, isLoading, isNavigating, ready]) => {
-      const enabled = isAnswered && !isLoading && !isNavigating && !!ready;  // gate on ready
+      const enabled = isAnswered && !isLoading && !isNavigating && !!ready;
       this.updateAndSyncNextButtonState(enabled);
     });
   }
