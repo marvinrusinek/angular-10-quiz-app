@@ -124,6 +124,11 @@ export class QuizQuestionComponent
   private navigatingBackwards = false;
   private lastLoggedIndex: number = -1;
   private lastLoggedQuestionIndex: number = -1;
+  private _clickGate = false;
+  private waitingForReady = false;
+  private deferredClick?: {
+    option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean;
+  };
   public selectedIndices = new Set<number>();
 
   combinedQuestionData$: Subject<{
@@ -5015,26 +5020,42 @@ export class QuizQuestionComponent
   }
 
   // Helper method to clear explanation
-  resetExplanation(): void {
+  resetExplanation(force: boolean = false): void {
     // Reset local component state
     this.displayExplanation = false;  // hide explanation display
     this.explanationToDisplay = '';   // clear local explanation text
-
+  
+    // Always reset the internal explanation text state (service first)
+    this.explanationTextService.resetExplanationText();
+  
+    // Determine current question index for per-question locking (if supported)
+    const qIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+  
+    // If lock exists, only skip when *not* forced
+    const locked = this.explanationTextService.isExplanationLocked?.(qIndex)
+                ?? this.explanationTextService.isExplanationLocked?.(); // fallback to legacy
+    if (!force && locked) {
+      console.log('[🛡️ resetExplanation] Blocked — lock is active.', { qIndex });
+      return;
+    }
+  
+    // Clear display flags in the service (do this BEFORE emitting to parent)
+    this.explanationTextService.setShouldDisplayExplanation(false);
+  
+    // Reset display state so templates go back to question mode
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+    this.quizStateService.setAnswerSelected(false);
+  
     // Emit cleared states to parent components
     this.explanationToDisplayChange.emit('');  // inform parent: explanation cleared
     this.showExplanationChange.emit(false);    // inform parent: hide explanation
-
-    // Always reset the internal explanation text state
-    this.explanationTextService.resetExplanationText();
-
-    // Only disable explanation display flag if it's not locked
-    if (!this.explanationTextService.isExplanationLocked()) {
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.setResetComplete(false);
-    } else {
-      console.log('[🛡️ resetExplanation] Blocked explanation reset — lock is active.');
-    }
+  
+    // Mark reset complete (true, not false) so listeners don’t wait forever
+    this.explanationTextService.setResetComplete?.(true);
+  
+    this.cdRef?.markForCheck?.();
   }
+  
 
   async prepareAndSetExplanationText(questionIndex: number): Promise<string> {
     if (document.hidden) {
@@ -5555,4 +5576,26 @@ export class QuizQuestionComponent
        
     this.cdRef.detectChanges();
   }
+
+  private hardResetClickGuards(): void {
+    this._clickGate = false;
+    this.waitingForReady = false;
+    this.deferredClick = undefined;
+    this.lastLoggedQuestionIndex = -1;
+    this.lastLoggedIndex = -1;
+    this.selectedIndices?.clear?.();
+  }
+   
+  // Per-question “next + selections” reset done from the child
+  public resetPerQuestionState(index: number): void {
+    this.nextButtonStateService.reset?.(); // if you have it
+    this.selectedOptionService.clearSelectionsForQuestion?.(index);
+  }
+  
+  // One call to reset everything the child controls for a given question
+  public resetForQuestion(index: number): void {
+    this.hardResetClickGuards();
+    this.resetExplanation();
+    this.resetPerQuestionState(index);
+  }  
 }
