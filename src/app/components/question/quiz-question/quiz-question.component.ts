@@ -498,7 +498,7 @@ export class QuizQuestionComponent
     this.timerSub.add(
       this.timerService.expired$
         .pipe(withLatestFrom(this.quizService.currentQuestionIndex$))
-        .subscribe(([_, idx]) => this.onTimerExpired(idx))
+        .subscribe(([_, idx]) => this.onTimerExpiredFor(idx))
     );
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
@@ -6013,7 +6013,7 @@ export class QuizQuestionComponent
     this.isFormatting = false;
     this.cdRef.markForCheck?.();
   } */
-  private async onTimerExpired(): Promise<void> {
+  /* private async onTimerExpired(): Promise<void> {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
     if (this._timerForIndex == null) this._timerForIndex = lockedIndex;
     if (this._timerForIndex !== lockedIndex) return;
@@ -6053,5 +6053,47 @@ export class QuizQuestionComponent
     }
   
     this.cdRef.markForCheck?.();
-  }    
+  } */
+  private async onTimerExpiredFor(index: number): Promise<void> {
+    // run once per question
+    this._expiryHandledForIndex ??= -1;
+    if (this._expiryHandledForIndex === index) return;
+    this._expiryHandledForIndex = index;
+  
+    this.isFormatting = true;
+  
+    // unlock + show before formatting so formatter actually runs
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.displayExplanation = true;
+    this.showExplanationChange?.emit(true);
+  
+    let text = '';
+    try {
+      const out = await this.updateExplanationText(index);
+      text = (out ?? '').trim?.() ?? '';
+    } catch {}
+    if (!text) {
+      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+    }
+  
+    // render once with final text
+    this.explanationTextService.setExplanationText(text);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
+  
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+  
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(index, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
+  
+    this.isFormatting = false;
+    this.cdRef.markForCheck?.();
+  }  
 }
