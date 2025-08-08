@@ -211,6 +211,8 @@ export class QuizQuestionComponent
   public explanation$ = this._expl$.asObservable();
 
   private _expiryHandledForIndex: number | null = null;
+  private _timerForIndex: number | null = null;
+  public isFormatting = false;
 
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
