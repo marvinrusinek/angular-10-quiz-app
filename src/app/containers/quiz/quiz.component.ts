@@ -4300,6 +4300,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     // Reset sounds/timer
     this.soundService.reset?.();
     this.timerService.stopTimer?.();
+    this.timerService.startTimer(this.timerService.timePerQuestion);
   
     // Navigate to Q1
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
