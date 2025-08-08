@@ -4110,7 +4110,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         console.error('❌ Navigation error on restart:', error);
       });
   } */
-  restartQuiz(): void {
+  /* restartQuiz(): void {
     // ───── Clear selection state completely before navigation ─────
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
@@ -4127,6 +4127,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     this.explanationTextService.setExplanationText('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+
+    // Force global Next disabled after restart
+    this.nextButtonStateService.setNextButtonState(false);
+    this.quizStateService.setAnswerSelected(false);
   
     // Clear any leftover selectedIndices in QuizQuestionComponent if available
     this.quizQuestionComponent?.selectedIndices?.clear?.();
@@ -4269,7 +4273,57 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       .catch((error) => {
         console.error('❌ Navigation error on restart:', error);
       });
-  }  
+  } */
+  restartQuiz(): void {
+    // Clear selection/answer maps
+    this.selectedOptionService.clearSelectedOption();
+    this.selectedOptionService.clearSelection();
+    this.selectedOptionService.deselectOption();
+    this.selectedOptionService.resetSelectionState?.();
+    this.selectedOptionService.selectedOptionsMap.clear();
+  
+    this.selectedOptionService.setAnswered(false);
+    this.quizStateService.setAnswerSelected(false);
+  
+    // Reset explanation to hidden + question mode
+    this.explanationTextService.resetExplanationText();
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+  
+    // Next starts disabled
+    this.nextButtonStateService.setNextButtonState(false);
+  
+    // Clear child-local state
+    this.quizQuestionComponent?.selectedIndices?.clear?.();
+  
+    // Reset sounds/timer
+    this.soundService.reset?.();
+    this.timerService.stopTimer?.();
+  
+    // Navigate to Q1
+    this.router.navigate(['/question', this.quizId, 1]).then(() => {
+      // Sync current index
+      this.currentQuestionIndex = 0;
+      this.quizService.setCurrentQuestionIndex(0);
+      this.quizService.updateBadgeText?.(1, this.totalQuestions);
+  
+      // Ensure child resets itself for Q1 (preferred: child reacts to index change)
+      this.quizQuestionComponent?.resetForQuestion?.(0);
+      // Guarantee Next is off for Q1
+      this.nextButtonStateService.setNextButtonState(false);
+      this.quizStateService.setAnswerSelected(false);
+    
+      // Mark interactive so first click is processed immediately
+      queueMicrotask(() => this.quizStateService.setInteractionReady?.(true));
+  
+      // Regenerate option bindings
+      queueMicrotask(() => {
+        this.sharedOptionComponent?.generateOptionBindings?.();
+        this.cdRef.detectChanges();
+      });
+    }).catch(err => console.error('❌ Navigation error on restart:', err));
+  }
 
   private tryRenderGate(): void {
     if (this.questionData && this.optionsToDisplay.length && this.finalRenderReady) {
