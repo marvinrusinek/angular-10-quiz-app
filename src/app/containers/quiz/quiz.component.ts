@@ -3508,7 +3508,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       if (isAnswered) {
         this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true, true);
-        this.nextButtonStateService.syncNextButtonState();
       }
 
       // Parallel fetch for question and options

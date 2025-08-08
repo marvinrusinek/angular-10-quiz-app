@@ -29,7 +29,7 @@ export class NextButtonStateService {
 
   constructor(
     private quizStateService: QuizStateService,
-    private selectedOptionService: SelectedOptionService,
+    // private selectedOptionService: SelectedOptionService,
     private ngZone: NgZone
   ) {}
 

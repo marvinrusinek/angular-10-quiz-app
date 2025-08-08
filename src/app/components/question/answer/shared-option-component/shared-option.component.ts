@@ -1001,8 +1001,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.syncSelectedFlags();  // set .selected for every row
     this.highlightDirectives?.forEach(d => d.updateHighlight());
   
-    // Sync explanation and navigation state
-    this.emitExplanationAndSyncNavigation(this.quizService.currentQuestionIndex)
+    // Sync explanation
+    this.emitExplanation(this.quizService.currentQuestionIndex)
 
     // Final UI change detection
     this.cdRef.detectChanges();
@@ -1135,8 +1135,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     console.log(`[✅ updateHighlighting Complete] at ${Date.now()}`);
   
-    // Immediately trigger explanation text and navigation update
-    this.emitExplanationAndSyncNavigation(questionIndex);
+    // Immediately trigger explanation text
+    this.emitExplanation(questionIndex);
   }
 
   private renderAllStates(optionId: number, questionIndex: number): void {
@@ -1181,18 +1181,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
     }
   
-    // Enable Next Button
-    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
-    this.nextButtonStateService.syncNextButtonState();
-  
     // Immediate Change Detection
     this.cdRef.detectChanges();
     console.log(`[✅ Change Detection Applied for Q${questionIndex}]`);
   }  
 
-  private emitExplanationAndSyncNavigation(questionIndex: number): void {
-    console.log(`[📢 emitExplanationAndSyncNavigation] Triggered for Q${questionIndex}`);
-  
+  private emitExplanation(questionIndex: number): void {
     // Fetch explanation text
     const entry = this.explanationTextService.formattedExplanations[questionIndex];
     const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
@@ -1209,10 +1203,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (explanationText !== emittedText) {
       console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
     }
-  
-    // Sync Next Button State
-    console.log(`[🚀 Enabling Next Button for Q${questionIndex}]`);
-    this.nextButtonStateService.syncNextButtonState();
   }
 
   private deferHighlightUpdate(callback: () => void): void {

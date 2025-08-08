@@ -321,7 +321,6 @@ export class QuizQuestionLoaderService {
     if (this.selectedOptionService.isQuestionAnswered(index)) {
       this.quizStateService.setAnswered(true);
       this.selectedOptionService.setAnswered(true, true);
-      this.nextButtonStateService.syncNextButtonState();
     }
   }
 
