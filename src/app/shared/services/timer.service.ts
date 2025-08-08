@@ -121,6 +121,15 @@ export class TimerService {
     console.log('Timer stopped successfully.');
   }
 
+  // Pause without marking "stopped for current question" so resume works
+  pauseTimer(): void {
+    if (!this.isTimerRunning) return;
+    console.log('[TimerService] Pausing at', this.elapsedTime, 's');
+    this.isTimerRunning = false;
+    this.timerSubscription?.unsubscribe();
+    this.timerSubscription = null;
+  }
+
   // Resets the timer
   resetTimer(): void {
     console.log('Attempting to reset timer...');
@@ -136,6 +145,27 @@ export class TimerService {
     this.isReset.next();  // signal to reset
     this.elapsedTimeSubject.next(0);  // reset elapsed time for observers
     console.log('Timer reset successfully.');
+  }
+
+  // Resume from remaining time (countdown only). If you use stopwatch mode, skip the check.
+  resumeTimer(): void {
+    if (this.isTimerRunning) return;
+
+    if (this.isCountdown) {
+      const remaining = Math.max(this.currentDuration - this.elapsedTime, 0);
+      if (remaining <= 0) {
+        console.log('[TimerService] Resume skipped (no time remaining).');
+        return;
+      }
+      console.log('[TimerService] Resuming with', remaining, 's left');
+      // Start a fresh countdown for the remaining seconds
+      this.startTimer(remaining, true);
+    } else {
+      // Stopwatch mode: just start in stopwatch mode again (elapsed will restart from 0)
+      // If you need continuous elapsed across resume, we can add an offset later.
+      console.log('[TimerService] Resuming stopwatch');
+      this.startTimer(this.timePerQuestion, /*isCountdown*/ false);
+    }
   }
 
   preventRestartForCurrentQuestion(): void {
