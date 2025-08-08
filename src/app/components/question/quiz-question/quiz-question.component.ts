@@ -5931,7 +5931,7 @@ export class QuizQuestionComponent
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
     this.hardResetClickGuards();
-    this.resetExplanation();
+    this.resetExplanation(true);
     this.resetPerQuestionState(index);
   }
 
