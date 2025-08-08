@@ -2601,16 +2601,6 @@ export class QuizQuestionComponent
     const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
     const isSingle = !isMultiSelect;
 
-    // 🔒 Guard and de-dupe
-    // Only dedupe SINGLE-answer; let MULTI accept repeated index clicks.
-    if (isSingle) {
-      if (evtIdx === this.lastLoggedIndex) return;
-      this.lastLoggedIndex = evtIdx;
-    } else {
-      // ensure a fresh first-click is never swallowed after nav/restart
-      this.lastLoggedIndex = -1;
-    }
-
     // Persist the selection with an explicit index (fixes first-click issues)
     this.selectedOptionService.setSelectedOption(evtOpt);
 
