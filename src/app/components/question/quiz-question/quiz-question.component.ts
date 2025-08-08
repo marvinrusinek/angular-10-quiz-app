@@ -23,6 +23,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
   BehaviorSubject,
+  combineLatest,
   firstValueFrom,
   from,
   Observable,
@@ -41,6 +42,7 @@ import {
   take,
   takeUntil,
   tap,
+  timeout
 } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
@@ -5939,29 +5941,39 @@ export class QuizQuestionComponent
   private async onTimerExpired(): Promise<void> {
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
   
+    // Ignore expiries from old questions and only run once per question
     if (this._timerForIndex !== lockedIndex) return;
     if (this._expiryHandledForIndex === lockedIndex) return;
     this._expiryHandledForIndex = lockedIndex;
   
-    this.isFormatting = true;
+    this.isFormatting = true; // show “Formatting…” if you wired it
   
-    // Kick formatting
+    // Kick formatting for THIS index (non-blocking if your impl returns void)
     try { await this.updateExplanationText(lockedIndex); } catch {}
   
-    // Wait for non-empty formatted output
     let text = '';
+  
     try {
+      // Wait for the first non-empty formatted string for this same question index
       text = await firstValueFrom(
-        this.explanationTextService.formattedExplanation$.pipe(
-          filter((s: string | null | undefined) => !!s && !!s.trim()),
-          take(1)
+        combineLatest([
+          this.explanationTextService.formattedExplanation$,      // string
+          this.quizService.currentQuestionIndex$                  // number
+        ]).pipe(
+          filter(([s, idx]) => idx === lockedIndex && !!s && !!s.trim()),
+          map(([s]) => (s ?? '').trim()),
+          take(1),
+          timeout({ first: 1500 }) // don’t hang forever if formatter is slow
         )
       );
     } catch {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+      // 3) Fallback if formatter didn’t emit in time
+      text =
+        (this.currentQuestion?.explanation ?? '').trim() ||
+        'No explanation available';
     }
   
-    // Flip UI with final text
+    // Flip UI ONCE with final (formatted or fallback) text
     this.displayExplanation = true;
     this.explanationToDisplay = text;
     this.explanationToDisplayChange?.emit(text);
@@ -5971,6 +5983,7 @@ export class QuizQuestionComponent
     this.explanationTextService.setExplanationText(text);
     this.explanationTextService.setShouldDisplayExplanation(true);
   
+    // Mark answered + enable Next
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
