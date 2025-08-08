@@ -52,6 +52,7 @@ export interface LoadedQuestionData {
   options: Option[];
   explanation: string;
 }
+
 interface Override { idx: number; html: string; }
 
 @Component({
