@@ -4112,31 +4112,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       });
   } */
   restartQuiz(): void {
+    // ───── Clear selection state completely before navigation ─────
     this.selectedOptionService.clearSelectedOption();
     this.selectedOptionService.clearSelection();
     this.selectedOptionService.deselectOption();
     this.selectedOptionService.resetSelectionState?.();
-  
-    // Force rehydration of icons into the current question
-    // Delay to ensure options load before hydrating
-    setTimeout(() => {
-      this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
-      this.sharedOptionComponent?.generateOptionBindings();
-      this.cdRef.detectChanges();
-    }, 50);
-  
-    this.soundService.reset();  // allow sounds to play again
-    this.soundService.clearPlayedOptionsForQuestion(0);
-    this.timerService.stopTimer?.();
-  
-    // Cleanup the previous stream before resetting
-    this.nextButtonStateService.cleanupNextButtonStateStream();
-  
-    // ─────────── NEW: Full reset for selection and button state ───────────
     this.selectedOptionService.selectedOptionsMap.clear();
-    this.quizQuestionComponent?.selectedIndices?.clear?.();
+  
+    // Full reset for selection and button state
     this.selectedOptionService.setAnswered(false);
-    this.nextButtonStateService.setNextButtonEnabled(false); // fixed method name
+    this.nextButtonStateService.setNextButtonState(false);
     this.lastLoggedIndex = -1;  // prevents "same index" dedupe from eating first click
   
     // Reset explanation display state
@@ -4144,7 +4129,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-    // Navigate to the first question
+    // Clear any leftover selectedIndices in QuizQuestionComponent if available
+    this.quizQuestionComponent?.selectedIndices?.clear?.();
+  
+    // Force rehydration of icons into the current question
+    setTimeout(() => {
+      this.sharedOptionComponent?.hydrateOptionsFromSelectionState();
+      this.sharedOptionComponent?.generateOptionBindings();
+      this.cdRef.detectChanges();
+    }, 50);
+  
+    // Reset sound + timer state
+    this.soundService.reset();
+    this.soundService.clearPlayedOptionsForQuestion(0);
+    this.timerService.stopTimer?.();
+  
+    // Cleanup the previous stream before resetting
+    this.nextButtonStateService.cleanupNextButtonStateStream();
+  
+    // ───── Navigate to the first question ─────
     this.router
       .navigate(['/question', this.quizId, 1])
       .then(() => {
@@ -4174,6 +4177,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
                     console.log(`[🔁 Enriched Q1 Option ${idx}]`, enriched);
                     return enriched;
                   });
+  
                 enrichedOptions.forEach((opt, i) => {
                   console.log(
                     `[🔍 Enriched Q1 Option ${i}]`, JSON.stringify(opt, null, 2)
@@ -4196,13 +4200,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   
                   // Generate bindings and clear sounds after everything is ready
                   this.sharedOptionComponent?.generateOptionBindings?.();
-  
                   console.log('[🧽 Clearing sound flags for Q0 AFTER full init]');
                   this.soundService.clearPlayedOptionsForQuestion(0);
-  
                   this.quizStateService.setLoading(false);
   
-                  // ─────────── NEW: Force initial evaluation for Q1 ───────────
+                  // NEW: force initial evaluation for Q1
                   const isMulti =
                     firstQuestion.type === QuestionType.MultipleAnswer;
                   this.selectedOptionService.evaluateNextButtonStateForQuestion(
@@ -4243,7 +4245,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
             setTimeout(async () => {
               await this.quizQuestionComponent?.updateExplanationText(0);
   
-              // Wait until explanation content is actually available
               await firstValueFrom(
                 this.explanationTextService.formattedExplanation$.pipe(
                   filter((text) => !!text?.trim()),
@@ -4251,7 +4252,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
                 )
               );
   
-              // Now allow explanation to display
               this.explanationTextService.setResetComplete(true);
               this.explanationTextService.setShouldDisplayExplanation(true);
               this.explanationTextService.lockExplanation();
@@ -4260,12 +4260,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
               }, 10);
   
               // Start timer only after UI and logic settle
-              this.timerService.startTimer(this.timerService.timePerQuestion);  // reset timer after quiz reset
-            }, 100);  // delay for explanation logic/DOM to stabilize
+              this.timerService.startTimer(this.timerService.timePerQuestion);
+            }, 100);
           } catch (error) {
             console.error('❌ Error restarting quiz:', error);
           }
-        }, 50);  // small delay after navigation
+        }, 50);
       })
       .catch((error) => {
         console.error('❌ Navigation error on restart:', error);
