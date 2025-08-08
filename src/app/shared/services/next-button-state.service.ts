@@ -45,10 +45,12 @@ export class NextButtonStateService {
     this.updateAndSyncNextButtonState(isEnabled);
   }
 
+  // NextButtonStateService
   public initializeNextButtonStateStream(
     isAnswered$: Observable<boolean>,
     isLoading$: Observable<boolean>,
-    isNavigating$: Observable<boolean>
+    isNavigating$: Observable<boolean>,
+    interactionReady$: Observable<boolean>
   ): void {
     if (this.initialized) {
       console.warn('[🛑 initializeNextButtonStateStream] Already initialized');
@@ -56,16 +58,23 @@ export class NextButtonStateService {
     }
     this.initialized = true;
 
-    this.nextButtonStateSubscription = combineLatest([isAnswered$, isLoading$, isNavigating$])
-      .pipe(
-        map(([answered, loading, navigating]) => answered && !loading && !navigating),
-        distinctUntilChanged()
+    this.nextButtonStateSubscription = combineLatest([
+      isAnswered$,
+      isLoading$,
+      isNavigating$,
+      interactionReady$
+    ])
+    .pipe(
+      distinctUntilChanged(
+        ([a1,b1,c1,d1], [a2,b2,c2,d2]) => a1===a2 && b1===b2 && c1===c2 && d1===d2
       )
-      .subscribe((enabled: boolean) => {
-        this.isButtonEnabledSubject.next(enabled);
-        this.updateAndSyncNextButtonState(enabled);
-      });
+    )
+    .subscribe(([isAnswered, isLoading, isNavigating, ready]) => {
+      const enabled = isAnswered && !isLoading && !isNavigating && !!ready;  // gate on ready
+      this.updateAndSyncNextButtonState(enabled);
+    });
   }
+
 
   public cleanupNextButtonStateStream(): void {
     this.nextButtonStateSubscription?.unsubscribe();
