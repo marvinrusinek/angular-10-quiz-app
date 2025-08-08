@@ -1135,7 +1135,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     console.log(`[✅ updateHighlighting Complete] at ${Date.now()}`);
   
-    // Immediately trigger explanation text
+    // Immediately trigger explanation text update
     this.emitExplanation(questionIndex);
   }
 

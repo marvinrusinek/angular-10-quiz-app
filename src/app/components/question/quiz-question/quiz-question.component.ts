@@ -198,6 +198,8 @@ export class QuizQuestionComponent
   isExplanationLocked = true;
   currentExplanationText = '';
   explanationEmitted = false;
+  private lastExplanationShownIndex = -1;
+  private explanationInFlight = false;
 
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
@@ -2572,15 +2574,12 @@ export class QuizQuestionComponent
     wasReselected?: boolean;
   }): Promise<void> {
     if (!this.quizStateService.isInteractionReady()) {
-      if (this.waitingForReady) return;                 // avoid piling duplicates
+      if (this.waitingForReady) return;  // avoid piling duplicates
       this.waitingForReady = true;
       this.deferredClick = event;
   
       this.quizStateService.interactionReady$
-        .pipe(
-          filter(Boolean),
-          take(1)
-        )
+        .pipe(filter(Boolean), take(1))
         .subscribe(() => {
           this.waitingForReady = false;
           const e = this.deferredClick;
@@ -2590,21 +2589,21 @@ export class QuizQuestionComponent
   
       return;  // bail now; we’ll replay the click when ready
     }
-
+  
     const evtIdx = event.index;
     const evtOpt = event.option;
-
+  
     // Guard and dedupe
     if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
     this.lastLoggedIndex = evtIdx;
-
+  
     const questionIdx = this.currentQuestionIndex;
     const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
     const isSingle = !isMultiSelect;
-
+  
     // Persist the selection with an explicit index (fixes first-click issues)
-    this.selectedOptionService.setSelectedOption(evtOpt);
-
+    this.selectedOptionService.setSelectedOption(evtOpt, questionIdx);
+  
     if (isSingle) {
       // Single-answer → enable Next immediately, deterministically
       this.selectedOptionService.setAnswered(true);
@@ -2619,37 +2618,60 @@ export class QuizQuestionComponent
         );
       });
     }
-
+  
     this.selectedIndices.clear();
     this.selectedIndices.add(evtIdx);
-
+  
     // Mark question as answered
     this.quizStateService.setAnswerSelected(true);
-
-    // Prepare formatted explanation (ensure it matches the correct question)
-    const explanationText = await this.updateExplanationText(questionIdx).catch((err) => {
-      console.error('[❌ Failed to update explanation]', err);
-      return 'No explanation available';
-    });
-    
-    // Emit so the parent shows explanation on first click
-    this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
   
-    // Immediately show the raw explanation
-    const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
-    this.explanationTextService.setExplanationText(raw);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-
+    // ───────────────────────────────────────────────
+    // ✅ Show explanation on the FIRST click for this question
+    //    1) Show RAW immediately (instant feedback)
+    //    2) Kick off async formatting; when ready, replace once
+    // ───────────────────────────────────────────────
+    if (this.lastExplanationShownIndex !== questionIdx && !this.explanationInFlight) {
+      this.explanationInFlight = true;
+  
+      // Emit so the parent shows explanation on first click
+      this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
+  
+      // Immediately show the raw explanation
+      const raw = this.currentQuestion.explanation?.trim() || 'No explanation available';
+      this.explanationTextService.setExplanationText(raw);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+  
+      // Kick off async formatting; DO NOT await
+      this.updateExplanationText(questionIdx)
+        .then((formatted) => {
+          const clean = (formatted ?? '').trim?.() ?? '';
+          // Replace only if still on same question and we have text
+          if (clean && this.currentQuestionIndex === questionIdx) {
+            this.explanationTextService.setExplanationText(clean);
+          }
+        })
+        .catch((err) => {
+          console.error('[❌ Failed to update explanation]', err);
+        })
+        .finally(() => {
+          this.explanationInFlight = false;
+          this.lastExplanationShownIndex = questionIdx;
+        });
+    } else {
+      // Still emit selection (keeps parent in sync), but don't re-trigger explanation flow
+      this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
+    }
+  
     // Build feedback text and post-click tasks
     this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
     await this.postClickTasks(evtOpt, evtIdx, true, false);
-
+  
     this.handleCoreSelection(event);
     this.markBindingSelected(evtOpt);
     this.refreshFeedbackFor(evtOpt);
-  }
+  }  
 
   private handleCoreSelection(
     ev: { option: SelectedOption; index: number; checked: boolean }
