@@ -5609,7 +5609,12 @@ export class QuizQuestionComponent
     this.selectedOptionService.clearSelectionsForQuestion?.(index);
 
     // Allow expiry to run again for the new question
-    this._expiryHandledForIndex = null;
+    this._expiryHandledForIndex = null;  // allow expiry handler to run for this Q
+    this._timerForIndex = index;  // mark timer ownership
+
+    // Restart per-question timer
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timerService.timePerQuestion, /*isCountdown*/ true);
   }
   
   // One call to reset everything the child controls for a given question
