@@ -369,4 +369,8 @@ export class QuizStateService {
   setInteractionReady(v: boolean) {
     this.interactionReadySubject.next(!!v);
   }
+
+  isInteractionReady(): boolean { 
+    return this.interactionReadySubject.getValue(); 
+  }
 }
