@@ -67,6 +67,9 @@ export class QuizStateService {
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
 
+  private interactionReadySubject = new BehaviorSubject<boolean>(false);
+  public interactionReady$ = this.interactionReadySubject.asObservable();
+
   constructor() {
     this.questionStates = new Map<number, QuestionState>();
   }
@@ -361,5 +364,9 @@ export class QuizStateService {
       heading: question.questionText ?? 'No question available',
       explanation: question.explanation ?? 'No explanation available'
     });    
+  }
+
+  setInteractionReady(v: boolean) {
+    this.interactionReadySubject.next(v);
   }
 }
