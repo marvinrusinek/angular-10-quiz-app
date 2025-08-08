@@ -67,7 +67,7 @@ export class QuizStateService {
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
   isNextButtonEnabled$ = this.isNextButtonEnabledSubject.asObservable();
 
-  private interactionReadySubject = new BehaviorSubject<boolean>(false);
+  private interactionReadySubject = new BehaviorSubject<boolean>(true);
   public interactionReady$ = this.interactionReadySubject.asObservable();
 
   constructor() {
@@ -367,6 +367,6 @@ export class QuizStateService {
   }
 
   setInteractionReady(v: boolean) {
-    this.interactionReadySubject.next(v);
+    this.interactionReadySubject.next(!!v);
   }
 }
