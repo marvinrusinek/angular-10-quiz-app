@@ -2714,14 +2714,18 @@ export class QuizQuestionComponent
     // Keep your original dedupe semantics (option-index based)
     if (!evtOpt) return;
 
-    // Dedupe ONLY within the same question
-    const sameQuestion = lockedIndex === this.lastLoggedQuestionIndex;
-    if (sameQuestion && evtIdx === this.lastLoggedIndex) {
-      return; // ignore *true* repeat click on the same option for the same question
+    // 🔧 Reset dedupe when we’re on a new question (so first click isn’t swallowed)
+    if (lockedIndex !== this.lastLoggedQuestionIndex) {
+      this.lastLoggedQuestionIndex = lockedIndex;
+      this.lastLoggedIndex = -1; // <-- crucial
+    }
+
+    // Dedupe ONLY within the same question/option
+    if (evtIdx === this.lastLoggedIndex) {
+      return; // true repeat on the same option for this question
     }
     
     // First valid click for this question/option → accept and update trackers
-    this.lastLoggedQuestionIndex = lockedIndex;
     this.lastLoggedIndex = evtIdx;
   
     const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
