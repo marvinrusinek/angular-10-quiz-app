@@ -122,7 +122,8 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
   private navigatingBackwards = false;
-  lastLoggedIndex: number;
+  private lastLoggedIndex: number = -1;
+  private lastLoggedQuestionIndex: number = -1;
   public selectedIndices = new Set<number>();
 
   combinedQuestionData$: Subject<{
