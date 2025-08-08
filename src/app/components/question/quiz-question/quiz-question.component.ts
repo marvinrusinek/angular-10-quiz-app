@@ -2712,19 +2712,15 @@ export class QuizQuestionComponent
     // this.resetDedupeFor(lockedIndex);
   
     // Keep your original dedupe semantics (option-index based)
-    if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
+    if (!evtOpt) return;
 
-    const key = `${lockedIndex}:${evtIdx}`;
-    if (this._clickInFlight && this._inFlightKey === key) return;
-    this._clickInFlight = true;
-    this._inFlightKey = key;
-
+    // Dedupe ONLY within the same question
     const sameQuestion = lockedIndex === this.lastLoggedQuestionIndex;
-    const sameOptionOnSameQuestion = sameQuestion && (evtIdx === this.lastLoggedIndex);
-
-    if (sameOptionOnSameQuestion) return;
+    if (sameQuestion && evtIdx === this.lastLoggedIndex) {
+      return; // ignore *true* repeat click on the same option for the same question
+    }
     
-    // Update dedupe trackers
+    // First valid click for this question/option → accept and update trackers
     this.lastLoggedQuestionIndex = lockedIndex;
     this.lastLoggedIndex = evtIdx;
   
