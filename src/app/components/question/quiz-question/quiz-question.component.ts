@@ -2802,20 +2802,14 @@ export class QuizQuestionComponent
   }): Promise<void> {
     // Gate super-fast clicks until UI is ready; replay once ready (unchanged)
     if (!this.quizStateService.isInteractionReady()) {
-      if (this.waitingForReady) return;  // avoid piling duplicates
-      this.waitingForReady = true;
-      this.deferredClick = event;
+      // Clear any pending “replay” state—no recursion needed anymore
+      this.waitingForReady = false;
+      this.deferredClick = undefined;
   
-      this.quizStateService.interactionReady$
-        .pipe(filter(Boolean), take(1))
-        .subscribe(() => {
-          this.waitingForReady = false;
-          const e = this.deferredClick;
-          this.deferredClick = undefined;
-          if (e) this.onOptionClicked(e);  // re-run once UI is ready
-        });
-  
-      return;  // bail now; we’ll replay the click when ready
+      // Wait here, then continue with the SAME click
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
     }
   
     const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
