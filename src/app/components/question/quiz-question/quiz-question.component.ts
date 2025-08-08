@@ -5614,7 +5614,7 @@ export class QuizQuestionComponent
 
     // Restart per-question timer
     this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, /*isCountdown*/ true);
+    this.timerService.startTimer(this.timerService.timePerQuestion, true);
   }
   
   // One call to reset everything the child controls for a given question
