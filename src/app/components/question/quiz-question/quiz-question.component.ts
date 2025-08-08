@@ -210,6 +210,10 @@ export class QuizQuestionComponent
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
 
+  private _expiryHandledForIndex: number | null = null;
+  private _timerForIndex: number | null = null;
+  public isFormatting = false;
+
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
   private payloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
@@ -5603,8 +5607,15 @@ export class QuizQuestionComponent
    
   // Per-question “next + selections” reset done from the child
   public resetPerQuestionState(index: number): void {
-    this.nextButtonStateService.reset?.(); // if you have it
+    this.nextButtonStateService.reset?.();
     this.selectedOptionService.clearSelectionsForQuestion?.(index);
+
+    this._expiryHandledForIndex = null;  // allow expiry to run for this question
+    this._timerForIndex = index;  // tie the timer to this question
+
+    // restart per-question countdown
+    this.timerService.resetTimer();
+    this.timerService.startTimer(this.timerService.timePerQuestion, /*isCountdown*/ true);
   }
   
   // One call to reset everything the child controls for a given question
