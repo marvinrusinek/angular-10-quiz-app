@@ -33,6 +33,9 @@ export class TimerService {
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
 
+  private expiredSubject = new Subject<void>();
+  public expired$ = this.expiredSubject.asObservable();
+
   constructor(private ngZone: NgZone) {}
 
   ngOnDestroy(): void {
@@ -75,6 +78,7 @@ export class TimerService {
         // If we are in countdown mode and we've reached the duration, stop automatically
         if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
+          this.ngZone.run(() => this.expiredSubject.next());
           this.stopTimer();
         }
       }),
