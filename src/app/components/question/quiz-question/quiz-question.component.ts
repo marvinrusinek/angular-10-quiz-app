@@ -1489,17 +1489,20 @@ export class QuizQuestionComponent
     //    Also reset click dedupe and pre-evaluate Next for multi if needed.
     // ─────────────────────────────────────────────────────────────
     queueMicrotask(() => {
-      // If you normally call generateOptionBindings elsewhere, this is safe/no-op.
       this.sharedOptionComponent?.generateOptionBindings?.();
       this.cdRef?.detectChanges?.();
-  
+    
       // UI is now interactive
       this.quizStateService.setLoading?.(false);
-      this.quizStateService.setInteractionReady?.(true);
-  
+      this.quizStateService.setInteractionReady?.(true);  // fixed stray quote
+    
       // Reset the “same index” dedupe so the first click on a new question isn’t ignored
       (this as any).lastLoggedIndex = -1;
-  
+    
+      // Ensure first-click explanation fires for the new question
+      this.lastExplanationShownIndex = -1;
+      this.explanationInFlight = false;
+    
       // Multi-select: ensure first selection enables Next after restart/navigation
       const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
       if (isMulti) {
@@ -1508,13 +1511,15 @@ export class QuizQuestionComponent
           true
         );
       }
-  
+    
       console.log('[🟢 Interaction Ready]', {
         qIndex: this.currentQuestionIndex,
         isMulti,
-        optCount: this.optionsToDisplay?.length ?? 0
+        optCount: this.optionsToDisplay?.length ?? 0,
+        lastExplanationShownIndex: this.lastExplanationShownIndex,
+        explanationInFlight: this.explanationInFlight
       });
-    });
+    });    
   }
 
   // Method to conditionally update the explanation when the question is answered
