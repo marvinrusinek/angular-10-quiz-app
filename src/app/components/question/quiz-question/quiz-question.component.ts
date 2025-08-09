@@ -699,8 +699,6 @@ export class QuizQuestionComponent
   // Listen for the visibility change event
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
-    // Pause immediately when tab is hidden and bail
-    // When hidden: SNAPSHOT only (do not pause; throttling is fine)
     if (document.visibilityState === 'hidden') {
       try {
         const snap = await firstValueFrom<number>(
@@ -714,7 +712,7 @@ export class QuizQuestionComponent
       return;
     }
 
-    // FAST-PATH EXPIRY CHECK (runs before heavy restore), account for time spent hidden
+    // FAST-PATH EXPIRY CHECK
     try {
       const duration = this.timerService.timePerQuestion ?? 30;
 
@@ -739,24 +737,8 @@ export class QuizQuestionComponent
           ));
 
         if (!alreadyShowing) {
-          // HARD STOP + RESET to full duration so the UI snaps to 30s
+          // Stop the ticking
           this.timerService.stopTimer?.();
-          try {
-            // @ts-expect-error allow optional arg
-            this.timerService.resetTimer(this.timerService.timePerQuestion);
-          } catch {
-            this.timerService.resetTimer?.();
-          }
-          // Next-frame reset to beat any pending ticks from the old run
-          requestAnimationFrame(() => {
-            try {
-              // @ts-expect-error allow optional arg
-              this.timerService.resetTimer(this.timerService.timePerQuestion);
-            } catch {
-              this.timerService.resetTimer?.();
-            }
-            this.cdRef.markForCheck?.();
-          });
 
           // Flip to explanation inside Angular
           this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
@@ -768,47 +750,32 @@ export class QuizQuestionComponent
         }
       }
 
-      // clear snapshots if we’re not expiring now
+      // Not expiring now → clear snapshots and continue
       this._hiddenAt = null;
       this._elapsedAtHide = null;
     } catch (e) {
       console.warn('[onVisibilityChange] fast-path expiry check failed', e);
     }
 
+    // Restore flow
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
-
-        // Resume on the next frame so the UI can settle
-        requestAnimationFrame(() => this.timerService.resumeTimer?.());
 
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
 
         // Ensure optionsToDisplay is populated before proceeding
-        if (
-          !Array.isArray(this.optionsToDisplay) ||
-          this.optionsToDisplay.length === 0
-        ) {
-          console.warn(
-            '[onVisibilityChange] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.'
-          );
-
-          if (
-            this.currentQuestion &&
-            Array.isArray(this.currentQuestion.options)
-          ) {
-            this.optionsToDisplay = this.currentQuestion.options.map(
-              (option, index) => ({
-                ...option,
-                optionId: option.optionId ?? index, // ensure optionId is properly assigned
-                correct: option.correct ?? false,   // ensure `correct` property exists
-              })
-            );
+        if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+          console.warn('[onVisibilityChange] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
+          if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+            this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+              ...option,
+              optionId: option.optionId ?? index,  // ensure optionId
+              correct: option.correct ?? false,  // ensure correct flag
+            }));
           } else {
-            console.error(
-              '[onVisibilityChange] ❌ Failed to repopulate optionsToDisplay. Aborting feedback restoration.'
-            );
+            console.error('[onVisibilityChange] ❌ Failed to repopulate optionsToDisplay. Aborting feedback restoration.');
             return;
           }
         }
@@ -819,77 +786,48 @@ export class QuizQuestionComponent
 
           // Apply feedback immediately after restoring selected options
           setTimeout(() => {
-            const previouslySelectedOption = this.optionsToDisplay.find(
-              (opt) => opt.selected
-            );
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
             if (previouslySelectedOption) {
               this.applyOptionFeedback(previouslySelectedOption);
             } else {
-              console.log(
-                '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.'
-              );
+              console.log('[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.');
             }
           }, 50);
 
           // Regenerate feedback text for the current question
           try {
-            const feedbackText = await this.generateFeedbackText(
-              this.currentQuestion
-            );
+            const feedbackText = await this.generateFeedbackText(this.currentQuestion);
             this.feedbackText = feedbackText;
           } catch (error) {
-            console.error(
-              '[onVisibilityChange] ❌ Error generating feedback text:',
-              error
-            );
+            console.error('[onVisibilityChange] ❌ Error generating feedback text:', error);
           }
         } else {
-          console.warn(
-            '[onVisibilityChange] ⚠️ Current question is missing. Attempting to reload...'
-          );
+          console.warn('[onVisibilityChange] ⚠️ Current question is missing. Attempting to reload...');
 
-          // Reload the current question if not restored
           const loaded = await this.loadCurrentQuestion();
           if (loaded && this.currentQuestion) {
-            // Restore selected options before applying feedback
             this.restoreFeedbackState();
 
-            // Ensure feedback is reapplied after reloading the question
-            const previouslySelectedOption = this.optionsToDisplay.find(
-              (opt) => opt.selected
-            );
+            const previouslySelectedOption = this.optionsToDisplay.find(opt => opt.selected);
             if (previouslySelectedOption) {
               this.applyOptionFeedback(previouslySelectedOption);
             } else {
-              console.warn(
-                '[onVisibilityChange] ⚠️ No previously selected option found after reload. Applying feedback to all options.'
-              );
+              console.warn('[onVisibilityChange] ⚠️ No previously selected option found after reload. Applying feedback to all options.');
             }
 
-            // Generate feedback text after reloading the question
             try {
-              const feedbackText = await this.generateFeedbackText(
-                this.currentQuestion
-              );
+              const feedbackText = await this.generateFeedbackText(this.currentQuestion);
               this.feedbackText = feedbackText;
             } catch (error) {
-              console.error(
-                '[onVisibilityChange] ❌ Error generating feedback text after reload:',
-                error
-              );
+              console.error('[onVisibilityChange] ❌ Error generating feedback text after reload:', error);
             }
           } else {
-            console.error(
-              '[onVisibilityChange] ❌ Failed to reload current question.'
-            );
+            console.error('[onVisibilityChange] ❌ Failed to reload current question.');
           }
         }
       }
     } catch (error) {
-      console.error(
-        '[onVisibilityChange] ❌ Error during state restoration:',
-        error
-      );
+      console.error('[onVisibilityChange] ❌ Error during state restoration:', error);
     }
   }
 
