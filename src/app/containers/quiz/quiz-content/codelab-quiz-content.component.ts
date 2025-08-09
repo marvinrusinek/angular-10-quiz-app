@@ -298,12 +298,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const correct = (correctText ?? '').trim();
        
         const showExplanation =
-          state.mode === 'explanation' &&
+          state?.mode === 'explanation' &&
           (explanation || shouldDisplayExplanation);
         if (showExplanation) {
+          if (explanation) return explanation;
+          
+          // Then use any override (e.g., "Formatting…" or raw) for THIS index
+          if (override?.idx === currentIndex && override?.html) return override.html;
+
+          // Finally, raw fallback from the model
           const fallback =
           (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
-          return explanation;  // render explanation once
+          return fallback;
         }
 
         // Otherwise show question (and correct count if present)
