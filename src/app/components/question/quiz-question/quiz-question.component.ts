@@ -6118,46 +6118,36 @@ export class QuizQuestionComponent
     if (this.handledOnExpiry.has(index)) return;
     this.handledOnExpiry.add(index);
   
-    // unlock + show so formatter runs
+    this.isFormatting = true;
+  
+    // Open the pipeline so formatter actually runs even if explanation was hidden
     this.explanationTextService.unlockExplanation?.();
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.displayExplanation = true;
     this.showExplanationChange?.emit(true);
   
-    // get formatted text for THIS index
-    let text = '';
-    try {
-      const out = await this.updateExplanationText(index);
-      text = (out ?? '').trim?.() ?? '';
-    } catch {}
-    if (!text && (this.explanationTextService as any).formattedExplanation$) {
-      try {
-        text = await firstValueFrom(
-          this.explanationTextService.formattedExplanation$.pipe(
-            filter((s: string | null | undefined) => !!s && !!s.trim()),
-            map((s: string) => s.trim()),
-            take(1),
-            timeout({ first: 1500 })
-          )
-        );
-      } catch {}
-    }
+    // 🔥 format specifically for THIS index (not the current one)
+    let text = await this.formatExplanationForIndex(index);
+  
+    // Fallback to raw if formatter yields nothing
     if (!text) {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+      const q = this.questions?.[index] ?? this.currentQuestion; // whichever you have
+      text = (q?.explanation ?? '').trim() || 'No explanation available';
     }
   
-    // apply only if still on that question
+    // Only apply if user is still on that index
     const active = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    if (active !== index) return;
+    if (active !== index) { this.isFormatting = false; return; }
   
+    // Set final text (cover both render paths)
     this.explanationTextService.setExplanationText(text);
     this.explanationToDisplay = text;
     this.explanationToDisplayChange?.emit(text);
   
+    // Mark answered + enable Next
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
-  
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       this.selectedOptionService.evaluateNextButtonStateForQuestion(index, true);
     } else {
@@ -6165,6 +6155,29 @@ export class QuizQuestionComponent
       this.nextButtonStateService.setNextButtonState(true);
     }
   
+    this.isFormatting = false;
     this.cdRef.markForCheck?.();
-  }   
+  }  
+
+  private async formatExplanationForIndex(index: number): Promise<string> {
+    // Snapshot and force index during formatting
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCurrent = this.currentQuestionIndex;
+
+    try {
+      this.fixedQuestionIndex = index;
+      this.currentQuestionIndex = index;
+
+      const out = await this.updateExplanationText(index);
+      const clean = (out ?? '').trim?.() ?? '';
+      return clean;
+    } catch (e) {
+      console.error('[formatExplanationForIndex] failed', e);
+      return '';
+    } finally {
+      // restore indices
+      this.fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCurrent;
+    }
+  }
 }
