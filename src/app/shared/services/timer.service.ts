@@ -111,11 +111,7 @@ export class TimerService {
       return;
     }
 
-    this.isTimerRunning = false;  // mark the timer as stopped
-    this.isTimerStoppedForCurrentQuestion = true;  // prevent restart for current question
-    this.stopSubject.next();  // emit stop signal to stop the timer
-    this.isStop.next();
-
+    // End the ticking subscription
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
       this.timerSubscription = null;
@@ -123,6 +119,11 @@ export class TimerService {
     } else {
       console.warn('No active timer subscription to unsubscribe.');
     }
+
+    this.isTimerRunning = false;  // mark the timer as stopped
+    this.isTimerStoppedForCurrentQuestion = true;  // prevent restart for current question
+    this.stopSubject.next();  // emit stop signal to stop the timer
+    this.isStop.next();
 
     if (callback) {
       callback(this.elapsedTime);
