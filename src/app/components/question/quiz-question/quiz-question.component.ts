@@ -5887,12 +5887,38 @@ export class QuizQuestionComponent
   }
 
   private async prewarmAndCache(index: number): Promise<void> {
+    const i0 = this.normalizeIndex(index);
+    if (this._formattedByIndex.has(i0)) return;  // already cached
+  
+    // Force the formatter to read this index (covers Q2–Q6)
+    const prevFixed = (this as any).fixedQuestionIndex;
+    const prevCur = this.currentQuestionIndex;
     try {
-      const out = await this.updateExplanationText(index);  // existing formatter
-      const clean = (out ?? '').trim?.() ?? '';
-      if (clean) this._formattedByIndex.set(index, clean);
+      (this as any).fixedQuestionIndex = i0;
+      this.currentQuestionIndex = i0;
+  
+      // Try direct return first
+      let clean = (await this.updateExplanationText(i0)) ?? '';
+      clean = clean.trim?.() ?? clean;
+  
+      // If formatter writes to a stream, await it once
+      if (!clean && (this.explanationTextService as any).formattedExplanation$) {
+        clean = await firstValueFrom(
+          this.explanationTextService.formattedExplanation$.pipe(
+            filter((s: string | null | undefined) => !!s && !!s.trim()),
+            map((s: string) => s.trim()),
+            take(1),
+            timeout({ first: 1200 })
+          )
+        ).catch(() => '');
+      }
+  
+      if (clean) this._formattedByIndex.set(i0, clean);
     } catch (err) {
       console.warn('[prewarmAndCache] format failed', err);
+    } finally {
+      (this as any).fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
     }
   }
 
@@ -5970,4 +5996,44 @@ export class QuizQuestionComponent
     if (this.questions?.[idx - 1] != null) return idx - 1;  // 1-based → 0-based
     return 0;
   }
+
+  private async getFormattedFor(index: number): Promise<string> {
+    const i0 = this.normalizeIndex(index);
+    const fromCache = this._formattedByIndex.get(i0);
+    if (fromCache) return fromCache;
+  
+    const prevFixed = (this as any).fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+    let text = '';
+  
+    try {
+      (this as any).fixedQuestionIndex = i0;
+      this.currentQuestionIndex = i0;
+  
+      // Try direct return
+      const out = await this.updateExplanationText(i0);
+      text = (out ?? '').trim?.() ?? '';
+  
+      // If formatter uses a stream, await it once
+      if (!text && (this.explanationTextService as any).formattedExplanation$) {
+        text = await firstValueFrom(
+          this.explanationTextService.formattedExplanation$.pipe(
+            filter((s: string | null | undefined) => !!s && !!s.trim()),
+            map((s: string) => s.trim()),
+            take(1),
+            timeout({ first: 1200 })
+          )
+        ).catch(() => '');
+      }
+  
+      if (text) this._formattedByIndex.set(i0, text);
+      return text;
+    } catch (e) {
+      console.warn('[getFormattedFor] failed', i0, e);
+      return '';
+    } finally {
+      (this as any).fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
+  }  
 }
