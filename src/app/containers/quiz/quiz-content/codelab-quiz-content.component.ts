@@ -276,12 +276,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),
-      this.displayState$.pipe(startWith({ mode: 'question', answered: false })),
+      this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
       this.explanationTextService.explanationText$,
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizService.currentQuestionIndex$
+      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
     ]).pipe(
       map((
         [override, state, explanationText, questionText,
@@ -299,10 +299,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
        
         const showExplanation =
           state.mode === 'explanation' &&
-          explanation &&
-          shouldDisplayExplanation;
+          (explanation || shouldDisplayExplanation);
         if (showExplanation) {
-          return explanation;  // render explanation once
+          const fallback =
+          (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
+          return explanation || fallback;  // render explanation once
         }
 
         // Otherwise show question (and correct count if present)
