@@ -31,6 +31,7 @@ import {
   ReplaySubject,
   Subject,
   Subscription,
+  timer
 } from 'rxjs';
 import {
   catchError,
@@ -5936,26 +5937,36 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // allow expiry again
+    // allow expiry again for THIS question
     this.handledOnExpiry.delete(i0);
   
-    // optional prewarm
+    // optional prewarm (kept)
     this._formattedByIndex?.delete?.(i0);
     void this.prewarmAndCache?.(i0);
   
-    // restart timer and show 30 immediately
+    // restart visible countdown and show full duration immediately
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
   
-    // one-shot subscription for THIS question
+    // A) Keep your TimerService expiry (one-shot) as a backup
     this._expirySub?.unsubscribe();
     this._expirySub = this.timerService.expired$
       .pipe(take(1))
       .subscribe(() => this.onTimerExpiredFor(i0));
   
-    console.log('[armed expiry for]', { idx: i0 });
-  }  
-
+    // B) Authoritative per-question deadline (decoupled from service)
+    // Fires once after N seconds for THIS index, inside Angular.
+    this._deadlineSub?.unsubscribe();
+    const ms = (this.timerService.timePerQuestion ?? 30) * 1000;
+  
+    this._deadlineSub = this.ngZone.runOutsideAngular(() =>
+      timer(ms).pipe(take(1)).subscribe(() => {
+        this.ngZone.run(() => this.onTimerExpiredFor(i0));
+      })
+    );
+  
+    console.log('[armed expiry for]', { idx: i0, ms });
+  }
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
     this.hardResetClickGuards();
