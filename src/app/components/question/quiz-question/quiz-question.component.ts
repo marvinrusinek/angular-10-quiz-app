@@ -6115,26 +6115,21 @@ export class QuizQuestionComponent
     this.cdRef.markForCheck?.();
   } */
   private async onTimerExpiredFor(index: number): Promise<void> {
-    // only once per question
     if (this.handledOnExpiry.has(index)) return;
     this.handledOnExpiry.add(index);
-
-    this.isFormatting = true;
-
-    // open the pipeline so formatting actually runs
+  
+    // unlock + show so formatter runs
     this.explanationTextService.unlockExplanation?.();
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.displayExplanation = true;
     this.showExplanationChange?.emit(true);
-
-    // Try: get formatted string directly
+  
+    // get formatted text for THIS index
     let text = '';
     try {
       const out = await this.updateExplanationText(index);
       text = (out ?? '').trim?.() ?? '';
     } catch {}
-
-    // If formatter didn’t return, await the formatted stream once (with timeout)
     if (!text && (this.explanationTextService as any).formattedExplanation$) {
       try {
         text = await firstValueFrom(
@@ -6147,34 +6142,29 @@ export class QuizQuestionComponent
         );
       } catch {}
     }
-
-    // Final fallback
     if (!text) {
       text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
     }
-
-    // Only apply if user is still on that index
+  
+    // apply only if still on that question
     const active = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    if (active !== index) { this.isFormatting = false; return; }
-
-    // set final text (both paths, so whichever your template uses will update)
+    if (active !== index) return;
+  
     this.explanationTextService.setExplanationText(text);
     this.explanationToDisplay = text;
     this.explanationToDisplayChange?.emit(text);
-
-    // mark answered + enable Next
+  
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
-
+  
     if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
       this.selectedOptionService.evaluateNextButtonStateForQuestion(index, true);
     } else {
       this.selectedOptionService.setAnswered(true);
       this.nextButtonStateService.setNextButtonState(true);
     }
-
-    this.isFormatting = false;
+  
     this.cdRef.markForCheck?.();
-  } 
+  }   
 }
