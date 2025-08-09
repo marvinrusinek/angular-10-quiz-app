@@ -2997,7 +2997,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3104,7 +3104,76 @@ export class QuizQuestionComponent
         this._clickGate = false;
       });
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // Wait for interaction readiness, but do not replay
+    if (!this.quizStateService.isInteractionReady()) {
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
+    }
+  
+    // Live normalized index + snapshot question (no currentQuestion reliance)
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q  = this.questions?.[i0];
+    const raw = (q?.explanation ?? '').trim() || 'No explanation available';
+  
+    // ───── DEBUG PROBE: HARD FLIP the explanation on FIRST click ─────
+    this.ngZone.run(() => {
+      // ensure no lock blocks display
+      this.explanationTextService.unlockExplanation?.();
+  
+      // publish text to both service + local bindings the template might use
+      this.explanationTextService.setExplanationText(raw);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      // flip global state → explanation
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+  
+      // flip any local flags parents/templates might bind
+      this.displayExplanation = true;
+      this.explanationToDisplay = raw;
+      this.showExplanationChange?.emit(true);
+      this.explanationToDisplayChange?.emit(raw);
+  
+      // enable Next deterministically (single-answer assumption; safe for probe)
+      try { this.selectedOptionService.setAnswered(true); } catch {}
+      try { this.nextButtonStateService.setNextButtonState(true); } catch {}
+  
+      // force paint under OnPush
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+    });
+  
+    // ───── LOG what the template sees (one-frame later) ─────
+    requestAnimationFrame(async () => {
+      try {
+        const shouldDisp = await firstValueFrom(
+          this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))
+        );
+        console.log('[probe-Q2+] flags', {
+          i0,
+          mode: 'explanation (forced)',
+          shouldDisplayExplanation$: shouldDisp,
+          displayExplanation: this.displayExplanation,
+          answered: true,
+          answerSelected: true,
+          textLen: this.explanationToDisplay?.length ?? 0
+        });
+      } catch {}
+    });
+  
+    // IMPORTANT: return here to avoid any other code interfering during the probe
+    return;
   }
+  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
