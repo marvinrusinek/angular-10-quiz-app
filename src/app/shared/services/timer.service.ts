@@ -73,10 +73,12 @@ export class TimerService {
       tap((tick) => {
         // Tick starts at 0 after 1s → elapsed = tick + 1 (1,2,3,…)
         const elapsed = tick + 1;
+
+        // Internal state can be outside Angular
+        this.elapsedTime = elapsed;
   
         // Re-enter Angular so async pipes trigger change detection on every tick
         this.ngZone.run(() => {
-          this.elapsedTime = elapsed;
           this.elapsedTimeSubject.next(this.elapsedTime);
         });
   
