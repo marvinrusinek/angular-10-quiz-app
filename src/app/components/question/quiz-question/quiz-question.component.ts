@@ -703,6 +703,32 @@ export class QuizQuestionComponent
       return;
     }
 
+    // Visible again — resume the ticking (if you have it)
+    this.timerService.resumeTimer?.();
+
+    // FAST-PATH EXPIRY CHECK (runs before heavy restore)
+    try {
+      const elapsed = await firstValueFrom<number>(this.timerService.elapsedTime$.pipe(take(1)));
+      const duration = this.timerService.timePerQuestion ?? 30;
+  
+      if (elapsed >= duration) {
+        const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+  
+        // Skip if explanation is already showing
+        const alreadyShowing =
+          this.displayExplanation ||
+          (await firstValueFrom(this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))));
+  
+        if (!alreadyShowing) {
+          // Flip to explanation immediately for this question, inside Angular
+          this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
+          return; // bail to avoid racing with the restore flow below
+        }
+      }
+    } catch (e) {
+      console.warn('[onVisibilityChange] fast-path expiry check failed', e);
+    }
+
     try {
       if (document.visibilityState === 'visible') {
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
@@ -5873,16 +5899,19 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // Prewarm silently; do not touch visibility here
-    void this.prewarmAndCache?.(i0);
+    // clear click dedupe
+    this.lastLoggedIndex = -1;
+    this.lastLoggedQuestionIndex = -1;
+  
+    // Prewarm silently; do not touch visibility here (single source of truth)
+    void this.resolveFormatted(i0, { useCache: true, setCache: true });
   
     // Restart timer
     this.timerService.stopTimer?.();
     this.timerService.resetTimer();
-    requestAnimationFrame(() => this.timerService.startTimer(this.timerService.timePerQuestion, true));
-
-    // Prewarm formatted text silently for THIS question
-    void this.getFormattedFor(i0);
+    requestAnimationFrame(() =>
+      this.timerService.startTimer(this.timerService.timePerQuestion, true)
+    );
   }
 
   // One call to reset everything the child controls for a given question
