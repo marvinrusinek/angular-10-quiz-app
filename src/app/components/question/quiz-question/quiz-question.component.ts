@@ -456,15 +456,6 @@ export class QuizQuestionComponent
       this.resetUIForNewQuestion();
     });
 
-    /* this.timerSub.add(
-      this.timerService.expired$
-        .pipe(
-          withLatestFrom(this.quizService.currentQuestionIndex$),
-          map(([_, idx]) => this.normalizeIndex(idx))
-        )
-        .subscribe((i0) => this.onTimerExpiredFor(i0))
-    ); */
-
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
       this.explanationText = '';
