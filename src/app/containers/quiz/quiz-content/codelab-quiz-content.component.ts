@@ -303,7 +303,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (showExplanation) {
           if (explanation) return explanation;
           
-          // Then use any override (e.g., "Formatting…" or raw) for THIS index
+          // Then use any override ("Formatting…" or raw) for this index
           if (override?.idx === currentIndex && override?.html) return override.html;
 
           // Finally, raw fallback from the model
