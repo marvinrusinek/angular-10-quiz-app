@@ -2997,7 +2997,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  /* TWO CLICK VERSION 
+  // TWO CLICK VERSION 
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3105,7 +3105,7 @@ export class QuizQuestionComponent
         this._clickGate = false;
       });
     }
-  } */
+  }
   /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3174,131 +3174,6 @@ export class QuizQuestionComponent
     // IMPORTANT: return here to avoid any other code interfering during the probe
     return;
   } */
-  public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    if (!this.quizStateService.isInteractionReady()) {
-      await firstValueFrom(
-        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-      );
-    }
-  
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
-    const evtIdx = event.index;
-  
-    // Resolve an option for icons/state, but DO NOT require it to flip
-    const optFromList =
-      (this as any).optionsToDisplay?.[evtIdx] ??
-      q?.options?.[evtIdx] ?? null;
-    const evtOpt = event.option ?? optFromList;
-  
-    if ((this as any)._clickGate) return;
-    (this as any)._clickGate = true;
-  
-    try {
-      const raw = (q?.explanation ?? '').trim() || 'No explanation available';
-      const cached = this._formattedByIndex?.get?.(i0);
-      const toShowNow = cached || raw;
-  
-      // —— HARD FLIP (probe path) ——
-      this.ngZone.run(() => {
-        this.explanationTextService.unlockExplanation?.();
-        this.explanationTextService.setExplanationText(toShowNow);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-  
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-        this.quizStateService.setAnswered(true);
-        this.quizStateService.setAnswerSelected(true);
-  
-        // Keep Next simple to avoid gating glitches
-        this.selectedOptionService.setAnswered?.(true);
-        this.nextButtonStateService.setNextButtonState?.(true);
-  
-        this.displayExplanation = true;
-        this.explanationToDisplay = toShowNow;
-        this.showExplanationChange?.emit(true);
-        this.explanationToDisplayChange?.emit(toShowNow);
-  
-        this.cdRef.markForCheck?.();
-        this.cdRef.detectChanges?.();
-      });
-  
-      // —— RE-ASSERT (beat any late “hide” toggles) ——
-      queueMicrotask(() => {
-        try {
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.displayExplanation = true;
-          this.cdRef.markForCheck?.();
-        } catch {}
-      });
-      requestAnimationFrame(() => {
-        try {
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.displayExplanation = true;
-          this.cdRef.detectChanges?.();
-        } catch {}
-      });
-      setTimeout(() => {
-        try {
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.displayExplanation = true;
-          this.cdRef.markForCheck?.();
-          this.cdRef.detectChanges?.();
-        } catch {}
-      }, 30);
-  
-      // —— Swap RAW → FORMATTED (no second click) ——
-      if (!cached) {
-        void this.resolveFormatted(i0, { useCache: true, setCache: true })
-          .then((formatted) => {
-            const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return;
-  
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-            if (active !== i0) return; // navigated away
-  
-            this.ngZone.run(() => {
-              this.explanationTextService.setExplanationText(clean);
-              this.explanationToDisplay = clean;
-              this.explanationToDisplayChange?.emit(clean);
-              // re-assert visibility again after swap, just in case
-              this.explanationTextService.setShouldDisplayExplanation(true);
-              this.displayExplanation = true;
-              this.cdRef.markForCheck?.();
-              this.cdRef.detectChanges?.();
-            });
-          })
-          .catch(err => console.warn('[formatted-swap]', err));
-      }
-  
-      // —— After paint: persist selection & icons (non-blocking) ——
-      queueMicrotask(() => {
-        try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
-        try {
-          this.selectedIndices?.clear?.();
-          this.selectedIndices?.add?.(evtIdx);
-        } catch {}
-        try { if (evtOpt) this.markBindingSelected(evtOpt); } catch {}
-        try { this.refreshFeedbackFor(evtOpt ?? undefined); } catch {}
-      });
-  
-      // Defer heavier work
-      requestAnimationFrame(() => {
-        try { this.optionSelected.emit({ ...(evtOpt ?? {}), questionIndex: i0 }); } catch {}
-        (async () => {
-          try { this.feedbackText = await this.generateFeedbackText(this.questions?.[i0] ?? this.currentQuestion); } catch {}
-          try { await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false); } catch {}
-          try { this.handleCoreSelection(event); } catch {}
-        })().catch(err => console.error('[postClickTasks]', err));
-      });
-    } finally {
-      queueMicrotask(() => { (this as any)._clickGate = false; });
-    }
-  }
   
 
   private resetDedupeFor(index: number): void {
