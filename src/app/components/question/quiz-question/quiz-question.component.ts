@@ -5930,33 +5930,32 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // Next & selection
+    // Next / selection
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // allow expiry again for this Q
+    // Allow expiry again for this Q
     this.handledOnExpiry.delete(i0);
   
-    // optional: prewarm
+    // Prewarm (optional, but we’ll use it if present)
     this._formattedByIndex?.delete?.(i0);
     void this.prewarmAndCache?.(i0);
   
-    // restart per-question countdown (emit initial value immediately)
+    // Restart timer — show full duration immediately
     this.timerService.resetTimer(this.timerService.timePerQuestion);
     this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
   
-    // 🔒 one-shot expiry for THIS question
+    // Arm ONE-SHOT expiry for THIS question
     this._expirySub?.unsubscribe();
     this._expirySub = this.timerService.expired$
       .pipe(take(1))
       .subscribe(() => this.onTimerExpiredFor(i0));
   
-    // ✅ DO NOT reference 'id' here — it doesn't exist on your type
+    // Don’t reference a non-existent 'id' here
     console.log('[armed expiry for]', { idx: i0 });
   }
-  
 
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
@@ -5976,162 +5975,7 @@ export class QuizQuestionComponent
   }
 
   // Called when the countdown hits zero
-  /* private async onTimerExpired(): Promise<void> {
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-  
-    // Tolerate initial load (Q1) where _timerForIndex may be unset
-    if (this._timerForIndex == null) {
-      this._timerForIndex = lockedIndex;
-    }
-  
-    // Ignore expiries that don't belong to the current question
-    if (this._timerForIndex !== lockedIndex) return;
-  
-    // Only handle once per question
-    if (this._expiryHandledForIndex === lockedIndex) return;
-    this._expiryHandledForIndex = lockedIndex;
-  
-    this.isFormatting = true;
-  
-    // Await formatted text; fallback to raw if needed
-    let text = '';
-    try {
-      const out = await this.updateExplanationText(lockedIndex);
-      text = (out ?? '').trim?.() ?? '';
-    } catch (e) {
-      console.error('[onTimerExpired] format failed; fallback to raw', e);
-    }
-    if (!text) {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-    }
-  
-    // Flip UI once with final text
-    this.displayExplanation = true;
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
-    this.showExplanationChange?.emit(true);
-  
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setExplanationText(text);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-  
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-  
-    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
-  
-    this.isFormatting = false;
-    this.cdRef.markForCheck?.();
-  } */
-  /* private async onTimerExpired(): Promise<void> {
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    if (this._timerForIndex == null) this._timerForIndex = lockedIndex;
-    if (this._timerForIndex !== lockedIndex) return;
-    if (this._expiryHandledForIndex === lockedIndex) return;
-    this._expiryHandledForIndex = lockedIndex;
-  
-    // open the pipeline so formatting actually runs for Q2+
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.displayExplanation = true;
-    this.showExplanationChange?.emit(true);
-  
-    // await formatted, fallback to raw once
-    let text = '';
-    try {
-      const out = await this.updateExplanationText(lockedIndex);
-      text = (out ?? '').trim?.() ?? '';
-    } catch {}
-    if (!text) {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-    }
-  
-    // render once with final text + enable Next
-    this.explanationTextService.setExplanationText(text);
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
-  
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-  
-    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
-  
-    this.cdRef.markForCheck?.();
-  } */
   /* private async onTimerExpiredFor(index: number): Promise<void> {
-    // run once per question
-    this._expiryHandledForIndex ??= -1;
-    //if (this._expiryHandledForIndex === index) return;
-    //this._expiryHandledForIndex = index;
-    if (this.handledOnExpiry.has(index)) return;
-    this.handledOnExpiry.add(index);
-  
-    this.isFormatting = true;
-  
-    // unlock + show before formatting so formatter actually runs
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.displayExplanation = true;
-    this.showExplanationChange?.emit(true);
-  
-    let text = '';
-    try {
-      const out = await this.updateExplanationText(index);
-      text = (out ?? '').trim?.() ?? '';
-    } catch {}
-    // if (!text) {
-    //  text = (this.currentQuestion?.explanation ?? '').//trim() || 'No explanation available';
-    //}
-    if (!text && (this.explanationTextService as any).formattedExplanation$) {
-      try {
-        text = await firstValueFrom(
-          this.explanationTextService.formattedExplanation$.pipe(
-            filter((s: string | null | undefined) => !!s && !!s.trim()),
-            map((s: string) => s.trim()),
-            take(1),
-            timeout({ first: 1500 })
-          )
-        );
-      } catch {}
-    }
-
-    // Final fallback
-    if (!text) {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-    }
-  
-    // render once with final text
-    this.explanationTextService.setExplanationText(text);
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
-  
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-  
-    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(index, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
-  
-    this.isFormatting = false;
-    this.cdRef.markForCheck?.();
-  } */
-  private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
   
     console.log('[expired for]', i0);
@@ -6194,8 +6038,77 @@ export class QuizQuestionComponent
   
     this.isFormatting = false;
     this.cdRef.markForCheck?.();
-  }
+  } */
+  private async onTimerExpiredFor(index: number): Promise<void> {
+    const i0 = this.normalizeIndex(index);
   
+    console.log('[expired for]', i0);
+    if (this.handledOnExpiry.has(i0)) return;
+    this.handledOnExpiry.add(i0);
+  
+    this.isFormatting = true;
+  
+    // open pipeline so formatter actually runs even if explanation was hidden
+    this.explanationTextService.unlockExplanation?.(i0);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.displayExplanation = true;
+    this.showExplanationChange?.emit(true);
+  
+    // 🔒 FORCE formatting for THIS index (even if updateExplanationText reads "current")
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+  
+    let text = '';
+    try {
+      this.fixedQuestionIndex   = i0;
+      this.currentQuestionIndex = i0;
+  
+      // try cache first if you prewarm
+      text = this._formattedByIndex?.get?.(i0) ?? '';
+  
+      if (!text) {
+        const out = await this.updateExplanationText(i0);
+        text = (out ?? '').trim?.() ?? '';
+        if (text) this._formattedByIndex?.set?.(i0, text);
+      }
+    } catch (e) {
+      console.error('[onTimerExpiredFor] format failed', e);
+    } finally {
+      this.fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
+  
+    // fallback to raw only if formatter yielded nothing
+    if (!text) {
+      const q = this.questions?.[i0] ?? this.currentQuestion;
+      text = (q?.explanation ?? '').trim() || 'No explanation available';
+    }
+  
+    // ✅ normalize active index before comparing
+    const activeRaw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    const active0   = this.normalizeIndex(activeRaw);
+    if (active0 !== i0) { this.isFormatting = false; return; }
+  
+    // set final text (hit both paths so either template updates)
+    this.explanationTextService.setExplanationText(text);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
+  
+    // mark answered + enable Next
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+  
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
+  
+    this.isFormatting = false;
+    this.cdRef.markForCheck?.();
+  }
 
   private async formatExplanationForIndex(index: number): Promise<string> {
     // Snapshot and force index during formatting
