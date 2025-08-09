@@ -5974,40 +5974,30 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // HARD-HIDE + LOCK explanation so nothing can show early
-    this.displayExplanation = false;                 // local path
+    // hard-hide & lock so nothing leaks
+    this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
     this.showExplanationChange?.emit(false);
-  
-    this.explanationTextService.resetExplanationText();        // clear text
-    this.explanationTextService.lockExplanation?.();           // lock updates
-    this.explanationTextService.setShouldDisplayExplanation(false); // force hidden
+    this.explanationTextService.resetExplanationText();
+    this.explanationTextService.lockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(false);
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-    // 1) Next / selection
+    // next/selection reset
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // 2) allow expiry again for THIS question
-    this.handledOnExpiry.delete(i0);
+    // optional: silent prewarm (must NOT flip UI)
+    void this.prewarmAndCacheSilent?.(i0);
   
-    // 3) 🔇 SILENT prewarm (no UI writes)
-    void this.prewarmAndCacheSilent(i0);
-  
-    // 4) restart visible countdown and show full duration immediately
+    // restart visible countdown (emit “30” immediately if you updated TimerService)
     this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
+    this.timerService.startTimer(this.timerService.timePerQuestion, true);
   
-    // 5) one-shot expiry for THIS question
-    this._expirySub?.unsubscribe();
-    this._expirySub = this.timerService.expired$
-      .pipe(take(1))
-      .subscribe(() => this.onTimerExpiredFor(i0));
-  
-    console.log('[armed expiry for]', { idx: i0 });
+    console.log('[resetPerQuestionState]', i0);
   }
 
   // One call to reset everything the child controls for a given question
