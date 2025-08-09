@@ -414,20 +414,21 @@ export class QuizQuestionComponent
     this.idxSub = this.quizService.currentQuestionIndex$.pipe(
       map((i: number) => this.normalizeIndex(i)),
       distinctUntilChanged(),
+      // Reset per-question state and restart visible countdown
       tap((i0: number) => {
-        // Hard-hide/lock and restart visible countdown
+        console.log('[flow] index → reset', i0);
         this.currentQuestionIndex = i0;
-        this.resetPerQuestionState(i0);
+        this.resetPerQuestionState(i0);     // IMPORTANT: do NOT arm any expiry inside
       }),
-      // For THIS question, wait for the SAME expiry event the timer uses
+      // Arm ONE wait on the SAME expiry signal the timer uses (cancels on nav)
       switchMap((i0: number) =>
         this.timerService.expired$.pipe(
-          take(1),  // one shot for this question
-          map((): number => i0)  // carry the index through
+          take(1),
+          tap(() => console.log('[flow] expired$ hit for', i0)),
+          map((): number => i0)
         )
       )
-    )
-    .subscribe((i0: number) => this.onTimerExpiredFor(i0));
+    ).subscribe((i0: number) => this.onTimerExpiredFor(i0));
 
     this.quizService.currentQuestionIndex$.subscribe((index) => {
       console.log('[📡 Parent received current index]', index);
@@ -5974,7 +5975,7 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // hard-hide & lock so nothing leaks
+    // Hard-hide & lock so nothing shows early
     this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
@@ -5984,18 +5985,21 @@ export class QuizQuestionComponent
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-    // next/selection reset
+    // Next/selection reset
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // optional: silent prewarm (must NOT flip UI)
+    // Optional: silent prewarm only (no UI writes)
     void this.prewarmAndCacheSilent?.(i0);
   
-    // restart visible countdown (emit “30” immediately if you updated TimerService)
+    // Restart visible countdown (ensure a clean start)
+    this.timerService.stopTimer();
     this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, true);
+    requestAnimationFrame(() => {
+      this.timerService.startTimer(this.timerService.timePerQuestion, true);
+    });
   
     console.log('[resetPerQuestionState]', i0);
   }
@@ -6084,22 +6088,18 @@ export class QuizQuestionComponent
   } */
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-    console.log('[expired for]', i0);
+    console.log('[handler] onTimerExpiredFor', i0);
   
-    // run once per question
-    if (this.handledOnExpiry.has(i0)) return;
-    this.handledOnExpiry.add(i0);
-  
-    // ---- compute formatted text for THIS index (force the formatter to that index) ----
-    const prevFixed = this.fixedQuestionIndex;
+    // Force the formatter to think we’re on i0
+    const prevFixed = (this as any).fixedQuestionIndex;
     const prevCur   = this.currentQuestionIndex;
     let text = '';
   
     try {
-      this.fixedQuestionIndex   = i0;
+      (this as any).fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
   
-      // prefer any prewarmed cache you may have
+      // Use cache if you prewarmed
       text = this._formattedByIndex?.get?.(i0) ?? '';
       if (!text) {
         const out = await this.updateExplanationText(i0);
@@ -6107,9 +6107,9 @@ export class QuizQuestionComponent
         if (text) this._formattedByIndex?.set?.(i0, text);
       }
     } catch (e) {
-      console.error('[onTimerExpiredFor] format failed', e);
+      console.error('[handler] format failed', e);
     } finally {
-      this.fixedQuestionIndex   = prevFixed;
+      (this as any).fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
   
@@ -6118,36 +6118,31 @@ export class QuizQuestionComponent
       text = (q?.explanation ?? '').trim() || 'No explanation available';
     }
   
-    // ---- FLIP UI inside Angular (no index guard) ----
+    // Flip UI inside Angular; set both local + service flags
     this.ngZone.run(() => {
-      // unlock & show explanation path
       this.explanationTextService.unlockExplanation?.();
       this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      // global state → explanation mode
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
   
-      // publish text on both paths your template might use
       this.explanationTextService.setExplanationText(text);
       this.displayExplanation = true;
       this.explanationToDisplay = text;
       this.showExplanationChange?.emit(true);
       this.explanationToDisplayChange?.emit(text);
   
-      // enable Next
-      if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
+      // Enable Next
+      const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
+      if (qType === QuestionType.MultipleAnswer) {
         this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
       } else {
         this.selectedOptionService.setAnswered(true);
         this.nextButtonStateService.setNextButtonState(true);
       }
   
-      // make sure OnPush views paint
       this.cdRef.markForCheck?.();
       this.cdRef.detectChanges?.();
-      requestAnimationFrame(() => this.cdRef.detectChanges?.());
     });
   }
 
