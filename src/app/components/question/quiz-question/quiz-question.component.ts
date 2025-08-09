@@ -1,51 +1,13 @@
-import {
-  AfterViewInit,
-  ApplicationRef,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ComponentRef,
-  ComponentFactoryResolver,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChange,
-  SimpleChanges,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
+  ComponentRef, ComponentFactoryResolver, ElementRef, EventEmitter, HostListener,
+  Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges,
+  ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  from,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-  Subscription,
-  timer
-} from 'rxjs';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-  timeout,
-  withLatestFrom
-} from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject,
+  Subject, Subscription, timer } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map,
+  switchMap, take, takeUntil, tap, timeout, withLatestFrom } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -250,6 +212,7 @@ export class QuizQuestionComponent
   explanationEmitted = false;
   private lastExplanationShownIndex = -1;
   private explanationInFlight = false;
+  private forcedExplainIndex: number | null = null;  // which question should show explanation
 
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
@@ -335,7 +298,6 @@ export class QuizQuestionComponent
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
     protected ngZone: NgZone,
-    private appRef: ApplicationRef,
     protected el: ElementRef
   ) {
     super(
