@@ -419,7 +419,7 @@ export class QuizQuestionComponent
         this.currentQuestionIndex = i0;
         this.resetPerQuestionState(i0);
       }),
-      // For THIS question, wait for the SAME expiry event your timer uses
+      // For THIS question, wait for the SAME expiry event the timer uses
       switchMap((i0: number) =>
         this.timerService.expired$.pipe(
           take(1),  // one shot for this question
