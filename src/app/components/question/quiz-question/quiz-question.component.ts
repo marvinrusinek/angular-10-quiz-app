@@ -5921,8 +5921,8 @@ export class QuizQuestionComponent
       const out = await this.updateExplanationText(index);  // existing formatter
       const clean = (out ?? '').trim?.() ?? '';
       if (clean) this._formattedByIndex.set(index, clean);
-    } catch (e) {
-      console.warn('[prewarmAndCache] format failed', e);
+    } catch (err) {
+      console.warn('[prewarmAndCache] format failed', err);
     }
   }
 
@@ -5964,7 +5964,7 @@ export class QuizQuestionComponent
   
     // Compute formatted text for this index (don’t rely on “current”)
     const prevFixed = (this as any).fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
+    const prevCur = this.currentQuestionIndex;
   
     try {
       (this as any).fixedQuestionIndex = i0;
@@ -5986,8 +5986,8 @@ export class QuizQuestionComponent
           });
         }
       }
-    } catch (e) {
-      console.error('[format on expiry failed]', e);
+    } catch (err) {
+      console.error('[format on expiry failed]', err);
     } finally {
       (this as any).fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
