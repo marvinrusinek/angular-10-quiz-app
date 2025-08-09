@@ -247,12 +247,9 @@ export class QuizQuestionComponent
   selectionMessage$ = this.selectionMessageSubject.asObservable();
   selectionMessageSubscription: Subscription = new Subscription();
 
-  private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(
-    null
-  );
+  private questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   public questionPayload$ = this.questionPayloadSubject.asObservable();
 
-  private containerReady = new Subject<void>();
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
   private renderReadySubscription?: Subscription;
@@ -536,9 +533,6 @@ export class QuizQuestionComponent
   }
 
   async ngAfterViewInit(): Promise<void> {
-    this.containerReady.next();
-    this.containerReady.complete();
-
     const idx = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
     if (this._timerForIndex == null) this.resetForQuestion(idx);  // starts timer for Q1
 
