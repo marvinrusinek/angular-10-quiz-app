@@ -738,6 +738,9 @@ export class QuizQuestionComponent
           ) as boolean);
 
         if (!alreadyShowing) {
+          // Stop and reset the countdown so service state is clean
+          this.timerService.stopTimer?.();
+          this.timerService.resetTimer();
           this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
           // Clear snapshots and bail to avoid racing the restore flow
           this._hiddenAt = null;
