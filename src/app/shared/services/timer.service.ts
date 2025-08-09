@@ -84,7 +84,6 @@ export class TimerService {
         if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.ngZone.run(() => this.expiredSubject.next());
-          this.ngZone.run(() => this.expiredIndexSubject.next());
           this.stopTimer();
         }
       }),

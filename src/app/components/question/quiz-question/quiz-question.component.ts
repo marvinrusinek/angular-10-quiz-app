@@ -5925,24 +5925,21 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     // Next and selection state
     this.nextButtonStateService.reset?.();
-    this.nextButtonStateService.setNextButtonState?.(false);  // ensure disabled
+    this.nextButtonStateService.setNextButtonState?.(false); // ensure disabled
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(index);
   
-    // Expiry guards for this question
-    this._expiryHandledForIndex = null;  // allow expiry handler to run again
-    this._timerForIndex = index;  // tie the timer to this question
-    this.handledOnExpiry.delete(index);  // allow expiry once for this Q
-
+    // Expiry guard (use Set only)
+    this.handledOnExpiry.delete(index); // allow expiry once for this Q
+  
     // Prewarm formatted text in the background for THIS question
-    this._formattedByIndex.delete(index);
-    void this.prewarmAndCache(index);
-
+    this._formattedByIndex?.delete?.(index);
+    void this.prewarmAndCache(index); // make sure prewarm calls updateExplanationText(index)
   
     // Restart per-question countdown (show full duration immediately)
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timerService.timePerQuestion, true);
-  }
+  }  
 
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
