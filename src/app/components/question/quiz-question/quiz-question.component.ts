@@ -5875,30 +5875,30 @@ export class QuizQuestionComponent
     this.selectedIndices?.clear?.();
   }
 
-  // Per-question “next + selections” reset done from the child, timer
+  // Per-question next and selections reset done from the child, timer
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // Hard-hide & clear text for the new question
+    // Hard-hide and clear text for the new question
     this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
     this.showExplanationChange?.emit(false);
   
-    // ⬅️ Ensure no lock blocks the next show
+    // Ensure no lock blocks the next show
     this.explanationTextService.unlockExplanation?.();
     this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
   
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-    // Usual resets…
+    // Usual resets...
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // (Optional) prewarm silently; do NOT touch visibility here
+    // Prewarm silently; do not touch visibility here
     void this.prewarmAndCache?.(i0);
   
     // Restart timer
