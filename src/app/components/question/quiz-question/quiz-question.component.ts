@@ -2997,7 +2997,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3104,7 +3104,151 @@ export class QuizQuestionComponent
         this._clickGate = false;
       });
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // ✅ Wait instead of "return and replay" – prevents guaranteed 2nd click
+    if (!this.quizStateService.isInteractionReady()) {
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const i0 = (this.normalizeIndex?.(lockedIndex) ?? lockedIndex) as number;
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+  
+    if (!evtOpt) return;
+  
+    // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
+    if (this._clickGate) return;
+    this._clickGate = true;
+  
+    try {
+      const isMultiSelect =
+        this.currentQuestion.type === QuestionType.MultipleAnswer;
+      const isSingle = !isMultiSelect;
+  
+      // ───────────────────────────────────────────────
+      // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
+      //    Prefer cached formatted; else raw now, then swap to formatted
+      // ───────────────────────────────────────────────
+      {
+        const cached = this._formattedByIndex?.get?.(i0);
+        if (cached) {
+          // Show formatted immediately
+          this.explanationTextService.setExplanationText(cached);
+          this.explanationTextService.setShouldDisplayExplanation(true);
+  
+          this.quizStateService.setDisplayState({
+            mode: 'explanation',
+            answered: true,
+          });
+          this.quizStateService.setAnswered(true);
+          this.quizStateService.setAnswerSelected(true);
+  
+          if (isSingle) {
+            this.selectedOptionService.setAnswered(true);
+            this.nextButtonStateService.setNextButtonState(true);
+          } else {
+            this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
+          }
+  
+          this.displayExplanation = true;
+          this.explanationToDisplay = cached;
+          this.showExplanationChange?.emit(true);
+          this.explanationToDisplayChange?.emit(cached);
+          this.cdRef.markForCheck?.();
+        } else {
+          // Push raw so something appears immediately
+          const raw =
+            (this.currentQuestion?.explanation ?? '').trim() ||
+            'No explanation available';
+          this.explanationTextService.setExplanationText(raw);
+          this.explanationTextService.setShouldDisplayExplanation(true);
+  
+          // Put UI into explanation mode + answered now
+          this.quizStateService.setDisplayState({
+            mode: 'explanation',
+            answered: true,
+          });
+          this.quizStateService.setAnswered(true);
+          this.quizStateService.setAnswerSelected(true);
+  
+          if (isSingle) {
+            this.selectedOptionService.setAnswered(true);
+            this.nextButtonStateService.setNextButtonState(true);
+          } else {
+            this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
+          }
+  
+          this.displayExplanation = true;
+          this.explanationToDisplay = raw;
+          this.showExplanationChange?.emit(true);
+          this.explanationToDisplayChange?.emit(raw);
+          this.cdRef.markForCheck?.();
+  
+          // 🔁 Compute formatted FOR THIS index and swap when ready
+          void this.resolveFormatted(i0, { useCache: false, setCache: true })
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return;
+  
+              // still on same question?
+              const active =
+                (this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex) ??
+                  this.currentQuestionIndex) as number;
+              if (active !== i0) return;
+  
+              this.ngZone.run(() => {
+                this.explanationTextService.setExplanationText(clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
+                this.cdRef.markForCheck?.();
+              });
+            })
+            .catch((err) => console.warn('[format-on-click] failed', err));
+        }
+      }
+  
+      // Persist the selection for THIS question (kept)
+      this.selectedOptionService.setSelectedOption(evtOpt, i0);
+  
+      // Selection bookkeeping (kept)
+      this.selectedIndices.clear();
+      this.selectedIndices.add(evtIdx);
+  
+      // 🚦 Defer heavy work to next animation frame so first click paints immediately
+      requestAnimationFrame(() => {
+        // Parent notify first (non-blocking)
+        this.optionSelected.emit({ ...evtOpt, questionIndex: i0 });
+  
+        // Run the awaits without blocking the first paint
+        (async () => {
+          this.feedbackText = await this.generateFeedbackText(
+            this.currentQuestion
+          );
+          await this.postClickTasks(evtOpt, evtIdx, true, false);
+  
+          // Existing follow-ups (kept)
+          this.handleCoreSelection(event);
+          this.markBindingSelected(evtOpt);
+          this.refreshFeedbackFor(evtOpt);
+        })().catch((err) => console.error('[postClickTasks] error', err));
+      });
+    } finally {
+      // Release reentrancy guard after this tick
+      queueMicrotask(() => {
+        this._clickGate = false;
+      });
+    }
   }
+  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
