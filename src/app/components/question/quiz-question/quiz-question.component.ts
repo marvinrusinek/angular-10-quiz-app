@@ -407,10 +407,27 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     this.clearSoundFlagsForCurrentQuestion(0);
 
-    this.idxSub = this.quizService.currentQuestionIndex$.subscribe((idx) => {
+    /* this.idxSub = this.quizService.currentQuestionIndex$.subscribe((idx) => {
       console.log('[🔄 QQC index update]', idx);
       this.currentQuestionIndex = idx;
-    });
+    }); */
+    this.idxSub = this.quizService.currentQuestionIndex$.pipe(
+      map(i => this.normalizeIndex(i)),
+      distinctUntilChanged(),
+      // on every question: hard-reset view + restart visible countdown
+      tap(i0 => {
+        this.currentQuestionIndex = i0;
+        this.resetPerQuestionState(i0);  // this MUST hide+lock expl + startTimer(...)
+      }),
+      // Arm a one-shot deadline for THIS index (cancels previous on nav)
+      switchMap(i0 =>
+        timer((this.timerService.timePerQuestion ?? 30) * 1000).pipe(
+          take(1),
+          map(() => i0)
+        )
+      )
+    )
+    .subscribe((i0: number) => this.onTimerExpiredFor(i0));  // formats-for-index + flips UI inside NgZone
 
     this.quizService.currentQuestionIndex$.subscribe((index) => {
       console.log('[📡 Parent received current index]', index);
@@ -499,14 +516,14 @@ export class QuizQuestionComponent
       this.resetUIForNewQuestion();
     });
 
-    this.timerSub.add(
+    /* this.timerSub.add(
       this.timerService.expired$
         .pipe(
           withLatestFrom(this.quizService.currentQuestionIndex$),
           map(([_, idx]) => this.normalizeIndex(idx))
         )
         .subscribe((i0) => this.onTimerExpiredFor(i0))
-    );
+    ); */
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
