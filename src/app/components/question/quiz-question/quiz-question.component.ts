@@ -6170,8 +6170,8 @@ export class QuizQuestionComponent
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
-    if (this.questions?.[idx] != null) return idx;         // already 0-based
-    if (this.questions?.[idx - 1] != null) return idx - 1; // 1-based → 0-based
+    if (this.questions?.[idx] != null) return idx;          // already 0-based
+    if (this.questions?.[idx - 1] != null) return idx - 1;  // 1-based → 0-based
     return 0;
   }
 
