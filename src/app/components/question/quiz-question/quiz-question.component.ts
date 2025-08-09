@@ -412,22 +412,22 @@ export class QuizQuestionComponent
       this.currentQuestionIndex = idx;
     }); */
     this.idxSub = this.quizService.currentQuestionIndex$.pipe(
-      map(i => this.normalizeIndex(i)),
+      map((i: number) => this.normalizeIndex(i)),
       distinctUntilChanged(),
-      // on every question: hard-reset view + restart visible countdown
-      tap(i0 => {
+      tap((i0: number) => {
+        // Hard-hide/lock and restart visible countdown
         this.currentQuestionIndex = i0;
-        this.resetPerQuestionState(i0);  // this MUST hide+lock expl + startTimer(...)
+        this.resetPerQuestionState(i0);
       }),
-      // Arm a one-shot deadline for THIS index (cancels previous on nav)
-      switchMap(i0 =>
-        timer((this.timerService.timePerQuestion ?? 30) * 1000).pipe(
-          take(1),
-          map(() => i0)
+      // For THIS question, wait for the SAME expiry event your timer uses
+      switchMap((i0: number) =>
+        this.timerService.expired$.pipe(
+          take(1),  // one shot for this question
+          map((): number => i0)  // carry the index through
         )
       )
     )
-    .subscribe((i0: number) => this.onTimerExpiredFor(i0));  // formats-for-index + flips UI inside NgZone
+    .subscribe((i0: number) => this.onTimerExpiredFor(i0));
 
     this.quizService.currentQuestionIndex$.subscribe((index) => {
       console.log('[📡 Parent received current index]', index);
