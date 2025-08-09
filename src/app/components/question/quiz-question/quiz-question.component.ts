@@ -2997,7 +2997,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  // TWO CLICK VERSION 
+  /* TWO CLICK VERSION 
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3105,7 +3105,7 @@ export class QuizQuestionComponent
         this._clickGate = false;
       });
     }
-  }
+  } */
   /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3174,6 +3174,153 @@ export class QuizQuestionComponent
     // IMPORTANT: return here to avoid any other code interfering during the probe
     return;
   } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // ✅ Wait instead of "return and replay" – prevents guaranteed 2nd click
+    if (!this.quizStateService.isInteractionReady()) {
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
+    }
+  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+  
+    if (!evtOpt) return;
+  
+    // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
+    if (this._clickGate) return;
+    this._clickGate = true;
+  
+    try {
+      const isMultiSelect =
+        this.currentQuestion.type === QuestionType.MultipleAnswer;
+      const isSingle = !isMultiSelect;
+  
+      // ───────────────────────────────────────────────
+      // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
+      // ───────────────────────────────────────────────
+      {
+        const raw =
+          (this.currentQuestion?.explanation ?? '').trim() ||
+          'No explanation available';
+        // Push raw so something appears immediately
+        this.explanationTextService.setExplanationText(raw);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+  
+        // Put UI into explanation mode + answered now
+        this.quizStateService.setDisplayState({
+          mode: 'explanation',
+          answered: true,
+        });
+        this.quizStateService.setAnswered(true);
+        this.quizStateService.setAnswerSelected(true);
+  
+        // ⬇⬇⬇ STEP 1: immediate override + formatted swap (added) ⬇⬇⬇
+        try {
+          // Use a normalized live index + snapshot question
+          const i0 =
+            this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? lockedIndex ?? 0) ??
+            (lockedIndex ?? 0);
+          const q = this.questions?.[i0];
+  
+          const cached = this._formattedByIndex?.get?.(i0);
+          const rawForIdx = (q?.explanation ?? '').trim();
+          // Prefer cached formatted; else raw; else a tiny placeholder
+          const initialHtml = cached || (rawForIdx ? rawForIdx : '<span class="muted">Formatting…</span>');
+  
+          // Show something NOW via override (what combinedText$ should pick first)
+          this.overrideSubject?.next?.({ html: initialHtml, idx: i0 });
+  
+          // Kick the formatter for THIS question; when ready, publish + CLEAR override
+          void this.resolveFormatted?.(i0, { useCache: !cached, setCache: true })
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return;
+  
+              // still on same question?
+              const active =
+                this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+                (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return;
+  
+              this.explanationTextService.setExplanationText(clean);
+  
+              // Clear override so formatted wins in combinedText$
+              this.overrideSubject?.next?.({ html: '', idx: -1 });
+  
+              this.cdRef.markForCheck?.();
+            })
+            .catch((err) => console.warn('[formatted-swap] failed', err));
+        } catch {}
+        // ⬆⬆⬆ STEP 1 block end ⬆⬆⬆
+  
+        // Next button now
+        if (isSingle) {
+          this.selectedOptionService.setAnswered(true);
+          this.nextButtonStateService.setNextButtonState(true);
+        } else {
+          this.selectedOptionService.evaluateNextButtonStateForQuestion(
+            lockedIndex,
+            true
+          );
+        }
+  
+        this.cdRef.markForCheck?.();
+      }
+  
+      // Persist the selection for THIS question (kept)
+      this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
+  
+      // Selection bookkeeping (kept)
+      this.selectedIndices.clear();
+      this.selectedIndices.add(evtIdx);
+  
+      // 🧵 Kick formatting but DO NOT block paint
+      this.updateExplanationText(lockedIndex)
+        .then((formatted) => {
+          const clean = (formatted ?? '').trim?.() ?? '';
+          if (
+            clean &&
+            (this.fixedQuestionIndex ?? this.currentQuestionIndex) ===
+              lockedIndex
+          ) {
+            this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
+          }
+        })
+        .catch((err) => console.error('[❌ format explanation failed]', err));
+  
+      // 🚦 Defer heavy work to next animation frame so first click paints immediately
+      requestAnimationFrame(() => {
+        // Parent notify first (non-blocking)
+        this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
+  
+        // Run the awaits without blocking the first paint
+        (async () => {
+          this.feedbackText = await this.generateFeedbackText(
+            this.currentQuestion
+          );
+          await this.postClickTasks(evtOpt, evtIdx, true, false);
+  
+          // Existing follow-ups (kept)
+          this.handleCoreSelection(event);
+          this.markBindingSelected(evtOpt);
+          this.refreshFeedbackFor(evtOpt);
+        })().catch((err) => console.error('[postClickTasks] error', err));
+      });
+    } finally {
+      // Release reentrancy guard after this tick
+      queueMicrotask(() => {
+        this._clickGate = false;
+      });
+    }
+  }
   
 
   private resetDedupeFor(index: number): void {
