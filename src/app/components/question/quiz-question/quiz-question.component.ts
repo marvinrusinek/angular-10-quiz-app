@@ -265,6 +265,7 @@ export class QuizQuestionComponent
   private _expiryHandledForIndex: number | null = null;
   private handledOnExpiry = new Set<number>();
   public isFormatting = false;
+  private _expirySub?: Subscription;  // one-off per question
 
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
@@ -5941,7 +5942,10 @@ export class QuizQuestionComponent
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
   
-    console.log('[resetPerQuestionState]', { raw:index, i0 });
+    this._expirySub?.unsubscribe();
+    this._expirySub = this.timerService.expired$
+      .pipe(take(1))
+      .subscribe(() => this.onTimerExpiredFor(index));
   }  
 
   // One call to reset everything the child controls for a given question
