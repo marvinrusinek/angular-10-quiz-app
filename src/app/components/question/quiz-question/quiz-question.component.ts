@@ -171,14 +171,7 @@ export class QuizQuestionComponent
   private navigatingBackwards = false;
   private lastLoggedIndex: number = -1;
   private lastLoggedQuestionIndex: number = -1;
-  private _clickGate = false;
-  private waitingForReady = false;
-  private deferredClick?: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  };
+  private _clickGate = false;  // same-tick re-entrancy guard
   public selectedIndices = new Set<number>();
 
   combinedQuestionData$: Subject<{
@@ -279,26 +272,12 @@ export class QuizQuestionComponent
   public finalRenderReady = false;
   public internalBufferReady = false;
 
-  private deferredClick?: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  };
-  private waitingForReady = false;
-
-  private _processingClick = false;
-  private _processingPair: { q: number; o: number } | null = null;
-
-  private _clickInFlight = false;
-  private _inFlightKey: string | null = null;
-
   private displayStateSubject = new BehaviorSubject<{
     mode: 'question' | 'explanation';
     answered: boolean;
   }>({
     mode: 'question',
-    answered: false,
+    answered: false
   });
   displayState$ = this.displayStateSubject.asObservable();
   displayedExplanationIndex: number | null = null;
@@ -325,10 +304,6 @@ export class QuizQuestionComponent
   private containerReady = new Subject<void>();
 
   private _ready = new ReplaySubject<ViewContainerRef>(1);
-  private latestOptionClickTimestamp = 0;
-  private hasAutoAdvancedFromQ1 = false;
-
-  private _clickGate = false; // same-tick re-entrancy guard
 
   private timerSub = new Subscription();
 
