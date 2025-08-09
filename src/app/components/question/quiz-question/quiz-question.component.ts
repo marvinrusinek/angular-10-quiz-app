@@ -127,8 +127,8 @@ export class QuizQuestionComponent
   private lastProcessedQuestionIndex: number | null = null;
   fixedQuestionIndex = 0;
   private navigatingBackwards = false;
-  private lastLoggedIndex: number = -1;
-  private lastLoggedQuestionIndex: number = -1;
+  lastLoggedIndex = -1;
+  private lastLoggedQuestionIndex = -1;
   private _clickGate = false;  // same-tick re-entrancy guard
   public selectedIndices = new Set<number>();
 
@@ -208,18 +208,14 @@ export class QuizQuestionComponent
   explanationEmitted = false;
   private lastExplanationShownIndex = -1;
   private explanationInFlight = false;
-  private forcedExplainIndex: number | null = null;  // which question should show explanation
 
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
 
   private _formattedByIndex = new Map<number, string>();
   private _timerForIndex: number | null = null;
-  private _expiryHandledForIndex: number | null = null;
   private handledOnExpiry = new Set<number>();
   public isFormatting = false;
-  private _expirySub?: Subscription;  // one-off per question
-  private _deadlineSub?: Subscription;
 
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
@@ -256,13 +252,11 @@ export class QuizQuestionComponent
   );
   public questionPayload$ = this.questionPayloadSubject.asObservable();
 
+  private _ready = new ReplaySubject<ViewContainerRef>(1);
+  private containerReady = new Subject<void>();
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
   private renderReadySubscription?: Subscription;
-
-  private containerReady = new Subject<void>();
-
-  private _ready = new ReplaySubject<ViewContainerRef>(1);
 
   private timerSub = new Subscription();
 
