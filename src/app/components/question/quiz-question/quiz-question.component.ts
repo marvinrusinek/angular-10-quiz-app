@@ -3187,37 +3187,43 @@ export class QuizQuestionComponent
       );
     }
   
-    // Use live normalized index (avoid stale fixedIndex)
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
-  
+    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
     const evtIdx = event.index;
-    const evtOpt = event.option; // may be null on first click after nav
+    const evtOpt = event.option;
   
     // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
     if (this._clickGate) return;
     this._clickGate = true;
   
     try {
-      const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
+      const isMultiSelect =
+        this.currentQuestion.type === QuestionType.MultipleAnswer;
       const isSingle = !isMultiSelect;
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    (Do this BEFORE touching evtOpt so Q2 can paint even if option is null)
       // ───────────────────────────────────────────────
       {
-        // Prefer cached formatted for THIS question; else raw; else placeholder
+        // Use live normalized index + snapshot question
+        const i0 =
+          this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? lockedIndex ?? 0) ??
+          (lockedIndex ?? 0);
+        const q = this.questions?.[i0];
+  
+        // Prefer cached formatted; else raw; else a tiny placeholder (avoid "No explanation available" on first frame)
         const cached = this._formattedByIndex?.get?.(i0);
-        const raw    = (q?.explanation ?? '').trim();
-        const initial = cached || (raw || 'No explanation available');
+        const rawForIdx = (q?.explanation ?? '').trim();
+        const initial = cached || (rawForIdx || '<span class="muted">Formatting…</span>');
   
         // Push something immediately
         this.explanationTextService.setExplanationText(initial);
         this.explanationTextService.setShouldDisplayExplanation(true);
   
         // Put UI into explanation mode + answered now
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+        this.quizStateService.setDisplayState({
+          mode: 'explanation',
+          answered: true,
+        });
         this.quizStateService.setAnswered(true);
         this.quizStateService.setAnswerSelected(true);
   
@@ -3226,60 +3232,62 @@ export class QuizQuestionComponent
           this.selectedOptionService.setAnswered(true);
           this.nextButtonStateService.setNextButtonState(true);
         } else {
-          try {
-            this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-          } catch { /* don’t let errors block the flip */ }
+          this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
         }
   
         this.cdRef.markForCheck?.();
   
-        // 🔁 Kick formatting for THIS index and swap in when ready (no second click)
+        // 🔁 Kick formatting FOR THIS INDEX and swap in when ready (no second click)
         void this.resolveFormatted?.(i0, { useCache: !cached, setCache: true })
           .then((formatted) => {
             const clean = (formatted ?? '').trim?.() ?? '';
             if (!clean) return;
   
             // still on same question?
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+            const active =
+              this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+              (this.currentQuestionIndex ?? 0);
             if (active !== i0) return;
   
             this.explanationTextService.setExplanationText(clean);
             this.cdRef.markForCheck?.();
           })
-          .catch(err => console.warn('[format-on-click] failed', err));
+          .catch((err) => console.warn('[format-on-click] failed', err));
       }
   
-      // Persist the selection for THIS question (best-effort; don’t block UI)
-      try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+      // Persist the selection for THIS question (kept)
+      if (evtOpt) {
+        this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
+      }
   
-      // Selection bookkeeping (non-blocking)
-      try {
-        this.selectedIndices.clear();
-        this.selectedIndices.add(evtIdx);
-      } catch {}
+      // Selection bookkeeping (kept)
+      this.selectedIndices.clear();
+      this.selectedIndices.add(evtIdx);
   
-      // (Optional legacy path) If you still want to call your legacy formatter:
-      this.updateExplanationText(i0)
+      // 🧵 (Optional legacy path) Keep if you still want the old formatter too
+      this.updateExplanationText(lockedIndex)
         .then((formatted) => {
           const clean = (formatted ?? '').trim?.() ?? '';
-          if (clean) {
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-            if (active === i0) {
-              this.explanationTextService.setExplanationText(clean);
-              this.cdRef.markForCheck?.();
-            }
+          if (
+            clean &&
+            (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex
+          ) {
+            this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
           }
         })
         .catch((err) => console.error('[❌ format explanation failed]', err));
   
       // 🚦 Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
-        // Parent notify first (non-blocking)
-        try { this.optionSelected.emit({ ...(evtOpt ?? {}), questionIndex: i0 }); } catch {}
+        // Parent notify first (non-blocking) — emit a proper SelectedOption only
+        try {
+          if (evtOpt) this.optionSelected.emit(evtOpt as SelectedOption);
+        } catch {}
   
         // Run the awaits without blocking the first paint
         (async () => {
-          this.feedbackText = await this.generateFeedbackText(this.currentQuestion ?? q);
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
           await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
   
           // Existing follow-ups (kept)
@@ -3290,7 +3298,9 @@ export class QuizQuestionComponent
       });
     } finally {
       // Release reentrancy guard after this tick
-      queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => {
+        this._clickGate = false;
+      });
     }
   }
   
