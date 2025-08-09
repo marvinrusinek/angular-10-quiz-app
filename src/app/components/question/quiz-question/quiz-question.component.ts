@@ -252,13 +252,12 @@ export class QuizQuestionComponent
   );
   public questionPayload$ = this.questionPayloadSubject.asObservable();
 
-  private _ready = new ReplaySubject<ViewContainerRef>(1);
   private containerReady = new Subject<void>();
   private renderReadySubject = new BehaviorSubject<boolean>(false);
   public renderReady$ = this.renderReadySubject.asObservable();
   private renderReadySubscription?: Subscription;
 
-  private timerSub = new Subscription();
+  private timerSub: Subscription;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -539,9 +538,6 @@ export class QuizQuestionComponent
   async ngAfterViewInit(): Promise<void> {
     this.containerReady.next();
     this.containerReady.complete();
-
-    this._ready.next(this.dynamicAnswerContainer);
-    this._ready.complete();
 
     const idx = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
     if (this._timerForIndex == null) this.resetForQuestion(idx);  // starts timer for Q1
@@ -2310,10 +2306,6 @@ export class QuizQuestionComponent
 
   public get canRenderFinalOptions(): boolean {
     return this._canRenderFinalOptions;
-  }
-
-  public get containerReady$(): Observable<ViewContainerRef> {
-    return this._ready.asObservable();
   }
 
   public get shouldDisplayTextContent(): boolean {
