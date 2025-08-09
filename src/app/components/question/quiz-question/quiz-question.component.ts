@@ -6180,4 +6180,17 @@ export class QuizQuestionComponent
       this.currentQuestionIndex = prevCurrent;
     }
   }
+
+  // Always return a 0-based index that exists in `this.questions`
+  private normalizeIndex(idx: number): number {
+    // If your app is 1-based in places, map to 0-based
+    if (this.questions?.[idx] != null) return idx;  // already 0-based
+    if (this.questions?.[idx - 1] != null) return idx - 1;  // was 1-based
+    return Math.max(0, idx | 0); // fallback
+  }
+
+  private getActiveIndex0(): number {
+    const raw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    return this.normalizeIndex(raw);
+  }
 }
