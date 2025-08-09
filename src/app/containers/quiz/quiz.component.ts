@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, forkJoin, lastValueFrom, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -1057,10 +1057,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     } else {
       console.error('Question is not defined or updated properly.');
     }
-  }
-
-  ngAfterViewChecked(): void {
-    console.log('[Next Enabled?]', this.isNextButtonEnabled);
   }
 
   // Public getter methods for determining UI state based on current quiz and question data.
