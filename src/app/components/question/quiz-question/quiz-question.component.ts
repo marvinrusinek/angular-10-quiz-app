@@ -6078,60 +6078,70 @@ export class QuizQuestionComponent
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
     console.log('[expired for]', i0);
+  
+    // run once per question
     if (this.handledOnExpiry.has(i0)) return;
     this.handledOnExpiry.add(i0);
   
-    // Now it’s OK to show
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.displayExplanation = true;
-    this.showExplanationChange?.emit(true);
+    // ---- compute formatted text for THIS index (force the formatter to that index) ----
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+    let text = '';
   
-    // Prefer prewarmed, else compute now (forced index)
-    let text = this._formattedByIndex?.get?.(i0) ?? '';
-    if (!text) {
-      const prevFixed = this.fixedQuestionIndex;
-      const prevCur   = this.currentQuestionIndex;
-      try {
-        this.fixedQuestionIndex   = i0;
-        this.currentQuestionIndex = i0;
+    try {
+      this.fixedQuestionIndex   = i0;
+      this.currentQuestionIndex = i0;
+  
+      // prefer any prewarmed cache you may have
+      text = this._formattedByIndex?.get?.(i0) ?? '';
+      if (!text) {
         const out = await this.updateExplanationText(i0);
         text = (out ?? '').trim?.() ?? '';
         if (text) this._formattedByIndex?.set?.(i0, text);
-      } catch (e) {
-        console.error('[onTimerExpiredFor] format failed', e);
-      } finally {
-        this.fixedQuestionIndex = prevFixed;
-        this.currentQuestionIndex = prevCur;
       }
+    } catch (e) {
+      console.error('[onTimerExpiredFor] format failed', e);
+    } finally {
+      this.fixedQuestionIndex   = prevFixed;
+      this.currentQuestionIndex = prevCur;
     }
+  
     if (!text) {
       const q = this.questions?.[i0] ?? this.currentQuestion;
       text = (q?.explanation ?? '').trim() || 'No explanation available';
     }
   
-    // Apply only if still on this question
-    const activeRaw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    const active0   = this.normalizeIndex(activeRaw);
-    if (active0 !== i0) return;
+    // ---- FLIP UI inside Angular (no index guard) ----
+    this.ngZone.run(() => {
+      // unlock & show explanation path
+      this.explanationTextService.unlockExplanation?.();
+      this.explanationTextService.setShouldDisplayExplanation(true);
   
-    // Publish text (both paths)
-    this.explanationTextService.setExplanationText(text);
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
+      // global state → explanation mode
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
   
-    // Enable Next
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
+      // publish text on both paths your template might use
+      this.explanationTextService.setExplanationText(text);
+      this.displayExplanation = true;
+      this.explanationToDisplay = text;
+      this.showExplanationChange?.emit(true);
+      this.explanationToDisplayChange?.emit(text);
   
-    this.cdRef.detectChanges?.();
+      // enable Next
+      if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
+        this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
+      } else {
+        this.selectedOptionService.setAnswered(true);
+        this.nextButtonStateService.setNextButtonState(true);
+      }
+  
+      // make sure OnPush views paint
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+      requestAnimationFrame(() => this.cdRef.detectChanges?.());
+    });
   }
 
   private async formatExplanationForIndex(index: number): Promise<string> {
