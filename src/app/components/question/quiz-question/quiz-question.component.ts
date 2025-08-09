@@ -5927,46 +5927,72 @@ export class QuizQuestionComponent
     this.selectedIndices?.clear?.();
   }
 
+  private async prewarmAndCacheSilent(index: number): Promise<void> {
+    const i0 = this.normalizeIndex(index);
+  
+    // Force formatter to read THIS index, but keep UI locked/hidden
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+    try {
+      this.fixedQuestionIndex   = i0;
+      this.currentQuestionIndex = i0;
+  
+      const out = await this.updateExplanationText(i0); // may set service text internally
+      const clean = (out ?? '').trim?.() ?? '';
+  
+      // Never flip visibility here. Only cache.
+      if (clean) this._formattedByIndex?.set?.(i0, clean);
+  
+      // If updateExplanationText side-effected the service text, we’re still safe:
+      // shouldDisplayExplanation is FALSE and the lock is ON, so nothing renders.
+    } catch (e) {
+      console.warn('[prewarmAndCacheSilent] format failed', e);
+    } finally {
+      this.fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
+  }
+
   // Per-question “next + selections” reset done from the child, timer
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // Next / selection
+    // HARD-HIDE + LOCK explanation so nothing can show early
+    this.displayExplanation = false;                 // local path
+    this.explanationToDisplay = '';
+    this.explanationToDisplayChange?.emit('');
+    this.showExplanationChange?.emit(false);
+  
+    this.explanationTextService.resetExplanationText();        // clear text
+    this.explanationTextService.lockExplanation?.();           // lock updates
+    this.explanationTextService.setShouldDisplayExplanation(false); // force hidden
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+  
+    // 1) Next / selection
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // allow expiry again for THIS question
+    // 2) allow expiry again for THIS question
     this.handledOnExpiry.delete(i0);
   
-    // optional prewarm (kept)
-    this._formattedByIndex?.delete?.(i0);
-    void this.prewarmAndCache?.(i0);
+    // 3) 🔇 SILENT prewarm (no UI writes)
+    void this.prewarmAndCacheSilent(i0);
   
-    // restart visible countdown and show full duration immediately
+    // 4) restart visible countdown and show full duration immediately
     this.timerService.resetTimer();
     this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
   
-    // A) Keep your TimerService expiry (one-shot) as a backup
+    // 5) one-shot expiry for THIS question
     this._expirySub?.unsubscribe();
     this._expirySub = this.timerService.expired$
       .pipe(take(1))
       .subscribe(() => this.onTimerExpiredFor(i0));
   
-    // B) Authoritative per-question deadline (decoupled from service)
-    // Fires once after N seconds for THIS index, inside Angular.
-    this._deadlineSub?.unsubscribe();
-    const ms = (this.timerService.timePerQuestion ?? 30) * 1000;
-  
-    this._deadlineSub = this.ngZone.runOutsideAngular(() =>
-      timer(ms).pipe(take(1)).subscribe(() => {
-        this.ngZone.run(() => this.onTimerExpiredFor(i0));
-      })
-    );
-  
-    console.log('[armed expiry for]', { idx: i0, ms });
+    console.log('[armed expiry for]', { idx: i0 });
   }
+
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
     this.hardResetClickGuards();
@@ -6052,73 +6078,61 @@ export class QuizQuestionComponent
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
     console.log('[expired for]', i0);
-  
     if (this.handledOnExpiry.has(i0)) return;
     this.handledOnExpiry.add(i0);
   
-    // 🔒 Force the formatter to think we’re on i0 (works even if it reads "current")
-    const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
-    let text = '';
+    // Now it’s OK to show
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.displayExplanation = true;
+    this.showExplanationChange?.emit(true);
   
-    try {
-      this.fixedQuestionIndex   = i0;
-      this.currentQuestionIndex = i0;
-  
-      // try cache first if you prewarm
-      text = this._formattedByIndex?.get?.(i0) ?? '';
-  
-      if (!text) {
-        const out = await this.updateExplanationText(i0); // <-- pass i0
+    // Prefer prewarmed, else compute now (forced index)
+    let text = this._formattedByIndex?.get?.(i0) ?? '';
+    if (!text) {
+      const prevFixed = this.fixedQuestionIndex;
+      const prevCur   = this.currentQuestionIndex;
+      try {
+        this.fixedQuestionIndex   = i0;
+        this.currentQuestionIndex = i0;
+        const out = await this.updateExplanationText(i0);
         text = (out ?? '').trim?.() ?? '';
         if (text) this._formattedByIndex?.set?.(i0, text);
+      } catch (e) {
+        console.error('[onTimerExpiredFor] format failed', e);
+      } finally {
+        this.fixedQuestionIndex = prevFixed;
+        this.currentQuestionIndex = prevCur;
       }
-    } catch (e) {
-      console.error('[onTimerExpiredFor] format failed', e);
-    } finally {
-      this.fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
     }
-  
     if (!text) {
       const q = this.questions?.[i0] ?? this.currentQuestion;
       text = (q?.explanation ?? '').trim() || 'No explanation available';
     }
   
-    // ✅ UI updates must be inside Angular so Q2 actually paints
-    this.ngZone.run(() => {
-      const activeRaw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-      const active0   = this.normalizeIndex(activeRaw);
-      if (active0 !== i0) return; // user navigated away
+    // Apply only if still on this question
+    const activeRaw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    const active0   = this.normalizeIndex(activeRaw);
+    if (active0 !== i0) return;
   
-      // show explanation
-      this.explanationTextService.unlockExplanation?.();
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.displayExplanation = true;
-      this.showExplanationChange?.emit(true);
+    // Publish text (both paths)
+    this.explanationTextService.setExplanationText(text);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
   
-      // set text (both paths so whichever your template uses updates)
-      this.explanationTextService.setExplanationText(text);
-      this.explanationToDisplay = text;
-      this.explanationToDisplayChange?.emit(text);
+    // Enable Next
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
   
-      // mark answered + enable Next
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-  
-      if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-      } else {
-        this.selectedOptionService.setAnswered(true);
-        this.nextButtonStateService.setNextButtonState(true);
-      }
-  
-      // force paint for OnPush components
-      this.cdRef.detectChanges?.();
-    });
+    this.cdRef.detectChanges?.();
   }
-  
 
   private async formatExplanationForIndex(index: number): Promise<string> {
     // Snapshot and force index during formatting
