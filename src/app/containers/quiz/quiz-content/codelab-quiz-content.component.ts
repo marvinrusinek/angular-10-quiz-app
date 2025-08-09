@@ -303,7 +303,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (showExplanation) {
           const fallback =
           (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
-          return explanation || fallback;  // render explanation once
+          return explanation;  // render explanation once
         }
 
         // Otherwise show question (and correct count if present)
