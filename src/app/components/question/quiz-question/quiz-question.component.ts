@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ApplicationRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -359,6 +360,7 @@ export class QuizQuestionComponent
     protected cdRef: ChangeDetectorRef,
     protected router: Router,
     protected ngZone: NgZone,
+    private appRef: ApplicationRef,
     protected el: ElementRef
   ) {
     super(
@@ -6142,6 +6144,7 @@ export class QuizQuestionComponent
   
       this.cdRef.markForCheck?.();
       this.cdRef.detectChanges?.();
+      this.appRef.tick();
     });
   }
 
