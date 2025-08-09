@@ -37,6 +37,10 @@ export class TimerService {
   private expiredSubject = new Subject<void>();
   public expired$ = this.expiredSubject.asObservable();
 
+  // Expiry that includes the question index
+  private expiredIndexSubject = new Subject<number>();
+  public expiredIndex$ = this.expiredIndexSubject.asObservable();
+
   constructor(private ngZone: NgZone) {}
 
   ngOnDestroy(): void {
@@ -80,6 +84,7 @@ export class TimerService {
         if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.ngZone.run(() => this.expiredSubject.next());
+          this.ngZone.run(() => this.expiredIndexSubject.next());
           this.stopTimer();
         }
       }),

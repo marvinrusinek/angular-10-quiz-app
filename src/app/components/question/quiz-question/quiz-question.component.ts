@@ -263,6 +263,7 @@ export class QuizQuestionComponent
   private _formattedByIndex = new Map<number, string>();
   private _timerForIndex: number | null = null;
   private _expiryHandledForIndex: number | null = null;
+  private handledOnExpiry = new Set<number>();
   public isFormatting = false;
 
   private lastSerializedOptions = '';
@@ -5931,6 +5932,7 @@ export class QuizQuestionComponent
     // Expiry guards for this question
     this._expiryHandledForIndex = null;  // allow expiry handler to run again
     this._timerForIndex = index;  // tie the timer to this question
+    this.handledOnExpiry.delete(index);  // allow expiry once for this Q
 
     // Prewarm formatted text in the background for THIS question
     this._formattedByIndex.delete(index);
