@@ -6056,7 +6056,7 @@ export class QuizQuestionComponent
   
     this.cdRef.markForCheck?.();
   } */
-  private async onTimerExpiredFor(index: number): Promise<void> {
+  /* private async onTimerExpiredFor(index: number): Promise<void> {
     // run once per question
     this._expiryHandledForIndex ??= -1;
     //if (this._expiryHandledForIndex === index) return;
@@ -6077,9 +6077,9 @@ export class QuizQuestionComponent
       const out = await this.updateExplanationText(index);
       text = (out ?? '').trim?.() ?? '';
     } catch {}
-    /* if (!text) {
-      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-    } */
+    // if (!text) {
+    //  text = (this.currentQuestion?.explanation ?? '').//trim() || 'No explanation available';
+    //}
     if (!text && (this.explanationTextService as any).formattedExplanation$) {
       try {
         text = await firstValueFrom(
@@ -6116,5 +6116,68 @@ export class QuizQuestionComponent
   
     this.isFormatting = false;
     this.cdRef.markForCheck?.();
-  }  
+  } */
+  private async onTimerExpiredFor(index: number): Promise<void> {
+    // only once per question
+    if (this.handledOnExpiry.has(index)) return;
+    this.handledOnExpiry.add(index);
+
+    this.isFormatting = true;
+
+    // open the pipeline so formatting actually runs
+    this.explanationTextService.unlockExplanation?.();
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.displayExplanation = true;
+    this.showExplanationChange?.emit(true);
+
+    // Try: get formatted string directly
+    let text = '';
+    try {
+      const out = await this.updateExplanationText(index);
+      text = (out ?? '').trim?.() ?? '';
+    } catch {}
+
+    // If formatter didn’t return, await the formatted stream once (with timeout)
+    if (!text && (this.explanationTextService as any).formattedExplanation$) {
+      try {
+        text = await firstValueFrom(
+          this.explanationTextService.formattedExplanation$.pipe(
+            filter((s: string | null | undefined) => !!s && !!s.trim()),
+            map((s: string) => s.trim()),
+            take(1),
+            timeout({ first: 1500 })
+          )
+        );
+      } catch {}
+    }
+
+    // Final fallback
+    if (!text) {
+      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+    }
+
+    // Only apply if user is still on that index
+    const active = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    if (active !== index) { this.isFormatting = false; return; }
+
+    // set final text (both paths, so whichever your template uses will update)
+    this.explanationTextService.setExplanationText(text);
+    this.explanationToDisplay = text;
+    this.explanationToDisplayChange?.emit(text);
+
+    // mark answered + enable Next
+    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      this.selectedOptionService.evaluateNextButtonStateForQuestion(index, true);
+    } else {
+      this.selectedOptionService.setAnswered(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
+
+    this.isFormatting = false;
+    this.cdRef.markForCheck?.();
+  } 
 }
