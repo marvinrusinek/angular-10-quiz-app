@@ -345,24 +345,20 @@ export class QuizQuestionComponent
   async ngOnInit(): Promise<void> {
     this.clearSoundFlagsForCurrentQuestion(0);
 
-    /* this.idxSub = this.quizService.currentQuestionIndex$.subscribe((idx) => {
-      console.log('[🔄 QQC index update]', idx);
-      this.currentQuestionIndex = idx;
-    }); */
     this.idxSub = this.quizService.currentQuestionIndex$.pipe(
       map((i: number) => this.normalizeIndex(i)),
       distinctUntilChanged(),
   
-      // 1) On every question: hard reset view + restart visible countdown
+      // On every question: hard reset view + restart visible countdown
       tap((i0: number) => {
         this.currentQuestionIndex = i0;
-        this.resetPerQuestionState(i0); // IMPORTANT: this must NOT arm any expiry
-        // Also clear any one-shot guards if you had them:
+        this.resetPerQuestionState(i0);  // this must NOT arm any expiry
+        // Also clear any one-shot guards
         this.handledOnExpiry.delete(i0);
       }),
   
-      // 2) Wait for the SAME clock the UI renders: elapsedTime$
-      //    When it reaches the duration once, we expire this question.
+      // Wait for the SAME clock the UI renders: elapsedTime$
+      // When it reaches the duration once, we expire this question.
       switchMap((i0: number) =>
         this.timerService.elapsedTime$.pipe(
           filter((elapsed: number) => elapsed >= this.timerService.timePerQuestion),
@@ -6033,37 +6029,10 @@ export class QuizQuestionComponent
     }
   }
 
-  private async formatExplanationForIndex(index: number): Promise<string> {
-    // Snapshot and force index during formatting
-    const prevFixed = this.fixedQuestionIndex;
-    const prevCurrent = this.currentQuestionIndex;
-
-    try {
-      this.fixedQuestionIndex = index;
-      this.currentQuestionIndex = index;
-
-      const out = await this.updateExplanationText(index);
-      const clean = (out ?? '').trim?.() ?? '';
-      return clean;
-    } catch (e) {
-      console.error('[formatExplanationForIndex] failed', e);
-      return '';
-    } finally {
-      // restore indices
-      this.fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCurrent;
-    }
-  }
-
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
-    if (this.questions?.[idx] != null) return idx;          // already 0-based
+    if (this.questions?.[idx] != null) return idx;  // already 0-based
     if (this.questions?.[idx - 1] != null) return idx - 1;  // 1-based → 0-based
     return 0;
-  }
-
-  private getActiveIndex0(): number {
-    const raw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    return this.normalizeIndex(raw);
   }
 }
