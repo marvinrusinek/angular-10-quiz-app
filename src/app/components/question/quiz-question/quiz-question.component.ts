@@ -261,6 +261,8 @@ export class QuizQuestionComponent
     option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean;
   };
 
+  private _hiddenAt: number | null = null; private _elapsedAtHide: number | null = null;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -698,33 +700,55 @@ export class QuizQuestionComponent
   @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     // Pause immediately when tab is hidden and bail
+    // When hidden: SNAPSHOT only (do not pause; throttling is fine)
     if (document.visibilityState === 'hidden') {
-      this.timerService.pauseTimer();
+      try {
+        this._elapsedAtHide = await firstValueFrom(
+          this.timerService.elapsedTime$.pipe(take(1))
+        ) as number;
+      } catch {
+        this._elapsedAtHide = null;
+      }
+      this._hiddenAt = performance.now();
       return;
     }
 
-    // Visible again — resume the ticking (if you have it)
-    this.timerService.resumeTimer?.();
-
-    // FAST-PATH EXPIRY CHECK (runs before heavy restore)
+    // FAST-PATH EXPIRY CHECK (runs before heavy restore), account for time spent hidden
     try {
-      const elapsed = await firstValueFrom<number>(this.timerService.elapsedTime$.pipe(take(1)));
       const duration = this.timerService.timePerQuestion ?? 30;
-  
-      if (elapsed >= duration) {
+
+      const elapsedLive = await firstValueFrom(
+        this.timerService.elapsedTime$.pipe(take(1))
+      ) as number;
+
+      let candidate = elapsedLive;
+      if (this._hiddenAt != null && this._elapsedAtHide != null) {
+        const hiddenDeltaSec = Math.floor((performance.now() - this._hiddenAt) / 1000);
+        candidate = this._elapsedAtHide + hiddenDeltaSec;
+      }
+
+      if (candidate >= duration) {
         const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
-  
-        // Skip if explanation is already showing
+
+        // Skip if already showing explanation
         const alreadyShowing =
           this.displayExplanation ||
-          (await firstValueFrom(this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))));
-  
+          (await firstValueFrom(
+            this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))
+          ) as boolean);
+
         if (!alreadyShowing) {
-          // Flip to explanation immediately for this question, inside Angular
           this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
-          return; // bail to avoid racing with the restore flow below
+          // Clear snapshots and bail to avoid racing the restore flow
+          this._hiddenAt = null;
+          this._elapsedAtHide = null;
+          return;
         }
       }
+
+      // clear snapshots if we’re not expiring now
+      this._hiddenAt = null;
+      this._elapsedAtHide = null;
     } catch (e) {
       console.warn('[onVisibilityChange] fast-path expiry check failed', e);
     }
