@@ -703,9 +703,10 @@ export class QuizQuestionComponent
     // When hidden: SNAPSHOT only (do not pause; throttling is fine)
     if (document.visibilityState === 'hidden') {
       try {
-        this._elapsedAtHide = await firstValueFrom(
+        const snap = await firstValueFrom<number>(
           this.timerService.elapsedTime$.pipe(take(1))
-        ) as number;
+        );
+        this._elapsedAtHide = snap;
       } catch {
         this._elapsedAtHide = null;
       }
@@ -717,9 +718,9 @@ export class QuizQuestionComponent
     try {
       const duration = this.timerService.timePerQuestion ?? 30;
 
-      const elapsedLive = await firstValueFrom(
+      const elapsedLive = await firstValueFrom<number>(
         this.timerService.elapsedTime$.pipe(take(1))
-      ) as number;
+      );
 
       let candidate = elapsedLive;
       if (this._hiddenAt != null && this._elapsedAtHide != null) {
@@ -733,15 +734,33 @@ export class QuizQuestionComponent
         // Skip if already showing explanation
         const alreadyShowing =
           this.displayExplanation ||
-          (await firstValueFrom(
+          (await firstValueFrom<boolean>(
             this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))
-          ) as boolean);
+          ));
 
         if (!alreadyShowing) {
-          // Stop and reset the countdown so service state is clean
+          // HARD STOP + RESET to full duration so the UI snaps to 30s
           this.timerService.stopTimer?.();
-          this.timerService.resetTimer();
+          try {
+            // @ts-expect-error allow optional arg
+            this.timerService.resetTimer(this.timerService.timePerQuestion);
+          } catch {
+            this.timerService.resetTimer?.();
+          }
+          // Next-frame reset to beat any pending ticks from the old run
+          requestAnimationFrame(() => {
+            try {
+              // @ts-expect-error allow optional arg
+              this.timerService.resetTimer(this.timerService.timePerQuestion);
+            } catch {
+              this.timerService.resetTimer?.();
+            }
+            this.cdRef.markForCheck?.();
+          });
+
+          // Flip to explanation inside Angular
           this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
+
           // Clear snapshots and bail to avoid racing the restore flow
           this._hiddenAt = null;
           this._elapsedAtHide = null;
@@ -761,7 +780,7 @@ export class QuizQuestionComponent
         console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
 
         // Resume on the next frame so the UI can settle
-        requestAnimationFrame(() => this.timerService.resumeTimer());
+        requestAnimationFrame(() => this.timerService.resumeTimer?.());
 
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
@@ -783,7 +802,7 @@ export class QuizQuestionComponent
               (option, index) => ({
                 ...option,
                 optionId: option.optionId ?? index, // ensure optionId is properly assigned
-                correct: option.correct ?? false, // ensure `correct` property exists
+                correct: option.correct ?? false,   // ensure `correct` property exists
               })
             );
           } else {
