@@ -299,8 +299,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
        
         const showExplanation =
           state?.mode === 'explanation' &&
-          (explanation && shouldDisplayExplanation);
-        /* if (showExplanation) {
+          // (explanation && shouldDisplayExplanation);
+          (explanation || shouldDisplayExplanation);
+        if (showExplanation) {
           if (explanation) return explanation;
           
           // Then use any override ("Formatting…" or raw) for this index
@@ -310,8 +311,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const fallback =
           (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
           return fallback;
-        } */
-        if (showExplanation) return explanation;
+        }
+        // if (showExplanation) return explanation;
 
         // Otherwise show question (and correct count if present)
         return correct 
