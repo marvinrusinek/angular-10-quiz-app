@@ -3118,11 +3118,11 @@ export class QuizQuestionComponent
       );
     }
   
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const i0 = (this.normalizeIndex?.(lockedIndex) ?? lockedIndex) as number;
+    // Use the live current index (normalized) to avoid stale/undefined indices
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+  
     const evtIdx = event.index;
     const evtOpt = event.option;
-  
     if (!evtOpt) return;
   
     // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
@@ -3130,8 +3130,7 @@ export class QuizQuestionComponent
     this._clickGate = true;
   
     try {
-      const isMultiSelect =
-        this.currentQuestion.type === QuestionType.MultipleAnswer;
+      const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
       const isSingle = !isMultiSelect;
   
       // ───────────────────────────────────────────────
@@ -3140,79 +3139,82 @@ export class QuizQuestionComponent
       // ───────────────────────────────────────────────
       {
         const cached = this._formattedByIndex?.get?.(i0);
+  
         if (cached) {
-          // Show formatted immediately
-          this.explanationTextService.setExplanationText(cached);
-          this.explanationTextService.setShouldDisplayExplanation(true);
+          // paint first, inside Angular
+          this.ngZone.run(() => {
+            this.explanationTextService.setExplanationText(cached);
+            this.explanationTextService.setShouldDisplayExplanation(true);
   
-          this.quizStateService.setDisplayState({
-            mode: 'explanation',
-            answered: true,
+            // Put UI into explanation mode + answered now
+            this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+            this.quizStateService.setAnswered(true);
+            this.quizStateService.setAnswerSelected(true);
+  
+            // Next button now
+            if (isSingle) {
+              this.selectedOptionService.setAnswered(true);
+              this.nextButtonStateService.setNextButtonState(true);
+            } else {
+              try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+            }
+  
+            // local bindings (if your template uses them)
+            this.displayExplanation = true;
+            this.explanationToDisplay = cached;
+            this.showExplanationChange?.emit(true);
+            this.explanationToDisplayChange?.emit(cached);
+  
+            this.cdRef.markForCheck?.();
+            this.cdRef.detectChanges?.();
           });
-          this.quizStateService.setAnswered(true);
-          this.quizStateService.setAnswerSelected(true);
-  
-          if (isSingle) {
-            this.selectedOptionService.setAnswered(true);
-            this.nextButtonStateService.setNextButtonState(true);
-          } else {
-            this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-          }
-  
-          this.displayExplanation = true;
-          this.explanationToDisplay = cached;
-          this.showExplanationChange?.emit(true);
-          this.explanationToDisplayChange?.emit(cached);
-          this.cdRef.markForCheck?.();
         } else {
-          // Push raw so something appears immediately
-          const raw =
-            (this.currentQuestion?.explanation ?? '').trim() ||
-            'No explanation available';
-          this.explanationTextService.setExplanationText(raw);
-          this.explanationTextService.setShouldDisplayExplanation(true);
+          const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
   
-          // Put UI into explanation mode + answered now
-          this.quizStateService.setDisplayState({
-            mode: 'explanation',
-            answered: true,
+          // paint RAW immediately so Q2+ visibly flip on FIRST click
+          this.ngZone.run(() => {
+            this.explanationTextService.setExplanationText(raw);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+  
+            this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+            this.quizStateService.setAnswered(true);
+            this.quizStateService.setAnswerSelected(true);
+  
+            if (isSingle) {
+              this.selectedOptionService.setAnswered(true);
+              this.nextButtonStateService.setNextButtonState(true);
+            } else {
+              try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+            }
+  
+            this.displayExplanation = true;
+            this.explanationToDisplay = raw;
+            this.showExplanationChange?.emit(true);
+            this.explanationToDisplayChange?.emit(raw);
+  
+            this.cdRef.markForCheck?.();
+            this.cdRef.detectChanges?.();
           });
-          this.quizStateService.setAnswered(true);
-          this.quizStateService.setAnswerSelected(true);
   
-          if (isSingle) {
-            this.selectedOptionService.setAnswered(true);
-            this.nextButtonStateService.setNextButtonState(true);
-          } else {
-            this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-          }
-  
-          this.displayExplanation = true;
-          this.explanationToDisplay = raw;
-          this.showExplanationChange?.emit(true);
-          this.explanationToDisplayChange?.emit(raw);
-          this.cdRef.markForCheck?.();
-  
-          // 🔁 Compute formatted FOR THIS index and swap when ready
+          // 🔁 Compute formatted FOR THIS index and swap when ready (no second click)
           void this.resolveFormatted(i0, { useCache: false, setCache: true })
             .then((formatted) => {
               const clean = (formatted ?? '').trim?.() ?? '';
               if (!clean) return;
   
               // still on same question?
-              const active =
-                (this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex) ??
-                  this.currentQuestionIndex) as number;
-              if (active !== i0) return;
+              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return; // user navigated
   
               this.ngZone.run(() => {
                 this.explanationTextService.setExplanationText(clean);
                 this.explanationToDisplay = clean;
                 this.explanationToDisplayChange?.emit(clean);
                 this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
               });
             })
-            .catch((err) => console.warn('[format-on-click] failed', err));
+            .catch(err => console.warn('[format-on-click] failed', err));
         }
       }
   
@@ -3230,9 +3232,7 @@ export class QuizQuestionComponent
   
         // Run the awaits without blocking the first paint
         (async () => {
-          this.feedbackText = await this.generateFeedbackText(
-            this.currentQuestion
-          );
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
           await this.postClickTasks(evtOpt, evtIdx, true, false);
   
           // Existing follow-ups (kept)
@@ -3243,12 +3243,9 @@ export class QuizQuestionComponent
       });
     } finally {
       // Release reentrancy guard after this tick
-      queueMicrotask(() => {
-        this._clickGate = false;
-      });
+      queueMicrotask(() => { this._clickGate = false; });
     }
-  }
-  
+  }  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
