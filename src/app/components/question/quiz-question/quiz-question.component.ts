@@ -5966,80 +5966,15 @@ export class QuizQuestionComponent
   }
 
   // Called when the countdown hits zero
-  /* private async onTimerExpiredFor(index: number): Promise<void> {
-    const i0 = this.normalizeIndex(index);
-  
-    console.log('[expired for]', i0);
-    if (this.handledOnExpiry.has(i0)) return;
-    this.handledOnExpiry.add(i0);
-  
-    this.isFormatting = true;
-  
-    // open pipeline so formatter actually runs even if explanation was hidden
-    this.explanationTextService.unlockExplanation?.(i0);
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.displayExplanation = true;
-    this.showExplanationChange?.emit(true);
-  
-    // 🔒 force the formatter to run for THIS index even if it reads "current"
-    const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
-  
-    let text = '';
-    try {
-      this.fixedQuestionIndex   = i0;
-      this.currentQuestionIndex = i0;
-  
-      const out = await this.updateExplanationText(i0);
-      text = (out ?? '').trim?.() ?? '';
-    } catch (e) {
-      console.error('[onTimerExpiredFor] format failed', e);
-    } finally {
-      this.fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
-    }
-  
-    // fallback to raw if formatter yielded nothing
-    if (!text) {
-      const q = this.questions?.[i0] ?? this.currentQuestion;
-      text = (q?.explanation ?? '').trim() || 'No explanation available';
-    }
-  
-    // ✅ normalize active before comparing
-    const activeRaw = this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0;
-    const active0   = this.normalizeIndex(activeRaw);
-    if (active0 !== i0) { this.isFormatting = false; return; }
-  
-    // set final text (hit both paths so either template updates)
-    this.explanationTextService.setExplanationText(text);
-    this.explanationToDisplay = text;
-    this.explanationToDisplayChange?.emit(text);
-  
-    // mark answered + enable Next
-    this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-    this.quizStateService.setAnswered(true);
-    this.quizStateService.setAnswerSelected(true);
-  
-    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
-      this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-    } else {
-      this.selectedOptionService.setAnswered(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    }
-  
-    this.isFormatting = false;
-    this.cdRef.markForCheck?.();
-  } */
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-    console.log('[expire]', i0);
   
     // Get raw explanation for this question
     const raw = (this.questions?.[i0]?.explanation ?? '').trim() || 'No explanation available';
   
     // Flip UI immediately using existing flags your template already relies on
     this.ngZone.run(() => {
-      // publish raw to both local + service
+      // Publish raw to both local and service
       this.explanationTextService.setExplanationText(raw);
       this.explanationTextService.setShouldDisplayExplanation(true);
   
@@ -6048,12 +5983,12 @@ export class QuizQuestionComponent
       this.showExplanationChange?.emit(true);
       this.explanationToDisplayChange?.emit(raw);
   
-      // global state → explanation
+      // Global state → explanation
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
   
-      // enable Next
+      // Enable Next
       const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
       if (qType === QuestionType.MultipleAnswer) {
         this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
@@ -6066,7 +6001,7 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges?.();
     });
   
-    // Compute formatted text FOR THIS INDEX (don’t rely on “current”)
+    // Compute formatted text for this index (don’t rely on “current”)
     const prevFixed = (this as any).fixedQuestionIndex;
     const prevCur   = this.currentQuestionIndex;
   
@@ -6078,7 +6013,7 @@ export class QuizQuestionComponent
       const clean = (formatted ?? '').trim?.() ?? '';
   
       if (clean) {
-        // still on same question? (defensive)
+        // Still on same question? (defensive)
         const activeIdx = this.normalizeIndex(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0);
         if (activeIdx === i0) {
           this.ngZone.run(() => {
