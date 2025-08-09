@@ -5942,7 +5942,7 @@ export class QuizQuestionComponent
   
     // Restart timer
     this.timerService.stopTimer?.();
-    this.timerService.resetTimer(this.timerService.timePerQuestion);
+    this.timerService.resetTimer();
     requestAnimationFrame(() => this.timerService.startTimer(this.timerService.timePerQuestion, true));
   
     console.log('[resetPerQuestionState]', i0);
@@ -6032,49 +6032,26 @@ export class QuizQuestionComponent
   } */
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-    console.log('[handler] expire for', i0);
+    console.log('[expire]', i0);
   
-    // Force formatter to use this index
-    const prevFixed = (this as any).fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
-    let text = '';
+    // Get raw explanation for this question
+    const raw = (this.questions?.[i0]?.explanation ?? '').trim() || 'No explanation available';
   
-    try {
-      (this as any).fixedQuestionIndex = i0;
-      this.currentQuestionIndex = i0;
-  
-      text = this._formattedByIndex?.get?.(i0) ?? '';
-      if (!text) {
-        const out = await this.updateExplanationText(i0);
-        text = (out ?? '').trim?.() ?? '';
-        if (text) this._formattedByIndex?.set?.(i0, text);
-      }
-    } catch (e) {
-      console.error('[handler] format failed', e);
-    } finally {
-      (this as any).fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
-    }
-  
-    if (!text) {
-      const q = this.questions?.[i0] ?? this.currentQuestion;
-      text = (q?.explanation ?? '').trim() || 'No explanation available';
-    }
-  
+    // Flip UI immediately using existing flags your template already relies on
     this.ngZone.run(() => {
-      // show explanation
-      // (if you kept a lock, be sure to unlock with the same index)
-      this.explanationTextService.unlockExplanation?.(i0);
+      // publish raw to both local + service
+      this.explanationTextService.setExplanationText(raw);
       this.explanationTextService.setShouldDisplayExplanation(true);
+  
+      this.displayExplanation = true;
+      this.explanationToDisplay = raw;
+      this.showExplanationChange?.emit(true);
+      this.explanationToDisplayChange?.emit(raw);
+  
+      // global state → explanation
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
-  
-      this.explanationTextService.setExplanationText(text);
-      this.displayExplanation = true;
-      this.explanationToDisplay = text;
-      this.showExplanationChange?.emit(true);
-      this.explanationToDisplayChange?.emit(text);
   
       // enable Next
       const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
@@ -6088,6 +6065,37 @@ export class QuizQuestionComponent
       this.cdRef.markForCheck?.();
       this.cdRef.detectChanges?.();
     });
+  
+    // Compute formatted text FOR THIS INDEX (don’t rely on “current”)
+    const prevFixed = (this as any).fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+  
+    try {
+      (this as any).fixedQuestionIndex = i0;
+      this.currentQuestionIndex = i0;
+  
+      const formatted = await this.updateExplanationText(i0);
+      const clean = (formatted ?? '').trim?.() ?? '';
+  
+      if (clean) {
+        // still on same question? (defensive)
+        const activeIdx = this.normalizeIndex(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0);
+        if (activeIdx === i0) {
+          this.ngZone.run(() => {
+            this.explanationTextService.setExplanationText(clean);
+            this.explanationToDisplay = clean;
+            this.explanationToDisplayChange?.emit(clean);
+            this.cdRef.markForCheck?.();
+            this.cdRef.detectChanges?.();
+          });
+        }
+      }
+    } catch (e) {
+      console.error('[format on expiry failed]', e);
+    } finally {
+      (this as any).fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
   }
 
   private async formatExplanationForIndex(index: number): Promise<string> {
