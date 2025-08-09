@@ -266,6 +266,7 @@ export class QuizQuestionComponent
   private handledOnExpiry = new Set<number>();
   public isFormatting = false;
   private _expirySub?: Subscription;  // one-off per question
+  private handledOnExpiry = new Set<number>();
 
   private lastSerializedOptions = '';
   lastSerializedPayload = '';
@@ -5929,6 +5930,7 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
+    // your existing resets…
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
@@ -5936,17 +5938,24 @@ export class QuizQuestionComponent
   
     this.handledOnExpiry.delete(i0);
   
-    this._formattedByIndex?.delete?.(i0);  // if you prewarm
+    // (optional) prewarm formatted text if you want
+    this._formattedByIndex?.delete?.(i0);
     void this.prewarmAndCache?.(i0);
   
+    // Restart the 30s countdown
     this.timerService.resetTimer();
-    this.timerService.startTimer(this.timerService.timePerQuestion, /*countdown*/ true);
+    this.timerService.startTimer(this.timerService.timePerQuestion, true);
+  
+    // Arm a ONE-SHOT expiry for THIS question (payload = idx + id + ref)
+    const ref = this.currentQuestion ?? this.questions?.[i0];
   
     this._expirySub?.unsubscribe();
     this._expirySub = this.timerService.expired$
       .pipe(take(1))
-      .subscribe(() => this.onTimerExpiredFor(index));
-  }  
+      .subscribe(() => this.onTimerExpiredFor(i0));
+  
+    console.log('[armed expiry for]', { idx: i0, id });
+  }
 
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
@@ -6196,10 +6205,9 @@ export class QuizQuestionComponent
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
-    // If your app is 1-based in places, map to 0-based
-    if (this.questions?.[idx] != null) return idx;  // already 0-based
-    if (this.questions?.[idx - 1] != null) return idx - 1;  // was 1-based
-    return Math.max(0, idx | 0); // fallback
+    if (this.questions?.[idx] != null) return idx;         // already 0-based
+    if (this.questions?.[idx - 1] != null) return idx - 1; // 1-based → 0-based
+    return 0;
   }
 
   private getActiveIndex0(): number {
