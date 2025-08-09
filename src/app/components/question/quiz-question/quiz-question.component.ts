@@ -5875,32 +5875,6 @@ export class QuizQuestionComponent
     this.selectedIndices?.clear?.();
   }
 
-  private async prewarmAndCacheSilent(index: number): Promise<void> {
-    const i0 = this.normalizeIndex(index);
-  
-    // Force formatter to read THIS index, but keep UI locked/hidden
-    const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
-    try {
-      this.fixedQuestionIndex   = i0;
-      this.currentQuestionIndex = i0;
-  
-      const out = await this.updateExplanationText(i0); // may set service text internally
-      const clean = (out ?? '').trim?.() ?? '';
-  
-      // Never flip visibility here. Only cache.
-      if (clean) this._formattedByIndex?.set?.(i0, clean);
-  
-      // If updateExplanationText side-effected the service text, we’re still safe:
-      // shouldDisplayExplanation is FALSE and the lock is ON, so nothing renders.
-    } catch (e) {
-      console.warn('[prewarmAndCacheSilent] format failed', e);
-    } finally {
-      this.fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
-    }
-  }
-
   // Per-question “next + selections” reset done from the child, timer
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
