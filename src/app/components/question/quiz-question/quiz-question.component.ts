@@ -5918,34 +5918,32 @@ export class QuizQuestionComponent
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
   
-    // Hard-hide & lock so nothing shows early
+    // Hard-hide & clear text for the new question
     this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
     this.showExplanationChange?.emit(false);
+  
+    // ⬅️ Ensure no lock blocks the next show
+    this.explanationTextService.unlockExplanation?.();
     this.explanationTextService.resetExplanationText();
-    // If your lock is global and sticky, either remove it here or be sure you
-    // call unlock with the SAME index on expiry. Safer for now: do not lock.
-    // this.explanationTextService.lockExplanation?.();  // ← comment out for now
     this.explanationTextService.setShouldDisplayExplanation(false);
+  
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
-    // Next/selection reset
+    // Usual resets…
     this.nextButtonStateService.reset?.();
     this.nextButtonStateService.setNextButtonState?.(false);
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // Optional: silent prewarm; DO NOT touch visibility here
-    void this.prewarmAndCacheSilent?.(i0);
+    // (Optional) prewarm silently; do NOT touch visibility here
+    void this.prewarmAndCache?.(i0);
   
-    // Clean restart of the visible countdown
+    // Restart timer
     this.timerService.stopTimer?.();
-    this.timerService.resetTimer();
-    // next frame to avoid jitter
-    requestAnimationFrame(() => {
-      this.timerService.startTimer(this.timerService.timePerQuestion, true);
-    });
+    this.timerService.resetTimer(this.timerService.timePerQuestion);
+    requestAnimationFrame(() => this.timerService.startTimer(this.timerService.timePerQuestion, true));
   
     console.log('[resetPerQuestionState]', i0);
   }
