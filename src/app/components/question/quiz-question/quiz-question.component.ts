@@ -256,6 +256,11 @@ export class QuizQuestionComponent
 
   private timerSub: Subscription;
 
+  waitingForReady = false;
+  deferredClick?: {
+    option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean;
+  };
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -5875,8 +5880,9 @@ export class QuizQuestionComponent
     this.timerService.stopTimer?.();
     this.timerService.resetTimer();
     requestAnimationFrame(() => this.timerService.startTimer(this.timerService.timePerQuestion, true));
-  
-    console.log('[resetPerQuestionState]', i0);
+
+    // Prewarm formatted text silently for THIS question
+    void this.getFormattedFor(i0);
   }
 
   // One call to reset everything the child controls for a given question
@@ -5888,38 +5894,12 @@ export class QuizQuestionComponent
 
   private async prewarmAndCache(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-    if (this._formattedByIndex.has(i0)) return;  // already cached
-  
-    // Force the formatter to read this index (covers Q2–Q6)
-    const prevFixed = (this as any).fixedQuestionIndex;
-    const prevCur = this.currentQuestionIndex;
-    try {
-      (this as any).fixedQuestionIndex = i0;
-      this.currentQuestionIndex = i0;
-  
-      // Try direct return first
-      let clean = (await this.updateExplanationText(i0)) ?? '';
-      clean = clean.trim?.() ?? clean;
-  
-      // If formatter writes to a stream, await it once
-      if (!clean && (this.explanationTextService as any).formattedExplanation$) {
-        clean = await firstValueFrom(
-          this.explanationTextService.formattedExplanation$.pipe(
-            filter((s: string | null | undefined) => !!s && !!s.trim()),
-            map((s: string) => s.trim()),
-            take(1),
-            timeout({ first: 1200 })
-          )
-        ).catch(() => '');
-      }
-  
-      if (clean) this._formattedByIndex.set(i0, clean);
-    } catch (err) {
-      console.warn('[prewarmAndCache] format failed', err);
-    } finally {
-      (this as any).fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
-    }
+    if (this._formattedByIndex.has(i0)) return;
+    void this.resolveFormatted(i0, { useCache: true, setCache: true });
+  }
+
+  private async getFormattedFor(index: number): Promise<string> {
+    return this.resolveFormatted(index, { useCache: true, setCache: true });
   }
 
   // Called when the countdown hits zero
@@ -5959,36 +5939,22 @@ export class QuizQuestionComponent
     });
   
     // Compute formatted text for this index (don’t rely on “current”)
-    const prevFixed = (this as any).fixedQuestionIndex;
-    const prevCur = this.currentQuestionIndex;
+    const clean = await this.resolveFormatted(i0, { useCache: true, setCache: true });
   
-    try {
-      (this as any).fixedQuestionIndex = i0;
-      this.currentQuestionIndex = i0;
-  
-      const formatted = await this.updateExplanationText(i0);
-      const clean = (formatted ?? '').trim?.() ?? '';
-  
-      if (clean) {
-        // Still on same question? (defensive)
-        const activeIdx = this.normalizeIndex(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0);
-        if (activeIdx === i0) {
-          this.ngZone.run(() => {
-            this.explanationTextService.setExplanationText(clean);
-            this.explanationToDisplay = clean;
-            this.explanationToDisplayChange?.emit(clean);
-            this.cdRef.markForCheck?.();
-            this.cdRef.detectChanges?.();
-          });
-        }
+    if (clean) {
+      // Still on same question? (defensive)
+      const activeIdx = this.normalizeIndex(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0);
+      if (activeIdx === i0) {
+        this.ngZone.run(() => {
+          this.explanationTextService.setExplanationText(clean);
+          this.explanationToDisplay = clean;
+          this.explanationToDisplayChange?.emit(clean);
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        });
       }
-    } catch (err) {
-      console.error('[format on expiry failed]', err);
-    } finally {
-      (this as any).fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
     }
-  }
+  }  
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
@@ -5997,42 +5963,53 @@ export class QuizQuestionComponent
     return 0;
   }
 
-  private async getFormattedFor(index: number): Promise<string> {
+  private async resolveFormatted(
+    index: number,
+    opts: { useCache?: boolean; setCache?: boolean; timeoutMs?: number } = {}
+  ): Promise<string> {
     const i0 = this.normalizeIndex(index);
-    const fromCache = this._formattedByIndex.get(i0);
-    if (fromCache) return fromCache;
+    const { useCache = true, setCache = true, timeoutMs = 1200 } = opts;
   
-    const prevFixed = (this as any).fixedQuestionIndex;
+    if (useCache) {
+      const hit = this._formattedByIndex.get(i0);
+      if (hit) return hit;
+    }
+  
+    const prevFixed = this.fixedQuestionIndex;
     const prevCur   = this.currentQuestionIndex;
     let text = '';
   
     try {
-      (this as any).fixedQuestionIndex = i0;
+      // Force the formatter to operate on THIS question
+      this.fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
   
-      // Try direct return
+      // Try direct return first
       const out = await this.updateExplanationText(i0);
       text = (out ?? '').trim?.() ?? '';
   
-      // If formatter uses a stream, await it once
+      // Fallback: formatter writes to a stream
       if (!text && (this.explanationTextService as any).formattedExplanation$) {
-        text = await firstValueFrom(
-          this.explanationTextService.formattedExplanation$.pipe(
-            filter((s: string | null | undefined) => !!s && !!s.trim()),
-            map((s: string) => s.trim()),
-            take(1),
-            timeout({ first: 1200 })
-          )
-        ).catch(() => '');
+        const formatted$ = (this.explanationTextService.formattedExplanation$ as Observable<unknown>).pipe(
+          filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
+          map(s => s.trim()),
+          take(1),
+          timeout({ first: timeoutMs })
+        );
+        try {
+          text = await firstValueFrom(formatted$);
+        } catch {
+          text = '';
+        }
       }
   
-      if (text) this._formattedByIndex.set(i0, text);
+      if (text && setCache) this._formattedByIndex.set(i0, text);
       return text;
-    } catch (e) {
-      console.warn('[getFormattedFor] failed', i0, e);
+    } catch (err) {
+      console.warn('[resolveFormatted] failed', i0, err);
       return '';
     } finally {
-      (this as any).fixedQuestionIndex = prevFixed;
+      this.fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
   }  
