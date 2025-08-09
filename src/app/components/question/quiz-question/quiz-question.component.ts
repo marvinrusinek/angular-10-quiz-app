@@ -6059,8 +6059,10 @@ export class QuizQuestionComponent
   private async onTimerExpiredFor(index: number): Promise<void> {
     // run once per question
     this._expiryHandledForIndex ??= -1;
-    if (this._expiryHandledForIndex === index) return;
-    this._expiryHandledForIndex = index;
+    //if (this._expiryHandledForIndex === index) return;
+    //this._expiryHandledForIndex = index;
+    if (this.handledOnExpiry.has(index)) return;
+    this.handledOnExpiry.add(index);
   
     this.isFormatting = true;
   
@@ -6075,6 +6077,23 @@ export class QuizQuestionComponent
       const out = await this.updateExplanationText(index);
       text = (out ?? '').trim?.() ?? '';
     } catch {}
+    /* if (!text) {
+      text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
+    } */
+    if (!text && (this.explanationTextService as any).formattedExplanation$) {
+      try {
+        text = await firstValueFrom(
+          this.explanationTextService.formattedExplanation$.pipe(
+            filter((s: string | null | undefined) => !!s && !!s.trim()),
+            map((s: string) => s.trim()),
+            take(1),
+            timeout({ first: 1500 })
+          )
+        );
+      } catch {}
+    }
+
+    // Final fallback
     if (!text) {
       text = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
     }
