@@ -3180,74 +3180,102 @@ export class QuizQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    // Wait for interaction readiness, but do not replay
     if (!this.quizStateService.isInteractionReady()) {
       await firstValueFrom(
         this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
       );
     }
-
-    // Live normalized index + snapshot question (no currentQuestion reliance)
+  
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q  = this.questions?.[i0];
     const evtIdx = event.index;
-
-    // Resolve an option object if possible (for icons/state), but DO NOT require it to flip UI
+  
+    // Resolve an option for icons/state, but DO NOT require it to flip
     const optFromList =
       (this as any).optionsToDisplay?.[evtIdx] ??
-      q?.options?.[evtIdx] ??
-      null;
+      q?.options?.[evtIdx] ?? null;
     const evtOpt = event.option ?? optFromList;
-
-    // Single-tick reentrancy guard (keep it minimal)
+  
     if ((this as any)._clickGate) return;
     (this as any)._clickGate = true;
-
+  
     try {
-      const isMulti = q?.type === QuestionType.MultipleAnswer;
-      const isSingle = !isMulti;
-
-      // Prefer cached formatted; else show raw now and swap later
-      const cached = this._formattedByIndex?.get?.(i0);
       const raw = (q?.explanation ?? '').trim() || 'No explanation available';
+      const cached = this._formattedByIndex?.get?.(i0);
       const toShowNow = cached || raw;
-
-      // ───── HARD FLIP + LOCK (prevents other flows from hiding the pane) ─────
+  
+      // —— HARD FLIP (probe path) ——
       this.ngZone.run(() => {
-        // make sure no lock blocks the display, then lock after showing
         this.explanationTextService.unlockExplanation?.();
         this.explanationTextService.setExplanationText(toShowNow);
         this.explanationTextService.setShouldDisplayExplanation(true);
-
-        // global UI state
+  
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.quizStateService.setAnswered(true);
         this.quizStateService.setAnswerSelected(true);
-
-        // Next button (simple + deterministic)
-        if (isSingle) {
-          this.selectedOptionService.setAnswered?.(true);
-          this.nextButtonStateService.setNextButtonState?.(true);
-        } else {
-          try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
-        }
-
-        // local flags some templates bind to
+  
+        // Keep Next simple to avoid gating glitches
+        this.selectedOptionService.setAnswered?.(true);
+        this.nextButtonStateService.setNextButtonState?.(true);
+  
         this.displayExplanation = true;
         this.explanationToDisplay = toShowNow;
         this.showExplanationChange?.emit(true);
         this.explanationToDisplayChange?.emit(toShowNow);
-
-        // lock AFTER making it visible so other streams can’t hide it
-        this.explanationTextService.lockExplanation?.();
-
-        // force paint under OnPush
+  
         this.cdRef.markForCheck?.();
         this.cdRef.detectChanges?.();
       });
-
-      // ───── Immediately persist selection so icons/state have data ─────
-      // (Do not block the paint above)
+  
+      // —— RE-ASSERT (beat any late “hide” toggles) ——
+      queueMicrotask(() => {
+        try {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.displayExplanation = true;
+          this.cdRef.markForCheck?.();
+        } catch {}
+      });
+      requestAnimationFrame(() => {
+        try {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.displayExplanation = true;
+          this.cdRef.detectChanges?.();
+        } catch {}
+      });
+      setTimeout(() => {
+        try {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.displayExplanation = true;
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        } catch {}
+      }, 30);
+  
+      // —— Swap RAW → FORMATTED (no second click) ——
+      if (!cached) {
+        void this.resolveFormatted(i0, { useCache: true, setCache: true })
+          .then((formatted) => {
+            const clean = (formatted ?? '').trim?.() ?? '';
+            if (!clean) return;
+  
+            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+            if (active !== i0) return; // navigated away
+  
+            this.ngZone.run(() => {
+              this.explanationTextService.setExplanationText(clean);
+              this.explanationToDisplay = clean;
+              this.explanationToDisplayChange?.emit(clean);
+              // re-assert visibility again after swap, just in case
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              this.displayExplanation = true;
+              this.cdRef.markForCheck?.();
+              this.cdRef.detectChanges?.();
+            });
+          })
+          .catch(err => console.warn('[formatted-swap]', err));
+      }
+  
+      // —— After paint: persist selection & icons (non-blocking) ——
       queueMicrotask(() => {
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
         try {
@@ -3257,45 +3285,21 @@ export class QuizQuestionComponent
         try { if (evtOpt) this.markBindingSelected(evtOpt); } catch {}
         try { this.refreshFeedbackFor(evtOpt ?? undefined); } catch {}
       });
-
-      // ───── If we showed RAW, compute formatted FOR THIS index and swap when ready ─────
-      if (!cached) {
-        void this.resolveFormatted(i0, { useCache: true, setCache: true })
-          .then((formatted) => {
-            const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return;
-
-            // still on the same question?
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-            if (active !== i0) return;
-
-            this.ngZone.run(() => {
-              this.explanationTextService.setExplanationText(clean);
-              this.explanationToDisplay = clean;
-              this.explanationToDisplayChange?.emit(clean);
-              // keep it locked while shown
-              this.explanationTextService.lockExplanation?.();
-              this.cdRef.markForCheck?.();
-              this.cdRef.detectChanges?.();
-            });
-          })
-          .catch(err => console.warn('[formatted-swap] failed', err));
-      }
-
-      // ───── Defer heavy work so first paint isn’t blocked ─────
+  
+      // Defer heavier work
       requestAnimationFrame(() => {
         try { this.optionSelected.emit({ ...(evtOpt ?? {}), questionIndex: i0 }); } catch {}
-
         (async () => {
-          try { this.feedbackText = await this.generateFeedbackText(this.currentQuestion ?? q); } catch {}
+          try { this.feedbackText = await this.generateFeedbackText(this.questions?.[i0] ?? this.currentQuestion); } catch {}
           try { await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false); } catch {}
           try { this.handleCoreSelection(event); } catch {}
-        })().catch(err => console.error('[postClickTasks] error', err));
+        })().catch(err => console.error('[postClickTasks]', err));
       });
     } finally {
       queueMicrotask(() => { (this as any)._clickGate = false; });
     }
   }
+  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
