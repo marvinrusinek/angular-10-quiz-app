@@ -49,19 +49,17 @@ export class TimerService {
 
   // Starts the timer
   startTimer(duration: number = this.timePerQuestion, isCountdown: boolean = true): void {
-    // If anything is running, nuke it first (also clears flags)
-    this.stopTimer();
-  
     if (this.isTimerStoppedForCurrentQuestion) {
       console.log(`[TimerService] ⚠️ Timer restart prevented.`);
       return;
     }
   
-    // fresh stop notifier for THIS run
-    const stop$ = this.isStop = new Subject<void>();
+    if (this.isTimerRunning) {
+      console.info('[TimerService] Timer is already running. Start ignored.');
+      return;  // prevent restarting an already running timer
+    }
   
-    // mark running now (not in finalize)
-    this.isTimerRunning = true;
+    this.isTimerRunning = true;  // mark timer as running
     this.isCountdown = isCountdown;
     this.elapsedTime = 0;
   
@@ -71,11 +69,11 @@ export class TimerService {
     });
   
     // Start ticking after 1s so the initial value stays visible for a second
-    const sub = timer(1000, 1000).pipe(
-      takeUntil(stop$),  // use the fresh notifier for this run
+    const timer$ = timer(1000, 1000).pipe(
       tap((tick) => {
+        // Tick starts at 0 after 1s → elapsed = tick + 1 (1,2,3,…)
         const elapsed = tick + 1;
-  
+
         // Internal state can be outside Angular
         this.elapsedTime = elapsed;
   
@@ -84,21 +82,23 @@ export class TimerService {
           this.elapsedTimeSubject.next(this.elapsedTime);
         });
   
-        // Countdown expiry
+        // If we are in countdown mode and we've reached the duration, stop automatically
         if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.ngZone.run(() => this.expiredSubject.next());
-          this.stopTimer();  // this will end this run cleanly
+          this.stopTimer();
         }
       }),
+      takeUntil(this.isStop),
       finalize(() => {
-        // Finalize always runs (stop/expiry). Make sure flags are coherent.
-        this.ngZone.run(() => { this.isTimerRunning = false; });
         console.log('[TimerService] Timer finalized.');
+        // Reset running state when timer completes (inside Angular)
+        this.ngZone.run(() => { this.isTimerRunning = false; });
       })
-    ).subscribe();
+    );
   
-    this.timerSubscription = sub;
+    this.timerSubscription = timer$.subscribe();
+  
     console.log('[TimerService] Timer started successfully.');
   }
 
