@@ -43,48 +43,56 @@ export class SelectionMessageService {
     return msg;
   }
 
-  private getRemainingCorrectCount(options: Option[] | null | undefined): number {
+  public getRemainingCorrectCount(options: Option[] | null | undefined): number {
     const opts = Array.isArray(options) ? options : [];
     const correct = opts.filter(o => !!o?.correct);
     const selectedCorrect = correct.filter(o => !!o?.selected).length;
     return Math.max(0, correct.length - selectedCorrect);
   }
 
-  public getRemainingCorrect(options: Option[] | null | undefined, isLastQuestion: boolean): string {
+  // String helper: ONLY for MULTI; SINGLE will never call this
+  public getRemainingCorrect(
+    options: Option[] | null | undefined,
+    isLastQuestion: boolean
+  ): string {
     const remaining = this.getRemainingCorrectCount(options);
     if (remaining > 0) {
-      return `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+      return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
     }
     return isLastQuestion
       ? 'Please click the Show Results button.'
       : 'Please select the next button to continue...';
-  }  
+  }
 
   private pluralize(n: number, singular: string, plural: string): string {
     return n === 1 ? singular : plural;
   }
 
+  // 3) Build message on click (correct wording + logic)
   public buildMessageOnClick(params: {
-    questionIndex: number;  // 0-based
+    questionIndex: number;          // 0-based
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];  // current question options with .correct / .selected
+    options: Option[];
   }): string {
     const { questionIndex, totalQuestions, questionType, options } = params;
-
     const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
 
-    // Multi-answer: until all correct are selected, show the remaining count
     if (questionType === QuestionType.MultipleAnswer) {
       const remaining = this.getRemainingCorrectCount(options);
       if (remaining > 0) {
-        return `Select ${remaining} more ${this.pluralize(remaining, 'correct answer', 'correct answers')} to continue...`;
+        return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-      // remaining === 0 → fall through to Next/Show Results below
+      // all correct selected → fall through
+      return isLast
+        ? 'Please click the Show Results button.'
+        : 'Please select the next button to continue...';
     }
 
-    // Single-answer OR multi-answer (all correct selected)
-    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    // Single-answer → always Next/Results after a click
+    return isLast
+      ? 'Please click the Show Results button.'
+      : 'Please select the next button to continue...';
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
@@ -97,22 +105,36 @@ export class SelectionMessageService {
         return;
       }
   
+      const q: any = (this.quizService as any).currentQuestion
+        ?? (this.quizService as any).getQuestion?.(index);
+      const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
-      // First: enforce multi-remaining if applicable
-      const { isMulti, remaining } = this.hasMultiRemaining();
-      if (isMulti && remaining > 0) {
-        const msg = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+      // MULTI: show remaining until done
+      const correct = options.filter(o => !!o?.correct);
+      const isMulti = correct.length > 1;
+      if (isMulti) {
+        const remaining = this.getRemainingCorrectCount(options);
+        const msg = (remaining > 0)
+          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please select the next button to continue...');
         if (msg !== this.getCurrentMessage()) this.updateSelectionMessage(msg);
-        return; // do NOT fall through
+        return;
       }
-  
-      // Single-answer OR multi with all correct selected → Iyour existing rule
-      const newMessage = this.determineSelectionMessage(index, total, isAnswered);
+
+      // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
+      const newMessage = !isAnswered
+        ? (index === 0
+            ? 'Please start the quiz by selecting an option.'
+            : 'Please select an option to continue...')
+        : (isLast
+            ? 'Please click the Show Results button.'
+            : 'Please select the next button to continue...');
+
       if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
-      } else {
-        console.log(`[⏸️ Skipping update — message already "${newMessage}"`);
       }
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
