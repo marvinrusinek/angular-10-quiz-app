@@ -290,24 +290,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const explanation = (explanationText ?? '').trim();
         const correct     = (correctText ?? '').trim();
   
-        // Decide visibility by state/flag only (don’t require a truthy explanation string)
+        // ✅ Do NOT gate on `explanation` being truthy
         const showExplanation =
           state?.mode === 'explanation' &&
           (shouldDisplayExplanation || this.displayExplanation);
   
         if (showExplanation) {
-          // 1) Prefer OVERRIDE for this index (raw or “Formatting…”) so seeding raw in stream never flashes
-          if (override?.idx === currentIndex && override?.html) return override.html;
-  
-          // 2) Then stream — by the time we clear override, this will be *formatted*
+          // 1) Stream (formatted or raw we seeded on click/expiry)
           if (explanation) return explanation;
   
-          // 3) Then raw from the model (if any)
-          const raw = (this.questions?.[currentIndex]?.explanation ?? '').trim();
+          // 2) Service cache for this index (what update/expiry wrote)
+          const svcRaw = (
+            this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
+          ).toString().trim();
+          if (svcRaw) return svcRaw;
+  
+          // 3) Model raw
+          const raw = (this.questions?.[currentIndex]?.explanation ?? '')
+            .toString()
+            .trim();
           if (raw) return raw;
   
-          // 4) Last resort placeholder (not written to the stream)
-          return '<span class="muted">Formatting…</span>';
+          // 4) Final fallback (not the “Formatting…” placeholder)
+          return 'Explanation not available.';
         }
   
         // Question mode (preserve your correct-count behavior)
@@ -318,7 +323,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  }  
+  }
+  
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
