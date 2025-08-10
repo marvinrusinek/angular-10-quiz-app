@@ -4459,90 +4459,6 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  /* async updateExplanationText(index: number): Promise<string> {
-    const i0 = this.normalizeIndex?.(index) ?? index;
-  
-    // Prefer the model’s raw explanation for *this index*
-    const q = this.questions?.[i0];
-    const rawQ = (q?.explanation ?? '').toString();
-  
-    // Fallback: whatever the service already stored for this index
-    const svcRaw = (
-      this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
-    ).toString();
-  
-    // Pick a raw source and trim once
-    const raw = (rawQ || svcRaw).trim();
-  
-    console.warn('[🧠 updateExplanationText CALLED]', {
-      index: i0,
-      currentIndex: this.currentQuestionIndex
-    });
-  
-    // Do not bail if indices differ — formatting by index on purpose.
-    if (this.currentQuestionIndex !== i0) {
-      console.warn(
-        `[ℹ️ Index mismatch tolerated] current=${this.currentQuestionIndex} locked=${i0} (formatting by index anyway)`
-      );
-    }
-  
-    if (!raw) return '';  // nothing to format — don’t push placeholders into the stream
-  
-    // Try to format; if no formatter exists, fall back to raw
-    let formatted = '';
-    try {
-      const svc: any = this.explanationTextService;
-      if (typeof svc.formatExplanation === 'function') {
-        formatted = await svc.formatExplanation(raw, i0);
-      } else if (typeof svc.format === 'function') {
-        formatted = await svc.format(raw, i0);
-      } else if (typeof svc.markdownToHtml === 'function') {
-        formatted = await svc.markdownToHtml(raw);
-      } else {
-        formatted = raw; // no formatter available
-      }
-    } catch (e) {
-      console.warn('[updateExplanationText] formatter threw; using raw', e);
-      formatted = raw;
-    }
-  
-    const clean = (formatted ?? '').toString().trim();
-  
-    // Persist per-index cache in the service
-    try {
-      if (this.explanationTextService?.formattedExplanations) {
-        // Carry over any existing fields to satisfy other required props
-        const prev = this.explanationTextService.formattedExplanations[i0] as Partial<FormattedExplanation> | undefined;
-
-        const next: FormattedExplanation = {
-          ...(prev as FormattedExplanation ?? {} as FormattedExplanation),
-          questionIndex: i0,  // required by FormattedExplanation
-          explanation: clean || raw  // formatted (or raw) text
-        };
-
-        this.explanationTextService.formattedExplanations[i0] = next;
-      }
-      // If the service exposes a sticky stream method, publish there too
-      this.explanationTextService.pushFormatted?.(clean || raw);
-    } catch (err) {
-      console.warn('[updateExplanationText] cache publish failed', err);
-    }
-  
-    // Only write to the live stream if the user is still on this index
-    if (this.currentQuestionIndex === i0 && (clean || raw)) {
-      this.explanationTextService.setExplanationText(clean || raw);
-    }
-  
-    // Update per-question state
-    const qState = this.quizStateService.getQuestionState(this.quizId, i0);
-    this.quizStateService.setQuestionState(this.quizId, i0, {
-      ...qState,
-      explanationDisplayed: true,
-      explanationText: clean || raw
-    });
-  
-    return clean;
-  } */
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex(index);
   
@@ -5865,132 +5781,6 @@ export class QuizQuestionComponent
   }
 
   // Called when the countdown hits zero
-  /* private async onTimerExpiredFor(index: number): Promise<void> {
-    const i0 = this.normalizeIndex(index);
-  
-    // Get raw explanation for this question
-    const raw = (this.questions?.[i0]?.explanation ?? '').trim() || 'No explanation available';
-  
-    // Flip UI immediately using existing flags your template already relies on
-    this.ngZone.run(() => {
-      // Publish raw to both local and service
-      this.explanationTextService.setExplanationText(raw);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      this.displayExplanation = true;
-      this.explanationToDisplay = raw;
-      this.showExplanationChange?.emit(true);
-      this.explanationToDisplayChange?.emit(raw);
-  
-      // Global state → explanation
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-  
-      // Enable Next
-      const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
-      if (qType === QuestionType.MultipleAnswer) {
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true);
-      } else {
-        this.selectedOptionService.setAnswered(true);
-        this.nextButtonStateService.setNextButtonState(true);
-      }
-  
-      this.cdRef.markForCheck?.();
-      this.cdRef.detectChanges?.();
-    });
-  
-    // Compute formatted text for this index (don’t rely on “current”)
-    const clean = await this.resolveFormatted(i0, { useCache: true, setCache: true });
-  
-    if (clean) {
-      // Still on same question? (defensive)
-      const activeIdx = this.normalizeIndex(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0);
-      if (activeIdx === i0) {
-        this.ngZone.run(() => {
-          this.explanationTextService.setExplanationText(clean);
-          this.explanationToDisplay = clean;
-          this.explanationToDisplayChange?.emit(clean);
-          this.cdRef.markForCheck?.();
-          this.cdRef.detectChanges?.();
-        });
-      }
-    }
-  } */
-  /* private async onTimerExpiredFor(index: number): Promise<void> {
-    const i0 = this.normalizeIndex(index);
-    if (this.handledOnExpiry?.has?.(i0)) return;
-    this.handledOnExpiry?.add?.(i0);
-  
-    // Get best-available raw for THIS index
-    const raw = this.getRawForIndex(i0);
-  
-    this.ngZone.run(() => {
-      // Stop ticking, hard-flip to explanation
-      this.timerService.stopTimer?.();
-  
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-  
-      // Enable Next
-      const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
-      if (qType === QuestionType.MultipleAnswer) {
-        try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
-      } else {
-        try { this.selectedOptionService.setAnswered(true); } catch {}
-        try { this.nextButtonStateService.setNextButtonState(true); } catch {}
-      }
-  
-      // ✅ Seed the stream with a real string NOW (no placeholder)
-      const initial = raw || 'Explanation not available.';
-      this.explanationTextService.setExplanationText(initial);
-      this.explanationToDisplay = initial;
-      this.explanationToDisplayChange?.emit(initial);
-  
-      // Nuke any “no selection” feedback
-      this.feedbackText = '';
-      this.displayExplanation = true;
-      this.showExplanationChange?.emit(true);
-  
-      this.cdRef.markForCheck?.();
-      this.cdRef.detectChanges?.();
-    });
-  
-    // Pin context to THIS index; resolve formatted and swap if still on same Q
-    const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
-    try {
-      this.fixedQuestionIndex = i0;
-      this.currentQuestionIndex = i0;
-  
-      const clean = (await this.resolveFormatted(i0, {
-        useCache: true,
-        setCache: true,
-        timeoutMs: 6000
-      }))?.toString().trim() ?? '';
-  
-      const active =
-        this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
-        (this.currentQuestionIndex ?? 0);
-  
-      if (clean && active === i0) {
-        this.ngZone.run(() => {
-          this.explanationTextService.setExplanationText(clean);
-          this.explanationToDisplay = clean;
-          this.explanationToDisplayChange?.emit(clean);
-          this.cdRef.markForCheck?.();
-          this.cdRef.detectChanges?.();
-        });
-      }
-    } catch (e) {
-      console.warn('[onTimerExpiredFor] format failed; keeping seeded text', e);
-    } finally {
-      this.fixedQuestionIndex = prevFixed;
-      this.currentQuestionIndex = prevCur;
-    }
-  } */
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
     if (this.handledOnExpiry?.has?.(i0)) return;
@@ -6022,9 +5812,9 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges?.();
     });
   
-    // Pin context to THIS index and try to get formatted NOW
+    // Pin context to this index and try to get formatted NOW
     const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
+    const prevCur = this.currentQuestionIndex;
     try {
       this.fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
@@ -6041,7 +5831,7 @@ export class QuizQuestionComponent
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
-        return; // ✅ formatted done
+        return;  // formatted done
       }
   
       // If nothing formatted, seed with best available raw and keep UI consistent
@@ -6058,8 +5848,7 @@ export class QuizQuestionComponent
         this.cdRef.detectChanges?.();
       });
   
-      // (Optional) still try a background resolve to swap in formatted later
-      void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
+      this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
         .then((clean) => {
           const out = (clean ?? '').toString().trim();
           if (!out) return;
@@ -6075,17 +5864,14 @@ export class QuizQuestionComponent
             this.cdRef.detectChanges?.();
           });
         })
-        .catch(() => { /* ignore */ });
-  
-    } catch (e) {
-      console.warn('[onTimerExpiredFor] failed; using raw', e);
+        .catch(() => {});  
+    } catch (err) {
+      console.warn('[onTimerExpiredFor] failed; using raw', err);
     } finally {
       this.fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
-  }
-  
-  
+  } 
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
