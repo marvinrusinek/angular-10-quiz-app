@@ -3216,25 +3216,20 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Prefer cached formatted; else true raw; else placeholder (NEVER push fallback)
+      //    Override for placeholder/raw; write to stream ONLY when formatted is ready.
+      //    Cached formatted → write to stream immediately.
       // ───────────────────────────────────────────────
       {
         const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim(); // ← no "No explanation available" here
-        const initial  = cached || (rawTrue || '<span class="muted">Formatting…</span>');
+        const rawTrue  = (q?.explanation ?? '').trim(); // ← no fallback string here
   
-        // Flip INSIDE Angular + set local mirrors so any template path updates
         this.ngZone.run(() => {
-          // service state
-          this.explanationTextService.setExplanationText(initial);
+          // Flip UI flags first
           this.explanationTextService.setShouldDisplayExplanation(true);
-  
-          // global UI state
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.quizStateService.setAnswered(true);
           this.quizStateService.setAnswerSelected(true);
   
-          // Next button
           if (isSingle) {
             this.selectedOptionService.setAnswered(true);
             this.nextButtonStateService.setNextButtonState(true);
@@ -3242,36 +3237,58 @@ export class QuizQuestionComponent
             try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
           }
   
-          // local flags some templates bind to
+          // Local mirrors (if your template uses them)
           this.displayExplanation = true;
-          this.explanationToDisplay = initial;
           this.showExplanationChange?.emit(true);
-          this.explanationToDisplayChange?.emit(initial);
+  
+          if (cached && cached.trim()) {
+            // ✅ Cached formatted → write to stream now
+            this.explanationTextService.setExplanationText(cached);
+            this.explanationToDisplay = cached;
+            this.explanationToDisplayChange?.emit(cached);
+  
+            // Clear any stale override so stream wins in combinedText$
+            this.overrideSubject?.next?.({ html: '', idx: -1 });
+          } else {
+            // ✅ No cache → show raw or placeholder via OVERRIDE ONLY (do NOT touch the stream yet)
+            const firstHtml = rawTrue || '<span class="muted">Formatting…</span>';
+            this.overrideSubject?.next?.({ html: firstHtml, idx: i0 });
+            this.explanationToDisplay = firstHtml;
+            this.explanationToDisplayChange?.emit(firstHtml);
+          }
   
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
   
-        // 🔁 Swap in formatted FOR THIS INDEX (no second click)
+        // 🔁 Resolve formatted FOR THIS INDEX, then write to stream & clear override
         if (!cached) {
-          void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 4000 })
-            .then((formatted) => {
-              const clean = (formatted ?? '').trim?.() ?? '';
-              if (!clean) return;
+          requestAnimationFrame(() => {
+            void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 4000 })
+              .then((formatted) => {
+                const clean = (formatted ?? '').trim?.() ?? '';
+                if (!clean) return;
   
-              // still on same question?
-              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-              if (active !== i0) return;
+                // Still on same question?
+                const active =
+                  this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+                  (this.currentQuestionIndex ?? 0);
+                if (active !== i0) return;
   
-              this.ngZone.run(() => {
-                this.explanationTextService.setExplanationText(clean);
-                this.explanationToDisplay = clean;
-                this.explanationToDisplayChange?.emit(clean);
-                this.cdRef.markForCheck?.();
-                this.cdRef.detectChanges?.();
-              });
-            })
-            .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
+                this.ngZone.run(() => {
+                  this.explanationTextService.setExplanationText(clean); // first stream write
+                  this.explanationToDisplay = clean;
+                  this.explanationToDisplayChange?.emit(clean);
+  
+                  // Clear override so formatted (stream) takes precedence
+                  this.overrideSubject?.next?.({ html: '', idx: -1 });
+  
+                  this.cdRef.markForCheck?.();
+                  this.cdRef.detectChanges?.();
+                });
+              })
+              .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
+          });
         }
       }
   
@@ -3285,21 +3302,24 @@ export class QuizQuestionComponent
       } catch {}
   
       // ───────────────────────────────────────────────
-      // (Legacy path) GUARD: do NOT call unconditionally; never write empties.
-      // If you insist on keeping it, keep the guard below:
+      // (Legacy path) GUARD: only run if we have no cache yet.
+      // Never write empties; only apply non-empty formatted for the same index.
       // ───────────────────────────────────────────────
-      // Only run legacy if no cache yet (avoid racing the resolveFormatted above)
       if (!this._formattedByIndex?.has?.(i0)) {
         this.updateExplanationText(i0)
           .then((formatted) => {
             const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return; // never inject fallback
+            if (!clean) return; // don’t inject fallback/placeholder into stream
             const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
             if (active !== i0) return;
             this.ngZone.run(() => {
               this.explanationTextService.setExplanationText(clean);
               this.explanationToDisplay = clean;
               this.explanationToDisplayChange?.emit(clean);
+  
+              // Also clear override here to ensure stream wins if it was still set
+              this.overrideSubject?.next?.({ html: '', idx: -1 });
+  
               this.cdRef.markForCheck?.();
               this.cdRef.detectChanges?.();
             });
@@ -3327,6 +3347,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
 
   private resetDedupeFor(index: number): void {
