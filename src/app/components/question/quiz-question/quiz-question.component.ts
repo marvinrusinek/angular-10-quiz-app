@@ -4459,7 +4459,7 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex?.(index) ?? index;
   
     // Prefer the model’s raw explanation for *this index*
@@ -4542,7 +4542,81 @@ export class QuizQuestionComponent
     });
   
     return clean;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const i0 = this.normalizeIndex(index);
+  
+    const q = this.questions?.[i0];
+    // Prefer model raw; fallback to service cache if model is empty
+    const svcCached = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').toString().trim();
+    const baseRaw   = ((q?.explanation ?? '') as string).toString().trim() || svcCached;
+  
+    console.warn('[🧠 updateExplanationText CALLED]', {
+      index: i0,
+      currentIndex: this.currentQuestionIndex,
+    });
+  
+    if (!q) {
+      // still update state with whatever we have
+      this.explanationTextService.setExplanationText(baseRaw || 'Explanation not available.');
+      const qState0 = this.quizStateService.getQuestionState(this.quizId, i0);
+      this.quizStateService.setQuestionState(this.quizId, i0, {
+        ...qState0,
+        explanationDisplayed: true,
+        explanationText: baseRaw || 'Explanation not available.',
+      });
+      return baseRaw;
+    }
+  
+    // Derive correct option indices from the question itself (works on timeout)
+    const indices: number[] = Array.isArray(q.options)
+      ? q.options.map((opt, idx) => (opt?.correct ? (idx + 1) : -1)).filter((n) => n > 0)
+      : [];
+  
+    // Format using your service; if missing/throws, fall back to raw
+    let formatted = '';
+    try {
+      const svc: any = this.explanationTextService;
+      if (typeof svc.formatExplanation === 'function') {
+        // correct signature: (question, correctOptionIndices, explanation)
+        formatted = svc.formatExplanation(q, indices, baseRaw);
+      } else {
+        formatted = baseRaw;
+      }
+    } catch (e) {
+      console.warn('[updateExplanationText] formatter threw; using raw', e);
+      formatted = baseRaw;
+    }
+  
+    const clean = (formatted ?? '').toString().trim();
+  
+    // Cache per-index in the service and (optionally) push to a sticky stream
+    try {
+      const prev = this.explanationTextService.formattedExplanations?.[i0] as any;
+      this.explanationTextService.formattedExplanations[i0] = {
+        ...(prev ?? {}),
+        questionIndex: i0,
+        explanation: clean || baseRaw,
+      };
+      (this.explanationTextService as any).pushFormatted?.(clean || baseRaw);
+    } catch {}
+  
+    // Only write to live stream if we’re still on this index
+    if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
+      this.explanationTextService.setExplanationText(clean || baseRaw);
+    }
+  
+    // Keep your per-question state
+    const qState = this.quizStateService.getQuestionState(this.quizId, i0);
+    this.quizStateService.setQuestionState(this.quizId, i0, {
+      ...qState,
+      explanationDisplayed: true,
+      explanationText: clean || baseRaw,
+    });
+  
+    return clean || baseRaw;
   }
+  
 
   public async handleOptionSelection(
     option: SelectedOption,
@@ -5843,7 +5917,7 @@ export class QuizQuestionComponent
       }
     }
   } */
-  private async onTimerExpiredFor(index: number): Promise<void> {
+  /* private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
     if (this.handledOnExpiry?.has?.(i0)) return;
     this.handledOnExpiry?.add?.(i0);
@@ -5916,7 +5990,101 @@ export class QuizQuestionComponent
       this.fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
+  } */
+  private async onTimerExpiredFor(index: number): Promise<void> {
+    const i0 = this.normalizeIndex(index);
+    if (this.handledOnExpiry?.has?.(i0)) return;
+    this.handledOnExpiry?.add?.(i0);
+  
+    // Flip into explanation mode and enable Next immediately
+    this.ngZone.run(() => {
+      this.timerService.stopTimer?.();
+  
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+  
+      const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
+      if (qType === QuestionType.MultipleAnswer) {
+        try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+      } else {
+        try { this.selectedOptionService.setAnswered(true); } catch {}
+        try { this.nextButtonStateService.setNextButtonState(true); } catch {}
+      }
+  
+      // Wipe any leftover feedback text
+      this.feedbackText = '';
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+  
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+    });
+  
+    // Pin context to THIS index and try to get formatted NOW
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+    try {
+      this.fixedQuestionIndex = i0;
+      this.currentQuestionIndex = i0;
+  
+      // Compute formatted by index; this now uses the proper formatter signature
+      const formattedNow = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
+  
+      if (formattedNow) {
+        // We already wrote to the stream inside updateExplanationText if still on i0,
+        // but ensure the local mirrors are updated too.
+        this.ngZone.run(() => {
+          this.explanationToDisplay = formattedNow;
+          this.explanationToDisplayChange?.emit(formattedNow);
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        });
+        return; // ✅ formatted done
+      }
+  
+      // If nothing formatted, seed with best available raw and keep UI consistent
+      const rawBest =
+        ((this.questions?.[i0]?.explanation ?? '') as string).toString().trim() ||
+        ((this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '') as string).toString().trim() ||
+        'Explanation not available.';
+  
+      this.ngZone.run(() => {
+        this.explanationTextService.setExplanationText(rawBest);
+        this.explanationToDisplay = rawBest;
+        this.explanationToDisplayChange?.emit(rawBest);
+        this.cdRef.markForCheck?.();
+        this.cdRef.detectChanges?.();
+      });
+  
+      // (Optional) still try a background resolve to swap in formatted later
+      void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
+        .then((clean) => {
+          const out = (clean ?? '').toString().trim();
+          if (!out) return;
+          const active =
+            this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+            (this.currentQuestionIndex ?? 0);
+          if (active !== i0) return;
+          this.ngZone.run(() => {
+            this.explanationTextService.setExplanationText(out);
+            this.explanationToDisplay = out;
+            this.explanationToDisplayChange?.emit(out);
+            this.cdRef.markForCheck?.();
+            this.cdRef.detectChanges?.();
+          });
+        })
+        .catch(() => { /* ignore */ });
+  
+    } catch (e) {
+      console.warn('[onTimerExpiredFor] failed; using raw', e);
+    } finally {
+      this.fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
   }
+  
   
 
   // Always return a 0-based index that exists in `this.questions`
