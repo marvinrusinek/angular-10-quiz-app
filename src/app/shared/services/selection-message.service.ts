@@ -71,30 +71,29 @@ export class SelectionMessageService {
   }
 
   // 3) Build message on click (correct wording + logic)
-  public buildMessageOnClick(params: {
-    questionIndex: number;          // 0-based
+  public buildMessageFromSelection(params: {
+    questionIndex: number;           // 0-based
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];
+    options: Option[];               // the UPDATED array (post-click)
   }): string {
     const { questionIndex, totalQuestions, questionType, options } = params;
-    const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-
+    const last = this.isLast(questionIndex, totalQuestions);
+  
     if (questionType === QuestionType.MultipleAnswer) {
       const remaining = this.getRemainingCorrectCount(options);
       if (remaining > 0) {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-      // all correct selected → fall through
-      return isLast
+      return last
         ? 'Please click the Show Results button.'
-        : 'Please select the next button to continue...';
+        : 'Please click the next button to continue...';
     }
-
-    // Single-answer → always Next/Results after a click
-    return isLast
+    
+    // Single-answer: always Next/Results after a click
+    return last
       ? 'Please click the Show Results button.'
-      : 'Please select the next button to continue...';
+      : 'Please click the next button to continue...';
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
@@ -144,46 +143,46 @@ export class SelectionMessageService {
   }
 
   // Method to update the message
-  public updateSelectionMessage(message: string): void {
+  public updateSelectionMessage(message: string, ctx?: { options?: Option[] }): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-  
     if (!next) {
       console.warn('[updateSelectionMessage] Skipped empty or blank message');
       return;
     }
   
-    // Guard: don't let "Next/Results" overwrite multi-remaining
-    const { isMulti, remaining } = this.hasMultiRemaining();
-  
-    // ✅ case-insensitive contains check (handles "click/select the next button", etc.)
+    // Case-insensitive contains (handles “click/select the next button”, etc.)
     const norm = next.toLowerCase();
-    const isNextish =
-      norm.includes('next button') ||      // any phrasing that mentions the next button
-      norm.includes('show results');       // any phrasing that mentions show results
+    const isNextish = norm.includes('next button') || norm.includes('show results');
   
+    // Guard evaluates with the UPDATED options we just mutated (if provided)
+    const optsForGuard = this.pickOptionsForGuard(ctx?.options);
+    const correct = optsForGuard.filter(o => !!o?.correct);
+    const isMulti = correct.length > 1;
+    const remaining = isMulti ? this.getRemainingCorrectCount(optsForGuard) : 0;
+
+    // Never let “Next/Results” overwrite multi-remaining while answers remain
     if (isMulti && remaining > 0 && isNextish) {
-      const hold = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) {
-        this.selectionMessageSubject.next(hold);
-      }
-      return;  // block overwrite
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) this.selectionMessageSubject.next(hold);
+      return; // block overwrite
     }
-  
-    if (current !== next) {
-      console.log(`[📢 updateSelectionMessage] New: ${next} | Replacing: ${current}`);
-      this.selectionMessageSubject.next(next);
-    } else {
-      console.log(`[⏸️ updateSelectionMessage] No update needed for: ${next}`);
-    }
+
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
 
-  // Get current question's options safely from QuizService
-  private getCurrentOptions(): Option[] {
-    const idx = this.quizService.currentQuestionIndex as number;
-    const q: any = (this.quizService as any).currentQuestion
-      ?? (this.quizService as any).getQuestion?.(idx);
-    return (q?.options ?? []) as Option[];
+  // Helper: compute and push atomically (passes options to guard)
+  public updateMessageFromSelection(params: {
+    questionIndex: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];
+  }): void {
+    // keep snapshot fresh for any other callers
+    this.setOptionsSnapshot(params.options);
+
+    const msg = this.buildMessageFromSelection(params);
+    this.updateSelectionMessage(msg, { options: params.options });
   }
 
   // Is current question multi and how many correct remain?
@@ -202,5 +201,23 @@ export class SelectionMessageService {
   
   private getLatestOptionsSnapshot(): Option[] {
     return this.optionsSnapshotSubject.getValue() ?? [];
+  }
+
+  // Get current question's options safely from QuizService
+  private getCurrentOptions(): Option[] {
+    const idx = this.quizService.currentQuestionIndex as number;
+    const q: any = (this.quizService as any).currentQuestion
+      ?? (this.quizService as any).getQuestion?.(idx);
+    return (q?.options ?? []) as Option[];
+  }
+
+  private pickOptionsForGuard(passed?: Option[]): Option[] {
+    if (Array.isArray(passed) && passed.length) return passed;
+    const snap = this.getLatestOptionsSnapshot();
+    return snap.length ? snap : this.getCurrentOptions();
+  }
+  
+  private isLast(idx: number, total: number): boolean {
+    return total > 0 && idx === total - 1;
   }
 }
