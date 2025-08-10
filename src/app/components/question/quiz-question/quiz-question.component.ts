@@ -3191,40 +3191,49 @@ export class QuizQuestionComponent
   }
 
   handleSelectionMessageUpdate(): void {
-    const i0      = this.currentQuestionIndex;
-    const isLast  = i0 === (this.totalQuestions - 1);
-    const qType   = this.currentQuestion?.type;
+    const i0     = this.currentQuestionIndex;
+    const isLast = i0 === (this.totalQuestions - 1);
+    const qType  = this.currentQuestion?.type;
   
-    const optionsNow = (this.optionsToDisplay?.length
-      ? this.optionsToDisplay
-      : this.currentQuestion?.options) as Option[] || [];
-  
-    this.selectionMessageService.setOptionsSnapshot?.(optionsNow);
+    // ❌ Do NOT read options here; selection mutations may not have landed yet.
+    // this.selectionMessageService.setOptionsSnapshot?.(optionsNow); // moved below
   
     // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
-      if (qType === QuestionType.MultipleAnswer) {
-        const remaining =
-          this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+      // Then wait a frame to ensure the rendered list reflects the latest flags
+      requestAnimationFrame(() => {
+        // ✅ Recompute from the UPDATED array your UI renders
+        const optionsNow = (this.optionsToDisplay?.length
+          ? this.optionsToDisplay
+          : this.currentQuestion?.options) as Option[] || [];
   
-        const msg = (remaining > 0)
-          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-          : (isLast
-              ? 'Please click the Show Results button.'
-              : 'Please select the next button to continue...');
+        // Keep the snapshot fresh for service-side guards
+        this.selectionMessageService.setOptionsSnapshot?.(optionsNow);
+  
+        if (qType === QuestionType.MultipleAnswer) {
+          const remaining =
+            this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+  
+          const msg = (remaining > 0)
+            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+            : (isLast
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...');
+  
+          this.selectionMessageService.updateSelectionMessage(msg);
+          return;
+        }
+  
+        // Single-answer: NEVER show “Select …” after a click
+        const msg = isLast
+          ? 'Please click the Show Results button.'
+          : 'Please click the next button to continue...';
   
         this.selectionMessageService.updateSelectionMessage(msg);
-        return;
-      }
-  
-      // Single-answer: NEVER show “Select …” after a click
-      const msg = isLast
-        ? 'Please click the Show Results button.'
-        : 'Please select the next button to continue...';
-  
-      this.selectionMessageService.updateSelectionMessage(msg);
+      });
     });
   }
+  
 
   private async finalizeAfterClick(
     option: SelectedOption,
