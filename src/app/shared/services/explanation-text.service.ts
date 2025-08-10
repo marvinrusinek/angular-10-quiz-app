@@ -271,7 +271,7 @@ export class ExplanationTextService {
       .filter((index): index is number => index !== null);
   }
 
-  formatExplanation(question: QuizQuestion, correctOptionIndices: number[], explanation: string): string {
+  /* formatExplanation(question: QuizQuestion, correctOptionIndices: number[], explanation: string): string {
     if (correctOptionIndices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
 
@@ -286,7 +286,45 @@ export class ExplanationTextService {
     } else {
       return 'No correct option selected...';
     }
-  }
+  } */
+  formatExplanation(
+    question: QuizQuestion,
+    correctOptionIndices: number[] | null | undefined,
+    explanation: string
+  ): string {
+    // Normalize incoming indices (may be null/undefined/empty on timeout)
+    let indices: number[] = Array.isArray(correctOptionIndices)
+      ? correctOptionIndices.slice()
+      : [];
+  
+    // Fallback: derive from the question’s own option flags (use 1-based for display to match typical copy)
+    if (indices.length === 0 && Array.isArray(question?.options)) {
+      indices = question.options
+        .map((opt, i) => (opt?.correct ? i + 1 : -1))  // +1 so text says “Option 2” etc.
+        .filter((n) => n > 0);
+    }
+  
+    // Multi-answer
+    if (indices.length > 1) {
+      question.type = QuestionType.MultipleAnswer;
+  
+      const optionsText =
+        indices.length > 2
+          ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
+          : indices.join(' and ');
+  
+      return `Options ${optionsText} are correct because ${explanation}`;
+    }
+  
+    // Single-answer
+    if (indices.length === 1) {
+      question.type = QuestionType.SingleAnswer;
+      return `Option ${indices[0]} is correct because ${explanation}`;
+    }
+  
+    // Zero derived indices → just return the explanation (no scolding)
+    return (explanation ?? '').trim();
+  }  
 
   private syncFormattedExplanationState(
     questionIndex: number, formattedExplanation: string): void {
