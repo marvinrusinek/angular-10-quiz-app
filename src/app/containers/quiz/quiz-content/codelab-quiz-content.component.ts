@@ -305,16 +305,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           if (svcRaw) return svcRaw;
   
           // Model raw
-          const raw = (this.questions?.[currentIndex]?.explanation ?? '')
-            .toString()
-            .trim();
+          const raw = (this.questions?.[currentIndex]?.explanation ?? '').toString().trim();
           if (raw) return raw;
   
           // Final fallback
           return 'Explanation not available.';
         }
   
-        // Question mode (preserve your correct-count behavior)
+        // Otherwise show question (and correct count if present)
         return correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
