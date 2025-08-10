@@ -285,40 +285,39 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       map(([override, state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-  
-        const question = (questionText ?? '').trim();
+      
+        const question    = (questionText ?? '').trim();
         const explanation = (explanationText ?? '').trim();
-        const correct = (correctText ?? '').trim();
-  
-        // ✅ Decide visibility by state/flag only (do NOT require explanation to be truthy)
+        const correct     = (correctText ?? '').trim();
+      
         const showExplanation =
           state?.mode === 'explanation' &&
           (shouldDisplayExplanation || this.displayExplanation);
-  
+      
         if (showExplanation) {
-          // 1) Prefer the stream (formatted or cached) if it has anything meaningful
-          if (explanation) {
-            return explanation;
+          // ✅ Only show the stream when we *know* it’s formatted
+          if (this._formattedByIndex?.has?.(currentIndex) && explanation) {
+            return explanation;                      // formatted (or cached) wins
           }
-  
-          // 2) Then, if an override exists for THIS index, use it (raw or placeholder)
+      
+          // Then show any override for THIS index (raw or “Formatting…”)
           if (override?.idx === currentIndex && override?.html) {
             return override.html;
           }
-  
-          // 3) Then try raw from the model
+      
+          // Then try raw from the model (if you want; otherwise skip straight to placeholder)
           const raw = (this.questions?.[currentIndex]?.explanation ?? '').trim();
           if (raw) return raw;
-  
-          // 4) Last resort placeholder (not written to the stream)
+      
+          // Last resort placeholder (not written to the stream)
           return '<span class="muted">Formatting…</span>';
         }
-  
+      
         // Question mode (preserve your correct-count behavior)
         return correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-      }),
+      }),      
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
