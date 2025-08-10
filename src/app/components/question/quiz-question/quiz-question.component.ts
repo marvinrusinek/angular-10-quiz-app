@@ -3191,24 +3191,40 @@ export class QuizQuestionComponent
   }
 
   handleSelectionMessageUpdate(): void {
-    const options = this.optionsToDisplay ?? [];
-    const allCorrectSelected =
-      this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
+    const i0      = this.currentQuestionIndex;
+    const isLast  = i0 === (this.totalQuestions - 1);
+    const qType   = this.currentQuestion?.type;
   
-    if (allCorrectSelected) {
-      this.selectedOptionService.setAnswered(true, true);
-      const msg = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        true
-      );
+    const optionsNow = (this.optionsToDisplay?.length
+      ? this.optionsToDisplay
+      : this.currentQuestion?.options) as Option[] || [];
+  
+    this.selectionMessageService.setOptionsSnapshot?.(optionsNow);
+  
+    // Wait a microtask so any selection mutations and state evals have landed
+    queueMicrotask(() => {
+      if (qType === QuestionType.MultipleAnswer) {
+        const remaining =
+          this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+  
+        const msg = (remaining > 0)
+          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please select the next button to continue...');
+  
+        this.selectionMessageService.updateSelectionMessage(msg);
+        return;
+      }
+  
+      // Single-answer: NEVER show “Select …” after a click
+      const msg = isLast
+        ? 'Please click the Show Results button.'
+        : 'Please select the next button to continue...';
+  
       this.selectionMessageService.updateSelectionMessage(msg);
-    } else {
-      const isLast = this.currentQuestionIndex === this.totalQuestions - 1;
-      const msg = this.selectionMessageService.getRemainingCorrect(options, isLast);
-      this.selectionMessageService.updateSelectionMessage(msg);
-    }
-  }  
+    });
+  }
 
   private async finalizeAfterClick(
     option: SelectedOption,

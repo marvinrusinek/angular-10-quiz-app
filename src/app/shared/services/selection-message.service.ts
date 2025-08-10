@@ -18,6 +18,8 @@ export class SelectionMessageService {
     distinctUntilChanged()
   );
 
+  private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
+
   constructor(private quizService: QuizService) {}
 
   // Getter for the current selection message
@@ -187,5 +189,14 @@ export class SelectionMessageService {
     const isMulti = correct.length > 1;
     const remaining = isMulti ? this.getRemainingCorrectCount(options) : 0;
     return { isMulti, remaining };
+  }
+
+  public setOptionsSnapshot(options: Option[] | null | undefined): void {
+    const opts = Array.isArray(options) ? options : [];
+    this.optionsSnapshotSubject.next(opts);
+  }
+  
+  private getLatestOptionsSnapshot(): Option[] {
+    return this.optionsSnapshotSubject.getValue() ?? [];
   }
 }
