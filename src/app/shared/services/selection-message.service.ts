@@ -78,7 +78,7 @@ export class SelectionMessageService {
 
     // Multi-answer: until all correct are selected, show the remaining count
     if (questionType === QuestionType.MultipleAnswer) {
-      const remaining = this.getRemainingCorrect(options);
+      const remaining = this.getRemainingCorrect(options, isLast);
       if (remaining > 0) {
         return `Select ${remaining} more ${this.pluralize(remaining, 'correct answer', 'correct answers')} to continue...`;
       }
@@ -99,6 +99,29 @@ export class SelectionMessageService {
         return;
       }
   
+      // Try to read the current question and options without depending on extra imports
+      const q: any = (this.quizService as any).currentQuestion ?? (this.quizService as any).getQuestion?.(index);
+      const options: Option[] = (q?.options ?? []) as Option[];
+  
+      // Treat as multi-answer if there are 2+ correct options
+      const correct = options.filter(o => !!o?.correct);
+      const isMulti = correct.length > 1;
+  
+      if (isMulti) {
+        const selectedCorrect = correct.filter(o => !!o?.selected).length;
+        const remaining = Math.max(0, correct.length - selectedCorrect);
+  
+        // Never overwrite the multi-remaining message while there are still correct answers to pick
+        if (remaining > 0) {
+          const msg = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+          const current = this.getCurrentMessage();
+          if (msg !== current) this.updateSelectionMessage(msg);
+          return; // do NOT fall through to Next/Results
+        }
+        // remaining === 0 → all correct chosen; proceed to Next/Results below
+      }
+  
+      // Single-answer OR multi-answer with all correct selected → use your existing rule
       const newMessage = this.determineSelectionMessage(index, total, isAnswered);
       const current = this.getCurrentMessage();
   
