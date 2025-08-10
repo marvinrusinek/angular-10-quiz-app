@@ -4944,7 +4944,7 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const entry = this.explanationTextService.formattedExplanations[index];
     const explanationText =
       entry?.explanation?.trim() ?? 'No explanation available';
@@ -4973,7 +4973,89 @@ export class QuizQuestionComponent
     });
 
     return explanationText;
-  }
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const i0 = this.normalizeIndex?.(index) ?? index;
+  
+    // Prefer the model’s raw explanation for *this index*
+    const q    = this.questions?.[i0];
+    const rawQ = (q?.explanation ?? '').toString().trim();
+  
+    // Fallback to whatever the service already has cached for this index
+    const rawSvc = (
+      this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
+    ).toString().trim();
+  
+    // Choose a raw source: question first, then service cache
+    const raw = rawQ || rawSvc;
+  
+    console.warn('[🧠 updateExplanationText CALLED]', {
+      index: i0,
+      currentIndex: this.currentQuestionIndex,
+    });
+  
+    // DO NOT early-return just because indices differ — we’re formatting *by index*
+    // (keep the warning for visibility)
+    if (this.currentQuestionIndex !== i0) {
+      console.warn(
+        `[ℹ️ Index mismatch tolerated] current=${this.currentQuestionIndex} locked=${i0} (formatting by index anyway)`
+      );
+    }
+  
+    if (!raw) {
+      // Nothing to format — do not push placeholders into the stream
+      return '';
+    }
+  
+    // Run your existing formatting pipeline (index-aware if possible)
+    let formatted = '';
+    try {
+      if (typeof (this.explanationTextService as any).formatExplanation === 'function') {
+        // Prefer a service-level formatter if you have one that accepts (raw, index)
+        formatted = await (this.explanationTextService as any).formatExplanation(raw, i0);
+      } else if (typeof (this as any).formatExplanationHtml === 'function') {
+        // Or a component-local formatter you already use elsewhere
+        formatted = await (this as any).formatExplanationHtml(raw, i0);
+      } else {
+        // No formatter available — pass raw through
+        formatted = raw;
+      }
+    } catch (e) {
+      console.warn('[updateExplanationText] formatter threw; using raw', e);
+      formatted = raw;
+    }
+  
+    const clean = (formatted ?? '').toString().trim();
+  
+    // Persist per-index cache in the service (so Q2+ can read it later)
+    try {
+      if (this.explanationTextService?.formattedExplanations) {
+        this.explanationTextService.formattedExplanations[i0] = {
+          ...(this.explanationTextService.formattedExplanations[i0] ?? {}),
+          explanation: clean || raw,
+        };
+      }
+      // If your service exposes a subject for “latest formatted”, publish it too (sticky stream recommended)
+      (this.explanationTextService as any).pushFormatted?.(clean || raw);
+    } catch (e) {
+      console.warn('[updateExplanationText] cache publish failed', e);
+    }
+  
+    // Only push to the live explanation stream if the user is *still* on this index
+    if (this.currentQuestionIndex === i0 && clean) {
+      this.explanationTextService.setExplanationText(clean);
+    }
+  
+    // Update question state (kept, but use i0 consistently)
+    const qState = this.quizStateService.getQuestionState(this.quizId, i0);
+    this.quizStateService.setQuestionState(this.quizId, i0, {
+      ...qState,
+      explanationDisplayed: true,
+      explanationText: clean || raw,
+    });
+  
+    return clean;
+  }  
 
   public async handleOptionSelection(
     option: SelectedOption,
