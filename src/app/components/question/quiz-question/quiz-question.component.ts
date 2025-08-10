@@ -5848,10 +5848,11 @@ export class QuizQuestionComponent
     if (this.handledOnExpiry?.has?.(i0)) return;
     this.handledOnExpiry?.add?.(i0);
   
-    // Grab best-available raw for THIS index (question.explanation or service cache)
+    // Get best-available raw for THIS index
     const raw = this.getRawForIndex(i0);
   
     this.ngZone.run(() => {
+      // Stop ticking, hard-flip to explanation
       this.timerService.stopTimer?.();
   
       this.explanationTextService.setShouldDisplayExplanation(true);
@@ -5868,13 +5869,13 @@ export class QuizQuestionComponent
         try { this.nextButtonStateService.setNextButtonState(true); } catch {}
       }
   
-      // ✅ Seed the stream with a real string right now (never placeholder)
+      // ✅ Seed the stream with a real string NOW (no placeholder)
       const initial = raw || 'Explanation not available.';
       this.explanationTextService.setExplanationText(initial);
       this.explanationToDisplay = initial;
       this.explanationToDisplayChange?.emit(initial);
   
-      // Clear any feedback message like “No correct option selected…”
+      // Nuke any “no selection” feedback
       this.feedbackText = '';
       this.displayExplanation = true;
       this.showExplanationChange?.emit(true);
@@ -5883,7 +5884,7 @@ export class QuizQuestionComponent
       this.cdRef.detectChanges?.();
     });
   
-    // Pin context and try to swap in formatted for THIS index
+    // Pin context to THIS index; resolve formatted and swap if still on same Q
     const prevFixed = this.fixedQuestionIndex;
     const prevCur   = this.currentQuestionIndex;
     try {
@@ -5916,6 +5917,7 @@ export class QuizQuestionComponent
       this.currentQuestionIndex = prevCur;
     }
   }
+  
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
