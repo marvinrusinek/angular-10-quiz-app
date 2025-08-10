@@ -567,5 +567,9 @@ export class ExplanationTextService {
       lockedText === currentText &&
       lockedTimestamp === latestTimestamp
     );
-  }  
+  }
+  
+  public pushFormatted(text: string): void {
+    this.formattedExplanationSubject.next((text ?? '').toString().trim());
+  }
 }
