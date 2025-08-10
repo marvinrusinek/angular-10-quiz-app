@@ -3193,10 +3193,11 @@ export class QuizQuestionComponent
   handleSelectionMessageUpdate(): void {
     const options = this.optionsToDisplay ?? [];
     const allCorrectSelected =
-      this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-        this.currentQuestionIndex
-      );
-
+      this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
+  
+    // If you added the snapshot feature, keep it fresh:
+    // this.selectionMessageService.setOptionsSnapshot?.(options);
+  
     if (allCorrectSelected) {
       this.selectedOptionService.setAnswered(true, true);
       const msg = this.selectionMessageService.determineSelectionMessage(
@@ -3206,11 +3207,11 @@ export class QuizQuestionComponent
       );
       this.selectionMessageService.updateSelectionMessage(msg);
     } else {
-      const msg =
-        this.selectionMessageService.getRemainingAnswersMessage(options);
+      const isLast = this.currentQuestionIndex === this.totalQuestions - 1;
+      const msg = this.selectionMessageService.getRemainingCorrect(options, isLast);
       this.selectionMessageService.updateSelectionMessage(msg);
     }
-  }
+  }  
 
   private async finalizeAfterClick(
     option: SelectedOption,
