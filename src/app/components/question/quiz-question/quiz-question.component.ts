@@ -5776,10 +5776,6 @@ export class QuizQuestionComponent
     void this.resolveFormatted(i0, { useCache: true, setCache: true });
   }
 
-  private async getFormattedFor(index: number): Promise<string> {
-    return this.resolveFormatted(index, { useCache: true, setCache: true });
-  }
-
   // Called when the countdown hits zero
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
