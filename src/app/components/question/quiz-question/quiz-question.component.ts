@@ -2707,506 +2707,26 @@ export class QuizQuestionComponent
   }
 
   // Called when a user clicks an option row
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    // Gate super-fast clicks until UI is ready; replay once ready
-    if (!this.quizStateService.isInteractionReady()) {
-      if (this.waitingForReady) return;  // avoid piling duplicates
-      this.waitingForReady = true;
-      this.deferredClick = event;
-  
-      this.quizStateService.interactionReady$
-        .pipe(filter(Boolean), take(1))
-        .subscribe(() => {
-          this.waitingForReady = false;
-          const e = this.deferredClick;
-          this.deferredClick = undefined;
-          if (e) this.onOptionClicked(e);  // re-run once UI is ready
-        });
-  
-      return;  // bail now; we’ll replay the click when ready
-    }
-  
-    const evtIdx = event.index;
-    const evtOpt = event.option;
-  
-    // Guard and simple dedupe (kept): ignore missing option or exact same index twice
-    if (!evtOpt || evtIdx === this.lastLoggedIndex) return;
-    this.lastLoggedIndex = evtIdx;
-  
-    const questionIdx = this.currentQuestionIndex;
-    const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
-    const isSingle = !isMultiSelect;
-  
-    // Persist the selection with an explicit index (fixes first-click issues)
-    this.selectedOptionService.setSelectedOption(evtOpt, questionIdx);
-  
-    // Single → enable Next deterministically; Multi → evaluate after map update
-    if (isSingle) {
-      this.selectedOptionService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-      this.nextButtonStateService.setNextButtonState(true);
-    } else {
-      queueMicrotask(() => {
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(
-          questionIdx,
-          true
-        );
-      });
-    }
-  
-    // Selection bookkeeping (kept)
-    this.selectedIndices.clear();
-    this.selectedIndices.add(evtIdx);
-  
-    // Mark question as answered for downstream logic (kept)
-    this.quizStateService.setAnswerSelected(true);
-  
-    // ───────────────────────────────────────────────
-    // 🔹 SHOW EXPLANATION *NOW* (synchronous, first click)
-    //     1) Show RAW immediately so user sees feedback
-    //     2) Put UI into explanation mode
-    //     3) Kick off formatting asynchronously; replace when ready
-    // ───────────────────────────────────────────────
-    {
-      const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-      this.explanationTextService.setExplanationText(raw);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.cdRef.markForCheck?.();
-  
-      // async formatting (DO NOT await)
-      this.updateExplanationText(questionIdx)
-        .then((formatted) => {
-          const clean = (formatted ?? '').trim?.() ?? '';
-          if (clean && this.currentQuestionIndex === questionIdx) {
-            this.explanationTextService.setExplanationText(clean);
-            this.cdRef.markForCheck?.();
-          }
-        })
-        .catch((err) => {
-          console.error('[❌ format explanation failed]', err);
-        });
-    }
-  
-    // Notify parent on first click (kept)
-    this.optionSelected.emit({ ...evtOpt, questionIndex: questionIdx });
-  
-    // Build feedback text and post-click tasks (kept)
-    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-    await this.postClickTasks(evtOpt, evtIdx, true, false);
-  
-    // Existing follow-ups (kept)
-    this.handleCoreSelection(event);
-    this.markBindingSelected(evtOpt);
-    this.refreshFeedbackFor(evtOpt);
-  } */
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    // Gate super-fast clicks until UI is ready; replay once ready (unchanged)
-    if (!this.quizStateService.isInteractionReady()) {
-      if (this.waitingForReady) return;  // avoid piling duplicates
-      this.waitingForReady = true;
-      this.deferredClick = event;
-  
-      this.quizStateService.interactionReady$
-        .pipe(filter(Boolean), take(1))
-        .subscribe(() => {
-          this.waitingForReady = false;
-          const e = this.deferredClick;
-          this.deferredClick = undefined;
-          if (e) this.onOptionClicked(e);  // re-run once UI is ready
-        });
-  
-      return;  // bail now; we’ll replay the click when ready
-    }
-  
-    // NEW: capture a stable question index; DO NOT change your dedupe to use it
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-  
-    const evtIdx = event.index;
-    const evtOpt = event.option;
-
-    // If we navigated, clear prior option dedupe
-    // this.resetDedupeFor(lockedIndex);
-  
-    // Keep your original dedupe semantics (option-index based)
-    if (!evtOpt) return;
-
-    // 🔧 Reset dedupe when we’re on a new question (so first click isn’t swallowed)
-    if (lockedIndex !== this.lastLoggedQuestionIndex) {
-      this.lastLoggedQuestionIndex = lockedIndex;
-      this.lastLoggedIndex = -1; // <-- crucial
-    }
-
-    // Dedupe ONLY within the same question/option
-    if (evtIdx === this.lastLoggedIndex) {
-      return; // true repeat on the same option for this question
-    }
-    
-    // First valid click for this question/option → accept and update trackers
-    this.lastLoggedIndex = evtIdx;
-  
-    const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
-    const isSingle = !isMultiSelect;
-  
-    // Persist the selection with an explicit index (fixes first-click drift)
-    this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
-  
-    // Selection bookkeeping (kept)
-    this.selectedIndices.clear();
-    this.selectedIndices.add(evtIdx);
-  
-    // ───────────────────────────────────────────────
-    // 🔹 SHOW EXPLANATION NOW (sync) — unchanged behavior
-    //     Raw immediately, then async format (do not await)
-    // ───────────────────────────────────────────────
-    {
-      const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-      this.explanationTextService.setExplanationText(raw);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-      // keep your display state sync so template flips to explanation immediately
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.cdRef.markForCheck?.();
-  
-      // async formatting (DO NOT await)
-      this.updateExplanationText(lockedIndex)
-        .then((formatted) => {
-          const clean = (formatted ?? '').trim?.() ?? '';
-          // guard against race with navigation
-          if (clean && (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex) {
-            this.explanationTextService.setExplanationText(clean);
-            this.cdRef.markForCheck?.();
-          }
-        })
-        .catch((err) => {
-          console.error('[❌ format explanation failed]', err);
-        });
-    }
-  
-    // ⛳ Atomic commit for answered + Next-enabled — but in a microtask only
-    // (so change detection sees a consistent state without delaying explanation)
-    queueMicrotask(() => {
-      this.quizStateService.setAnswerSelected(true); // downstream “answered”
-      if (isSingle) {
-        this.selectedOptionService.setAnswered(true);
-        this.nextButtonStateService.setNextButtonState(true);
-      } else {
-        // evaluate based on multi-select rules for THIS question
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
-      }
-      this.cdRef.markForCheck?.();
-    });
-  
-    // Notify parent on first click (kept)
-    this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
-  
-    // Build feedback text and post-click tasks (kept)
-    this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-    await this.postClickTasks(evtOpt, evtIdx, true, false);
-  
-    // Existing follow-ups (kept)
-    this.handleCoreSelection(event);
-    this.markBindingSelected(evtOpt);
-    this.refreshFeedbackFor(evtOpt);
-  } */
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    // Gate super-fast clicks until UI is ready; replay once ready (unchanged)
-    if (!this.quizStateService.isInteractionReady()) {
-      // Clear any pending “replay” state—no recursion needed anymore
-      this.waitingForReady = false;
-      this.deferredClick = undefined;
-  
-      // Wait here, then continue with the SAME click
-      await firstValueFrom(
-        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-      );
-    }
-  
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const evtIdx = event.index;
-    const evtOpt = event.option;
-  
-    if (!evtOpt) return;
-  
-    // 🔒 Same-tick guard ONLY (no cross-question dedupe)
-    if (this._clickGate) return;
-    this._clickGate = true;
-  
-    try {
-      const isMultiSelect = this.currentQuestion.type === QuestionType.MultipleAnswer;
-      const isSingle = !isMultiSelect;
-  
-      // ───────────────────────────────────────────────
-      // 🔹 SHOW EXPLANATION NOW (first click, no gating)
-      //     Raw immediately; then async format (do not await)
-      // ───────────────────────────────────────────────
-      {
-        const raw = (this.currentQuestion?.explanation ?? '').trim() || 'No explanation available';
-        this.explanationTextService.setExplanationText(raw);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-        this.quizStateService.setAnswered(true);
-        this.quizStateService.setAnswerSelected(true);
-        this.cdRef.markForCheck?.();
-  
-        // async formatting (DO NOT await)
-        this.updateExplanationText(lockedIndex)
-          .then((formatted) => {
-            const clean = (formatted ?? '').trim?.() ?? '';
-            if (clean && (this.fixedQuestionIndex ?? this.currentQuestionIndex) === lockedIndex) {
-              this.explanationTextService.setExplanationText(clean);
-              this.cdRef.markForCheck?.();
-            }
-          })
-          .catch((err) => {
-            console.error('[❌ format explanation failed]', err);
-          });
-      }
-  
-      // Persist the selection with an explicit index (fixes first-click drift)
-      this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
-  
-      // Selection bookkeeping (kept)
-      this.selectedIndices.clear();
-      this.selectedIndices.add(evtIdx);
-  
-      // Next button state
-      if (isSingle) {
-        this.selectedOptionService.setAnswered(true);
-        this.nextButtonStateService.setNextButtonState(true);
-      } else {
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(lockedIndex, true);
-      }
-  
-      // Notify parent on first click (kept)
-      this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
-  
-      // Build feedback text and post-click tasks (kept)
-      this.feedbackText = await this.generateFeedbackText(this.currentQuestion);
-      await this.postClickTasks(evtOpt, evtIdx, true, false);
-  
-      // Existing follow-ups (kept)
-      this.handleCoreSelection(event);
-      this.markBindingSelected(evtOpt);
-      this.refreshFeedbackFor(evtOpt);
-    } finally {
-      // release guard after this tick so a new click can proceed
-      queueMicrotask(() => { this._clickGate = false; });
-    }
-  } */
-  /* TWO CLICK VERSION 
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    // ✅ Wait instead of "return and replay" – prevents guaranteed 2nd click
-    if (!this.quizStateService.isInteractionReady()) {
-      await firstValueFrom(
-        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-      );
-    }
-
-    const lockedIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const evtIdx = event.index;
-    const evtOpt = event.option;
-
-    if (!evtOpt) return;
-
-    // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
-    if (this._clickGate) return;
-    this._clickGate = true;
-
-    try {
-      const isMultiSelect =
-        this.currentQuestion.type === QuestionType.MultipleAnswer;
-      const isSingle = !isMultiSelect;
-
-      // ───────────────────────────────────────────────
-      // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      // ───────────────────────────────────────────────
-      {
-        const raw =
-          (this.currentQuestion?.explanation ?? '').trim() ||
-          'No explanation available';
-        // Push raw so something appears immediately
-        this.explanationTextService.setExplanationText(raw);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-
-        // Put UI into explanation mode + answered now
-        this.quizStateService.setDisplayState({
-          mode: 'explanation',
-          answered: true,
-        });
-        this.quizStateService.setAnswered(true);
-        this.quizStateService.setAnswerSelected(true);
-
-        // Next button now
-        if (isSingle) {
-          this.selectedOptionService.setAnswered(true);
-          this.nextButtonStateService.setNextButtonState(true);
-        } else {
-          this.selectedOptionService.evaluateNextButtonStateForQuestion(
-            lockedIndex,
-            true
-          );
-        }
-
-        this.cdRef.markForCheck?.();
-      }
-
-      // Persist the selection for THIS question (kept)
-      this.selectedOptionService.setSelectedOption(evtOpt, lockedIndex);
-
-      // Selection bookkeeping (kept)
-      this.selectedIndices.clear();
-      this.selectedIndices.add(evtIdx);
-
-      // 🧵 Kick formatting but DO NOT block paint
-      this.updateExplanationText(lockedIndex)
-        .then((formatted) => {
-          const clean = (formatted ?? '').trim?.() ?? '';
-          if (
-            clean &&
-            (this.fixedQuestionIndex ?? this.currentQuestionIndex) ===
-              lockedIndex
-          ) {
-            this.explanationTextService.setExplanationText(clean);
-            this.cdRef.markForCheck?.();
-          }
-        })
-        .catch((err) => console.error('[❌ format explanation failed]', err));
-
-      // 🚦 Defer heavy work to next animation frame so first click paints immediately
-      requestAnimationFrame(() => {
-        // Parent notify first (non-blocking)
-        this.optionSelected.emit({ ...evtOpt, questionIndex: lockedIndex });
-
-        // Run the awaits without blocking the first paint
-        (async () => {
-          this.feedbackText = await this.generateFeedbackText(
-            this.currentQuestion
-          );
-          await this.postClickTasks(evtOpt, evtIdx, true, false);
-
-          // Existing follow-ups (kept)
-          this.handleCoreSelection(event);
-          this.markBindingSelected(evtOpt);
-          this.refreshFeedbackFor(evtOpt);
-        })().catch((err) => console.error('[postClickTasks] error', err));
-      });
-    } finally {
-      // Release reentrancy guard after this tick
-      queueMicrotask(() => {
-        this._clickGate = false;
-      });
-    }
-  } */
-  /* public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    // Wait for interaction readiness, but do not replay
+    // Wait instead of "return and replay" – prevents guaranteed 2nd click
     if (!this.quizStateService.isInteractionReady()) {
       await firstValueFrom(
         this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
       );
     }
   
-    // Live normalized index + snapshot question (no currentQuestion reliance)
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
-    const raw = (q?.explanation ?? '').trim() || 'No explanation available';
-  
-    // ───── DEBUG PROBE: HARD FLIP the explanation on FIRST click ─────
-    this.ngZone.run(() => {
-      // ensure no lock blocks display
-      this.explanationTextService.unlockExplanation?.();
-  
-      // publish text to both service + local bindings the template might use
-      this.explanationTextService.setExplanationText(raw);
-      this.explanationTextService.setShouldDisplayExplanation(true);
-  
-      // flip global state → explanation
-      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-  
-      // flip any local flags parents/templates might bind
-      this.displayExplanation = true;
-      this.explanationToDisplay = raw;
-      this.showExplanationChange?.emit(true);
-      this.explanationToDisplayChange?.emit(raw);
-  
-      // enable Next deterministically (single-answer assumption; safe for probe)
-      try { this.selectedOptionService.setAnswered(true); } catch {}
-      try { this.nextButtonStateService.setNextButtonState(true); } catch {}
-  
-      // force paint under OnPush
-      this.cdRef.markForCheck?.();
-      this.cdRef.detectChanges?.();
-    });
-  
-    // ───── LOG what the template sees (one-frame later) ─────
-    requestAnimationFrame(async () => {
-      try {
-        const shouldDisp = await firstValueFrom(
-          this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))
-        );
-        console.log('[probe-Q2+] flags', {
-          i0,
-          mode: 'explanation (forced)',
-          shouldDisplayExplanation$: shouldDisp,
-          displayExplanation: this.displayExplanation,
-          answered: true,
-          answerSelected: true,
-          textLen: this.explanationToDisplay?.length ?? 0
-        });
-      } catch {}
-    });
-  
-    // IMPORTANT: return here to avoid any other code interfering during the probe
-    return;
-  } */
-  public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-  }): Promise<void> {
-    // ✅ Wait instead of "return and replay" – prevents guaranteed 2nd click
-    if (!this.quizStateService.isInteractionReady()) {
-      await firstValueFrom(
-        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-      );
-    }
-  
-    const i0  = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q   = this.questions?.[i0];
+    const q = this.questions?.[i0];
   
     const evtIdx = event.index;
-    const evtOpt = event.option; // may be null on first click after nav — don't early return
+    const evtOpt = event.option;  // may be null on first click after nav — don't early return
   
-    // ✅ Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
+    // Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
     if (this._clickGate) return;
     this._clickGate = true;
   
@@ -3214,14 +2734,12 @@ export class QuizQuestionComponent
       const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
       const isSingle = !isMultiSelect;
   
-      // ───────────────────────────────────────────────
-      // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Seed stream with RAW (to kick formatter) but never placeholder.
-      //    Cached formatted → write to stream immediately.
-      // ───────────────────────────────────────────────
+      // SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
+      // Seed stream with RAW (to kick formatter) but never placeholder.
+      // Cached formatted → write to stream immediately.
       {
-        const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim(); // ← do NOT fallback here
+        const cached = this._formattedByIndex?.get?.(i0);
+        const rawTrue = (q?.explanation ?? '').trim();  // do NOT fallback here
   
         this.ngZone.run(() => {
           // Flip UI flags first
@@ -3238,17 +2756,17 @@ export class QuizQuestionComponent
             try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
           }
   
-          // Local mirrors (if your template uses them)
+          // Local mirrors (if template uses them)
           this.displayExplanation = true;
           this.showExplanationChange?.emit(true);
   
           if (cached && cached.trim()) {
-            // ✅ Cached formatted → write to stream now
+            // Cached formatted → write to stream now
             this.explanationTextService.setExplanationText(cached);
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
           } else {
-            // ✅ No cache yet → seed the STREAM with RAW only (never placeholder)
+            // No cache yet → seed the STREAM with RAW only (never placeholder)
             if (rawTrue) {
               this.explanationTextService.setExplanationText(rawTrue);
               this.explanationToDisplay = rawTrue;
@@ -3265,10 +2783,10 @@ export class QuizQuestionComponent
           this.cdRef.detectChanges?.();
         });
   
-        // 🔁 Resolve formatted FOR THIS INDEX (pin context), then write to stream
+        // Resolve formatted for this index (pin context), then write to stream
         const runPinnedResolve = async (timeoutMs: number): Promise<string> => {
           const prevFixed = this.fixedQuestionIndex;
-          const prevCur   = this.currentQuestionIndex;
+          const prevCur = this.currentQuestionIndex;
           try {
             this.fixedQuestionIndex = i0;
             this.currentQuestionIndex = i0;
@@ -3287,11 +2805,11 @@ export class QuizQuestionComponent
                 const active =
                   this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
                   (this.currentQuestionIndex ?? 0);
-                if (active !== i0) return;    // navigated away
-                if (!clean) return;           // nothing to swap
+                if (active !== i0) return;  // navigated away
+                if (!clean) return;  // nothing to swap
   
                 this.ngZone.run(() => {
-                  this.explanationTextService.setExplanationText(clean); // first formatted stream write
+                  this.explanationTextService.setExplanationText(clean);  // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
                   this.cdRef.markForCheck?.();
@@ -3301,7 +2819,7 @@ export class QuizQuestionComponent
               .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
           });
   
-          // 🛟 WATCHDOG: after 1800ms, if still on i0 and stream is empty (or equals raw),
+          // WATCHDOG: after 1800ms, if still on i0 and stream is empty (or equals raw),
           // try one more pinned resolve; if still nothing and raw exists, keep raw so UI never sticks.
           setTimeout(async () => {
             try {
@@ -3357,13 +2875,12 @@ export class QuizQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // ───────────────────────────────────────────────
-      // (Legacy path) GUARD: only run if we have no cache yet.
+      // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
       // ───────────────────────────────────────────────
       if (!this._formattedByIndex?.has?.(i0)) {
         const prevFixed = this.fixedQuestionIndex;
-        const prevCur   = this.currentQuestionIndex;
+        const prevCur = this.currentQuestionIndex;
         try {
           this.fixedQuestionIndex = i0;
           this.currentQuestionIndex = i0;
@@ -3371,7 +2888,7 @@ export class QuizQuestionComponent
           this.updateExplanationText(i0)
             .then((formatted) => {
               const clean = (formatted ?? '').trim?.() ?? '';
-              if (!clean) return; // don’t inject empties into stream
+              if (!clean) return;  // don’t inject empties into stream
               const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
               if (active !== i0) return;
               this.ngZone.run(() => {
@@ -3389,7 +2906,7 @@ export class QuizQuestionComponent
         }
       }
   
-      // 🚦 Defer heavy work to next animation frame so first click paints immediately
+      // Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
         // Parent notify (type-safe): only emit if we have a SelectedOption
         try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3409,8 +2926,6 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-  
-  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
