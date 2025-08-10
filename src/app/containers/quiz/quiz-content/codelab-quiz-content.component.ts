@@ -276,12 +276,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),
-      this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
+      this.displayState$.pipe(startWith({ mode: 'question', answered: false })),
       this.explanationTextService.explanationText$,
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
+      this.quizService.currentQuestionIndex$
     ]).pipe(
       map((
         [override, state, explanationText, questionText,
@@ -298,29 +298,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const correct = (correctText ?? '').trim();
        
         const showExplanation =
-          state?.mode === 'explanation' &&
-          (explanation && shouldDisplayExplanation);
-          //(explanation || shouldDisplayExplanation);
-        /* if (showExplanation) {
-          if (explanation) return explanation;
-          
-          // Then use any override ("Formatting…" or raw) for this index
-          if (override?.idx === currentIndex && override?.html) return override.html;
-
-          // Finally, raw fallback from the model
-          const fallback =
-          (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
-          return fallback;
-        } */
-        if (showExplanation) return explanation;
+          state.mode === 'explanation' &&
+          explanation &&
+          shouldDisplayExplanation;
+        if (showExplanation) {
+          return explanation;  // render explanation once
+        }
 
         // Otherwise show question (and correct count if present)
         return correct 
           ? `${question} <span class="correct-count">${correctText}</span>` : question;
       }),
-      distinctUntilChanged(),
-      // Make the latest value always available to the async pipe (no flicker)
-      shareReplay({ bufferSize: 1, refCount: true })
+      distinctUntilChanged()
     );    
   }
   
