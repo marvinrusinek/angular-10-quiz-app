@@ -4459,85 +4459,56 @@ export class QuizQuestionComponent
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
-  /* async updateExplanationText(index: number): Promise<string> {
-    const entry = this.explanationTextService.formattedExplanations[index];
-    const explanationText =
-      entry?.explanation?.trim() ?? 'No explanation available';
-    console.warn('[🧠 updateExplanationText CALLED]', {
-      index,
-      currentIndex: this.currentQuestionIndex,
-    });
-
-    // Safety: only run if we’re still on the same question
-    if (this.currentQuestionIndex !== index) {
-      console.warn(
-        `[🛑 Mismatch] Current index (${this.currentQuestionIndex}) !== locked index (${index}), skipping.`
-      );
-      return '';
-    }
-
-    const qState = this.quizStateService.getQuestionState(this.quizId, index);
-
-    // ——— Remove the “alreadyDisplayed” guard ———
-    // Always overwrite the service’s text and state
-    this.explanationTextService.setExplanationText(explanationText);
-    this.quizStateService.setQuestionState(this.quizId, index, {
-      ...qState,
-      explanationDisplayed: true,
-      explanationText,
-    });
-
-    return explanationText;
-  } */
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex?.(index) ?? index;
   
-    // Prefer the model’s raw explanation for this index
+    // Prefer the model’s raw explanation for *this index*
     const q = this.questions?.[i0];
-    const rawQ = (q?.explanation ?? '').toString().trim();
+    const rawQ = (q?.explanation ?? '').toString();
   
-    // Fallback to whatever the service already has cached for this index
-    const rawSvc = (
+    // Fallback: whatever the service already stored for this index
+    const svcRaw = (
       this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
-    ).toString().trim();
+    ).toString();
   
-    // Choose a raw source: question first, then service cache
-    const raw = rawQ || rawSvc;
+    // Pick a raw source and trim once
+    const raw = (rawQ || svcRaw).trim();
   
     console.warn('[🧠 updateExplanationText CALLED]', {
       index: i0,
-      currentIndex: this.currentQuestionIndex,
+      currentIndex: this.currentQuestionIndex
     });
   
-    // Do not early-return just because indices differ — we’re formatting 0by index
-    // (keep the warning for visibility)
+    // Do not bail if indices differ — formatting by index on purpose.
     if (this.currentQuestionIndex !== i0) {
       console.warn(
         `[ℹ️ Index mismatch tolerated] current=${this.currentQuestionIndex} locked=${i0} (formatting by index anyway)`
       );
     }
   
-    if (!raw) return '';  // nothing to format — do not push placeholders into the stream
+    if (!raw) return '';  // nothing to format — don’t push placeholders into the stream
   
-    // Run existing formatting pipeline (index-aware if possible)
+    // Try to format; if no formatter exists, fall back to raw
     let formatted = '';
     try {
-      if (typeof this.explanationTextService.formatExplanation === 'function') {
-        formatted = await (this.explanationTextService as any).formatExplanation(raw, i0);
-      } else if (typeof this.formatExplanationHtml === 'function') {
-        formatted = await this.formatExplanationHtml(raw, i0);
+      const svc: any = this.explanationTextService;
+      if (typeof svc.formatExplanation === 'function') {
+        formatted = await svc.formatExplanation(raw, i0);
+      } else if (typeof svc.format === 'function') {
+        formatted = await svc.format(raw, i0);
+      } else if (typeof svc.markdownToHtml === 'function') {
+        formatted = await svc.markdownToHtml(raw);
       } else {
-        formatted = raw;  // no formatter available — pass raw through
-        
+        formatted = raw; // no formatter available
       }
-    } catch (err) {
-      console.warn('[updateExplanationText] formatter threw; using raw', err);
+    } catch (e) {
+      console.warn('[updateExplanationText] formatter threw; using raw', e);
       formatted = raw;
     }
   
     const clean = (formatted ?? '').toString().trim();
   
-    // Persist per-index cache in the service (so Q2+ can read it later)
+    // Persist per-index cache in the service
     try {
       if (this.explanationTextService?.formattedExplanations) {
         this.explanationTextService.formattedExplanations[i0] = {
@@ -4545,17 +4516,18 @@ export class QuizQuestionComponent
           explanation: clean || raw,
         };
       }
+      // If your service exposes a sticky stream method, publish there too
       this.explanationTextService.pushFormatted?.(clean || raw);
     } catch (err) {
       console.warn('[updateExplanationText] cache publish failed', err);
     }
   
-    // Only push to the live explanation stream if the user is still on this index
-    if (this.currentQuestionIndex === i0 && clean) {
-      this.explanationTextService.setExplanationText(clean);
+    // Only write to the live stream if the user is still on this index
+    if (this.currentQuestionIndex === i0 && (clean || raw)) {
+      this.explanationTextService.setExplanationText(clean || raw);
     }
   
-    // Update question state (kept, but use i0 consistently)
+    // Update per-question state
     const qState = this.quizStateService.getQuestionState(this.quizId, i0);
     this.quizStateService.setQuestionState(this.quizId, i0, {
       ...qState,
@@ -4564,7 +4536,8 @@ export class QuizQuestionComponent
     });
   
     return clean;
-  }  
+  }
+  
 
   public async handleOptionSelection(
     option: SelectedOption,
