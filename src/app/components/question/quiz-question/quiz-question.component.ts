@@ -3200,9 +3200,8 @@ export class QuizQuestionComponent
       );
     }
   
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
-  
+    const i0  = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q   = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option; // may be null on first click after nav — don't early return
   
@@ -3216,46 +3215,52 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
+      //    Prefer cached formatted; else true raw; else placeholder (never push fallback)
       // ───────────────────────────────────────────────
       {
-        // Prefer cached formatted; else true raw; else a tiny placeholder
-        const cached = this._formattedByIndex?.get?.(i0);
-        const raw    = (q?.explanation ?? '').trim();              // <— NO fallback here
-        const initial = cached || (raw || '<span class="muted">Formatting…</span>');
+        const cached   = this._formattedByIndex?.get?.(i0);
+        const rawTrue  = (q?.explanation ?? '').trim();            // ← NO fallback here
+        const initial  = cached || (rawTrue || '<span class="muted">Formatting…</span>');
   
-        // Push something immediately
-        this.explanationTextService.setExplanationText(initial);
-        this.explanationTextService.setShouldDisplayExplanation(true);
+        // Push immediately & flip UI inside Angular so it paints this frame
+        this.ngZone.run(() => {
+          this.explanationTextService.setExplanationText(initial);
+          this.explanationTextService.setShouldDisplayExplanation(true);
   
-        // Put UI into explanation mode + answered now
-        this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
-        this.quizStateService.setAnswered(true);
-        this.quizStateService.setAnswerSelected(true);
+          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+          this.quizStateService.setAnswered(true);
+          this.quizStateService.setAnswerSelected(true);
   
-        // Next button now
-        if (isSingle) {
-          this.selectedOptionService.setAnswered(true);
-          this.nextButtonStateService.setNextButtonState(true);
-        } else {
-          try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+          if (isSingle) {
+            this.selectedOptionService.setAnswered(true);
+            this.nextButtonStateService.setNextButtonState(true);
+          } else {
+            try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+          }
+  
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        });
+  
+        // 🔁 Swap in formatted FOR THIS INDEX when ready (no second click)
+        if (!cached) {
+          void this.resolveFormatted?.(i0, { useCache: false, setCache: true })
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return;
+  
+              // still on same question?
+              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return;
+  
+              this.ngZone.run(() => {
+                this.explanationTextService.setExplanationText(clean);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            })
+            .catch(err => console.warn('[format-on-click] failed', err));
         }
-  
-        this.cdRef.markForCheck?.();
-  
-        // 🔁 Kick formatting FOR THIS INDEX and swap in when ready (no second click)
-        void this.resolveFormatted?.(i0, { useCache: !cached, setCache: true })
-          .then((formatted) => {
-            const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return;
-  
-            // still on same question?
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-            if (active !== i0) return;
-  
-            this.explanationTextService.setExplanationText(clean);
-            this.cdRef.markForCheck?.();
-          })
-          .catch(err => console.warn('[format-on-click] failed', err));
       }
   
       // Persist the selection for THIS question (best-effort; don’t block UI)
@@ -3267,19 +3272,22 @@ export class QuizQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // (Optional legacy path) keep if you want the old formatter too
-      this.updateExplanationText(i0)
-        .then((formatted) => {
-          const clean = (formatted ?? '').trim?.() ?? '';
-          if (clean) {
+      // ───────────────────────────────────────────────
+      // (Legacy path) Guard: only run if we had no cached formatted.
+      // Never push fallback; only apply non-empty formatted for the same index.
+      // ───────────────────────────────────────────────
+      if (!this._formattedByIndex?.has?.(i0)) {
+        this.updateExplanationText(i0)
+          .then((formatted) => {
+            const clean = (formatted ?? '').trim?.() ?? '';
+            if (!clean) return; // ← guard: never inject fallback
             const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-            if (active === i0) {
-              this.explanationTextService.setExplanationText(clean);
-              this.cdRef.markForCheck?.();
-            }
-          }
-        })
-        .catch((err) => console.error('[❌ format explanation failed]', err));
+            if (active !== i0) return; // navigated away
+            this.explanationTextService.setExplanationText(clean);
+            this.cdRef.markForCheck?.();
+          })
+          .catch((err) => console.error('[❌ format explanation failed]', err));
+      }
   
       // 🚦 Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
@@ -3301,6 +3309,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
 
   private resetDedupeFor(index: number): void {
