@@ -3200,8 +3200,8 @@ export class QuizQuestionComponent
       );
     }
   
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
+    const i0  = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q   = this.questions?.[i0];
   
     const evtIdx = event.index;
     const evtOpt = event.option; // may be null on first click after nav — don't early return
@@ -3216,13 +3216,12 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Write RAW to the stream immediately (never placeholder).
+      //    Seed stream with RAW (to kick formatter) but never placeholder.
       //    Cached formatted → write to stream immediately.
       // ───────────────────────────────────────────────
       {
-        const cached  = this._formattedByIndex?.get?.(i0);
-        const rawTrue = (q?.explanation ?? '').trim();
-        console.log('[CLICK]', { i0, hasCached: !!cached, rawLen: rawTrue.length });
+        const cached   = this._formattedByIndex?.get?.(i0);
+        const rawTrue  = (q?.explanation ?? '').trim(); // ← do NOT fallback here
   
         this.ngZone.run(() => {
           // Flip UI flags first
@@ -3249,32 +3248,48 @@ export class QuizQuestionComponent
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
           } else {
-            // ✅ No cache yet → seed the STREAM with RAW right away (never placeholder)
-            const firstHtml = rawTrue || 'No explanation available';
-            this.explanationTextService.setExplanationText(firstHtml);
-            this.explanationToDisplay = firstHtml;
-            this.explanationToDisplayChange?.emit(firstHtml);
+            // ✅ No cache yet → seed the STREAM with RAW only (never placeholder)
+            if (rawTrue) {
+              this.explanationTextService.setExplanationText(rawTrue);
+              this.explanationToDisplay = rawTrue;
+              this.explanationToDisplayChange?.emit(rawTrue);
+            } else {
+              // Keep stream empty; your combinedText$ should render a placeholder when stream+raw are empty
+              this.explanationTextService.setExplanationText('');
+              this.explanationToDisplay = '<span class="muted">Formatting…</span>';
+              this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+            }
           }
   
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
   
-        // 🔁 Resolve formatted FOR THIS INDEX, then write to stream
+        // 🔁 Resolve formatted FOR THIS INDEX (pin context), then write to stream
+        const runPinnedResolve = async (timeoutMs: number): Promise<string> => {
+          const prevFixed = this.fixedQuestionIndex;
+          const prevCur   = this.currentQuestionIndex;
+          try {
+            this.fixedQuestionIndex = i0;
+            this.currentQuestionIndex = i0;
+            return await this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs });
+          } finally {
+            this.fixedQuestionIndex = prevFixed;
+            this.currentQuestionIndex = prevCur;
+          }
+        };
+  
         if (!cached) {
           requestAnimationFrame(() => {
-            void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
+            void runPinnedResolve(6000)
               .then((formatted) => {
                 const clean = (formatted ?? '').trim?.() ?? '';
                 const active =
                   this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
                   (this.currentQuestionIndex ?? 0);
-                console.log('[RESOLVED]', { i0, cleanLen: clean.length, active });
+                if (active !== i0) return;    // navigated away
+                if (!clean) return;           // nothing to swap
   
-                if (active !== i0) return;          // navigated away
-                if (!clean) return;                 // nothing to swap
-  
-                // Normal path: formatted arrived
                 this.ngZone.run(() => {
                   this.explanationTextService.setExplanationText(clean); // first formatted stream write
                   this.explanationToDisplay = clean;
@@ -3286,8 +3301,8 @@ export class QuizQuestionComponent
               .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
           });
   
-          // 🛟 WATCHDOG: after 1800ms, if still on i0 and stream hasn’t changed away from RAW,
-          // try one more resolve; if still nothing but RAW exists, keep RAW so nothing “hangs”.
+          // 🛟 WATCHDOG: after 1800ms, if still on i0 and stream is empty (or equals raw),
+          // try one more pinned resolve; if still nothing and raw exists, keep raw so UI never sticks.
           setTimeout(async () => {
             try {
               const active =
@@ -3299,29 +3314,32 @@ export class QuizQuestionComponent
                   .toString()
                   .trim();
   
-              // Already formatted?
-              if (cached?.trim() && currentStream === cached.trim()) return;
+              // Already formatted and different from raw?
+              if (currentStream && currentStream !== rawTrue) return;
   
-              // If stream is empty, or still equals raw, we’ll try again
-              if (!currentStream || currentStream === rawTrue) {
-                const secondTry = (await this.resolveFormatted(i0, {
-                  useCache: true,
-                  setCache: true,
-                  timeoutMs: 8000
-                }))?.trim?.() ?? '';
+              // One more attempt to resolve formatted with a longer timeout (pinned)
+              const secondTry = (await runPinnedResolve(8000))?.trim?.() ?? '';
   
-                if (secondTry && secondTry !== currentStream) {
-                  this.ngZone.run(() => {
-                    this.explanationTextService.setExplanationText(secondTry);
-                    this.explanationToDisplay = secondTry;
-                    this.explanationToDisplayChange?.emit(secondTry);
-                    this.cdRef.markForCheck?.();
-                    this.cdRef.detectChanges?.();
-                  });
-                } else {
-                  // Still nothing; ensure RAW is at least present (already set above)
-                  console.log('[WATCHDOG] sticking with RAW', { i0, rawLen: rawTrue.length });
-                }
+              if (secondTry && secondTry !== currentStream) {
+                this.ngZone.run(() => {
+                  this.explanationTextService.setExplanationText(secondTry);
+                  this.explanationToDisplay = secondTry;
+                  this.explanationToDisplayChange?.emit(secondTry);
+                  this.cdRef.markForCheck?.();
+                  this.cdRef.detectChanges?.();
+                });
+                return;
+              }
+  
+              // If still nothing and we have RAW, ensure RAW remains (already set above)
+              if (!currentStream && rawTrue) {
+                this.ngZone.run(() => {
+                  this.explanationTextService.setExplanationText(rawTrue);
+                  this.explanationToDisplay = rawTrue;
+                  this.explanationToDisplayChange?.emit(rawTrue);
+                  this.cdRef.markForCheck?.();
+                  this.cdRef.detectChanges?.();
+                });
               }
             } catch (e) {
               console.warn('[watchdog] failed', e);
@@ -3341,24 +3359,34 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // (Legacy path) GUARD: only run if we have no cache yet.
-      // Never write empties; only apply non-empty formatted for the same index.
+      // Pin context here too; never write empties; only for same index.
       // ───────────────────────────────────────────────
       if (!this._formattedByIndex?.has?.(i0)) {
-        this.updateExplanationText(i0)
-          .then((formatted) => {
-            const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return; // don’t inject empties into stream
-            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-            if (active !== i0) return;
-            this.ngZone.run(() => {
-              this.explanationTextService.setExplanationText(clean);
-              this.explanationToDisplay = clean;
-              this.explanationToDisplayChange?.emit(clean);
-              this.cdRef.markForCheck?.();
-              this.cdRef.detectChanges?.();
-            });
-          })
-          .catch((err) => console.error('[❌ legacy format failed]', err));
+        const prevFixed = this.fixedQuestionIndex;
+        const prevCur   = this.currentQuestionIndex;
+        try {
+          this.fixedQuestionIndex = i0;
+          this.currentQuestionIndex = i0;
+  
+          this.updateExplanationText(i0)
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return; // don’t inject empties into stream
+              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
+              if (active !== i0) return;
+              this.ngZone.run(() => {
+                this.explanationTextService.setExplanationText(clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            })
+            .catch((err) => console.error('[❌ legacy format failed]', err));
+        } finally {
+          this.fixedQuestionIndex = prevFixed;
+          this.currentQuestionIndex = prevCur;
+        }
       }
   
       // 🚦 Defer heavy work to next animation frame so first click paints immediately
@@ -3381,8 +3409,6 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-  
-  
   
   
 
@@ -6279,11 +6305,14 @@ export class QuizQuestionComponent
   
       // Try direct return first
       const out = await this.updateExplanationText(i0);
-      text = (out ?? '').trim?.() ?? '';
+      text = (out ?? '').toString().trim();
   
       // Fallback: formatter writes to a stream
       if (!text && (this.explanationTextService as any).formattedExplanation$) {
-        const formatted$ = (this.explanationTextService.formattedExplanation$ as Observable<unknown>).pipe(
+        const src$ = this.explanationTextService
+        .formattedExplanation$ as Observable<string | null | undefined>;
+
+        const formatted$: Observable<string> = src$.pipe(
           filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
           map(s => s.trim()),
           take(1),
