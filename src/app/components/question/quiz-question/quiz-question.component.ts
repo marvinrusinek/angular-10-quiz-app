@@ -349,7 +349,7 @@ export class QuizQuestionComponent
           const hasCache = this._formattedByIndex?.has?.(i0);
           if (!hasCache) {
             // Don’t await—keep nav snappy
-            void this.resolveFormatted?.(i0, { useCache: true, setCache: true })
+            this.resolveFormatted?.(i0, { useCache: true, setCache: true })
               .catch(err => console.warn('[prewarm resolveFormatted]', err));
           }
         } catch (e) {
@@ -754,7 +754,7 @@ export class QuizQuestionComponent
           this.timerService.stopTimer?.();
 
           // Flip to explanation inside Angular
-          this.ngZone.run(() => { void this.onTimerExpiredFor(i0); });
+          this.ngZone.run(() => { this.onTimerExpiredFor(i0); });
 
           // Clear snapshots and bail to avoid racing the restore flow
           this._hiddenAt = null;
@@ -1518,19 +1518,17 @@ export class QuizQuestionComponent
   }
 
   public loadOptionsForQuestion(question: QuizQuestion): void {
-    console.log('[✅ FINAL OPTIONS LOADED]', question.options);
-
-    // 🔒 Block interaction while options are (re)binding
-    this.quizStateService.setInteractionReady?.(false);
-    this.quizStateService.setLoading?.(true);
+    // Block interaction while options are (re)binding
+    this.quizStateService.setInteractionReady(false);
+    this.quizStateService.setLoading(true);
 
     if (!question || !question.options?.length) {
       console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
 
       // Even on early return, don’t leave the app stuck "loading"
       queueMicrotask(() => {
-        this.quizStateService.setLoading?.(false);
-        // intentionally keep interactionReady=false since there are no options
+        this.quizStateService.setLoading(false);
+        // keep interactionReady=false since there are no options
       });
       return;
     }
@@ -1576,21 +1574,19 @@ export class QuizQuestionComponent
       );
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // ✅ AFTER options are set, wait one microtask so bindings/DOM settle,
-    //    then flip loading→false and interactionReady→true so first click counts.
-    //    Also reset click dedupe and pre-evaluate Next for multi if needed.
-    // ─────────────────────────────────────────────────────────────
+    // AFTER options are set, wait one microtask so bindings/DOM settle,
+    // then flip loading→false and interactionReady→true so first click counts.
+    // Also reset click dedupe and pre-evaluate Next for multi if needed.
     queueMicrotask(() => {
-      this.sharedOptionComponent?.generateOptionBindings?.();
-      this.cdRef?.detectChanges?.();
+      this.sharedOptionComponent?.generateOptionBindings();
+      this.cdRef?.detectChanges();
 
       // UI is now interactive
-      this.quizStateService.setLoading?.(false);
-      this.quizStateService.setInteractionReady?.(true); // fixed stray quote
+      this.quizStateService.setLoading(false);
+      this.quizStateService.setInteractionReady(true);  // fixed stray quote
 
       // Reset the “same index” dedupe so the first click on a new question isn’t ignored
-      (this as any).lastLoggedIndex = -1;
+      this.lastLoggedIndex = -1;
 
       // Ensure first-click explanation fires for the new question
       this.lastExplanationShownIndex = -1;
@@ -1605,14 +1601,6 @@ export class QuizQuestionComponent
           true
         );
       }
-
-      console.log('[🟢 Interaction Ready]', {
-        qIndex: this.currentQuestionIndex,
-        isMulti,
-        optCount: this.optionsToDisplay?.length ?? 0,
-        lastExplanationShownIndex: this.lastExplanationShownIndex,
-        explanationInFlight: this.explanationInFlight,
-      });
     });
   }
 
@@ -5753,7 +5741,7 @@ export class QuizQuestionComponent
     this.lastLoggedQuestionIndex = -1;
   
     // Prewarm silently; do not touch visibility here (single source of truth)
-    void this.resolveFormatted(i0, { useCache: true, setCache: true });
+    this.resolveFormatted(i0, { useCache: true, setCache: true });
   
     // Restart timer
     this.timerService.stopTimer?.();
