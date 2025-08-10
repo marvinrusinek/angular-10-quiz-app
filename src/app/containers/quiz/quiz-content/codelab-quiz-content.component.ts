@@ -277,7 +277,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.combinedText$ = combineLatest([
       this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),                          // transient UI only
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),                     // seed so it emits immediately
+      this.explanationTextService.explanationText$.pipe(startWith('')),                     // seed immediately
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
@@ -293,16 +293,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Decide visibility by state/flag only (don’t require a truthy explanation string)
         const showExplanation =
           state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || explanation);
+          (shouldDisplayExplanation || this.displayExplanation);
   
         if (showExplanation) {
-          // 1) Prefer the stream (formatted or cached). We only write formatted to the stream.
-          if (explanation) return explanation;
-  
-          // 2) Then show override if it’s for THIS index (raw or “Formatting…”)
+          // 1) Prefer OVERRIDE for this index (raw or “Formatting…”) so seeding raw in stream never flashes
           if (override?.idx === currentIndex && override?.html) return override.html;
   
-          // 3) Then try raw from the model
+          // 2) Then stream — by the time we clear override, this will be *formatted*
+          if (explanation) return explanation;
+  
+          // 3) Then raw from the model (if any)
           const raw = (this.questions?.[currentIndex]?.explanation ?? '').trim();
           if (raw) return raw;
   
@@ -318,9 +318,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  }
-  
-  
+  }  
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
