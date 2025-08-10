@@ -335,15 +335,28 @@ export class QuizQuestionComponent
     this.idxSub = this.quizService.currentQuestionIndex$.pipe(
       map((i: number) => this.normalizeIndex(i)),
       distinctUntilChanged(),
-  
+    
       // On every question: hard reset view + restart visible countdown
       tap((i0: number) => {
         this.currentQuestionIndex = i0;
         this.resetPerQuestionState(i0);  // this must NOT arm any expiry
         // Also clear any one-shot guards
         this.handledOnExpiry.delete(i0);
+    
+        // ✅ Prewarm formatted text for THIS question (non-blocking; no UI writes)
+        //    Cache hit → no-op; miss → compute & store for first-click
+        try {
+          const hasCache = this._formattedByIndex?.has?.(i0);
+          if (!hasCache) {
+            // Don’t await—keep nav snappy
+            void this.resolveFormatted?.(i0, { useCache: true, setCache: true })
+              .catch(err => console.warn('[prewarm resolveFormatted]', err));
+          }
+        } catch (e) {
+          console.warn('[prewarm] skipped', e);
+        }
       }),
-  
+    
       // Wait for the SAME clock the UI renders: elapsedTime$
       // When it reaches the duration once, we expire this question.
       switchMap((i0: number) =>
