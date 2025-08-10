@@ -5845,28 +5845,21 @@ export class QuizQuestionComponent
   } */
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-
-    // Debounce: handle expiry once per question
-    if (this.handledOnExpiry.has(i0)) return;
-    this.handledOnExpiry.add(i0);
-
-    // Prefer the model’s raw explanation for THIS index (no placeholder here)
-    const rawTrue = (this.questions?.[i0]?.explanation ?? '').toString().trim();
-
-    // ───────────────────────────────────────────────
-    // HARD-FLIP UI INTO EXPLANATION MODE (no feedback)
-    // ───────────────────────────────────────────────
+    if (this.handledOnExpiry?.has?.(i0)) return;
+    this.handledOnExpiry?.add?.(i0);
+  
+    // Grab best-available raw for THIS index (question.explanation or service cache)
+    const raw = this.getRawForIndex(i0);
+  
     this.ngZone.run(() => {
-      // Stop the clock so nothing else races this tick
       this.timerService.stopTimer?.();
-
-      // Ensure explanation branch is active immediately
+  
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
-
-      // Enable Next deterministically
+  
+      // Enable Next
       const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
       if (qType === QuestionType.MultipleAnswer) {
         try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
@@ -5874,46 +5867,39 @@ export class QuizQuestionComponent
         try { this.selectedOptionService.setAnswered(true); } catch {}
         try { this.nextButtonStateService.setNextButtonState(true); } catch {}
       }
-
-      // Seed stream with RAW if available so something real renders right now
-      if (rawTrue) {
-        this.explanationTextService.setExplanationText(rawTrue);
-        this.explanationToDisplay = rawTrue;
-        this.explanationToDisplayChange?.emit(rawTrue);
-      }
-
-      // Kill any “No correct option selected…” text that may have been set
+  
+      // ✅ Seed the stream with a real string right now (never placeholder)
+      const initial = raw || 'Explanation not available.';
+      this.explanationTextService.setExplanationText(initial);
+      this.explanationToDisplay = initial;
+      this.explanationToDisplayChange?.emit(initial);
+  
+      // Clear any feedback message like “No correct option selected…”
       this.feedbackText = '';
-
-      // Local flags/templates
       this.displayExplanation = true;
       this.showExplanationChange?.emit(true);
-
+  
       this.cdRef.markForCheck?.();
       this.cdRef.detectChanges?.();
     });
-
-    // ───────────────────────────────────────────────
-    // FORMAT FOR THIS INDEX (pin context), then swap in if still on same Q
-    // ───────────────────────────────────────────────
+  
+    // Pin context and try to swap in formatted for THIS index
     const prevFixed = this.fixedQuestionIndex;
     const prevCur   = this.currentQuestionIndex;
     try {
       this.fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
-
-      // Use your existing resolver (cached → immediate; else await once)
+  
       const clean = (await this.resolveFormatted(i0, {
         useCache: true,
         setCache: true,
         timeoutMs: 6000
       }))?.toString().trim() ?? '';
-
-      // Only swap if user hasn’t navigated away
+  
       const active =
         this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
         (this.currentQuestionIndex ?? 0);
-
+  
       if (clean && active === i0) {
         this.ngZone.run(() => {
           this.explanationTextService.setExplanationText(clean);
@@ -5924,19 +5910,26 @@ export class QuizQuestionComponent
         });
       }
     } catch (e) {
-      console.warn('[onTimerExpiredFor] format failed; keeping RAW', e);
+      console.warn('[onTimerExpiredFor] format failed; keeping seeded text', e);
     } finally {
       this.fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
   }
 
-
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
     if (this.questions?.[idx] != null) return idx;  // already 0-based
     if (this.questions?.[idx - 1] != null) return idx - 1;  // 1-based → 0-based
     return 0;
+  }
+
+  private getRawForIndex(i0: number): string {
+    const qRaw  = (this.questions?.[i0]?.explanation ?? '').toString().trim();
+    const svcRaw = (
+      this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
+    ).toString().trim();
+    return qRaw || svcRaw;  // prefer question, then service cache
   }
 
   private async resolveFormatted(
