@@ -3216,14 +3216,14 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Prefer cached formatted; else true raw; else placeholder (never push fallback)
+      //    Prefer cached formatted; else true raw; else placeholder (NEVER push fallback)
       // ───────────────────────────────────────────────
       {
         const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim(); // ← NO "No explanation available"
+        const rawTrue  = (q?.explanation ?? '').trim(); // ← no "No explanation available" here
         const initial  = cached || (rawTrue || '<span class="muted">Formatting…</span>');
   
-        // Flip INSIDE Angular + set local flags so any template path updates
+        // Flip INSIDE Angular + set local mirrors so any template path updates
         this.ngZone.run(() => {
           // service state
           this.explanationTextService.setExplanationText(initial);
@@ -3234,7 +3234,7 @@ export class QuizQuestionComponent
           this.quizStateService.setAnswered(true);
           this.quizStateService.setAnswerSelected(true);
   
-          // next button
+          // Next button
           if (isSingle) {
             this.selectedOptionService.setAnswered(true);
             this.nextButtonStateService.setNextButtonState(true);
@@ -3242,65 +3242,36 @@ export class QuizQuestionComponent
             try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
           }
   
-          // local mirrors (if your template reads them)
+          // local flags some templates bind to
           this.displayExplanation = true;
           this.explanationToDisplay = initial;
           this.showExplanationChange?.emit(true);
           this.explanationToDisplayChange?.emit(initial);
   
-          // force paint under OnPush
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
   
-        // 🔁 FORCE-FORMAT FOR THIS INDEX (no second click), then swap in/caches
+        // 🔁 Swap in formatted FOR THIS INDEX (no second click)
         if (!cached) {
-          (async () => {
-            const prevFixed = this.fixedQuestionIndex;
-            const prevCur   = this.currentQuestionIndex;
-            try {
-              // Pin format context to THIS index (fixes Q2+)
-              this.fixedQuestionIndex = i0;
-              this.currentQuestionIndex = i0;
+          void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 4000 })
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return;
   
-              // Try direct formatter first
-              let clean = (await this.updateExplanationText(i0)) as any;
-              clean = (clean ?? '').trim?.() ?? '';
+              // still on same question?
+              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return;
   
-              // Fallback to stream once, if your formatter emits there
-              if (!clean && (this.explanationTextService as any).formattedExplanation$) {
-                clean = await firstValueFrom<string>(
-                  this.explanationTextService.formattedExplanation$.pipe(
-                    filter((s: string | null | undefined) => !!s && !!s.trim()),
-                    map((s: string) => s.trim()),
-                    take(1),
-                    timeout({ first: 1500 })
-                  )
-                ).catch(() => '');
-              }
-  
-              if (clean) {
-                // still on same question?
-                const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-                if (active === i0) {
-                  this.ngZone.run(() => {
-                    this.explanationTextService.setExplanationText(clean);
-                    this.explanationToDisplay = clean;
-                    this.explanationToDisplayChange?.emit(clean);
-                    this.cdRef.markForCheck?.();
-                    this.cdRef.detectChanges?.();
-                  });
-                  // cache for instant first-click next time
-                  try { this._formattedByIndex?.set?.(i0, clean); } catch {}
-                }
-              }
-            } catch (e) {
-              console.warn('[force-format i0 failed]', i0, e);
-            } finally {
-              this.fixedQuestionIndex = prevFixed;
-              this.currentQuestionIndex = prevCur;
-            }
-          })();
+              this.ngZone.run(() => {
+                this.explanationTextService.setExplanationText(clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            })
+            .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
         }
       }
   
@@ -3314,27 +3285,27 @@ export class QuizQuestionComponent
       } catch {}
   
       // ───────────────────────────────────────────────
-      // (Legacy path) Already handled above via force-format; do NOT re-inject empties.
-      // If you insist on keeping it, keep the guards below:
+      // (Legacy path) GUARD: do NOT call unconditionally; never write empties.
+      // If you insist on keeping it, keep the guard below:
       // ───────────────────────────────────────────────
-      // (commented out to avoid double work)
-      // if (!this._formattedByIndex?.has?.(i0)) {
-      //   this.updateExplanationText(i0)
-      //     .then((formatted) => {
-      //       const clean = (formatted ?? '').trim?.() ?? '';
-      //       if (!clean) return;
-      //       const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-      //       if (active !== i0) return;
-      //       this.ngZone.run(() => {
-      //         this.explanationTextService.setExplanationText(clean);
-      //         this.explanationToDisplay = clean;
-      //         this.explanationToDisplayChange?.emit(clean);
-      //         this.cdRef.markForCheck?.();
-      //         this.cdRef.detectChanges?.();
-      //       });
-      //     })
-      //     .catch((err) => console.error('[❌ format explanation failed]', err));
-      // }
+      // Only run legacy if no cache yet (avoid racing the resolveFormatted above)
+      if (!this._formattedByIndex?.has?.(i0)) {
+        this.updateExplanationText(i0)
+          .then((formatted) => {
+            const clean = (formatted ?? '').trim?.() ?? '';
+            if (!clean) return; // never inject fallback
+            const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
+            if (active !== i0) return;
+            this.ngZone.run(() => {
+              this.explanationTextService.setExplanationText(clean);
+              this.explanationToDisplay = clean;
+              this.explanationToDisplayChange?.emit(clean);
+              this.cdRef.markForCheck?.();
+              this.cdRef.detectChanges?.();
+            });
+          })
+          .catch((err) => console.error('[❌ legacy format failed]', err));
+      }
   
       // 🚦 Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
@@ -3356,6 +3327,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
