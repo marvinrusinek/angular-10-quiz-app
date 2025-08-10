@@ -3195,20 +3195,21 @@ export class QuizQuestionComponent
     const isLast = i0 === (this.totalQuestions - 1);
     const qType  = this.currentQuestion?.type;
   
-    // ❌ Do NOT read options here; selection mutations may not have landed yet.
-    // this.selectionMessageService.setOptionsSnapshot?.(optionsNow); // moved below
-  
     // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
       // Then wait a frame to ensure the rendered list reflects the latest flags
       requestAnimationFrame(() => {
-        // ✅ Recompute from the UPDATED array your UI renders
+        // Recompute from the UPDATED array the UI renders
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
           : this.currentQuestion?.options) as Option[] || [];
   
-        // Keep the snapshot fresh for service-side guards
-        this.selectionMessageService.setOptionsSnapshot?.(optionsNow);
+        this.selectionMessageService.updateMessageFromSelection({
+          questionIndex: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion.type,
+          options: optionsNow
+        });
   
         if (qType === QuestionType.MultipleAnswer) {
           const remaining =
