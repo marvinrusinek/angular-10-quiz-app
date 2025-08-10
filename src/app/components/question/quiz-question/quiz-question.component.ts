@@ -3202,6 +3202,7 @@ export class QuizQuestionComponent
   
     const i0  = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q   = this.questions?.[i0];
+  
     const evtIdx = event.index;
     const evtOpt = event.option; // may be null on first click after nav — don't early return
   
@@ -3219,18 +3220,21 @@ export class QuizQuestionComponent
       // ───────────────────────────────────────────────
       {
         const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim();            // ← NO fallback here
+        const rawTrue  = (q?.explanation ?? '').trim(); // ← NO "No explanation available" here
         const initial  = cached || (rawTrue || '<span class="muted">Formatting…</span>');
   
-        // Push immediately & flip UI inside Angular so it paints this frame
+        // Flip INSIDE Angular + set local flags so any template path updates
         this.ngZone.run(() => {
+          // service state
           this.explanationTextService.setExplanationText(initial);
           this.explanationTextService.setShouldDisplayExplanation(true);
   
+          // global UI state
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.quizStateService.setAnswered(true);
           this.quizStateService.setAnswerSelected(true);
   
+          // next button
           if (isSingle) {
             this.selectedOptionService.setAnswered(true);
             this.nextButtonStateService.setNextButtonState(true);
@@ -3238,6 +3242,13 @@ export class QuizQuestionComponent
             try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
           }
   
+          // local flags some templates bind to
+          this.displayExplanation = true;
+          this.explanationToDisplay = initial;
+          this.showExplanationChange?.emit(true);
+          this.explanationToDisplayChange?.emit(initial);
+  
+          // force paint under OnPush
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
@@ -3255,6 +3266,8 @@ export class QuizQuestionComponent
   
               this.ngZone.run(() => {
                 this.explanationTextService.setExplanationText(clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
                 this.cdRef.markForCheck?.();
                 this.cdRef.detectChanges?.();
               });
@@ -3280,11 +3293,16 @@ export class QuizQuestionComponent
         this.updateExplanationText(i0)
           .then((formatted) => {
             const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return; // ← guard: never inject fallback
+            if (!clean) return;
             const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
-            if (active !== i0) return; // navigated away
-            this.explanationTextService.setExplanationText(clean);
-            this.cdRef.markForCheck?.();
+            if (active !== i0) return;
+            this.ngZone.run(() => {
+              this.explanationTextService.setExplanationText(clean);
+              this.explanationToDisplay = clean;
+              this.explanationToDisplayChange?.emit(clean);
+              this.cdRef.markForCheck?.();
+              this.cdRef.detectChanges?.();
+            });
           })
           .catch((err) => console.error('[❌ format explanation failed]', err));
       }
@@ -3309,6 +3327,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
   
 
