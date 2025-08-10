@@ -5748,7 +5748,7 @@ export class QuizQuestionComponent
     this.quizStateService.setAnswerSelected?.(false);
     this.selectedOptionService.clearSelectionsForQuestion?.(i0);
   
-    // clear click dedupe
+    // Clear click dedupe
     this.lastLoggedIndex = -1;
     this.lastLoggedQuestionIndex = -1;
   
@@ -5768,12 +5768,6 @@ export class QuizQuestionComponent
     this.hardResetClickGuards();
     this.resetExplanation(true);
     this.resetPerQuestionState(index);
-  }
-
-  private async prewarmAndCache(index: number): Promise<void> {
-    const i0 = this.normalizeIndex(index);
-    if (this._formattedByIndex.has(i0)) return;
-    void this.resolveFormatted(i0, { useCache: true, setCache: true });
   }
 
   // Called when the countdown hits zero
