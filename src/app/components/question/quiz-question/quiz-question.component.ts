@@ -5791,7 +5791,7 @@ export class QuizQuestionComponent
   }
 
   // Called when the countdown hits zero
-  private async onTimerExpiredFor(index: number): Promise<void> {
+  /* private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
   
     // Get raw explanation for this question
@@ -5842,7 +5842,95 @@ export class QuizQuestionComponent
         });
       }
     }
-  }  
+  } */
+  private async onTimerExpiredFor(index: number): Promise<void> {
+    const i0 = this.normalizeIndex(index);
+
+    // Debounce: handle expiry once per question
+    if (this.handledOnExpiry.has(i0)) return;
+    this.handledOnExpiry.add(i0);
+
+    // Prefer the model’s raw explanation for THIS index (no placeholder here)
+    const rawTrue = (this.questions?.[i0]?.explanation ?? '').toString().trim();
+
+    // ───────────────────────────────────────────────
+    // HARD-FLIP UI INTO EXPLANATION MODE (no feedback)
+    // ───────────────────────────────────────────────
+    this.ngZone.run(() => {
+      // Stop the clock so nothing else races this tick
+      this.timerService.stopTimer?.();
+
+      // Ensure explanation branch is active immediately
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+
+      // Enable Next deterministically
+      const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
+      if (qType === QuestionType.MultipleAnswer) {
+        try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+      } else {
+        try { this.selectedOptionService.setAnswered(true); } catch {}
+        try { this.nextButtonStateService.setNextButtonState(true); } catch {}
+      }
+
+      // Seed stream with RAW if available so something real renders right now
+      if (rawTrue) {
+        this.explanationTextService.setExplanationText(rawTrue);
+        this.explanationToDisplay = rawTrue;
+        this.explanationToDisplayChange?.emit(rawTrue);
+      }
+
+      // Kill any “No correct option selected…” text that may have been set
+      this.feedbackText = '';
+
+      // Local flags/templates
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+    });
+
+    // ───────────────────────────────────────────────
+    // FORMAT FOR THIS INDEX (pin context), then swap in if still on same Q
+    // ───────────────────────────────────────────────
+    const prevFixed = this.fixedQuestionIndex;
+    const prevCur   = this.currentQuestionIndex;
+    try {
+      this.fixedQuestionIndex = i0;
+      this.currentQuestionIndex = i0;
+
+      // Use your existing resolver (cached → immediate; else await once)
+      const clean = (await this.resolveFormatted(i0, {
+        useCache: true,
+        setCache: true,
+        timeoutMs: 6000
+      }))?.toString().trim() ?? '';
+
+      // Only swap if user hasn’t navigated away
+      const active =
+        this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+        (this.currentQuestionIndex ?? 0);
+
+      if (clean && active === i0) {
+        this.ngZone.run(() => {
+          this.explanationTextService.setExplanationText(clean);
+          this.explanationToDisplay = clean;
+          this.explanationToDisplayChange?.emit(clean);
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        });
+      }
+    } catch (e) {
+      console.warn('[onTimerExpiredFor] format failed; keeping RAW', e);
+    } finally {
+      this.fixedQuestionIndex = prevFixed;
+      this.currentQuestionIndex = prevCur;
+    }
+  }
+
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
