@@ -5743,10 +5743,10 @@ export class QuizQuestionComponent
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
   
     // Usual resets...
-    this.nextButtonStateService.reset?.();
-    this.nextButtonStateService.setNextButtonState?.(false);
-    this.quizStateService.setAnswerSelected?.(false);
-    this.selectedOptionService.clearSelectionsForQuestion?.(i0);
+    this.nextButtonStateService.reset();
+    this.nextButtonStateService.setNextButtonState(false);
+    this.quizStateService.setAnswerSelected(false);
+    this.selectedOptionService.clearSelectionsForQuestion(i0);
   
     // Clear click dedupe
     this.lastLoggedIndex = -1;
