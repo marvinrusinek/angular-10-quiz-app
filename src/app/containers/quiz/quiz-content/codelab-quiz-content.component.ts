@@ -290,28 +290,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const explanation = (explanationText ?? '').trim();
         const correct     = (correctText ?? '').trim();
   
-        // ✅ Do NOT gate on `explanation` being truthy
+        // Do not gate on `explanation` being truthy
         const showExplanation =
           state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || this.displayExplanation);
+          (shouldDisplayExplanation || explanation);
   
         if (showExplanation) {
-          // 1) Stream (formatted or raw we seeded on click/expiry)
+          // Stream (formatted or raw we seeded on click/expiry)
           if (explanation) return explanation;
   
-          // 2) Service cache for this index (what update/expiry wrote)
+          // Service cache for this index (what update/expiry wrote)
           const svcRaw = (
             this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
           ).toString().trim();
           if (svcRaw) return svcRaw;
   
-          // 3) Model raw
+          // Model raw
           const raw = (this.questions?.[currentIndex]?.explanation ?? '')
             .toString()
             .trim();
           if (raw) return raw;
   
-          // 4) Final fallback (not the “Formatting…” placeholder)
+          // Final fallback
           return 'Explanation not available.';
         }
   
@@ -324,7 +324,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
