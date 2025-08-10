@@ -3230,6 +3230,7 @@ export class QuizQuestionComponent
           this.quizStateService.setAnswered(true);
           this.quizStateService.setAnswerSelected(true);
   
+          // Next button
           if (isSingle) {
             this.selectedOptionService.setAnswered(true);
             this.nextButtonStateService.setNextButtonState(true);
@@ -3242,19 +3243,18 @@ export class QuizQuestionComponent
           this.showExplanationChange?.emit(true);
   
           if (cached && cached.trim()) {
-            // ✅ Cached formatted → write to stream now
+            // ✅ Cached formatted → write to stream now, clear override
             this.explanationTextService.setExplanationText(cached);
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
-  
-            // Clear any stale override so stream wins in combinedText$
             this.overrideSubject?.next?.({ html: '', idx: -1 });
           } else {
-            // ✅ No cache → show raw or placeholder via OVERRIDE ONLY (do NOT touch the stream yet)
+            // ✅ No cache yet → show raw/placeholder via OVERRIDE ONLY
             const firstHtml = rawTrue || '<span class="muted">Formatting…</span>';
             this.overrideSubject?.next?.({ html: firstHtml, idx: i0 });
             this.explanationToDisplay = firstHtml;
             this.explanationToDisplayChange?.emit(firstHtml);
+            // DO NOT write raw/placeholder to the stream here
           }
   
           this.cdRef.markForCheck?.();
@@ -3276,7 +3276,7 @@ export class QuizQuestionComponent
                 if (active !== i0) return;
   
                 this.ngZone.run(() => {
-                  this.explanationTextService.setExplanationText(clean); // first stream write
+                  this.explanationTextService.setExplanationText(clean); // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
   
@@ -3347,6 +3347,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
   
 

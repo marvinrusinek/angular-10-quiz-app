@@ -292,10 +292,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         const showExplanation =
           state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || this.displayExplanation);
+          (explanation || shouldDisplayExplanation);
       
         if (showExplanation) {
-          // ✅ Only show the stream when we *know* it’s formatted
+          // Only show the stream when we *know* it’s formatted
           if (this._formattedByIndex?.has?.(currentIndex) && explanation) {
             return explanation;                      // formatted (or cached) wins
           }
