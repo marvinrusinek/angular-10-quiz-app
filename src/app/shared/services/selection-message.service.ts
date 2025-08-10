@@ -43,24 +43,22 @@ export class SelectionMessageService {
     return msg;
   }
 
-  public getRemainingCorrect(
-    options: Option[] | null | undefined,
-    isLastQuestion: boolean
-  ): string {
+  private getRemainingCorrectCount(options: Option[] | null | undefined): number {
     const opts = Array.isArray(options) ? options : [];
     const correct = opts.filter(o => !!o?.correct);
     const selectedCorrect = correct.filter(o => !!o?.selected).length;
-    const remaining = Math.max(0, correct.length - selectedCorrect);
-  
+    return Math.max(0, correct.length - selectedCorrect);
+  }
+
+  public getRemainingCorrect(options: Option[] | null | undefined, isLastQuestion: boolean): string {
+    const remaining = this.getRemainingCorrectCount(options);
     if (remaining > 0) {
       return `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
     }
-  
-    // All correct selected → flip to Next/Results
     return isLastQuestion
       ? 'Please click the Show Results button.'
       : 'Please select the next button to continue...';
-  }
+  }  
 
   private pluralize(n: number, singular: string, plural: string): string {
     return n === 1 ? singular : plural;
@@ -78,7 +76,7 @@ export class SelectionMessageService {
 
     // Multi-answer: until all correct are selected, show the remaining count
     if (questionType === QuestionType.MultipleAnswer) {
-      const remaining = this.getRemainingCorrect(options, isLast);
+      const remaining = this.getRemainingCorrectCount(options);
       if (remaining > 0) {
         return `Select ${remaining} more ${this.pluralize(remaining, 'correct answer', 'correct answers')} to continue...`;
       }
@@ -99,32 +97,42 @@ export class SelectionMessageService {
         return;
       }
   
-      // Try to read the current question and options without depending on extra imports
-      const q: any = (this.quizService as any).currentQuestion ?? (this.quizService as any).getQuestion?.(index);
+      // Try to read the current question + options
+      const q: any = (this.quizService as any).currentQuestion
+        ?? (this.quizService as any).getQuestion?.(index);
       const options: Option[] = (q?.options ?? []) as Option[];
+      const isLast = index === total - 1;
   
-      // Treat as multi-answer if there are 2+ correct options
+      // Derive multi/single by counting correct options
       const correct = options.filter(o => !!o?.correct);
+      const selectedCorrect = correct.filter(o => !!o?.selected).length;
+      const remaining = Math.max(0, correct.length - selectedCorrect);
       const isMulti = correct.length > 1;
   
-      if (isMulti) {
-        const selectedCorrect = correct.filter(o => !!o?.selected).length;
-        const remaining = Math.max(0, correct.length - selectedCorrect);
+      let newMessage: string;
   
-        // Never overwrite the multi-remaining message while there are still correct answers to pick
+      if (isMulti) {
+        // Multi-answer: show remaining until all correct are selected
         if (remaining > 0) {
-          const msg = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
-          const current = this.getCurrentMessage();
-          if (msg !== current) this.updateSelectionMessage(msg);
-          return; // do NOT fall through to Next/Results
+          newMessage = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+        } else {
+          // All correct selected → Next / Show Results
+          newMessage = isLast
+            ? 'Please click the Show Results button.'
+            : 'Please select the next button to continue...';
         }
-        // remaining === 0 → all correct chosen; proceed to Next/Results below
+      } else {
+        // Single-answer: use your existing rule
+        newMessage = !isAnswered
+          ? (index === 0
+              ? 'Please start the quiz by selecting an option.'
+              : 'Please select an option to continue...')
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please select the next button to continue...');
       }
   
-      // Single-answer OR multi-answer with all correct selected → use your existing rule
-      const newMessage = this.determineSelectionMessage(index, total, isAnswered);
       const current = this.getCurrentMessage();
-  
       if (newMessage !== current) {
         this.updateSelectionMessage(newMessage);
       } else {
