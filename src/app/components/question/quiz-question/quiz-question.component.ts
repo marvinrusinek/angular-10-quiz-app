@@ -5585,7 +5585,7 @@ export class QuizQuestionComponent
       return false;
     }
 
-    return true; // form is valid and option is selected
+    return true;  // form is valid and option is selected
   }
 
   private async processAnswer(
@@ -5664,21 +5664,6 @@ export class QuizQuestionComponent
         'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
       );
     }
-  }
-
-  private playSoundForOption(option: SelectedOption): void {
-    if (!option) {
-      console.warn('[⛔ No option passed to playSoundForOption]');
-      return;
-    }
-
-    const isCorrect = option.correct;
-    console.log(`[🔊 playSoundForOption CALLED]`, {
-      optionId: option.optionId,
-      correct: isCorrect,
-    });
-
-    this.soundService.play(isCorrect ? 'correct' : 'incorrect');
   }
 
   clearSoundFlagsForCurrentQuestion(index: number): void {
