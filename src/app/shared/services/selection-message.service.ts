@@ -97,46 +97,22 @@ export class SelectionMessageService {
         return;
       }
   
-      // Try to read the current question + options
-      const q: any = (this.quizService as any).currentQuestion
-        ?? (this.quizService as any).getQuestion?.(index);
-      const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
-      // Derive multi/single by counting correct options
-      const correct = options.filter(o => !!o?.correct);
-      const selectedCorrect = correct.filter(o => !!o?.selected).length;
-      const remaining = Math.max(0, correct.length - selectedCorrect);
-      const isMulti = correct.length > 1;
-  
-      let newMessage: string;
-  
-      if (isMulti) {
-        // Multi-answer: show remaining until all correct are selected
-        if (remaining > 0) {
-          newMessage = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
-        } else {
-          // All correct selected → Next / Show Results
-          newMessage = isLast
-            ? 'Please click the Show Results button.'
-            : 'Please select the next button to continue...';
-        }
-      } else {
-        // Single-answer: use your existing rule
-        newMessage = !isAnswered
-          ? (index === 0
-              ? 'Please start the quiz by selecting an option.'
-              : 'Please select an option to continue...')
-          : (isLast
-              ? 'Please click the Show Results button.'
-              : 'Please select the next button to continue...');
+      // First: enforce multi-remaining if applicable
+      const { isMulti, remaining } = this.hasMultiRemaining();
+      if (isMulti && remaining > 0) {
+        const msg = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+        if (msg !== this.getCurrentMessage()) this.updateSelectionMessage(msg);
+        return; // do NOT fall through
       }
   
-      const current = this.getCurrentMessage();
-      if (newMessage !== current) {
+      // Single-answer OR multi with all correct selected → your existing rule
+      const newMessage = this.determineSelectionMessage(index, total, isAnswered);
+      if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
       } else {
-        console.log(`[⏸️ Skipping update — message already "${current}"`);
+        console.log(`[⏸️ Skipping update — message already "${newMessage}"`);
       }
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
@@ -146,17 +122,48 @@ export class SelectionMessageService {
   // Method to update the message
   public updateSelectionMessage(message: string): void {
     const current = this.selectionMessageSubject.getValue();
-    
-    if (!message?.trim()) {
+    const next = (message ?? '').trim();
+
+    if (!next) {
       console.warn('[updateSelectionMessage] Skipped empty or blank message');
       return;
     }
-  
-    if (message && message.trim() !== '' && current !== message) {
-      console.log(`[📢 updateSelectionMessage] New: ${message} | Replacing: ${current}`);
-      this.selectionMessageSubject.next(message);
-    } else {
-      console.log(`[⏸️ updateSelectionMessage] No update needed for: ${message}`);
+
+    // Guard: don't let "Next/Results" overwrite multi-remaining
+    const { isMulti, remaining } = this.hasMultiRemaining();
+    const isNextish =
+      next === this.NEXT_BTN_MSG || next === this.SHOW_RESULTS_MSG;
+
+    if (isMulti && remaining > 0 && isNextish) {
+      const hold = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) {
+        this.selectionMessageSubject.next(hold);
+      }
+      return;  // block overwrite
     }
-  }  
+
+    if (current !== next) {
+      console.log(`[📢 updateSelectionMessage] New: ${next} | Replacing: ${current}`);
+      this.selectionMessageSubject.next(next);
+    } else {
+      console.log(`[⏸️ updateSelectionMessage] No update needed for: ${next}`);
+    }
+  }
+
+  // Get current question's options safely from QuizService
+  private getCurrentOptions(): Option[] {
+    const idx = this.quizService.currentQuestionIndex as number;
+    const q: any = (this.quizService as any).currentQuestion
+      ?? (this.quizService as any).getQuestion?.(idx);
+    return (q?.options ?? []) as Option[];
+  }
+
+  // Is current question multi and how many correct remain?
+  private hasMultiRemaining(): { isMulti: boolean; remaining: number } {
+    const options = this.getCurrentOptions();
+    const correct = options.filter(o => !!o?.correct);
+    const isMulti = correct.length > 1;
+    const remaining = isMulti ? this.getRemainingCorrectCount(options) : 0;
+    return { isMulti, remaining };
+  }
 }
