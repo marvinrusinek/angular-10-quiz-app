@@ -275,7 +275,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
-      this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),  // transient UI only
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
       this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
       this.questionToDisplay$.pipe(startWith('')),
@@ -283,7 +282,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
     ]).pipe(
-      map(([override, state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
   
         const question    = (questionText ?? '').trim();
