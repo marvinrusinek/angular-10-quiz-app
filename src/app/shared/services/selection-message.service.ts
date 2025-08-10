@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -42,16 +43,45 @@ export class SelectionMessageService {
     return msg;
   }
 
-  public getRemainingAnswersMessage(options: Option[]): string {
-    const correctOptions = options.filter(opt => opt.correct);
-    const selectedCorrect = correctOptions.filter(opt => opt.selected).length;
-    const remaining = correctOptions.length - selectedCorrect;
+  public getRemainingCorrect(options: Option[] | null | undefined): string {
+    const opts = Array.isArray(options) ? options : [];
+    const correct = opts.filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const remaining = Math.max(0, correct.length - selectedCorrect);
   
     if (remaining <= 0) {
-      return 'You may now click Next to continue.';
+      return 'Please select the next button to continue...';
     }
   
-    return `Select ${remaining} more correct answer${remaining !== 1 ? 's' : ''} to continue...`;
+    const plural = remaining === 1 ? '' : 's';
+    return `Select ${remaining} more correct answer${plural} to continue...`;
+  }  
+
+  private pluralize(n: number, singular: string, plural: string): string {
+    return n === 1 ? singular : plural;
+  }
+
+  public buildMessageOnClick(params: {
+    questionIndex: number;  // 0-based
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];  // current question options with .correct / .selected
+  }): string {
+    const { questionIndex, totalQuestions, questionType, options } = params;
+
+    const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+
+    // Multi-answer: until all correct are selected, show the remaining count
+    if (questionType === QuestionType.MultipleAnswer) {
+      const remaining = this.getRemainingCorrect(options);
+      if (remaining > 0) {
+        return `Select ${remaining} more ${this.pluralize(remaining, 'correct answer', 'correct answers')} to continue...`;
+      }
+      // remaining === 0 → fall through to Next/Show Results below
+    }
+
+    // Single-answer OR multi-answer (all correct selected)
+    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
