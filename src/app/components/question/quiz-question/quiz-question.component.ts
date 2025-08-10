@@ -5885,7 +5885,7 @@ export class QuizQuestionComponent
     }
   
     const prevFixed = this.fixedQuestionIndex;
-    const prevCur   = this.currentQuestionIndex;
+    const prevCur = this.currentQuestionIndex;
     let text = '';
   
     try {
@@ -5898,9 +5898,9 @@ export class QuizQuestionComponent
       text = (out ?? '').toString().trim();
   
       // Fallback: formatter writes to a stream
-      if (!text && (this.explanationTextService as any).formattedExplanation$) {
+      if (!text && this.explanationTextService.formattedExplanation$) {
         const src$ = this.explanationTextService
-        .formattedExplanation$ as Observable<string | null | undefined>;
+          .formattedExplanation$ as Observable<string | null | undefined>;
 
         const formatted$: Observable<string> = src$.pipe(
           filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
