@@ -2772,7 +2772,7 @@ export class QuizQuestionComponent
               this.explanationToDisplay = rawTrue;
               this.explanationToDisplayChange?.emit(rawTrue);
             } else {
-              // Keep stream empty; your combinedText$ should render a placeholder when stream+raw are empty
+              // Keep stream empty; combinedText$ should render a placeholder when stream and raw are empty
               this.explanationTextService.setExplanationText('');
               this.explanationToDisplay = '<span class="muted">Formatting…</span>';
               this.explanationToDisplayChange?.emit(this.explanationToDisplay);
@@ -2819,7 +2819,7 @@ export class QuizQuestionComponent
               .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
           });
   
-          // WATCHDOG: after 1800ms, if still on i0 and stream is empty (or equals raw),
+          // WATCHDOG: after 1000ms, if still on i0 and stream is empty (or equals raw),
           // try one more pinned resolve; if still nothing and raw exists, keep raw so UI never sticks.
           setTimeout(async () => {
             try {
@@ -2849,7 +2849,7 @@ export class QuizQuestionComponent
                 return;
               }
   
-              // If still nothing and we have RAW, ensure RAW remains (already set above)
+              // If still nothing and have RAW, ensure RAW remains (already set above)
               if (!currentStream && rawTrue) {
                 this.ngZone.run(() => {
                   this.explanationTextService.setExplanationText(rawTrue);
@@ -2859,10 +2859,10 @@ export class QuizQuestionComponent
                   this.cdRef.detectChanges?.();
                 });
               }
-            } catch (e) {
-              console.warn('[watchdog] failed', e);
+            } catch (err) {
+              console.warn('[watchdog] failed', err);
             }
-          }, 1800);
+          }, 1000);
         }
       }
   
