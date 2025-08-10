@@ -273,55 +273,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what <codelab-quiz-content> shows
-  private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
-      this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),                          // override stays
-      this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),                     // ✅ seed the stream
-      this.questionToDisplay$.pipe(startWith('')),
-      this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
-    ]).pipe(
-      map(([override, state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        this.currentIndex = currentIndex;
-      
-        const question    = (questionText ?? '').trim();
-        const explanation = (explanationText ?? '').trim();
-        const correct     = (correctText ?? '').trim();
-      
-        const showExplanation =
-          state?.mode === 'explanation' &&
-          (explanation || shouldDisplayExplanation);
-      
-        if (showExplanation) {
-          // Only show the stream when we *know* it’s formatted
-          if (this._formattedByIndex?.has?.(currentIndex) && explanation) {
-            return explanation;                      // formatted (or cached) wins
-          }
-      
-          // Then show any override for THIS index (raw or “Formatting…”)
-          if (override?.idx === currentIndex && override?.html) {
-            return override.html;
-          }
-      
-          // Then try raw from the model (if you want; otherwise skip straight to placeholder)
-          const raw = (this.questions?.[currentIndex]?.explanation ?? '').trim();
-          if (raw) return raw;
-      
-          // Last resort placeholder (not written to the stream)
-          return '<span class="muted">Formatting…</span>';
-        }
-      
-        // Question mode (preserve your correct-count behavior)
-        return correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
-      }),      
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  }
+  
   
   
   private emitContentAvailableState(): void {
