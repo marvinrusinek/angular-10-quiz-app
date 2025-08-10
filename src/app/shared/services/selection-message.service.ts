@@ -43,19 +43,24 @@ export class SelectionMessageService {
     return msg;
   }
 
-  public getRemainingCorrect(options: Option[] | null | undefined): string {
+  public getRemainingCorrect(
+    options: Option[] | null | undefined,
+    isLastQuestion: boolean
+  ): string {
     const opts = Array.isArray(options) ? options : [];
     const correct = opts.filter(o => !!o?.correct);
     const selectedCorrect = correct.filter(o => !!o?.selected).length;
     const remaining = Math.max(0, correct.length - selectedCorrect);
   
-    if (remaining <= 0) {
-      return 'Please select the next button to continue...';
+    if (remaining > 0) {
+      return `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
     }
   
-    const plural = remaining === 1 ? '' : 's';
-    return `Select ${remaining} more correct answer${plural} to continue...`;
-  }  
+    // All correct selected → flip to Next/Results
+    return isLastQuestion
+      ? 'Please click the Show Results button.'
+      : 'Please select the next button to continue...';
+  }
 
   private pluralize(n: number, singular: string, plural: string): string {
     return n === 1 ? singular : plural;
