@@ -4511,12 +4511,18 @@ export class QuizQuestionComponent
     // Persist per-index cache in the service
     try {
       if (this.explanationTextService?.formattedExplanations) {
-        this.explanationTextService.formattedExplanations[i0] = {
-          ...(this.explanationTextService.formattedExplanations[i0] ?? {}),
-          explanation: clean || raw,
+        // Carry over any existing fields to satisfy other required props
+        const prev = this.explanationTextService.formattedExplanations[i0] as Partial<FormattedExplanation> | undefined;
+
+        const next: FormattedExplanation = {
+          ...(prev as FormattedExplanation ?? {} as FormattedExplanation),
+          questionIndex: i0,  // required by FormattedExplanation
+          explanation: clean || raw  // formatted (or raw) text
         };
+
+        this.explanationTextService.formattedExplanations[i0] = next;
       }
-      // If your service exposes a sticky stream method, publish there too
+      // If the service exposes a sticky stream method, publish there too
       this.explanationTextService.pushFormatted?.(clean || raw);
     } catch (err) {
       console.warn('[updateExplanationText] cache publish failed', err);
@@ -4537,7 +4543,6 @@ export class QuizQuestionComponent
   
     return clean;
   }
-  
 
   public async handleOptionSelection(
     option: SelectedOption,
