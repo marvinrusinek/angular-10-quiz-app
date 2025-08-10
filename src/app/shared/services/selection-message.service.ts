@@ -147,17 +147,21 @@ export class SelectionMessageService {
   public updateSelectionMessage(message: string): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-
+  
     if (!next) {
       console.warn('[updateSelectionMessage] Skipped empty or blank message');
       return;
     }
-
+  
     // Guard: don't let "Next/Results" overwrite multi-remaining
     const { isMulti, remaining } = this.hasMultiRemaining();
+  
+    // ✅ case-insensitive contains check (handles "click/select the next button", etc.)
+    const norm = next.toLowerCase();
     const isNextish =
-      next === this.NEXT_BTN_MSG || next === this.SHOW_RESULTS_MSG;
-
+      norm.includes('next button') ||      // any phrasing that mentions the next button
+      norm.includes('show results');       // any phrasing that mentions show results
+  
     if (isMulti && remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) {
@@ -165,7 +169,7 @@ export class SelectionMessageService {
       }
       return;  // block overwrite
     }
-
+  
     if (current !== next) {
       console.log(`[📢 updateSelectionMessage] New: ${next} | Replacing: ${current}`);
       this.selectionMessageSubject.next(next);
