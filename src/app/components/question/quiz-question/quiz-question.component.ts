@@ -5929,7 +5929,7 @@ export class QuizQuestionComponent
     const svcRaw = (
       this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
     ).toString().trim();
-    return qRaw || svcRaw;  // prefer question, then service cache
+    return qRaw || svcRaw; // prefer model, then service cache
   }
 
   private async resolveFormatted(
