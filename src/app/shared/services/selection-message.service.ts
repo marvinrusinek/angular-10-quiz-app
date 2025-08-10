@@ -107,7 +107,7 @@ export class SelectionMessageService {
         return; // do NOT fall through
       }
   
-      // Single-answer OR multi with all correct selected → your existing rule
+      // Single-answer OR multi with all correct selected → Iyour existing rule
       const newMessage = this.determineSelectionMessage(index, total, isAnswered);
       if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
