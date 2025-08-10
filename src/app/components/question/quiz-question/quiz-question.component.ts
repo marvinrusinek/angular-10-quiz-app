@@ -3267,14 +3267,27 @@ export class QuizQuestionComponent
             void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 4000 })
               .then((formatted) => {
                 const clean = (formatted ?? '').trim?.() ?? '';
-                if (!clean) return;
-  
-                // Still on same question?
                 const active =
                   this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
                   (this.currentQuestionIndex ?? 0);
-                if (active !== i0) return;
   
+                if (active !== i0) return;          // navigated away
+                if (!clean) {
+                  // 🛟 Fail-safe: if formatter returned nothing but we HAVE raw, promote raw to stream so UI doesn't stick
+                  if (rawTrue) {
+                    this.ngZone.run(() => {
+                      this.explanationTextService.setExplanationText(rawTrue);
+                      this.explanationToDisplay = rawTrue;
+                      this.explanationToDisplayChange?.emit(rawTrue);
+                      this.overrideSubject?.next?.({ html: '', idx: -1 });
+                      this.cdRef.markForCheck?.();
+                      this.cdRef.detectChanges?.();
+                    });
+                  }
+                  return;
+                }
+  
+                // Normal path: formatted arrived
                 this.ngZone.run(() => {
                   this.explanationTextService.setExplanationText(clean); // first formatted stream write
                   this.explanationToDisplay = clean;
@@ -3347,7 +3360,6 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-  
   
   
 
