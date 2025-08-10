@@ -3200,8 +3200,8 @@ export class QuizQuestionComponent
       );
     }
   
-    const i0  = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q   = this.questions?.[i0];
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q  = this.questions?.[i0];
   
     const evtIdx = event.index;
     const evtOpt = event.option; // may be null on first click after nav — don't early return
@@ -3216,12 +3216,13 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Override for placeholder/raw; seed stream with RAW (to kick formatter)
-      //    but UI stays on override. Cached formatted → write to stream immediately.
+      //    Write RAW to the stream immediately (never placeholder).
+      //    Cached formatted → write to stream immediately.
       // ───────────────────────────────────────────────
       {
-        const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim(); // ← do NOT fallback here
+        const cached  = this._formattedByIndex?.get?.(i0);
+        const rawTrue = (q?.explanation ?? '').trim();
+        console.log('[CLICK]', { i0, hasCached: !!cached, rawLen: rawTrue.length });
   
         this.ngZone.run(() => {
           // Flip UI flags first
@@ -3243,29 +3244,23 @@ export class QuizQuestionComponent
           this.showExplanationChange?.emit(true);
   
           if (cached && cached.trim()) {
-            // ✅ Cached formatted → write to stream now, clear override
+            // ✅ Cached formatted → write to stream now
             this.explanationTextService.setExplanationText(cached);
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
-            this.overrideSubject?.next?.({ html: '', idx: -1 });
           } else {
-            // ✅ No cache yet → show raw/placeholder via OVERRIDE ONLY
-            const firstHtml = rawTrue || '<span class="muted">Formatting…</span>';
-            this.overrideSubject?.next?.({ html: firstHtml, idx: i0 });
+            // ✅ No cache yet → seed the STREAM with RAW right away (never placeholder)
+            const firstHtml = rawTrue || 'No explanation available';
+            this.explanationTextService.setExplanationText(firstHtml);
             this.explanationToDisplay = firstHtml;
             this.explanationToDisplayChange?.emit(firstHtml);
-  
-            // ⚠️ Seed the formatter with RAW in the STREAM (UI won’t use it yet)
-            if (rawTrue) {
-              this.explanationTextService.setExplanationText(rawTrue);
-            }
           }
   
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
   
-        // 🔁 Resolve formatted FOR THIS INDEX, then write to stream & clear override
+        // 🔁 Resolve formatted FOR THIS INDEX, then write to stream
         if (!cached) {
           requestAnimationFrame(() => {
             void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
@@ -3274,38 +3269,64 @@ export class QuizQuestionComponent
                 const active =
                   this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
                   (this.currentQuestionIndex ?? 0);
-                if (active !== i0) return;          // navigated away
+                console.log('[RESOLVED]', { i0, cleanLen: clean.length, active });
   
-                if (!clean) {
-                  // 🛟 Fail-safe: if formatter returned nothing but we HAVE raw, promote raw to stream
-                  if (rawTrue) {
-                    this.ngZone.run(() => {
-                      this.explanationTextService.setExplanationText(rawTrue);
-                      this.explanationToDisplay = rawTrue;
-                      this.explanationToDisplayChange?.emit(rawTrue);
-                      this.overrideSubject?.next?.({ html: '', idx: -1 });
-                      this.cdRef.markForCheck?.();
-                      this.cdRef.detectChanges?.();
-                    });
-                  }
-                  return;
-                }
+                if (active !== i0) return;          // navigated away
+                if (!clean) return;                 // nothing to swap
   
                 // Normal path: formatted arrived
                 this.ngZone.run(() => {
                   this.explanationTextService.setExplanationText(clean); // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
-  
-                  // Clear override so formatted (stream) takes precedence
-                  this.overrideSubject?.next?.({ html: '', idx: -1 });
-  
                   this.cdRef.markForCheck?.();
                   this.cdRef.detectChanges?.();
                 });
               })
               .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
           });
+  
+          // 🛟 WATCHDOG: after 1800ms, if still on i0 and stream hasn’t changed away from RAW,
+          // try one more resolve; if still nothing but RAW exists, keep RAW so nothing “hangs”.
+          setTimeout(async () => {
+            try {
+              const active =
+                this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return;
+  
+              const currentStream =
+                (await firstValueFrom(this.explanationTextService.explanationText$.pipe(take(1))) ?? '')
+                  .toString()
+                  .trim();
+  
+              // Already formatted?
+              if (cached?.trim() && currentStream === cached.trim()) return;
+  
+              // If stream is empty, or still equals raw, we’ll try again
+              if (!currentStream || currentStream === rawTrue) {
+                const secondTry = (await this.resolveFormatted(i0, {
+                  useCache: true,
+                  setCache: true,
+                  timeoutMs: 8000
+                }))?.trim?.() ?? '';
+  
+                if (secondTry && secondTry !== currentStream) {
+                  this.ngZone.run(() => {
+                    this.explanationTextService.setExplanationText(secondTry);
+                    this.explanationToDisplay = secondTry;
+                    this.explanationToDisplayChange?.emit(secondTry);
+                    this.cdRef.markForCheck?.();
+                    this.cdRef.detectChanges?.();
+                  });
+                } else {
+                  // Still nothing; ensure RAW is at least present (already set above)
+                  console.log('[WATCHDOG] sticking with RAW', { i0, rawLen: rawTrue.length });
+                }
+              }
+            } catch (e) {
+              console.warn('[watchdog] failed', e);
+            }
+          }, 1800);
         }
       }
   
@@ -3326,17 +3347,13 @@ export class QuizQuestionComponent
         this.updateExplanationText(i0)
           .then((formatted) => {
             const clean = (formatted ?? '').trim?.() ?? '';
-            if (!clean) return; // don’t inject fallback/placeholder into stream
+            if (!clean) return; // don’t inject empties into stream
             const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
             if (active !== i0) return;
             this.ngZone.run(() => {
               this.explanationTextService.setExplanationText(clean);
               this.explanationToDisplay = clean;
               this.explanationToDisplayChange?.emit(clean);
-  
-              // Also clear override here to ensure stream wins if it was still set
-              this.overrideSubject?.next?.({ html: '', idx: -1 });
-  
               this.cdRef.markForCheck?.();
               this.cdRef.detectChanges?.();
             });
@@ -3344,7 +3361,7 @@ export class QuizQuestionComponent
           .catch((err) => console.error('[❌ legacy format failed]', err));
       }
   
-      // Defer heavy work to next animation frame so first click paints immediately
+      // 🚦 Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
         // Parent notify (type-safe): only emit if we have a SelectedOption
         try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3364,6 +3381,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
   
   
