@@ -3192,40 +3192,49 @@ export class QuizQuestionComponent
 
   handleSelectionMessageUpdate(): void {
     const i0     = this.currentQuestionIndex;
-    const total  = this.totalQuestions;
+    const isLast = i0 === (this.totalQuestions - 1);
+    const qType  = this.currentQuestion?.type;
   
-    // Take an immediate snapshot from the mutated array.
-    // This lets the service guard block any premature "Next/Results" updates
-    // that might fire in the same tick from elsewhere.
-    {
-      const optionsImmediate = (this.optionsToDisplay?.length
-        ? this.optionsToDisplay
-        : this.currentQuestion?.options) as Option[] || [];
-      this.selectionMessageService.setOptionsSnapshot?.(optionsImmediate);
-    }
-  
-    // Wait a microtask so any selection mutations and state evals have landed,
-    // then a frame so the rendered list reflects the latest flags.
+    // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
+      // Then wait a frame to ensure the rendered list reflects the latest flags
       requestAnimationFrame(() => {
-        // Recompute from the updated array the UI renders
+        // Recompute from the UPDATED array the UI renders
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
           : this.currentQuestion?.options) as Option[] || [];
   
-        // Keep snapshot fresh for service-side guards
-        this.selectionMessageService.setOptionsSnapshot?.(optionsNow);
-  
-        // Service decides Multi remaining vs Next/Results
         this.selectionMessageService.updateMessageFromSelection({
           questionIndex: i0,
-          totalQuestions: total,
-          questionType: this.currentQuestion?.type,  // read latest
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion.type,
           options: optionsNow
         });
+  
+        if (qType === QuestionType.MultipleAnswer) {
+          const remaining =
+            this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+  
+          const msg = (remaining > 0)
+            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+            : (isLast
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...');
+  
+          this.selectionMessageService.updateSelectionMessage(msg);
+          return;
+        }
+  
+        // Single-answer: NEVER show “Select …” after a click
+        const msg = isLast
+          ? 'Please click the Show Results button.'
+          : 'Please click the next button to continue...';
+  
+        this.selectionMessageService.updateSelectionMessage(msg);
       });
     });
   }
+  
 
   private async finalizeAfterClick(
     option: SelectedOption,
