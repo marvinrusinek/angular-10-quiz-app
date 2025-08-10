@@ -275,58 +275,55 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // Combine the streams that decide what <codelab-quiz-content> shows
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
-      this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),
+      this.overrideSubject.pipe(startWith({ html: '', idx: -1 })),                          // override stays
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$,
+      this.explanationTextService.explanationText$.pipe(startWith('')),                     // ✅ seed the stream
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
     ]).pipe(
-      map((
-        [override, state, explanationText, questionText,
-        correctText, shouldDisplayExplanation, currentIndex]
-      ) => {
+      map(([override, state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-
-        if (override.html && override.idx === this.currentIndex) {
-          return override.html;
-        }
-        
-        const question = questionText?.trim();
+  
+        const question = (questionText ?? '').trim();
         const explanation = (explanationText ?? '').trim();
         const correct = (correctText ?? '').trim();
-       
+  
+        // ✅ Decide visibility by state/flag only (do NOT require explanation to be truthy)
         const showExplanation =
           state?.mode === 'explanation' &&
-          //(explanation && shouldDisplayExplanation);
-          (explanation || shouldDisplayExplanation);
+          (shouldDisplayExplanation || this.displayExplanation);
+  
         if (showExplanation) {
-          /* if (explanation) return explanation;
-          
-          // Then use any override ("Formatting…" or raw) for this index
-          if (override?.idx === currentIndex && override?.html) return override.html;
-
-          // Finally, raw fallback from the model
-          const fallback =
-          (this.questions?.[currentIndex]?.explanation ?? '').trim() || 'No explanation available';
-          return fallback; */
-          if ((explanation ?? '').trim()) return explanation;            // formatted or initial we just pushed
+          // 1) Prefer the stream (formatted or cached) if it has anything meaningful
+          if (explanation) {
+            return explanation;
+          }
+  
+          // 2) Then, if an override exists for THIS index, use it (raw or placeholder)
+          if (override?.idx === currentIndex && override?.html) {
+            return override.html;
+          }
+  
+          // 3) Then try raw from the model
           const raw = (this.questions?.[currentIndex]?.explanation ?? '').trim();
           if (raw) return raw;
-          return '<span class="muted">Formatting…</span>'; 
+  
+          // 4) Last resort placeholder (not written to the stream)
+          return '<span class="muted">Formatting…</span>';
         }
-        //if (showExplanation) return explanation;
-
-        // Otherwise show question (and correct count if present)
-        return correct 
-          ? `${question} <span class="correct-count">${correctText}</span>` : question;
+  
+        // Question mode (preserve your correct-count behavior)
+        return correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
       }),
       distinctUntilChanged(),
-      // Make the latest value always available to the async pipe (no flicker)
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
   }
+  
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
