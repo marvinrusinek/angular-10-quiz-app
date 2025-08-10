@@ -280,7 +280,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0)),
+      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
       map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
@@ -295,7 +295,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           (shouldDisplayExplanation || explanation);
   
         if (showExplanation) {
-          // Stream (formatted or raw we seeded on click/expiry)
+          // Stream (formatted or raw seeded on click/expiry)
           if (explanation) return explanation;
   
           // Service cache for this index (what update/expiry wrote)
