@@ -2690,6 +2690,23 @@ export class QuizQuestionComponent
     // Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
     if (this._clickGate) return;
     this._clickGate = true;
+
+    const isLast = i0 === (this.totalQuestions - 1);
+
+    const currentOptions = (this.optionsToDisplay?.length
+      ? this.optionsToDisplay
+      : this.currentQuestion?.options) as Option[];
+    
+    if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+      const msg = this.selectionMessageService.getRemainingCorrect(currentOptions, isLast);
+      this.selectionMessageService.updateSelectionMessage(msg);
+    } else {
+      this.selectionMessageService.updateSelectionMessage(
+        isLast
+          ? 'Please click the Show Results button.'
+          : 'Please select the next button to continue...'
+      );
+    }
   
     try {
       const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
