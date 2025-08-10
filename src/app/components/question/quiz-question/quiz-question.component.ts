@@ -4977,8 +4977,8 @@ export class QuizQuestionComponent
   async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex?.(index) ?? index;
   
-    // Prefer the model’s raw explanation for *this index*
-    const q    = this.questions?.[i0];
+    // Prefer the model’s raw explanation for this index
+    const q = this.questions?.[i0];
     const rawQ = (q?.explanation ?? '').toString().trim();
   
     // Fallback to whatever the service already has cached for this index
@@ -4994,7 +4994,7 @@ export class QuizQuestionComponent
       currentIndex: this.currentQuestionIndex,
     });
   
-    // DO NOT early-return just because indices differ — we’re formatting *by index*
+    // Do not early-return just because indices differ — we’re formatting 0by index
     // (keep the warning for visibility)
     if (this.currentQuestionIndex !== i0) {
       console.warn(
@@ -5002,26 +5002,21 @@ export class QuizQuestionComponent
       );
     }
   
-    if (!raw) {
-      // Nothing to format — do not push placeholders into the stream
-      return '';
-    }
+    if (!raw) return '';  // nothing to format — do not push placeholders into the stream
   
-    // Run your existing formatting pipeline (index-aware if possible)
+    // Run existing formatting pipeline (index-aware if possible)
     let formatted = '';
     try {
-      if (typeof (this.explanationTextService as any).formatExplanation === 'function') {
-        // Prefer a service-level formatter if you have one that accepts (raw, index)
+      if (typeof this.explanationTextService.formatExplanation === 'function') {
         formatted = await (this.explanationTextService as any).formatExplanation(raw, i0);
-      } else if (typeof (this as any).formatExplanationHtml === 'function') {
-        // Or a component-local formatter you already use elsewhere
-        formatted = await (this as any).formatExplanationHtml(raw, i0);
+      } else if (typeof this.formatExplanationHtml === 'function') {
+        formatted = await this.formatExplanationHtml(raw, i0);
       } else {
-        // No formatter available — pass raw through
-        formatted = raw;
+        formatted = raw;  // no formatter available — pass raw through
+        
       }
-    } catch (e) {
-      console.warn('[updateExplanationText] formatter threw; using raw', e);
+    } catch (err) {
+      console.warn('[updateExplanationText] formatter threw; using raw', err);
       formatted = raw;
     }
   
@@ -5035,13 +5030,12 @@ export class QuizQuestionComponent
           explanation: clean || raw,
         };
       }
-      // If your service exposes a subject for “latest formatted”, publish it too (sticky stream recommended)
-      (this.explanationTextService as any).pushFormatted?.(clean || raw);
-    } catch (e) {
-      console.warn('[updateExplanationText] cache publish failed', e);
+      this.explanationTextService.pushFormatted?.(clean || raw);
+    } catch (err) {
+      console.warn('[updateExplanationText] cache publish failed', err);
     }
   
-    // Only push to the live explanation stream if the user is *still* on this index
+    // Only push to the live explanation stream if the user is still on this index
     if (this.currentQuestionIndex === i0 && clean) {
       this.explanationTextService.setExplanationText(clean);
     }
@@ -5051,7 +5045,7 @@ export class QuizQuestionComponent
     this.quizStateService.setQuestionState(this.quizId, i0, {
       ...qState,
       explanationDisplayed: true,
-      explanationText: clean || raw,
+      explanationText: clean || raw
     });
   
     return clean;
