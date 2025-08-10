@@ -3216,12 +3216,12 @@ export class QuizQuestionComponent
   
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
-      //    Override for placeholder/raw; write to stream ONLY when formatted is ready.
-      //    Cached formatted → write to stream immediately.
+      //    Override for placeholder/raw; seed stream with RAW (to kick formatter)
+      //    but UI stays on override. Cached formatted → write to stream immediately.
       // ───────────────────────────────────────────────
       {
         const cached   = this._formattedByIndex?.get?.(i0);
-        const rawTrue  = (q?.explanation ?? '').trim(); // ← no fallback string here
+        const rawTrue  = (q?.explanation ?? '').trim(); // ← do NOT fallback here
   
         this.ngZone.run(() => {
           // Flip UI flags first
@@ -3254,7 +3254,11 @@ export class QuizQuestionComponent
             this.overrideSubject?.next?.({ html: firstHtml, idx: i0 });
             this.explanationToDisplay = firstHtml;
             this.explanationToDisplayChange?.emit(firstHtml);
-            // DO NOT write raw/placeholder to the stream here
+  
+            // ⚠️ Seed the formatter with RAW in the STREAM (UI won’t use it yet)
+            if (rawTrue) {
+              this.explanationTextService.setExplanationText(rawTrue);
+            }
           }
   
           this.cdRef.markForCheck?.();
@@ -3264,16 +3268,16 @@ export class QuizQuestionComponent
         // 🔁 Resolve formatted FOR THIS INDEX, then write to stream & clear override
         if (!cached) {
           requestAnimationFrame(() => {
-            void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 4000 })
+            void this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
               .then((formatted) => {
                 const clean = (formatted ?? '').trim?.() ?? '';
                 const active =
                   this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
                   (this.currentQuestionIndex ?? 0);
-  
                 if (active !== i0) return;          // navigated away
+  
                 if (!clean) {
-                  // 🛟 Fail-safe: if formatter returned nothing but we HAVE raw, promote raw to stream so UI doesn't stick
+                  // 🛟 Fail-safe: if formatter returned nothing but we HAVE raw, promote raw to stream
                   if (rawTrue) {
                     this.ngZone.run(() => {
                       this.explanationTextService.setExplanationText(rawTrue);
@@ -3340,7 +3344,7 @@ export class QuizQuestionComponent
           .catch((err) => console.error('[❌ legacy format failed]', err));
       }
   
-      // 🚦 Defer heavy work to next animation frame so first click paints immediately
+      // Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
         // Parent notify (type-safe): only emit if we have a SelectedOption
         try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3360,6 +3364,7 @@ export class QuizQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
   
 
