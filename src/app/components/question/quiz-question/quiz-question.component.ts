@@ -5880,14 +5880,6 @@ export class QuizQuestionComponent
     return 0;
   }
 
-  private getRawForIndex(i0: number): string {
-    const qRaw  = (this.questions?.[i0]?.explanation ?? '').toString().trim();
-    const svcRaw = (
-      this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? ''
-    ).toString().trim();
-    return qRaw || svcRaw; // prefer model, then service cache
-  }
-
   private async resolveFormatted(
     index: number,
     opts: { useCache?: boolean; setCache?: boolean; timeoutMs?: number } = {}
@@ -5905,7 +5897,7 @@ export class QuizQuestionComponent
     let text = '';
   
     try {
-      // Force the formatter to operate on THIS question
+      // Force the formatter to operate on this question
       this.fixedQuestionIndex = i0;
       this.currentQuestionIndex = i0;
   
