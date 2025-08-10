@@ -3195,9 +3195,6 @@ export class QuizQuestionComponent
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
   
-    // If you added the snapshot feature, keep it fresh:
-    // this.selectionMessageService.setOptionsSnapshot?.(options);
-  
     if (allCorrectSelected) {
       this.selectedOptionService.setAnswered(true, true);
       const msg = this.selectionMessageService.determineSelectionMessage(
