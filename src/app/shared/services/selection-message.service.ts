@@ -64,7 +64,7 @@ export class SelectionMessageService {
       .filter(({ o }) => !!o?.correct);
   
     // Pull authoritative selection for this question (best-effort)
-    const selSet: Set = this.selectedOptionService?.selectedOptionsMap.get(questionIndex);
+    const selSet: any = this.selectedOptionService?.selectedOptionsMap.get(questionIndex);
   
     let selectedCorrect = 0;
     for (const { o, i } of correct) {
