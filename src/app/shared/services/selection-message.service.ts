@@ -278,9 +278,18 @@ export class SelectionMessageService {
   }
 
   // Get current question's options safely from QuizService
-  private async getCurrentOptionsByIndex(idx: number): Promise<Option[]> {
-    const q = await firstValueFrom(this.quizService.getQuestionByIndex(idx))
-      ?? this.quizService.currentQuestion;
+  private getCurrentOptionsByIndex(idx: number): Option[] {
+    const svc: any = this.quizService as any;
+  
+    // Prefer a concrete questions array if available
+    const all = Array.isArray(svc.questions) ? (svc.questions as any[]) : [];
+  
+    // Try by index, else fall back to currentQuestion
+    const q =
+      (idx >= 0 && idx < all.length ? all[idx] : undefined) ??
+      svc.currentQuestion ??
+      null;
+  
     return Array.isArray(q?.options) ? (q.options as Option[]) : [];
   }
 
