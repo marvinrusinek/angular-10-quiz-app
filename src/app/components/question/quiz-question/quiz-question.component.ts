@@ -201,8 +201,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   isExplanationLocked = true;
   currentExplanationText = '';
   explanationEmitted = false;
-  private lastExplanationShownIndex = -1;
-  private explanationInFlight = false;
+  lastExplanationShownIndex = -1;
+  explanationInFlight = false;
+  private explanationOwnerIdx = -1;
 
   private _expl$ = new BehaviorSubject<string | null>(null);
   public explanation$ = this._expl$.asObservable();
@@ -3148,7 +3149,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
     if (index !== this.lastLoggedQuestionIndex) {
@@ -4706,6 +4706,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Small delay to ensure reset completes
     await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+
+  private setExplanationFor(idx: number, html: string): void {
+    this.explanationOwnerIdx = idx;                        // tag ownership
+    this.explanationTextService.setExplanationText(html);  // single place that writes
+    this.cdRef.markForCheck();
   }
 
   async updateExplanationText(index: number): Promise<string> {
