@@ -6037,8 +6037,7 @@ export class QuizQuestionComponent
       this.displayExplanation = true;
       this.showExplanationChange?.emit(true);
   
-      this.cdRef.markForCheck?.();
-      this.cdRef.detectChanges?.();
+      this.cdRef.markForCheck();
     });
   
     // Pin context to this index and try to get formatted NOW
@@ -6049,7 +6048,7 @@ export class QuizQuestionComponent
       this.currentQuestionIndex = i0;
   
       // Compute formatted by index; this now uses the proper formatter signature
-      const formattedNow = (await this.updateExplanationText(i0))?.toString().trim() ?? '';
+      const formattedNow = (await this.updateExplanationText(i0)).toString().trim() ?? '';
   
       if (formattedNow) {
         // We already wrote to the stream inside updateExplanationText if still on i0,
@@ -6065,8 +6064,8 @@ export class QuizQuestionComponent
   
       // If nothing formatted, seed with best available raw and keep UI consistent
       const rawBest =
-        ((this.questions?.[i0]?.explanation ?? '') as string).toString().trim() ||
-        ((this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '') as string).toString().trim() ||
+        ((this.questions[i0]?.explanation ?? '') as string).toString().trim() ||
+        ((this.explanationTextService?.formattedExplanations[i0].explanation ?? '') as string).toString().trim() ||
         'Explanation not available.';
   
       this.ngZone.run(() => {
