@@ -47,14 +47,9 @@ import { AnswerComponent } from '../../../components/question/answer/answer-comp
   templateUrl: './quiz-question.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizQuestionComponent
-  extends BaseQuestionComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
-{
-  @ViewChild('dynamicAnswerContainer', {
-    read: ViewContainerRef,
-    static: false,
-  })
+export class QuizQuestionComponent extends BaseQuestionComponent 
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  @ViewChild('dynamicAnswerContainer', { read: ViewContainerRef, static: false })
   dynamicAnswerContainer!: ViewContainerRef;
   @ViewChild(SharedOptionComponent, { static: false })
   sharedOptionComponent!: SharedOptionComponent;
