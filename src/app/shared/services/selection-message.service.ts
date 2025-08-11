@@ -23,6 +23,9 @@ export class SelectionMessageService {
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
   private lastSelectionMutation = 0;
 
+  private writeSeq = 0;
+  private latestByIndex = new Map<number, number>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -199,7 +202,7 @@ export class SelectionMessageService {
   // Method to update the message
   public updateSelectionMessage(
     message: string,
-    ctx?: { options?: Option[]; index?: number }
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
@@ -212,12 +215,25 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    const opts = Array.isArray(ctx?.options) ? ctx!.options! : [];
-    const correct = opts.filter(o => !!o?.correct);
-    const isMulti = this.quizService.currentQuestion?.getValue()?.type === QuestionType.MultipleAnswer;
+    // Drop stale writes (tokened)
+    if (typeof ctx?.token === 'number') {
+      const latest = this.latestByIndex.get(i0);
+      if (latest != null && ctx.token !== latest) return;  // stale, ignore
+    }
+  
+    const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
+  
+    // Prefer declared type from caller; fallback to BehaviorSubject value
+    const qType =
+      ctx?.questionType ??
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion.value.type;
+  
+    const isMulti = qType === QuestionType.MultipleAnswer;
   
     const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
   
+    // Block "Next/Results" while multi still has remaining
     if (isMulti && remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
@@ -225,7 +241,7 @@ export class SelectionMessageService {
     }
   
     if (current !== next) this.selectionMessageSubject.next(next);
-  }  
+  }
 
   // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
@@ -238,6 +254,9 @@ export class SelectionMessageService {
   
     // Keep snapshot fresh for other callers (ok to keep)
     this.setOptionsSnapshot(options);
+
+    // Reserve a write for this index
+    const token = this.beginWrite(questionIndex);
   
     // ── Compute deterministically from the array passed in (no service reads) ──
     const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
@@ -330,5 +349,12 @@ export class SelectionMessageService {
       : (this.quizService.currentQuestionIndex as number) ?? 0;
   
     return this.getCurrentOptionsByIndex(i0);
+  }
+
+  // Reserve a write slot for this question; returns the token to attach to the write.
+  private beginWrite(index: number): number {
+    const v = ++this.writeSeq;
+    this.latestByIndex.set(index, v);
+    return v;
   }
 }
