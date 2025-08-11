@@ -69,7 +69,7 @@ export class SelectionMessageService {
     let selectedCorrect = 0;
     for (const { o, i } of correct) {
       const id = this.getOptionId(o, i);
-      const isSelected = !!o?.selected || !!sel?.has?.(id);  // <- simple & safe
+      const isSelected = !!o?.selected || !!selSet?.has?.(id);
       if (isSelected) selectedCorrect++;
     }
   
