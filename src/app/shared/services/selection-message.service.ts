@@ -275,7 +275,7 @@ export class SelectionMessageService {
 
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
-    const q: any = this.quizService.getQuestion(idx)
+    const q: any = this.quizService.getQuestionByIndex(idx)
       ?? this.quizService.currentQuestion;
     return (q?.options ?? []) as Option[];
   }
