@@ -70,9 +70,9 @@ export class SelectionMessageService {
     for (const { o, i } of correct) {
       const id = this.getOptionId(o, i);
       const isSelected =
-        !!o?.selected || // UI flag (might be stale this tick)
+        !!o?.selected ||  // UI flag (might be stale this tick)
         !!this.selectedOptionService?.isOptionSelected?.(questionIndex, id) ||
-        !!selSet?.has?.(id); // authoritative set
+        !!selSet?.has?.(id);  // authoritative set
       if (isSelected) selectedCorrect++;
     }
   
@@ -271,9 +271,14 @@ export class SelectionMessageService {
     return total > 0 && idx === total - 1;
   }
 
+  private getOptionId(opt: any, idx: number): number | string {
+    // prefer stable IDs; fall back safely to the loop index
+    return (opt?.optionId ?? opt?.value ?? opt?.id ?? idx);
+  }
+
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
-    const q: any = (this.quizService as any).getQuestion?.(idx)
+    const q: any = this.quizService.getQuestion(idx)
       ?? this.quizService.currentQuestion;
     return (q?.options ?? []) as Option[];
   }
