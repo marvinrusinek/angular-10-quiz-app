@@ -107,8 +107,8 @@ export class SelectionMessageService {
         return;
       }
   
-      const q: any = (this.quizService as any).currentQuestion
-        ?? (this.quizService as any).getQuestion?.(index);
+      const q: any = this.quizService.currentQuestion
+        ?? this.quizService.getQuestion(index);
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
@@ -162,10 +162,10 @@ export class SelectionMessageService {
     const isMulti = correct.length > 1;
     const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
   
-    // ⛔️ Block "Next/Results" while answers remain OR within a brief hold-off after mutation
+    // Block "Next/Results" while answers remain OR within a brief hold-off after mutation
     const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
     if (isMulti && (remaining > 0 || justMutated) && isNextish) {
-      // Prefer the accurate remaining message if remaining>0; otherwise keep current
+      // Prefer the accurate remaining message if remaining > 0; otherwise keep current
       if (remaining > 0) {
         const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
         if (current !== hold) this.selectionMessageSubject.next(hold);
@@ -223,7 +223,7 @@ export class SelectionMessageService {
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
-    this.setOptionsSnapshot(options);                // keep your existing snapshot
+    this.setOptionsSnapshot(options);                // keep existing snapshot
     this.lastSelectionMutation = performance.now();  // start small hold-off window
   }
   
