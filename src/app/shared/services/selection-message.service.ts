@@ -4,6 +4,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
@@ -138,7 +139,7 @@ export class SelectionMessageService {
       }
   
       const svc: any = this.quizService as any;
-      const q: any = svc.currentQuestion ?? (Array.isArray(svc.questions) ? svc.questions[index] : undefined);
+      const q: QuizQuestion = svc.currentQuestion ?? (Array.isArray(svc.questions) ? svc.questions[index] : undefined);
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
@@ -217,7 +218,7 @@ export class SelectionMessageService {
   }
   
 
-  // Helper: compute and push atomically (passes options to guard)
+  // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
     questionIndex: number;
     totalQuestions: number;
@@ -268,14 +269,14 @@ export class SelectionMessageService {
     return total > 0 && idx === total - 1;
   }
 
-  private getOptionId(opt: any, idx: number): number | string {
-    // prefer stable IDs; fall back safely to the loop index
+  private getOptionId(opt: Option, idx: number): number | string {
+    // Prefer stable IDs; fall back safely to the loop index
     return (opt?.optionId ?? opt?.value ?? opt?.id ?? idx);
   }
 
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
-    const q: any = this.quizService.getQuestionByIndex(idx)
+    const q: QuizQuestion = this.quizService.getQuestionByIndex(idx)
       ?? this.quizService.currentQuestion;
     return (q?.options ?? []) as Option[];
   }
