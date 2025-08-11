@@ -3203,6 +3203,9 @@ export class QuizQuestionComponent
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
           : this.currentQuestion?.options) as Option[] || [];
+
+        // Notify the service that selection just changed (starts hold-off window)
+        this.selectionMessageService.notifySelectionMutated(optionsNow);
   
         this.selectionMessageService.updateMessageFromSelection({
           questionIndex: i0,
