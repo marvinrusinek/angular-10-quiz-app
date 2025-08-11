@@ -239,15 +239,27 @@ export class SelectionMessageService {
     // Keep snapshot fresh for other callers (ok to keep)
     this.setOptionsSnapshot(options);
   
-    // Compute deterministically from the array passed in
-    const msg = this.buildMessageFromSelection({
-      index: questionIndex,
-      totalQuestions,
-      questionType,
-      options
-    });
+    // ── Compute deterministically from the array passed in (no service reads) ──
+    const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
   
-    // Forward options and index so the writer doesn’t re-derive
+    let msg: string;
+  
+    if (isMulti) {
+      const remaining = Math.max(0, correct.length - selected);
+      msg = (remaining > 0)
+        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+        : (isLast
+            ? this.SHOW_RESULTS_MSG
+            : this.NEXT_BTN_MSG);
+    } else {
+      // Single-answer: after any click, always show Next/Results
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+  
+    // Forward options and index so the writer doesn’t re-derive (stays deterministic)
     this.updateSelectionMessage(msg, { options, index: questionIndex });
   }
 
