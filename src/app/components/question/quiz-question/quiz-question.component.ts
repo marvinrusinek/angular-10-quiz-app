@@ -2943,7 +2943,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.quizStateService.setAnswered(true);
 
-          // ✅ Gate "answered"/Next for multi; single gets Next immediately
+          // Gate "answered"/Next for multi; single gets Next immediately
           if (isSingle) {
             this.quizStateService.setAnswerSelected(true);
             this.selectedOptionService.setAnswered(true);
@@ -2959,20 +2959,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.displayExplanation = true;
           this.showExplanationChange?.emit(true);
 
+          // Cached formatted → write to stream now
           if (cached && cached.trim()) {
-            // Cached formatted → write to stream now
-            this.explanationTextService.setExplanationText(cached);
+            this.setExplanationFor(i0, cached);                     // ← use owner-tagged writer
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
           } else {
             // No cache yet → seed the STREAM with RAW only (never placeholder)
             if (rawTrue) {
-              this.explanationTextService.setExplanationText(rawTrue);
+              this.setExplanationFor(i0, rawTrue);                  // ← owner-tagged
               this.explanationToDisplay = rawTrue;
               this.explanationToDisplayChange?.emit(rawTrue);
             } else {
               // Keep stream empty; combinedText$ should render a placeholder
-              this.explanationTextService.setExplanationText('');
+              this.setExplanationFor(i0, '');                       // ← owner-tagged (empty)
               this.explanationToDisplay = '<span class="muted">Formatting…</span>';
               this.explanationToDisplayChange?.emit(this.explanationToDisplay);
             }
@@ -2985,7 +2985,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Resolve formatted for this index (pin context), then write to stream
         const runPinnedResolve = async (timeoutMs: number): Promise<string> => {
           const prevFixed = this.fixedQuestionIndex;
-          const prevCur   = this.currentQuestionIndex;
+          const prevCur = this.currentQuestionIndex;
           try {
             this.fixedQuestionIndex = i0;
             this.currentQuestionIndex = i0;
@@ -3006,8 +3006,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                   (this.currentQuestionIndex ?? 0);
                 if (active !== i0) return;  // navigated away
                 if (!clean) return;         // nothing to swap
-
+                if (this.explanationOwnerIdx !== i0) return;
+                
                 this.ngZone.run(() => {
+                  this.setExplanationFor(i0, clean);
                   this.explanationTextService.setExplanationText(clean);  // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
