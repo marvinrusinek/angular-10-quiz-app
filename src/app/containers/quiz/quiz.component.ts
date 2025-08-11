@@ -780,11 +780,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
   
     if (isMultipleAnswer && !this.isAnswered) {
       const message = this.selectionMessageService.getRemainingCorrect(
-        this.optionsToDisplay as any[] ?? [],
+        this.optionsToDisplay as Option[] ?? [],
         isLast
       );
       this.selectionMessageService.updateSelectionMessage(message, {
-        options: this.optionsToDisplay as any[],
+        options: this.optionsToDisplay as Option[],
         index: this.currentQuestionIndex
       });
     } else {
@@ -794,7 +794,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         this.isAnswered
       );
       this.selectionMessageService.updateSelectionMessage(message, {
-        options: this.optionsToDisplay as any[],
+        options: this.optionsToDisplay as Option[],
         index: this.currentQuestionIndex
       });
     }
