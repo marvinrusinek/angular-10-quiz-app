@@ -19,6 +19,7 @@ export class SelectionMessageService {
   );
 
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
+  private lastSelectionMutation = 0;
 
   constructor(private quizService: QuizService) {}
 
@@ -146,28 +147,32 @@ export class SelectionMessageService {
   public updateSelectionMessage(message: string, ctx?: { options?: Option[] }): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-    if (!next) {
-      console.warn('[updateSelectionMessage] Skipped empty or blank message');
-      return;
-    }
+    if (!next) return;
   
-    // Case-insensitive contains (handles “click/select the next button”, etc.)
+    // Case-insensitive "next/results"
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    // Guard evaluates with the UPDATED options we just mutated (if provided)
-    const optsForGuard = this.pickOptionsForGuard(ctx?.options);
-    const correct = optsForGuard.filter(o => !!o?.correct);
+    // Fresh options for guard
+    const opts = (Array.isArray(ctx?.options) && ctx!.options!.length)
+      ? ctx!.options!
+      : (this.getLatestOptionsSnapshot().length ? this.getLatestOptionsSnapshot() : this.getCurrentOptions());
+  
+    const correct = opts.filter(o => !!o?.correct);
     const isMulti = correct.length > 1;
-    const remaining = isMulti ? this.getRemainingCorrectCount(optsForGuard) : 0;
-
-    // Never let “Next/Results” overwrite multi-remaining while answers remain
-    if (isMulti && remaining > 0 && isNextish) {
-      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) this.selectionMessageSubject.next(hold);
-      return; // block overwrite
+    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
+  
+    // ⛔️ Block "Next/Results" while answers remain OR within a brief hold-off after mutation
+    const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
+    if (isMulti && (remaining > 0 || justMutated) && isNextish) {
+      // Prefer the accurate remaining message if remaining>0; otherwise keep current
+      if (remaining > 0) {
+        const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+        if (current !== hold) this.selectionMessageSubject.next(hold);
+      }
+      return;
     }
-
+  
     if (current !== next) this.selectionMessageSubject.next(next);
   }
 
@@ -215,6 +220,11 @@ export class SelectionMessageService {
     if (Array.isArray(passed) && passed.length) return passed;
     const snap = this.getLatestOptionsSnapshot();
     return snap.length ? snap : this.getCurrentOptions();
+  }
+
+  public notifySelectionMutated(options: Option[] | null | undefined): void {
+    this.setOptionsSnapshot(options);                // keep your existing snapshot
+    this.lastSelectionMutation = performance.now();  // start small hold-off window
   }
   
   private isLast(idx: number, total: number): boolean {
