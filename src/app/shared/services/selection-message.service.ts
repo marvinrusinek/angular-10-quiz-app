@@ -214,7 +214,7 @@ export class SelectionMessageService {
   
     const opts = Array.isArray(ctx?.options) ? ctx!.options! : [];
     const correct = opts.filter(o => !!o?.correct);
-    const isMulti = this.quizService.currentQuestion?.value?.type === QuestionType.MultipleAnswer;
+    const isMulti = this.quizService.currentQuestion?.getValue()?.type === QuestionType.MultipleAnswer;
   
     const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
   
