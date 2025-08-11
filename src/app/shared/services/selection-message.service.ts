@@ -141,8 +141,8 @@ export class SelectionMessageService {
         return;
       }
   
-      const q: any = this.quizService.currentQuestion
-        ?? this.quizService.getQuestion(index);
+      const svc: any = this.quizService as any;
+      const q: any = svc.currentQuestion ?? (Array.isArray(svc.questions) ? svc.questions[index] : undefined);
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
