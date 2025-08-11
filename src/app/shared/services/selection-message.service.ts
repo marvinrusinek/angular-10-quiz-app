@@ -279,7 +279,12 @@ export class SelectionMessageService {
     }
   
     // Forward options and index so the writer doesn’t re-derive (stays deterministic)
-    this.updateSelectionMessage(msg, { options, index: questionIndex });
+    this.updateSelectionMessage(msg, {
+      options,
+      index: questionIndex,
+      questionType,
+      token
+    });
   }
 
   // Is current question multi and how many correct remain?
