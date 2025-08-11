@@ -178,37 +178,48 @@ export class SelectionMessageService {
   }
 
   // Method to update the message
-  public updateSelectionMessage(message: string, ctx?: { options?: Option[] }): void {
+  public updateSelectionMessage(
+    message: string,
+    ctx?: { options?: Option[]; index?: number }
+  ): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-    if (!next) return;
-  
-    // Case-insensitive "next/results"
-    const norm = next.toLowerCase();
-    const isNextish = norm.includes('next button') || norm.includes('show results');
-  
-    // Fresh options for guard
-    const opts = (Array.isArray(ctx?.options) && ctx!.options!.length)
-      ? ctx!.options!
-      : (this.getLatestOptionsSnapshot().length ? this.getLatestOptionsSnapshot() : this.getCurrentOptionsByIndex());
-  
-    const correct = opts.filter(o => !!o?.correct);
-    const isMulti = correct.length > 1;
-    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
-  
-    // Block "Next/Results" while answers remain OR within a brief hold-off after mutation
-    const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
-    if (isMulti && (remaining > 0 || justMutated) && isNextish) {
-      // Prefer the accurate remaining message if remaining > 0; otherwise keep current
-      if (remaining > 0) {
-        const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-        if (current !== hold) this.selectionMessageSubject.next(hold);
-      }
+    if (!next) {
+      console.warn('[updateSelectionMessage] Skipped empty or blank message');
       return;
     }
   
-    if (current !== next) this.selectionMessageSubject.next(next);
+    // case-insensitive “next/results”
+    const norm = next.toLowerCase();
+    const isNextish = norm.includes('next button') || norm.includes('show results');
+  
+    // get fresh options for the correct index
+    const i0 = (typeof ctx?.index === 'number' && !Number.isNaN(ctx.index))
+      ? ctx!.index!
+      : (this.quizService.currentQuestionIndex as number) ?? 0;
+  
+    const opts = this.pickOptionsForGuard(ctx?.options, i0);
+  
+    const correct = opts.filter(o => !!o?.correct);
+    const isMulti = correct.length > 1;
+  
+    // authoritative remaining (SelectedOptionService-aware)
+    const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
+  
+    const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
+  
+    // block “Next/Results” while multi still has remaining or right after a mutation
+    if (isMulti && (remaining > 0 || justMutated) && isNextish) {
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) this.selectionMessageSubject.next(hold);
+      return;
+    }
+  
+    if (current !== next) {
+      this.selectionMessageSubject.next(next);
+    }
   }
+  
 
   // Helper: compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
@@ -229,7 +240,7 @@ export class SelectionMessageService {
   : { isMulti: boolean; remaining: number } {
     const i0 = (typeof ctx?.index === 'number' && !Number.isNaN(ctx.index))
       ? ctx!.index!
-      : (this.quizService.currentQuestionIndex as number) ?? 0;
+      : Number(this.quizService.currentQuestionIndex) ?? 0;
 
     const options = this.pickOptionsForGuard(ctx?.options, i0);
     const correct = options.filter(o => !!o?.correct);
@@ -264,7 +275,7 @@ export class SelectionMessageService {
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
     const q: any = (this.quizService as any).getQuestion?.(idx)
-      ?? (this.quizService as any).currentQuestion;
+      ?? this.quizService.currentQuestion;
     return (q?.options ?? []) as Option[];
   }
 
