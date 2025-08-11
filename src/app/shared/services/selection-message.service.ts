@@ -5,6 +5,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -21,7 +22,10 @@ export class SelectionMessageService {
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
   private lastSelectionMutation = 0;
 
-  constructor(private quizService: QuizService) {}
+  constructor(
+    private quizService: QuizService, 
+    private selectedOptionService: SelectedOptionService
+  ) {}
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
@@ -44,6 +48,36 @@ export class SelectionMessageService {
         ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   
     return msg;
+  }
+
+  public getRemainingCorrectCountByIndex(
+    questionIndex: number,
+    options?: Option[]
+  ): number {
+    // Always compute from the freshest array for this index
+    const opts = this.pickOptionsForGuard(options, questionIndex);
+    if (!Array.isArray(opts) || opts.length === 0) return 0;
+  
+    // Correct options for this question
+    const correct = opts
+      .map((o, i) => ({ o, i }))
+      .filter(({ o }) => !!o?.correct);
+  
+    // Pull authoritative selection for this question (best-effort)
+    const selSet: Set<any> | undefined =
+      this.selectedOptionService?.selectedOptionsMap.get(questionIndex);
+  
+    let selectedCorrect = 0;
+    for (const { o, i } of correct) {
+      const id = this.getOptionId(o, i);
+      const isSelected =
+        !!o?.selected || // UI flag (might be stale this tick)
+        !!this.selectedOptionService?.isOptionSelected?.(questionIndex, id) ||
+        !!selSet?.has?.(id); // authoritative set
+      if (isSelected) selectedCorrect++;
+    }
+  
+    return Math.max(0, correct.length - selectedCorrect);
   }
 
   public getRemainingCorrectCount(options: Option[] | null | undefined): number {
@@ -156,7 +190,7 @@ export class SelectionMessageService {
     // Fresh options for guard
     const opts = (Array.isArray(ctx?.options) && ctx!.options!.length)
       ? ctx!.options!
-      : (this.getLatestOptionsSnapshot().length ? this.getLatestOptionsSnapshot() : this.getCurrentOptions());
+      : (this.getLatestOptionsSnapshot().length ? this.getLatestOptionsSnapshot() : this.getCurrentOptionsByIndex());
   
     const correct = opts.filter(o => !!o?.correct);
     const isMulti = correct.length > 1;
@@ -191,14 +225,23 @@ export class SelectionMessageService {
   }
 
   // Is current question multi and how many correct remain?
-  private hasMultiRemaining(): { isMulti: boolean; remaining: number } {
-    const options = this.getCurrentOptions();
+  private hasMultiRemaining(ctx?: { options?: Option[]; index?: number })
+  : { isMulti: boolean; remaining: number } {
+    const i0 = (typeof ctx?.index === 'number' && !Number.isNaN(ctx.index))
+      ? ctx!.index!
+      : (this.quizService.currentQuestionIndex as number) ?? 0;
+
+    const options = this.pickOptionsForGuard(ctx?.options, i0);
     const correct = options.filter(o => !!o?.correct);
     const isMulti = correct.length > 1;
-    const remaining = isMulti ? this.getRemainingCorrectCount(options) : 0;
+
+    // Use the authoritative counter that consults SelectedOptionService
+    const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, options) : 0;
+
     return { isMulti, remaining };
   }
 
+  // Snapshot API
   public setOptionsSnapshot(options: Option[] | null | undefined): void {
     const opts = Array.isArray(options) ? options : [];
     this.optionsSnapshotSubject.next(opts);
@@ -208,26 +251,33 @@ export class SelectionMessageService {
     return this.optionsSnapshotSubject.getValue() ?? [];
   }
 
-  // Get current question's options safely from QuizService
-  private getCurrentOptions(): Option[] {
-    const idx = this.quizService.currentQuestionIndex as number;
-    const q: any = (this.quizService as any).currentQuestion
-      ?? (this.quizService as any).getQuestion?.(idx);
-    return (q?.options ?? []) as Option[];
-  }
-
-  private pickOptionsForGuard(passed?: Option[]): Option[] {
-    if (Array.isArray(passed) && passed.length) return passed;
-    const snap = this.getLatestOptionsSnapshot();
-    return snap.length ? snap : this.getCurrentOptions();
-  }
-
   public notifySelectionMutated(options: Option[] | null | undefined): void {
     this.setOptionsSnapshot(options);                // keep existing snapshot
     this.lastSelectionMutation = performance.now();  // start small hold-off window
   }
-  
+
+  // Helpers
   private isLast(idx: number, total: number): boolean {
     return total > 0 && idx === total - 1;
+  }
+
+  // Get current question's options safely from QuizService
+  private getCurrentOptionsByIndex(idx: number): Option[] {
+    const q: any = (this.quizService as any).getQuestion?.(idx)
+      ?? (this.quizService as any).currentQuestion;
+    return (q?.options ?? []) as Option[];
+  }
+
+  private pickOptionsForGuard(passed?: Option[], idx?: number): Option[] {
+    if (Array.isArray(passed) && passed.length) return passed;
+  
+    const snap = this.getLatestOptionsSnapshot();
+    if (snap.length) return snap;
+  
+    const i0 = (typeof idx === 'number' && !Number.isNaN(idx))
+      ? idx
+      : (this.quizService.currentQuestionIndex as number) ?? 0;
+  
+    return this.getCurrentOptionsByIndex(i0);
   }
 }
