@@ -3010,7 +3010,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 
                 this.ngZone.run(() => {
                   this.setExplanationFor(i0, clean);
-                  this.explanationTextService.setExplanationText(clean);  // first formatted stream write
+                  // this.explanationTextService.setExplanationText(clean);  // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
                   this.cdRef.markForCheck?.();
@@ -3037,7 +3037,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               const secondTry = (await runPinnedResolve(8000))?.trim?.() ?? '';
               if (secondTry && secondTry !== currentStream) {
                 this.ngZone.run(() => {
-                  this.explanationTextService.setExplanationText(secondTry);
+                  this.setExplanationFor(i0, secondTry);
+                  // this.explanationTextService.setExplanationText(secondTry);
                   this.explanationToDisplay = secondTry;
                   this.explanationToDisplayChange?.emit(secondTry);
                   this.cdRef.markForCheck?.();
@@ -3048,7 +3049,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
               if (!currentStream && rawTrue) {
                 this.ngZone.run(() => {
-                  this.explanationTextService.setExplanationText(rawTrue);
+                  this.setExplanationFor(i0, rawTrue);
+                  // this.explanationTextService.setExplanationText(rawTrue);
                   this.explanationToDisplay = rawTrue;
                   this.explanationToDisplayChange?.emit(rawTrue);
                   this.cdRef.markForCheck?.();
