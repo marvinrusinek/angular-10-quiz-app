@@ -122,7 +122,7 @@ export class SelectionMessageService {
   }
 
   // Build message on click (correct wording + logic)
-  private buildMessageFromSelection(params: {
+  public buildMessageFromSelection(params: {
     index: number;               // 0-based
     totalQuestions: number;
     questionType: QuestionType;

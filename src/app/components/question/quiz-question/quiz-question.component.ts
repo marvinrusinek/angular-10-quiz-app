@@ -3216,13 +3216,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
+
+        const token = this.selectionMessageService['beginWrite']?.(this.currentQuestionIndex);  // or expose a wrapper
   
-        this.selectionMessageService.updateMessageFromSelection({
-          questionIndex: i0,
-          totalQuestions: this.totalQuestions,
-          questionType: this.currentQuestion.type,
-          options: optionsNow
-        });
+        this.selectionMessageService.updateSelectionMessage(
+          this.selectionMessageService.buildMessageFromSelection({
+            index: this.currentQuestionIndex,
+            totalQuestions: this.totalQuestions,
+            questionType: this.currentQuestion?.type,
+            options: optionsNow
+          }),
+          { options: optionsNow, index: this.currentQuestionIndex, questionType: this.currentQuestion?.type, token }
+        );
   
         if (qType === QuestionType.MultipleAnswer) {
           const remaining =
