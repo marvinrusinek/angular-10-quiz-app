@@ -776,19 +776,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
 
   private async evaluateSelectionMessage(): Promise<void> {
     const isMultipleAnswer = this.isMultipleAnswer(this.currentQuestion);
-
+    const isLast = this.currentQuestionIndex === (this.totalQuestions - 1);
+  
     if (isMultipleAnswer && !this.isAnswered) {
-      const message = this.selectionMessageService.getRemainingAnswersMessage(
-        this.optionsToDisplay
+      const message = this.selectionMessageService.getRemainingCorrect(
+        this.optionsToDisplay as any[] ?? [],
+        isLast
       );
-      this.selectionMessageService.updateSelectionMessage(message);
+      this.selectionMessageService.updateSelectionMessage(message, {
+        options: this.optionsToDisplay as any[],
+        index: this.currentQuestionIndex
+      });
     } else {
       const message = this.selectionMessageService.determineSelectionMessage(
         this.currentQuestionIndex,
         this.totalQuestions,
         this.isAnswered
       );
-      this.selectionMessageService.updateSelectionMessage(message);
+      this.selectionMessageService.updateSelectionMessage(message, {
+        options: this.optionsToDisplay as any[],
+        index: this.currentQuestionIndex
+      });
     }
   }
 
