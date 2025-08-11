@@ -103,27 +103,33 @@ export class SelectionMessageService {
   }
 
   // Build message on click (correct wording + logic)
-  public buildMessageFromSelection(params: {
-    questionIndex: number;           // 0-based
+  private buildMessageFromSelection(params: {
+    index: number;               // 0-based
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];               // the updated array (post-click)
+    options: Option[];
   }): string {
-    const { questionIndex, totalQuestions, questionType, options } = params;
-    const last = this.isLast(questionIndex, totalQuestions);
+    const { index, totalQuestions, questionType, options } = params;
   
-    if (questionType === QuestionType.MultipleAnswer) {
-      const remaining = this.getRemainingCorrectCount(options);
+    const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+  
+    // Multi by declared type OR by data
+    const isMulti  = questionType === QuestionType.MultipleAnswer || correct.length > 1;
+  
+    if (isMulti) {
+      const remaining = Math.max(0, correct.length - selected);
       if (remaining > 0) {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-      return last
+      return isLast
         ? 'Please click the Show Results button.'
         : 'Please click the next button to continue...';
     }
-    
-    // Single-answer: always Next/Results after a click
-    return last
+  
+    // Single-answer: after any click, show Next/Results
+    return isLast
       ? 'Please click the Show Results button.'
       : 'Please click the next button to continue...';
   }
@@ -228,11 +234,21 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
   }): void {
-    // Keep snapshot fresh for any other callers
-    this.setOptionsSnapshot(params.options);
-
-    const msg = this.buildMessageFromSelection(params);
-    this.updateSelectionMessage(msg, { options: params.options });
+    const { questionIndex, totalQuestions, questionType, options } = params;
+  
+    // Keep snapshot fresh for other callers (ok to keep)
+    this.setOptionsSnapshot(options);
+  
+    // Compute deterministically from the array passed in
+    const msg = this.buildMessageFromSelection({
+      index: questionIndex,
+      totalQuestions,
+      questionType,
+      options
+    });
+  
+    // Forward options and index so the writer doesn’t re-derive
+    this.updateSelectionMessage(msg, { options, index: questionIndex });
   }
 
   // Is current question multi and how many correct remain?
