@@ -5974,6 +5974,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
     this.showExplanationChange?.emit(false);
+    this.explanationOwnerIdx = -1;
   
     // Ensure no lock blocks the next show
     this.explanationTextService.unlockExplanation?.();
