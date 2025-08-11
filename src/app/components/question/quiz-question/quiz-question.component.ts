@@ -2676,20 +2676,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
       );
     }
-
+  
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q  = this.questions?.[i0];
-
+  
     const evtIdx = event.index;
     const evtOpt = event.option;  // may be null on first click after nav — don't early return
-
+  
     if (this._clickGate) return;
     this._clickGate = true;
-
+  
     try {
       const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
       const isSingle      = !isMultiSelect;
-
+  
       // ───────────────────────────────────────────────
       // 🔹 SHOW EXPLANATION + ANSWERED + NEXT — SYNC, FIRST CLICK
       //    Seed stream with RAW (to kick formatter) but never placeholder.
@@ -2698,13 +2698,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       {
         const cached  = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();  // do NOT fallback here
-
+  
         this.ngZone.run(() => {
           // Flip UI flags first
           this.explanationTextService.setShouldDisplayExplanation(true);
           this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
           this.quizStateService.setAnswered(true);
-
+  
           // Gate "answered"/Next for multi; single gets Next immediately
           if (isSingle) {
             this.quizStateService.setAnswerSelected(true);
@@ -2716,14 +2716,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.quizStateService.setAnswerSelected(false);
             this.nextButtonStateService.setNextButtonState(false);
           }
-
+  
           // Local mirrors (if template uses them)
           this.displayExplanation = true;
           this.showExplanationChange?.emit(true);
-
+  
           // Cached formatted → write to stream now
           if (cached && cached.trim()) {
-            this.setExplanationFor(i0, cached);                     // ← use owner-tagged writer
+            this.setExplanationFor(i0, cached);                     // ← owner-tagged writer
             this.explanationToDisplay = cached;
             this.explanationToDisplayChange?.emit(cached);
           } else {
@@ -2739,15 +2739,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.explanationToDisplayChange?.emit(this.explanationToDisplay);
             }
           }
-
+  
           this.cdRef.markForCheck?.();
           this.cdRef.detectChanges?.();
         });
-
+  
         // Resolve formatted for this index (pin context), then write to stream
         const runPinnedResolve = async (timeoutMs: number): Promise<string> => {
           const prevFixed = this.fixedQuestionIndex;
-          const prevCur = this.currentQuestionIndex;
+          const prevCur   = this.currentQuestionIndex;
           try {
             this.fixedQuestionIndex = i0;
             this.currentQuestionIndex = i0;
@@ -2757,7 +2757,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.currentQuestionIndex = prevCur;
           }
         };
-
+  
         if (!cached) {
           requestAnimationFrame(() => {
             void runPinnedResolve(6000)
@@ -2769,10 +2769,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 if (active !== i0) return;  // navigated away
                 if (!clean) return;         // nothing to swap
                 if (this.explanationOwnerIdx !== i0) return;
-                
+  
                 this.ngZone.run(() => {
                   this.setExplanationFor(i0, clean);
-                  // this.explanationTextService.setExplanationText(clean);  // first formatted stream write
                   this.explanationToDisplay = clean;
                   this.explanationToDisplayChange?.emit(clean);
                   this.cdRef.markForCheck?.();
@@ -2781,26 +2780,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               })
               .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
           });
-
+  
           // WATCHDOG: after 1000ms, if still on i0 and stream is empty (or equals raw), try one more
           setTimeout(async () => {
             try {
               const active =
                 this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
               if (active !== i0) return;
-
+  
               const currentStream =
                 (await firstValueFrom(this.explanationTextService.explanationText$.pipe(take(1))) ?? '')
                   .toString()
                   .trim();
-
+  
               if (currentStream && currentStream !== rawTrue) return;
-
+  
               const secondTry = (await runPinnedResolve(8000))?.trim?.() ?? '';
               if (secondTry && secondTry !== currentStream) {
                 this.ngZone.run(() => {
                   this.setExplanationFor(i0, secondTry);
-                  // this.explanationTextService.setExplanationText(secondTry);
                   this.explanationToDisplay = secondTry;
                   this.explanationToDisplayChange?.emit(secondTry);
                   this.cdRef.markForCheck?.();
@@ -2808,11 +2806,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 });
                 return;
               }
-
+  
               if (!currentStream && rawTrue) {
                 this.ngZone.run(() => {
                   this.setExplanationFor(i0, rawTrue);
-                  // this.explanationTextService.setExplanationText(rawTrue);
                   this.explanationToDisplay = rawTrue;
                   this.explanationToDisplayChange?.emit(rawTrue);
                   this.cdRef.markForCheck?.();
@@ -2825,44 +2822,58 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }, 1000);
         }
       }
-
+  
       // Persist the selection for THIS question (best-effort; don’t block UI)
       try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
-
+  
       // Selection bookkeeping (kept)
       try {
         this.selectedIndices.clear();
         this.selectedIndices.add(evtIdx);
       } catch {}
-
-      // ✅ Gate answered/Next for MULTI here (after selection mutation)
+  
+      // ✅ Gate answered/Next for MULTI using the UPDATED array we pass to the service
       {
-        const optionsNow = (this.optionsToDisplay?.length
-          ? this.optionsToDisplay
-          : this.currentQuestion?.options) as Option[] || [];
-
+        // Build a fresh array that mirrors what the UI shows *and* apply this click synchronously
+        const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
+          ? [...(this.optionsToDisplay as Option[])]
+          : ([...(this.currentQuestion?.options ?? [])] as Option[]);
+  
+        if (optionsNow[evtIdx]) {
+          const selected = typeof event.checked === 'boolean' ? event.checked : true;
+          optionsNow[evtIdx] = { ...optionsNow[evtIdx], selected };
+        }
+  
+        // Keep live list in sync so icons/UI reflect the click immediately
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
+          (this.optionsToDisplay as Option[])[evtIdx].selected =
+            typeof event.checked === 'boolean' ? event.checked : true;
+        }
+  
         if (isMultiSelect) {
-          const allCorrect = this.selectedOptionService.areAllCorrectAnswersSelectedSync(i0);
+          const remaining = this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+          const allCorrect = remaining === 0;
+  
+          // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
-        } // single was handled above
-
+        }
+        // single was handled above
+  
         // 🔑 Tell the service selection just mutated (snapshot + small hold-off)
         this.selectionMessageService.notifySelectionMutated?.(optionsNow);
-
-        // Compute the message once from the UPDATED array (after state settles)
-        queueMicrotask(() => {
+  
+        // Compute & emit ONE message from the UPDATED array
+        requestAnimationFrame(() => {
           this.selectionMessageService.updateMessageFromSelection({
             questionIndex: i0,
             totalQuestions: this.totalQuestions,
             questionType: this.currentQuestion?.type,
-            options: (this.optionsToDisplay?.length
-              ? this.optionsToDisplay
-              : this.currentQuestion?.options) as Option[] || []
+            options: optionsNow
           });
         });
       }
-
+  
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
       // ───────────────────────────────────────────────
@@ -2872,7 +2883,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
           this.fixedQuestionIndex = i0;
           this.currentQuestionIndex = i0;
-
+  
           this.updateExplanationText(i0)
             .then((formatted) => {
               const clean = (formatted ?? '').trim?.() ?? '';
@@ -2893,16 +2904,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.currentQuestionIndex = prevCur;
         }
       }
-
+  
       // Defer heavy work to next animation frame so first click paints immediately
       requestAnimationFrame(() => {
         // Parent notify (type-safe): only emit if we have a SelectedOption
         try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
-
+  
         (async () => {
           this.feedbackText = await this.generateFeedbackText(this.currentQuestion ?? q);
           await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
-
+  
           // Existing follow-ups (kept)
           this.handleCoreSelection(event);
           if (evtOpt) this.markBindingSelected(evtOpt);
