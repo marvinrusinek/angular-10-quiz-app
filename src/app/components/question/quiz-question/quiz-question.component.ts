@@ -332,20 +332,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       map((i: number) => this.normalizeIndex(i)),
       distinctUntilChanged(),
     
-      // On every question: hard reset view + restart visible countdown
+      // On every question: hard reset view and restart visible countdown
       tap((i0: number) => {
         this.currentQuestionIndex = i0;
         this.resetPerQuestionState(i0);  // this must NOT arm any expiry
         // Also clear any one-shot guards
         this.handledOnExpiry.delete(i0);
     
-        // ✅ Prewarm formatted text for THIS question (non-blocking; no UI writes)
-        //    Cache hit → no-op; miss → compute & store for first-click
+        // Prewarm formatted text for THIS question (non-blocking; no UI writes)
+        // Cache hit → no-op; miss → compute & store for first-click
         try {
           const hasCache = this._formattedByIndex?.has?.(i0);
           if (!hasCache) {
             // Don’t await—keep nav snappy
-            this.resolveFormatted?.(i0, { useCache: true, setCache: true })
+            this.resolveFormatted(i0, { useCache: true, setCache: true })
               .catch(err => console.warn('[prewarm resolveFormatted]', err));
           }
         } catch (e) {
@@ -354,7 +354,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }),
     
       // Wait for the SAME clock the UI renders: elapsedTime$
-      // When it reaches the duration once, we expire this question.
+      // When it reaches the duration once, expire this question.
       switchMap((i0: number) =>
         this.timerService.elapsedTime$.pipe(
           filter((elapsed: number) => elapsed >= this.timerService.timePerQuestion),
@@ -368,7 +368,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizService.currentQuestionIndex$.subscribe((index) => {
       console.log('[📡 Parent received current index]', index);
 
-      // ⬇Log a stack trace for tracing unexpected emissions
+      // Log a stack trace for tracing unexpected emissions
       if (index === 1) {
         console.warn('[🧵 Stack trace for index === 1]', {
           stack: new Error().stack,
