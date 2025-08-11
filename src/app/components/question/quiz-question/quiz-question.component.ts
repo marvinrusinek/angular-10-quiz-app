@@ -2683,7 +2683,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtIdx = event.index;
     const evtOpt = event.option;  // may be null on first click after nav — don't early return
 
-    // Same-tick guard ONLY. No lastLoggedIndex / lastLoggedQuestionIndex at all.
     if (this._clickGate) return;
     this._clickGate = true;
 
