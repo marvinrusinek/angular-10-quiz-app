@@ -285,8 +285,7 @@ export class SelectionMessageService {
     const all = Array.isArray(svc.questions) ? (svc.questions as any[]) : [];
   
     // Try by index, else fall back to currentQuestion
-    const q =
-      (idx >= 0 && idx < all.length ? all[idx] : undefined) ??
+    const q = (idx >= 0 && idx < all.length ? all[idx] : undefined) ??
       svc.currentQuestion ??
       null;
   
@@ -299,8 +298,7 @@ export class SelectionMessageService {
     const snap = this.getLatestOptionsSnapshot();
     if (snap.length) return snap;
   
-    const i0 = (typeof idx === 'number' && !Number.isNaN(idx))
-      ? idx
+    const i0 = (typeof idx === 'number' && !Number.isNaN(idx)) ? idx
       : (this.quizService.currentQuestionIndex as number) ?? 0;
   
     return this.getCurrentOptionsByIndex(i0);
