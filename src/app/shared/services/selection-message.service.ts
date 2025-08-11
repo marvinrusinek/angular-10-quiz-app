@@ -188,11 +188,11 @@ export class SelectionMessageService {
       return;
     }
   
-    // case-insensitive “next/results”
+    // Case-insensitive “next/results”
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    // get fresh options for the correct index
+    // Get fresh options for the correct index
     const i0 = (typeof ctx?.index === 'number' && !Number.isNaN(ctx.index))
       ? ctx!.index!
       : (this.quizService.currentQuestionIndex as number) ?? 0;
@@ -202,12 +202,12 @@ export class SelectionMessageService {
     const correct = opts.filter(o => !!o?.correct);
     const isMulti = correct.length > 1;
   
-    // authoritative remaining (SelectedOptionService-aware)
+    // Authoritative remaining (SelectedOptionService-aware)
     const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
   
     const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
   
-    // block “Next/Results” while multi still has remaining or right after a mutation
+    // Block “Next/Results” while multi still has remaining or right after a mutation
     if (isMulti && (remaining > 0 || justMutated) && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
@@ -227,7 +227,7 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
   }): void {
-    // keep snapshot fresh for any other callers
+    // Keep snapshot fresh for any other callers
     this.setOptionsSnapshot(params.options);
 
     const msg = this.buildMessageFromSelection(params);
