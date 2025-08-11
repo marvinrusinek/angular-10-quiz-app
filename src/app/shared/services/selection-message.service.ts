@@ -101,12 +101,12 @@ export class SelectionMessageService {
     return n === 1 ? singular : plural;
   }
 
-  // 3) Build message on click (correct wording + logic)
+  // Build message on click (correct wording + logic)
   public buildMessageFromSelection(params: {
     questionIndex: number;           // 0-based
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];               // the UPDATED array (post-click)
+    options: Option[];               // the updated array (post-click)
   }): string {
     const { questionIndex, totalQuestions, questionType, options } = params;
     const last = this.isLast(questionIndex, totalQuestions);
