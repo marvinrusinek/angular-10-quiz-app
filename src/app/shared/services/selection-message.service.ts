@@ -191,11 +191,12 @@ export class SelectionMessageService {
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
     // Get fresh options for the correct index
-    const i0 = (typeof ctx?.index === 'number' && !Number.isNaN(ctx.index))
-      ? ctx!.index!
-      : (this.quizService.currentQuestionIndex as number) ?? 0;
-  
-    const opts = this.pickOptionsForGuard(ctx?.options, i0);
+    const i0 =
+      (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+        ? (ctx.index as number)
+        : ((this.quizService.currentQuestionIndex as number) ?? 0);
+    const picked = this.pickOptionsForGuard(ctx?.options, i0);
+    const opts: Option[] = Array.isArray(picked) ? picked : [];
   
     const correct = opts.filter(o => !!o?.correct);
     const isMulti = correct.length > 1;
@@ -203,7 +204,10 @@ export class SelectionMessageService {
     // Authoritative remaining (SelectedOptionService-aware)
     const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
   
-    const justMutated = (performance.now() - this.lastSelectionMutation) < 120;
+    // lastSelectionMutation may be undefined
+    const last = (this as any).lastSelectionMutation as number | undefined;
+    const nowFn = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => Date.now();
+    const justMutated = typeof last === 'number' ? (nowFn() - last) < 120 : false;
   
     // Block “Next/Results” while multi still has remaining or right after a mutation
     if (isMulti && (remaining > 0 || justMutated) && isNextish) {
@@ -216,7 +220,6 @@ export class SelectionMessageService {
       this.selectionMessageSubject.next(next);
     }
   }
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
