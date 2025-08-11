@@ -69,10 +69,7 @@ export class SelectionMessageService {
     let selectedCorrect = 0;
     for (const { o, i } of correct) {
       const id = this.getOptionId(o, i);
-      const isSelected =
-        !!o?.selected ||  // UI flag (might be stale this tick)
-        !!this.selectedOptionService?.isOptionSelected?.(questionIndex, id) ||
-        !!selSet?.has?.(id);  // authoritative set
+      const isSelected = !!o?.selected || !!sel?.has?.(id);  // <- simple & safe
       if (isSelected) selectedCorrect++;
     }
   
