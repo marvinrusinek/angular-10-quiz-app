@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, firstValueFrom } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
@@ -271,12 +271,12 @@ export class SelectionMessageService {
 
   private getOptionId(opt: Option, idx: number): number | string {
     // Prefer stable IDs; fall back safely to the loop index
-    return (opt?.optionId ?? opt?.value ?? opt?.id ?? idx);
+    return (opt?.optionId ?? idx);
   }
 
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
-    const q: QuizQuestion = this.quizService.getQuestionByIndex(idx)
+    const q = firstValueFrom(this.quizService.getQuestionByIndex(idx))
       ?? this.quizService.currentQuestion;
     return (q?.options ?? []) as Option[];
   }
