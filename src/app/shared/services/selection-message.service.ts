@@ -221,17 +221,19 @@ export class SelectionMessageService {
       if (latest != null && ctx.token !== latest) return;  // stale, ignore
     }
   
+    // Use the exact array the UI rendered
     const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
   
-    // Prefer declared type from caller; fallback to BehaviorSubject value
+    // Prefer declared type from caller; fallback to BehaviorSubject value (both access patterns supported)
     const qType =
       ctx?.questionType ??
-      this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type;
+      this.quizService.currentQuestion?.getValue?.()?.type ??
+      this.quizService.currentQuestion?.value?.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
   
-    const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
+    // Compute remaining from the passed options only (no service lookups)
+    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
   
     // Block "Next/Results" while multi still has remaining
     if (isMulti && remaining > 0 && isNextish) {
@@ -242,6 +244,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
