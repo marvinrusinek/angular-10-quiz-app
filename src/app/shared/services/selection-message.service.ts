@@ -64,13 +64,29 @@ export class SelectionMessageService {
       .map((o, i) => ({ o, i }))
       .filter(({ o }) => !!o?.correct);
   
-    // Pull authoritative selection for this question (best-effort)
-    const selSet: any = this.selectedOptionService?.selectedOptionsMap.get(questionIndex);
+    if (correct.length === 0) return 0;
   
+    // Pull authoritative selection for this question (best-effort)
+    // selectedOptionsMap may hold a Set of ids OR an array of SelectedOption objects.
+    const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
+  
+    // Normalize to a Set of stable ids
+    const selectedIds: Set<number | string> =
+      rawSel instanceof Set
+        ? rawSel as Set<number | string>
+        : Array.isArray(rawSel)
+          ? new Set(
+              (rawSel as any[]).map((so, idx: number) =>
+                this.getOptionId(so, typeof so === 'object' ? (so.optionId ?? so.value ?? idx) : idx)
+              )
+            )
+          : new Set<number | string>();
+  
+    // Count selected-correct by set OR by fresh UI flag (UI flag is a fallback)
     let selectedCorrect = 0;
     for (const { o, i } of correct) {
       const id = this.getOptionId(o, i);
-      const isSelected = !!o?.selected || !!selSet?.has?.(id);
+      const isSelected = !!o?.selected || selectedIds.has(id);
       if (isSelected) selectedCorrect++;
     }
   
@@ -115,8 +131,8 @@ export class SelectionMessageService {
     const correct  = (options ?? []).filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
   
-    // Multi by declared type OR by data
-    const isMulti  = questionType === QuestionType.MultipleAnswer || correct.length > 1;
+    // 🚫 Do NOT infer multi from data. Trust the declared type.
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
   
     if (isMulti) {
       const remaining = Math.max(0, correct.length - selected);
@@ -187,45 +203,29 @@ export class SelectionMessageService {
   ): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-    if (!next) {
-      console.warn('[updateSelectionMessage] Skipped empty or blank message');
-      return;
-    }
+    if (!next) return;
   
-    // Case-insensitive “next/results”
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    // Get fresh options for the correct index
-    const i0 =
-      (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
-        ? (ctx.index as number)
-        : ((this.quizService.currentQuestionIndex as number) ?? 0);
-    const picked = this.pickOptionsForGuard(ctx?.options, i0);
-    const opts: Option[] = Array.isArray(picked) ? picked : [];
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
+    const opts = Array.isArray(ctx?.options) ? ctx!.options! : [];
     const correct = opts.filter(o => !!o?.correct);
-    const isMulti = correct.length > 1;
+    const isMulti = this.quizService.currentQuestion?.value?.type === QuestionType.MultipleAnswer;
   
-    // Authoritative remaining (SelectedOptionService-aware)
     const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, opts) : 0;
   
-    // lastSelectionMutation may be undefined
-    const last = (this as any).lastSelectionMutation as number | undefined;
-    const nowFn = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => Date.now();
-    const justMutated = typeof last === 'number' ? (nowFn() - last) < 120 : false;
-  
-    // Block “Next/Results” while multi still has remaining or right after a mutation
-    if (isMulti && (remaining > 0 || justMutated) && isNextish) {
+    if (isMulti && remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
     }
   
-    if (current !== next) {
-      this.selectionMessageSubject.next(next);
-    }
-  }
+    if (current !== next) this.selectionMessageSubject.next(next);
+  }  
 
   // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
