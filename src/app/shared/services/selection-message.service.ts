@@ -306,7 +306,7 @@ export class SelectionMessageService {
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array you pass in
-  public updateMessageFromSelection(params: {
+  /* public updateMessageFromSelection(params: {
     questionIndex: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -333,6 +333,57 @@ export class SelectionMessageService {
       token,
       questionType
     });
+  } */
+  public updateMessageFromSelection(params: {
+    questionIndex: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];
+    token?: number;                 // optional: service will mint if not provided
+    source?: 'click' | 'passive';   // NEW: where this emit came from
+  }): void {
+    const { questionIndex, totalQuestions, questionType, options, source } = params;
+  
+    // keep snapshot fresh
+    this.setOptionsSnapshot(options);
+  
+    // reserve a write (short freeze to stop races)
+    const token = params.token ?? this.beginWrite(questionIndex, 900);
+  
+    // Compute deterministically from the passed array
+    const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const remaining = Math.max(0, correct.length - selected);
+  
+    let msg: string;
+  
+    // Before any selection → START/CONTINUE, but only for PASSIVE emits
+    const anySelected = (options ?? []).some(o => !!o?.selected);
+    if (!anySelected && (source ?? 'passive') === 'passive') {
+      msg = (questionIndex === 0) ? this.START_MSG : this.CONTINUE_MSG;
+    } else if (isMulti) {
+      // Multi: show remaining until all correct are selected
+      msg = (remaining > 0)
+        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+    } else {
+      // Single: after any click, go straight to Next/Results
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+  
+    // Forward the context; the writer will clamp if needed
+    this.updateSelectionMessage(msg, {
+      options,
+      index: questionIndex,
+      token,
+      questionType,
+      source: source ?? 'passive',
+    });
+  
+    // optional — clear the freeze immediately
+    this.endWrite(questionIndex, token, { clearTokenWindow: true });
   }
   
   // Is current question multi and how many correct remain?
