@@ -230,62 +230,58 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    // Resolve index
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Token/freeze gating
-    const latestToken = this.latestByIndex.get(i0);
-    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
-  
-    // If we’re inside the freeze window, ignore writes that do not carry the latest token
-    // (i.e., ignore passive/legacy writers that didn’t mint the token from the click)
-    if (inFreeze && ctx?.token !== latestToken) {
-      return;
+    // Token: drop stale writes
+    if (typeof ctx?.token === 'number') {
+      const latest = this.latestByIndex.get(i0);
+      if (latest != null && ctx.token !== latest) return;
     }
   
-    // Prefer caller-supplied array; else a recent snapshot; else empty
-    const opts: Option[] = Array.isArray(ctx?.options) && ctx!.options!.length
-      ? ctx!.options!
-      : this.getLatestOptionsSnapshot();
+    // Prefer caller’s options; else last snapshot
+    const opts: Option[] =
+      (Array.isArray(ctx?.options) && ctx!.options!.length)
+        ? ctx!.options!
+        : this.getLatestOptionsSnapshot?.() ?? [];
   
-    // Prefer caller’s type; else current question’s value
-    const qType: QuestionType =
+    // Prefer caller’s type; else current subject value
+    const qType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
   
-    // Classify incoming “select more …” / “next/results …” text
-    const low = next.toLowerCase();
-    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
-    const isNextish = low.includes('next button') || low.includes('show results');
+    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
+    const correct = (opts ?? []).filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const remaining = Math.max(0, correct.length - selectedCorrect);
   
-    // For SINGLE-ANSWER questions, never show “Select … more …”
-    if (!isMulti && isSelectish) {
-      const isLast = (this.quizService.currentQuestionIndex as number) === (this.quizService.totalQuestions - 1);
-      const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+    // Normalize target for guard
+    const norm = next.toLowerCase();
+    const isNextish = norm.includes('next button') || norm.includes('show results');
+  
+    // Before any selection: never allow Next/Results; force START/CONTINUE copy
+    if (!anySelected) {
+      const startOrContinue = (i0 === 0)
+        ? this.START_MSG
+        : this.CONTINUE_MSG;
+      if (current !== startOrContinue) this.selectionMessageSubject.next(startOrContinue);
       return;
     }
   
-    // For MULTI, block Next-ish while correct answers remain
-    if (isMulti) {
-      const remaining = this.getRemainingCorrectCount(opts);
-      if (remaining > 0 && isNextish) {
-        const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-        if (current !== hold) this.selectionMessageSubject.next(hold);
-        return;
-      }
+    // Multi: while remaining > 0, never allow "Next/Results" overwrite
+    if (isMulti && remaining > 0 && isNextish) {
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) this.selectionMessageSubject.next(hold);
+      return;
     }
   
-    if (current !== next) {
-      this.selectionMessageSubject.next(next);
-    }
+    // Otherwise accept the message
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array you pass in
