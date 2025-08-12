@@ -25,7 +25,8 @@ export class SelectionMessageService {
 
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
-  private freezeNextishUntil = new Map<number, number>();  // per-index ms timestamp
+  private activeTokenUntil = new Map<number, number>();     // token is valid until ts
+  private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
 
   constructor(
     private quizService: QuizService, 
@@ -209,50 +210,50 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
-      ? (ctx!.index as number)
-      : ((this.quizService.currentQuestionIndex as number) ?? 0);
+    // ---- Resolve context safely (no silent early returns) ----
+    const idxFromCtx = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index)) ? ctx!.index! : undefined;
+    const i0 = (idxFromCtx ?? (this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Token: drop stale writes
-    if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(i0);
-      if (latest != null && ctx.token !== latest) return;
-    }
+    const optionsFromCtx = Array.isArray(ctx?.options) ? ctx!.options! : [];
+    const options = optionsFromCtx.length
+      ? optionsFromCtx
+      : (this.getLatestOptionsSnapshot().length
+          ? this.getLatestOptionsSnapshot()
+          : []); // last resort: empty (we’ll still show next)
   
-    // Prefer caller’s type + options
-    const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
-    const qType = ctx?.questionType
-      ?? this.quizService.currentQuestion?.getValue()?.type
-      ?? this.quizService.currentQuestion.value.type;
+    const qType =
+      ctx?.questionType ??
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion?.value?.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
   
-    // case-insensitive “next/results”
+    // ---- Token: only drop stale if a token is provided ----
+    if (typeof ctx?.token === 'number') {
+      const latest = this.latestByIndex.get(i0);
+      if (latest != null && ctx.token !== latest) {
+        // stale write → ignore
+        return;
+      }
+    }
+  
+    // ---- Remaining (authoritative: based on PASSED options if present) ----
+    const remaining = isMulti ? this.getRemainingCorrectCount(options) : 0;
+  
+    // ---- Freeze/Next-ish guard ----
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    // Authoritative remaining from the PASSED array
-    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
+    const until = this.freezeNextishUntil.get(i0) ?? 0;
+    const inFreeze = performance.now() < until;
   
-    // ── Freeze window: compute once, then use a readable boolean ──
-    const freezeUntil = this.freezeNextishUntil.get(i0) ?? 0;
-    const inFreezeWindow = performance.now() < freezeUntil;
-  
-    // If still in freeze AND multi has remaining, block Next-ish overwrite
-    if (isMulti && remaining > 0 && isNextish && inFreezeWindow) {
+    if (isMulti && remaining > 0 && (isNextish || inFreeze)) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
     }
   
-    // Outside window or no remaining → allow normal message,
-    // BUT still block Next-ish if multi has remaining (authoritative)
-    if (isMulti && remaining > 0 && isNextish) {
-      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) this.selectionMessageSubject.next(hold);
-      return;
-    }
-  
+    // ---- Emit final text ----
     if (current !== next) this.selectionMessageSubject.next(next);
   }
 
@@ -262,44 +263,38 @@ export class SelectionMessageService {
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
+    token: number;
   }): void {
-    const { questionIndex, totalQuestions, questionType, options } = params;
+    const { questionIndex, totalQuestions, questionType, options, token } = params;
   
-    // Keep snapshot fresh for other callers (ok to keep)
+    // Snapshot for anyone else (ok)
     this.setOptionsSnapshot(options);
-
-    // Reserve a write for this index
-    const token = this.beginWrite(questionIndex);
   
-    // ── Compute deterministically from the array passed in (no service reads) ──
+    // Compute from PASSED array only
     const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
     const correct  = (options ?? []).filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
     const isMulti  = questionType === QuestionType.MultipleAnswer;
   
     let msg: string;
-  
     if (isMulti) {
       const remaining = Math.max(0, correct.length - selected);
       msg = (remaining > 0)
         ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-        : (isLast
-            ? this.SHOW_RESULTS_MSG
-            : this.NEXT_BTN_MSG);
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
     } else {
-      // Single-answer: after any click, always show Next/Results
       msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
     }
   
-    // Forward options and index so the writer doesn’t re-derive (stays deterministic)
+    // Forward exactly what we computed from + the token
     this.updateSelectionMessage(msg, {
       options,
       index: questionIndex,
-      questionType,
-      token
+      token,
+      questionType
     });
   }
-
+  
   // Is current question multi and how many correct remain?
   private hasMultiRemaining(ctx?: { options?: Option[]; index?: number })
   : { isMulti: boolean; remaining: number } {
@@ -370,10 +365,12 @@ export class SelectionMessageService {
   }
 
   // Reserve a write slot for this question; returns the token to attach to the write.
-  public beginWrite(index: number, windowMs = 120): number {
+  public beginWrite(index: number, freezeMs = 350): number {
     const token = ++this.writeSeq;
-    this.latestByIndex.set(index, token);  // mark latest token per index
-    this.freezeNextishUntil.set(index, performance.now() + windowMs);  // start freeze
+    this.latestByIndex.set(index, token);
+    if (freezeMs > 0) {
+      this.freezeNextishUntil.set(index, performance.now() + freezeMs);
+    }
     return token;
   }
 
@@ -382,16 +379,29 @@ export class SelectionMessageService {
    *  - If it’s the latest, we immediately end the “freeze window”
    *    so legit Next/Results can show (once remaining === 0).
    */
-  public endWrite(index: number, token?: number): void {
-    // If a token is provided and it’s not the latest, bail.
-    if (typeof token === 'number') {
-      const latest = this.latestByIndex.get(index);
-      if (latest != null && token !== latest) return;  // stale; ignore
+   public endWrite(
+    index: number,
+    token?: number,
+    opts: { clearTokenWindow?: boolean } = {}
+  ): void {
+    const latest = this.latestByIndex.get(index);
+  
+    // If a token is provided, only the latest token may end the window.
+    if (typeof token === 'number' && latest != null && token !== latest) {
+      return; // stale; ignore
     }
-
-    // End the freeze window now (don’t rely on timeout)
-    if (this.freezeNextishUntil.has(index)) {
-      this.freezeNextishUntil.delete(index);
+  
+    // If no token is provided and a newer token is active, don't end anything.
+    if (typeof token !== 'number' && latest != null) {
+      return; // require token to avoid killing a newer writer
+    }
+  
+    // End the "Next-ish" freeze immediately.
+    this.freezeNextishUntil.delete(index);
+  
+    // Optionally end the token-protection window early (otherwise TTL will expire it).
+    if (opts.clearTokenWindow) {
+      this.activeTokenUntil.delete(index);
     }
   }
 }
