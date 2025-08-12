@@ -25,6 +25,7 @@ export class SelectionMessageService {
 
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
+  private freezeNextishUntil = new Map<number, number>();  // per-index ms timestamp
 
   constructor(
     private quizService: QuizService, 
@@ -360,9 +361,10 @@ export class SelectionMessageService {
   }
 
   // Reserve a write slot for this question; returns the token to attach to the write.
-  private beginWrite(index: number): number {
-    const v = ++this.writeSeq;
-    this.latestByIndex.set(index, v);
-    return v;
+  private beginWrite(index: number, windowMs = 120): number {
+    const token = ++this.writeSeq;                 // keep your global counter
+    this.latestByIndex.set(index, token);          // mark latest token per index
+    this.freezeNextishUntil.set(index, performance.now() + windowMs); // start freeze
+    return token;
   }
 }
