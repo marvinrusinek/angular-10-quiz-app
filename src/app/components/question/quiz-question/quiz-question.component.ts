@@ -2832,45 +2832,52 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // ✅ Gate answered/Next for MULTI using the UPDATED array we pass to the service
+      // Gate answered/Next for MULTI using the UPDATED array we pass to the service
       {
         // Build a fresh array that mirrors what the UI shows *and* apply this click synchronously
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
           ? [...(this.optionsToDisplay as Option[])]
           : ([...(this.currentQuestion?.options ?? [])] as Option[]);
-  
+
         if (optionsNow[evtIdx]) {
           const selected = typeof event.checked === 'boolean' ? event.checked : true;
           optionsNow[evtIdx] = { ...optionsNow[evtIdx], selected };
         }
-  
+
         // Keep live list in sync so icons/UI reflect the click immediately
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
           (this.optionsToDisplay as Option[])[evtIdx].selected =
             typeof event.checked === 'boolean' ? event.checked : true;
         }
-  
+
+        // Reserve a write token for this question index (blocks stale/competing writes)
+        const token = this.selectionMessageService.beginWrite(i0) ?? 0;
+
         if (isMultiSelect) {
           const remaining = this.selectionMessageService.getRemainingCorrectCount(optionsNow);
           const allCorrect = remaining === 0;
-  
+
           // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
+
+          // Reflect “answered” only when all correct are selected
+          try { this.selectedOptionService.setAnswered?.(allCorrect); } catch {}
         }
-        // single was handled above
-  
-        // 🔑 Tell the service selection just mutated (snapshot + small hold-off)
+
+        // Tell the service selection just mutated (snapshot + small hold-off)
         this.selectionMessageService.notifySelectionMutated?.(optionsNow);
-  
-        // Compute & emit ONE message from the UPDATED array
+
+        // Compute and emit one message from the updated array (tokened)
         requestAnimationFrame(() => {
           this.selectionMessageService.updateMessageFromSelection({
             questionIndex: i0,
             totalQuestions: this.totalQuestions,
             questionType: this.currentQuestion?.type,
-            options: optionsNow
+            options: optionsNow,
+            token
           });
+          this.selectionMessageService.endWrite(i0, token);
         });
       }
   
