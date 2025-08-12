@@ -2832,59 +2832,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // Gate answered/Next and selection message using the updated array we pass to the service
-      // ✅ Gate answered/Next + emit message using the UPDATED array we pass to the service
+      // ✅ Gate answered/Next + emit ONE message using the UPDATED array we pass to the service
       {
         // 1) Fresh array mirroring UI state
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
           ? this.optionsToDisplay.map(o => ({ ...o }))
           : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
-
+  
         // 2) Apply THIS click synchronously to both copy and live list
         const selected = typeof event.checked === 'boolean' ? event.checked : true;
         if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
           (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
-
-        // 3) Compute remaining from this array only
+  
+        // 3) Compute remaining from this array only (deterministic)
         const correct = optionsNow.filter(o => !!o?.correct);
         const selectedCorrect = correct.filter(o => !!o?.selected).length;
         const remaining = Math.max(0, correct.length - selectedCorrect);
-
+  
         // 4) Next enable rule
         const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
         const isLast  = i0 === (this.totalQuestions - 1);
-
+  
         if (isMulti) {
           const allCorrect = remaining === 0;
+          // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
         } else {
           this.quizStateService.setAnswerSelected(true);
           this.nextButtonStateService.setNextButtonState(true);
         }
-
-        // 5) Message (deterministic)
-        const msg = isMulti
-          ? (remaining > 0
-              ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-              : (isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...'))
-          : (isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...');
-
-        // 6) Token + freeze; emit ONCE
-        const token = this.selectionMessageService.beginWrite(i0, 350); // ms
-        this.selectionMessageService.updateSelectionMessage(msg, {
-          options: optionsNow,
+  
+        // 5) 🌟 CLICK MESSAGE EMIT — single source of truth
+        //    Use the same UPDATED array you just used to gate Next.
+        this.selectionMessageService.emitFromClick({
           index: i0,
-          token,
-          questionType: this.currentQuestion?.type
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion?.type,
+          options: optionsNow
         });
-        // Optionally end the window immediately so later async stuff can write
-        this.selectionMessageService.endWrite(i0, token, { clearTokenWindow: true });
+        // (No direct updateSelectionMessage(...) calls here)
       }
-
-
   
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
