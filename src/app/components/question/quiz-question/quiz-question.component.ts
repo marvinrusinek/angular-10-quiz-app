@@ -1597,6 +1597,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           true
         );
       }
+
+      // Now that the DOM is bound and interaction is enabled,
+      // emit the passive selection message from the fresh, enriched array.
+      requestAnimationFrame(() => this.emitPassiveNow(this.currentQuestionIndex));
     });
   }
 
