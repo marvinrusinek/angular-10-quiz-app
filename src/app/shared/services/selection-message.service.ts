@@ -27,6 +27,8 @@ export class SelectionMessageService {
   private latestByIndex = new Map<number, number>();
   private activeTokenUntil = new Map<number, number>();     // token is valid until ts
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
+  private suppressPassiveUntil = new Map<number, number>();
+  private debugWrites = false; 
 
   constructor(
     private quizService: QuizService, 
@@ -382,68 +384,89 @@ export class SelectionMessageService {
   }
 
   // Authoritative: call ONLY from the option click with the UPDATED array
-  public emitFromClick(ctx: {
+  public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];    // include the clicked state applied
+    options: Option[];
   }): void {
-    const { index, totalQuestions, questionType, options } = ctx;
-
-    const token = this.beginWrite(index, 350); // start freeze tied to this click
-
-    // Build message deterministically from passed array
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
-    const correct = (options ?? []).filter(o => !!o?.correct);
+    const { index, totalQuestions, questionType, options } = params;
+  
+    // Reserve a write token + freeze "Next-ish" overwrites for 300ms
+    const token = this.beginWrite(index, 300);
+  
+    // ALSO: suppress any passive emits for ~120ms after this click
+    this.suppressPassiveUntil.set(index, performance.now() + 120);
+  
+    // Compute deterministic message from the UPDATED array
+    const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
-    const isMulti = questionType === QuestionType.MultipleAnswer;
-
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const remaining = Math.max(0, correct.length - selected);
+  
     let msg: string;
     if (isMulti) {
-      const remaining = Math.max(0, correct.length - selected);
-      msg = (remaining > 0)
+      msg = remaining > 0
         ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
         : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
     } else {
       msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
     }
-
+  
+    if (this.debugWrites) console.log('[emitFromClick]', { index, remaining, msg, token });
+  
     this.updateSelectionMessage(msg, {
       options,
       index,
       token,
       questionType
     });
-
-    // Optional: end freeze a bit later to allow other async UI to settle
-    setTimeout(() => this.endWrite(index, token), 220);
   }
 
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click).
-  public emitPassive(ctx: {
+  public emitPassive(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
   }): void {
-    if (this.inFreezeWindow(ctx.index)) return;
-
-    const isLast = ctx.totalQuestions > 0 && ctx.index === ctx.totalQuestions - 1;
-    const correct = (ctx.options ?? []).filter(o => !!o?.correct);
+    const { index, totalQuestions, questionType, options } = params;
+  
+    // If a click just happened, ignore this passive write for a tiny window
+    const until = this.suppressPassiveUntil.get(index) ?? 0;
+    if (performance.now() < until) {
+      if (this.debugWrites) console.log('[emitPassive] suppressed by click window', { index });
+      return;
+    }
+  
+    // Compute deterministic message from the PASSED array (no service reads)
+    const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
-    const isMulti = ctx.questionType === QuestionType.MultipleAnswer;
-
-    const msg = isMulti
-      ? (Math.max(0, correct.length - selected) > 0
-          ? `Select ${Math.max(0, correct.length - selected)} more correct option${Math.max(0, correct.length - selected) === 1 ? '' : 's'} to continue...`
-          : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG))
-      : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
-
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const remaining = Math.max(0, correct.length - selected);
+  
+    let msg: string;
+    if (isMulti) {
+      msg = remaining > 0
+        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+    } else {
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+  
+    // Passive writes get a token as well (0ms freeze by default)
+    const token = this.beginWrite(index, 0);
+  
+    if (this.debugWrites) console.log('[emitPassive]', { index, remaining, msg, token });
+  
     this.updateSelectionMessage(msg, {
-      options: ctx.options,
-      index: ctx.index,
-      questionType: ctx.questionType
+      options,
+      index,
+      token,
+      questionType
     });
   }
 }
