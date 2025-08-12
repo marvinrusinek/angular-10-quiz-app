@@ -2726,8 +2726,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type,
           options: optionsNow,
-          token,
-          source: 'click'
+          token
         });
         // Optionally end freeze immediately so later async writes (if any) can proceed when appropriate
         this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
