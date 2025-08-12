@@ -271,27 +271,32 @@ export class SelectionMessageService {
     // Tokenized write (freeze window ~600ms)
     const token = params.token ?? this.beginWrite(questionIndex, 600);
   
-    const isLast     = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-    const correct    = options.filter(o => !!o?.correct);
-    const anySelected = options.some(o => !!o?.selected); // 👈 NEW: any selection?
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-    const isMulti    = questionType === QuestionType.MultipleAnswer;
-    const remaining  = Math.max(0, correct.length - selectedCorrect);
+    const isLast        = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct       = options.filter(o => !!o?.correct);
+    const anySelected   = options.some(o => !!o?.selected);                 // 👈 NEW
+    const selectedRight = correct.filter(o => !!o?.selected).length;
+    const isMulti       = questionType === QuestionType.MultipleAnswer;
+    const remaining     = Math.max(0, correct.length - selectedRight);
   
-    // Build the message
-    const msg = isMulti
-      ? (
-          // Multi-answer: show remaining until all correct are selected
-          remaining > 0
-            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-            : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
-        )
-      : (
-          // Single-answer: before ANY selection, show "click an option…" for Q2–Q6, START on Q1
-          !anySelected
-            ? (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG) // 👈 UPDATED
-            : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
-        );
+    let msg: string;
+  
+    if (isMulti) {
+      // Before ANY selection on multi, show the “start/continue” prompt
+      if (!anySelected) {
+        msg = (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG);   // 👈 NEW branch
+      } else if (remaining > 0) {
+        // Then show remaining until all correct are selected
+        msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      } else {
+        // All correct selected → Next/Results
+        msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      }
+    } else {
+      // Single-answer: before any selection, show start/continue; after, Next/Results
+      msg = !anySelected
+        ? (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG)
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+    }
   
     // Emit (pass options/index/type so writer doesn’t re-derive)
     this.updateSelectionMessage(msg, {
