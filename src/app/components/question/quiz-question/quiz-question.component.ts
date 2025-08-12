@@ -1517,89 +1517,67 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Block interaction while options are (re)binding
     this.quizStateService.setInteractionReady(false);
     this.quizStateService.setLoading(true);
-
+  
     if (!question || !question.options?.length) {
       console.warn('[loadOptionsForQuestion] ❌ No question or options found.');
-
-      // Even on early return, don’t leave the app stuck "loading"
       queueMicrotask(() => {
         this.quizStateService.setLoading(false);
-        // keep interactionReady=false since there are no options
-      });
-      return;
-    }
-
-    if (this.optionsToDisplay.length !== question.options.length) {
-      console.warn(
-        `[DEBUG] ❌ Clearing optionsToDisplay at:`,
-        new Error().stack
-      );
-      this.optionsToDisplay = [];
-    }
-
-    this.optionsToDisplay = [...question.options];
-
-    const currentQuestion = this.quizService.currentQuestion.getValue();
-    if (!currentQuestion) {
-      console.error(
-        '[loadOptionsForQuestion] ❌ No current question available in QuizService.'
-      );
-      queueMicrotask(() => {
-        this.quizStateService.setLoading?.(false);
         // interactionReady remains false
       });
       return;
     }
-
-    this.optionsToDisplay = [...(currentQuestion.options ?? [])].map(
-      (option) => ({
-        ...option,
-        feedback: option.feedback ?? 'No feedback available.',
-        showIcon: option.showIcon ?? false,
-        active: option.active ?? true,
-        selected: option.selected ?? false,
-        correct: option.correct ?? false,
-      })
-    );
-
+  
+    // If incoming list length differs, clear current list to avoid stale bleed-through
+    if (this.optionsToDisplay.length !== question.options.length) {
+      console.warn('[DEBUG] ❌ Clearing optionsToDisplay at:', new Error().stack);
+      this.optionsToDisplay = [];
+    }
+  
+    // Authoritative enrich from the PASSED question only
+    const enrichedOptions = [...question.options].map(option => ({
+      ...option,
+      feedback: option.feedback ?? 'No feedback available.',
+      showIcon: option.showIcon ?? false,
+      active: option.active ?? true,
+      selected: option.selected ?? false,
+      correct: option.correct ?? false
+    }));
+  
+    this.optionsToDisplay = enrichedOptions;
+  
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
     } else {
-      console.debug(
-        '[loadOptionsForQuestion] ❌ Feedback already processed. Skipping.'
-      );
+      console.debug('[loadOptionsForQuestion] ⚠️ Feedback already processed. Skipping.');
     }
-
+  
     // AFTER options are set, wait one microtask so bindings/DOM settle,
     // then flip loading→false and interactionReady→true so first click counts.
     // Also reset click dedupe and pre-evaluate Next for multi if needed.
     queueMicrotask(() => {
       this.sharedOptionComponent?.generateOptionBindings();
       this.cdRef?.detectChanges();
-
+  
       // UI is now interactive
       this.quizStateService.setLoading(false);
-      this.quizStateService.setInteractionReady(true);  // fixed stray quote
-
-      // Reset the “same index” dedupe so the first click on a new question isn’t ignored
+      this.quizStateService.setInteractionReady(true);
+  
+      // Reset “same index” dedupe so the first click on a new question isn’t ignored
       this.lastLoggedIndex = -1;
-
+  
       // Ensure first-click explanation fires for the new question
       this.lastExplanationShownIndex = -1;
       this.explanationInFlight = false;
-
-      // Multi-select: ensure first selection enables Next after restart/navigation
-      const isMulti =
-        this.currentQuestion?.type === QuestionType.MultipleAnswer;
+  
+      // Multi-select: start with Next disabled
+      const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
       if (isMulti) {
-        this.selectedOptionService.evaluateNextButtonStateForQuestion(
-          this.currentQuestionIndex,
-          true
-        );
+        this.quizStateService.setAnswerSelected(false);
+        this.nextButtonStateService.setNextButtonState(false);
       }
-
-      // Now that the DOM is bound and interaction is enabled,
-      // emit the passive selection message from the fresh, enriched array.
+  
+      // 🔔 Now that the DOM is bound and interaction is enabled, emit the passive message.
+      // rAF ensures we read the same array the UI just rendered.
       requestAnimationFrame(() => this.emitPassiveNow(this.currentQuestionIndex));
     });
   }
@@ -5953,17 +5931,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private emitPassiveNow(i0?: number): void {
-    const index = (typeof i0 === 'number') ? i0 : this.currentQuestionIndex;
-    const opts = (this.optionsToDisplay?.length
-      ? this.optionsToDisplay
-      : (this.currentQuestion?.options ?? [])) as Option[];
+  private emitPassiveNow(index: number): void {
+    const opts = Array.isArray(this.optionsToDisplay)
+      ? this.optionsToDisplay.map(o => ({ ...o })) // shallow copy so service can read stable values
+      : [];
   
-    this.selectionMessageService.emitPassive({
-      index,
+    const token = this.selectionMessageService.beginWrite(index, 300); // optional freeze window (ms)
+  
+    this.selectionMessageService.updateMessageFromSelection({
+      questionIndex: index,
       totalQuestions: this.totalQuestions,
       questionType: this.currentQuestion?.type,
-      options: opts
+      options: opts,
     });
+  
+    // End freeze window now so subsequent user actions can update immediately
+    this.selectionMessageService.endWrite(index, token, { clearTokenWindow: true });
   }
 }
