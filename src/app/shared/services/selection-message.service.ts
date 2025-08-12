@@ -42,28 +42,12 @@ export class SelectionMessageService {
   }
 
   // Message determination function
-  /* public determineSelectionMessage(
-    questionIndex: number,
-    totalQuestions: number,
-    isAnswered: boolean
-  ): string {
-    const isFirst = questionIndex === 0;
-    const isLast = questionIndex === totalQuestions - 1;
-  
-    const msg = !isAnswered
-      ? isFirst
-        ? this.START_MSG : this.CONTINUE_MSG
-      : isLast
-        ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-  
-    return msg;
-  } */
   public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
     _isAnswered: boolean
   ): string {
-    const opts = this.getLatestOptionsSnapshot(); // current UI list
+    const opts = this.getLatestOptionsSnapshot();  // current UI list
     const qType =
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
@@ -74,6 +58,39 @@ export class SelectionMessageService {
       qType,
       opts
     });
+  }
+
+  // Centralized, deterministic message builder
+  private computeFinalMessage(args: {
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
+
+    // Before any selection → START/CONTINUE only (no “Next” before a choice)
+    if (!anySelected) {
+      return index === 0 ? this.START_MSG : this.CONTINUE_MSG;
+    }
+
+    // After selection
+    if (qType === QuestionType.MultipleAnswer) {
+      const correct = opts.filter(o => !!o?.correct);
+      const selectedCorrect = correct.filter(o => !!o?.selected).length;
+      const remaining = Math.max(0, correct.length - selectedCorrect);
+
+      if (remaining > 0) {
+        return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      }
+      // All correct chosen
+      return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+
+    // Single-answer → immediately Next/Results
+    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   }
 
   public getRemainingCorrectCountByIndex(
@@ -501,38 +518,5 @@ export class SelectionMessageService {
       token,
       questionType
     });
-  }
-
-  // Centralized, deterministic message builder
-  private computeFinalMessage(args: {
-    index: number;
-    total: number;
-    qType: QuestionType;
-    opts: Option[];
-  }): string {
-    const { index, total, qType, opts } = args;
-    const isLast = total > 0 && index === total - 1;
-    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
-
-    // Before any selection → START/CONTINUE only (no “Next” before a choice)
-    if (!anySelected) {
-      return index === 0 ? this.START_MSG : this.CONTINUE_MSG;
-    }
-
-    // After selection
-    if (qType === QuestionType.MultipleAnswer) {
-      const correct = opts.filter(o => !!o?.correct);
-      const selectedCorrect = correct.filter(o => !!o?.selected).length;
-      const remaining = Math.max(0, correct.length - selectedCorrect);
-
-      if (remaining > 0) {
-        return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      }
-      // All correct chosen
-      return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-    }
-
-    // Single-answer → immediately Next/Results
-    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   }
 }
