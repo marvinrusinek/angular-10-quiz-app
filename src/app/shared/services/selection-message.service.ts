@@ -23,6 +23,7 @@ export class SelectionMessageService {
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
   private lastSelectionMutation = 0;
 
+  private strictMode = true;
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
   private activeTokenUntil = new Map<number, number>();     // token is valid until ts
@@ -356,12 +357,10 @@ export class SelectionMessageService {
   }
 
   // Reserve a write slot for this question; returns the token to attach to the write.
-  public beginWrite(index: number, freezeMs = 350): number {
+  public beginWrite(index: number, freezeMs = 600): number {
     const token = ++this.writeSeq;
     this.latestByIndex.set(index, token);
-    if (freezeMs > 0) {
-      this.freezeNextishUntil.set(index, performance.now() + freezeMs);
-    }
+    this.freezeNextishUntil.set(index, performance.now() + freezeMs);
     return token;
   }
 
@@ -370,14 +369,14 @@ export class SelectionMessageService {
    *  - If it’s the latest, we immediately end the “freeze window”
    *    so legit Next/Results can show (once remaining === 0).
    */
-   public endWrite(index: number, token?: number): void {
+   public endWrite(index: number, token?: number, opts?: { clearTokenWindow?: boolean }): void {
     if (typeof token === 'number') {
       const latest = this.latestByIndex.get(index);
-      if (latest != null && token !== latest) return; // stale
+      if (latest != null && token !== latest) return; // stale; ignore
     }
-    this.freezeNextishUntil.delete(index); // end freeze now
+    if (opts?.clearTokenWindow) this.freezeNextishUntil.delete(index);
   }
-
+  
   private inFreezeWindow(index: number): boolean {
     const until = this.freezeNextishUntil.get(index) ?? 0;
     return performance.now() < until;
