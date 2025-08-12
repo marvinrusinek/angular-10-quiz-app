@@ -42,7 +42,7 @@ export class SelectionMessageService {
   }
 
   // Message determination function
-  public determineSelectionMessage(
+  /* public determineSelectionMessage(
     questionIndex: number,
     totalQuestions: number,
     isAnswered: boolean
@@ -57,6 +57,23 @@ export class SelectionMessageService {
         ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   
     return msg;
+  } */
+  public determineSelectionMessage(
+    questionIndex: number,
+    totalQuestions: number,
+    _isAnswered: boolean
+  ): string {
+    const opts = this.getLatestOptionsSnapshot(); // current UI list
+    const qType =
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion.value.type;
+  
+    return this.computeFinalMessage({
+      index: questionIndex,
+      total: totalQuestions,
+      qType,
+      opts
+    });
   }
 
   public getRemainingCorrectCountByIndex(
@@ -213,66 +230,60 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    // Which index are we talking about?
+    // Resolve index
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Token precedence: drop stale writes
-    if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(i0);
-      if (latest != null && ctx.token !== latest) return;
+    // Token/freeze gating
+    const latestToken = this.latestByIndex.get(i0);
+    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
+  
+    // If we’re inside the freeze window, ignore writes that do not carry the latest token
+    // (i.e., ignore passive/legacy writers that didn’t mint the token from the click)
+    if (inFreeze && ctx?.token !== latestToken) {
+      return;
     }
   
-    // Always compute from the freshest array we can get
-    const opts: Option[] =
-      (Array.isArray(ctx?.options) && ctx!.options!.length)
-        ? ctx!.options!
-        : (this.latestOptionsSnapshot?.length ? this.latestOptionsSnapshot : []);
+    // Prefer caller-supplied array; else a recent snapshot; else empty
+    const opts: Option[] = Array.isArray(ctx?.options) && ctx!.options!.length
+      ? ctx!.options!
+      : this.getLatestOptionsSnapshot();
   
-    const qType =
+    // Prefer caller’s type; else current question’s value
+    const qType: QuestionType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
   
-    const norm       = next.toLowerCase();
-    const isStartish = norm.includes('select an option');
-    const isNextish  = norm.includes('next button') || norm.includes('show results');
+    const isMulti = qType === QuestionType.MultipleAnswer;
   
-    const anySelected = opts.some(o => !!o?.selected);
+    // Classify incoming “select more …” / “next/results …” text
+    const low = next.toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish = low.includes('next button') || low.includes('show results');
   
-    if (qType !== QuestionType.MultipleAnswer) {
-      // SINGLE: after any click, never allow “start/continue” to overwrite Next/Results
-      if (anySelected && isStartish) return;
+    // For SINGLE-ANSWER questions, never show “Select … more …”
+    if (!isMulti && isSelectish) {
+      const isLast = (this.quizService.currentQuestionIndex as number) === (this.quizService.totalQuestions - 1);
+      const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+      return;
+    }
   
-      // If the caller sent “start/continue” but we already have a selection, force Next/Results
-      if (anySelected && !isNextish) {
-        const isLast = i0 === (this.quizService.totalQuestions - 1);
-        const desired = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-        if (current !== desired) this.selectionMessageSubject.next(desired);
+    // For MULTI, block Next-ish while correct answers remain
+    if (isMulti) {
+      const remaining = this.getRemainingCorrectCount(opts);
+      if (remaining > 0 && isNextish) {
+        const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+        if (current !== hold) this.selectionMessageSubject.next(hold);
         return;
       }
-  
-      if (current !== next) this.selectionMessageSubject.next(next);
-      return;
     }
   
-    // MULTI: guard both ways using passed/snapshotted options
-    const correct = opts.filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-    const remaining = Math.max(0, correct.length - selectedCorrect);
-  
-    // If at least one selection has been made, never allow “select an option…” to overwrite
-    if (selectedCorrect > 0 && isStartish) return;
-  
-    // While incomplete, block Next-ish and keep the remaining message stable
-    if (remaining > 0 && isNextish) {
-      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) this.selectionMessageSubject.next(hold);
-      return;
+    if (current !== next) {
+      this.selectionMessageSubject.next(next);
     }
-  
-    if (current !== next) this.selectionMessageSubject.next(next);
   }
   
 
@@ -283,39 +294,22 @@ export class SelectionMessageService {
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
-    token?: number; // pass from caller; if omitted we’ll mint below
+    token?: number; // optional, but recommended if you gate emissions
   }): void {
-    const { questionIndex, totalQuestions, questionType, options } = params;
+    const { questionIndex, totalQuestions, questionType, options, token } = params;
   
-    // keep snapshot for other callers
+    // Keep snapshot fresh
     this.setOptionsSnapshot(options);
   
-    const token = params.token ?? this.beginWrite(questionIndex, 600); // 600ms “do not downgrade” window
+    // Compute from the array that the UI actually shows (no reads elsewhere)
+    const msg = this.computeFinalMessage({
+      index: questionIndex,
+      total: totalQuestions,
+      qType: questionType,
+      opts: options
+    });
   
-    const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-    const correct = options.filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-    const remaining = Math.max(0, correct.length - selectedCorrect);
-  
-    let msg: string;
-  
-    if (questionType === QuestionType.MultipleAnswer) {
-      if (selectedCorrect === 0) {
-        // first click not made yet → generic prompt
-        msg = this.CONTINUE_MSG; // “Please select an option to continue…”
-      } else if (remaining > 0) {
-        // mid-way → show remaining
-        msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      } else {
-        // all correct chosen → next/results
-        msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-      }
-    } else {
-      // single-answer: after any click we always show next/results
-      // (callers should send this right after marking the clicked option selected)
-      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-    }
-  
+    // Emit (honoring token if you use it)
     this.updateSelectionMessage(msg, {
       options,
       index: questionIndex,
@@ -342,13 +336,16 @@ export class SelectionMessageService {
   }
 
   // Snapshot API
-  public setOptionsSnapshot(options: Option[] | null | undefined): void {
-    const opts = Array.isArray(options) ? options : [];
-    this.optionsSnapshotSubject.next(opts);
+  // Writer: always store a cloned array so callers can’t mutate our state
+  public setOptionsSnapshot(opts: Option[] | null | undefined): void {
+    const safe = Array.isArray(opts) ? opts.map(o => ({ ...o })) : [];
+    this.optionsSnapshotSubject.next(safe);
   }
-  
-  private getLatestOptionsSnapshot(): Option[] {
-    return this.optionsSnapshotSubject.getValue() ?? [];
+
+  // Reader: return a defensive copy so external code can’t mutate what we hold
+  public getLatestOptionsSnapshot(): Option[] {
+    const snap = this.optionsSnapshotSubject.getValue();
+    return Array.isArray(snap) ? snap.map(o => ({ ...o })) : [];
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
@@ -504,5 +501,38 @@ export class SelectionMessageService {
       token,
       questionType
     });
+  }
+
+  // Centralized, deterministic message builder
+  private computeFinalMessage(args: {
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
+
+    // Before any selection → START/CONTINUE only (no “Next” before a choice)
+    if (!anySelected) {
+      return index === 0 ? this.START_MSG : this.CONTINUE_MSG;
+    }
+
+    // After selection
+    if (qType === QuestionType.MultipleAnswer) {
+      const correct = opts.filter(o => !!o?.correct);
+      const selectedCorrect = correct.filter(o => !!o?.selected).length;
+      const remaining = Math.max(0, correct.length - selectedCorrect);
+
+      if (remaining > 0) {
+        return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      }
+      // All correct chosen
+      return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+
+    // Single-answer → immediately Next/Results
+    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
   }
 }
