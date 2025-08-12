@@ -2652,7 +2652,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Called when a user clicks an option row
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2859,7 +2859,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // 5) Emit ONE message based on this same array
-        const token = this.selectionMessageService.beginWrite?.(i0, 500); // optional freeze
+        const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze
         this.selectionMessageService.updateMessageFromSelection({
           questionIndex: i0,
           totalQuestions: this.totalQuestions,
@@ -2921,7 +2921,268 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Release reentrancy guard after this tick
       queueMicrotask(() => { this._clickGate = false; });
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // Stop any pending passive emit before doing anything
+    if (this._pendingPassiveRaf != null) {
+      cancelAnimationFrame(this._pendingPassiveRaf);
+      this._pendingPassiveRaf = null;
+    }
+  
+    // Wait instead of "return and replay" – prevents guaranteed 2nd click
+    if (!this.quizStateService.isInteractionReady()) {
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
+    }
+  
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q  = this.questions?.[i0];
+  
+    const evtIdx = event.index;
+    const evtOpt = event.option;  // may be null on first click after nav — don't early return
+  
+    if (this._clickGate) return;
+    this._clickGate = true;
+  
+    try {
+      const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
+      const isSingle      = !isMultiSelect;
+  
+      // ───────────────────────────────────────────────
+      // 🔹 FIRST: Build UPDATED array, gate Next, emit ONE message (token/freeze)
+      //     - Avoids racing messages that caused flashing
+      // ───────────────────────────────────────────────
+      {
+        // 1) Fresh array mirroring UI state
+        const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
+          ? this.optionsToDisplay.map(o => ({ ...o }))
+          : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
+  
+        // 2) Apply THIS click synchronously to both copy and live list
+        const selected = typeof event.checked === 'boolean' ? event.checked : true;
+        if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
+        if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
+          (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
+        }
+  
+        // 3) Compute remaining from THIS array only
+        const correct = optionsNow.filter(o => !!o?.correct);
+        const selectedCorrect = correct.filter(o => !!o?.selected).length;
+        const remaining = Math.max(0, correct.length - selectedCorrect);
+  
+        // 4) Next enable rule
+        const isLast  = i0 === (this.totalQuestions - 1);
+        if (isMultiSelect) {
+          const allCorrect = remaining === 0;
+          // Do NOT enable Next until remaining === 0
+          this.quizStateService.setAnswerSelected(allCorrect);
+          this.nextButtonStateService.setNextButtonState(allCorrect);
+        } else {
+          // Single-answer → Next immediately
+          this.quizStateService.setAnswerSelected(true);
+          this.nextButtonStateService.setNextButtonState(true);
+        }
+  
+        // 5) Emit ONE message based on this same array (token/freeze to prevent flashing)
+        const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze window (ms)
+        this.selectionMessageService.updateMessageFromSelection({
+          questionIndex: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion?.type,
+          options: optionsNow,
+          token
+        });
+        // Optionally end freeze immediately so later async writes (if any) can proceed when appropriate
+        this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
+      }
+  
+      // ───────────────────────────────────────────────
+      // 🔹 THEN: Flip explanation UI + seed text (cached → raw → empty)
+      //     - Done AFTER message gating to avoid “Next” flashes
+      // ───────────────────────────────────────────────
+      {
+        const cached  = this._formattedByIndex?.get?.(i0);
+        const rawTrue = (q?.explanation ?? '').trim();  // do NOT fallback here
+  
+        this.ngZone.run(() => {
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+          this.quizStateService.setAnswered(true);
+  
+          // Local mirrors (if template uses them)
+          this.displayExplanation = true;
+          this.showExplanationChange?.emit(true);
+  
+          if (cached && cached.trim()) {
+            // Cached formatted → write to stream now
+            this.setExplanationFor(i0, cached);            // owner-tagged writer
+            this.explanationToDisplay = cached;
+            this.explanationToDisplayChange?.emit(cached);
+          } else if (rawTrue) {
+            // No cache yet → seed STREAM with RAW only (never placeholder)
+            this.setExplanationFor(i0, rawTrue);           // owner-tagged
+            this.explanationToDisplay = rawTrue;
+            this.explanationToDisplayChange?.emit(rawTrue);
+          } else {
+            // Keep stream empty; combinedText$ should render a placeholder
+            this.setExplanationFor(i0, '');                // owner-tagged (empty)
+            this.explanationToDisplay = '<span class="muted">Formatting…</span>';
+            this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+          }
+  
+          this.cdRef.markForCheck?.();
+          this.cdRef.detectChanges?.();
+        });
+      }
+  
+      // ───────────────────────────────────────────────
+      // 🔹 Resolve formatted for this index (pin context), then write to stream
+      // ───────────────────────────────────────────────
+      const runPinnedResolve = async (timeoutMs: number): Promise<string> => {
+        const prevFixed = this.fixedQuestionIndex;
+        const prevCur   = this.currentQuestionIndex;
+        try {
+          this.fixedQuestionIndex = i0;
+          this.currentQuestionIndex = i0;
+          return await this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs });
+        } finally {
+          this.fixedQuestionIndex = prevFixed;
+          this.currentQuestionIndex = prevCur;
+        }
+      };
+  
+      if (!this._formattedByIndex?.has?.(i0)) {
+        requestAnimationFrame(() => {
+          void runPinnedResolve(6000)
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              const active =
+                this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+                (this.currentQuestionIndex ?? 0);
+              if (active !== i0) return;  // navigated away
+              if (!clean) return;         // nothing to swap
+              if (this.explanationOwnerIdx !== i0) return;
+  
+              this.ngZone.run(() => {
+                this.setExplanationFor(i0, clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            })
+            .catch(err => console.warn('[format-on-click/resolveFormatted]', err));
+        });
+  
+        // WATCHDOG: after 1000ms, if still on i0 and stream is empty (or equals raw), try one more
+        setTimeout(async () => {
+          try {
+            const active =
+              this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+            if (active !== i0) return;
+  
+            const currentStream =
+              (await firstValueFrom(this.explanationTextService.explanationText$.pipe(take(1))) ?? '')
+                .toString()
+                .trim();
+  
+            const rawTrue = (q?.explanation ?? '').trim();
+  
+            if (currentStream && (!rawTrue || currentStream !== rawTrue)) return;
+  
+            const secondTry = (await runPinnedResolve(8000))?.trim?.() ?? '';
+            if (secondTry && secondTry !== currentStream) {
+              this.ngZone.run(() => {
+                this.setExplanationFor(i0, secondTry);
+                this.explanationToDisplay = secondTry;
+                this.explanationToDisplayChange?.emit(secondTry);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+              return;
+            }
+  
+            if (!currentStream && rawTrue) {
+              this.ngZone.run(() => {
+                this.setExplanationFor(i0, rawTrue);
+                this.explanationToDisplay = rawTrue;
+                this.explanationToDisplayChange?.emit(rawTrue);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            }
+          } catch (err) {
+            console.warn('[watchdog] failed', err);
+          }
+        }, 1000);
+      }
+  
+      // Persist the selection for THIS question (best-effort; don’t block UI)
+      try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+  
+      // Selection bookkeeping (kept)
+      try {
+        this.selectedIndices.clear();
+        this.selectedIndices.add(evtIdx);
+      } catch {}
+  
+      // (Legacy path) GUARD: only run if no cache yet.
+      // Pin context here too; never write empties; only for same index.
+      if (!this._formattedByIndex?.has?.(i0)) {
+        const prevFixed = this.fixedQuestionIndex;
+        const prevCur   = this.currentQuestionIndex;
+        try {
+          this.fixedQuestionIndex = i0;
+          this.currentQuestionIndex = i0;
+  
+          this.updateExplanationText(i0)
+            .then((formatted) => {
+              const clean = (formatted ?? '').trim?.() ?? '';
+              if (!clean) return;  // don’t inject empties into stream
+              const active = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
+              if (active !== i0) return;
+              this.ngZone.run(() => {
+                this.explanationTextService.setExplanationText(clean);
+                this.explanationToDisplay = clean;
+                this.explanationToDisplayChange?.emit(clean);
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+              });
+            })
+            .catch((err) => console.error('[❌ legacy format failed]', err));
+        } finally {
+          this.fixedQuestionIndex = prevFixed;
+          this.currentQuestionIndex = prevCur;
+        }
+      }
+  
+      // Defer heavy work to next animation frame so first click paints immediately
+      requestAnimationFrame(() => {
+        // Parent notify (type-safe): only emit if we have a SelectedOption
+        try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+  
+        (async () => {
+          this.feedbackText = await this.generateFeedbackText(this.currentQuestion ?? q);
+          await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+  
+          // Existing follow-ups (kept)
+          this.handleCoreSelection(event);
+          if (evtOpt) this.markBindingSelected(evtOpt);
+          this.refreshFeedbackFor(evtOpt ?? undefined);
+        })().catch((err) => console.error('[postClickTasks] error', err));
+      });
+    } finally {
+      // Release reentrancy guard after this tick
+      queueMicrotask(() => { this._clickGate = false; });
+    }
   }
+  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
