@@ -209,35 +209,40 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const norm = next.toLowerCase();
-    const isNextish = norm.includes('next button') || norm.includes('show results');
-  
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Drop stale writes (tokened)
+    // Token: drop stale writes
     if (typeof ctx?.token === 'number') {
       const latest = this.latestByIndex.get(i0);
-      if (latest != null && ctx.token !== latest) return;  // stale, ignore
+      if (latest != null && ctx.token !== latest) return;
     }
   
-    // Use the exact array the UI rendered
+    // Prefer caller’s type + options
     const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
-  
-    // Prefer declared type from caller; fallback to BehaviorSubject value (both access patterns supported)
-    const qType =
-      ctx?.questionType ??
-      this.quizService.currentQuestion?.getValue?.()?.type ??
-      this.quizService.currentQuestion?.value?.type;
+    const qType = ctx?.questionType
+      ?? this.quizService.currentQuestion?.getValue()?.type
+      ?? this.quizService.currentQuestion.value.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
+    const norm = next.toLowerCase();
+    const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    // Compute remaining from the passed options only (no service lookups)
+    // Authoritative remaining from the PASSED array
     const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
   
-    // Block "Next/Results" while multi still has remaining
+    // Freeze window: if still in window AND multi has remaining, block Next-ish overwrite
+    const until = this.freezeNextishUntil.get(i0) ?? 0;
+    if (isMulti && remaining > 0 && isNextish && performance.now() < until) {
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) this.selectionMessageSubject.next(hold);
+      return;
+    }
+  
+    // Outside window or no remaining → allow normal message
     if (isMulti && remaining > 0 && isNextish) {
+      // Even outside window, don’t let Next overwrite a valid “remaining” msg
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
@@ -245,7 +250,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   public updateMessageFromSelection(params: {
