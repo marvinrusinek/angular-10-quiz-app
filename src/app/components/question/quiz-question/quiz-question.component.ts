@@ -2816,24 +2816,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Gate answered/Next + emit message using the UPDATED array we pass to the service
       {
-        // Fresh array mirroring UI state
+        // 1) Fresh array mirroring UI state
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
           ? this.optionsToDisplay.map(o => ({ ...o }))
           : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
 
-        // Apply THIS click synchronously to both copy and live list
+        // 2) Apply THIS click synchronously to both copy and live list
         const selected = typeof event.checked === 'boolean' ? event.checked : true;
         if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
           (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
 
-        // Compute remaining once from this single array
+        // 3) Compute remaining from THIS array only
         const correct = optionsNow.filter(o => !!o?.correct);
         const selectedCorrect = correct.filter(o => !!o?.selected).length;
         const remaining = Math.max(0, correct.length - selectedCorrect);
 
-        // Enable Next only when remaining === 0 (multi); single always true
+        // 4) Next enable rule
         const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
         const isLast  = i0 === (this.totalQuestions - 1);
 
@@ -2846,20 +2846,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.nextButtonStateService.setNextButtonState(true);
         }
 
-        // Emit ONE authoritative message with token
-        const token = this.selectionMessageService.beginWrite(i0, 600);  // 600ms window
+        // 5) Build ONE deterministic message from this array
+        let msg: string;
+        if (isMulti) {
+          if (selectedCorrect === 0) {
+            msg = 'Please select an option to continue...';
+          } else if (remaining > 0) {
+            msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+          } else {
+            msg = isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...';
+          }
+        } else {
+          msg = isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...';
+        }
+
+        // 6) Token + emit once (don’t end the freeze immediately)
+        const token = this.selectionMessageService.beginWrite(i0, 600); // ~0.6s freeze to avoid flashes
         this.selectionMessageService.updateMessageFromSelection({
-          questionIndex: this.currentQuestionIndex,
+          questionIndex: i0,
           totalQuestions: this.totalQuestions,
-          questionType: this.currentQuestion?.type!,
+          questionType: this.currentQuestion?.type,
           options: optionsNow,
-          token,
+          token
         });
-
-        // Optional: end the window immediately if you prefer (I’d let it elapse)
-        // this.selectionMessageService.endWrite(i0, token, { clearTokenWindow: true });
+        // ❌ Do NOT call endWrite() here; let the freeze window protect this message
       }
-
   
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
