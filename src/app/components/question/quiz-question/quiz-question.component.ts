@@ -335,9 +335,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // On every question: hard reset view and restart visible countdown
       tap((i0: number) => {
         this.currentQuestionIndex = i0;
-        this.resetPerQuestionState(i0);  // this must NOT arm any expiry
-        // Also clear any one-shot guards
-        this.handledOnExpiry.delete(i0);
+        this.resetPerQuestionState(i0);   // this must NOT arm any expiry
+        this.handledOnExpiry.delete(i0);  // clear any one-shot guards
+        requestAnimationFrame(() => this.emitPassiveNow(i0));
     
         // Prewarm formatted text for THIS question (non-blocking; no UI writes)
         // Cache hit → no-op; miss → compute & store for first-click
@@ -5786,6 +5786,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     requestAnimationFrame(() =>
       this.timerService.startTimer(this.timerService.timePerQuestion, true)
     );
+    queueMicrotask(() => this.emitPassiveNow(index));
   }
 
   // One call to reset everything the child controls for a given question
