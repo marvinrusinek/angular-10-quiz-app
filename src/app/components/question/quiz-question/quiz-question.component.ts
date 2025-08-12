@@ -2718,25 +2718,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.quizStateService.setAnswerSelected(true);
           this.nextButtonStateService.setNextButtonState(true);
         }
-
-        // 5) Build the ONE message we want to show (this was missing)
-        const msg = isMulti
-        ? (remaining > 0
-            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-            : (isLast
-                ? 'Please click the Show Results button.'
-                : 'Please click the next button to continue...'))
-        : (isLast
-            ? 'Please click the Show Results button.'
-            : 'Please click the next button to continue...');
   
         // 5) Emit ONE message based on this same array (token/freeze to prevent flashing)
         const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze window (ms)
-        this.selectionMessageService.updateSelectionMessage(msg, {
+        this.selectionMessageService.updateMessageFromSelection({
+          questionIndex: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion?.type,
           options: optionsNow,
-          index: i0,
-          token,
-          questionType: this.currentQuestion?.type
+          token
         });
         // Optionally end freeze immediately so later async writes (if any) can proceed when appropriate
         this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
