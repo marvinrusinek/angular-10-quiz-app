@@ -5933,19 +5933,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private emitPassiveNow(index: number): void {
     const opts = Array.isArray(this.optionsToDisplay)
-      ? this.optionsToDisplay.map(o => ({ ...o })) // shallow copy so service can read stable values
+      ? this.optionsToDisplay.map(o => ({ ...o }))  // shallow copy so service can read stable values
       : [];
   
-    const token = this.selectionMessageService.beginWrite(index, 300); // optional freeze window (ms)
+    const token = this.selectionMessageService.beginWrite(index, 300);  // optional freeze window (ms)
   
     this.selectionMessageService.updateMessageFromSelection({
       questionIndex: index,
       totalQuestions: this.totalQuestions,
       questionType: this.currentQuestion?.type,
       options: opts,
+      token
     });
-  
-    // End freeze window now so subsequent user actions can update immediately
-    this.selectionMessageService.endWrite(index, token, { clearTokenWindow: true });
   }
 }
