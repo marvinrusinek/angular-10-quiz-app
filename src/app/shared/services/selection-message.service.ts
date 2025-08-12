@@ -264,25 +264,38 @@ export class SelectionMessageService {
     token?: number; // optional: service will mint if not provided
   }): void {
     const { questionIndex, totalQuestions, questionType, options } = params;
-
+  
+    // Keep snapshot fresh
     this.setOptionsSnapshot(options);
-
+  
+    // Tokenized write (freeze window ~600ms)
     const token = params.token ?? this.beginWrite(questionIndex, 600);
-
-    const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-    const correct  = options.filter(o => !!o?.correct);
-    const selected = correct.filter(o => !!o?.selected).length;
-    const isMulti  = questionType === QuestionType.MultipleAnswer;
-    const remaining = Math.max(0, correct.length - selected);
-
+  
+    const isLast     = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct    = options.filter(o => !!o?.correct);
+    const anySelected = options.some(o => !!o?.selected); // 👈 NEW: any selection?
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const isMulti    = questionType === QuestionType.MultipleAnswer;
+    const remaining  = Math.max(0, correct.length - selectedCorrect);
+  
+    // Build the message
     const msg = isMulti
-      ? (remaining > 0
-          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-          : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG))
-      : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
-
+      ? (
+          // Multi-answer: show remaining until all correct are selected
+          remaining > 0
+            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+            : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
+        )
+      : (
+          // Single-answer: before ANY selection, show "click an option…" for Q2–Q6, START on Q1
+          !anySelected
+            ? (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG) // 👈 UPDATED
+            : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
+        );
+  
+    // Emit (pass options/index/type so writer doesn’t re-derive)
     this.updateSelectionMessage(msg, {
-      options: options,
+      options,
       index: questionIndex,
       token,
       questionType,
