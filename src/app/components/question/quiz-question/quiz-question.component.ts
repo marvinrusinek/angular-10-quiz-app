@@ -2849,7 +2849,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Emit ONE authoritative message with token
         const token = this.selectionMessageService.beginWrite(i0, 600);  // 600ms window
         this.selectionMessageService.updateMessageFromSelection({
-          questionIndex: i0,
+          questionIndex: this.currentQuestionIndex,
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type!,
           options: optionsNow,
