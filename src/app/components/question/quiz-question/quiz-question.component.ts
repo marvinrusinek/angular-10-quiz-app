@@ -2814,49 +2814,52 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // ✅ Gate answered/Next + emit ONE message using the UPDATED array we pass to the service
+      // Gate answered/Next + emit message using the UPDATED array we pass to the service
       {
-        // 1) Fresh array mirroring UI state
+        // Fresh array mirroring UI state
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
           ? this.optionsToDisplay.map(o => ({ ...o }))
           : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
-  
-        // 2) Apply THIS click synchronously to both copy and live list
+
+        // Apply THIS click synchronously to both copy and live list
         const selected = typeof event.checked === 'boolean' ? event.checked : true;
         if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
           (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
-  
-        // 3) Compute remaining from this array only (deterministic)
+
+        // Compute remaining once from this single array
         const correct = optionsNow.filter(o => !!o?.correct);
         const selectedCorrect = correct.filter(o => !!o?.selected).length;
         const remaining = Math.max(0, correct.length - selectedCorrect);
-  
-        // 4) Next enable rule
+
+        // Enable Next only when remaining === 0 (multi); single always true
         const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
         const isLast  = i0 === (this.totalQuestions - 1);
-  
+
         if (isMulti) {
           const allCorrect = remaining === 0;
-          // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
         } else {
           this.quizStateService.setAnswerSelected(true);
           this.nextButtonStateService.setNextButtonState(true);
         }
-  
-        // 5) 🌟 CLICK MESSAGE EMIT — single source of truth
-        //    Use the same UPDATED array you just used to gate Next.
-        this.selectionMessageService.emitFromClick({
-          index: i0,
+
+        // Emit ONE authoritative message with token
+        const token = this.selectionMessageService.beginWrite(i0, 600);  // 600ms window
+        this.selectionMessageService.updateMessageFromSelection({
+          questionIndex: i0,
           totalQuestions: this.totalQuestions,
-          questionType: this.currentQuestion?.type,
-          options: optionsNow
+          questionType: this.currentQuestion?.type!,
+          options: optionsNow,
+          token,
         });
-        // (No direct updateSelectionMessage(...) calls here)
+
+        // Optional: end the window immediately if you prefer (I’d let it elapse)
+        // this.selectionMessageService.endWrite(i0, token, { clearTokenWindow: true });
       }
+
   
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
