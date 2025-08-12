@@ -213,60 +213,50 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+    const idx = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Token: drop stale writes
+    // Token precedence: drop stale writes
     if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(i0);
+      const latest = this.latestByIndex.get(idx);
       if (latest != null && ctx.token !== latest) return;
     }
   
-    // Prefer caller’s data
     const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
   
-    // Determine type (prefer passed type)
     const qType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
   
-    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
-  
-    // ───────────────────────────────────────────────
-    // 🚫 Single-answer: never show “Select N more…”
-    // Authoritatively compute the right copy and return.
-    // ───────────────────────────────────────────────
-    if (qType !== QuestionType.MultipleAnswer) {
-      const total = this.quizService.totalQuestions ?? 0;
-      const isLast = total > 0 && i0 === total - 1;
-  
-      const singleMsg = !anySelected
-        ? (i0 === 0 ? this.START_MSG : this.CONTINUE_MSG)
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
-  
-      if (current !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-      return; // <- prevents any “Select … more …” flashes on single-answer
-    }
-  
-    // ───────────────────────────────────────────────
-    // Multi-answer logic (unchanged, with freeze + remaining guards)
-    // ───────────────────────────────────────────────
     const norm = next.toLowerCase();
-    const isNextish = norm.includes('next button') || norm.includes('show results');
+    const isStartish = norm.includes('select an option');
+    const isNextish  = norm.includes('next button') || norm.includes('show results');
   
-    const remaining = this.getRemainingCorrectCount(opts);
+    if (qType !== QuestionType.MultipleAnswer) {
+      // SINGLE: never allow downgrades to start/continue after a click
+      const anySelected = opts.some(o => !!o?.selected);
+      const desired = anySelected
+        ? (idx === (this.quizService.totalQuestions - 1) ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
+        : (idx === 0 ? this.START_MSG : this.CONTINUE_MSG);
   
-    // Freeze window: block Next-ish while user is still selecting
-    const until = this.freezeNextishUntil.get(i0) ?? 0;
-    if (remaining > 0 && isNextish && performance.now() < until) {
-      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) this.selectionMessageSubject.next(hold);
+      // If someone tries to send start/continue when something is selected, ignore.
+      if (anySelected && isStartish) return;
+  
+      if (current !== desired) this.selectionMessageSubject.next(desired);
       return;
     }
   
-    // Even outside freeze, prefer remaining over Next-ish when needed
+    // MULTI: compute remaining from provided options
+    const correct = opts.filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const remaining = Math.max(0, correct.length - selectedCorrect);
+  
+    // If at least one selection has been made, never accept a start/continue overwrite
+    if (selectedCorrect > 0 && isStartish) return;
+  
+    // While still incomplete, block Next-ish and prefer the remaining message
     if (remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
@@ -283,48 +273,46 @@ export class SelectionMessageService {
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
-    token?: number; // optional: service will mint if not provided
+    token?: number; // pass from caller; if omitted we’ll mint below
   }): void {
     const { questionIndex, totalQuestions, questionType, options } = params;
   
-    // Snapshot for other callers
+    // keep snapshot for other callers
     this.setOptionsSnapshot(options);
   
-    // Reserve a write and hold off Next-ish overwrites briefly
-    const token = params.token ?? this.beginWrite(questionIndex, 600);
+    const token = params.token ?? this.beginWrite(questionIndex, 600); // 600ms “do not downgrade” window
   
-    const isLast         = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-    const correct        = options.filter(o => !!o?.correct);
-    const anySelected    = options.some(o => !!o?.selected);            // 👈 authoritative
-    const selectedRight  = correct.filter(o => !!o?.selected).length;
-    const isMulti        = questionType === QuestionType.MultipleAnswer;
-    const remaining      = Math.max(0, correct.length - selectedRight);
+    const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct = options.filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const remaining = Math.max(0, correct.length - selectedCorrect);
   
     let msg: string;
   
-    if (isMulti) {
-      if (!anySelected) {
-        // Before *any* selection on multi
-        msg = (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG);
+    if (questionType === QuestionType.MultipleAnswer) {
+      if (selectedCorrect === 0) {
+        // first click not made yet → generic prompt
+        msg = this.CONTINUE_MSG; // “Please select an option to continue…”
       } else if (remaining > 0) {
+        // mid-way → show remaining
         msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       } else {
+        // all correct chosen → next/results
         msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
       }
     } else {
-      // Single-answer: before selection show start/continue; after, Next/Results
-      msg = !anySelected
-        ? (questionIndex === 0 ? this.START_MSG : this.CONTINUE_MSG)
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+      // single-answer: after any click we always show next/results
+      // (callers should send this right after marking the clicked option selected)
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
     }
   
     this.updateSelectionMessage(msg, {
       options,
       index: questionIndex,
       token,
-      questionType,
+      questionType
     });
-  }  
+  }
   
   // Is current question multi and how many correct remain?
   private hasMultiRemaining(ctx?: { options?: Option[]; index?: number })
