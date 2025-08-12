@@ -303,16 +303,15 @@ export class SelectionMessageService {
       this.selectionMessageSubject.next(next);
     }
   }
-  
 
   // Helper: Compute and push atomically (passes options to guard)
-  // Deterministic compute from the array you pass in
+  // Deterministic compute from the array passed in
   public updateMessageFromSelection(params: {
     questionIndex: number;
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
-    token?: number; // optional, but recommended if you gate emissions
+    token?: number;
   }): void {
     const { questionIndex, totalQuestions, questionType, options, token } = params;
   
@@ -327,7 +326,7 @@ export class SelectionMessageService {
       opts: options
     });
   
-    // Emit (honoring token if you use it)
+    // Emit (honoring token)
     this.updateSelectionMessage(msg, {
       options,
       index: questionIndex,
