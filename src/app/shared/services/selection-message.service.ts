@@ -217,7 +217,7 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Drop stale writes (tokened)
+    // Token: drop stale writes
     if (typeof ctx?.token === 'number') {
       const latest = this.latestByIndex.get(i0);
       if (latest != null && ctx.token !== latest) return;
@@ -225,37 +225,49 @@ export class SelectionMessageService {
   
     // Prefer caller’s data
     const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
+  
+    // Determine type (prefer passed type)
     const qType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
   
-    const isMulti     = qType === QuestionType.MultipleAnswer;
-    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected); // 👈 authoritative
+    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
   
-    // If it's a multi and *nothing* is selected yet, FORCE the “select an option” prompt.
-    if (isMulti && !anySelected) {
-      const startOrCont = (i0 === 0 ? this.START_MSG : this.CONTINUE_MSG);
-      if (current !== startOrCont) this.selectionMessageSubject.next(startOrCont);
-      return; // block everything else
+    // ───────────────────────────────────────────────
+    // 🚫 Single-answer: never show “Select N more…”
+    // Authoritatively compute the right copy and return.
+    // ───────────────────────────────────────────────
+    if (qType !== QuestionType.MultipleAnswer) {
+      const total = this.quizService.totalQuestions ?? 0;
+      const isLast = total > 0 && i0 === total - 1;
+  
+      const singleMsg = !anySelected
+        ? (i0 === 0 ? this.START_MSG : this.CONTINUE_MSG)
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+  
+      if (current !== singleMsg) this.selectionMessageSubject.next(singleMsg);
+      return; // <- prevents any “Select … more …” flashes on single-answer
     }
   
-    // Normal guards below (remaining/Next-ish)
+    // ───────────────────────────────────────────────
+    // Multi-answer logic (unchanged, with freeze + remaining guards)
+    // ───────────────────────────────────────────────
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
+    const remaining = this.getRemainingCorrectCount(opts);
   
-    // During freeze window, never allow Next-ish to overwrite a valid remaining message
+    // Freeze window: block Next-ish while user is still selecting
     const until = this.freezeNextishUntil.get(i0) ?? 0;
-    if (isMulti && remaining > 0 && isNextish && performance.now() < until) {
+    if (remaining > 0 && isNextish && performance.now() < until) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
     }
   
-    // Outside window, still prefer remaining over Next-ish if there *are* remaining
-    if (isMulti && remaining > 0 && isNextish) {
+    // Even outside freeze, prefer remaining over Next-ish when needed
+    if (remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
