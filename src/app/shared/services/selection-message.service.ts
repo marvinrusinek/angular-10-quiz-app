@@ -239,7 +239,7 @@ export class SelectionMessageService {
   }
 
   // Method to update the message
-  public updateSelectionMessage(
+  /* public updateSelectionMessage(
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
@@ -301,12 +301,75 @@ export class SelectionMessageService {
     if (current !== next) {
       this.selectionMessageSubject.next(next);
     }
+  } */
+  public updateSelectionMessage(
+    message: string,
+    ctx?: {
+      options?: Option[];
+      index?: number;
+      token?: number;
+      questionType?: QuestionType;
+      source?: 'click' | 'passive';     // NEW
+    }
+  ): void {
+    const current = this.selectionMessageSubject.getValue();
+    const next = (message ?? '').trim();
+    if (!next) return;
+  
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : ((this.quizService.currentQuestionIndex as number) ?? 0);
+  
+    // token: drop stale writes
+    if (typeof ctx?.token === 'number') {
+      const latest = this.latestByIndex.get(i0);
+      if (latest != null && ctx.token !== latest) return;
+    }
+  
+    // prefer caller’s options; else last snapshot
+    const opts: Option[] =
+      (Array.isArray(ctx?.options) && ctx!.options!.length)
+        ? ctx!.options!
+        : this.getLatestOptionsSnapshot?.() ?? [];
+  
+    // prefer caller’s type; else current
+    const qType =
+      ctx?.questionType ??
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion.value.type;
+  
+    const isMulti = qType === QuestionType.MultipleAnswer;
+    const source  = ctx?.source ?? 'passive';
+  
+    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
+    const correct = (opts ?? []).filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+    const remaining = Math.max(0, correct.length - selectedCorrect);
+  
+    const norm = next.toLowerCase();
+    const isNextish = norm.includes('next button') || norm.includes('show results');
+  
+    // Only on PASSIVE emits: before any selection, force START/CONTINUE (prevents Q1 flicker)
+    if (!anySelected && source === 'passive') {
+      const startOrContinue = (i0 === 0) ? this.START_MSG : this.CONTINUE_MSG;
+      if (current !== startOrContinue) this.selectionMessageSubject.next(startOrContinue);
+      return;
+    }
+  
+    // Multi: while remaining > 0, never allow Next/Results overwrite
+    if (isMulti && remaining > 0 && isNextish) {
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (current !== hold) this.selectionMessageSubject.next(hold);
+      return;
+    }
+  
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
   
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array you pass in
-  public updateMessageFromSelection(params: {
+  /* public updateMessageFromSelection(params: {
     questionIndex: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -333,6 +396,57 @@ export class SelectionMessageService {
       token,
       questionType
     });
+  } */
+  public updateMessageFromSelection(params: {
+    questionIndex: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];
+    token?: number;                 // optional: service will mint if not provided
+    source?: 'click' | 'passive';   // NEW: where this emit came from
+  }): void {
+    const { questionIndex, totalQuestions, questionType, options, source } = params;
+  
+    // keep snapshot fresh
+    this.setOptionsSnapshot(options);
+  
+    // reserve a write (short freeze to stop races)
+    const token = params.token ?? this.beginWrite(questionIndex, 900);
+  
+    // Compute deterministically from the passed array
+    const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const remaining = Math.max(0, correct.length - selected);
+  
+    let msg: string;
+  
+    // Before any selection → START/CONTINUE, but only for PASSIVE emits
+    const anySelected = (options ?? []).some(o => !!o?.selected);
+    if (!anySelected && (source ?? 'passive') === 'passive') {
+      msg = (questionIndex === 0) ? this.START_MSG : this.CONTINUE_MSG;
+    } else if (isMulti) {
+      // Multi: show remaining until all correct are selected
+      msg = (remaining > 0)
+        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+    } else {
+      // Single: after any click, go straight to Next/Results
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    }
+  
+    // Forward the context; the writer will clamp if needed
+    this.updateSelectionMessage(msg, {
+      options,
+      index: questionIndex,
+      token,
+      questionType,
+      source: source ?? 'passive',
+    });
+  
+    // optional — clear the freeze immediately
+    this.endWrite(questionIndex, token, { clearTokenWindow: true });
   }
   
   // Is current question multi and how many correct remain?
