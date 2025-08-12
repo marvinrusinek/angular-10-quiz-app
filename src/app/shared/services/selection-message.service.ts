@@ -362,9 +362,9 @@ export class SelectionMessageService {
 
   // Reserve a write slot for this question; returns the token to attach to the write.
   private beginWrite(index: number, windowMs = 120): number {
-    const token = ++this.writeSeq;                 // keep your global counter
-    this.latestByIndex.set(index, token);          // mark latest token per index
-    this.freezeNextishUntil.set(index, performance.now() + windowMs); // start freeze
+    const token = ++this.writeSeq;
+    this.latestByIndex.set(index, token);  // mark latest token per index
+    this.freezeNextishUntil.set(index, performance.now() + windowMs);  // start freeze
     return token;
   }
 }
