@@ -210,50 +210,39 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    // ---- Resolve context safely (no silent early returns) ----
-    const idxFromCtx = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index)) ? ctx!.index! : undefined;
-    const i0 = (idxFromCtx ?? (this.quizService.currentQuestionIndex as number) ?? 0);
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    const optionsFromCtx = Array.isArray(ctx?.options) ? ctx!.options! : [];
-    const options = optionsFromCtx.length
-      ? optionsFromCtx
-      : (this.getLatestOptionsSnapshot().length
-          ? this.getLatestOptionsSnapshot()
-          : []); // last resort: empty (we’ll still show next)
+    // Token check (authoritative click writer)
+    if (typeof ctx?.token === 'number') {
+      const latest = this.latestByIndex.get(i0);
+      if (latest != null && ctx.token !== latest) return; // stale write
+    } else {
+      // Passive writers: do nothing during freeze
+      if (this.inFreezeWindow(i0)) return;
+    }
   
+    const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
     const qType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion?.value?.type;
+      this.quizService.currentQuestion.value.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
-  
-    // ---- Token: only drop stale if a token is provided ----
-    if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(i0);
-      if (latest != null && ctx.token !== latest) {
-        // stale write → ignore
-        return;
-      }
-    }
-  
-    // ---- Remaining (authoritative: based on PASSED options if present) ----
-    const remaining = isMulti ? this.getRemainingCorrectCount(options) : 0;
-  
-    // ---- Freeze/Next-ish guard ----
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
-    const until = this.freezeNextishUntil.get(i0) ?? 0;
-    const inFreeze = performance.now() < until;
+    // Authoritative remaining computed from PASSED array (no re-derives)
+    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
   
-    if (isMulti && remaining > 0 && (isNextish || inFreeze)) {
+    // Never let "Next/Results" overwrite a valid remaining message
+    if (isMulti && remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
     }
   
-    // ---- Emit final text ----
     if (current !== next) this.selectionMessageSubject.next(next);
   }
 
@@ -379,29 +368,82 @@ export class SelectionMessageService {
    *  - If it’s the latest, we immediately end the “freeze window”
    *    so legit Next/Results can show (once remaining === 0).
    */
-   public endWrite(
-    index: number,
-    token?: number,
-    opts: { clearTokenWindow?: boolean } = {}
-  ): void {
-    const latest = this.latestByIndex.get(index);
-  
-    // If a token is provided, only the latest token may end the window.
-    if (typeof token === 'number' && latest != null && token !== latest) {
-      return; // stale; ignore
+   public endWrite(index: number, token?: number): void {
+    if (typeof token === 'number') {
+      const latest = this.latestByIndex.get(index);
+      if (latest != null && token !== latest) return; // stale
     }
-  
-    // If no token is provided and a newer token is active, don't end anything.
-    if (typeof token !== 'number' && latest != null) {
-      return; // require token to avoid killing a newer writer
+    this.freezeNextishUntil.delete(index); // end freeze now
+  }
+
+  private inFreezeWindow(index: number): boolean {
+    const until = this.freezeNextishUntil.get(index) ?? 0;
+    return performance.now() < until;
+  }
+
+  // Authoritative: call ONLY from the option click with the UPDATED array
+  public emitFromClick(ctx: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];    // include the clicked state applied
+  }): void {
+    const { index, totalQuestions, questionType, options } = ctx;
+
+    const token = this.beginWrite(index, 350); // start freeze tied to this click
+
+    // Build message deterministically from passed array
+    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+    const correct = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti = questionType === QuestionType.MultipleAnswer;
+
+    let msg: string;
+    if (isMulti) {
+      const remaining = Math.max(0, correct.length - selected);
+      msg = (remaining > 0)
+        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+    } else {
+      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
     }
-  
-    // End the "Next-ish" freeze immediately.
-    this.freezeNextishUntil.delete(index);
-  
-    // Optionally end the token-protection window early (otherwise TTL will expire it).
-    if (opts.clearTokenWindow) {
-      this.activeTokenUntil.delete(index);
-    }
+
+    this.updateSelectionMessage(msg, {
+      options,
+      index,
+      token,
+      questionType
+    });
+
+    // Optional: end freeze a bit later to allow other async UI to settle
+    setTimeout(() => this.endWrite(index, token), 220);
+  }
+
+  // Passive: call from navigation/reset/timer-expiry/etc.
+  // This auto-skips during a freeze (so it won’t fight the click).
+  public emitPassive(ctx: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];
+  }): void {
+    if (this.inFreezeWindow(ctx.index)) return;
+
+    const isLast = ctx.totalQuestions > 0 && ctx.index === ctx.totalQuestions - 1;
+    const correct = (ctx.options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti = ctx.questionType === QuestionType.MultipleAnswer;
+
+    const msg = isMulti
+      ? (Math.max(0, correct.length - selected) > 0
+          ? `Select ${Math.max(0, correct.length - selected)} more correct option${Math.max(0, correct.length - selected) === 1 ? '' : 's'} to continue...`
+          : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG))
+      : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+
+    this.updateSelectionMessage(msg, {
+      options: ctx.options,
+      index: ctx.index,
+      questionType: ctx.questionType
+    });
   }
 }
