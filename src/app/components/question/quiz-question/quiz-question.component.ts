@@ -2832,54 +2832,59 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
       } catch {}
   
-      // Gate answered/Next for MULTI using the UPDATED array we pass to the service
+      // Gate answered/Next and selection message using the updated array we pass to the service
+      // ✅ Gate answered/Next + emit message using the UPDATED array we pass to the service
       {
-        // Build a fresh array that mirrors what the UI shows *and* apply this click synchronously
+        // 1) Fresh array mirroring UI state
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
-          ? [...(this.optionsToDisplay as Option[])]
-          : ([...(this.currentQuestion?.options ?? [])] as Option[]);
+          ? this.optionsToDisplay.map(o => ({ ...o }))
+          : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
 
-        if (optionsNow[evtIdx]) {
-          const selected = typeof event.checked === 'boolean' ? event.checked : true;
-          optionsNow[evtIdx] = { ...optionsNow[evtIdx], selected };
-        }
-
-        // Keep live list in sync so icons/UI reflect the click immediately
+        // 2) Apply THIS click synchronously to both copy and live list
+        const selected = typeof event.checked === 'boolean' ? event.checked : true;
+        if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
-          (this.optionsToDisplay as Option[])[evtIdx].selected =
-            typeof event.checked === 'boolean' ? event.checked : true;
+          (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
 
-        // Reserve a write token for this question index (blocks stale/competing writes)
-        const token = this.selectionMessageService.beginWrite(i0) ?? 0;
+        // 3) Compute remaining from this array only
+        const correct = optionsNow.filter(o => !!o?.correct);
+        const selectedCorrect = correct.filter(o => !!o?.selected).length;
+        const remaining = Math.max(0, correct.length - selectedCorrect);
 
-        if (isMultiSelect) {
-          const remaining = this.selectionMessageService.getRemainingCorrectCount(optionsNow);
+        // 4) Next enable rule
+        const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
+        const isLast  = i0 === (this.totalQuestions - 1);
+
+        if (isMulti) {
           const allCorrect = remaining === 0;
-
-          // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
-
-          // Reflect “answered” only when all correct are selected
-          try { this.selectedOptionService.setAnswered?.(allCorrect); } catch {}
+        } else {
+          this.quizStateService.setAnswerSelected(true);
+          this.nextButtonStateService.setNextButtonState(true);
         }
 
-        // Tell the service selection just mutated (snapshot + small hold-off)
-        this.selectionMessageService.notifySelectionMutated?.(optionsNow);
+        // 5) Message (deterministic)
+        const msg = isMulti
+          ? (remaining > 0
+              ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+              : (isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...'))
+          : (isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...');
 
-        // Compute and emit one message from the updated array (tokened)
-        requestAnimationFrame(() => {
-          this.selectionMessageService.updateMessageFromSelection({
-            questionIndex: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: this.currentQuestion?.type,
-            options: optionsNow,
-            token
-          });
-          this.selectionMessageService.endWrite(i0, token);
+        // 6) Token + freeze; emit ONCE
+        const token = this.selectionMessageService.beginWrite(i0, 350); // ms
+        this.selectionMessageService.updateSelectionMessage(msg, {
+          options: optionsNow,
+          index: i0,
+          token,
+          questionType: this.currentQuestion?.type
         });
+        // Optionally end the window immediately so later async stuff can write
+        this.selectionMessageService.endWrite(i0, token, { clearTokenWindow: true });
       }
+
+
   
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
