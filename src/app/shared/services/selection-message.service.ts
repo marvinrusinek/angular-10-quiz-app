@@ -213,50 +213,59 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const idx = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+    // Which index are we talking about?
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
     // Token precedence: drop stale writes
     if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(idx);
+      const latest = this.latestByIndex.get(i0);
       if (latest != null && ctx.token !== latest) return;
     }
   
-    const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
+    // Always compute from the freshest array we can get
+    const opts: Option[] =
+      (Array.isArray(ctx?.options) && ctx!.options!.length)
+        ? ctx!.options!
+        : (this.latestOptionsSnapshot?.length ? this.latestOptionsSnapshot : []);
   
     const qType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
   
-    const norm = next.toLowerCase();
+    const norm       = next.toLowerCase();
     const isStartish = norm.includes('select an option');
     const isNextish  = norm.includes('next button') || norm.includes('show results');
   
-    if (qType !== QuestionType.MultipleAnswer) {
-      // SINGLE: never allow downgrades to start/continue after a click
-      const anySelected = opts.some(o => !!o?.selected);
-      const desired = anySelected
-        ? (idx === (this.quizService.totalQuestions - 1) ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG)
-        : (idx === 0 ? this.START_MSG : this.CONTINUE_MSG);
+    const anySelected = opts.some(o => !!o?.selected);
   
-      // If someone tries to send start/continue when something is selected, ignore.
+    if (qType !== QuestionType.MultipleAnswer) {
+      // SINGLE: after any click, never allow “start/continue” to overwrite Next/Results
       if (anySelected && isStartish) return;
   
-      if (current !== desired) this.selectionMessageSubject.next(desired);
+      // If the caller sent “start/continue” but we already have a selection, force Next/Results
+      if (anySelected && !isNextish) {
+        const isLast = i0 === (this.quizService.totalQuestions - 1);
+        const desired = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+        if (current !== desired) this.selectionMessageSubject.next(desired);
+        return;
+      }
+  
+      if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
   
-    // MULTI: compute remaining from provided options
+    // MULTI: guard both ways using passed/snapshotted options
     const correct = opts.filter(o => !!o?.correct);
     const selectedCorrect = correct.filter(o => !!o?.selected).length;
     const remaining = Math.max(0, correct.length - selectedCorrect);
   
-    // If at least one selection has been made, never accept a start/continue overwrite
+    // If at least one selection has been made, never allow “select an option…” to overwrite
     if (selectedCorrect > 0 && isStartish) return;
   
-    // While still incomplete, block Next-ish and prefer the remaining message
+    // While incomplete, block Next-ish and keep the remaining message stable
     if (remaining > 0 && isNextish) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
@@ -265,6 +274,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array you pass in
