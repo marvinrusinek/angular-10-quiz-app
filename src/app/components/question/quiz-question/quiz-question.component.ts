@@ -2688,49 +2688,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 🔹 FIRST: Build UPDATED array, gate Next, emit ONE message (token/freeze)
       //     - Avoids racing messages that caused flashing
       // ───────────────────────────────────────────────
+      // Gate answered/Next + emit message using the UPDATED array we pass to the service
       {
         // 1) Fresh array mirroring UI state
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
           ? this.optionsToDisplay.map(o => ({ ...o }))
           : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
-  
+
         // 2) Apply THIS click synchronously to both copy and live list
         const selected = typeof event.checked === 'boolean' ? event.checked : true;
         if (optionsNow[evtIdx]) optionsNow[evtIdx].selected = selected;
         if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay[evtIdx]) {
           (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
-  
-        // 3) Compute remaining from THIS array only
+
+        // 3) Compute remaining from this array only
         const correct = optionsNow.filter(o => !!o?.correct);
         const selectedCorrect = correct.filter(o => !!o?.selected).length;
         const remaining = Math.max(0, correct.length - selectedCorrect);
-  
+
         // 4) Next enable rule
+        const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
         const isLast  = i0 === (this.totalQuestions - 1);
-        if (isMultiSelect) {
+
+        if (isMulti) {
           const allCorrect = remaining === 0;
-          // Do NOT enable Next until remaining === 0
           this.quizStateService.setAnswerSelected(allCorrect);
           this.nextButtonStateService.setNextButtonState(allCorrect);
         } else {
-          // Single-answer → Next immediately
           this.quizStateService.setAnswerSelected(true);
           this.nextButtonStateService.setNextButtonState(true);
         }
-  
-        // 5) Emit ONE message based on this same array (token/freeze to prevent flashing)
-        const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze window (ms)
-        this.selectionMessageService.updateMessageFromSelection({
-          questionIndex: i0,
-          totalQuestions: this.totalQuestions,
-          questionType: this.currentQuestion?.type,
+
+        // 5) Build the ONE message we want to show (this was missing)
+        const msg = isMulti
+          ? (remaining > 0
+              ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+              : (isLast
+                  ? 'Please click the Show Results button.'
+                  : 'Please click the next button to continue...'))
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please click the next button to continue...');
+
+        // 6) Token + freeze; emit ONCE
+        const token = this.selectionMessageService.beginWrite?.(i0, 900); // keep the ~0.9s hold
+        this.selectionMessageService.updateSelectionMessage(msg, {
           options: optionsNow,
-          token
+          index: i0,
+          token,
+          questionType: this.currentQuestion?.type
         });
-        // Optionally end freeze immediately so later async writes (if any) can proceed when appropriate
-        this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
+
+        // ❌ Do NOT clear the window immediately; that re-allows the "Next" flash
+        // this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
       }
+
   
       // ───────────────────────────────────────────────
       // 🔹 THEN: Flip explanation UI + seed text (cached → raw → empty)
