@@ -259,6 +259,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private _hiddenAt: number | null = null; private _elapsedAtHide: number | null = null;
 
+  private _pendingPassiveRaf: number | null = null;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -1543,7 +1545,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       correct: option.correct ?? false
     }));
   
+    // Bind to UI
     this.optionsToDisplay = enrichedOptions;
+  
+    // 👉 Keep the service's snapshot in sync so passive messages can read it
+    this.selectionMessageService.setOptionsSnapshot?.(enrichedOptions);
   
     if (this.lastProcessedQuestionIndex !== this.currentQuestionIndex) {
       this.lastProcessedQuestionIndex = this.currentQuestionIndex;
@@ -1553,7 +1559,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // AFTER options are set, wait one microtask so bindings/DOM settle,
     // then flip loading→false and interactionReady→true so first click counts.
-    // Also reset click dedupe and pre-evaluate Next for multi if needed.
+    // Also reset click dedupe and pre-evaluate Next.
     queueMicrotask(() => {
       this.sharedOptionComponent?.generateOptionBindings();
       this.cdRef?.detectChanges();
@@ -1569,16 +1575,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.lastExplanationShownIndex = -1;
       this.explanationInFlight = false;
   
-      // Multi-select: start with Next disabled
-      const isMulti = this.currentQuestion?.type === QuestionType.MultipleAnswer;
-      if (isMulti) {
-        this.quizStateService.setAnswerSelected(false);
-        this.nextButtonStateService.setNextButtonState(false);
-      }
+      // ❗ Start with Next disabled for ALL questions until first selection
+      this.quizStateService.setAnswerSelected(false);
+      this.nextButtonStateService.setNextButtonState(false);
   
-      // 🔔 Now that the DOM is bound and interaction is enabled, emit the passive message.
-      // rAF ensures we read the same array the UI just rendered.
-      requestAnimationFrame(() => this.emitPassiveNow(this.currentQuestionIndex));
+      // 🔔 Now that the DOM is bound and interaction is enabled,
+      // emit the passive message from the same array the UI just rendered.
+      // rAF ensures we read the exact list post-render, preventing “flash”.
+      this._pendingPassiveRaf = requestAnimationFrame(
+        () => this.emitPassiveNow(this.currentQuestionIndex)
+      );
     });
   }
 
@@ -2652,6 +2658,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    // Stop any pending passive emit before doing anything
+    if (this._pendingPassiveRaf != null) {
+      cancelAnimationFrame(this._pendingPassiveRaf);
+      this._pendingPassiveRaf = null;
+    }
+
     // Wait instead of "return and replay" – prevents guaranteed 2nd click
     if (!this.quizStateService.isInteractionReady()) {
       await firstValueFrom(
@@ -2828,7 +2840,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
 
-        // 3) Compute remaining from THIS array only
+        // 3) Compute remaining from this array only
         const correct = optionsNow.filter(o => !!o?.correct);
         const selectedCorrect = correct.filter(o => !!o?.selected).length;
         const remaining = Math.max(0, correct.length - selectedCorrect);
@@ -2846,22 +2858,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.nextButtonStateService.setNextButtonState(true);
         }
 
-        // 5) Build ONE deterministic message from this array
-        let msg: string;
-        if (isMulti) {
-          if (selectedCorrect === 0) {
-            msg = 'Please select an option to continue...';
-          } else if (remaining > 0) {
-            msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          } else {
-            msg = isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...';
-          }
-        } else {
-          msg = isLast ? 'Please click the Show Results button.' : 'Please click the next button to continue...';
-        }
-
-        // 6) Token + emit once (don’t end the freeze immediately)
-        const token = this.selectionMessageService.beginWrite(i0, 600); // ~0.6s freeze to avoid flashes
+        // 5) Emit ONE message based on this same array
+        const token = this.selectionMessageService.beginWrite?.(i0, 500); // optional freeze
         this.selectionMessageService.updateMessageFromSelection({
           questionIndex: i0,
           totalQuestions: this.totalQuestions,
@@ -2869,8 +2867,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           options: optionsNow,
           token
         });
-        // ❌ Do NOT call endWrite() here; let the freeze window protect this message
+        this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
       }
+
   
       // (Legacy path) GUARD: only run if no cache yet.
       // Pin context here too; never write empties; only for same index.
@@ -5946,18 +5945,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private emitPassiveNow(index: number): void {
+    const i0 = this.normalizeIndex ? this.normalizeIndex(index) : index;
+  
+    // Stable snapshot of exactly what the UI just rendered
     const opts = Array.isArray(this.optionsToDisplay)
-      ? this.optionsToDisplay.map(o => ({ ...o }))  // shallow copy so service can read stable values
+      ? this.optionsToDisplay.map(o => ({ ...o }))
       : [];
   
-    const token = this.selectionMessageService.beginWrite(index, 300);  // optional freeze window (ms)
+    // Prefer the question’s type; fall back to counting correct options
+    const fallbackType =
+      (opts.filter(o => !!o?.correct).length > 1)
+        ? QuestionType.MultipleAnswer
+        : QuestionType.SingleAnswer;
+  
+    const qType = this.currentQuestion?.type ?? fallbackType;
+  
+    // Small freeze to prevent “Next” from immediately overwriting the
+    // initial “Start/Continue” message (tune 200–400ms as you like)
+    const token = this.selectionMessageService.beginWrite(i0, 300);
   
     this.selectionMessageService.updateMessageFromSelection({
-      questionIndex: index,
+      questionIndex: i0,
       totalQuestions: this.totalQuestions,
-      questionType: this.currentQuestion?.type,
+      questionType: qType,
       options: opts,
       token
     });
-  }
+  
+    // No need to endWrite() here — the freeze window will expire on its own.
+  }  
 }
