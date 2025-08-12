@@ -209,44 +209,49 @@ export class SelectionMessageService {
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
-    const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
-      ? (ctx!.index as number)
-      : ((this.quizService.currentQuestionIndex as number) ?? 0);
-  
-    // Token check (authoritative click writer)
-    if (typeof ctx?.token === 'number') {
-      const latest = this.latestByIndex.get(i0);
-      if (latest != null && ctx.token !== latest) return; // stale write
-    } else {
-      // Passive writers: do nothing during freeze
-      if (this.inFreezeWindow(i0)) return;
+    // Strict: require token + options to accept a write
+    if (this.strictMode) {
+      if (typeof ctx?.token !== 'number' || !Array.isArray(ctx?.options)) {
+        console.warn('[SM] drop write (missing token/options)', { next, ctx });
+        return;
+      }
     }
   
-    const opts: Option[] = Array.isArray(ctx?.options) ? ctx!.options! : [];
-    const qType =
-      ctx?.questionType ??
-      this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type;
+    const i0 = Number.isFinite(ctx?.index) ? (ctx!.index as number)
+                                           : this.quizService.currentQuestionIndex ?? 0;
   
-    const isMulti = qType === QuestionType.MultipleAnswer;
-    const norm = next.toLowerCase();
-    const isNextish = norm.includes('next button') || norm.includes('show results');
-  
-    // Authoritative remaining computed from PASSED array (no re-derives)
-    const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
-  
-    // Never let "Next/Results" overwrite a valid remaining message
-    if (isMulti && remaining > 0 && isNextish) {
-      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-      if (current !== hold) this.selectionMessageSubject.next(hold);
+    // Token freshness
+    const latest = this.latestByIndex.get(i0);
+    if (latest != null && ctx!.token! !== latest) {
+      console.log('[SM] stale write dropped', { i0, token: ctx!.token, latest });
       return;
     }
   
-    if (current !== next) this.selectionMessageSubject.next(next);
+    // Compute remaining from the PASSED array (authoritative)
+    const opts: Option[] = ctx!.options!;
+    const qType = ctx?.questionType
+      ?? this.quizService.currentQuestion?.getValue()?.type
+      ?? this.quizService.currentQuestion.value.type;
+    const isMulti = qType === QuestionType.MultipleAnswer;
+  
+    const correct = opts.filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const remaining = isMulti ? Math.max(0, correct.length - selected) : 0;
+  
+    const norm = next.toLowerCase();
+    const isNextish = norm.includes('next button') || norm.includes('show results');
+  
+    // Hard guard: if multi still has remaining, force the remaining message always
+    if (isMulti && remaining > 0) {
+      const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      if (this.selectionMessageSubject.value !== hold) this.selectionMessageSubject.next(hold);
+      return;
+    }
+  
+    if (this.selectionMessageSubject.value !== next) this.selectionMessageSubject.next(next);
   }
 
   // Helper: Compute and push atomically (passes options to guard)
