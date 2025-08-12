@@ -5946,5 +5946,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.fixedQuestionIndex = prevFixed;
       this.currentQuestionIndex = prevCur;
     }
-  }  
+  }
+
+  private emitPassiveNow(i0?: number): void {
+    const index = (typeof i0 === 'number') ? i0 : this.currentQuestionIndex;
+    const opts = (this.optionsToDisplay?.length
+      ? this.optionsToDisplay
+      : (this.currentQuestion?.options ?? [])) as Option[];
+  
+    this.selectionMessageService.emitPassive({
+      index,
+      totalQuestions: this.totalQuestions,
+      questionType: this.currentQuestion?.type,
+      options: opts
+    });
+  }
 }
