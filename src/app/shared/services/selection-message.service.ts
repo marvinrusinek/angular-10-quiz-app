@@ -226,23 +226,28 @@ export class SelectionMessageService {
       ?? this.quizService.currentQuestion.value.type;
   
     const isMulti = qType === QuestionType.MultipleAnswer;
+  
+    // case-insensitive “next/results”
     const norm = next.toLowerCase();
     const isNextish = norm.includes('next button') || norm.includes('show results');
   
     // Authoritative remaining from the PASSED array
     const remaining = isMulti ? this.getRemainingCorrectCount(opts) : 0;
   
-    // Freeze window: if still in window AND multi has remaining, block Next-ish overwrite
-    const until = this.freezeNextishUntil.get(i0) ?? 0;
-    if (isMulti && remaining > 0 && isNextish && performance.now() < until) {
+    // ── Freeze window: compute once, then use a readable boolean ──
+    const freezeUntil = this.freezeNextishUntil.get(i0) ?? 0;
+    const inFreezeWindow = performance.now() < freezeUntil;
+  
+    // If still in freeze AND multi has remaining, block Next-ish overwrite
+    if (isMulti && remaining > 0 && isNextish && inFreezeWindow) {
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
     }
   
-    // Outside window or no remaining → allow normal message
+    // Outside window or no remaining → allow normal message,
+    // BUT still block Next-ish if multi has remaining (authoritative)
     if (isMulti && remaining > 0 && isNextish) {
-      // Even outside window, don’t let Next overwrite a valid “remaining” msg
       const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       if (current !== hold) this.selectionMessageSubject.next(hold);
       return;
@@ -365,10 +370,28 @@ export class SelectionMessageService {
   }
 
   // Reserve a write slot for this question; returns the token to attach to the write.
-  private beginWrite(index: number, windowMs = 120): number {
+  public beginWrite(index: number, windowMs = 120): number {
     const token = ++this.writeSeq;
     this.latestByIndex.set(index, token);  // mark latest token per index
     this.freezeNextishUntil.set(index, performance.now() + windowMs);  // start freeze
     return token;
+  }
+
+  /** End a guarded write for this index.
+   *  - If `token` is stale (not the latest), we do nothing.
+   *  - If it’s the latest, we immediately end the “freeze window”
+   *    so legit Next/Results can show (once remaining === 0).
+   */
+  public endWrite(index: number, token?: number): void {
+    // If a token is provided and it’s not the latest, bail.
+    if (typeof token === 'number') {
+      const latest = this.latestByIndex.get(index);
+      if (latest != null && token !== latest) return;  // stale; ignore
+    }
+
+    // End the freeze window now (don’t rely on timeout)
+    if (this.freezeNextishUntil.has(index)) {
+      this.freezeNextishUntil.delete(index);
+    }
   }
 }
