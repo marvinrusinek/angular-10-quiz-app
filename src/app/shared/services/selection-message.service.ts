@@ -250,40 +250,37 @@ export class SelectionMessageService {
   }
 
   // Helper: Compute and push atomically (passes options to guard)
+  // Deterministic compute from the array you pass in
   public updateMessageFromSelection(params: {
     questionIndex: number;
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
-    token: number;
+    token?: number; // optional: service will mint if not provided
   }): void {
-    const { questionIndex, totalQuestions, questionType, options, token } = params;
-  
-    // Snapshot for anyone else (ok)
+    const { questionIndex, totalQuestions, questionType, options } = params;
+
     this.setOptionsSnapshot(options);
-  
-    // Compute from PASSED array only
+
+    const token = params.token ?? this.beginWrite(questionIndex, 600);
+
     const isLast   = totalQuestions > 0 && questionIndex === totalQuestions - 1;
-    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const correct  = options.filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
     const isMulti  = questionType === QuestionType.MultipleAnswer;
-  
-    let msg: string;
-    if (isMulti) {
-      const remaining = Math.max(0, correct.length - selected);
-      msg = (remaining > 0)
-        ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
-    } else {
-      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-    }
-  
-    // Forward exactly what we computed from + the token
+    const remaining = Math.max(0, correct.length - selected);
+
+    const msg = isMulti
+      ? (remaining > 0
+          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+          : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG))
+      : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+
     this.updateSelectionMessage(msg, {
-      options,
+      options: options,
       index: questionIndex,
       token,
-      questionType
+      questionType,
     });
   }
   
@@ -376,7 +373,7 @@ export class SelectionMessageService {
     }
     if (opts?.clearTokenWindow) this.freezeNextishUntil.delete(index);
   }
-  
+
   private inFreezeWindow(index: number): boolean {
     const until = this.freezeNextishUntil.get(index) ?? 0;
     return performance.now() < until;
