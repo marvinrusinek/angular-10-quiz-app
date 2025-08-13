@@ -42,7 +42,6 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
-
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -88,9 +87,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() questionData!: QuizQuestion;
   @Input() question!: QuizQuestion;
   @Input() question$: Observable<QuizQuestion>;
-  @Input() questions$: Observable<QuizQuestion[]> = new Observable<
-    QuizQuestion[]
-  >();
+  @Input() questions$: Observable<QuizQuestion[]> = new Observable<QuizQuestion[]>();
   @Input() options!: Option[];
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
