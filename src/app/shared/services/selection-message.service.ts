@@ -262,7 +262,7 @@ export class SelectionMessageService {
   }
   
   // Method to update the message
-  public updateSelectionMessage(
+  /* public updateSelectionMessage(
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
@@ -332,7 +332,65 @@ export class SelectionMessageService {
     } else {
       console.log(`[⏸️ No change → current message already "${current}"`);
     }
+  } */
+  public updateSelectionMessage(
+    message: string,
+    ctx?: {
+      options?: Option[];
+      index?: number;
+      token?: number;
+      questionType?: QuestionType;
+    }
+  ): void {
+    const current = this.selectionMessageSubject.getValue();
+    const next = (message ?? '').trim();
+    if (!next) return;
+  
+    const i0 = typeof ctx?.index === 'number' && Number.isFinite(ctx.index)
+      ? ctx!.index as number
+      : (this.quizService.currentQuestionIndex ?? 0);
+  
+    const latestToken = this.latestByIndex.get(i0);
+    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
+    if (inFreeze && ctx?.token !== latestToken) return;
+  
+    const opts: Option[] = Array.isArray(ctx?.options) && ctx!.options!.length
+      ? ctx!.options!
+      : this.getLatestOptionsSnapshot();
+  
+    const qType: QuestionType =
+      ctx?.questionType ??
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion.value.type;
+  
+    const isMulti = qType === QuestionType.MultipleAnswer;
+    const low = next.toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish = low.includes('next button') || low.includes('show results');
+  
+    // 🛡️ For SINGLE → never allow “Select more” type messages
+    if (!isMulti && isSelectish) {
+      const isLast = i0 === (this.quizService.totalQuestions - 1);
+      const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+      return;
+    }
+  
+    // 🛡️ For MULTI → block “Next” messages if not all correct options selected
+    if (isMulti) {
+      const remaining = this.getRemainingCorrectCount(opts);
+      if (remaining > 0 && isNextish) {
+        const fallback = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+        if (current !== fallback) this.selectionMessageSubject.next(fallback);
+        return;
+      }
+    }
+  
+    if (current !== next) {
+      this.selectionMessageSubject.next(next);
+    }
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
