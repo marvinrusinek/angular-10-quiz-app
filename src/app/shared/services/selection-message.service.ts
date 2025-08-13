@@ -213,12 +213,9 @@ export class SelectionMessageService {
       const remaining = this.getRemainingCorrectCount(options);
       const currentMsg = this.getCurrentMessage();
   
-      // 🛡️ Enforce internal guard against premature isAnswered = true in MULTI
-      const shouldForceAsUnanswered = isMulti && (remaining > 0);
-      const effectiveAnswered = isAnswered && !shouldForceAsUnanswered;
-  
       if (isMulti) {
-        if (!effectiveAnswered) {
+        // 🔐 Ignore external isAnswered — infer progress from remaining count
+        if (remaining > 0) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
           if (msg !== currentMsg) {
             this.updateSelectionMessage(msg);
@@ -226,7 +223,7 @@ export class SelectionMessageService {
           return;
         }
   
-        // All correct selected → allow Next/Results
+        // ✅ All correct selected — show Next or Show Results
         const msg = isLast
           ? 'Please click the Show Results button.'
           : 'Please select the next button to continue...';
@@ -237,7 +234,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // SINGLE-ANSWER logic
+      // SINGLE answer logic (only now respect isAnswered)
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
