@@ -565,12 +565,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.quizQuestionLoaderService.options$
       .pipe(
-        filter((arr) => Array.isArray(arr) && arr.length > 0) // skip empties
+        filter((arr) => Array.isArray(arr) && arr.length > 0)  // skip empties
       )
       .subscribe((opts: Option[]) => {
         // NEW array reference
         const fresh = [...opts];
-        this.currentOptions = fresh; // parent’s public field
+        this.currentOptions = fresh;  // parent’s public field
       });
 
     // Hydrate from payload
@@ -589,7 +589,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const { question, options, explanation } = payload;
         this.currentQuestion = question;
         this.explanationToDisplay = explanation?.trim() || '';
-        this.optionsToDisplay = structuredClone(options); // ensure isolation
+        this.optionsToDisplay = structuredClone(options);  // ensure isolation
 
         // Initialize option bindings if needed
         if (this.sharedOptionComponent) {
@@ -600,7 +600,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         setTimeout(() => {
           this.renderReady = true;
           this.hydrationInProgress = false;
-          this.cdRef.detectChanges(); // trigger OnPush refresh
+          this.cdRef.detectChanges();  // trigger OnPush refresh
         }, 0);
       });
 
@@ -608,7 +608,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Wait until questions are available
     if (!this.questionsArray || this.questionsArray.length <= index) {
-      setTimeout(() => this.ngAfterViewInit(), 50); // retry after a short delay
+      setTimeout(() => this.ngAfterViewInit(), 50);  // retry after a short delay
       return;
     }
 
@@ -669,8 +669,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       !!this.questionData?.questionText?.trim?.() ||
       !!this.currentQuestion?.questionText?.trim?.();
 
-    const hasValidOptions =
-      Array.isArray(this.options) && this.options.length > 0;
+    const hasValidOptions = Array.isArray(this.options) && this.options.length > 0;
 
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
@@ -681,7 +680,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } else {
       console.warn('[⏸️ renderReady] Conditions not met:', {
         hasValidQuestion,
-        hasValidOptions,
+        hasValidOptions
       });
       this.renderReadySubject.next(false);
     }
