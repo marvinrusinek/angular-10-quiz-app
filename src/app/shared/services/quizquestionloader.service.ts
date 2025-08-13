@@ -422,6 +422,8 @@ export class QuizQuestionLoaderService {
     this.quizStateService.updateCurrentQuestion(question);
 
     // Broadcast QA for any external listener (progressbar, etc.)
+    const selMsg = this.selectionMessageService
+      .determineSelectionMessage(index, this.totalQuestions, false);
     this.quizStateService.emitQA(
       question,
       options,
@@ -821,6 +823,10 @@ export class QuizQuestionLoaderService {
         correct  : !!o.correct,
         feedback : o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
+  
+      // ─── Synthesize the selection message ──────────────────────────
+      const msg = this.selectionMessageService
+                    .determineSelectionMessage(index, this.totalQuestions, false);
   
       // ─── Clone question and attach quizId and index ────────────────
       const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
