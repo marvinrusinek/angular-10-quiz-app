@@ -212,25 +212,29 @@ export class SelectionMessageService {
   
       if (isMulti) {
         const remaining = this.getRemainingCorrectCount(options);
+        const currentMsg = this.getCurrentMessage();
   
-        // 🛡️ Guard: if there are still correct options left, do not trust isAnswered = true
-        const allowNext = remaining === 0 && isAnswered;
-  
-        const message = remaining > 0
-          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-          : (isLast
-              ? 'Please click the Show Results button.'
-              : 'Please select the next button to continue...');
-  
-        const current = this.getCurrentMessage();
-        if (message !== current) {
-          this.updateSelectionMessage(message);
+        // 🛡️ Guard: Do not allow "Next"/"Show Results" messages until ALL correct selected
+        if (remaining > 0) {
+          const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+          if (msg !== currentMsg) {
+            this.updateSelectionMessage(msg);
+          }
+          return;
         }
   
+        // ✅ All correct selected — now allow next/results message
+        const msg = isLast
+          ? 'Please click the Show Results button.'
+          : 'Please select the next button to continue...';
+  
+        if (msg !== currentMsg) {
+          this.updateSelectionMessage(msg);
+        }
         return;
       }
   
-      // SINGLE: allow isAnswered to determine state
+      // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
@@ -239,14 +243,13 @@ export class SelectionMessageService {
             ? 'Please click the Show Results button.'
             : 'Please select the next button to continue...');
   
-      const current = this.getCurrentMessage();
-      if (newMessage !== current) {
+      if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
       }
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
-  }
+  } 
   
   // Method to update the message
   /* public updateSelectionMessage(
