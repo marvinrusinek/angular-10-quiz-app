@@ -822,10 +822,6 @@ export class QuizQuestionLoaderService {
         feedback : o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
   
-      // ─── Synthesize the selection message ──────────────────────────
-      const msg = this.selectionMessageService
-                    .determineSelectionMessage(index, this.totalQuestions, false);
-  
       // ─── Clone question and attach quizId and index ────────────────
       const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
         ...q,
