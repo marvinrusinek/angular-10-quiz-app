@@ -774,33 +774,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     }
   }
 
-  private async evaluateSelectionMessage(): Promise<void> {
-    const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
-      ? (this.optionsToDisplay as Option[])
-      : [];
-  
-    const isMultipleAnswer = this.isMultipleAnswer(this.currentQuestion);
-    const isLast = this.currentQuestionIndex === (this.totalQuestions - 1);
-  
-    if (isMultipleAnswer && !this.isAnswered) {
-      const message = this.selectionMessageService.getRemainingCorrect(optionsNow, isLast);
-      this.selectionMessageService.updateSelectionMessage(message, {
-        options: optionsNow,
-        index: this.currentQuestionIndex
-      });
-    } else {
-      const message = this.selectionMessageService.determineSelectionMessage(
-        this.currentQuestionIndex,
-        this.totalQuestions,
-        this.isAnswered
-      );
-      this.selectionMessageService.updateSelectionMessage(message, {
-        options: optionsNow,
-        index: this.currentQuestionIndex
-      });
-    }
-  }
-
   private async handleNavigationToQuestion(
     questionIndex: number
   ): Promise<void> {
@@ -942,7 +915,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
     try {
       setTimeout(async () => {
         await this.setSelectionMessage(true);
-        this.evaluateSelectionMessage();
         this.nextButtonStateService.evaluateNextButtonState(
           this.selectedOptionService.isAnsweredSubject.getValue(),
           this.quizStateService.isLoadingSubject.getValue(),
