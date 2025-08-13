@@ -422,8 +422,6 @@ export class QuizQuestionLoaderService {
     this.quizStateService.updateCurrentQuestion(question);
 
     // Broadcast QA for any external listener (progressbar, etc.)
-    const selMsg = this.selectionMessageService
-      .determineSelectionMessage(index, this.totalQuestions, false);
     this.quizStateService.emitQA(
       question,
       options,
@@ -462,14 +460,6 @@ export class QuizQuestionLoaderService {
       });
       this.timerService.isTimerRunning = false;
     } else {
-      // selection message for unanswered question
-      const selMsg = this.selectionMessageService
-        .determineSelectionMessage(idx, this.totalQuestions, false);
-
-      if (this.selectionMessageService.getCurrentMessage() !== selMsg) {
-        setTimeout(() =>
-          this.selectionMessageService.updateSelectionMessage(selMsg), 100);
-      }
       this.timerService.startTimer(this.timerService.timePerQuestion);
     }
 
