@@ -214,30 +214,29 @@ export class SelectionMessageService {
   
       if (isMulti) {
         const remaining = this.getRemainingCorrectCount(options);
-  
-        // Compute intended message
-        const intendedMsg = (remaining > 0)
-          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-          : (isLast
-              ? 'Please click the Show Results button.'
-              : 'Please select the next button to continue...');
-  
         const currentMsg = this.getCurrentMessage();
   
-        // 🛡️ Guard: prevent switching to “Next” or “Results” if options are still remaining
-        const isNextish = intendedMsg.includes('next button') || intendedMsg.includes('show results');
-        const shouldBlock = isNextish && remaining > 0;
+        // 🛡️ Guard: block "Next"/"Results" if any correct options are still unselected
+        if (remaining > 0 || !isAnswered) {
+          const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+          if (msg !== currentMsg) {
+            this.updateSelectionMessage(msg);
+          }
+          return;
+        }
   
-        if (!shouldBlock && intendedMsg !== currentMsg) {
-          this.updateSelectionMessage(intendedMsg);
-        } else if (shouldBlock && !currentMsg.startsWith('Select')) {
-          const fallback = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          this.updateSelectionMessage(fallback);
+        // ✅ All correct options selected — show Next/Results message
+        const msg = isLast
+          ? 'Please click the Show Results button.'
+          : 'Please select the next button to continue...';
+  
+        if (msg !== currentMsg) {
+          this.updateSelectionMessage(msg);
         }
         return;
       }
   
-      // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
+      // SINGLE: show message based on answer status and position
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
@@ -249,11 +248,11 @@ export class SelectionMessageService {
       if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
       }
+  
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
   }
-  
 
   // Method to update the message
   public updateSelectionMessage(
