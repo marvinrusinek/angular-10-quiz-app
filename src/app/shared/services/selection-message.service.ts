@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
@@ -22,12 +21,10 @@ export class SelectionMessageService {
   );
 
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
-  private lastSelectionMutation = 0;
-
-  private strictMode = true;
+  
   private writeSeq = 0;
+  public lastSelectionMutation = 0;
   private latestByIndex = new Map<number, number>();
-  private activeTokenUntil = new Map<number, number>();     // token is valid until ts
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
