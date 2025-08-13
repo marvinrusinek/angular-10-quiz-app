@@ -195,11 +195,9 @@ export class SelectionMessageService {
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
-    console.log('[TRACE] setSelectionMessage CALLED', {
-      isAnswered,
-      index: this.quizService.currentQuestionIndex,
-      currentMessage: this.getCurrentMessage()
-    });
+    console.log(
+      `[TRACE] setSelectionMessage CALLED → index=${this.quizService.currentQuestionIndex}, isAnswered=${isAnswered}, current="${this.getCurrentMessage()}"`
+    );
     
     try {
       // 🧱 Guard: throttle excessive calls within a render cycle
