@@ -192,16 +192,7 @@ export class SelectionMessageService {
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
-    console.log(
-      `[TRACE] setSelectionMessage CALLED → index=${this.quizService.currentQuestionIndex}, isAnswered=${isAnswered}, current="${this.getCurrentMessage()}"`
-    );
-    
     try {
-      // 🧱 Guard: throttle excessive calls within a render cycle
-      if (this.selectionMessageCooldown) return;
-      this.selectionMessageCooldown = true;
-      setTimeout(() => this.selectionMessageCooldown = false, 50); // Small buffer
-  
       const index = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
   
@@ -215,32 +206,31 @@ export class SelectionMessageService {
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
+      // MULTI: show remaining until done
       const correct = options.filter(o => !!o?.correct);
       const isMulti = correct.length > 1;
-      const remaining = this.getRemainingCorrectCount(options);
-      const currentMsg = this.getCurrentMessage();
   
       if (isMulti) {
-        // ❌ Ignore isAnswered, base logic purely on remaining
-        if (remaining > 0) {
-          const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          if (msg !== currentMsg) {
-            this.updateSelectionMessage(msg);
-          }
-          return;
+        const remaining = this.getRemainingCorrectCount(options);
+  
+        // 🛡️ Guard: if there are still correct options left, do not trust isAnswered = true
+        const allowNext = remaining === 0 && isAnswered;
+  
+        const message = remaining > 0
+          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please select the next button to continue...');
+  
+        const current = this.getCurrentMessage();
+        if (message !== current) {
+          this.updateSelectionMessage(message);
         }
   
-        // ✅ All correct selected
-        const msg = isLast
-          ? 'Please click the Show Results button.'
-          : 'Please select the next button to continue...';
-        if (msg !== currentMsg) {
-          this.updateSelectionMessage(msg);
-        }
         return;
       }
   
-      // ✅ Single-answer logic
+      // SINGLE: allow isAnswered to determine state
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
@@ -249,10 +239,10 @@ export class SelectionMessageService {
             ? 'Please click the Show Results button.'
             : 'Please select the next button to continue...');
   
-      if (newMessage !== currentMsg) {
+      const current = this.getCurrentMessage();
+      if (newMessage !== current) {
         this.updateSelectionMessage(newMessage);
       }
-  
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
