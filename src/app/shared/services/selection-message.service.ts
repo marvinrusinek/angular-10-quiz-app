@@ -211,17 +211,30 @@ export class SelectionMessageService {
       // MULTI: show remaining until done
       const correct = options.filter(o => !!o?.correct);
       const isMulti = correct.length > 1;
+  
       if (isMulti) {
         const remaining = this.getRemainingCorrectCount(options);
-        const msg = (remaining > 0)
-          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-          : (isLast
-              ? 'Please click the Show Results button.'
-              : 'Please select the next button to continue...');
-        if (msg !== this.getCurrentMessage()) this.updateSelectionMessage(msg);
+  
+        // Prevent premature "Next" message if still missing correct selections
+        if (remaining > 0 || !isAnswered) {
+          const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+          if (msg !== this.getCurrentMessage()) {
+            this.updateSelectionMessage(msg);
+          }
+          return;
+        }
+  
+        // All correct options selected — allow Next/Results
+        const msg = isLast
+          ? 'Please click the Show Results button.'
+          : 'Please select the next button to continue...';
+  
+        if (msg !== this.getCurrentMessage()) {
+          this.updateSelectionMessage(msg);
+        }
         return;
       }
-
+  
       // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
       const newMessage = !isAnswered
         ? (index === 0
@@ -230,7 +243,7 @@ export class SelectionMessageService {
         : (isLast
             ? 'Please click the Show Results button.'
             : 'Please select the next button to continue...');
-
+  
       if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
       }
