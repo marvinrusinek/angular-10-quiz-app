@@ -12,6 +12,9 @@ const START_MSG = 'Please start the quiz by selecting an option.';
 const CONTINUE_MSG = 'Please select an option to continue...';
 const NEXT_BTN_MSG = 'Please click the next button to continue.';
 const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
+const buildRemainingMsg = (remaining: number) =>
+  `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -151,9 +154,7 @@ export class SelectionMessageService {
     if (remaining > 0) {
       return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
     }
-    return isLastQuestion
-      ? 'Please click the Show Results button.'
-      : 'Please select the next button to continue...';
+    return isLastQuestion ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
   private pluralize(n: number, singular: string, plural: string): string {
@@ -181,16 +182,13 @@ export class SelectionMessageService {
       if (remaining > 0) {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-      return isLast
-        ? 'Please click the Show Results button.'
-        : 'Please click the next button to continue...';
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     // Single-answer: after any click, show Next/Results
-    return isLast
-      ? 'Please click the Show Results button.'
-      : 'Please click the next button to continue...';
+    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
@@ -235,7 +233,7 @@ export class SelectionMessageService {
           return;
         }
   
-        const finalMsg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+        const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         if (finalMsg.trim() !== currentMsg?.trim()) {
           this.updateSelectionMessage(finalMsg);
         }
@@ -244,8 +242,8 @@ export class SelectionMessageService {
   
       // SINGLE-ANSWER fallback
       const newMessage = !isAnswered
-        ? (index === 0 ? this.START_MSG : this.CONTINUE_MSG)
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+        ? (index === 0 ? START_MSG : CONTINUE_MSG)
+        : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
   
       if (newMessage.trim() !== currentMsg?.trim()) {
         this.updateSelectionMessage(newMessage);
@@ -366,7 +364,7 @@ export class SelectionMessageService {
     // 🛡️ For SINGLE → never allow “Select more” type messages
     if (!isMulti && isSelectish) {
       const isLast = i0 === (this.quizService.totalQuestions - 1);
-      const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      const replacement = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== replacement) this.selectionMessageSubject.next(replacement);
       return;
     }
