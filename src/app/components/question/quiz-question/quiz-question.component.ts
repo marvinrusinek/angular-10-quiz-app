@@ -763,8 +763,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Not expiring now → clear snapshots and continue
       this._hiddenAt = null;
       this._elapsedAtHide = null;
-    } catch (e) {
-      console.warn('[onVisibilityChange] fast-path expiry check failed', e);
+    } catch (err) {
+      console.warn('[onVisibilityChange] fast-path expiry check failed', err);
     }
 
     // Restore flow
@@ -782,7 +782,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
               ...option,
               optionId: option.optionId ?? index,  // ensure optionId
-              correct: option.correct ?? false,  // ensure correct flag
+              correct: option.correct ?? false     // ensure correct flag
             }));
           } else {
             console.error('[onVisibilityChange] ❌ Failed to repopulate optionsToDisplay. Aborting feedback restoration.');
@@ -852,9 +852,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    const validOptions = sourceQuestion.options.filter(
-      (o) => !!o && typeof o === 'object'
-    );
+    const validOptions = sourceQuestion.options.filter((o) => !!o && typeof o === 'object');
     if (!validOptions.length) {
       console.warn(`${context} ❌ All options were invalid.`);
       return;
@@ -867,7 +865,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       feedback: opt.feedback ?? '',
       showIcon: opt.showIcon ?? false,
       selected: false,
-      highlighted: false,
+      highlighted: false
     }));
   }
 
@@ -875,15 +873,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public updateOptionsSafely(newOptions: Option[]): void {
     const incoming = JSON.stringify(newOptions);
     const current = JSON.stringify(this.optionsToDisplay);
-
-    console.log(
-      'B-QQC   →',
-      this.optionsToDisplay.map((o) => o.text)
-    );
-    console.log(
-      '[QQC RECEIVED]',
-      newOptions.map((o) => o.text)
-    );
 
     if (incoming !== current) {
       // Block render while we swap lists
@@ -954,9 +943,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private hydrateFromPayload(payload: QuestionPayload): void {
-    console.log('[🔍 hydrateFromPayload CALLED with]', payload);
-    console.time('[⏱️ hydrateFromPayload]');
-
     // Compare by questionText instead of full JSON
     const incomingQuestionText = payload?.question?.questionText?.trim();
     const currentQuestionText = this.currentQuestion?.questionText?.trim();
@@ -970,17 +956,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn(
         '[⚠️ Skipping rehydration: same question text and already rendered]'
       );
-      console.timeEnd('[⏱️ hydrateFromPayload]');
       return;
     }
 
     // Store payload and reset render flags
-    this.lastSerializedPayload = JSON.stringify(payload); // update for tracking
+    this.lastSerializedPayload = JSON.stringify(payload);  // update for tracking
     this.renderReady = false;
     this.finalRenderReady = false;
     this.renderReadySubject.next(false);
     this.finalRenderReadySubject.next(false);
-    this.cdRef.detectChanges(); // clear UI
+    this.cdRef.detectChanges();  // clear UI
 
     const { question, options, explanation } = payload;
 
@@ -993,23 +978,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Now inject the AnswerComponent
     if (!this.containerInitialized && this.dynamicAnswerContainer) {
-      console.time('[⏱️ loadDynamicComponent]');
       this.loadDynamicComponent(this.currentQuestion, this.optionsToDisplay);
       this.containerInitialized = true;
-      console.timeEnd('[⏱️ loadDynamicComponent]');
-      console.log('[⚙️ loadDynamicComponent] fired from payload hydrate block');
     }
 
     if (this.sharedOptionComponent) {
-      console.time('[🛠️ initializeOptionBindings]');
       this.sharedOptionComponent.initializeOptionBindings();
-      console.timeEnd('[🛠️ initializeOptionBindings]');
     }
 
     // Set render flags after bindings
     setTimeout(() => {
-      console.time('[⏹️ post-bindings renderReady check]');
-
       const bindingsReady =
         Array.isArray(this.sharedOptionComponent?.optionBindings) &&
         this.sharedOptionComponent.optionBindings.length > 0 &&
@@ -1027,9 +1005,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else {
         console.warn('[❌ renderReady skipped: options or bindings not ready]');
       }
-
-      console.timeEnd('[⏹️ post-bindings renderReady check]');
-      console.timeEnd('[⏱️ hydrateFromPayload]');
     }, 0);
   }
 
