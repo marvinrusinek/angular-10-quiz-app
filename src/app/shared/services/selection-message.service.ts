@@ -261,27 +261,22 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    // Resolve index
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : ((this.quizService.currentQuestionIndex as number) ?? 0);
   
-    // Token/freeze gating
     const latestToken = this.latestByIndex.get(i0);
     const inFreeze = this.inFreezeWindow?.(i0) ?? false;
   
-    // If we’re inside the freeze window, ignore writes that do not carry the latest token
-    // (i.e., ignore passive/legacy writers that didn’t mint the token from the click)
     if (inFreeze && ctx?.token !== latestToken) {
+      console.warn(`[⏸️ BLOCKED: freeze window] index=${i0}, token=${ctx?.token}, expected=${latestToken}`);
       return;
     }
   
-    // Prefer caller-supplied array; else a recent snapshot; else empty
     const opts: Option[] = Array.isArray(ctx?.options) && ctx!.options!.length
       ? ctx!.options!
       : this.getLatestOptionsSnapshot();
   
-    // Prefer caller’s type; else current question’s value
     const qType: QuestionType =
       ctx?.questionType ??
       this.quizService.currentQuestion?.getValue()?.type ??
@@ -289,31 +284,44 @@ export class SelectionMessageService {
   
     const isMulti = qType === QuestionType.MultipleAnswer;
   
-    // Classify incoming “select more …” / “next/results …” text
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish = low.includes('next button') || low.includes('show results');
   
-    // For SINGLE-ANSWER questions, never show “Select … more …”
+    // 🔍 Main log for all messages
+    console.log(`[🔄 updateSelectionMessage] Q${i0} | current="${current}" | next="${next}" | isMulti=${isMulti}`);
+  
     if (!isMulti && isSelectish) {
-      const isLast = (this.quizService.currentQuestionIndex as number) === (this.quizService.totalQuestions - 1);
+      const isLast = i0 === (this.quizService.totalQuestions - 1);
       const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+      if (current !== replacement) {
+        console.log(`[🚫 BLOCKED: Single-answer should not show “select more…” → replacing with "${replacement}"`);
+        this.selectionMessageSubject.next(replacement);
+      } else {
+        console.log(`[ℹ️ No update needed — already showing "${current}"`);
+      }
       return;
     }
   
-    // For MULTI, block Next-ish while correct answers remain
     if (isMulti) {
       const remaining = this.getRemainingCorrectCount(opts);
       if (remaining > 0 && isNextish) {
         const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-        if (current !== hold) this.selectionMessageSubject.next(hold);
+        if (current !== hold) {
+          console.log(`[🚫 BLOCKED: Multi-answer not done yet → forcing “${hold}”`);
+          this.selectionMessageSubject.next(hold);
+        } else {
+          console.log(`[ℹ️ Multi-answer holding at: "${current}"`);
+        }
         return;
       }
     }
   
     if (current !== next) {
+      console.log(`[✅ Message updated → "${next}"`);
       this.selectionMessageSubject.next(next);
+    } else {
+      console.log(`[⏸️ No change → current message already "${current}"`);
     }
   }
 
