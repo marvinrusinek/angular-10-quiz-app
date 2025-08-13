@@ -5759,12 +5759,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Called when the countdown hits zero
   private async onTimerExpiredFor(index: number): Promise<void> {
     const i0 = this.normalizeIndex(index);
-    if (this.handledOnExpiry?.has?.(i0)) return;
-    this.handledOnExpiry?.add?.(i0);
+    if (this.handledOnExpiry.has(i0)) return;
+    this.handledOnExpiry.add(i0);
   
     // Flip into explanation mode and enable Next immediately
     this.ngZone.run(() => {
-      this.timerService.stopTimer?.();
+      this.timerService.stopTimer();
   
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
@@ -5802,9 +5802,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // but ensure the local mirrors are updated too.
         this.ngZone.run(() => {
           this.explanationToDisplay = formattedNow;
-          this.explanationToDisplayChange?.emit(formattedNow);
-          this.cdRef.markForCheck?.();
-          this.cdRef.detectChanges?.();
+          this.explanationToDisplayChange.emit(formattedNow);
+          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         });
         return;  // formatted done
       }
@@ -5818,9 +5818,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.ngZone.run(() => {
         this.explanationTextService.setExplanationText(rawBest);
         this.explanationToDisplay = rawBest;
-        this.explanationToDisplayChange?.emit(rawBest);
-        this.cdRef.markForCheck?.();
-        this.cdRef.detectChanges?.();
+        this.explanationToDisplayChange.emit(rawBest);
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       });
   
       this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 })
@@ -5834,12 +5834,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.ngZone.run(() => {
             this.explanationTextService.setExplanationText(out);
             this.explanationToDisplay = out;
-            this.explanationToDisplayChange?.emit(out);
-            this.cdRef.markForCheck?.();
-            this.cdRef.detectChanges?.();
+            this.explanationToDisplayChange.emit(out);
+            this.cdRef.markForCheck();
+            this.cdRef.detectChanges();
           });
         })
-        .catch(() => {});  
+        .catch(() => {});
     } catch (err) {
       console.warn('[onTimerExpiredFor] failed; using raw', err);
     } finally {
@@ -5882,8 +5882,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Fallback: formatter writes to a stream
       if (!text && this.explanationTextService.formattedExplanation$) {
-        const src$ = this.explanationTextService
-          .formattedExplanation$ as Observable<string | null | undefined>;
+        const src$ = this.explanationTextService.formattedExplanation$ as Observable<string | null | undefined>;
 
         const formatted$: Observable<string> = src$.pipe(
           filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
@@ -5914,8 +5913,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Stable snapshot of exactly what the UI just rendered
     const opts = Array.isArray(this.optionsToDisplay)
-      ? this.optionsToDisplay.map(o => ({ ...o }))
-      : [];
+      ? this.optionsToDisplay.map(o => ({ ...o })) : [];
   
     // Prefer the question’s type; fall back to counting correct options
     const fallbackType =
