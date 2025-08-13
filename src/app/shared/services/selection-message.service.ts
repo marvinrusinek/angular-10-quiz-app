@@ -208,16 +208,17 @@ export class SelectionMessageService {
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
   
-      // MULTI: show remaining until done
       const correct = options.filter(o => !!o?.correct);
       const isMulti = correct.length > 1;
+      const remaining = this.getRemainingCorrectCount(options);
+      const currentMsg = this.getCurrentMessage();
+  
+      // 🛡️ Enforce internal guard against premature isAnswered = true in MULTI
+      const shouldForceAsUnanswered = isMulti && (remaining > 0);
+      const effectiveAnswered = isAnswered && !shouldForceAsUnanswered;
   
       if (isMulti) {
-        const remaining = this.getRemainingCorrectCount(options);
-        const currentMsg = this.getCurrentMessage();
-  
-        // 🛡️ Guard: block "Next"/"Results" if any correct options are still unselected
-        if (remaining > 0 || !isAnswered) {
+        if (!effectiveAnswered) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
           if (msg !== currentMsg) {
             this.updateSelectionMessage(msg);
@@ -225,7 +226,7 @@ export class SelectionMessageService {
           return;
         }
   
-        // ✅ All correct options selected — show Next/Results message
+        // All correct selected → allow Next/Results
         const msg = isLast
           ? 'Please click the Show Results button.'
           : 'Please select the next button to continue...';
@@ -236,7 +237,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // SINGLE: show message based on answer status and position
+      // SINGLE-ANSWER logic
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
@@ -245,7 +246,7 @@ export class SelectionMessageService {
             ? 'Please click the Show Results button.'
             : 'Please select the next button to continue...');
   
-      if (newMessage !== this.getCurrentMessage()) {
+      if (newMessage !== currentMsg) {
         this.updateSelectionMessage(newMessage);
       }
   
