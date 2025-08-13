@@ -215,22 +215,24 @@ export class SelectionMessageService {
       if (isMulti) {
         const remaining = this.getRemainingCorrectCount(options);
   
-        // Prevent premature "Next" message if still missing correct selections
-        if (remaining > 0 || !isAnswered) {
-          const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          if (msg !== this.getCurrentMessage()) {
-            this.updateSelectionMessage(msg);
-          }
-          return;
-        }
+        // Compute intended message
+        const intendedMsg = (remaining > 0)
+          ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
+          : (isLast
+              ? 'Please click the Show Results button.'
+              : 'Please select the next button to continue...');
   
-        // All correct options selected — allow Next/Results
-        const msg = isLast
-          ? 'Please click the Show Results button.'
-          : 'Please select the next button to continue...';
+        const currentMsg = this.getCurrentMessage();
   
-        if (msg !== this.getCurrentMessage()) {
-          this.updateSelectionMessage(msg);
+        // 🛡️ Guard: prevent switching to “Next” or “Results” if options are still remaining
+        const isNextish = intendedMsg.includes('next button') || intendedMsg.includes('show results');
+        const shouldBlock = isNextish && remaining > 0;
+  
+        if (!shouldBlock && intendedMsg !== currentMsg) {
+          this.updateSelectionMessage(intendedMsg);
+        } else if (shouldBlock && !currentMsg.startsWith('Select')) {
+          const fallback = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+          this.updateSelectionMessage(fallback);
         }
         return;
       }
@@ -251,6 +253,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
   }
+  
 
   // Method to update the message
   public updateSelectionMessage(
