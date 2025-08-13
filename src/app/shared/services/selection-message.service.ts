@@ -29,6 +29,7 @@ export class SelectionMessageService {
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
   private selectionMessageCooldown = false;
+  private selectionMessageLock = false;
 
   constructor(
     private quizService: QuizService, 
@@ -195,26 +196,33 @@ export class SelectionMessageService {
     try {
       const index = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-  
+
       if (typeof index !== 'number' || isNaN(index) || total <= 0) {
         console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
         return;
       }
-  
+
+      // 🚨 Early lock to prevent double-firing within short timeframe
+      if (this.selectionMessageLock) {
+        console.log('[⛔ setSelectionMessage blocked by lock]');
+        return;
+      }
+      this.selectionMessageLock = true;
+      setTimeout(() => { this.selectionMessageLock = false; }, 50); // unlock after 50ms
+
       const svc: any = this.quizService as any;
       const q: QuizQuestion = svc.currentQuestion ?? (Array.isArray(svc.questions) ? svc.questions[index] : undefined);
       const options: Option[] = (q?.options ?? []) as Option[];
       const isLast = index === total - 1;
-  
+
       // MULTI: show remaining until done
       const correct = options.filter(o => !!o?.correct);
       const isMulti = correct.length > 1;
-  
+
       if (isMulti) {
         const remaining = this.getRemainingCorrectCount(options);
         const currentMsg = this.getCurrentMessage();
-  
-        // 🛡️ Guard: Do not allow "Next"/"Show Results" messages until ALL correct selected
+
         if (remaining > 0) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
           if (msg !== currentMsg) {
@@ -222,18 +230,17 @@ export class SelectionMessageService {
           }
           return;
         }
-  
-        // ✅ All correct selected — now allow next/results message
+
         const msg = isLast
           ? 'Please click the Show Results button.'
           : 'Please select the next button to continue...';
-  
+
         if (msg !== currentMsg) {
           this.updateSelectionMessage(msg);
         }
         return;
       }
-  
+
       // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
       const newMessage = !isAnswered
         ? (index === 0
@@ -242,14 +249,15 @@ export class SelectionMessageService {
         : (isLast
             ? 'Please click the Show Results button.'
             : 'Please select the next button to continue...');
-  
+
       if (newMessage !== this.getCurrentMessage()) {
         this.updateSelectionMessage(newMessage);
       }
+
     } catch (error) {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
-  } 
+  }
   
   // Method to update the message
   /* public updateSelectionMessage(
