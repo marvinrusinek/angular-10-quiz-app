@@ -8,14 +8,14 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../shared/services/selectedoption.service';
 
+const START_MSG = 'Please start the quiz by selecting an option.';
+const CONTINUE_MSG = 'Please select an option to continue...';
+const NEXT_BTN_MSG = 'Please click the next button to continue.';
+const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
+
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  private readonly START_MSG = 'Please start the quiz by selecting an option.';
-  private readonly CONTINUE_MSG = 'Please select an option to continue...';
-  private readonly NEXT_BTN_MSG = 'Please click the next button to continue.';
-  private readonly SHOW_RESULTS_MSG = 'Please click the Show Results button.';
-
-  private selectionMessageSubject = new BehaviorSubject<string>(this.START_MSG);
+  private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
   public selectionMessage$: Observable<string> = this.selectionMessageSubject.pipe(
     distinctUntilChanged()
   );
@@ -73,7 +73,7 @@ export class SelectionMessageService {
 
     // Before any selection → START/CONTINUE only (no “Next” before a choice)
     if (!anySelected) {
-      return index === 0 ? this.START_MSG : this.CONTINUE_MSG;
+      return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
     // After selection
@@ -86,11 +86,11 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
       // All correct chosen
-      return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // Single-answer → immediately Next/Results
-    return isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
   public getRemainingCorrectCountByIndex(
@@ -196,68 +196,65 @@ export class SelectionMessageService {
     try {
       const index = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-
+  
       if (typeof index !== 'number' || isNaN(index) || total <= 0) {
         console.warn('[❌ setSelectionMessage] Invalid index or totalQuestions');
         return;
       }
-
-      // 🚨 Early lock to prevent double-firing within short timeframe
-      if (this.selectionMessageLock) {
-        console.log('[⛔ setSelectionMessage blocked by lock]');
-        return;
-      }
-      this.selectionMessageLock = true;
-      setTimeout(() => { this.selectionMessageLock = false; }, 50); // unlock after 50ms
-
+  
       const svc: any = this.quizService as any;
       const q: QuizQuestion = svc.currentQuestion ?? (Array.isArray(svc.questions) ? svc.questions[index] : undefined);
       const options: Option[] = (q?.options ?? []) as Option[];
+  
+      if (!q || !Array.isArray(options) || !options.length) {
+        console.warn(`[❌ No valid question/options at Q${index}]`);
+        return;
+      }
+  
       const isLast = index === total - 1;
-
-      // MULTI: show remaining until done
       const correct = options.filter(o => !!o?.correct);
       const isMulti = correct.length > 1;
-
+      const selectedCorrect = options.filter(o => o.selected && o.correct);
+      const remaining = correct.length - selectedCorrect.length;
+  
+      const currentMsg = this.getCurrentMessage();
+  
+      // 🛑 BLOCK: If multi-answer and not all correct selected, block Next/Result msg
       if (isMulti) {
-        const remaining = this.getRemainingCorrectCount(options);
-        const currentMsg = this.getCurrentMessage();
-
+        // 🔒 Prevent premature "Next" message if isAnswered=true was passed early
+        if (isAnswered && remaining > 0) {
+          console.warn(`[⚠️ BLOCKED premature isAnswered=true for Q${index}, remaining=${remaining}]`);
+          return;
+        }
+  
         if (remaining > 0) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          if (msg !== currentMsg) {
+          if (msg.trim() !== currentMsg?.trim()) {
             this.updateSelectionMessage(msg);
           }
           return;
         }
-
-        const msg = isLast
-          ? 'Please click the Show Results button.'
-          : 'Please select the next button to continue...';
-
-        if (msg !== currentMsg) {
-          this.updateSelectionMessage(msg);
+  
+        const finalMsg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+        if (finalMsg.trim() !== currentMsg?.trim()) {
+          this.updateSelectionMessage(finalMsg);
         }
         return;
       }
-
-      // SINGLE: never show “Select …” → Next/Results if answered, else start/continue
+  
+      // SINGLE-ANSWER fallback
       const newMessage = !isAnswered
-        ? (index === 0
-            ? 'Please start the quiz by selecting an option.'
-            : 'Please select an option to continue...')
-        : (isLast
-            ? 'Please click the Show Results button.'
-            : 'Please select the next button to continue...');
-
-      if (newMessage !== this.getCurrentMessage()) {
+        ? (index === 0 ? this.START_MSG : this.CONTINUE_MSG)
+        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+  
+      if (newMessage.trim() !== currentMsg?.trim()) {
         this.updateSelectionMessage(newMessage);
       }
-
-    } catch (error) {
-      console.error('[❌ setSelectionMessage ERROR]', error);
+  
+    } catch (err) {
+      console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }
+  }  
   
   // Method to update the message
   /* public updateSelectionMessage(
