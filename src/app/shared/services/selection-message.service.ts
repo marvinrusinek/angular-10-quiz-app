@@ -30,7 +30,8 @@ export class SelectionMessageService {
   private activeTokenUntil = new Map<number, number>();     // token is valid until ts
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
-  private debugWrites = false; 
+  private debugWrites = false;
+  private selectionMessageCooldown = false;
 
   constructor(
     private quizService: QuizService, 
@@ -194,7 +195,18 @@ export class SelectionMessageService {
   }
 
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
+    console.log('[TRACE] setSelectionMessage CALLED', {
+      isAnswered,
+      index: this.quizService.currentQuestionIndex,
+      currentMessage: this.getCurrentMessage()
+    });
+    
     try {
+      // 🧱 Guard: throttle excessive calls within a render cycle
+      if (this.selectionMessageCooldown) return;
+      this.selectionMessageCooldown = true;
+      setTimeout(() => this.selectionMessageCooldown = false, 50); // Small buffer
+  
       const index = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
   
@@ -214,7 +226,7 @@ export class SelectionMessageService {
       const currentMsg = this.getCurrentMessage();
   
       if (isMulti) {
-        // 🔐 Ignore external isAnswered — infer progress from remaining count
+        // ❌ Ignore isAnswered, base logic purely on remaining
         if (remaining > 0) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
           if (msg !== currentMsg) {
@@ -223,18 +235,17 @@ export class SelectionMessageService {
           return;
         }
   
-        // ✅ All correct selected — show Next or Show Results
+        // ✅ All correct selected
         const msg = isLast
           ? 'Please click the Show Results button.'
           : 'Please select the next button to continue...';
-  
         if (msg !== currentMsg) {
           this.updateSelectionMessage(msg);
         }
         return;
       }
   
-      // SINGLE answer logic (only now respect isAnswered)
+      // ✅ Single-answer logic
       const newMessage = !isAnswered
         ? (index === 0
             ? 'Please start the quiz by selecting an option.'
@@ -251,7 +262,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', error);
     }
   }
-
+  
   // Method to update the message
   public updateSelectionMessage(
     message: string,
