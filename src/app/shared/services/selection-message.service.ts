@@ -30,7 +30,6 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
-  private writeFreezeMap = new Map<number, { token: number; expiry: number }>();
 
   constructor(
     private quizService: QuizService, 
@@ -444,18 +443,14 @@ export class SelectionMessageService {
   }
 
   public isWriteFrozen(index: number, token: number): boolean {
-    const record = this.writeFreezeMap.get(index);
+    const latest = this.latestByIndex.get(index);
+    const stillFrozen = this.inFreezeWindow(index);
   
-    // No record = not frozen
-    if (!record) return false;
-  
-    // Token mismatch = not frozen (a newer or older write)
-    if (record.token !== token) return false;
-  
-    // If current time is still before expiry, it's frozen
-    return Date.now() < record.expiry;
+    // Only frozen if:
+    // - The token matches the latest one
+    // - We're still inside the freeze window
+    return token === latest && stillFrozen;
   }
-  
 
   // Authoritative: call ONLY from the option click with the UPDATED array
   public emitFromClick(params: {
