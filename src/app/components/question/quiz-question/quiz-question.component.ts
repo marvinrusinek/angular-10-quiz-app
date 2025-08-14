@@ -6159,11 +6159,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private emitPassiveNow(index: number): void {
     const i0 = this.normalizeIndex ? this.normalizeIndex(index) : index;
   
-    // Stable snapshot of exactly what the UI just rendered
-    const opts = Array.isArray(this.optionsToDisplay)
-      ? this.optionsToDisplay.map(o => ({ ...o })) : [];
+    // Use the freshest live options list
+    const opts = Array.isArray(this.optionsToDisplay) ? this.optionsToDisplay : [];
   
-    // Prefer the question’s type; fall back to counting correct options
     const fallbackType =
       (opts.filter(o => !!o?.correct).length > 1)
         ? QuestionType.MultipleAnswer
@@ -6171,9 +6169,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const qType = this.currentQuestion?.type ?? fallbackType;
   
-    // Small freeze to prevent “Next” from immediately overwriting the
-    // initial “Start/Continue” message (tune 200–400ms as you like)
-    const token = this.selectionMessageService.beginWrite(i0, 300);
+    // Use a short freeze only for Q1
+    const token = this.selectionMessageService.beginWrite(i0, 200);
   
     this.selectionMessageService.updateMessageFromSelection({
       questionIndex: i0,
@@ -6183,6 +6180,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       token
     });
   
-    // No need to endWrite() here — the freeze window will expire on its own.
+    // Let freeze window expire naturally
   }  
 }
