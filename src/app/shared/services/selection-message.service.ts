@@ -30,6 +30,7 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
+  private writeFreezeMap = new Map<number, { token: number; expiry: number }>();
 
   constructor(
     private quizService: QuizService, 
@@ -323,10 +324,16 @@ export class SelectionMessageService {
   }): void {
     const { questionIndex, totalQuestions, questionType, options, token } = params;
   
-    // Keep snapshot fresh
+    // If a token is present and we’re still in the frozen window, skip message update
+    if (typeof token === 'number' && this.isWriteFrozen(questionIndex, token)) {
+      console.warn(`[❄️ Frozen] Skipping message update for Q${questionIndex} (token ${token})`);
+      return;
+    }
+  
+    // Keep snapshot fresh (used for diff/debug if needed)
     this.setOptionsSnapshot(options);
   
-    // Compute from the array that the UI actually shows (no reads elsewhere)
+    // Compute message from clean local state only
     const msg = this.computeFinalMessage({
       index: questionIndex,
       total: totalQuestions,
@@ -334,7 +341,7 @@ export class SelectionMessageService {
       opts: options
     });
   
-    // Emit (honoring token)
+    // Emit message with context for downstream use
     this.updateSelectionMessage(msg, {
       options,
       index: questionIndex,
@@ -435,6 +442,20 @@ export class SelectionMessageService {
     const until = this.freezeNextishUntil.get(index) ?? 0;
     return performance.now() < until;
   }
+
+  public isWriteFrozen(index: number, token: number): boolean {
+    const record = this.writeFreezeMap.get(index);
+  
+    // No record = not frozen
+    if (!record) return false;
+  
+    // Token mismatch = not frozen (a newer or older write)
+    if (record.token !== token) return false;
+  
+    // If current time is still before expiry, it's frozen
+    return Date.now() < record.expiry;
+  }
+  
 
   // Authoritative: call ONLY from the option click with the UPDATED array
   public emitFromClick(params: {
