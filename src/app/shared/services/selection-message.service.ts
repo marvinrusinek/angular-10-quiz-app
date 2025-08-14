@@ -469,9 +469,9 @@ export class SelectionMessageService {
     if (isMulti) {
       msg = remaining > 0
         ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+        : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
     } else {
-      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     if (this.debugWrites) console.log('[emitFromClick]', { index, remaining, msg, token });
@@ -512,9 +512,9 @@ export class SelectionMessageService {
     if (isMulti) {
       msg = remaining > 0
         ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-        : (isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG);
+        : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
     } else {
-      msg = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
+      msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     // Passive writes get a token as well (0ms freeze by default)
