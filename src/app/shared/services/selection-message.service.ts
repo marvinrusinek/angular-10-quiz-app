@@ -254,78 +254,7 @@ export class SelectionMessageService {
     }
   }  
   
-  // Method to update the message
-  /* public updateSelectionMessage(
-    message: string,
-    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
-  ): void {
-    const current = this.selectionMessageSubject.getValue();
-    const next = (message ?? '').trim();
-    if (!next) return;
-  
-    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
-      ? (ctx!.index as number)
-      : ((this.quizService.currentQuestionIndex as number) ?? 0);
-  
-    const latestToken = this.latestByIndex.get(i0);
-    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
-  
-    if (inFreeze && ctx?.token !== latestToken) {
-      console.warn(`[⏸️ BLOCKED: freeze window] index=${i0}, token=${ctx?.token}, expected=${latestToken}`);
-      return;
-    }
-  
-    const opts: Option[] = Array.isArray(ctx?.options) && ctx!.options!.length
-      ? ctx!.options!
-      : this.getLatestOptionsSnapshot();
-  
-    const qType: QuestionType =
-      ctx?.questionType ??
-      this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type;
-  
-    const isMulti = qType === QuestionType.MultipleAnswer;
-  
-    const low = next.toLowerCase();
-    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
-    const isNextish = low.includes('next button') || low.includes('show results');
-  
-    // 🔍 Main log for all messages
-    console.log(`[🔄 updateSelectionMessage] Q${i0} | current="${current}" | next="${next}" | isMulti=${isMulti}`);
-  
-    if (!isMulti && isSelectish) {
-      const isLast = i0 === (this.quizService.totalQuestions - 1);
-      const replacement = isLast ? this.SHOW_RESULTS_MSG : this.NEXT_BTN_MSG;
-      if (current !== replacement) {
-        console.log(`[🚫 BLOCKED: Single-answer should not show “select more…” → replacing with "${replacement}"`);
-        this.selectionMessageSubject.next(replacement);
-      } else {
-        console.log(`[ℹ️ No update needed — already showing "${current}"`);
-      }
-      return;
-    }
-  
-    if (isMulti) {
-      const remaining = this.getRemainingCorrectCount(opts);
-      if (remaining > 0 && isNextish) {
-        const hold = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-        if (current !== hold) {
-          console.log(`[🚫 BLOCKED: Multi-answer not done yet → forcing “${hold}”`);
-          this.selectionMessageSubject.next(hold);
-        } else {
-          console.log(`[ℹ️ Multi-answer holding at: "${current}"`);
-        }
-        return;
-      }
-    }
-  
-    if (current !== next) {
-      console.log(`[✅ Message updated → "${next}"`);
-      this.selectionMessageSubject.next(next);
-    } else {
-      console.log(`[⏸️ No change → current message already "${current}"`);
-    }
-  } */
+  // Method to update the message  
   public updateSelectionMessage(
     message: string,
     ctx?: {
