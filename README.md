@@ -1,112 +1,125 @@
-<h1>Angular Quiz App</h1>
+<h1>🚀 Angular Quiz App</h1>
 
-<p>Welcome to the <strong>Angular Quiz App</strong>! 🚀</p>
+<p>Welcome to the Angular Quiz App — an interactive, modern quiz platform built with Angular. Whether you're testing your knowledge or learning something new, this app offers a smooth and rewarding experience, complete with feedback, explanations, and a polished UI.</p>
 
-<p>This dynamic and interactive application is built entirely with <strong>Angular</strong> and designed to provide an engaging quiz experience. It features timed questions, single and multiple-answer formats, and detailed explanations to help users learn while they test their knowledge. <a href="https://angular-10-quiz-app.stackblitz.io/">View here</a>.</p>
+👉 <a href="">Launch the App Now</a>
 
-<h2>Key Features</h2>
+<h3>🎯 What Makes It Awesome</h3>
+
+<h4>✅ Multiple Question Types</h4>
+<p>Supports both single-answer and multiple-answer formats.</p>
+
+<h4>⏱️ Countdown Timer</h4>
+<p>Adds pressure and realism by timing each question.</p>
+
+<h4>📈 Live Score Tracking</h4>
+<p>Your score updates in real-time as you answer.</p>
+
+<h4>💡 Instant Feedback + Explanations</h4>
+<p>Learn from your mistakes with in-depth explanations for each question.</p>
+
+<h4>🔀 Seamless Navigation</h4>
+<p>Move between questions effortlessly via buttons or direct URL changes.</p>
+
+<h4>📱 Responsive Design</h4>
+<p>Optimized for desktop and mobile — enjoy the same smooth experience everywhere.</p>
+
+<h3>🛠️ Built With</h3>
 <ul>
-  <li><strong>Diverse Question Types</strong>: Includes support for single-answer and multiple-answer questions.</li>
-  <li><strong>Countdown Timer</strong>: Each question is timed to simulate real-world quiz scenarios.</li>
-  <li><strong>Real-Time Scoring</strong>: Tracks your score dynamically as you progress.</li>
-  <li><strong>Detailed Explanations</strong>: Learn as you go with explanations for correct and incorrect answers.</li>
-  <li><strong>Smooth Navigation</strong>: Seamlessly move between questions using buttons or the URL.</li>
-  <li><strong>Responsive Design</strong>: Optimized for a great experience on both desktop and mobile devices.</li>
+  <li>Angular – Modern web framework for dynamic UIs</li>
+  <li>TypeScript – Strongly typed JavaScript</li>
+  <li>RxJS – Reactive programming with Observables</li>
+  <li>SCSS – Clean and maintainable styles</li>
+  <li>Angular Material – Sleek, ready-made UI components</li>
 </ul>
 
-<h2>Technologies Used</h2>
-<ul>
-  <li><strong>Angular</strong>: For building the front-end.</li>
-  <li><strong>TypeScript</strong>: The main programming language.</li>
-  <li><strong>RxJS</strong>: Utilizes reactive programming with Observables.</li>
-  <li><strong>SCSS</strong>: For modular and maintainable styling.</li>
-  <li><strong>Angular Material</strong>: To leverage pre-built UI components.</li>
-</ul>
+<h3>📦 Getting Started</h3>
+<b>Prerequisites</b>
+<p>Make sure you have the following installed:
 
-<h2>Installation</h2>
+Node.js (v12+)
 
-<h3>Prerequisites</h3>
-<ul>
-  <li><a href="https://nodejs.org/">Node.js</a> (v12.x or above)</li>
-  <li><a href="https://angular.io/cli">Angular CLI</a> (v10.x or above)</li>
-</ul>
+Angular CLI (v10+)
 
-<h3>Steps to Run Locally</h3>
-<ol>
-  <li>Clone the repository:
-    <pre><code>git clone https://github.com/yourusername/quiz-app.git
+Run Locally
+git clone https://github.com/yourusername/quiz-app.git
 cd quiz-app
-</code></pre>
-  </li>
-  <li>Install dependencies:
-    <pre><code>npm install</code></pre>
-  </li>
-  <li>Run the application:
-    <pre><code>ng serve</code></pre>
-  </li>
-  <li>Open your browser and navigate to <a href="http://localhost:4200">http://localhost:4200</a>.</li>
-</ol>
+npm install
+ng serve
 
-<h2>Usage</h2>
-<ul>
-  <li>Select a quiz category to start.</li>
-  <li>Answer each question by selecting one or more options.</li>
-  <li>Use the <strong>Next</strong> button or URL navigation to move between questions.</li>
-  <li>Track your score and view explanations after each answer.</li>
-  <li>Restart the quiz at any time to try again.</li>
-</ul>
 
-<h2>Folder Structure</h2>
-<ul>
-  <li><strong>src/app/components</strong>: Reusable components like questions, timer, and options.</li>
-  <li><strong>src/app/services</strong>: Handles business logic, quiz data, and navigation.</li>
-  <li><strong>src/app/models</strong>: Interfaces and data models for the quiz structure.</li>
-  <li><strong>src/app/pipes</strong>: Custom pipes for formatting data (e.g., combining explanations).</li>
-  <li><strong>src/styles</strong>: Global SCSS styles, including themes and variables.</li>
-</ul>
+Then visit: http://localhost:4200
+</p>
 
-<h2>Development Workflow</h2>
-
-<h3>Adding a New Feature</h3>
+<h3>🚘 How to Use</h3>
 <ol>
-  <li>Create a new component or service in the appropriate folder.</li>
-  <li>Write or update unit tests for your feature.</li>
-  <li>Test locally:
-    <pre><code>ng test</code></pre>
-  </li>
+<li>Choose a quiz category to begin.</li>
+<li>Answer each question (single or multiple answers).</li>
+<li>Click Next to proceed or use URL-based navigation.</li>
+<li>Review your score and explanations after each question.</li>
+<li>Restart the quiz anytime to challenge yourself again!</li>
 </ol>
 
-<h3>Debugging</h3>
-<ul>
-  <li>Run <code>ng serve</code> and inspect the app using browser developer tools.</li>
-  <li>Use Angular CLI commands to debug components and services.</li>
-</ul>
+<h3>🧩 Project Structure</h3>
+src/
+├── app/
+│   ├── components/      → UI components (questions, options, timer)
+│   ├── services/        → Business logic, quiz state, navigation
+│   ├── models/          → TypeScript interfaces and data structures
+│   ├── pipes/           → Custom pipes for display formatting
+├── styles/              → Global SCSS, themes, and variables
 
-<h3>Contributing</h3>
-<p>Contributions are welcome! To contribute:</p>
+<h3>🧪 Development Workflow</h3>
+<b>➕ Adding a New Feature</b>
 <ol>
-  <li>Fork the repository.</li>
-  <li>Create a feature branch:
-    <pre><code>git checkout -b feature-name</code></pre>
-  </li>
-  <li>Commit your changes:
-    <pre><code>git commit -m "Add new feature"</code></pre>
-  </li>
-  <li>Push to your branch:
-    <pre><code>git push origin feature-name</code></pre>
-  </li>
-  <li>Open a pull request.</li>
+<li>Create a new component/service in the correct folder.</li>
+<li>Write tests and verify functionality.</li>
+<li>Run local tests with:</li>
+<p>ng test</p>
 </ol>
 
-<h2>Progress and Future Enhancements</h2>
+<h3>🐞 Debugging Tips</h3>
 <ul>
-  <li><strong>Leaderboard</strong>: Introduce a leaderboard for top performers.</li>
-  <li><strong>User Authentication</strong>: Allow users to save and track quiz progress.</li>
-  <li><strong>Additional Categories</strong>: Expand the range of quiz topics.</li>
+<li>Use browser dev tools while running ng serve</li>
+<li>Leverage Angular CLI for component/service debugging</li>
 </ul>
 
-<h2>Show Your Support</h2>
-<p>If you enjoy using the app or find it useful, please give it a ⭐ on GitHub! Your feedback and support is greatly appreciated.</p>
+<h3>🤝 Contributing</h3>
+<p>Contributions are <b>very welcome!</b></p>
+<p>If you find a bug, have a suggestion, or want to build a feature — please dive in.</p>
 
-<h2>License</h2>
-<p>This project is licensed under the MIT License. See the <a href="./LICENSE">LICENSE</a> file for details.</p>
+<h4>Steps to Contribute</h4>
+# Fork the repo
+git clone https://github.com/YOUR_USERNAME/quiz-app.git
+cd quiz-app
+
+# Create a feature branch
+git checkout -b my-new-feature
+
+# Commit your changes
+git commit -m "Add cool feature"
+
+# Push and open a PR
+git push origin my-new-feature
+
+<h3>🚧 Roadmap</h3>
+<p>Here's what’s coming next:</p>
+<ul>
+<li>🏆 Leaderboard – Track top scores and challenge friends</li>
+<li>🔐 User Accounts – Save progress and review history</li>
+<li>📚 More Categories – Broader quiz topics across disciplines</li>
+</ul>
+<p>Want to see something added? Open an issue or contribute it!</p>
+
+<h3>🙌 Support the Project</h3>
+<p>If this app helped you learn, teach, or just have fun — please consider giving it a ⭐️ on GitHub. Your support <b>directly fuels</b> future features and improvements.</p>
+<p>You can also:</p>
+<ul>
+<li>Share it with others</li>
+<li>Submit feedback or bugs</li>
+<li>Sponsor development (if applicable)</li></ul>
+<p>Every bit of support counts — thank you!</p>
+
+<h3>📄 License</h3>
+<p>Licensed under the <b>MIT License</b>.</p>
+<p>See the <a href="">LICENSE</a> file for more info.</p>
