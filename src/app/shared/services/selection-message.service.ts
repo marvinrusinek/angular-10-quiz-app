@@ -188,7 +188,6 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
   
-
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const index = this.quizService.currentQuestionIndex;
@@ -216,42 +215,43 @@ export class SelectionMessageService {
   
       const currentMsg = this.getCurrentMessage();
   
-      // 🛑 BLOCK: If multi-answer and not all correct selected, block Next/Result msg
       if (isMulti) {
-        // 🔒 Prevent premature "Next" message if isAnswered=true was passed early
         if (isAnswered && remaining > 0) {
+          // 🔒 Blocked premature isAnswered=true
           console.warn(`[⚠️ BLOCKED premature isAnswered=true for Q${index}, remaining=${remaining}]`);
           return;
         }
   
         if (remaining > 0) {
           const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-          if (msg.trim() !== currentMsg?.trim()) {
+  
+          // 🛡️ Extra guard: avoid flicker if message is already set
+          if (msg !== currentMsg) {
             this.updateSelectionMessage(msg);
           }
           return;
         }
   
         const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        if (finalMsg.trim() !== currentMsg?.trim()) {
+        if (finalMsg !== currentMsg) {
           this.updateSelectionMessage(finalMsg);
         }
         return;
       }
   
-      // SINGLE-ANSWER fallback
+      // Fallback for single-answer
       const newMessage = !isAnswered
         ? (index === 0 ? START_MSG : CONTINUE_MSG)
         : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
   
-      if (newMessage.trim() !== currentMsg?.trim()) {
+      if (newMessage !== currentMsg) {
         this.updateSelectionMessage(newMessage);
       }
   
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }  
+  }
   
   // Method to update the message  
   public updateSelectionMessage(
