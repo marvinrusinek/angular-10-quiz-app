@@ -2939,15 +2939,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 👉 Decide “answered” ONCE here (don’t override later)
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
 
-      // Delay setting state flags just slightly to let message render first
-      queueMicrotask(() => {
-        this.quizStateService.setAnswered(allCorrect);
-        this.quizStateService.setAnswerSelected(allCorrect);
-        this.nextButtonStateService.setNextButtonState(allCorrect);
-      });
-  
       // Emit ONE message based on this same array (token/freeze to prevent flashing)
-      const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze window (ms)
+      const token = this.selectionMessageService.beginWrite?.(i0, 900); // longer freeze for Q2 to allow correct message to lock in
+
+      // Emit ONE message based on this same array (token/freeze to prevent flashing)
       this.selectionMessageService.updateMessageFromSelection({
         questionIndex: i0,
         totalQuestions: this.totalQuestions,
@@ -2955,6 +2950,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         options: optionsNow,
         token
       });
+
+      // Delay setting state flags just slightly to let message render first
+      // End freeze only after the next microtask, so message has a frame to display
+      queueMicrotask(() => {
+        this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
+
+        // Then update state (UI gets message before button state toggles)
+        this.quizStateService.setAnswered(allCorrect);
+        this.quizStateService.setAnswerSelected(allCorrect);
+        this.nextButtonStateService.setNextButtonState(allCorrect);
+      });
+
       // End freeze immediately so later async writes (if any) can proceed when appropriate
       this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
   
