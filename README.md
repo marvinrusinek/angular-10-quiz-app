@@ -2,7 +2,7 @@
 
 <p>Welcome to the Angular Quiz App — an interactive, modern quiz platform built with Angular. Whether you're testing your knowledge or learning something new, this app offers a smooth and rewarding experience, complete with feedback, explanations, and a polished UI.</p>
 
-👉 <a href="">Launch the App Now</a>
+👉 <a href="https://angular-10-quiz-app.stackblitz.io/" target="_blank">Launch the App Now</a>
 
 <h3>🎯 What Makes It Awesome</h3>
 
