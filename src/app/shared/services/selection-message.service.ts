@@ -30,8 +30,6 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
-  private selectionMessageCooldown = false;
-  private selectionMessageLock = false;
 
   constructor(
     private quizService: QuizService, 
