@@ -213,9 +213,9 @@ export class SelectionMessageService {
   
       const currentMsg = this.getCurrentMessage();
   
-      // 🛑 BLOCK: If multi-answer and not all correct selected, block Next/Result msg
+      // BLOCK: If multi-answer and not all correct selected, block Next/Result msg
       if (isMulti) {
-        // 🔒 Prevent premature "Next" message if isAnswered=true was passed early
+        // Prevent premature "Next" message if isAnswered=true was passed early
         if (isAnswered && remaining > 0) {
           console.warn(`[⚠️ BLOCKED premature isAnswered=true for Q${index}, remaining=${remaining}]`);
           return;
@@ -229,10 +229,8 @@ export class SelectionMessageService {
           return;
         }
   
-        // ✅ All correct selected
-        const finalMsg = isLast
-          ? this.SHOW_RESULTS_MSG
-          : this.NEXT_BTN_MSG;
+        // All correct selected
+        const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   
         if (finalMsg !== currentMsg) {
           this.updateSelectionMessage(finalMsg);
@@ -242,12 +240,8 @@ export class SelectionMessageService {
   
       // SINGLE-ANSWER fallback
       const newMessage = !isAnswered
-        ? (index === 0
-            ? this.START_MSG
-            : this.CONTINUE_MSG)
-        : (isLast
-            ? this.SHOW_RESULTS_MSG
-            : this.NEXT_BTN_MSG);
+        ? (index === 0 ? START_MSG : CONTINUE_MSG)
+        : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
   
       if (newMessage !== currentMsg) {
         this.updateSelectionMessage(newMessage);
