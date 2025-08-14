@@ -68,30 +68,31 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
+  
     const isLast = total > 0 && index === total - 1;
-    const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
-
-    // Before any selection → START/CONTINUE only (no “Next” before a choice)
-    if (!anySelected) {
-      return index === 0 ? START_MSG : CONTINUE_MSG;
+    const isMulti = qType === QuestionType.MultipleAnswer;
+    const selected = opts.filter(o => !!o?.selected);
+    const correct = opts.filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+  
+    if (selected.length === 0) {
+      return index === 0
+        ? "Please start the quiz by selecting an option..."
+        : "Please continue by selecting an option...";
     }
-
-    // After selection
-    if (qType === QuestionType.MultipleAnswer) {
-      const correct = opts.filter(o => !!o?.correct);
-      const selectedCorrect = correct.filter(o => !!o?.selected).length;
+  
+    if (isMulti) {
       const remaining = Math.max(0, correct.length - selectedCorrect);
-
       if (remaining > 0) {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-      // All correct chosen
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      return isLast ? "Please click the results button to continue..." : "Please click the next button to continue...";
     }
-
+  
     // Single-answer → immediately Next/Results
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    return isLast ? "Please click the results button to continue..." : "Please click the next button to continue...";
   }
+  
 
   public getRemainingCorrectCountByIndex(
     questionIndex: number,
