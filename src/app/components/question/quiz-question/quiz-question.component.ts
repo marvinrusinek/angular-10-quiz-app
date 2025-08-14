@@ -2954,6 +2954,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Delay setting state flags just slightly to let message render first
       // End freeze only after the next microtask, so message has a frame to display
       queueMicrotask(() => {
+        // End the freeze — no longer block future updates
         this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
 
         // Then update state (UI gets message before button state toggles)
@@ -2961,9 +2962,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.setAnswerSelected(allCorrect);
         this.nextButtonStateService.setNextButtonState(allCorrect);
       });
-
-      // End freeze immediately so later async writes (if any) can proceed when appropriate
-      this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
   
       // ───────────────────────────────────────────────
       // 2) Flip explanation UI + seed text (cached → raw → empty)
