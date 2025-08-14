@@ -2938,9 +2938,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 👉 Decide “answered” ONCE here (don’t override later)
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
-      this.quizStateService.setAnswered(allCorrect);                  // single=true immediately; multi when all correct
-      this.quizStateService.setAnswerSelected(allCorrect);            // keep consistent
-      this.nextButtonStateService.setNextButtonState(allCorrect);     // do NOT enable Next for multi until remaining===0
+
+      // Delay setting state flags just slightly to let message render first
+      queueMicrotask(() => {
+        this.quizStateService.setAnswered(allCorrect);
+        this.quizStateService.setAnswerSelected(allCorrect);
+        this.nextButtonStateService.setNextButtonState(allCorrect);
+      });
   
       // Emit ONE message based on this same array (token/freeze to prevent flashing)
       const token = this.selectionMessageService.beginWrite?.(i0, 900); // optional freeze window (ms)
