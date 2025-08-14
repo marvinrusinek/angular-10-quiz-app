@@ -61,13 +61,13 @@ Then visit: http://localhost:4200
 </ol>
 
 <h3>🧩 Project Structure</h3>
-src/
-├── app/
-│   ├── components/      → UI components (questions, options, timer)
-│   ├── services/        → Business logic, quiz state, navigation
-│   ├── models/          → TypeScript interfaces and data structures
-│   ├── pipes/           → Custom pipes for display formatting
-├── styles/              → Global SCSS, themes, and variables
+src/<br>
+├── app/<br>
+│   ├── components/      → UI components (questions, options, timer)<br>
+│   ├── services/        → Business logic, quiz state, navigation<br>
+│   ├── models/          → TypeScript interfaces and data structures<br>
+│   ├── pipes/           → Custom pipes for display formatting<br>
+├── styles/              → Global SCSS, themes, and variables<br>
 
 <h3>🧪 Development Workflow</h3>
 <b>➕ Adding a New Feature</b>
