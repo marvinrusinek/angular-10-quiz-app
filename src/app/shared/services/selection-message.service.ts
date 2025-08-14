@@ -70,30 +70,28 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
     const anySelected = Array.isArray(opts) && opts.some(o => !!o?.selected);
-  
+
     // Before any selection → START/CONTINUE only (no “Next” before a choice)
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-  
+
     // After selection
     if (qType === QuestionType.MultipleAnswer) {
       const correct = opts.filter(o => !!o?.correct);
       const selectedCorrect = correct.filter(o => !!o?.selected).length;
       const remaining = Math.max(0, correct.length - selectedCorrect);
-  
-      // Show remaining only if still needed
+
       if (remaining > 0) {
         return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       }
-  
-      // All correct selected
+      // All correct chosen
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-  
-    // Single-answer → immediately show Next/Results
+
+    // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }  
+  }
 
   public getRemainingCorrectCountByIndex(
     questionIndex: number,
