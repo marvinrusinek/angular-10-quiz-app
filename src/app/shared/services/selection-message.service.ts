@@ -15,7 +15,6 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
 
-
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -380,11 +379,7 @@ export class SelectionMessageService {
     this.lastSelectionMutation = performance.now();  // start small hold-off window
   }
 
-  // Helpers
-  private isLast(idx: number, total: number): boolean {
-    return total > 0 && idx === total - 1;
-  }
-
+  // HELPERS
   private getOptionId(opt: Option, idx: number): number | string {
     // Prefer stable IDs; fall back safely to the loop index
     return (opt?.optionId ?? idx);
@@ -399,8 +394,7 @@ export class SelectionMessageService {
   
     // Try by index, else fall back to currentQuestion
     const q = (idx >= 0 && idx < all.length ? all[idx] : undefined) ??
-      svc.currentQuestion ??
-      null;
+      svc.currentQuestion ?? null;
   
     return Array.isArray(q?.options) ? (q.options as Option[]) : [];
   }
