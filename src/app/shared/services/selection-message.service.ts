@@ -208,7 +208,7 @@ export class SelectionMessageService {
   
       const isLast = index === total - 1;
       const correct = options.filter(o => !!o?.correct);
-      const isMulti = correct.length > 1;
+      const isMulti = (q?.type === QuestionType.MultipleAnswer);
       const selectedCorrect = options.filter(o => o.selected && o.correct);
       const remaining = correct.length - selectedCorrect.length;
   
@@ -357,15 +357,16 @@ export class SelectionMessageService {
       ? ctx!.index!
       : Number(this.quizService.currentQuestionIndex) ?? 0;
 
+    const qType = this.getQuestionTypeForIndex(i0);
+    const isMulti = qType === QuestionType.MultipleAnswer;
+
+    if (!isMulti) return { isMulti: false, remaining: 0 };
+
     const options = this.pickOptionsForGuard(ctx?.options, i0);
-    const correct = options.filter(o => !!o?.correct);
-    const isMulti = correct.length > 1;
-
-    // Use the authoritative counter that consults SelectedOptionService
-    const remaining = isMulti ? this.getRemainingCorrectCountByIndex(i0, options) : 0;
-
+    const remaining = this.getRemainingCorrectCountByIndex(i0, options);
     return { isMulti, remaining };
   }
+
 
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
@@ -538,5 +539,12 @@ export class SelectionMessageService {
       token,
       questionType
     });
+  }
+
+  private getQuestionTypeForIndex(index: number): QuestionType {
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q = (index >= 0 && index < qArr.length ? qArr[index] : undefined) ?? svc.currentQuestion ?? null;
+    return q?.type ?? QuestionType.SingleAnswer;
   }
 }
