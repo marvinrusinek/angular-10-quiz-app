@@ -89,6 +89,9 @@ export class SelectionMessageService {
       if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
       else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
     } catch {}
+
+    // Ensure canonical + UI snapshot share the same optionId space
+    this.ensureStableIds(questionIndex, (q as any)?.options ?? [], this.getLatestOptionsSnapshot());
   
     // Overlay selection into CANONICAL (correct flags intact)
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
@@ -580,6 +583,16 @@ export class SelectionMessageService {
     const optsCtx: Option[] | undefined =
       (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
+    // Resolve canonical once
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+  
+    // Normalize ids so subsequent remaining/guards compare apples-to-apples
+    this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
+  
     // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
@@ -593,11 +606,6 @@ export class SelectionMessageService {
     if (now < nextFreeze && isNextish) return;
   
     // Decide multi from data or declared type
-    const svc: any = this.quizService as any;
-    const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (i0 >= 0 && i0 < arr.length ? arr[i0] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
@@ -718,19 +726,23 @@ export class SelectionMessageService {
   // HELPERS
 
   // Prefer explicit ids; otherwise derive a stable key from content (never the index)
-  private getOptionId(opt: any, idx: number): number | string {
+  // Prefer canonical/registered id; never fall back to UI index
+  private getOptionId(opt: any, _idx: number): number | string {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
     if (opt.id != null) return opt.id;
 
-    // Normalize strings to stabilize across clones/reorders
-    const v = (opt.value ?? '').toString().trim().toLowerCase();
-    const t = (opt.text  ?? opt.label ?? '').toString().trim().toLowerCase();
+    const key = this.keyOf(opt);
+    // Try to resolve via registry (if present for current question)
+    const i0 = this.quizService?.currentQuestionIndex ?? 0;
+    const map = this.idMapByIndex.get(i0);
+    const mapped = map?.get(key);
+    if (mapped != null) return mapped;
 
-    // If both are empty, fall back to a content hash—not the index.
-    const key = `${v}|${t}`;
-    return key.length ? key : `__contenthash_${JSON.stringify(opt)}`;
+    // Last resort: use the key itself (content-based, stable)
+    return key;
   }
+
 
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
