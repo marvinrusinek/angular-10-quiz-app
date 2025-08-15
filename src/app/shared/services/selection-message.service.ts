@@ -382,31 +382,35 @@ export class SelectionMessageService {
   }): void {
     const { questionIndex, totalQuestions, questionType, options, token } = params;
   
-    // If a token is present and we’re still in the frozen window, skip message update
+    // If token is frozen, skip (keep your existing guard)
     if (typeof token === 'number' && this.isWriteFrozen(questionIndex, token)) {
       console.warn(`[❄️ Frozen] Skipping message update for Q${questionIndex} (token ${token})`);
       return;
     }
   
-    // Keep snapshot fresh (used for diff/debug if needed)
-    this.setOptionsSnapshot(options);
+    // *** AUTHORITATIVE OVERLAY ***
+    const overlaid = this.getCanonicalOverlay(questionIndex, options);
   
-    // Compute message from clean local state only
+    // Keep snapshot fresh with canonical+overlay (not the UI list)
+    this.setOptionsSnapshot(overlaid);
+  
+    // Compute message from authoritative data
     const msg = this.computeFinalMessage({
       index: questionIndex,
       total: totalQuestions,
       qType: questionType,
-      opts: options
+      opts: overlaid
     });
   
-    // Emit message with context for downstream use
+    // Emit, passing overlaid options so downstream re-checks have the same truth
     this.updateSelectionMessage(msg, {
-      options,
+      options: overlaid,
       index: questionIndex,
       token,
       questionType
     });
   }
+  
   
   // Is current question multi and how many correct remain?
   private hasMultiRemaining(ctx?: { options?: Option[]; index?: number })
