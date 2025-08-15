@@ -2917,7 +2917,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isSingle      = !isMultiSelect;
   
       // ───────────────────────────────────────────────
-      // 1) Build UPDATED array, compute remaining, gate Next, and emit ONE message (token/freeze)
+      // 1) Build UPDATED UI array (kept)
       // ───────────────────────────────────────────────
       const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
         ? this.optionsToDisplay.map(o => ({ ...o }))
@@ -2930,34 +2930,64 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
       }
   
-      // Compute remaining from THIS array only
-      const correct = optionsNow.filter(o => !!o?.correct);
+      // 👉 PERSIST the selection immediately (authoritative before emitting)
+      try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+  
+      // ───────────────────────────────────────────────
+      // 1b) AUTHORITATIVE OVERLAY onto CANONICAL options (FIX FOR Q2)
+      //     Use stable ids so shuffle/filter/index drift cannot break correctness.
+      // ───────────────────────────────────────────────
+      const getStableId = (o: any, idx: number) =>
+        (o?.optionId ?? o?.id ?? `${o?.value ?? ''}|${o?.text ?? ''}|${idx}`);
+  
+      // Build selected-id set from UPDATED UI list
+      const uiSelectedIds = new Set<string | number>();
+      for (let k = 0; k < optionsNow.length; k++) {
+        const o = optionsNow[k];
+        if (o?.selected) uiSelectedIds.add(getStableId(o, k));
+      }
+  
+      // Merge with authoritative service state for this question (if it stores ids)
+      try {
+        const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+        if (rawSel instanceof Set) {
+          rawSel.forEach((id: any) => uiSelectedIds.add(id));
+        } else if (Array.isArray(rawSel)) {
+          rawSel.forEach((so: any, idx: number) => {
+            const id = getStableId(so, idx);
+            uiSelectedIds.add(id);
+          });
+        }
+      } catch {}
+  
+      // Overlay onto CANONICAL (has true `correct` flags)
+      const canonicalSrc: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map(o => ({ ...o }));
+      const canonicalOpts: Option[] = canonicalSrc.map((o, idx) => {
+        const id = getStableId(o, idx);
+        return { ...o, selected: uiSelectedIds.has(id) };
+      });
+  
+      // Compute remaining from CANONICAL (correct flags guaranteed)
+      const correct = canonicalOpts.filter(o => !!o?.correct);
       const selectedCorrect = correct.filter(o => !!o?.selected).length;
       const remaining = Math.max(0, correct.length - selectedCorrect);
       const isLast  = i0 === (this.totalQuestions - 1);
   
       // 👉 Decide “answered” ONCE here (don’t override later)
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
-
-      // Emit ONE message based on this same array (token/freeze to prevent flashing)
-      const token = this.selectionMessageService.beginWrite?.(i0, 900); // longer freeze for Q2 to allow correct message to lock in
-
-      // Emit ONE message based on this same array (token/freeze to prevent flashing)
-      this.selectionMessageService.updateMessageFromSelection({
-        questionIndex: i0,
+  
+      // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
+      this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+      this.selectionMessageService.emitFromClick({
+        index: i0,
         totalQuestions: this.totalQuestions,
         questionType: this.currentQuestion?.type,
-        options: optionsNow,
-        token
+        options: canonicalOpts
       });
-
+  
       // Delay setting state flags just slightly to let message render first
-      // End freeze only after the next microtask, so message has a frame to display
+      // End the freeze and then set flags on the next microtask (kept intention)
       queueMicrotask(() => {
-        // End the freeze — no longer block future updates
-        this.selectionMessageService.endWrite?.(i0, token, { clearTokenWindow: true });
-
-        // Then update state (UI gets message before button state toggles)
         this.quizStateService.setAnswered(allCorrect);
         this.quizStateService.setAnswerSelected(allCorrect);
         this.nextButtonStateService.setNextButtonState(allCorrect);
@@ -3024,7 +3054,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             .then((formatted) => {
               const clean = (formatted ?? '').trim?.() ?? '';
               const active =
-                this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ??
+                this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ?? 
                 (this.currentQuestionIndex ?? 0);
               if (active !== i0) return;        // navigated away
               if (!clean) return;               // nothing to swap
@@ -3084,6 +3114,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Persist the selection for THIS question (best-effort; don’t block UI)
+      // (kept: already persisted earlier; this is harmless as a no-op)
       try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
   
       // Selection bookkeeping (kept)
@@ -3138,8 +3169,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-  
-  
 
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
