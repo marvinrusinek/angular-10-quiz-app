@@ -40,6 +40,7 @@ export class SelectionMessageService {
   // Per-question remaining tracker + short enforcement window
   private lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>(); // ts until we allow Next-ish
+  private everSelectedByIndex = new Set<number>();
 
   constructor(
     private quizService: QuizService, 
@@ -622,6 +623,23 @@ export class SelectionMessageService {
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
+    // ----- EARLY GUARD with MONOTONICITY (fixes Q1 flashing) -------------------
+    // Only look at the *UI* selection state here (ignore service — it may be stale).
+    const uiSrc = optsCtx ?? this.getLatestOptionsSnapshot();
+    const anySelectedUI = (uiSrc ?? []).some(o => !!o?.selected);
+  
+    // If we've **ever** had a selection for this question, mark it sticky
+    if (anySelectedUI) this.everSelectedByIndex.add(i0);
+  
+    // If nothing selected **and** we've never selected on this question, force Start/Continue.
+    // If we've selected before, DO NOT regress to Start/Continue even if a late writer thinks so.
+    if (!anySelectedUI && !this.everSelectedByIndex.has(i0)) {
+      const starter = i0 === 0 ? START_MSG : CONTINUE_MSG;
+      if (current !== starter) this.selectionMessageSubject.next(starter);
+      return; // nothing selected yet → never allow Next/Results
+    }
+    // --------------------------------------------------------------------------
+  
     // Stable key
     const keyOf = (o: any): string | number => {
       if (!o) return '__nil';
@@ -632,25 +650,24 @@ export class SelectionMessageService {
       return `vt:${v}|${t}`;
     };
   
-    // --- Authoritative remaining using canonical + CURRENT optsCtx (if provided) + service map ---
+    // Selected IDs: union of current UI src + SelectedOptionService
     const selectedKeys = new Set<string | number>();
-    const src = optsCtx ?? this.getLatestOptionsSnapshot();
-    for (const o of (src ?? [])) if (o?.selected) selectedKeys.add(keyOf(o));
+    for (const o of (uiSrc ?? [])) if (o?.selected) selectedKeys.add(keyOf(o));
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedKeys.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
-      }
+      if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
+      else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
     } catch {}
   
+    // Overlay onto canonical (correct is authoritative)
     const overlaid = canonical.map(c => ({ ...c, selected: selectedKeys.has(keyOf(c)) }));
     const totalCorrect = overlaid.filter(o => !!o?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
   
     const declaredMulti = qTypeDeclared === QuestionType.MultipleAnswer;
     const isMulti = declaredMulti || totalCorrect > 1;
+  
+    // If declared multi but only 1 correct is marked in data, require at least 2 picks
     const requiredCorrect = isMulti
       ? Math.max(declaredMulti ? 2 : 0, totalCorrect)
       : totalCorrect;
@@ -667,7 +684,9 @@ export class SelectionMessageService {
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
-    // 🔒 HARD GATE for MULTI
+    // ───────────────────────────────────────────────
+    // HARD GATE: For MULTI, never allow Next while remaining > 0
+    // ───────────────────────────────────────────────
     if (isMulti) {
       if (remaining > 0) {
         const forced = buildRemainingMsg(remaining);
@@ -680,30 +699,29 @@ export class SelectionMessageService {
       return;
     }
   
+    // ───────────────────────────────────────────────
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = (src ?? []).some(o => !!o?.selected);
+    // ───────────────────────────────────────────────
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
-      const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-                                      : (i0 === 0 ? START_MSG : CONTINUE_MSG);
+      const replacement = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== replacement) this.selectionMessageSubject.next(replacement);
       return;
     }
   
-    if (isNextish && anySelected) {
+    if (isNextish) {
       if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
   
-    // Stale writer guard (unchanged)
+    // Stale writer guard (only for ambiguous cases)
     const inFreeze = this.inFreezeWindow?.(i0) ?? false;
     const latestToken = this.latestByIndex.get(i0);
     if (inFreeze && ctx?.token !== latestToken) return;
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
   
 
   // Helper: Compute and push atomically (passes options to guard)
