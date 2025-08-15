@@ -56,32 +56,25 @@ export class SelectionMessageService {
     // …but compute correctness from CANONICAL question options (authoritative).
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q =
-      (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined) ??
-      null;
+    const q = (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined)
+              ?? (svc.currentQuestion as QuizQuestion | undefined)
+              ?? null;
   
-    const qType: QuestionType = q?.type ?? (
-      this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type
-    );
-  
-    // ---- STABLE KEY HELPER (survives reorder/clone/missing optionId) ----
-    const keyOf = (o: any, idx: number): string | number => {
-      if (o == null) return `__nil|${idx}`;
-      const id = o.optionId ?? o.id;
-      if (id != null) return id;
-      const val = (o.value ?? '').toString().trim();
-      const txt = (o.text  ?? o.label ?? '').toString().trim();
-      // include idx only as a last-resort disambiguator
-      return `${val}|${txt}|${idx}`;
+    // ---- STABLE KEY: prefer explicit ids; otherwise normalized value|text (no index) ----
+    const keyOf = (o: any): string | number => {
+      if (!o) return '__nil';
+      if (o.optionId != null) return o.optionId;
+      if (o.id != null) return o.id;
+      const val = (o.value ?? '').toString().trim().toLowerCase();
+      const txt = (o.text ?? o.label ?? '').toString().trim().toLowerCase();
+      return `${val}|${txt}`;
     };
   
     // Build a set of selected KEYS from the UI snapshot
     const selectedKeys = new Set<string | number>();
     for (let i = 0; i < uiSnapshot.length; i++) {
       const o = uiSnapshot[i];
-      if (o?.selected) selectedKeys.add(keyOf(o, i));
+      if (o?.selected) selectedKeys.add(keyOf(o));
     }
   
     // 🔗 Union with SelectedOptionService (ids or objects)
@@ -90,21 +83,21 @@ export class SelectionMessageService {
       if (rawSel instanceof Set) {
         rawSel.forEach((id: any) => selectedKeys.add(id));
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => selectedKeys.add(keyOf(so, idx)));
+        rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
       }
     } catch {}
   
     // Overlay selection into canonical options (which have reliable `correct`)
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
-      ? canonical.map((o, i) => {
-          const k = keyOf(o, i);
-          return { ...o, selected: selectedKeys.has(k) };
-        })
-      : uiSnapshot.map((o, i) => {
-          const k = keyOf(o, i);
-          return { ...o, selected: selectedKeys.has(k) || !!o?.selected };
-        }); // fallback if canonical absent
+      ? canonical.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
+      : uiSnapshot.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback if canonical absent
+  
+    // Resolve type: trust declared; if absent/stale, infer multi by correct-count
+    const declaredType: QuestionType | undefined = q?.type;
+    const inferredIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
+    const qType: QuestionType =
+      declaredType ?? (inferredIsMulti ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer);
   
     return this.computeFinalMessage({
       index: questionIndex,
