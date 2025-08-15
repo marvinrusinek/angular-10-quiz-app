@@ -68,7 +68,7 @@ export class SelectionMessageService {
       const id = (o as any)?.optionId ?? i;
       if (o?.selected) selectedIds.add(id);
     }
-  
+
     // Overlay selection into canonical options (which have reliable `correct`)
     const canonical = Array.isArray(q?.options) ? q!.options : [];
     const overlaid: Option[] = canonical.length
