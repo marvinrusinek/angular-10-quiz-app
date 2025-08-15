@@ -258,7 +258,7 @@ export class SelectionMessageService {
 
   // Build message on click (correct wording + logic)
   public buildMessageFromSelection(params: {
-    index: number;               // 0-based
+    index: number;  // 0-based
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
@@ -268,8 +268,6 @@ export class SelectionMessageService {
     const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
     const correct  = (options ?? []).filter(o => !!o?.correct);
     const selected = correct.filter(o => !!o?.selected).length;
-  
-    // 🚫 Do NOT infer multi from data. Trust the declared type.
     const isMulti  = questionType === QuestionType.MultipleAnswer;
   
     if (isMulti) {
@@ -303,7 +301,6 @@ export class SelectionMessageService {
         return;
       }
   
-      const anySelected = overlaid.some(o => !!o?.selected);
       const finalMsg = (qType === QuestionType.MultipleAnswer)
         ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
         : (isAnswered ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
