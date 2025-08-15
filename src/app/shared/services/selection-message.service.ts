@@ -110,29 +110,18 @@ export class SelectionMessageService {
   private computeFinalMessage(args: {
     index: number;
     total: number;
-    qType: QuestionType;  // kept for compatibility
-    opts: Option[];       // UI view for selection
+    qType: QuestionType;
+    opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
 
-    const isLast = total > 0 && index === total - 1;
+    const isLast  = total > 0 && index === total - 1;
+    const isMulti = qType === QuestionType.MultipleAnswer;
 
-    // Any selection (from UI list is fine for this)
-    const anySelected = (opts ?? []).some(o => !!o?.selected);
-
-    // Compute remaining from canonical correctness + union-of-selections
-    const remaining = this.getRemainingCorrectCountByIndex(index, opts);
-
-    // Decide multi from data (data wins if disagreement)
-    const svc: any = this.quizService as any;
-    const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (index >= 0 && index < arr.length ? arr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
-
-    const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
+    // Selected/correct from authoritative, overlaid opts
+    const anySelected     = opts.some(o => !!o?.selected);
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => !!o?.correct && !!o?.selected).length;
 
     // Nothing picked yet
     if (!anySelected) {
@@ -140,7 +129,11 @@ export class SelectionMessageService {
     }
 
     if (isMulti) {
-      // Never show Next/Results while any correct answers remain
+      // 👉 Enforce a minimum requirement of 2 for MultipleAnswer to avoid premature "Next"
+      // If data says more than 2 are correct, we honor that.
+      const requiredCorrect = Math.max(2, totalCorrect);
+      const remaining = Math.max(0, requiredCorrect - selectedCorrect);
+
       if (remaining > 0) {
         return buildRemainingMsg(remaining); // e.g., "Select 1 more correct answer to continue..."
       }
