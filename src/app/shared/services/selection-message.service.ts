@@ -385,16 +385,14 @@ export class SelectionMessageService {
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // 🔒 Suppression windows: block Next-ish flips
+    // Suppression windows: block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
     if (now < passiveHold && isNextish) return;
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
-    // ───────────────────────────────────────────────
-    // NEW: Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
-    // ───────────────────────────────────────────────
+    // Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
     const prevRem = this.lastRemainingByIndex.get(i0);
     if (prevRem === undefined || remaining !== prevRem) {
       this.lastRemainingByIndex.set(i0, remaining);
@@ -419,9 +417,7 @@ export class SelectionMessageService {
       return;
     }
   
-    // ───────────────────────────────────────────────
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    // ───────────────────────────────────────────────
     const anySelected = (optsCtx ?? this.getLatestOptionsSnapshot()).some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
@@ -444,8 +440,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
@@ -478,8 +472,6 @@ export class SelectionMessageService {
     });
   }
   
-  
-  
   // Is current question multi and how many correct remain?
   private hasMultiRemaining(ctx?: { options?: Option[]; index?: number })
   : { isMulti: boolean; remaining: number } {
@@ -496,7 +488,6 @@ export class SelectionMessageService {
     const remaining = this.getRemainingCorrectCountByIndex(i0, options);
     return { isMulti, remaining };
   }
-
 
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
