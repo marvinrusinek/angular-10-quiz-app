@@ -583,63 +583,27 @@ export class SelectionMessageService {
     const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
   
-    // Prefer UPDATED options if provided; else snapshot for downstream
+    // Prefer UPDATED options if provided; else snapshot for our gate
     const optsCtx: Option[] | undefined =
       (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
-    // Canonical question/options once
+    // Resolve canonical once
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
   
+    // Normalize ids so subsequent remaining/guards compare apples-to-apples
+    this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Compute authoritative remaining from canonical + union of selected ids
+    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Decide multi from data or declared type
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrectCanonical = canonical.filter(o => !!o?.correct).length;
-    const isMultiDeclared = (qTypeDeclared === QuestionType.MultipleAnswer);
-    const isMulti = isMultiDeclared || totalCorrectCanonical > 1;
-  
-    // ---------- TIER A: Authoritative remaining from canonical + CURRENT ctx.options ----------
-    // (No index fallback; match by stable key to avoid reorder/clone issues.)
-    if (isMulti && Array.isArray(optsCtx)) {
-      const keyOf = (o: any): string | number => {
-        if (!o) return '__nil';
-        if (o.optionId != null) return o.optionId;
-        if (o.id != null) return o.id;
-        const v = String(o.value ?? '').trim().toLowerCase();
-        const t = String(o.text ?? o.label ?? '').trim().toLowerCase();
-        return `vt:${v}|${t}`;
-      };
-  
-      // Build selected-keys set from the UPDATED array that was just clicked
-      const selectedKeys = new Set<string | number>();
-      for (let i = 0; i < optsCtx.length; i++) {
-        const o = optsCtx[i];
-        if (o?.selected) selectedKeys.add(keyOf(o));
-      }
-  
-      // Overlay selection onto canonical and compute remaining
-      let totalCorrect = 0;
-      let selectedCorrect = 0;
-      for (let i = 0; i < canonical.length; i++) {
-        const c = canonical[i];
-        if (!c?.correct) continue;
-        totalCorrect++;
-        const k = keyOf(c);
-        if (selectedKeys.has(k)) selectedCorrect++;
-      }
-  
-      // If metadata says Multi but only 1 correct is marked, require at least 2 to prevent early Next.
-      const requiredCorrect = Math.max(isMultiDeclared ? 2 : 0, totalCorrect);
-      const remainingCtx = Math.max(0, requiredCorrect - selectedCorrect);
-  
-      if (remainingCtx > 0) {
-        const forced = buildRemainingMsg(remainingCtx);
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // hard-stop: nothing else may override while correct picks remain
-      }
-      // If we get here, ctx.options proves all required correct were picked; allow fallthrough.
-    }
+    const totalCorrect = canonical.filter(o => !!o?.correct).length;
+    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
     // Classifiers
     const low = next.toLowerCase();
@@ -653,21 +617,35 @@ export class SelectionMessageService {
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
-    // Decide multi from data or declared type (fallback path)
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMultiFallback = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
-  
     // ───────────────────────────────────────────────
-    // HARD GATE (fallback): For MULTI, never allow Next while remaining > 0
-    // Uses your existing canonical+union helper for robustness.
+    // NEW: Per-question "remaining" lock
+    // If remaining just decreased but is still >0, enforce Select-N for ~800ms.
+    // Also always block Next-ish while remaining>0.
     // ───────────────────────────────────────────────
-    if (isMultiFallback) {
-      const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
-      if (remaining > 0) {
-        const forced = buildRemainingMsg(remaining);
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return;
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || remaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, remaining);
+      // If we crossed to a smaller positive remaining (e.g., 2 -> 1), enforce for a short window
+      if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
       }
+      // If we hit 0, clear enforcement
+      if (remaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
+  
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    // MULTI → never allow Next/Results while any correct answers remain,
+    // and also during the enforcement window after a decrease.
+    if (isMulti) {
+      if (remaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, remaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return; // nothing can override during enforcement or while remaining>0
+      }
+  
+      // All correct selected → allow Next/Results immediately
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -699,7 +677,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
   
 
   // Helper: Compute and push atomically (passes options to guard)
