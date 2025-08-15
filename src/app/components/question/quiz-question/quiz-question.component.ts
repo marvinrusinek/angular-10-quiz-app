@@ -179,7 +179,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   areOptionsReadyToRender = false;
   public renderReady = false;
   private _canRenderFinalOptions = false;
-  explanationLocked = false; // flag to lock explanation
+  explanationLocked = false;  // flag to lock explanation
   explanationVisible = false;
   displayMode: 'question' | 'explanation' = 'question';
   private displayMode$: BehaviorSubject<'question' | 'explanation'> =
@@ -191,7 +191,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private isRestoringState = false;
   private displayState = {
     mode: 'question' as 'question' | 'explanation',
-    answered: false,
+    answered: false
   };
   private forceQuestionDisplay = true;
   readyForExplanationDisplay = false;
