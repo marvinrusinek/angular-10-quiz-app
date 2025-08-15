@@ -604,6 +604,25 @@ export class SelectionMessageService {
     const optsCtx: Option[] | undefined =
       (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
+    // ───────────────────────────────────────────────
+    // 🔒 Early "Next-ish" freeze guard to stop flashing
+    // ───────────────────────────────────────────────
+    // Classifiers (based on the incoming text)
+    const low = next.toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish   = low.includes('next button') || low.includes('show results');
+  
+    // Suppress any Next-ish attempts during freeze windows
+    if (isNextish) {
+      const now = performance.now();
+      const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
+      const nextFreeze  = (this.freezeNextishUntil.get(i0) ?? 0);
+      if (now < passiveHold || now < nextFreeze) {
+        return; // ignore attempts to flip to Next/Results during hold/freeze
+      }
+    }
+    // ───────────────────────────────────────────────
+  
     // Canonical options
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -654,16 +673,7 @@ export class SelectionMessageService {
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
     const remaining       = Math.max(0, totalCorrect - selectedCorrect);
   
-    // Classifiers & suppression
-    const low = next.toLowerCase();
-    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
-    const isNextish   = low.includes('next button') || low.includes('show results');
-  
-    const now = performance.now();
-    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
-    if (now < passiveHold && isNextish) return;
-    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
-    if (now < nextFreeze && isNextish) return;
+    // (We already computed isSelectish/isNextish above and handled freeze for Next-ish.)
   
     // ───────────────────────────────────────────────
     // MULTI → never allow Next while remaining > 0
@@ -694,7 +704,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
