@@ -56,47 +56,55 @@ export class SelectionMessageService {
     // …but compute correctness from CANONICAL question options (authoritative).
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q = (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined)
-              ?? svc.currentQuestion ?? null;
+    const q =
+      (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined) ??
+      null;
   
     const qType: QuestionType = q?.type ?? (
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type
     );
   
-    // Build a set of selected IDs from the UI snapshot
-    const selectedIds = new Set<number | string>();
+    // ---- STABLE KEY HELPER (survives reorder/clone/missing optionId) ----
+    const keyOf = (o: any, idx: number): string | number => {
+      if (o == null) return `__nil|${idx}`;
+      const id = o.optionId ?? o.id;
+      if (id != null) return id;
+      const val = (o.value ?? '').toString().trim();
+      const txt = (o.text  ?? o.label ?? '').toString().trim();
+      // include idx only as a last-resort disambiguator
+      return `${val}|${txt}|${idx}`;
+    };
+  
+    // Build a set of selected KEYS from the UI snapshot
+    const selectedKeys = new Set<string | number>();
     for (let i = 0; i < uiSnapshot.length; i++) {
       const o = uiSnapshot[i];
-      const id = this.getOptionId(o, i); // use stable helper
-      if (o?.selected) selectedIds.add(id);
+      if (o?.selected) selectedKeys.add(keyOf(o, i));
     }
   
-    // 🔗 Union with SelectedOptionService (ids or objects) to avoid stale/missed picks
+    // 🔗 Union with SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
       if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
+        rawSel.forEach((id: any) => selectedKeys.add(id));
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => {
-          const id = this.getOptionId(so, idx);
-          selectedIds.add(id);
-        });
+        rawSel.forEach((so: any, idx: number) => selectedKeys.add(keyOf(so, idx)));
       }
     } catch {}
   
     // Overlay selection into canonical options (which have reliable `correct`)
-    const canonical = Array.isArray(q?.options) ? q!.options : [];
+    const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
       ? canonical.map((o, i) => {
-          const id = this.getOptionId(o, i);
-          return { ...o, selected: selectedIds.has(id) };
+          const k = keyOf(o, i);
+          return { ...o, selected: selectedKeys.has(k) };
         })
       : uiSnapshot.map((o, i) => {
-          // fallback if canonical absent (should be rare)
-          const id = this.getOptionId(o, i);
-          return { ...o, selected: selectedIds.has(id) || !!o?.selected };
-        });
+          const k = keyOf(o, i);
+          return { ...o, selected: selectedKeys.has(k) || !!o?.selected };
+        }); // fallback if canonical absent
   
     return this.computeFinalMessage({
       index: questionIndex,
