@@ -47,19 +47,45 @@ export class SelectionMessageService {
     totalQuestions: number,
     _isAnswered: boolean
   ): string {
-    const opts = this.getLatestOptionsSnapshot();  // current UI list
-    const qType =
+    // Use the latest UI snapshot ONLY to know what's selected…
+    const uiSnapshot = this.getLatestOptionsSnapshot();
+  
+    // …but compute correctness from CANONICAL question options (authoritative).
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q = (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined)
+              ?? svc.currentQuestion ?? null;
+  
+    const qType: QuestionType = q?.type ?? (
       this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type;
+      this.quizService.currentQuestion.value.type
+    );
+  
+    // Build a set of selected IDs from the UI snapshot
+    const selectedIds = new Set<number | string>();
+    for (let i = 0; i < uiSnapshot.length; i++) {
+      const o = uiSnapshot[i];
+      const id = (o as any)?.optionId ?? i;
+      if (o?.selected) selectedIds.add(id);
+    }
+  
+    // Overlay selection into canonical options (which have reliable `correct`)
+    const canonical = Array.isArray(q?.options) ? q!.options : [];
+    const overlaid: Option[] = canonical.length
+      ? canonical.map((o, i) => {
+          const id = (o as any)?.optionId ?? i;
+          return { ...o, selected: selectedIds.has(id) };
+        })
+      : uiSnapshot.map(o => ({ ...o })); // fallback if canonical absent
   
     return this.computeFinalMessage({
       index: questionIndex,
       total: totalQuestions,
       qType,
-      opts
+      opts: overlaid
     });
   }
-
+  
   // Centralized, deterministic message builder
   private computeFinalMessage(args: {
     index: number;
@@ -71,26 +97,30 @@ export class SelectionMessageService {
   
     const isLast = total > 0 && index === total - 1;
     const isMulti = qType === QuestionType.MultipleAnswer;
-    const selected = opts.filter(o => !!o?.selected);
-    const correct = opts.filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
   
-    if (selected.length === 0) {
+    // Selected/correct from authoritative, overlaid opts
+    const anySelected = opts.some(o => !!o?.selected);
+    const totalCorrect = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+  
+    // Nothing picked yet
+    if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-    
+  
     if (isMulti) {
-      const remaining = Math.max(0, correct.length - selectedCorrect);
       if (remaining > 0) {
-        return buildRemainingMsg(remaining);
+        // Use "answer/answers" wording as requested
+        return `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
       }
+      // All correct selected → Next/Results
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-    
+  
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }
-  
+  }  
 
   public getRemainingCorrectCountByIndex(
     questionIndex: number,
