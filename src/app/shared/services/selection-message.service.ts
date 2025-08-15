@@ -60,7 +60,13 @@ export class SelectionMessageService {
               ?? (svc.currentQuestion as QuizQuestion | undefined)
               ?? null;
   
-    // ---- STABLE KEY: prefer explicit ids; otherwise normalized value|text (no index) ----
+    // Resolve declared type (may be stale/wrong in data)
+    const declaredType: QuestionType | undefined = q?.type ?? (
+      this.quizService.currentQuestion?.getValue()?.type ??
+      this.quizService.currentQuestion.value.type
+    );
+  
+    // ---- Stable key (no index fallback mismatches on reorder/filter) ----
     const keyOf = (o: any): string | number => {
       if (!o) return '__nil';
       if (o.optionId != null) return o.optionId;
@@ -77,7 +83,7 @@ export class SelectionMessageService {
       if (o?.selected) selectedKeys.add(keyOf(o));
     }
   
-    // 🔗 Union with SelectedOptionService (ids or objects)
+    // 🔗 Union with SelectedOptionService (ids or objects) to avoid stale/missed picks
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
       if (rawSel instanceof Set) {
@@ -87,24 +93,39 @@ export class SelectionMessageService {
       }
     } catch {}
   
-    // Overlay selection into canonical options (which have reliable `correct`)
+    // Overlay selection into CANONICAL options (which have reliable `correct`)
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
       ? canonical.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
       : uiSnapshot.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback if canonical absent
   
-    // Resolve type: trust declared; if absent/stale, infer multi by correct-count
-    const declaredType: QuestionType | undefined = q?.type;
-    const inferredIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
-    const qType: QuestionType =
-      declaredType ?? (inferredIsMulti ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer);
+    // ---- Compute authoritative state from overlaid options ----
+    const anySelected     = overlaid.some(o => !!o?.selected);
+    const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
+    const isLast          = totalQuestions > 0 && questionIndex === totalQuestions - 1;
   
-    return this.computeFinalMessage({
-      index: questionIndex,
-      total: totalQuestions,
-      qType,
-      opts: overlaid
-    });
+    // **Type fix**: if the data clearly shows multiple correct answers, treat as MultipleAnswer
+    const qType: QuestionType =
+      (totalCorrect > 1) ? QuestionType.MultipleAnswer
+                         : (declaredType ?? QuestionType.SingleAnswer);
+  
+    // Nothing picked yet
+    if (!anySelected) {
+      return questionIndex === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    // MULTI: never allow Next/Results while any correct answers remain
+    if (qType === QuestionType.MultipleAnswer) {
+      if (remaining > 0) {
+        return buildRemainingMsg(remaining); // e.g., "Select 1 more correct option to continue..."
+      }
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+  
+    // SINGLE → immediately Next/Results
+    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
   
   // Centralized, deterministic message builder
