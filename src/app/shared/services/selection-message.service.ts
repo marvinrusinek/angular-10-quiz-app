@@ -30,6 +30,7 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
+  private correctIdsByIndex = new Map<number, Set<number | string>>();
 
   constructor(
     private quizService: QuizService, 
@@ -477,7 +478,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   } */
-  public updateSelectionMessage(
+  /* public updateSelectionMessage(
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
   ): void {
@@ -543,9 +544,75 @@ export class SelectionMessageService {
     if (inFreeze && ctx?.token !== latestToken) return;
   
     if (current !== next) this.selectionMessageSubject.next(next);
+  } */
+  public updateSelectionMessage(
+    message: string,
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
+  ): void {
+    const current = this.selectionMessageSubject.getValue();
+    const next = (message ?? '').trim();
+    if (!next) return;
+  
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : (this.quizService.currentQuestionIndex ?? 0);
+  
+    const qType: QuestionType = ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+    const isMulti = qType === QuestionType.MultipleAnswer;
+  
+    // Prefer UPDATED options; still compute selected via union so we don't miss anything
+    const optsCtx = Array.isArray(ctx?.options) ? ctx!.options! : undefined;
+  
+    // Classifiers
+    const low = next.toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish   = low.includes('next button') || low.includes('show results');
+  
+    // 🔒 Suppress "Next-ish" during short hold windows
+    const now = performance.now();
+    const passiveHold = this.suppressPassiveUntil.get(i0) ?? 0;
+    if (now < passiveHold && isNextish) return;
+    const nextFreeze = this.freezeNextishUntil.get(i0) ?? 0;
+    if (now < nextFreeze && isNextish) return;
+  
+    // ── IRON-CLAD GATE using immutable correctIds vs selectedIds union ──
+    const selectedIds = this.getSelectedIdsUnion(i0, optsCtx);
+    const forced = this.multiGateMessageByIds(i0, qType, selectedIds);
+    if (forced) {
+      if (current !== forced) this.selectionMessageSubject.next(forced);
+      return; // nothing can override while a correct pick is still missing
+    }
+  
+    // With remaining===0 or single-answer, proceed with your original logic
+    const isLast = i0 === (this.quizService.totalQuestions - 1);
+  
+    if (isMulti) {
+      // All correct picked → Next/Results
+      const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    } else {
+      // SINGLE → never allow "Select more..."; allow Next/Results when any selected
+      const anySelected = selectedIds.size > 0;
+      if (isSelectish) {
+        const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                                        : (i0 === 0 ? START_MSG : CONTINUE_MSG);
+        if (current !== replacement) this.selectionMessageSubject.next(replacement);
+        return;
+      }
+      if (isNextish && anySelected) {
+        if (current !== next) this.selectionMessageSubject.next(next);
+        return;
+      }
+    }
+  
+    // Stale writer guard (only for ambiguous cases)
+    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
+    const latestToken = this.latestByIndex.get(i0);
+    if (inFreeze && ctx?.token !== latestToken) return;
+  
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
-  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
@@ -689,32 +756,30 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[]; // UPDATED UI; we’ll overlay onto canonical
+    options: Option[];
   }): void {
     const { index: i0, totalQuestions, questionType, options } = params;
   
-    const overlaid = this.getCanonicalOverlay(i0, options);
-    this.setOptionsSnapshot(overlaid);
+    // Snapshot what we were passed (good for UI re-renders)
+    this.setOptionsSnapshot(options);
   
     const qType = questionType ?? this.getQuestionTypeForIndex(i0);
     const isLast = totalQuestions > 0 && i0 === totalQuestions - 1;
   
-    // Gate first
-    const forced = this.multiGateMessage(i0, qType, overlaid);
+    // Gate first (IDs)
+    const selectedIds = this.getSelectedIdsUnion(i0, options);
+    const forced = this.multiGateMessageByIds(i0, qType, selectedIds);
     if (forced) {
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== forced) this.selectionMessageSubject.next(forced);
-      const hold = performance.now() + 600; // brief hold to block stray Next
+      const hold = performance.now() + 600;
       this.suppressPassiveUntil.set(i0, hold);
       this.freezeNextishUntil.set(i0, hold);
       return;
     }
   
     // remaining===0 or single → Next/Results
-    const msg = (qType === QuestionType.MultipleAnswer)
-      ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-      : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
-  
+    const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -722,6 +787,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(i0, hold);
     this.freezeNextishUntil.set(i0, hold);
   }
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click).
@@ -827,5 +893,72 @@ export class SelectionMessageService {
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q = (index >= 0 && index < qArr.length ? qArr[index] : undefined) ?? svc.currentQuestion ?? null;
     return q?.type ?? QuestionType.SingleAnswer;
+  }
+
+  // Single source of stable IDs
+  private stableId(o: any, idx: number): number | string {
+    return (o?.optionId ?? o?.id ?? `${o?.value ?? ''}|${o?.text ?? ''}|${idx}`);
+  }
+
+  private getCorrectIds(i0: number): Set<number | string> {
+    const cached = this.correctIdsByIndex.get(i0);
+    if (cached) return cached;
+  
+    const svc: any = this.quizService as any;
+    const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < arr.length ? arr[i0] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+  
+    const ids = new Set<number | string>();
+    if (q?.options?.length) {
+      q.options.forEach((o, idx) => {
+        if (o?.correct) ids.add(this.stableId(o, idx));
+      });
+    }
+    this.correctIdsByIndex.set(i0, ids);
+    return ids;
+  }
+
+  private getSelectedIdsUnion(i0: number, optsCtx?: Option[] | null): Set<number | string> {
+    const selected = new Set<number | string>();
+  
+    // a) From ctx.options (updated UI passed by caller)
+    const srcA = Array.isArray(optsCtx) ? optsCtx : [];
+    for (let i = 0; i < srcA.length; i++) {
+      const o = srcA[i];
+      if (o?.selected) selected.add(this.stableId(o, i));
+    }
+  
+    // b) From latest snapshot
+    const snap = this.getLatestOptionsSnapshot();
+    for (let i = 0; i < snap.length; i++) {
+      const o = snap[i];
+      if (o?.selected) selected.add(this.stableId(o, i));
+    }
+  
+    // c) From SelectedOptionService (ids or objects)
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => selected.add(id));
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any, idx: number) => selected.add(this.stableId(so, idx)));
+      }
+    } catch {}
+  
+    return selected;
+  }
+
+  // Returns forced message while multi & still missing correct picks; else null
+  private multiGateMessageByIds(i0: number, qType: QuestionType, selectedIds: Set<number | string>): string | null {
+    if (qType !== QuestionType.MultipleAnswer) return null;
+
+    const correctIds = this.getCorrectIds(i0);
+    let selectedCorrect = 0;
+    correctIds.forEach(id => { if (selectedIds.has(id)) selectedCorrect++; });
+
+    const remaining = Math.max(0, correctIds.size - selectedCorrect);
+    return remaining > 0 ? buildRemainingMsg(remaining) : null;
   }
 }
