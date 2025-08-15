@@ -849,7 +849,7 @@ export class SelectionMessageService {
       this.idMapByIndex.set(index, fwd);
       this.idRevByIndex.set(index, rev);
     } else {
-      // make sure canonical is stamped if we created map earlier
+      // Make sure canonical is stamped if we created map earlier
       canon.forEach((c, i) => {
         const key = this.keyOf(c);
         let cid = fwd!.get(key);
