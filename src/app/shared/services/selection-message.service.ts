@@ -692,10 +692,22 @@ export class SelectionMessageService {
   }
 
   // HELPERS
-  private getOptionId(opt: Option, idx: number): number | string {
-    // Prefer stable IDs; fall back safely to the loop index
-    return (opt?.optionId ?? idx);
+  
+  // Prefer explicit ids; otherwise derive a stable key from value/text (never use index)
+  private getOptionId(opt: any, idx: number): number | string {
+    if (!opt) return '__nil';
+    if (opt.optionId != null) return opt.optionId;
+    if (opt.id != null) return opt.id;
+
+    // Normalize strings to stabilize across clones/reorders
+    const v = (opt.value ?? '').toString().trim().toLowerCase();
+    const t = (opt.text  ?? opt.label ?? '').toString().trim().toLowerCase();
+
+    // If both are empty, fall back to a content hash—not the index.
+    const key = `${v}|${t}`;
+    return key.length ? key : `__contenthash_${JSON.stringify(opt)}`;
   }
+
 
   // Get current question's options safely from QuizService
   private getCurrentOptionsByIndex(idx: number): Option[] {
