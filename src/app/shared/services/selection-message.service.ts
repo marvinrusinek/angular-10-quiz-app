@@ -50,124 +50,130 @@ export class SelectionMessageService {
     totalQuestions: number,
     _isAnswered: boolean
   ): string {
-    // 1) Canonical question (authoritative `correct`)
+    // Use the latest UI snapshot ONLY to know what's selected…
+    const uiSnapshot = this.getLatestOptionsSnapshot();
+  
+    // …but compute correctness from CANONICAL question options (authoritative).
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q = (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined)
               ?? (svc.currentQuestion as QuizQuestion | undefined)
               ?? null;
   
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-  
-    // 2) Resolve type (data wins: >1 correct => MultipleAnswer)
+    // Resolve declared type (may be stale)
     const declaredType: QuestionType | undefined =
       q?.type ?? this.quizService.currentQuestion?.getValue()?.type ?? this.quizService.currentQuestion.value.type;
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const qType: QuestionType = totalCorrect > 1
-      ? QuestionType.MultipleAnswer
-      : (declaredType ?? QuestionType.SingleAnswer);
   
-    // 3) Selected from SelectedOptionService ONLY (authoritative selection)
-    const selectedIds = new Set<number | string>();
+    // ---- Stable key: prefer explicit ids; fall back to value|text (no index cross-pollution) ----
+    const keyOf = (o: any): string | number => {
+      if (!o) return '__nil';
+      if (o.optionId != null) return o.optionId;
+      if (o.id != null) return o.id;
+      const val = (o.value ?? '').toString().trim().toLowerCase();
+      const txt = (o.text ?? o.label ?? '').toString().trim().toLowerCase();
+      return `${val}|${txt}`;
+    };
+  
+    // Build selected key set from UI snapshot…
+    const selectedKeys = new Set<string | number>();
+    for (let i = 0; i < uiSnapshot.length; i++) {
+      const o = uiSnapshot[i];
+      if (o?.selected) selectedKeys.add(keyOf(o));
+    }
+    // …and union with SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
-      } else if (Array.isArray(rawSel)) {
-        // normalize objects -> id
-        rawSel.forEach((so: any, idx: number) => {
-          const id = (so?.optionId ?? so?.id ?? so?.value ?? idx);
-          selectedIds.add(id);
-        });
-      }
-    } catch {
-      // ignore
-    }
+      if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
+      else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
+    } catch {}
   
-    // 4) Compute selectedCorrect by matching canonical ids
-    let selectedCorrect = 0;
-    let anySelected = false;
-    for (let i = 0; i < canonical.length; i++) {
-      const o = canonical[i];
-      const id = (o as any)?.optionId ?? (o as any)?.id ?? i; // stable enough on canonical
-      const isSelected = selectedIds.has(id);
-      if (isSelected) anySelected = true;
-      if (o?.correct && isSelected) selectedCorrect++;
-    }
+    // Overlay selection into CANONICAL (correct flags intact)
+    const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const overlaid: Option[] = canonical.length
+      ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
+      : uiSnapshot.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback
   
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
-    const isLast = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    // If the data has >1 correct, treat as MultipleAnswer even if declared type is wrong
+    const computedIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
+    const qType: QuestionType = computedIsMulti ? QuestionType.MultipleAnswer
+                                                : (declaredType ?? QuestionType.SingleAnswer);
   
-    // 5) Message rules (deterministic, no UI snapshot involved)
-    if (!anySelected) {
-      return questionIndex === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
-    if (qType === QuestionType.MultipleAnswer) {
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining);  // "Select 1 more correct option..." etc.
-      }
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Single-answer → immediately Next/Results
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    return this.computeFinalMessage({
+      index: questionIndex,
+      total: totalQuestions,
+      qType,
+      opts: overlaid
+    });
   }
   
   // Centralized, deterministic message builder
   private computeFinalMessage(args: {
     index: number;
     total: number;
-    qType: QuestionType;
-    opts: Option[]; // UI view (may not include reliable `correct`)
+    qType: QuestionType;   // kept for compatibility but we’ll trust data if it disagrees
+    opts: Option[];        // UI view (selection state)
   }): string {
     const { index, total, qType, opts } = args;
 
-    const isLast  = total > 0 && index === total - 1;
-    const isMulti = qType === QuestionType.MultipleAnswer;
+    const isLast = total > 0 && index === total - 1;
 
-    // --- Build selected-id set from the UI snapshot we were given ---
-    const selectedIds = new Set<number | string>();
-    for (let i = 0; i < (opts?.length ?? 0); i++) {
-      const o = opts[i];
-      const id = (o as any)?.optionId ?? i;  // stable id or index fallback
-      if (o?.selected) selectedIds.add(id);
-    }
+    // ---- Stable key (no index-based mismatches) ----
+    const keyOf = (o: any): string | number => {
+      if (!o) return '__nil';
+      if (o.optionId != null) return o.optionId;
+      if (o.id != null) return o.id;
+      const val = (o.value ?? '').toString().trim().toLowerCase();
+      const txt = (o.text  ?? o.label ?? '').toString().trim().toLowerCase();
+      return `${val}|${txt}`;
+    };
 
-    // --- Pull CANONICAL options for this question (authoritative `correct`) ---
+    // 1) Canonical question/options (authoritative `correct`)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q =
+    const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined) ??
-      null;
-
+      (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
 
-    // If we somehow don't have canonical options, fall back to the UI list
-    const source: Option[] = canonical.length
-      ? canonical.map((o, i) => {
-          const id = (o as any)?.optionId ?? i;
-          // Overlay current selection onto canonical (correct stays authoritative)
-          return { ...o, selected: selectedIds.has(id) };
-        })
-      : (opts ?? []).map(o => ({ ...o }));
+    // 2) Build selected KEYS union: caller’s opts + SelectedOptionService
+    const selectedKeys = new Set<string | number>();
+    // a) from caller’s opts (current UI selection)
+    for (let i = 0; i < (opts?.length ?? 0); i++) {
+      const o = opts[i];
+      if (o?.selected) selectedKeys.add(keyOf(o));
+    }
+    // b) from SelectedOptionService (ids or objects)
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => selectedKeys.add(id));
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
+      }
+    } catch {}
 
-    // ---- Compute from authoritative (overlaid) options ----
-    const anySelected     = source.some(o => !!o?.selected);
-    const totalCorrect    = source.filter(o => !!o?.correct).length;
-    const selectedCorrect = source.filter(o => !!o?.correct && !!o?.selected).length;
+    // 3) Overlay selection onto CANONICAL (keeps reliable `correct`)
+    const overlaid: Option[] = canonical.length
+      ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
+      : (opts ?? []).map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected }));
+
+    // 4) Compute authoritative state
+    const anySelected     = overlaid.some(o => !!o?.selected);
+    const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
     const remaining       = Math.max(0, totalCorrect - selectedCorrect);
 
-    // Nothing picked yet
+    // 5) Decide multi from data (data wins if disagreement)
+    const isMulti = totalCorrect > 1 || qType === QuestionType.MultipleAnswer;
+
+    // 6) Your existing wording rules (unchanged)
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
     if (isMulti) {
-      // Never show Next while any correct answers remain
       if (remaining > 0) {
-        return buildRemainingMsg(remaining); // e.g., "Select 1 more correct option..."
+        return buildRemainingMsg(remaining); // ⇒ "Select 1 more correct option to continue..."
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -175,6 +181,7 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
   public getRemainingCorrectCountByIndex(
