@@ -631,6 +631,39 @@ export class SelectionMessageService {
     this.updateSelectionMessage(msg, { options: canonicalOpts, index, token, questionType: q.type });
   }
   
+  // Overlay UI selection onto CANONICAL options (authoritative correct flags)
+  private getCanonicalOverlay(
+    index: number,
+    uiOptions?: Option[] | null
+  ): Option[] {
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+
+    const canonical: Option[] = Array.isArray(q?.options) ? q!.options : [];
+
+    // Build selected-id set from UI list (fall back to latest snapshot)
+    const source = Array.isArray(uiOptions) && uiOptions.length
+      ? uiOptions
+      : this.getLatestOptionsSnapshot();
+
+    const selectedIds = new Set<number | string>();
+    for (let i = 0; i < source.length; i++) {
+      const o = source[i];
+      const id = (o as any)?.optionId ?? i;
+      if (o?.selected) selectedIds.add(id);
+    }
+
+    // Return canonical (has correct flags) with overlaid selected flags
+    return canonical.length
+      ? canonical.map((o, i) => {
+          const id = (o as any)?.optionId ?? i;
+          return { ...o, selected: selectedIds.has(id) };
+        })
+      : source.map(o => ({ ...o })); // fallback if canonical missing
+  }
 
   private getQuestionTypeForIndex(index: number): QuestionType {
     const svc: any = this.quizService as any;
