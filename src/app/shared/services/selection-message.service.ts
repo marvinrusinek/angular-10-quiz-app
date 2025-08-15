@@ -13,7 +13,7 @@ const CONTINUE_MSG = 'Please select an option to continue...';
 const NEXT_BTN_MSG = 'Please click the next button to continue.';
 const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
-  `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+  `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -95,14 +95,14 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
   
-    const isLast = total > 0 && index === total - 1;
+    const isLast  = total > 0 && index === total - 1;
     const isMulti = qType === QuestionType.MultipleAnswer;
   
     // Selected/correct from authoritative, overlaid opts
-    const anySelected = opts.some(o => !!o?.selected);
-    const totalCorrect = opts.filter(o => !!o?.correct).length;
+    const anySelected     = opts.some(o => !!o?.selected);
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
     const selectedCorrect = opts.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
   
     // Nothing picked yet
     if (!anySelected) {
@@ -110,17 +110,16 @@ export class SelectionMessageService {
     }
   
     if (isMulti) {
+      // Never show Next/Results while any correct answers remain
       if (remaining > 0) {
-        // Use "answer/answers" wording as requested
-        return `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
+        return buildRemainingMsg(remaining);
       }
-      // All correct selected → Next/Results
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }  
+  }
 
   public getRemainingCorrectCountByIndex(
     questionIndex: number,
