@@ -598,44 +598,72 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // Prefer UPDATED options if provided; else our guard picks the freshest array
-    const optsForGuard: Option[] = this.pickOptionsForGuard(ctx?.options, i0);
-  
-    // Resolve declared type (may be stale). If absent/wrong, infer multi from data.
-    const declaredType: QuestionType | undefined =
+    const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
-    const inferredIsMulti = (optsForGuard.filter(o => !!o?.correct).length > 1);
-    const isMulti = declaredType === QuestionType.MultipleAnswer || inferredIsMulti;
+  
+    // Prefer UPDATED options if provided; else snapshot for downstream
+    const optsCtx: Option[] | undefined =
+      (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
     // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // 🔒 During the suppression window, block any Next-ish writes outright.
+    // 🔒 During suppression windows, block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
     if (now < passiveHold && isNextish) return;
-  
-    // If we set an explicit Next-ish freeze, also block Next-ish until the time passes.
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
     // ───────────────────────────────────────────────
-    // **IRON-CLAD GATE**: For MULTI, never allow Next while remaining > 0
-    // Uses your authoritative counter that consults SelectedOptionService
+    // TIER A: If we have UPDATED ctx.options and it’s MULTI, compute remaining from THAT array.
+    //          (This is the array you just mutated on click; it’s the most accurate in that frame.)
     // ───────────────────────────────────────────────
+    const inferMultiFrom = (list: Option[] | undefined): boolean => {
+      if (!Array.isArray(list)) return false;
+      const tc = list.filter(o => !!o?.correct).length;
+      return tc > 1;
+    };
+  
+    const isMultiTierA = inferMultiFrom(optsCtx) || qTypeDeclared === QuestionType.MultipleAnswer;
+  
+    if (isMultiTierA && Array.isArray(optsCtx)) {
+      // Enforce minimum of 2 required when it’s flagged multi but only one correct is marked in data.
+      const totalCorrectCtx    = optsCtx.filter(o => !!o?.correct).length;
+      const requiredCorrect    = Math.max(2, totalCorrectCtx);
+      const selectedCorrectCtx = optsCtx.filter(o => !!o?.correct && !!o?.selected).length;
+      const remainingCtx       = Math.max(0, requiredCorrect - selectedCorrectCtx);
+  
+      if (remainingCtx > 0) {
+        const forced = buildRemainingMsg(remainingCtx);
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return; // 🔒 nothing overrides this while correct picks remain
+      }
+  
+      // remaining===0 in Tier A → allow Next/Results here and exit
+      const isLast = i0 === (this.quizService.totalQuestions - 1);
+      const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    }
+  
+    // ───────────────────────────────────────────────
+    // TIER B: Fallback to canonical+union counter (SelectedOptionService, snapshot, etc.)
+    //         Uses your authoritative helper and also infers multi from data.
+    // ───────────────────────────────────────────────
+    const optsForGuard = this.pickOptionsForGuard(optsCtx, i0);
+    const inferredIsMultiB = (optsForGuard.filter(o => !!o?.correct).length > 1);
+    const isMulti = qTypeDeclared === QuestionType.MultipleAnswer || inferredIsMultiB;
+  
     if (isMulti) {
       const remaining = this.getRemainingCorrectCountByIndex(i0, optsForGuard);
-  
-      // Still missing correct picks → FORCE "Select N more..." and return
       if (remaining > 0) {
         const forced = buildRemainingMsg(remaining);
         if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // nothing can override while still missing correct picks
+        return; // 🔒 still missing correct picks → never allow Next
       }
-  
-      // All correct selected → allow Next/Results immediately (ignore any stale 'Select' text)
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -667,6 +695,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
