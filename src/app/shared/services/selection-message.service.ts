@@ -144,8 +144,16 @@ export class SelectionMessageService {
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
 
-    // Nothing picked yet
+    // ───────────────────────────────────────────────
+    // BEFORE ANY PICK:
+    // For MULTI, show "Select N more correct answers..." (N = totalCorrect).
+    // For SINGLE, keep START/CONTINUE.
+    // ───────────────────────────────────────────────
     if (!anySelected) {
+      if (isMulti) {
+        // With no selections, remaining === totalCorrect — exactly what we want
+        return buildRemainingMsg(totalCorrect);
+      }
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
@@ -160,7 +168,6 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
-
 
 
   /* public getRemainingCorrectCountByIndex(
