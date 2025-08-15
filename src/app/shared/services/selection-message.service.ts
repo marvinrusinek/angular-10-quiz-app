@@ -31,7 +31,6 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
   private suppressPassiveUntil = new Map<number, number>();
   private debugWrites = false;
-  private correctIdsByIndex = new Map<number, Set<number | string>>();
   private nextLockByIndex = new Map<number, boolean>();
   private remainingByIndex = new Map<number, number>();
 
@@ -255,31 +254,6 @@ export class SelectionMessageService {
     }
   
     return Math.max(0, totalCorrect - selectedCorrect);
-  }
-  
-  
-
-  public getRemainingCorrectCount(options: Option[] | null | undefined): number {
-    const opts = Array.isArray(options) ? options : [];
-    const correct = opts.filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-    return Math.max(0, correct.length - selectedCorrect);
-  }
-
-  // String helper: ONLY for MULTI; SINGLE will never call this
-  public getRemainingCorrect(
-    options: Option[] | null | undefined,
-    isLastQuestion: boolean
-  ): string {
-    const remaining = this.getRemainingCorrectCount(options);
-    if (remaining > 0) {
-      return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
-    }
-    return isLastQuestion ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }
-
-  private pluralize(n: number, singular: string, plural: string): string {
-    return n === 1 ? singular : plural;
   }
 
   // Build message on click (correct wording + logic)
@@ -508,20 +482,6 @@ export class SelectionMessageService {
 
     // Last resort: use the key itself (content-based, stable)
     return key;
-  }
-
-  // Get current question's options safely from QuizService
-  private getCurrentOptionsByIndex(idx: number): Option[] {
-    const svc: any = this.quizService as any;
-  
-    // Prefer a concrete questions array if available
-    const all = Array.isArray(svc.questions) ? (svc.questions as any[]) : [];
-  
-    // Try by index, else fall back to currentQuestion
-    const q = (idx >= 0 && idx < all.length ? all[idx] : undefined) ??
-      svc.currentQuestion ?? null;
-  
-    return Array.isArray(q?.options) ? (q.options as Option[]) : [];
   }
 
   // Reserve a write slot for this question; returns the token to attach to the write.
@@ -759,10 +719,6 @@ export class SelectionMessageService {
     } else {
       this.nextLockByIndex.delete(index);
     }
-  }
-
-  private isNextLocked(index: number): boolean {
-    return this.nextLockByIndex.get(index) === true;
   }
 
   // Authoritative remaining counter: uses canonical correctness + union of selected IDs
