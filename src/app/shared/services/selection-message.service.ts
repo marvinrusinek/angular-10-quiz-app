@@ -110,18 +110,56 @@ export class SelectionMessageService {
   private computeFinalMessage(args: {
     index: number;
     total: number;
-    qType: QuestionType;
-    opts: Option[];
+    qType: QuestionType;   // kept for compatibility but data can override
+    opts: Option[];        // ignored for selection; only used for "anySelected" fallback if service is empty
   }): string {
     const { index, total, qType, opts } = args;
 
-    const isLast  = total > 0 && index === total - 1;
-    const isMulti = qType === QuestionType.MultipleAnswer;
+    const isLast = total > 0 && index === total - 1;
 
-    // Selected/correct from authoritative, overlaid opts
-    const anySelected     = opts.some(o => !!o?.selected);
-    const totalCorrect    = opts.filter(o => !!o?.correct).length;
-    const selectedCorrect = opts.filter(o => !!o?.correct && !!o?.selected).length;
+    // --- Canonical options (authoritative `correct`) ---
+    const svc: any = this.quizService as any;
+    const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (index >= 0 && index < arr.length ? arr[index] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+
+    // --- Selected IDs from SelectedOptionService ONLY (authoritative selection) ---
+    const selectedIds = new Set<number | string>();
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => selectedIds.add(id));
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any, idx: number) => {
+          const id = (so as any)?.optionId ?? (so as any)?.id ?? (so as any)?.value ?? idx;
+          selectedIds.add(id);
+        });
+      }
+    } catch {}
+
+    // --- Compute from canonical correctness + service-selected IDs ---
+    const totalCorrect    = canonical.filter(o => !!o?.correct).length;
+    let selectedCorrect   = 0;
+    let anySelectedBySvc  = false;
+
+    for (let i = 0; i < canonical.length; i++) {
+      const c = canonical[i];
+      const id = (c as any)?.optionId ?? (c as any)?.id ?? i;
+      const sel = selectedIds.has(id);
+      if (sel) anySelectedBySvc = true;
+      if (c?.correct && sel) selectedCorrect++;
+    }
+
+    // Fallback for "any selected" if service is empty: peek at UI flags (does not affect correctness math)
+    const anySelected = anySelectedBySvc || (opts ?? []).some(o => !!o?.selected);
+
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+
+    // Decide multi from DATA first; fall back to declared type
+    const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
 
     // Nothing picked yet
     if (!anySelected) {
@@ -129,13 +167,9 @@ export class SelectionMessageService {
     }
 
     if (isMulti) {
-      // 👉 Enforce a minimum requirement of 2 for MultipleAnswer to avoid premature "Next"
-      // If data says more than 2 are correct, we honor that.
-      const requiredCorrect = Math.max(2, totalCorrect);
-      const remaining = Math.max(0, requiredCorrect - selectedCorrect);
-
+      // Never show Next/Results while any correct answers remain
       if (remaining > 0) {
-        return buildRemainingMsg(remaining); // e.g., "Select 1 more correct answer to continue..."
+        return buildRemainingMsg(remaining); // "Select 1 more correct answer to continue..."
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -143,6 +177,7 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
   /* public getRemainingCorrectCountByIndex(
