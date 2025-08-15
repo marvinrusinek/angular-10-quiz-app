@@ -251,12 +251,7 @@ export class SelectionMessageService {
   // Method to update the message  
   public updateSelectionMessage(
     message: string,
-    ctx?: {
-      options?: Option[];
-      index?: number;
-      token?: number;
-      questionType?: QuestionType;
-    }
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
   ): void {
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
@@ -266,55 +261,58 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // Always use declared type (never infer from counts)
-    const qType: QuestionType =
-      ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+    const qType: QuestionType = ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
   
-    // **Authoritative options first**: use ctx.options if provided (updated canonical),
-    // otherwise fall back to snapshot.
-    const optsCtx: Option[] =
+    // Use authoritative UPDATED options if provided; else snapshot
+    const opts: Option[] =
       (Array.isArray(ctx?.options) && ctx!.options!.length)
         ? ctx!.options!
         : this.getLatestOptionsSnapshot();
   
-    // Quick classifiers
+    // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // ───────────────────────────────────────────────
-    // MULTI → short-circuit using authoritative remaining from ctx.options
-    // ───────────────────────────────────────────────
-    if (qType === QuestionType.MultipleAnswer) {
-      // Compute remaining from the UPDATED ctx.options to avoid stale state
-      const remainingCtx = this.getRemainingCorrectCountByIndex(i0, optsCtx);
+    // 🔒 During the suppression window, block any Next-ish writes outright.
+    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
+    if (performance.now() < passiveHold && isNextish) {
+      return; // ignore attempts to flip to Next during hold
+    }
   
-      // Case 1: still missing correct picks → FORCE "Select N more..." and return
-      if (remainingCtx > 0) {
-        const forced = buildRemainingMsg(remainingCtx);
+    // If we set an explicit Next-ish freeze, also block Next-ish until the time passes.
+    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
+    if (performance.now() < nextFreeze && isNextish) {
+      return;
+    }
+  
+    // MULTI → compute remaining from authoritative options and short-circuit
+    if (qType === QuestionType.MultipleAnswer) {
+      const remaining = this.getRemainingCorrectCountByIndex(i0, opts);
+  
+      // Still missing correct picks → FORCE "Select N more..." and return
+      if (remaining > 0) {
+        const forced = buildRemainingMsg(remaining);
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
   
-      // Case 2: all correct selected → allow Next/Results IMMEDIATELY (bypass freeze)
-      // If someone passed a non-next message here, we still prefer the incoming `next`.
+      // All correct selected → allow Next/Results immediately
       if (isNextish) {
         if (current !== next) this.selectionMessageSubject.next(next);
         return;
       }
   
-      // If not isNextish (e.g., older "Select..." trying to linger), emit the correct final msg
+      // If not Next-ish, emit the correct final msg now
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
   
-    // ───────────────────────────────────────────────
-    // SINGLE → never allow "Select more..." and allow Next/Results immediately after any pick
-    // ───────────────────────────────────────────────
+    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
     if (qType !== QuestionType.MultipleAnswer) {
-      const anySelected = (optsCtx ?? []).some(o => !!o?.selected);
+      const anySelected = (opts ?? []).some(o => !!o?.selected);
       const isLast = i0 === (this.quizService.totalQuestions - 1);
   
       if (isSelectish) {
@@ -328,19 +326,15 @@ export class SelectionMessageService {
         if (current !== next) this.selectionMessageSubject.next(next);
         return;
       }
-      // fall through for ambiguous cases
+      // fall through to stale-writer guard
     }
   
-    // ───────────────────────────────────────────────
-    // Freeze only guards ambiguous stale writers (do NOT block decisive cases above)
-    // ───────────────────────────────────────────────
+    // Stale writer guard (only for ambiguous cases)
     const inFreeze = this.inFreezeWindow?.(i0) ?? false;
     const latestToken = this.latestByIndex.get(i0);
     if (inFreeze && ctx?.token !== latestToken) return;
   
-    if (current !== next) {
-      this.selectionMessageSubject.next(next);
-    }
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
 
   // Helper: Compute and push atomically (passes options to guard)
@@ -489,38 +483,44 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];      // <-- UPDATED canonical (has correct flags) with selected overlay
+    options: Option[];  // UPDATED canonical: has correct + selected overlay
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Always snapshot what we were passed (authoritative for subsequent passives)
+    // Snapshot authoritative options first
     this.setOptionsSnapshot(options);
   
-    // Use declared type; never infer
+    // Declared type only
     const qType = questionType ?? this.getQuestionTypeForIndex(index);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // Compute remaining from the UPDATED array we were just passed
+    // Compute remaining from UPDATED canonical options
     const correct = (options ?? []).filter(o => !!o?.correct);
     const selectedCorrect = correct.filter(o => !!o?.selected).length;
     const remaining = Math.max(0, correct.length - selectedCorrect);
   
-    // 🔥 Decisive click behavior
+    // 🔥 Click is decisive. If multi & remaining>0 → force "Select N more..." and stop.
     if (qType === QuestionType.MultipleAnswer) {
       if (remaining > 0) {
-        // FIRST-CLASS PATH: force the “Select N more…” message immediately.
-        const msg = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+        const msg = buildRemainingMsg(remaining);
         const current = this.selectionMessageSubject.getValue();
         if (current !== msg) this.selectionMessageSubject.next(msg);
-        // small suppression to block any passive "Next" that tries to follow
-        this.suppressPassiveUntil.set(index, performance.now() + 150);
+  
+        // Block any passive/Next-ish writers for a short window
+        const hold = performance.now() + 600; // was 150–180; bump to kill flash
+        this.suppressPassiveUntil.set(index, hold);
+        this.freezeNextishUntil.set(index, hold); // extra guard: block next-ish during hold
         return;
       }
-      // remaining === 0 → legit Next/Results right away
+  
+      // remaining === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const current = this.selectionMessageSubject.getValue();
       if (current !== msg) this.selectionMessageSubject.next(msg);
-      this.suppressPassiveUntil.set(index, performance.now() + 150);
+  
+      const hold = performance.now() + 300;
+      this.suppressPassiveUntil.set(index, hold);
+      this.freezeNextishUntil.set(index, hold);
       return;
     }
   
@@ -528,7 +528,10 @@ export class SelectionMessageService {
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const current = this.selectionMessageSubject.getValue();
     if (current !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-    this.suppressPassiveUntil.set(index, performance.now() + 150);
+  
+    const hold = performance.now() + 300;
+    this.suppressPassiveUntil.set(index, hold);
+    this.freezeNextishUntil.set(index, hold);
   }
   
 
