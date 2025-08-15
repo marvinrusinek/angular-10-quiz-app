@@ -605,10 +605,10 @@ export class SelectionMessageService {
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
     this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
   
-    // Compute authoritative remaining from canonical + union of selected ids
+    // Authoritative remaining from canonical + union of selected ids
     const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
   
-    // Decide multi from data or declared type
+    // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
@@ -626,34 +626,26 @@ export class SelectionMessageService {
     if (now < nextFreeze && isNextish) return;
   
     // ───────────────────────────────────────────────
-    // NEW: Per-question "remaining" lock
-    // If remaining just decreased but is still >0, enforce Select-N for ~800ms.
-    // Also always block Next-ish while remaining>0.
+    // NEW: Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
     // ───────────────────────────────────────────────
     const prevRem = this.lastRemainingByIndex.get(i0);
     if (prevRem === undefined || remaining !== prevRem) {
       this.lastRemainingByIndex.set(i0, remaining);
-      // If we crossed to a smaller positive remaining (e.g., 2 -> 1), enforce for a short window
       if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
         this.enforceUntilByIndex.set(i0, now + 800);
       }
-      // If we hit 0, clear enforcement
       if (remaining === 0) this.enforceUntilByIndex.delete(i0);
     }
   
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
     const inEnforce = now < enforceUntil;
   
-    // MULTI → never allow Next/Results while any correct answers remain,
-    // and also during the enforcement window after a decrease.
     if (isMulti) {
       if (remaining > 0 || inEnforce) {
         const forced = buildRemainingMsg(Math.max(1, remaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // nothing can override during enforcement or while remaining>0
+        return;
       }
-  
-      // All correct selected → allow Next/Results immediately
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -685,6 +677,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
 
   // Helper: Compute and push atomically (passes options to guard)
@@ -840,6 +833,7 @@ export class SelectionMessageService {
   }
 
   // Authoritative: call ONLY from the option click with the UPDATED array
+  // Authoritative: call ONLY from the option click with the UPDATED array
   public emitFromClick(params: {
     index: number;
     totalQuestions: number;
@@ -851,19 +845,32 @@ export class SelectionMessageService {
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
 
-    // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
-    const remaining = this.remainingFromCanonical(index, options);
+    // --- Always derive gating from CANONICAL correctness (UI may lack reliable `correct`) ---
+    // Primary: authoritative remaining from canonical + union of selected ids
+    let remaining = this.remainingFromCanonical(index, options);
 
-    // Decide multi from CANONICAL data (not the incoming array)
+    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMulti = totalCorrect > 1 || (questionType === QuestionType.MultipleAnswer);
 
+    const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
+    const totalCorrect = totalCorrectCanon > 0
+      ? totalCorrectCanon
+      : (options ?? []).filter(o => !!o?.correct).length; // last-resort fallback
+
+    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
+    // In that edge case, recompute `remaining` from the passed array so multi still gates.
+    if (totalCorrectCanon === 0 && totalCorrect > 0) {
+      const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+      remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+    }
+
+    // Decide multi from CANONICAL first; fall back to declared type
+    const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
 
     // Update the per-question lock with the authoritative remaining
@@ -872,7 +879,7 @@ export class SelectionMessageService {
     // 🔥 Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining); // e.g., "Select 2 more correct answer(s)..."
+        const msg = buildRemainingMsg(remaining); // e.g., "Select 2 more correct answers..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
 
