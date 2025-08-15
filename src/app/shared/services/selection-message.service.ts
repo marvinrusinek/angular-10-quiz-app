@@ -295,6 +295,7 @@ export class SelectionMessageService {
       : (this.quizService.currentQuestionIndex ?? 0);
   
     const qType: QuestionType = ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+    const isMulti = qType === QuestionType.MultipleAnswer; // ← single source of truth
   
     // Use authoritative UPDATED options if provided; else snapshot
     const opts: Option[] =
@@ -319,10 +320,15 @@ export class SelectionMessageService {
       return;
     }
   
-    // MULTI → compute remaining from authoritative options and short-circuit
-    if (qType === QuestionType.MultipleAnswer) {
-      const remaining = this.getRemainingCorrectCountByIndex(i0, opts);
+    // Precompute authoritative state for both branches
+    const isLast = i0 === (this.quizService.totalQuestions - 1);
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
+    const totalCorrect = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
+    // MULTI → compute remaining from authoritative options and short-circuit
+    if (isMulti) {
       // Still missing correct picks → FORCE "Select N more..." and return
       if (remaining > 0) {
         const forced = buildRemainingMsg(remaining);
@@ -337,17 +343,11 @@ export class SelectionMessageService {
       }
   
       // If not Next-ish, emit the correct final msg now
-      const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
-    }
-  
-    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    if (qType !== QuestionType.MultipleAnswer) {
-      const anySelected = (opts ?? []).some(o => !!o?.selected);
-      const isLast = i0 === (this.quizService.totalQuestions - 1);
-  
+    } else {
+      // SINGLE → never allow "Select more..."; allow Next/Results when any selected
       if (isSelectish) {
         const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
                                         : (i0 === 0 ? START_MSG : CONTINUE_MSG);
@@ -369,6 +369,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
