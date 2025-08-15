@@ -2937,14 +2937,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 1b) AUTHORITATIVE OVERLAY onto CANONICAL options (FIX FOR Q2)
       //     Use stable ids so shuffle/filter/index drift cannot break correctness.
       // ───────────────────────────────────────────────
-      const getStableId = (o: any, idx: number) =>
-        (o?.optionId ?? o?.id ?? `${o?.value ?? ''}|${o?.text ?? ''}|${idx}`);
+      const getStableId = (o: any) =>
+        (o?.optionId ?? o?.id ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`);
   
       // Build selected-id set from UPDATED UI list
       const uiSelectedIds = new Set<string | number>();
       for (let k = 0; k < optionsNow.length; k++) {
         const o = optionsNow[k];
-        if (o?.selected) uiSelectedIds.add(getStableId(o, k));
+        if (o?.selected) uiSelectedIds.add(getStableId(o));
       }
   
       // Merge with authoritative service state for this question (if it stores ids)
@@ -2954,7 +2954,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           rawSel.forEach((id: any) => uiSelectedIds.add(id));
         } else if (Array.isArray(rawSel)) {
           rawSel.forEach((so: any, idx: number) => {
-            const id = getStableId(so, idx);
+            const id = getStableId(so);
             uiSelectedIds.add(id);
           });
         }
@@ -2963,7 +2963,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Overlay onto CANONICAL (has true `correct` flags)
       const canonicalSrc: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map(o => ({ ...o }));
       const canonicalOpts: Option[] = canonicalSrc.map((o, idx) => {
-        const id = getStableId(o, idx);
+        const id = getStableId(o);
         return { ...o, selected: uiSelectedIds.has(id) };
       });
   
