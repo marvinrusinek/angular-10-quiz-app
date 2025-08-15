@@ -906,56 +906,38 @@ export class SelectionMessageService {
   public emitFromClick(params: {
     index: number;
     totalQuestions: number;
-    questionType: QuestionType;   // ignored for gating; we derive multi from data
-    options: Option[];            // MUST be canonical-overlaid (correct is authoritative)
+    questionType: QuestionType; // we derive multi from data, not this
+    options: Option[];          // MUST be canonical-overlaid: correct is authoritative, selected reflects click
   }): void {
     const { index, totalQuestions, options } = params;
 
-    // Reserve a write token + freeze "Next-ish" overwrites long enough to block late writers
+    // Freeze long enough to prevent any late "Next" from winning the race
     const token = this.beginWrite(index, 900);
-
-    // ALSO: suppress any passive emits briefly after this click so they can't race this frame
     this.suppressPassiveUntil.set(index, performance.now() + 180);
 
-    // Compute strictly from the UPDATED canonical-overlaid array we were given
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+    const correct  = (options ?? []).filter(o => !!o?.correct);
+    const selected = correct.filter(o => !!o?.selected).length;
 
-    const correct = (options ?? []).filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-
-    // 🔑 Derive multi from DATA, not from the declared type
     const totalCorrect = correct.length;
     const isMulti = totalCorrect > 1;
-
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    const remaining = Math.max(0, totalCorrect - selected);
 
     if (isMulti && remaining > 0) {
-      // 🔒 Hard-gate: never allow Next/Results while any correct remain
       const forced = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       const current = this.selectionMessageSubject.getValue();
       if (current !== forced) this.selectionMessageSubject.next(forced);
 
-      // Extend the Next-ish freeze so late writers can't flip it immediately
+      // Keep a short guard so no Next-ish overwrites sneak in
       this.freezeNextishUntil.set(index, performance.now() + 1200);
-
-      // Keep token active (don't clear) so stale writers are blocked by inFreezeWindow()
-      return;
+      return; // hard stop while remaining > 0
     }
 
     // SINGLE, or MULTI with all correct selected → Next/Results
     const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    this.updateSelectionMessage(msg, { options, index, token });
 
-    this.updateSelectionMessage(msg, {
-      options,          // pass the same authoritative array
-      index,
-      token,
-      // we intentionally do NOT rely on questionType here
-    });
-
-    // Lift freeze after the microtask so message paints
-    queueMicrotask(() => {
-      this.endWrite(index, token, { clearTokenWindow: true });
-    });
+    queueMicrotask(() => this.endWrite(index, token, { clearTokenWindow: true }));
   }
 
   
