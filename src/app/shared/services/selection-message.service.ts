@@ -60,13 +60,11 @@ export class SelectionMessageService {
               ?? (svc.currentQuestion as QuizQuestion | undefined)
               ?? null;
   
-    // Resolve declared type (may be stale/wrong in data)
-    const declaredType: QuestionType | undefined = q?.type ?? (
-      this.quizService.currentQuestion?.getValue()?.type ??
-      this.quizService.currentQuestion.value.type
-    );
+    // Resolve declared type (may be stale)
+    const declaredType: QuestionType | undefined =
+      q?.type ?? this.quizService.currentQuestion?.getValue()?.type ?? this.quizService.currentQuestion.value.type;
   
-    // ---- Stable key (no index fallback mismatches on reorder/filter) ----
+    // ---- Stable key: prefer explicit ids; fall back to value|text (no index cross-pollution) ----
     const keyOf = (o: any): string | number => {
       if (!o) return '__nil';
       if (o.optionId != null) return o.optionId;
@@ -76,56 +74,36 @@ export class SelectionMessageService {
       return `${val}|${txt}`;
     };
   
-    // Build a set of selected KEYS from the UI snapshot
+    // Build selected key set from UI snapshot…
     const selectedKeys = new Set<string | number>();
     for (let i = 0; i < uiSnapshot.length; i++) {
       const o = uiSnapshot[i];
       if (o?.selected) selectedKeys.add(keyOf(o));
     }
-  
-    // 🔗 Union with SelectedOptionService (ids or objects) to avoid stale/missed picks
+    // …and union with SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedKeys.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
-      }
+      if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
+      else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
     } catch {}
   
-    // Overlay selection into CANONICAL options (which have reliable `correct`)
+    // Overlay selection into CANONICAL (correct flags intact)
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
-      ? canonical.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
-      : uiSnapshot.map((o) => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback if canonical absent
+      ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
+      : uiSnapshot.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback
   
-    // ---- Compute authoritative state from overlaid options ----
-    const anySelected     = overlaid.some(o => !!o?.selected);
-    const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
-    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
-    const isLast          = totalQuestions > 0 && questionIndex === totalQuestions - 1;
+    // If the data has >1 correct, treat as MultipleAnswer even if declared type is wrong
+    const computedIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
+    const qType: QuestionType = computedIsMulti ? QuestionType.MultipleAnswer
+                                                : (declaredType ?? QuestionType.SingleAnswer);
   
-    // **Type fix**: if the data clearly shows multiple correct answers, treat as MultipleAnswer
-    const qType: QuestionType =
-      (totalCorrect > 1) ? QuestionType.MultipleAnswer
-                         : (declaredType ?? QuestionType.SingleAnswer);
-  
-    // Nothing picked yet
-    if (!anySelected) {
-      return questionIndex === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
-    // MULTI: never allow Next/Results while any correct answers remain
-    if (qType === QuestionType.MultipleAnswer) {
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining); // e.g., "Select 1 more correct option to continue..."
-      }
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // SINGLE → immediately Next/Results
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    return this.computeFinalMessage({
+      index: questionIndex,
+      total: totalQuestions,
+      qType,
+      opts: overlaid
+    });
   }
   
   // Centralized, deterministic message builder
@@ -559,79 +537,109 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    const qType: QuestionType = ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
-    const isMulti = qType === QuestionType.MultipleAnswer;
+    // Prefer UPDATED ctx.options for selection shape, but correctness comes from canonical
+    const uiSnapshot = (Array.isArray(ctx?.options) && ctx!.options!.length)
+      ? ctx!.options!
+      : this.getLatestOptionsSnapshot();
   
-    // Prefer UPDATED options if provided; else snapshot
-    const opts: Option[] =
-      (Array.isArray(ctx?.options) && ctx!.options!.length)
-        ? ctx!.options!
-        : this.getLatestOptionsSnapshot();
+    // Canonical question/options
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
   
-    // Classifiers
+    // If we have no question/options, bail
+    if (!q || !Array.isArray(q.options) || q.options.length === 0) {
+      if (current !== next) this.selectionMessageSubject.next(next);
+      return;
+    }
+  
+    // Stable key (same as above)
+    const keyOf = (o: any): string | number => {
+      if (!o) return '__nil';
+      if (o.optionId != null) return o.optionId;
+      if (o.id != null) return o.id;
+      const val = (o.value ?? '').toString().trim().toLowerCase();
+      const txt = (o.text ?? o.label ?? '').toString().trim().toLowerCase();
+      return `${val}|${txt}`;
+    };
+  
+    // Build selected keys union: ctx snapshot + service map
+    const selectedKeys = new Set<string | number>();
+    for (let i = 0; i < uiSnapshot.length; i++) {
+      const o = uiSnapshot[i];
+      if (o?.selected) selectedKeys.add(keyOf(o));
+    }
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+      if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
+      else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
+    } catch {}
+  
+    // Overlaid canonical for authoritative compute
+    const overlaid: Option[] = q.options.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }));
+    this.setOptionsSnapshot(overlaid); // keep snapshot aligned
+  
+    const isLast = i0 === (this.quizService.totalQuestions - 1);
+    const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
+    const anySelected     = overlaid.some(o => !!o?.selected);
+  
+    // Decide type: data wins if >1 correct
+    const declaredType: QuestionType | undefined = ctx?.questionType ?? q.type;
+    const isMulti = (totalCorrect > 1) ? true : (declaredType === QuestionType.MultipleAnswer);
+  
+    // Classifiers (kept)
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // 🔒 During suppression, block any Next-ish writes outright.
+    // 🔒 During suppression windows, block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
-    if (now < passiveHold && isNextish) return;
-    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
-    if (now < nextFreeze && isNextish) return;
+    const nextFreeze  = (this.freezeNextishUntil.get(i0) ?? 0);
+    if ((now < passiveHold || now < nextFreeze) && isNextish) return;
   
-    // ─────────────────────────────────────────────────────────
-    // **IRON-CLAD LOCK**: while lock says remaining > 0, force "Select N more..."
-    // ─────────────────────────────────────────────────────────
-    if (isMulti && this.isNextLocked(i0)) {
-      // recompute remaining from the best data we have right now
-      const correct = (opts ?? []).filter(o => !!o?.correct);
-      const selectedCorrect = correct.filter(o => !!o?.selected).length;
-      const remaining = Math.max(0, correct.length - selectedCorrect);
-  
-      // keep lock in sync (clears when remaining === 0)
-      this.setRemainingLock(i0, remaining);
-  
-      if (remaining > 0) {
-        const forced = buildRemainingMsg(remaining);
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // nothing can override while still missing correct picks
-      }
-      // If we fell through, remaining is 0 → lock cleared → allow Next/Results below.
-    }
-  
-    // MULTI → when not locked (remaining===0), allow Next/Results
+    // ── IRON-CLAD GUARD: Multi never shows Next while remaining > 0 ──
     if (isMulti) {
-      const isLast = i0 === (this.quizService.totalQuestions - 1);
+      if (!anySelected) {
+        const base = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        if (current !== base) this.selectionMessageSubject.next(base);
+        return;
+      }
+      if (remaining > 0) {
+        const forced = buildRemainingMsg(remaining); // “Select N more correct option(s)…”
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+      // remaining === 0 → Next/Results
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
   
-    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = (opts ?? []).some(o => !!o?.selected);
-    const isLast = i0 === (this.quizService.totalQuestions - 1);
-  
+    // SINGLE → never allow “Select more...”; Next/Results when any pick exists
     if (isSelectish) {
       const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
                                       : (i0 === 0 ? START_MSG : CONTINUE_MSG);
       if (current !== replacement) this.selectionMessageSubject.next(replacement);
       return;
     }
-  
     if (isNextish && anySelected) {
       if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
-    // fall through to stale-writer guard
   
-    // Stale writer guard (only for ambiguous cases)
+    // Stale-writer guard
     const inFreeze = this.inFreezeWindow?.(i0) ?? false;
     const latestToken = this.latestByIndex.get(i0);
     if (inFreeze && ctx?.token !== latestToken) return;
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
