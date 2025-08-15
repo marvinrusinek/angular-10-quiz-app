@@ -611,73 +611,34 @@ export class SelectionMessageService {
     const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
   
-    // Prefer UPDATED options for this click if present
+    // Prefer UPDATED options if provided; else snapshot for our gate
     const optsCtx: Option[] | undefined =
       (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
-    // Canonical options
+    // Resolve canonical once
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
+  
+    // Normalize ids so subsequent remaining/guards compare apples-to-apples
+    this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Compute authoritative remaining from canonical + union of selected ids
+    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Decide multi from data or declared type
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const totalCorrect = canonical.filter(o => !!o?.correct).length;
+    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
-    // ----- EARLY GUARD with MONOTONICITY (fixes Q1 flashing) -------------------
-    // Only look at the *UI* selection state here (ignore service — it may be stale).
-    const uiSrc = optsCtx ?? this.getLatestOptionsSnapshot();
-    const anySelectedUI = (uiSrc ?? []).some(o => !!o?.selected);
-  
-    // If we've **ever** had a selection for this question, mark it sticky
-    if (anySelectedUI) this.everSelectedByIndex.add(i0);
-  
-    // If nothing selected **and** we've never selected on this question, force Start/Continue.
-    // If we've selected before, DO NOT regress to Start/Continue even if a late writer thinks so.
-    if (!anySelectedUI && !this.everSelectedByIndex.has(i0)) {
-      const starter = i0 === 0 ? START_MSG : CONTINUE_MSG;
-      if (current !== starter) this.selectionMessageSubject.next(starter);
-      return; // nothing selected yet → never allow Next/Results
-    }
-    // --------------------------------------------------------------------------
-  
-    // Stable key
-    const keyOf = (o: any): string | number => {
-      if (!o) return '__nil';
-      if (o.optionId != null) return o.optionId;
-      if (o.id != null) return o.id;
-      const v = String(o.value ?? '').trim().toLowerCase();
-      const t = String((o.text ?? o.label ?? '')).trim().toLowerCase();
-      return `vt:${v}|${t}`;
-    };
-  
-    // Selected IDs: union of current UI src + SelectedOptionService
-    const selectedKeys = new Set<string | number>();
-    for (const o of (uiSrc ?? [])) if (o?.selected) selectedKeys.add(keyOf(o));
-    try {
-      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-      if (rawSel instanceof Set) rawSel.forEach((id: any) => selectedKeys.add(id));
-      else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
-    } catch {}
-  
-    // Overlay onto canonical (correct is authoritative)
-    const overlaid = canonical.map(c => ({ ...c, selected: selectedKeys.has(keyOf(c)) }));
-    const totalCorrect = overlaid.filter(o => !!o?.correct).length;
-    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-  
-    const declaredMulti = qTypeDeclared === QuestionType.MultipleAnswer;
-    const isMulti = declaredMulti || totalCorrect > 1;
-  
-    // If declared multi but only 1 correct is marked in data, require at least 2 picks
-    const requiredCorrect = isMulti
-      ? Math.max(declaredMulti ? 2 : 0, totalCorrect)
-      : totalCorrect;
-    const remaining = Math.max(0, requiredCorrect - selectedCorrect);
-  
-    // Classifiers & suppression
+    // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
+    // 🔒 Suppression windows: block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
     if (now < passiveHold && isNextish) return;
@@ -685,14 +646,34 @@ export class SelectionMessageService {
     if (now < nextFreeze && isNextish) return;
   
     // ───────────────────────────────────────────────
-    // HARD GATE: For MULTI, never allow Next while remaining > 0
+    // NEW: Per-question "remaining" lock
+    // If remaining just decreased but is still >0, enforce Select-N for ~800ms.
+    // Also always block Next-ish while remaining>0.
     // ───────────────────────────────────────────────
-    if (isMulti) {
-      if (remaining > 0) {
-        const forced = buildRemainingMsg(remaining);
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return;
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || remaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, remaining);
+      // If we crossed to a smaller positive remaining (e.g., 2 -> 1), enforce for a short window
+      if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
       }
+      // If we hit 0, clear enforcement
+      if (remaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
+  
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    // MULTI → never allow Next/Results while any correct answers remain,
+    // and also during the enforcement window after a decrease.
+    if (isMulti) {
+      if (remaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, remaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return; // nothing can override during enforcement or while remaining>0
+      }
+  
+      // All correct selected → allow Next/Results immediately
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -702,15 +683,17 @@ export class SelectionMessageService {
     // ───────────────────────────────────────────────
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
     // ───────────────────────────────────────────────
+    const anySelected = (optsCtx ?? this.getLatestOptionsSnapshot()).some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
-      const replacement = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                                      : (i0 === 0 ? START_MSG : CONTINUE_MSG);
       if (current !== replacement) this.selectionMessageSubject.next(replacement);
       return;
     }
   
-    if (isNextish) {
+    if (isNextish && anySelected) {
       if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
@@ -877,7 +860,7 @@ export class SelectionMessageService {
   }
 
   // Authoritative: call ONLY from the option click with the UPDATED array
-  public emitFromClick(params: {
+  /* public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -929,7 +912,63 @@ export class SelectionMessageService {
     const hold = performance.now() + 250;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
+  } */
+  // Authoritative: call ONLY from the option click with the UPDATED array
+  public emitFromClick(params: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;   // ignored for gating; we derive multi from data
+    options: Option[];            // MUST be canonical-overlaid (correct is authoritative)
+  }): void {
+    const { index, totalQuestions, options } = params;
+
+    // Reserve a write token + freeze "Next-ish" overwrites long enough to block late writers
+    const token = this.beginWrite(index, 900);
+
+    // ALSO: suppress any passive emits briefly after this click so they can't race this frame
+    this.suppressPassiveUntil.set(index, performance.now() + 180);
+
+    // Compute strictly from the UPDATED canonical-overlaid array we were given
+    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+
+    const correct = (options ?? []).filter(o => !!o?.correct);
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+
+    // 🔑 Derive multi from DATA, not from the declared type
+    const totalCorrect = correct.length;
+    const isMulti = totalCorrect > 1;
+
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+
+    if (isMulti && remaining > 0) {
+      // 🔒 Hard-gate: never allow Next/Results while any correct remain
+      const forced = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+      const current = this.selectionMessageSubject.getValue();
+      if (current !== forced) this.selectionMessageSubject.next(forced);
+
+      // Extend the Next-ish freeze so late writers can't flip it immediately
+      this.freezeNextishUntil.set(index, performance.now() + 1200);
+
+      // Keep token active (don't clear) so stale writers are blocked by inFreezeWindow()
+      return;
+    }
+
+    // SINGLE, or MULTI with all correct selected → Next/Results
+    const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+    this.updateSelectionMessage(msg, {
+      options,          // pass the same authoritative array
+      index,
+      token,
+      // we intentionally do NOT rely on questionType here
+    });
+
+    // Lift freeze after the microtask so message paints
+    queueMicrotask(() => {
+      this.endWrite(index, token, { clearTokenWindow: true });
+    });
   }
+
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
