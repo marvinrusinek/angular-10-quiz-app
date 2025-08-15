@@ -926,18 +926,12 @@ export class SelectionMessageService {
     if (isMulti && remaining > 0) {
       const forced = `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
       const current = this.selectionMessageSubject.getValue();
-      if (current !== forced) {
-        this.selectionMessageSubject.next(forced);
-      }
-    
-      // 🔒 Extend the freeze window so ANY Next-ish writes are blocked
-      const now = performance.now();
-      this.freezeNextishUntil.set(index, now + 1500);   // 1.5s is usually enough
-      this.suppressPassiveUntil.set(index, now + 1500);
-    
-      // DO NOT clear the token yet — keep it active so stale writers are ignored
-      return;
-    }    
+      if (current !== forced) this.selectionMessageSubject.next(forced);
+
+      // Keep a short guard so no Next-ish overwrites sneak in
+      this.freezeNextishUntil.set(index, performance.now() + 1200);
+      return; // hard stop while remaining > 0
+    }
 
     // SINGLE, or MULTI with all correct selected → Next/Results
     const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
