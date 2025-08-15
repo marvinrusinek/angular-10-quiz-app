@@ -34,6 +34,9 @@ export class SelectionMessageService {
   private nextLockByIndex = new Map<number, boolean>();
   private remainingByIndex = new Map<number, number>();
 
+  private idMapByIndex = new Map<number, Map<string, string | number>>();   // key -> canonicalId
+  private idRevByIndex = new Map<number, Map<string | number, string>>();   // canonicalId -> key
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -1160,5 +1163,61 @@ export class SelectionMessageService {
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
+  }
+
+  // Key that survives reorder/clone/missing ids (NO index fallback)
+  private keyOf(o: any): string {
+    if (!o) return '__nil';
+    const id = (o.optionId ?? o.id);
+    if (id != null) return `id:${String(id)}`;
+    const v = String(o.value ?? '').trim().toLowerCase();
+    const t = String(o.text ?? o.label ?? '').trim().toLowerCase();
+    return `vt:${v}|${t}`;
+  }
+
+  /** Ensure every canonical option has a stable optionId.
+   * Also stamp matching ids onto any UI list passed in.
+   */
+  private ensureStableIds(index: number, canonical: Option[] | null | undefined, ...uiLists: (Option[] | null | undefined)[]): void {
+    const canon = Array.isArray(canonical) ? canonical : [];
+    if (!canon.length) return;
+
+    // Build or reuse mapping for this question
+    let fwd = this.idMapByIndex.get(index);
+    let rev = this.idRevByIndex.get(index);
+    if (!fwd || !rev) {
+      fwd = new Map(); rev = new Map();
+      // seed from canonical
+      canon.forEach((c, i) => {
+        const key = this.keyOf(c);
+        const cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
+        (c as any).optionId = cid; // stamp canonical
+        fwd!.set(key, cid);
+        rev!.set(cid, key);
+      });
+      this.idMapByIndex.set(index, fwd);
+      this.idRevByIndex.set(index, rev);
+    } else {
+      // make sure canonical is stamped if we created map earlier
+      canon.forEach((c, i) => {
+        const key = this.keyOf(c);
+        let cid = fwd!.get(key);
+        if (cid == null) {
+          cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
+          fwd!.set(key, cid);
+          rev!.set(cid, key);
+        }
+        (c as any).optionId = cid;
+      });
+    }
+    // Stamp ids onto any UI lists using their keys
+    for (const list of uiLists) {
+      if (!Array.isArray(list)) continue;
+      list.forEach((o) => {
+        const key = this.keyOf(o as any);
+        const cid = fwd!.get(key);
+        if (cid != null) (o as any).optionId = cid;
+      });
+    }
   }
 }
