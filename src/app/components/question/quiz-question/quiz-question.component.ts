@@ -255,8 +255,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean;
   };
 
-  private _hiddenAt: number | null = null; private _elapsedAtHide: number | null = null;
-
+  private _hiddenAt: number | null = null;
+  private _elapsedAtHide: number | null = null;
   private _pendingPassiveRaf: number | null = null;
 
   private destroy$: Subject<void> = new Subject<void>();
