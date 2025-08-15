@@ -37,6 +37,10 @@ export class SelectionMessageService {
   private idMapByIndex = new Map<number, Map<string, string | number>>();   // key -> canonicalId
   private idRevByIndex = new Map<number, Map<string | number, string>>();   // canonicalId -> key
 
+  // Per-question remaining tracker + short enforcement window
+  private lastRemainingByIndex = new Map<number, number>();
+  private enforceUntilByIndex = new Map<number, number>(); // ts until we allow Next-ish
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -593,6 +597,14 @@ export class SelectionMessageService {
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
     this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
   
+    // Compute authoritative remaining from canonical + union of selected ids
+    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Decide multi from data or declared type
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const totalCorrect = canonical.filter(o => !!o?.correct).length;
+    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
+  
     // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
@@ -605,21 +617,32 @@ export class SelectionMessageService {
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
-    // Decide multi from data or declared type
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
+    // ───────────────────────────────────────────────
+    // NEW: Per-question "remaining" lock
+    // If remaining just decreased but is still >0, enforce Select-N for ~800ms.
+    // Also always block Next-ish while remaining>0.
+    // ───────────────────────────────────────────────
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || remaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, remaining);
+      // If we crossed to a smaller positive remaining (e.g., 2 -> 1), enforce for a short window
+      if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
+      }
+      // If we hit 0, clear enforcement
+      if (remaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
   
-    // ───────────────────────────────────────────────
-    // HARD GATE: For MULTI, never allow Next while remaining > 0
-    // ───────────────────────────────────────────────
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    // MULTI → never allow Next/Results while any correct answers remain,
+    // and also during the enforcement window after a decrease.
     if (isMulti) {
-      const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
-  
-      if (remaining > 0) {
-        const forced = buildRemainingMsg(remaining);
+      if (remaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, remaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // nothing can override while still missing correct picks
+        return; // nothing can override during enforcement or while remaining>0
       }
   
       // All correct selected → allow Next/Results immediately
@@ -629,7 +652,9 @@ export class SelectionMessageService {
       return;
     }
   
+    // ───────────────────────────────────────────────
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
+    // ───────────────────────────────────────────────
     const anySelected = (optsCtx ?? this.getLatestOptionsSnapshot()).some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
