@@ -28,11 +28,8 @@ export class SelectionMessageService {
   private latestByIndex = new Map<number, number>();
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
-  private nextLockByIndex = new Map<number, boolean>();
-  private remainingByIndex = new Map<number, number>();
 
   private idMapByIndex = new Map<number, Map<string, string | number>>();   // key -> canonicalId
-  private idRevByIndex = new Map<number, Map<string | number, string>>();   // canonicalId -> key
 
   // Per-question remaining tracker and short enforcement window
   private lastRemainingByIndex = new Map<number, number>();
@@ -461,9 +458,6 @@ export class SelectionMessageService {
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
 
-    // Update the per-question lock with the authoritative remaining
-    this.setRemainingLock(index, remaining);
-
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
@@ -539,7 +533,6 @@ export class SelectionMessageService {
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
   
-  // Overlay UI selection onto CANONICAL options (authoritative correct flags)
   // Overlay UI/service selection onto CANONICAL options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
     const svc: any = this.quizService as any;
@@ -606,15 +599,6 @@ export class SelectionMessageService {
     return q?.type ?? QuestionType.SingleAnswer;
   }
 
-  private setRemainingLock(index: number, remaining: number): void {
-    this.remainingByIndex.set(index, Math.max(0, remaining));
-    if (remaining > 0) {
-      this.nextLockByIndex.set(index, true);
-    } else {
-      this.nextLockByIndex.delete(index);
-    }
-  }
-
   // Authoritative remaining counter: uses canonical correctness and union of selected IDs
   private remainingFromCanonical(index: number, uiOpts?: Option[] | null): number {
     const svc: any = this.quizService as any;
@@ -675,19 +659,16 @@ export class SelectionMessageService {
 
     // Build or reuse mapping for this question
     let fwd = this.idMapByIndex.get(index);
-    let rev = this.idRevByIndex.get(index);
-    if (!fwd || !rev) {
-      fwd = new Map(); rev = new Map();
+    if (!fwd) {
+      fwd = new Map();
       // seed from canonical
       canon.forEach((c, i) => {
         const key = this.keyOf(c);
         const cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
         (c as any).optionId = cid;  // stamp canonical
         fwd!.set(key, cid);
-        rev!.set(cid, key);
       });
       this.idMapByIndex.set(index, fwd);
-      this.idRevByIndex.set(index, rev);
     } else {
       // Make sure canonical is stamped if we created map earlier
       canon.forEach((c, i) => {
@@ -696,7 +677,6 @@ export class SelectionMessageService {
         if (cid == null) {
           cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
           fwd!.set(key, cid);
-          rev!.set(cid, key);
         }
         (c as any).optionId = cid;
       });
