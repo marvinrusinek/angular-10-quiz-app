@@ -391,6 +391,7 @@ export class SelectionMessageService {
   // Index-aware resolver: NEVER reads currentQuestionIndex.
   // Resolve an option's stable id specifically for the given question index.
   // Index-aware ID resolver: never reads currentQuestionIndex
+  // Uses the per-question registry in idMapByIndex when available.
   private getOptionIdFor(index: number, opt: any, fallbackIdx: number): number | string {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
@@ -595,20 +596,44 @@ export class SelectionMessageService {
   
     const canonical: Option[] = Array.isArray(q?.options) ? q!.options : [];
   
-    // Stamp/normalize IDs for this question (no-op if already done)
+    // Ensure IDs are stamped for this question first (safe no-op if already done)
     try { this.ensureStableIds(i0, canonical, optsCtx ?? this.getLatestOptionsSnapshot()); } catch {}
   
-    // One true source of selected IDs
-    const selectedIds = this.buildSelectedIdUnion(i0, optsCtx);
+    // Collect selected ids from ctx options (INDEX-AWARE)
+    const selectedIds = new Set<number | string>();
+    const source = Array.isArray(optsCtx) && optsCtx.length ? optsCtx : this.getLatestOptionsSnapshot();
   
-    // Overlay onto canonical using index-aware IDs
+    for (let i = 0; i < (source?.length ?? 0); i++) {
+      const o = source[i];
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(i0, o, i));
+    }
+  
+    // Union with current snapshot (INDEX-AWARE)
+    const snap = this.getLatestOptionsSnapshot();
+    for (let i = 0; i < (snap?.length ?? 0); i++) {
+      const o = snap[i];
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(i0, o, i));
+    }
+  
+    // Union with SelectedOptionService (INDEX-AWARE)
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => selectedIds.add(id));
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any, idx: number) => selectedIds.add(this.getOptionIdFor(i0, so, idx)));
+      }
+    } catch {}
+  
+    // Return canonical with selected overlay (INDEX-AWARE compare)
     return canonical.length
       ? canonical.map((o, idx) => {
-          const cid = this.getOptionIdFor(i0, o, idx);
-          return { ...o, selected: selectedIds.has(cid) };
+          const id = this.getOptionIdFor(i0, o, idx);
+          return { ...o, selected: selectedIds.has(id) };
         })
-      : (Array.isArray(optsCtx) ? optsCtx.map(o => ({ ...o })) : this.getLatestOptionsSnapshot().map(o => ({ ...o })));
-  }  
+      : source.map(o => ({ ...o }));
+  }
+  
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
@@ -683,10 +708,10 @@ export class SelectionMessageService {
     // Ensure IDs are stamped for this question (safe no-op if already stamped)
     try { this.ensureStableIds(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
   
-    // Unified selected IDs (index-aware)
+    // Build selected IDs union from UI and SelectedOptionService (INDEX-AWARE)
     const selectedIds = new Set<number | string>();
   
-    // (1) From UI options if provided
+    // From UI options if provided
     if (Array.isArray(uiOpts)) {
       for (let i = 0; i < uiOpts.length; i++) {
         const o = uiOpts[i];
@@ -694,14 +719,14 @@ export class SelectionMessageService {
       }
     }
   
-    // (2) From latest snapshot
+    // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
       const o = snap[i];
       if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i));
     }
   
-    // (3) From SelectedOptionService (ids or objects)
+    // From SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
       if (rawSel instanceof Set) {
@@ -711,18 +736,19 @@ export class SelectionMessageService {
       }
     } catch {}
   
-    // Count remaining using canonical correctness + stable IDs
+    // Count remaining using canonical correctness + stable IDs (INDEX-AWARE)
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
       const c = canonical[i];
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionIdFor(index, c, i);   // ← compare with index-aware ID
+      const id = this.getOptionIdFor(index, c, i);
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
   }
+  
   
 
   // Content-only key (never uses ids) to detect duplicate labels/values safely
