@@ -165,55 +165,6 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
-  public getRemainingCorrectCountByIndex(
-    questionIndex: number,
-    options?: Option[]
-  ): number {
-    // Canonical correctness (authoritative)
-    const svc: any = this.quizService as any;
-    const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (questionIndex >= 0 && questionIndex < arr.length ? arr[questionIndex] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-  
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    if (!canonical.length) return 0;
-  
-    // Build selected IDs union: SelectedOptionService + freshest UI (options or snapshot)
-    const selectedIds = new Set<number | string>();
-  
-    // SelectedOptionService
-    try {
-      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => selectedIds.add(this.getOptionId(so, idx)));
-      }
-    } catch {}
-  
-    // UI list passed in (or latest snapshot)
-    const src = Array.isArray(options) && options.length ? options : this.getLatestOptionsSnapshot();
-    for (let i = 0; i < (src?.length ?? 0); i++) {
-      const o = src[i];
-      if (o?.selected) selectedIds.add(this.getOptionId(o, i));
-    }
-  
-    // Count using canonical correctness and stable IDs
-    let totalCorrect = 0;
-    let selectedCorrect = 0;
-  
-    for (let i = 0; i < canonical.length; i++) {
-      const c = canonical[i];
-      if (!c?.correct) continue;
-      totalCorrect++;
-      const id = this.getOptionId(c, i);
-      if (selectedIds.has(id)) selectedCorrect++;
-    }
-  
-    return Math.max(0, totalCorrect - selectedCorrect);
-  }
-
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
     index: number;  // 0-based
