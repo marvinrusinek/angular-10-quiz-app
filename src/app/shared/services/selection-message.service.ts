@@ -437,8 +437,20 @@ export class SelectionMessageService {
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
   
-    // ⬇️ ONE extra argument added: this.getLatestOptionsSnapshot()
-    try { this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot()); } catch {}
+    // One extra argument added: this.getLatestOptionsSnapshot()
+    try {
+      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
+    
+      // ⬇️ NEW: stamp registry ids onto the clicked list
+      const idMap = this.idMapByIndex.get(index);
+      if (idMap) {
+        for (const o of options) {
+          const key = this.keyOf(o);
+          const cid = idMap.get(key);
+          if (cid != null) (o as any).optionId = cid;
+        }
+      }
+    } catch {}
   
     // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
     const overlaid = this.getCanonicalOverlay(index, options);
