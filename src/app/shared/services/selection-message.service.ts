@@ -24,22 +24,20 @@ export class SelectionMessageService {
   );
 
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
-  
   private writeSeq = 0;
   public lastSelectionMutation = 0;
   private latestByIndex = new Map<number, number>();
-  private freezeNextishUntil = new Map<number, number>();   // block Next-ish until ts
+  private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
-  private debugWrites = false;
   private nextLockByIndex = new Map<number, boolean>();
   private remainingByIndex = new Map<number, number>();
 
   private idMapByIndex = new Map<number, Map<string, string | number>>();   // key -> canonicalId
   private idRevByIndex = new Map<number, Map<string | number, string>>();   // canonicalId -> key
 
-  // Per-question remaining tracker + short enforcement window
+  // Per-question remaining tracker and short enforcement window
   private lastRemainingByIndex = new Map<number, number>();
-  private enforceUntilByIndex = new Map<number, number>(); // ts until we allow Next-ish
+  private enforceUntilByIndex = new Map<number, number>();
 
   constructor(
     private quizService: QuizService, 
@@ -57,10 +55,10 @@ export class SelectionMessageService {
     totalQuestions: number,
     _isAnswered: boolean
   ): string {
-    // Use the latest UI snapshot ONLY to know what's selected…
+    // Use the latest UI snapshot only to know what's selected…
     const uiSnapshot = this.getLatestOptionsSnapshot();
   
-    // …but compute correctness from CANONICAL question options (authoritative).
+    // Compute correctness from canonical question options (authoritative)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q = (questionIndex >= 0 && questionIndex < qArr.length ? qArr[questionIndex] : undefined)
@@ -71,7 +69,7 @@ export class SelectionMessageService {
     const declaredType: QuestionType | undefined =
       q?.type ?? this.quizService.currentQuestion?.getValue()?.type ?? this.quizService.currentQuestion.value.type;
   
-    // ---- Stable key: prefer explicit ids; fall back to value|text (no index cross-pollution) ----
+    // Stable key: prefer explicit ids; fall back to value|text (no index cross-pollution)
     const keyOf = (o: any): string | number => {
       if (!o) return '__nil';
       if (o.optionId != null) return o.optionId;
@@ -94,10 +92,10 @@ export class SelectionMessageService {
       else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
     } catch {}
 
-    // Ensure canonical + UI snapshot share the same optionId space
+    // Ensure canonical and UI snapshot share the same optionId space
     this.ensureStableIds(questionIndex, (q as any)?.options ?? [], this.getLatestOptionsSnapshot());
   
-    // Overlay selection into CANONICAL (correct flags intact)
+    // Overlay selection into canonical (correct flags intact)
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
       ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
@@ -105,8 +103,9 @@ export class SelectionMessageService {
   
     // If the data has >1 correct, treat as MultipleAnswer even if declared type is wrong
     const computedIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
-    const qType: QuestionType = computedIsMulti ? QuestionType.MultipleAnswer
-                                                : (declaredType ?? QuestionType.SingleAnswer);
+    const qType: QuestionType = 
+      computedIsMulti ? QuestionType.MultipleAnswer
+      : (declaredType ?? QuestionType.SingleAnswer);
   
     return this.computeFinalMessage({
       index: questionIndex,
@@ -130,7 +129,7 @@ export class SelectionMessageService {
     // Any selection signal (for start/continue copy)
     const anySelected = (opts ?? []).some(o => !!o?.selected);
 
-    // Authoritative remaining from canonical correctness + union of selections
+    // Authoritative remaining from canonical correctness and union of selections
     const remaining = this.remainingFromCanonical(index, opts);
 
     // Decide multi from DATA first; fall back to declared type
@@ -143,11 +142,9 @@ export class SelectionMessageService {
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
 
-    // ───────────────────────────────────────────────
     // BEFORE ANY PICK:
     // For MULTI, show "Select N more correct answers..." (N = totalCorrect).
     // For SINGLE, keep START/CONTINUE.
-    // ───────────────────────────────────────────────
     if (!anySelected) {
       if (isMulti) {
         // With no selections, remaining === totalCorrect — exactly what we want
@@ -168,45 +165,6 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
-
-  /* public getRemainingCorrectCountByIndex(
-    questionIndex: number,
-    options?: Option[]
-  ): number {
-    // If caller passed UPDATED options, trust them first (authoritative)
-    if (Array.isArray(options) && options.length) {
-      const correct = options.filter(o => !!o?.correct);
-      if (correct.length === 0) return 0;
-      const selectedCorrect = correct.filter(o => !!o?.selected).length;
-      return Math.max(0, correct.length - selectedCorrect);
-    }
-  
-    // Else fall back to freshest snapshot
-    const opts = this.pickOptionsForGuard(undefined, questionIndex);
-    if (!Array.isArray(opts) || opts.length === 0) return 0;
-  
-    // Count using SelectedOptionService map (best effort)
-    const correct = opts.map((o, i) => ({ o, i })).filter(({ o }) => !!o?.correct);
-    if (correct.length === 0) return 0;
-  
-    const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
-    const selectedIds: Set<number | string> =
-      rawSel instanceof Set
-        ? rawSel
-        : Array.isArray(rawSel)
-          ? new Set((rawSel as any[]).map((so, idx: number) =>
-              this.getOptionId(so, typeof so === 'object' ? (so.optionId ?? so.value ?? idx) : idx)
-            ))
-          : new Set();
-  
-    let selectedCorrect = 0;
-    for (const { o, i } of correct) {
-      const id = this.getOptionId(o, i);
-      const isSelected = !!o?.selected || selectedIds.has(id);
-      if (isSelected) selectedCorrect++;
-    }
-    return Math.max(0, correct.length - selectedCorrect);
-  } */
   public getRemainingCorrectCountByIndex(
     questionIndex: number,
     options?: Option[]
@@ -224,7 +182,7 @@ export class SelectionMessageService {
     // Build selected IDs union: SelectedOptionService + freshest UI (options or snapshot)
     const selectedIds = new Set<number | string>();
   
-    // (a) SelectedOptionService
+    // SelectedOptionService
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
       if (rawSel instanceof Set) {
@@ -234,14 +192,14 @@ export class SelectionMessageService {
       }
     } catch {}
   
-    // (b) UI list passed in (or latest snapshot)
+    // UI list passed in (or latest snapshot)
     const src = Array.isArray(options) && options.length ? options : this.getLatestOptionsSnapshot();
     for (let i = 0; i < (src?.length ?? 0); i++) {
       const o = src[i];
       if (o?.selected) selectedIds.add(this.getOptionId(o, i));
     }
   
-    // Count using canonical correctness + stable IDs
+    // Count using canonical correctness and stable IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
   
@@ -256,7 +214,7 @@ export class SelectionMessageService {
     return Math.max(0, totalCorrect - selectedCorrect);
   }
 
-  // Build message on click (correct wording + logic)
+  // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
     index: number;  // 0-based
     totalQuestions: number;
