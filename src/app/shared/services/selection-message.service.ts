@@ -638,10 +638,25 @@ export class SelectionMessageService {
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
-    if (qType !== QuestionType.MultipleAnswer) return null;
-    const totalCorrect = overlaid.filter(o => !!o?.correct).length;
-    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    // Only gate multi-answer
+    const expectedOverride = this.getExpectedCorrectCount(i0);
+    const isMulti =
+      qType === QuestionType.MultipleAnswer ||
+      ((expectedOverride ?? 0) > 1) ||
+      (overlaid.filter(o => !!o?.correct).length > 1);
+  
+    if (!isMulti) return null;
+  
+    // Total “truth”: prefer explicit expected count, else canonical flags
+    const totalCorrectCanonical = overlaid.filter(o => !!o?.correct).length;
+    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
+  
+    // Count only CORRECT selections
+    const selectedCorrect = overlaid.reduce(
+      (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
+    );
+  
+    const remaining = Math.max(0, totalForThisQ - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);  // e.g., "Select 1 more correct answer..."
     return null;
   }
