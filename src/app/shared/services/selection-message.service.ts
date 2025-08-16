@@ -430,63 +430,49 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Snapshot for later passives (kept behavior)
-    this.setOptionsSnapshot(options);
-  
-    // ✅ Ensure canonical/UI share the same optionId space for this question
-    try {
-      const svc: any = this.quizService as any;
-      const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-      const q: QuizQuestion | undefined =
-        (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-        (svc.currentQuestion as QuizQuestion | undefined);
-      this.ensureStableIds(index, (q as any)?.options ?? [], options);
-    } catch {}
-  
-    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
-    // Primary: authoritative remaining from canonical and union of selected ids
-    let remaining = this.remainingFromCanonical(index, options);
-  
-    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
+    // 🔹 Fetch canonical once, then stamp stable IDs onto the UI list FIRST
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
+    // ✅ Normalize IDs so canonical/UI share the same optionId space
+    try { this.ensureStableIds(index, (q as any)?.options ?? [], options); } catch {}
+  
+    // Snapshot for later passives (kept behavior) — now with stamped optionId’s
+    this.setOptionsSnapshot(options);
+  
+    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
+    let remaining = this.remainingFromCanonical(index, options);
+  
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
       : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
   
-    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
-    // In that edge case, recompute `remaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
       const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
   
-    // Decide multi from canonical first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);  // e.g., "Select 2 more correct answers..."
+        const msg = buildRemainingMsg(remaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
-        // Hard-block any Next-ish messages for a short window to prevent flash
         const now = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-        return; // never emit Next while remaining > 0
+        return;
       }
   
-      // remaining === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
@@ -498,7 +484,6 @@ export class SelectionMessageService {
       return;
     }
   
-    // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
@@ -507,8 +492,7 @@ export class SelectionMessageService {
     const hold = now + 300;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
-  }
-  
+  }  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
@@ -524,6 +508,16 @@ export class SelectionMessageService {
     const until = this.suppressPassiveUntil.get(i0) ?? 0;
     if (performance.now() < until) return;
   
+    // 🔹 Normalize IDs before we overlay
+    try {
+      const svc: any = this.quizService as any;
+      const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+      const q: QuizQuestion | undefined =
+        (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+        (svc.currentQuestion as QuizQuestion | undefined);
+      this.ensureStableIds(i0, (q as any)?.options ?? [], options);
+    } catch {}
+  
     const overlaid = this.getCanonicalOverlay(i0, options);
     this.setOptionsSnapshot(overlaid);
   
@@ -534,7 +528,7 @@ export class SelectionMessageService {
     if (forced) {
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== forced) this.selectionMessageSubject.next(forced);
-      return;  // never emit Next while remaining>0
+      return;
     }
   
     const anySelected = overlaid.some(o => !!o?.selected);
@@ -546,6 +540,7 @@ export class SelectionMessageService {
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
+  
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
