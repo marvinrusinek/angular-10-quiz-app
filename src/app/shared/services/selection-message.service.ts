@@ -828,7 +828,7 @@ export class SelectionMessageService {
     }
   }
   
-  private getExpectedCorrectCount(index: number): number | undefined {
+  public getExpectedCorrectCount(index: number): number | undefined {
     const n = this.expectedCorrectByIndex.get(index);
     return (typeof n === 'number' && n > 0) ? n : undefined;
   }
