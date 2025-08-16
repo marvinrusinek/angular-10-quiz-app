@@ -185,11 +185,20 @@ export class SelectionMessageService {
   
     const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
     const correct  = (options ?? []).filter(o => !!o?.correct);
-    const selected = correct.filter(o => !!o?.selected).length;
-    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const selectedCorrect = correct.filter(o => !!o?.selected).length;
+  
+    // NEW: expected-correct override
+    const expectedOverride = this.getExpectedCorrectCount(index);
+  
+    // Decide multi: declared OR override OR >1 canon
+    const isMulti =
+      questionType === QuestionType.MultipleAnswer ||
+      (correct.length > 1) ||
+      ((expectedOverride ?? 0) > 1);
   
     if (isMulti) {
-      const remaining = Math.max(0, correct.length - selected);
+      const totalForThisQ = (expectedOverride ?? correct.length);
+      const remaining = Math.max(0, totalForThisQ - selectedCorrect);
       if (remaining > 0) {
         return buildRemainingMsg(remaining);
       }
@@ -199,6 +208,7 @@ export class SelectionMessageService {
     // Single-answer: after any click, show Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
   
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
@@ -267,7 +277,14 @@ export class SelectionMessageService {
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
+  
+    // NEW: also honor explicit expected-correct override when deciding multi
+    const expectedOverrideUM = this.getExpectedCorrectCount(i0);
+  
+    const isMulti =
+      (totalCorrect > 1) ||
+      (qTypeDeclared === QuestionType.MultipleAnswer) ||
+      ((expectedOverrideUM ?? 0) > 1);
   
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
@@ -337,7 +354,6 @@ export class SelectionMessageService {
     if (current !== next) this.selectionMessageSubject.next(next);
   }
   
-
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
   public updateMessageFromSelection(params: {
