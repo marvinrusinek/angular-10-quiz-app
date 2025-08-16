@@ -37,6 +37,9 @@ export class SelectionMessageService {
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
   private expectedCorrectByIndex = new Map<number, number>();
 
+  // Tracks selected-correct option ids per question (survives wrong clicks)
+  private stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -479,7 +482,7 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Snapshot for later passives — DEFERRED to end so union can see prior selections
+    // 🟡 DO NOT update snapshot yet—keep the previous one so union can see prior selections
     const priorSnap = this.getLatestOptionsSnapshot();
   
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
@@ -508,17 +511,19 @@ export class SelectionMessageService {
   
     // Decide multi from canonical first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // NEW: expected-correct override merged with canonical remaining
+    // NEW: expected-correct override merged with canonical remaining (legacy path)
     const expectedOverride = this.getExpectedCorrectCount(index);
-    const selectedCount = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
-    const expectedRemainingByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
-    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+    const selectedCount    = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const expectedRemainByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
+    const enforcedRemaining     = Math.max(remaining, expectedRemainByCount);
   
+    // ────────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
+    // ────────────────────────────────────────────────────────────────────────────
     if (isMulti) {
-      // Start with your existing enforced remaining
+      // Start with the existing enforced remaining
       let gateRemaining = enforcedRemaining;
   
       // 🔒 Tighten ONLY when an explicit override exists *and* this is Q4 (idx 3)
@@ -527,10 +532,10 @@ export class SelectionMessageService {
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // ── ID ALIGNMENT across sources (canonical, current options, prior snapshot) ──
+        // 1) Align IDs across sources so unions/overlays are apples-to-apples
         this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // ── Build trusted correct-id set: prefer q.answer via helper; fallback to flags ──
+        // 2) Build a trusted set of correct IDs (prefer q.answer via helper; else flags)
         let correctIds: Set<number | string>;
         if (typeof (this as any).getCorrectIdSet === 'function') {
           correctIds = (this as any).getCorrectIdSet(index);
@@ -542,7 +547,7 @@ export class SelectionMessageService {
           }
         }
   
-        // ── UNION selected ids: current options + prior snapshot + SelectedOptionService ──
+        // 3) UNION of selected IDs: current click payload + prior snapshot + SelectedOptionService
         const selectedIds = new Set<number | string>();
   
         // from current click payload
@@ -569,15 +574,19 @@ export class SelectionMessageService {
           }
         } catch {}
   
-        // Count ONLY selected-correct = intersection(selectedIds ∩ correctIds)
+        // 4) Count ONLY selected-correct (intersection of selectedIds ∩ correctIds)
         let selectedCorrectCount = 0;
         correctIds.forEach(id => { if (selectedIds.has(id)) selectedCorrectCount++; });
   
+        // 5) For Q4, trust the override count as the target
         const totalForThisQ = expectedOverrideClick || correctIds.size;
   
-        // Trust override-based remaining for Q4 so wrong clicks don’t bump it back up
+        // 6) Remaining based on CORRECT selections only (wrong clicks can't bump it back up)
         gateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
-        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, gateRemaining, selectedIds: [...selectedIds], correctIds: [...correctIds] });
+  
+        // Optional debug:
+        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, gateRemaining,
+        //   selectedIds: [...selectedIds], correctIds: [...correctIds] });
       }
   
       if (gateRemaining > 0) {
@@ -585,12 +594,12 @@ export class SelectionMessageService {
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
-        const now = performance.now();
+        const now  = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
   
-        // now safe to update snapshot for future passives
+        // ✅ NOW update snapshot (after decision)
         this.setOptionsSnapshot(options);
         return; // never emit Next while remaining > 0
       }
@@ -600,27 +609,27 @@ export class SelectionMessageService {
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
   
-      const now = performance.now();
+      const now  = performance.now();
       const hold = now + 300;
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
   
-      // update snapshot after decision
+      // ✅ update snapshot after decision
       this.setOptionsSnapshot(options);
       return;
     }
   
-    // Single-answer → always Next/Results after any pick
+    // SINGLE → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
   
-    const now = performance.now();
+    const now  = performance.now();
     const hold = now + 300;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   
-    // update snapshot after decision
+    // ✅ update snapshot after decision
     this.setOptionsSnapshot(options);
   }
   
