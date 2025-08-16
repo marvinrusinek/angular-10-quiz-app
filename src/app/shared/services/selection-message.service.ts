@@ -458,8 +458,7 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // NEW (one-liner): normalize/stamp IDs for this question up front
-    // so canonical/UI/snapshot all share the same optionId space.
+    // One-liner: normalize/stamp IDs so canonical/UI/snapshot share the same optionId space
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -472,43 +471,41 @@ export class SelectionMessageService {
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
   
-    // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
-    // Primary: authoritative remaining from canonical and union of selected ids
+    // Authoritative remaining from canonical + union of selected ids
     let remaining = this.remainingFromCanonical(index, options);
   
-    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
+    // Also compute an OVERLAY view to detect under-flagged canonical correctness
+    const overlaid = this.getCanonicalOverlay(index, options);
+    const overlayTotalCorrect    = overlaid.filter(o => !!o?.correct).length;
+    const overlaySelectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+    const overlayRemaining       = Math.max(0, overlayTotalCorrect - overlaySelectedCorrect);
+  
+    // Canonical totalCorrect (may under-report on some questions like Q4)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const canonicalTotalCorrect = canonical.filter(o => !!o?.correct).length;
   
-    const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
-    const totalCorrect = totalCorrectCanon > 0
-      ? totalCorrectCanon
-      : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
-  
-    // If canonical was empty and fallback found something, remainingFromCanonical
-    // would have returned 0. In that edge case, recompute `remaining` from the
-    // passed array so multi still gates.
-    if (totalCorrectCanon === 0 && totalCorrect > 0) {
-      const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
-      remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+    // Guard: if declared MULTI and overlay shows more correct answers than canonical,
+    // trust the overlay for the remaining count so we gate properly.
+    if (questionType === QuestionType.MultipleAnswer && overlayTotalCorrect > canonicalTotalCorrect) {
+      remaining = overlayRemaining;
     }
   
-    // Decide multi from canonical first; fall back to declared type
-    const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+    // Decide multi from data first; fall back to declared type
+    const isMulti = (overlayTotalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
+    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);  // e.g., "Select 2 more correct answers..."
+        const msg = buildRemainingMsg(remaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
-        // Hard-block any Next-ish messages for a short window to prevent flash
         const now = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
