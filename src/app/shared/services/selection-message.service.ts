@@ -471,7 +471,7 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];
+    options: Option[]; // updated array already passed
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
@@ -514,8 +514,20 @@ export class SelectionMessageService {
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      if (enforcedRemaining > 0) {
-        const msg = buildRemainingMsg(enforcedRemaining);
+      // ── NEW: override-aware remaining using SELECTED-CORRECT ────────────────
+      const expectedOverrideClick = this.getExpectedCorrectCount(index);
+      const overlaidForCorrect = this.getCanonicalOverlay(index, options);
+      const selectedCorrectCount = overlaidForCorrect.reduce(
+        (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
+      );
+      const expectedRemainingByCorrect = Math.max(0, (expectedOverrideClick ?? 0) - selectedCorrectCount);
+  
+      // keep canonical remaining too (already computed above as `remaining`)
+      const enforcedRemainingClick = Math.max(remaining, expectedRemainingByCorrect);
+      // ────────────────────────────────────────────────────────────────────────
+  
+      if (enforcedRemainingClick > 0) {
+        const msg = buildRemainingMsg(enforcedRemainingClick);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -548,6 +560,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
@@ -637,29 +650,32 @@ export class SelectionMessageService {
   }
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
+  // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
+  // UPDATED: honor expected-correct override and count only SELECTED-CORRECT
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
-    // Only gate multi-answer
+    // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
     const isMulti =
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
       (overlaid.filter(o => !!o?.correct).length > 1);
-  
+
     if (!isMulti) return null;
-  
-    // Total “truth”: prefer explicit expected count, else canonical flags
+
+    // Total required: prefer explicit override, else canonical count
     const totalCorrectCanonical = overlaid.filter(o => !!o?.correct).length;
     const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
-  
-    // Count only CORRECT selections
+
+    // Count only the selected CORRECT options
     const selectedCorrect = overlaid.reduce(
       (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
     );
-  
+
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
-    if (remaining > 0) return buildRemainingMsg(remaining);  // e.g., "Select 1 more correct answer..."
+    if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
+
 
   private getQuestionTypeForIndex(index: number): QuestionType {
     const svc: any = this.quizService as any;
