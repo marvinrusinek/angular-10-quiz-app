@@ -34,6 +34,9 @@ export class SelectionMessageService {
   private lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>();
 
+  // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
+  private expectedCorrectByIndex = new Map<number, number>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -118,15 +121,15 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-
+  
     const isLast = total > 0 && index === total - 1;
-
+  
     // Any selection signal (for start/continue copy)
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-
+  
     // Authoritative remaining from canonical correctness and union of selections
     const remaining = this.remainingFromCanonical(index, opts);
-
+  
     // Decide multi from DATA first; fall back to declared type
     const svc: any = this.quizService as any;
     const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -136,26 +139,35 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
-
+  
+    // NEW: expected-correct override (e.g., Q4 ⇒ 3)
+    const expectedOverride = this.getExpectedCorrectCount(index);
+    const selectedCount = (opts ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const expectedRemainingByCount = Math.max(
+      0,
+      (expectedOverride ?? 0) - selectedCount
+    );
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+  
     // BEFORE ANY PICK:
-    // For MULTI, show "Select N more correct answers..." (N = totalCorrect).
-    // For SINGLE, keep START/CONTINUE.
+    // For MULTI, show "Select N more correct answers..." using the larger of
+    // canonical total vs expected override. For SINGLE, keep START/CONTINUE.
     if (!anySelected) {
       if (isMulti) {
-        // With no selections, remaining === totalCorrect — exactly what we want
-        return buildRemainingMsg(totalCorrect);
+        const initial = Math.max(totalCorrect, expectedOverride ?? 0);
+        return buildRemainingMsg(initial);
       }
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
+  
     if (isMulti) {
-      // HARD GATE: never show Next/Results while any correct answers remain
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining);
+      // HARD GATE: never show Next/Results while any enforced remaining > 0
+      if (enforcedRemaining > 0) {
+        return buildRemainingMsg(enforcedRemaining);
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
+  
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
@@ -255,6 +267,13 @@ export class SelectionMessageService {
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
+    // NEW: expected-correct override merged with canonical remaining
+    const snap = optsCtx ?? this.getLatestOptionsSnapshot();
+    const expectedOverride = this.getExpectedCorrectCount(i0);
+    const selectedCount = (snap ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const expectedRemainingByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+  
     // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
@@ -269,20 +288,20 @@ export class SelectionMessageService {
   
     // Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
     const prevRem = this.lastRemainingByIndex.get(i0);
-    if (prevRem === undefined || remaining !== prevRem) {
-      this.lastRemainingByIndex.set(i0, remaining);
-      if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
+    if (prevRem === undefined || enforcedRemaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, enforcedRemaining);
+      if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
         this.enforceUntilByIndex.set(i0, now + 800);
       }
-      if (remaining === 0) this.enforceUntilByIndex.delete(i0);
+      if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
     }
   
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
     const inEnforce = now < enforceUntil;
   
     if (isMulti) {
-      if (remaining > 0 || inEnforce) {
-        const forced = buildRemainingMsg(Math.max(1, remaining));
+      if (enforcedRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
@@ -293,7 +312,7 @@ export class SelectionMessageService {
     }
   
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = (optsCtx ?? this.getLatestOptionsSnapshot()).some(o => !!o?.selected);
+    const anySelected = (snap ?? []).some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
@@ -315,6 +334,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
@@ -421,17 +441,17 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[]; // updated array already passed
+    options: Option[];
   }): void {
     const { index, totalQuestions, questionType, options } = params;
-
+  
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
-
+  
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
     let remaining = this.remainingFromCanonical(index, options);
-
+  
     // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -439,60 +459,66 @@ export class SelectionMessageService {
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-
+  
     const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
       : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
-
+  
     // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
     // In that edge case, recompute `remaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
       const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
-
+  
     // Decide multi from canonical first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
-
+  
+    // NEW: expected-correct override merged with canonical remaining
+    const expectedOverride = this.getExpectedCorrectCount(index);
+    const selectedCount = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const expectedRemainingByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+  
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);  // e.g., "Select 2 more correct answers..."
+      if (enforcedRemaining > 0) {
+        const msg = buildRemainingMsg(enforcedRemaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
-
-        // Hard-block any Next-ish messages for a short window to prevent flash
+  
         const now = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
         return; // never emit Next while remaining > 0
       }
-
+  
       // remaining === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
-
+  
       const now = performance.now();
       const hold = now + 300;
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
       return;
     }
-
+  
     // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-
+  
     const now = performance.now();
     const hold = now + 300;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
@@ -688,6 +714,17 @@ export class SelectionMessageService {
         if (cid != null) (o as any).optionId = cid;
       });
     }
+  }
+
+  public setExpectedCorrectCount(index: number, count: number): void {
+    if (Number.isInteger(index) && index >= 0 && Number.isFinite(count) && count > 0) {
+      this.expectedCorrectByIndex.set(index, count);
+    }
+  }
+  
+  private getExpectedCorrectCount(index: number): number | undefined {
+    const n = this.expectedCorrectByIndex.get(index);
+    return (typeof n === 'number' && n > 0) ? n : undefined;
   }
   
   // Key that survives reorder/clone/missing ids (NO index fallback)
