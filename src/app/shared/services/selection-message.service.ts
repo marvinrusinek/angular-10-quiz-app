@@ -398,7 +398,7 @@ export class SelectionMessageService {
    public endWrite(index: number, token?: number, opts?: { clearTokenWindow?: boolean }): void {
     if (typeof token === 'number') {
       const latest = this.latestByIndex.get(index);
-      if (latest != null && token !== latest) return; // stale; ignore
+      if (latest != null && token !== latest) return;  // stale; ignore
     }
     if (opts?.clearTokenWindow) this.freezeNextishUntil.delete(index);
   }
@@ -443,7 +443,7 @@ export class SelectionMessageService {
     const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
-      : (options ?? []).filter(o => !!o?.correct).length; // last-resort fallback
+      : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
 
     // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
     // In that edge case, recompute `remaining` from the passed array so multi still gates.
@@ -452,7 +452,7 @@ export class SelectionMessageService {
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
 
-    // Decide multi from CANONICAL first; fall back to declared type
+    // Decide multi from canonical first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
 
@@ -583,9 +583,9 @@ export class SelectionMessageService {
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
     if (qType !== QuestionType.MultipleAnswer) return null;
-    const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
+    const totalCorrect = overlaid.filter(o => !!o?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);  // e.g., "Select 1 more correct answer..."
     return null;
   }
