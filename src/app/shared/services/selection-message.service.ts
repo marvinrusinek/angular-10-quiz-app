@@ -221,13 +221,28 @@ export class SelectionMessageService {
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
   ): void {
+    // ──────────────────────────────────────────────────────────────────────────
+    // 0) Defensive gates & stable write token (prevents stale async overwrites)
+    // ──────────────────────────────────────────────────────────────────────────
     const current = this.selectionMessageSubject.getValue();
     const next = (message ?? '').trim();
-    if (!next) return;
+  
+    // allow empty only when we have options context to recompute below
+    if (!next && !ctx?.options?.length) return;
   
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
+  
+    // Token-based last-writer-wins
+    if (typeof ctx?.token === 'number') {
+      if (!this._lastWrite || ctx.token >= this._lastWrite.token) {
+        this._lastWrite = { token: ctx.token, index: i0 };
+      } else {
+        // Stale write—ignore entirely
+        return;
+      }
+    }
   
     const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
@@ -236,7 +251,7 @@ export class SelectionMessageService {
     const optsCtx: Option[] | undefined =
       (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
   
-    // Resolve canonical once
+    // Resolve canonical once (keep your original logic)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
@@ -244,38 +259,66 @@ export class SelectionMessageService {
       (svc.currentQuestion as QuizQuestion | undefined);
   
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
-    this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
+    this.ensureStableIds(
+      i0,
+      (q as any)?.options ?? [],
+      optsCtx ?? this.getLatestOptionsSnapshot()
+    );
   
     // Authoritative remaining from canonical + union of selected ids
-    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+    const baseSnapshot = optsCtx ?? this.getLatestOptionsSnapshot();
+    const remaining = this.remainingFromCanonical(i0, baseSnapshot);
   
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
-    // Classifiers
-    const low = next.toLowerCase();
+    // Classifiers (your existing, retained)
+    const low = (next || '').toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // ── OVERLAY GUARD (fixes under-flagged canonical correctness e.g., Q4) ─────────────
-    // If MULTI and the overlay shows more correct answers than canonical does,
-    // trust the overlay for the remaining count so we keep gating properly.
-    let effectiveRemaining = remaining;
-    if (isMulti) {
-      const overlaid = this.getCanonicalOverlay(i0, optsCtx ?? this.getLatestOptionsSnapshot());
-      const overlayTotalCorrect    = overlaid.filter(o => !!o?.correct).length;
-      const overlaySelectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-      const overlayRemaining       = Math.max(0, overlayTotalCorrect - overlaySelectedCorrect);
+    // ──────────────────────────────────────────────────────────────────────────
+    // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
+    //    If content under-reports total correct, do NOT jump to “Next”.
+    // ──────────────────────────────────────────────────────────────────────────
+    const stats = this.computeSelectionStats(baseSnapshot);
+    // stats: { totalCorrectLike, selectedTotal, selectedCorrectLike }
   
-      if (overlayTotalCorrect > totalCorrect) {
+    let effectiveRemaining = remaining;
+  
+    if (isMulti) {
+      const overlaid = this.overlayGuard(
+        {
+          canonicalTotalCorrect: totalCorrect,
+          selectedCorrectLike: stats.selectedCorrectLike,
+          selectedTotal: stats.selectedTotal
+        },
+        qTypeDeclared
+      );
+  
+      if (overlaid?.forceMessage) {
+        // Guard says to keep user selecting → emit override and exit.
+        if (current !== overlaid.forceMessage) {
+          this.selectionMessageSubject.next(overlaid.forceMessage);
+        }
+        return;
+      }
+  
+      // If overlay signals more correct answers than canonical, recompute remaining conservatively
+      if (overlaid?.overlayTotalCorrect && overlaid.overlayTotalCorrect > totalCorrect) {
+        const overlayRemaining = Math.max(
+          0,
+          overlaid.overlayTotalCorrect - stats.selectedCorrectLike
+        );
         effectiveRemaining = overlayRemaining;
       }
     }
-    // ──────────────────────────────────────────────────────────────────────────────────
   
-    // Suppression windows: block Next-ish flips
+    // ──────────────────────────────────────────────────────────────────────────
+    // 2) Suppression windows: block “Next-ish” flashes while user is still selecting
+    // ──────────────────────────────────────────────────────────────────────────
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
     if (now < passiveHold && isNextish) return;
@@ -295,25 +338,27 @@ export class SelectionMessageService {
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
     const inEnforce = now < enforceUntil;
   
-    // ── MULTI HARD GUARD ─────────────────────────────────────────────
-    // Always anchor to remaining correct picks. This means:
-    // - After a correct → incorrect click, remaining stays >0,
-    //   so we KEEP showing "Select 1 more correct option..." (no Next flash).
+    // ──────────────────────────────────────────────────────────────────────────
+    // 3) MULTI hard guard: anchor strictly to remaining correct picks
+    //    → prevents premature “Next” when authoring is wrong or user toggles
+    // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
       if (effectiveRemaining > 0 || inEnforce) {
         const forced = buildRemainingMsg(Math.max(1, effectiveRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return; // never allow Next/Results until remaining === 0
       }
+  
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
-    // ────────────────────────────────────────────────────────────────
   
-    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = (optsCtx ?? this.getLatestOptionsSnapshot()).some(o => !!o?.selected);
+    // ──────────────────────────────────────────────────────────────────────────
+    // 4) SINGLE → never allow “Select more…”
+    // ──────────────────────────────────────────────────────────────────────────
+    const anySelected = baseSnapshot.some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
@@ -336,7 +381,81 @@ export class SelectionMessageService {
     if (current !== next) this.selectionMessageSubject.next(next);
   }
   
+  /* ────────────────────────────────────────────────────────────────────────────
+     Helpers (add below in the same service)
+     If you already have equivalents, keep yours.
+  ──────────────────────────────────────────────────────────────────────────── */
   
+  private _lastWrite: { token: number; index: number } | null = null;
+  
+  /**
+   * Computes relaxed “correct-like” stats so we can survive under-flagged authoring.
+   * A choice is treated as correct-like if `o.correct === true` OR feedback hints at correctness.
+   */
+  private computeSelectionStats(options: Option[] | undefined): {
+    totalCorrectLike: number;
+    selectedTotal: number;
+    selectedCorrectLike: number;
+  } {
+    if (!Array.isArray(options) || options.length === 0) {
+      return { totalCorrectLike: 0, selectedTotal: 0, selectedCorrectLike: 0 };
+    }
+  
+    let totalCorrectLike = 0;
+    let selectedTotal = 0;
+    let selectedCorrectLike = 0;
+  
+    for (const o of options) {
+      const isCorrectLike =
+        o.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
+      const isSelected = !!o.selected;
+  
+      if (isCorrectLike) totalCorrectLike++;
+      if (isSelected) {
+        selectedTotal++;
+        if (isCorrectLike) selectedCorrectLike++;
+      }
+    }
+  
+    return { totalCorrectLike, selectedTotal, selectedCorrectLike };
+  }
+  
+  /**
+   * Overlay guard for under-flagged canonical correctness.
+   * - If canonical says ≤1 correct but user has found ≥2 correct-like → keep selecting.
+   * - If canonical says 0 but user has ≥1 correct-like while still selecting → keep selecting.
+   * Returns either a forced UX message or an overlay total for recomputing “remaining”.
+   */
+  private overlayGuard(
+    stats: {
+      canonicalTotalCorrect: number;
+      selectedCorrectLike: number;
+      selectedTotal: number;
+    },
+    questionType?: QuestionType
+  ): { forceMessage?: string; overlayTotalCorrect?: number } | null {
+    if (questionType !== QuestionType.MultipleAnswer) return null;
+  
+    const { canonicalTotalCorrect, selectedCorrectLike, selectedTotal } = stats;
+  
+    // Case A: canonical under-reports (≤1) but user found ≥2 correct-like
+    if ((canonicalTotalCorrect <= 1) && selectedCorrectLike >= 2) {
+      return {
+        forceMessage: 'Looks like more than one option is correct. Keep selecting all that apply…',
+        overlayTotalCorrect: Math.max(2, canonicalTotalCorrect)
+      };
+    }
+  
+    // Case B: canonical is 0 but user has progress → keep them going
+    if (canonicalTotalCorrect === 0 && selectedCorrectLike >= 1) {
+      if (selectedTotal > selectedCorrectLike) {
+        return { forceMessage: 'Keep selecting the remaining correct options…', overlayTotalCorrect: selectedCorrectLike + 1 };
+      }
+      return { forceMessage: 'Multiple correct answers detected. Select all that apply…', overlayTotalCorrect: Math.max(2, selectedCorrectLike) };
+    }
+  
+    return null;
+  }  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
