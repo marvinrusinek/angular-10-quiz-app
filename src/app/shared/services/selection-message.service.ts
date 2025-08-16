@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
@@ -339,7 +338,6 @@ export class SelectionMessageService {
   
     const qType = questionType ?? this.getQuestionTypeForIndex(i0);
     const isLast = totalQuestions > 0 && i0 === totalQuestions - 1;
-  
     const forced = this.multiGateMessage(i0, qType, overlaid);
     const msg = forced ??
                 (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
@@ -419,7 +417,7 @@ export class SelectionMessageService {
     const latest = this.latestByIndex.get(index);
     const stillFrozen = this.inFreezeWindow(index);
   
-    // Only frozen if the token matches the latest one and we're still inside the freeze window
+    // Only frozen if the token matches the latest one and still inside the freeze window
     return token === latest && stillFrozen;
   }
 
@@ -428,7 +426,7 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[]; // UPDATED array you already pass
+    options: Option[]; // updated array already passed
   }): void {
     const { index, totalQuestions, questionType, options } = params;
 
@@ -597,7 +595,7 @@ export class SelectionMessageService {
     const totalCorrect    = overlaid.filter(o => !!o?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
     const remaining       = Math.max(0, totalCorrect - selectedCorrect);
-    if (remaining > 0) return buildRemainingMsg(remaining); // e.g., "Select 1 more correct answer..."
+    if (remaining > 0) return buildRemainingMsg(remaining);  // e.g., "Select 1 more correct answer..."
     return null;
   }
 
@@ -617,7 +615,7 @@ export class SelectionMessageService {
     }
   }
 
-  // Authoritative remaining counter: uses canonical correctness + union of selected IDs
+  // Authoritative remaining counter: uses canonical correctness and union of selected IDs
   private remainingFromCanonical(index: number, uiOpts?: Option[] | null): number {
     const svc: any = this.quizService as any;
     const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -631,7 +629,7 @@ export class SelectionMessageService {
     // Build selected IDs union from UI and SelectedOptionService
     const selectedIds = new Set<number | string>();
 
-    // a) from UI options if provided
+    // From UI options if provided
     if (Array.isArray(uiOpts)) {
       for (let i = 0; i < uiOpts.length; i++) {
         const o = uiOpts[i];
@@ -639,14 +637,14 @@ export class SelectionMessageService {
       }
     }
 
-    // b) from latest snapshot
+    // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
       const o = snap[i];
       if (o?.selected) selectedIds.add(this.getOptionId(o, i));
     }
 
-    // c) from SelectedOptionService (ids or objects)
+    // From SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
       if (rawSel instanceof Set) {
@@ -656,7 +654,7 @@ export class SelectionMessageService {
       }
     } catch {}
 
-    // Count remaining using canonical correctness + stable IDs
+    // Count remaining using canonical correctness and stable IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
@@ -684,7 +682,7 @@ export class SelectionMessageService {
       canon.forEach((c, i) => {
         const key = this.keyOf(c);
         const cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
-        (c as any).optionId = cid; // stamp canonical
+        (c as any).optionId = cid;  // stamp canonical
         fwd!.set(key, cid);
         rev!.set(cid, key);
       });
