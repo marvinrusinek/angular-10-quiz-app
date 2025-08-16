@@ -24,7 +24,6 @@ export class SelectionMessageService {
 
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
   private writeSeq = 0;
-  public lastSelectionMutation = 0;
   private latestByIndex = new Map<number, number>();
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
@@ -361,8 +360,7 @@ export class SelectionMessageService {
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
-    this.setOptionsSnapshot(options);                // keep existing snapshot
-    this.lastSelectionMutation = performance.now();  // start small hold-off window
+    this.setOptionsSnapshot(options);  // keep existing snapshot
   }
 
   // HELPERS
