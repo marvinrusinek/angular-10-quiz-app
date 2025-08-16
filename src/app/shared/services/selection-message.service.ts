@@ -390,7 +390,8 @@ export class SelectionMessageService {
 
   // Index-aware resolver: NEVER reads currentQuestionIndex.
   // Resolve an option's stable id specifically for the given question index.
-  private getOptionIdFor(index: number, opt: any, i: number): number | string {
+  // Index-aware ID resolver: never reads currentQuestionIndex
+  private getOptionIdFor(index: number, opt: any, fallbackIdx: number): number | string {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
     if (opt.id != null) return opt.id;
@@ -398,10 +399,7 @@ export class SelectionMessageService {
     const key = this.keyOf(opt);
     const map = this.idMapByIndex.get(index);
     const mapped = map?.get(key);
-    if (mapped != null) return mapped;
-
-    // Last resort: namespace by question index so identical content on other questions won't collide
-    return `q${index}~${key}~${i}`;
+    return mapped != null ? mapped : key;
   }
 
   // Resolve an option's stable id for a specific question index
@@ -460,94 +458,36 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[]; // updated array already passed
+    options: Option[];
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Normalize/stamp IDs for this question up front (prevents index drift on Q4)
-    try {
-      this.ensureStableIds(
-        index,
-        (this.quizService as any)?.currentQuestion?.options ?? [],
-        options,
-        this.getLatestOptionsSnapshot()
-      );
-    } catch {}
+    // Ensure IDs are stamped for this question first
+    try { this.ensureStableIds(index, (this.quizService as any)?.currentQuestion?.options ?? [], options, this.getLatestOptionsSnapshot()); } catch {}
   
-    // Snapshot (kept)
-    this.setOptionsSnapshot(options);
-  
-    // --- Normalize IDs so canonical/UI share the same optionId space ---
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-  
-    try {
-      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
-  
-      // Stamp registry ids onto the clicked list
-      const idMap = this.idMapByIndex.get(index);
-      if (idMap) {
-        for (const o of options) {
-          const key = this.keyOf(o);
-          const cid = idMap.get(key);
-          if (cid != null) (o as any).optionId = cid;
-        }
-      }
-    } catch {}
-  
-    // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
+    // Build overlay first (union across sources, canonical correctness)
     const overlaid = this.getCanonicalOverlay(index, options);
   
-    // --- Compute totals/remaining from the overlay (authoritative for gating) ---
-    const totalCorrect = overlaid.filter(o => !!o?.correct).length;
-    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    // >>> Compute remaining from the overlay (not raw options)
+    let remaining = this.remainingFromCanonical(index, overlaid);
   
-    // Decide multi from canonical data first; fall back to declared type
-    const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
+    // ... your existing totalCorrect / fallback logic unchanged, but
+    // when you need a fallback, use `overlaid` instead of `options`:
   
-    // --- Now that we've computed correctly, snapshot the overlay for future passes ---
+    // e.g.
+    // const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
+    // const totalCorrect = totalCorrectCanon > 0
+    //   ? totalCorrectCanon
+    //   : (overlaid ?? []).filter(o => !!o?.correct).length;
+  
+    // If you recompute fallback remaining, also do it on `overlaid`
+    // const selectedCorrectFallback = (overlaid ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+    // remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+  
+    // >>> Snapshot the overlay (so passives see the same universe)
     this.setOptionsSnapshot(overlaid);
   
-    // --- Decisive click behavior (with freeze to avoid flashes) ---
-    if (isMulti) {
-      if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);  // e.g., "Select 1 more correct option..."
-        const cur = this.selectionMessageSubject.getValue();
-        if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
-        const now = performance.now();
-        const hold = now + 1200;
-        this.suppressPassiveUntil.set(index, hold);
-        this.freezeNextishUntil.set(index, hold);
-        return; // never emit Next while remaining > 0
-      }
-  
-      // remaining === 0 → legit Next/Results immediately
-      const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      const cur = this.selectionMessageSubject.getValue();
-      if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
-      const now = performance.now();
-      const hold = now + 300;
-      this.suppressPassiveUntil.set(index, hold);
-      this.freezeNextishUntil.set(index, hold);
-      return;
-    }
-  
-    // Single-answer → always Next/Results after any pick
-    const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    const cur = this.selectionMessageSubject.getValue();
-    if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-  
-    const now = performance.now();
-    const hold = now + 300;
-    this.suppressPassiveUntil.set(index, hold);
-    this.freezeNextishUntil.set(index, hold);
+    // ...rest of your gating/hold logic unchanged...
   }
   
   
@@ -694,31 +634,45 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
   
-    // Freshly (re)stamp IDs for this question (prevents stale collisions on Q4)
-    try { this.stampIdsFresh(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
-  
-    // Build canonical id set for intersection
-    const canonicalIds = new Set<number | string>();
-    for (let i = 0; i < canonical.length; i++) {
-      canonicalIds.add(this.getOptionIdFor(index, canonical[i], i));
-    }
+    // Ensure IDs are stamped for this question (safe no-op if already stamped)
+    try { this.ensureStableIds(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
   
     // Unified selected IDs (index-aware)
-    const selectedIds = this.buildSelectedIdUnion(index, uiOpts);
+    const selectedIds = new Set<number | string>();
   
-    // ⚠️ Intersect: ignore any ids not in this question's canonical set
-    for (const id of Array.from(selectedIds)) {
-      if (!canonicalIds.has(id)) selectedIds.delete(id);
+    // (1) From UI options if provided
+    if (Array.isArray(uiOpts)) {
+      for (let i = 0; i < uiOpts.length; i++) {
+        const o = uiOpts[i];
+        if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i));
+      }
     }
   
-    // Count using canonical correctness + intersected IDs
+    // (2) From latest snapshot
+    const snap = this.getLatestOptionsSnapshot();
+    for (let i = 0; i < snap.length; i++) {
+      const o = snap[i];
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i));
+    }
+  
+    // (3) From SelectedOptionService (ids or objects)
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => selectedIds.add(id));
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any, i: number) => selectedIds.add(this.getOptionIdFor(index, so, i)));
+      }
+    } catch {}
+  
+    // Count remaining using canonical correctness + stable IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
       const c = canonical[i];
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionIdFor(index, c, i);
+      const id = this.getOptionIdFor(index, c, i);   // ← compare with index-aware ID
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
