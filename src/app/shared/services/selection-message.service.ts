@@ -506,7 +506,7 @@ export class SelectionMessageService {
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // NEW: expected-correct override merged with canonical remaining (kept)
+    // NEW: expected-correct override merged with canonical remaining
     const expectedOverride = this.getExpectedCorrectCount(index);
     const selectedCount = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
     const expectedRemainingByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
@@ -514,29 +514,17 @@ export class SelectionMessageService {
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      // ── NEW: override-aware remaining using SELECTED-CORRECT via trusted correctId set ──
+      // ── NEW: override-aware remaining using SELECTED-CORRECT ────────────────
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
-  
-      // Overlay to get selected state with stable ids
       const overlaidForCorrect = this.getCanonicalOverlay(index, options);
+      const selectedCorrectCount = overlaidForCorrect.reduce(
+        (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
+      );
+      const expectedRemainingByCorrect = Math.max(0, (expectedOverrideClick ?? 0) - selectedCorrectCount);
   
-      // Trusted set of correct ids (prefer q.answer, fallback to flags)
-      const correctIds = this.getCorrectIdSet(index);
-  
-      // Count only selected items that are actually correct by id
-      const selectedCorrectCount = overlaidForCorrect.reduce((n, o, idx) => {
-        const oid = (o as any)?.optionId ?? idx;
-        return n + ((!!o?.selected && correctIds.has(oid)) ? 1 : 0);
-      }, 0);
-  
-      // Expected total for this Q: override if present, else size of correct id set
-      const totalForThisQ = (expectedOverrideClick ?? correctIds.size);
-  
-      const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
-  
-      // Keep canonical remaining too (already computed above as `remaining`)
+      // keep canonical remaining too (already computed above as `remaining`)
       const enforcedRemainingClick = Math.max(remaining, expectedRemainingByCorrect);
-      // ──────────────────────────────────────────────────────────────────────────
+      // ────────────────────────────────────────────────────────────────────────
   
       if (enforcedRemainingClick > 0) {
         const msg = buildRemainingMsg(enforcedRemainingClick);
@@ -572,6 +560,8 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
