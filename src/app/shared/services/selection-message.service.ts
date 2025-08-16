@@ -177,7 +177,7 @@ export class SelectionMessageService {
     if (isMulti) {
       const remaining = Math.max(0, correct.length - selected);
       if (remaining > 0) {
-        return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+        return buildRemainingMsg(remaining);
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
