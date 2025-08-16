@@ -518,20 +518,49 @@ export class SelectionMessageService {
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      // ── NEW: override-aware remaining using SELECTED-CORRECT ────────────────
+      // Start with your existing enforced remaining
+      let gateRemaining = enforcedRemaining;
+  
+      // 🔒 Only tighten behavior when an explicit expected override exists (e.g., Q4)
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
-      const overlaidForCorrect = this.getCanonicalOverlay(index, options);
-      const selectedCorrectCount = overlaidForCorrect.reduce(
-        (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
-      );
-      const expectedRemainingByCorrect = Math.max(0, (expectedOverrideClick ?? 0) - selectedCorrectCount);
+      if (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0) {
+        // Align IDs between canonical and the clicked options
+        this.ensureStableIds(index, canonical, options);
   
-      // keep canonical remaining too (already computed above as `remaining`)
-      const enforcedRemainingClick = Math.max(remaining, expectedRemainingByCorrect);
-      // ────────────────────────────────────────────────────────────────────────
+        // Overlay to get selected state with stable ids
+        const overlaidForCorrect = this.getCanonicalOverlay(index, options);
   
-      if (enforcedRemainingClick > 0) {
-        const msg = buildRemainingMsg(enforcedRemainingClick);
+        // Prefer a trusted correct-id set (q.answer) if available; else fallback to flags
+        let selectedCorrectCount = 0;
+        let totalForThisQ = expectedOverrideClick;
+  
+        const hasGetCorrectIdSet = typeof (this as any).getCorrectIdSet === 'function';
+        if (hasGetCorrectIdSet) {
+          const correctIds: Set<number | string> = (this as any).getCorrectIdSet(index);
+          const getId = (o: any, idx: number) => (o as any)?.optionId ?? idx;
+  
+          selectedCorrectCount = overlaidForCorrect.reduce(
+            (n, o, idx) => n + ((!!o?.selected && correctIds.has(getId(o, idx))) ? 1 : 0),
+            0
+          );
+  
+          // If the override were absent/0, fall back to the size of the correct id set
+          if (!(totalForThisQ > 0)) totalForThisQ = correctIds.size;
+        } else {
+          // Fallback: use canonical flags
+          selectedCorrectCount = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
+          const totalCorrectOverlaid = overlaidForCorrect.filter(o => !!o?.correct).length;
+          if (!(totalForThisQ > 0)) totalForThisQ = totalCorrectOverlaid;
+        }
+  
+        const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
+  
+        // Enforce stricter of canonical remaining vs override-by-correct
+        gateRemaining = Math.max(remaining, expectedRemainingByCorrect);
+      }
+  
+      if (gateRemaining > 0) {
+        const msg = buildRemainingMsg(gateRemaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -564,6 +593,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   
