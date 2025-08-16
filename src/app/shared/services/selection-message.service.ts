@@ -268,15 +268,23 @@ export class SelectionMessageService {
       optsCtx ?? this.getLatestOptionsSnapshot()
     );
   
+    // ──────────────────────────────────────────────────────────────────────────
+    // NEW: build a merged, up-to-date snapshot by optionId (fixes Q4 race)
+    // ──────────────────────────────────────────────────────────────────────────
+    const mergedSnapshot = this.mergeSnapshotById(
+      optsCtx,                        // primary (just-clicked options)
+      this.getLatestOptionsSnapshot() // secondary (service latest)
+    );
+  
     // Authoritative remaining from canonical + union of selected ids
-    const baseSnapshot = optsCtx ?? this.getLatestOptionsSnapshot();
+    const baseSnapshot = mergedSnapshot;
     const remaining = this.remainingFromCanonical(i0, baseSnapshot);
   
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
   
-    // 🔑 SINGLE SOURCE OF TRUTH for multi
+    // SINGLE SOURCE OF TRUTH for multi
     const isMulti =
       (totalCorrect > 1) ||
       (qTypeDeclared as QuestionType | undefined) === QuestionType.MultipleAnswer;
@@ -352,7 +360,7 @@ export class SelectionMessageService {
     const inEnforce = now < enforceUntil;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // 3) MULTI hard guard + Q4 CLAMP (unchanged logic, keyed off isMulti)
+    // 3) MULTI hard guard + Q4 CLAMP (keyed off isMulti)
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
       const snap = baseSnapshot;
@@ -394,12 +402,13 @@ export class SelectionMessageService {
     }
   
     if (isNextish && anySelected) {
-      // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
+      // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 race safety net) ———
       if (isMulti) {
-        const snap = baseSnapshot;
+        // Re-pull a fresh merged snapshot right before emission
+        const fresh = this.mergeSnapshotById(baseSnapshot, this.getLatestOptionsSnapshot());
         const correctLike = (o: Option) =>
           o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
-        const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+        const unselectedCorrectLike = fresh.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
         if (unselectedCorrectLike > 0) {
           const forced = buildRemainingMsg(unselectedCorrectLike);
           if (current !== forced) this.selectionMessageSubject.next(forced);
@@ -415,12 +424,12 @@ export class SelectionMessageService {
     const latestToken = this.latestByIndex.get(i0);
     if (inFreeze && ctx?.token !== latestToken) return;
   
-    // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
+    // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 race safety net) ———
     if (isNextish && isMulti) {
-      const snap = baseSnapshot;
+      const fresh = this.mergeSnapshotById(baseSnapshot, this.getLatestOptionsSnapshot());
       const correctLike = (o: Option) =>
         o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
-      const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+      const unselectedCorrectLike = fresh.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
       if (unselectedCorrectLike > 0) {
         const forced = buildRemainingMsg(unselectedCorrectLike);
         if (current !== forced) this.selectionMessageSubject.next(forced);
@@ -431,9 +440,40 @@ export class SelectionMessageService {
     if (current !== next) this.selectionMessageSubject.next(next);
   }
   
-
+  /* ────────────────────────────────────────────────────────────────────────────
+     NEW helper: merge two option snapshots by optionId, preferring "selected=true".
+     Place this helper in the same service.
+  ──────────────────────────────────────────────────────────────────────────── */
   
+  private mergeSnapshotById(
+    primary?: Option[] | null,
+    secondary?: Option[] | null
+  ): Option[] {
+    const byId = new Map<any, Option>();
   
+    // seed with secondary (service latest)
+    if (Array.isArray(secondary)) {
+      for (const o of secondary) {
+        byId.set(o?.optionId, { ...(o as any) });
+      }
+    }
+  
+    // overlay with primary (newest event payload)
+    if (Array.isArray(primary)) {
+      for (const o of primary) {
+        const key = (o as any)?.optionId;
+        const prev = byId.get(key) ?? {};
+        byId.set(key, {
+          ...(prev as any),
+          ...(o as any),
+          // favor a selected=true from either side
+          selected: !!((o as any)?.selected ?? (prev as any)?.selected)
+        } as Option);
+      }
+    }
+  
+    return Array.from(byId.values());
+  }  
   
   /* ────────────────────────────────────────────────────────────────────────────
      Helpers (add below in the same service)
