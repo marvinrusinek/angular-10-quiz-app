@@ -389,19 +389,20 @@ export class SelectionMessageService {
   }
 
   // Index-aware resolver: NEVER reads currentQuestionIndex.
-  // Always resolve IDs in the context of the provided question index.
-  private getOptionIdFor(qIndex: number, opt: any, fallbackIdx: number): number | string {
+  // Resolve an option's stable id specifically for the given question index.
+  private getOptionIdFor(index: number, opt: any, i: number): number | string {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
     if (opt.id != null) return opt.id;
-  
+
     const key = this.keyOf(opt);
-    const map = this.idMapByIndex.get(qIndex);
+    const map = this.idMapByIndex.get(index);
     const mapped = map?.get(key);
     if (mapped != null) return mapped;
-  
-    return key;  // content-based stable fallback
-  }  
+
+    // Last resort: namespace by question index so identical content on other questions won't collide
+    return `q${index}~${key}~${i}`;
+  }
 
   // Resolve an option's stable id for a specific question index
   private getOptionIdAt(qIndex: number, opt: any, idx: number): number | string {
@@ -636,31 +637,39 @@ export class SelectionMessageService {
   // Build a unified set of selected IDs for a given question index.
   // Sources: (a) primary UI list (if provided), (b) latest snapshot, (c) SelectedOptionService map.
   // Always resolves IDs using the *question index* to avoid index drift.
-  private buildSelectedIdUnion(i0: number, primary?: Option[] | null): Set<number | string> {
+  /** Build a union of selected IDs from:
+   *  - uiOpts (if provided),
+   *  - latest snapshot,
+   *  - SelectedOptionService map
+   *  All IDs are resolved *for this question index*.
+   */
+  private buildSelectedIdUnion(index: number, uiOpts?: Option[] | null): Set<number | string> {
     const selected = new Set<number | string>();
 
-    // (a) Primary list (usually the updated UI array from the click)
-    if (Array.isArray(primary)) {
-      for (let i = 0; i < primary.length; i++) {
-        const o = primary[i];
-        if (o?.selected) selected.add(this.getOptionIdFor(i0, o, i));
+    // From UI options if provided
+    if (Array.isArray(uiOpts)) {
+      for (let i = 0; i < uiOpts.length; i++) {
+        const o = uiOpts[i];
+        if (o?.selected) selected.add(this.getOptionIdFor(index, o, i)); // ← index-aware add
       }
     }
 
-    // (b) Latest snapshot
+    // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
       const o = snap[i];
-      if (o?.selected) selected.add(this.getOptionIdFor(i0, o, i));
+      if (o?.selected) selected.add(this.getOptionIdFor(index, o, i));   // ← index-aware add
     }
 
-    // (c) SelectedOptionService (can be ids or objects)
+    // From SelectedOptionService (ids or objects)
     try {
-      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
       if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selected.add(id));
+        rawSel.forEach((id: any) => selected.add(id)); // already canonical ids
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => selected.add(this.getOptionIdFor(i0, so, idx)));
+        rawSel.forEach((so: any, i: number) => {
+          selected.add(this.getOptionIdFor(index, so, i));               // ← index-aware add
+        });
       }
     } catch {}
 
@@ -698,8 +707,8 @@ export class SelectionMessageService {
       const c = canonical[i];
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionIdFor(index, c, i);
-      if (selectedIds.has(id)) selectedCorrect++;
+      const id = this.getOptionIdFor(index, c, i);      // ← index-aware compare
+      if (selectedIds.has(id)) selectedCorrect++;        // ← index-aware membership
     }
     return Math.max(0, totalCorrect - selectedCorrect);
   }
