@@ -650,7 +650,6 @@ export class SelectionMessageService {
   }
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
-  // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
   // UPDATED: honor expected-correct override and count only SELECTED-CORRECT
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
     // Decide if this is multi using declared, override, or canonical
