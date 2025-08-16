@@ -388,6 +388,22 @@ export class SelectionMessageService {
     return key;
   }
 
+  // Index-aware resolver: NEVER reads currentQuestionIndex.
+  // Always resolve IDs in the context of the provided question index.
+  private getOptionIdFor(qIndex: number, opt: any, fallbackIdx: number): number | string {
+    if (!opt) return '__nil';
+    if (opt.optionId != null) return opt.optionId;
+    if (opt.id != null) return opt.id;
+
+    const key = this.keyOf(opt);
+    const map = this.idMapByIndex.get(qIndex);
+    const mapped = map?.get(key);
+    if (mapped != null) return mapped;
+
+    // Last resort: content-based stable key
+    return key;
+  }
+
   // Reserve a write slot for this question; returns the token to attach to the write.
   public beginWrite(index: number, freezeMs = 600): number {
     const token = ++this.writeSeq;
@@ -625,38 +641,40 @@ export class SelectionMessageService {
     const q: QuizQuestion | undefined =
       (index >= 0 && index < arr.length ? arr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-
+  
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
-
+  
     // Build selected IDs union from UI and SelectedOptionService
     const selectedIds = new Set<number | string>();
-
+  
     // From UI options if provided
     if (Array.isArray(uiOpts)) {
       for (let i = 0; i < uiOpts.length; i++) {
         const o = uiOpts[i];
-        if (o?.selected) selectedIds.add(this.getOptionId(o, i));
+        if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i)); // ← index-aware
       }
     }
-
+  
     // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
       const o = snap[i];
-      if (o?.selected) selectedIds.add(this.getOptionId(o, i));
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i)); // ← index-aware
     }
-
+  
     // From SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
       if (rawSel instanceof Set) {
         rawSel.forEach((id: any) => selectedIds.add(id));
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => selectedIds.add(this.getOptionId(so, idx)));
+        rawSel.forEach((so: any, idx: number) =>
+          selectedIds.add(this.getOptionIdFor(index, so, idx)) // ← index-aware
+        );
       }
     } catch {}
-
+  
     // Count remaining using canonical correctness and stable IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
@@ -664,7 +682,7 @@ export class SelectionMessageService {
       const c = canonical[i];
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionId(c, i);
+      const id = this.getOptionIdFor(index, c, i); // ← index-aware
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
