@@ -149,11 +149,21 @@ export class SelectionMessageService {
       ((expectedOverride ?? 0) > 1);
   
     const selectedCount = (opts ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const expectedRemainingByCount = Math.max(
+      0,
+      (expectedOverride ?? 0) - selectedCount
+    );
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+  
+    // 🩹 NEW: widen the “any selection yet” detector to tolerate stale snapshots.
+    // If enforcedRemaining < initial target, a selection has occurred.
+    const initialTarget = Math.max(totalCorrect, expectedOverride ?? 0);
+    const anySelectedWide = anySelected || (isMulti && enforcedRemaining < initialTarget);
   
     // BEFORE ANY PICK:
     // For MULTI, show "Select N more correct answers..." preferring override if present.
     // For SINGLE, keep START/CONTINUE.
-    if (!anySelected) {
+    if (!anySelectedWide) {
       if (isMulti) {
         const initialVisible = (expectedOverride != null) ? expectedOverride : totalCorrect;
         return buildRemainingMsg(initialVisible);
@@ -161,10 +171,10 @@ export class SelectionMessageService {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // MULTI gating uses remainingFromCanonical, which now honors override.
     if (isMulti) {
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining);
+      // HARD GATE: never show Next/Results while any enforced remaining > 0
+      if (enforcedRemaining > 0) {
+        return buildRemainingMsg(enforcedRemaining);
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -172,7 +182,6 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
-  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -185,20 +194,11 @@ export class SelectionMessageService {
   
     const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
     const correct  = (options ?? []).filter(o => !!o?.correct);
-    const selectedCorrect = correct.filter(o => !!o?.selected).length;
-  
-    // NEW: expected-correct override
-    const expectedOverride = this.getExpectedCorrectCount(index);
-  
-    // Decide multi: declared OR override OR >1 canon
-    const isMulti =
-      questionType === QuestionType.MultipleAnswer ||
-      (correct.length > 1) ||
-      ((expectedOverride ?? 0) > 1);
+    const selected = correct.filter(o => !!o?.selected).length;
+    const isMulti  = questionType === QuestionType.MultipleAnswer;
   
     if (isMulti) {
-      const totalForThisQ = (expectedOverride ?? correct.length);
-      const remaining = Math.max(0, totalForThisQ - selectedCorrect);
+      const remaining = Math.max(0, correct.length - selected);
       if (remaining > 0) {
         return buildRemainingMsg(remaining);
       }
@@ -208,7 +208,6 @@ export class SelectionMessageService {
     // Single-answer: after any click, show Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
-  
   
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
@@ -277,14 +276,7 @@ export class SelectionMessageService {
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
-  
-    // NEW: also honor explicit expected-correct override when deciding multi
-    const expectedOverrideUM = this.getExpectedCorrectCount(i0);
-  
-    const isMulti =
-      (totalCorrect > 1) ||
-      (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      ((expectedOverrideUM ?? 0) > 1);
+    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
@@ -354,6 +346,7 @@ export class SelectionMessageService {
     if (current !== next) this.selectionMessageSubject.next(next);
   }
   
+
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
   public updateMessageFromSelection(params: {
