@@ -259,6 +259,22 @@ export class SelectionMessageService {
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
+    // ── OVERLAY GUARD (fixes under-flagged canonical correctness e.g., Q4) ─────────────
+    // If MULTI and the overlay shows more correct answers than canonical does,
+    // trust the overlay for the remaining count so we keep gating properly.
+    let effectiveRemaining = remaining;
+    if (isMulti) {
+      const overlaid = this.getCanonicalOverlay(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+      const overlayTotalCorrect    = overlaid.filter(o => !!o?.correct).length;
+      const overlaySelectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+      const overlayRemaining       = Math.max(0, overlayTotalCorrect - overlaySelectedCorrect);
+  
+      if (overlayTotalCorrect > totalCorrect) {
+        effectiveRemaining = overlayRemaining;
+      }
+    }
+    // ──────────────────────────────────────────────────────────────────────────────────
+  
     // Suppression windows: block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
@@ -268,12 +284,12 @@ export class SelectionMessageService {
   
     // Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
     const prevRem = this.lastRemainingByIndex.get(i0);
-    if (prevRem === undefined || remaining !== prevRem) {
-      this.lastRemainingByIndex.set(i0, remaining);
-      if (remaining > 0 && (prevRem === undefined || remaining < prevRem)) {
+    if (prevRem === undefined || effectiveRemaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, effectiveRemaining);
+      if (effectiveRemaining > 0 && (prevRem === undefined || effectiveRemaining < prevRem)) {
         this.enforceUntilByIndex.set(i0, now + 800);
       }
-      if (remaining === 0) this.enforceUntilByIndex.delete(i0);
+      if (effectiveRemaining === 0) this.enforceUntilByIndex.delete(i0);
     }
   
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
@@ -284,8 +300,8 @@ export class SelectionMessageService {
     // - After a correct → incorrect click, remaining stays >0,
     //   so we KEEP showing "Select 1 more correct option..." (no Next flash).
     if (isMulti) {
-      if (remaining > 0 || inEnforce) {
-        const forced = buildRemainingMsg(Math.max(1, remaining));
+      if (effectiveRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, effectiveRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return; // never allow Next/Results until remaining === 0
       }
@@ -319,6 +335,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
 
   // Helper: Compute and push atomically (passes options to guard)
