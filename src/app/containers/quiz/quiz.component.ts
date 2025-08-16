@@ -538,7 +538,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         }
       });
       console.debug('[expectedOverride init]', this.questionsArray.map((q: any, i: number) => ({
-        i, expectedCorrect: this.selectionMessageService.getExpectedCorrectCount?.(i)
+        i, expectedCorrect: this.selectionMessageService.getExpectedCorrectCount(i)
       })));            
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
