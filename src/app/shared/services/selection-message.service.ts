@@ -274,10 +274,19 @@ export class SelectionMessageService {
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
     const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
   
-    // Classifiers (your existing, retained)
-    const low = (next || '').toLowerCase();
-    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
-    const isNextish   = low.includes('next button') || low.includes('show results');
+    // ──────────────────────────────────────────────────────────────────────────
+    // Classifiers (stronger coverage for "next-ish" and "select-ish")
+    // ──────────────────────────────────────────────────────────────────────────
+    const low = (next || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  
+    // “Select … more … continue” or variants like “…to continue”
+    const isSelectish =
+      /^select\s+\d+\s+more\b.*\b(continue|to continue)/.test(low) ||
+      (low.startsWith('select ') && low.includes('more') && low.includes('continue'));
+  
+    // “Next-ish” also catches “continue”, “proceed”, “go next”, “advance”, etc.
+    const isNextish =
+      /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(low);
   
     // ──────────────────────────────────────────────────────────────────────────
     // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
@@ -339,16 +348,44 @@ export class SelectionMessageService {
     const inEnforce = now < enforceUntil;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // 3) MULTI hard guard: anchor strictly to remaining correct picks
+    // 3) MULTI hard guard + Q4 CLAMP:
+    //    anchor strictly to remaining correct picks and inferred “correct-like”
     //    → prevents premature “Next” when authoring is wrong or user toggles
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
-      if (effectiveRemaining > 0 || inEnforce) {
-        const forced = buildRemainingMsg(Math.max(1, effectiveRemaining));
+      // 3.1) Build a correct-like view from the *current* snapshot
+      const snap = baseSnapshot;
+      const correctLike = (o: Option) =>
+        o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
+  
+      const totalCorrectCanonical = totalCorrect; // from canonical
+      const totalCorrectLike = snap.reduce((n, o) => n + (correctLike(o) ? 1 : 0), 0);
+      const selectedCorrectLike  = snap.reduce((n, o) => n + (correctLike(o) && !!o?.selected ? 1 : 0), 0);
+      const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+  
+      // Prefer the larger of canonical vs inferred, so under-flagged authoring can’t slip through.
+      const inferredTotal = Math.max(totalCorrectCanonical, totalCorrectLike);
+  
+      // Recompute effective remaining against the inferred total (Q4 fix)
+      const inferredRemaining = Math.max(0, inferredTotal - selectedCorrectLike);
+      const hardRemaining = Math.max(effectiveRemaining, inferredRemaining);
+  
+      // Enforce “Select N more…” while any inferred remaining exists or our short enforce window is active
+      if (hardRemaining > 0 || inEnforce || unselectedCorrectLike > 0) {
+        const forced = buildRemainingMsg(Math.max(1, hardRemaining || unselectedCorrectLike));
         if (current !== forced) this.selectionMessageSubject.next(forced);
-        return; // never allow Next/Results until remaining === 0
+        return; // absolutely block Next/Results
       }
   
+      // LAST-MILE CLAMP: Even if hardRemaining is 0, re-check for *any* correct-like not selected.
+      // This catches racey writes where remainingFromCanonical said 0 but inference says otherwise.
+      if (unselectedCorrectLike > 0) {
+        const forced = buildRemainingMsg(unselectedCorrectLike);
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+  
+      // Safe to allow Next/Results
       const isLast = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -369,6 +406,18 @@ export class SelectionMessageService {
     }
   
     if (isNextish && anySelected) {
+      // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
+      if (qTypeDeclared === QuestionType.MultipleAnswer) {
+        const snap = baseSnapshot;
+        const correctLike = (o: Option) =>
+          o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
+        const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+        if (unselectedCorrectLike > 0) {
+          const forced = buildRemainingMsg(unselectedCorrectLike);
+          if (current !== forced) this.selectionMessageSubject.next(forced);
+          return;
+        }
+      }
       if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
@@ -378,8 +427,22 @@ export class SelectionMessageService {
     const latestToken = this.latestByIndex.get(i0);
     if (inFreeze && ctx?.token !== latestToken) return;
   
+    // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
+    if (isNextish && qTypeDeclared === QuestionType.MultipleAnswer) {
+      const snap = baseSnapshot;
+      const correctLike = (o: Option) =>
+        o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
+      const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+      if (unselectedCorrectLike > 0) {
+        const forced = buildRemainingMsg(unselectedCorrectLike);
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+    }
+  
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   /* ────────────────────────────────────────────────────────────────────────────
      Helpers (add below in the same service)
