@@ -138,10 +138,16 @@ export class SelectionMessageService {
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMulti = (totalCorrect > 1) || (qType === QuestionType.MultipleAnswer);
   
     // NEW: expected-correct override (e.g., Q4 ⇒ 3)
     const expectedOverride = this.getExpectedCorrectCount(index);
+  
+    // ⬇️ UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
+    const isMulti =
+      (totalCorrect > 1) ||
+      (qType === QuestionType.MultipleAnswer) ||
+      ((expectedOverride ?? 0) > 1);
+  
     const selectedCount = (opts ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
     const expectedRemainingByCount = Math.max(
       0,
@@ -171,6 +177,7 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
