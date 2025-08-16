@@ -624,6 +624,7 @@ export class SelectionMessageService {
   }
 
   // Authoritative remaining counter: uses canonical correctness and union of selected IDs
+  // NOW also enforces an expected-correct override (e.g., Q4 must have 3 selected before Next)
   private remainingFromCanonical(index: number, uiOpts?: Option[] | null): number {
     const svc: any = this.quizService as any;
     const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -634,10 +635,9 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
 
-    // Build selected IDs union from UI and SelectedOptionService
+    // Build union of selected IDs from UI + snapshot + SelectedOptionService
     const selectedIds = new Set<number | string>();
 
-    // From UI options if provided
     if (Array.isArray(uiOpts)) {
       for (let i = 0; i < uiOpts.length; i++) {
         const o = uiOpts[i];
@@ -645,14 +645,12 @@ export class SelectionMessageService {
       }
     }
 
-    // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
       const o = snap[i];
       if (o?.selected) selectedIds.add(this.getOptionId(o, i));
     }
 
-    // From SelectedOptionService (ids or objects)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
       if (rawSel instanceof Set) {
@@ -662,7 +660,7 @@ export class SelectionMessageService {
       }
     } catch {}
 
-    // Count remaining using canonical correctness and stable IDs
+    // Canonical remaining: only count truly-correct options
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
@@ -672,8 +670,17 @@ export class SelectionMessageService {
       const id = this.getOptionId(c, i);
       if (selectedIds.has(id)) selectedCorrect++;
     }
-    return Math.max(0, totalCorrect - selectedCorrect);
+    const canonicalRemaining = Math.max(0, totalCorrect - selectedCorrect);
+
+    // NEW: expected-correct override → enforce minimum # of selected before allowing Next
+    const expectedOverride = this.getExpectedCorrectCount(index) ?? 0;
+    const selectedCount = selectedIds.size; // total selected, regardless of correctness
+    const expectedRemainingByCount = Math.max(0, expectedOverride - selectedCount);
+
+    // Enforce the stricter of the two
+    return Math.max(canonicalRemaining, expectedRemainingByCount);
   }
+
 
   // Ensure every canonical option has a stable optionId.
   // Also stamp matching ids onto any UI list passed in.
