@@ -767,6 +767,12 @@ export class SelectionMessageService {
 
   // Ensure every canonical option has a stable optionId.
   // Also stamp matching ids onto any UI list passed in.
+  // Ensure every canonical option has a stable optionId.
+
+  // Also stamp matching ids onto any UI list passed in.
+  // This version is ORDINAL-AWARE: if multiple options share the same key/text,
+  // we map the 1st UI occurrence to the 1st canonical occurrence for that key,
+  // the 2nd to the 2nd, etc. This prevents collisions on multi-answer items.
   private ensureStableIds(
     index: number,
     canonical: Option[] | null | undefined,
@@ -774,52 +780,66 @@ export class SelectionMessageService {
   ): void {
     const canon = Array.isArray(canonical) ? canonical : [];
     if (!canon.length) return;
-  
-    // 1) Ensure every canonical option has a unique optionId
-    let idMap = this.idMapByIndex.get(index);
-    if (!idMap) {
-      idMap = new Map<string, string | number>();
-      this.idMapByIndex.set(index, idMap);
+
+    // Build (or reuse) the forward map for this question: key -> canonicalId(s) in order.
+    // We also stamp an optionId directly on the canonical options.
+    // NOTE: we keep a QUEUE (array) per key to handle duplicates by ordinal.
+    let fwd = this.idMapByIndex.get(index);
+    if (!fwd) {
+      fwd = new Map<string, string | number>();
+      this.idMapByIndex.set(index, fwd);
     }
-  
-    // Build buckets of canonical IDs per content key (handles duplicates)
-    const buckets = new Map<string, Array<string | number>>();
-  
-    canon.forEach((c, i) => {
-      // stamp a stable id if missing
-      const cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
-      (c as any).optionId = cid;
-  
-      const ck = this.contentKey(c);
-      // record a 1:1 mapping only for singletons (optional, harmless to keep)
-      if (!idMap!.has(ck)) idMap!.set(ck, cid);
-  
-      // push into bucket (so duplicates get distinct, ordered IDs)
-      const arr = buckets.get(ck) ?? [];
-      arr.push(cid);
-      buckets.set(ck, arr);
-    });
-  
-    // 2) Stamp IDs onto any UI lists, consuming from the buckets in order
+
+    // Collect queues of canonical ids by key (ordinal-aware).
+    const queueByKey = new Map<string, Array<string | number>>();
+    for (let i = 0; i < canon.length; i++) {
+      const c = canon[i] as any;
+      const key = this.keyOf(c); // stable content key or id:..., vt:...
+      const cid = (c.optionId ?? c.id ?? `q${index}o${i}`) as string | number;
+      c.optionId = cid;
+
+      let q = queueByKey.get(key);
+      if (!q) {
+        q = [];
+        queueByKey.set(key, q);
+      }
+      q.push(cid);
+
+      // Keep the first occurrence in the flat map for backwards compatibility.
+      if (!fwd.has(key)) fwd.set(key, cid);
+    }
+
+    // For each UI list, stamp optionId by consuming from the queue in order.
     for (const list of uiLists) {
-      if (!Array.isArray(list)) continue;
-  
-      // If any item already has optionId, keep it; else assign from bucket by content
-      for (const o of list) {
-        if ((o as any)?.optionId != null) continue; // already stamped
-        const ck = this.contentKey(o);
-        const arr = buckets.get(ck);
-        if (arr && arr.length) {
-          const cid = arr.shift()!;                // take next available canonical id for this content
-          (o as any).optionId = cid;
+      if (!Array.isArray(list) || list.length === 0) continue;
+
+      // Track how many times we've seen a key in THIS list so we can
+      // pick the 1st/2nd/3rd canonical id for duplicates.
+      const usedCountByKey = new Map<string, number>();
+
+      for (let i = 0; i < list.length; i++) {
+        const o = list[i] as any;
+        const key = this.keyOf(o);
+
+        const q = queueByKey.get(key);
+        if (q && q.length) {
+          const used = usedCountByKey.get(key) ?? 0;
+          const cid = q[Math.min(used, q.length - 1)];
+          usedCountByKey.set(key, used + 1);
+          o.optionId = cid;
         } else {
-          // Fallback: if no canonical match, synthesize a stable per-item id
-          // (rare: e.g., UI has extra option not in canonical)
-          (o as any).optionId = `q${index}-ui-${ck}-${Math.random().toString(36).slice(2,7)}`;
+          // Fallbacks:
+          // 1) If forward map has a single id for this key, use it.
+          // 2) Else keep any existing optionId, or synthesize a unique one.
+          const fallback =
+            fwd.get(key) ??
+            (o.optionId ?? o.id ?? `q${index}u${i}`);
+          o.optionId = fallback;
         }
       }
     }
-  }  
+  }
+
   
   // Key that survives reorder/clone/missing ids (NO index fallback)
   private keyOf(o: any): string {
