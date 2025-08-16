@@ -798,6 +798,57 @@ export class SelectionMessageService {
     const n = this.expectedCorrectByIndex.get(index);
     return (typeof n === 'number' && n > 0) ? n : undefined;
   }
+
+  // Resolve the set of correct option IDs for a question.
+  // Prefer metadata (q.answer) and fall back to canonical `correct` flags.
+  private getCorrectIdSet(index: number): Set<number | string> {
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const ids = new Set<number | string>();
+    if (!canonical.length) return ids;
+
+    // Ensure canonical is stamped with stable optionId
+    this.ensureStableIds(index, canonical);
+
+    // 1) Prefer explicit answer metadata if present
+    const ans: any = (q as any)?.answer;
+    if (Array.isArray(ans) && ans.length) {
+      // Build quick lookups for value/text
+      const norm = (x: any) => String(x ?? '').trim().toLowerCase();
+      for (let i = 0; i < canonical.length; i++) {
+        const c = canonical[i] as any;
+        const cid = c.optionId ?? c.id ?? i;
+        const val = norm(c.value);
+        const txt = norm(c.text ?? c.label);
+
+        const matched = ans.some((a: any) => {
+          if (a == null) return false;
+          // direct id / optionId
+          if (a === cid || a === c.id) return true;
+          // tolerant string match on value/text
+          const s = norm(a);
+          return (s && (s === val || s === txt));
+        });
+
+        if (matched) ids.add(cid);
+      }
+    }
+
+    // 2) Fallback to canonical `correct` flags
+    if (ids.size === 0) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c = canonical[i] as any;
+        if (c?.correct) ids.add(c.optionId ?? c.id ?? i);
+      }
+    }
+
+    return ids;
+  }
   
   // Key that survives reorder/clone/missing ids (NO index fallback)
   private keyOf(o: any): string {
