@@ -403,6 +403,24 @@ export class SelectionMessageService {
     return key;  // content-based stable fallback
   }  
 
+  // Resolve an option's stable id for a specific question index
+  private getOptionIdAt(qIndex: number, opt: any, idx: number): number | string {
+    if (!opt) return '__nil';
+    if (opt.optionId != null) return opt.optionId;
+    if (opt.id != null) return opt.id;
+
+    const key = this.keyOf(opt);  // content key ("id:..." or "vt:...")
+
+    // Use the registry for THIS question index (not currentQuestionIndex)
+    const map = this.idMapByIndex.get(qIndex);
+    const mapped = map?.get(key);
+    if (mapped != null) return mapped;
+
+    // Synthesize an id that’s namespaced by question index
+    return `q${qIndex}~${key}~${idx}`;
+  }
+
+
   // Reserve a write slot for this question; returns the token to attach to the write.
   public beginWrite(index: number, freezeMs = 600): number {
     const token = ++this.writeSeq;
