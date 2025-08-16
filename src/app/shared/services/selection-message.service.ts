@@ -372,21 +372,16 @@ export class SelectionMessageService {
 
   // Prefer explicit ids; otherwise derive a stable key from content (never the index)
   // Prefer canonical/registered id; never fall back to UI index
-  private getOptionId(opt: any, _idx: number): number | string {
+  private getOptionId(opt: any, idx: number): number | string {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
     if (opt.id != null) return opt.id;
-
+  
+    // Disambiguate duplicates by ordinal (index) within the same question.
+    // keyOf(...) is stable across clones; the "#idx" suffix prevents collisions.
     const key = this.keyOf(opt);
-    // Try to resolve via registry (if present for current question)
-    const i0 = this.quizService?.currentQuestionIndex ?? 0;
-    const map = this.idMapByIndex.get(i0);
-    const mapped = map?.get(key);
-    if (mapped != null) return mapped;
-
-    // Last resort: use the key itself (content-based, stable)
-    return key;
-  }
+    return `${key}#${idx}`;
+  }  
 
   // Index-aware resolver: NEVER reads currentQuestionIndex.
   // Resolve an option's stable id specifically for the given question index.
@@ -463,16 +458,23 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
+    // NEW (one-liner): normalize/stamp IDs for this question up front
+    // so canonical/UI/snapshot all share the same optionId space.
+    try {
+      const svc: any = this.quizService as any;
+      const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+      const q: QuizQuestion | undefined =
+        (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+        (svc.currentQuestion as QuizQuestion | undefined);
+      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
+    } catch {}
+  
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
   
-    // NEW: Build the CANONICAL OVERLAY first (union of options + snapshot + SelectedOptionService)
-    const overlaid = this.getCanonicalOverlay(index, options);
-  
     // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
-    // CHANGED: compute remaining from the overlay (not raw options)
-    let remaining = this.remainingFromCanonical(index, overlaid);
+    let remaining = this.remainingFromCanonical(index, options);
   
     // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const svc: any = this.quizService as any;
@@ -485,12 +487,13 @@ export class SelectionMessageService {
     const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
-      : (overlaid ?? []).filter(o => !!o?.correct).length;  // ← use overlay as fallback
+      : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
   
-    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
-    // In that edge case, recompute `remaining` from the overlay so multi still gates.
+    // If canonical was empty and fallback found something, remainingFromCanonical
+    // would have returned 0. In that edge case, recompute `remaining` from the
+    // passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
-      const selectedCorrectFallback = (overlaid ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+      const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
   
@@ -708,22 +711,24 @@ export class SelectionMessageService {
     // Ensure IDs are stamped for this question (safe no-op if already stamped)
     try { this.ensureStableIds(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
   
-    // Build selected IDs union from UI and SelectedOptionService (INDEX-AWARE)
+    // Build selected IDs union from UI and SelectedOptionService
     const selectedIds = new Set<number | string>();
   
     // From UI options if provided
     if (Array.isArray(uiOpts)) {
       for (let i = 0; i < uiOpts.length; i++) {
-        const o = uiOpts[i];
-        if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i));
+        const o = uiOpts[i] as any;
+        const id = (o?.optionId ?? this.getOptionId(o, i));
+        if (o?.selected) selectedIds.add(id);
       }
     }
   
     // From latest snapshot
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < snap.length; i++) {
-      const o = snap[i];
-      if (o?.selected) selectedIds.add(this.getOptionIdFor(index, o, i));
+      const o = snap[i] as any;
+      const id = (o?.optionId ?? this.getOptionId(o, i));
+      if (o?.selected) selectedIds.add(id);
     }
   
     // From SelectedOptionService (ids or objects)
@@ -732,18 +737,21 @@ export class SelectionMessageService {
       if (rawSel instanceof Set) {
         rawSel.forEach((id: any) => selectedIds.add(id));
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, i: number) => selectedIds.add(this.getOptionIdFor(index, so, i)));
+        rawSel.forEach((so: any, i: number) => {
+          const id = (so?.optionId ?? this.getOptionId(so, i));
+          selectedIds.add(id);
+        });
       }
     } catch {}
   
-    // Count remaining using canonical correctness + stable IDs (INDEX-AWARE)
+    // Count remaining using canonical correctness and stable IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
-      const c = canonical[i];
+      const c = canonical[i] as any;
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionIdFor(index, c, i);
+      const id = (c?.optionId ?? this.getOptionId(c, i));
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
