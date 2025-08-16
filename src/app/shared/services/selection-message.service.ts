@@ -482,7 +482,11 @@ export class SelectionMessageService {
       const q: QuizQuestion | undefined =
         (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
         (svc.currentQuestion as QuizQuestion | undefined);
-      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
+  
+      const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+  
+      // Safe no-op if canonical is empty or already stamped.
+      this.ensureStableIds(index, canonical, options, this.getLatestOptionsSnapshot());
     } catch {}
   
     // Snapshot for later passives (kept behavior)
