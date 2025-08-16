@@ -515,11 +515,24 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       this.questionsArray = questions;
       console.log('[✅ QuizComponent] Questions fetched.');
 
-      // Guard for short quizzes to avoid OOB mistakes.
-      if (this.questionsArray.length >= 4) {
-        // Q4 → zero-based index 3
-        this.selectionMessageService.setExpectedCorrectCount(3, 3);
-      }
+      this.questionsArray.forEach((qq: any, idx: number) => {
+        const fromMeta =
+          (typeof qq?.expectedCorrect === 'number' && qq.expectedCorrect > 0)
+            ? qq.expectedCorrect
+            : (Array.isArray(qq?.answer) ? qq.answer.length : undefined);
+      
+        const fromFlags =
+          Array.isArray(qq?.options)
+            ? qq.options.reduce((n: number, o: any) => n + (o?.correct ? 1 : 0), 0)
+            : 0;
+      
+        const expected = (fromMeta ?? fromFlags);
+      
+        // Only set when we actually expect multiple correct answers.
+        if (Number.isFinite(expected) && expected > 1) {
+          this.selectionMessageService.setExpectedCorrectCount(idx, expected as number);
+        }
+      });
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
     }
