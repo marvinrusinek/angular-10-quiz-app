@@ -475,7 +475,7 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // One-liner: normalize/stamp IDs so canonical/UI/snapshot share the same optionId space
+    // Always stamp/normalize IDs FIRST so canonical and UI share the same optionId space.
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
