@@ -149,28 +149,22 @@ export class SelectionMessageService {
       ((expectedOverride ?? 0) > 1);
   
     const selectedCount = (opts ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
-    const expectedRemainingByCount = Math.max(
-      0,
-      (expectedOverride ?? 0) - selectedCount
-    );
-    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
   
     // BEFORE ANY PICK:
-    // For MULTI, show "Select N more correct answers..." preferring the override if present.
+    // For MULTI, show "Select N more correct answers..." preferring override if present.
     // For SINGLE, keep START/CONTINUE.
     if (!anySelected) {
       if (isMulti) {
-        // 🔧 Prefer override when provided; otherwise use canonical.
         const initialVisible = (expectedOverride != null) ? expectedOverride : totalCorrect;
         return buildRemainingMsg(initialVisible);
       }
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
+    // MULTI gating uses remainingFromCanonical, which now honors override.
     if (isMulti) {
-      // HARD GATE: never show Next/Results while any enforced remaining > 0
-      if (enforcedRemaining > 0) {
-        return buildRemainingMsg(enforcedRemaining);
+      if (remaining > 0) {
+        return buildRemainingMsg(remaining);
       }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -178,6 +172,7 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -631,7 +626,9 @@ export class SelectionMessageService {
   }
 
   // Authoritative remaining counter: uses canonical correctness and union of selected IDs
-  // NOW also enforces an expected-correct override (e.g., Q4 must have 3 selected before Next)
+  // NOW also enforces an expected-correct override (e.g., Q4 must have 2 selected before Next)
+  // Authoritative remaining counter: uses canonical correctness and union of selected IDs
+  // UPDATED: if an expected override exists, enforce it by correct selections.
   private remainingFromCanonical(index: number, uiOpts?: Option[] | null): number {
     const svc: any = this.quizService as any;
     const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -642,7 +639,7 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
 
-    // Build union of selected IDs from UI + snapshot + SelectedOptionService
+    // Build union of selected IDs (UI + snapshot + SelectedOptionService)
     const selectedIds = new Set<number | string>();
 
     if (Array.isArray(uiOpts)) {
@@ -667,7 +664,7 @@ export class SelectionMessageService {
       }
     } catch {}
 
-    // Canonical remaining: only count truly-correct options
+    // Count correct & selected-correct from canonical flags
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
@@ -677,15 +674,18 @@ export class SelectionMessageService {
       const id = this.getOptionId(c, i);
       if (selectedIds.has(id)) selectedCorrect++;
     }
+
+    // Canonical remaining
     const canonicalRemaining = Math.max(0, totalCorrect - selectedCorrect);
 
-    // NEW: expected-correct override → enforce minimum # of selected before allowing Next
-    const expectedOverride = this.getExpectedCorrectCount(index) ?? 0;
-    const selectedCount = selectedIds.size; // total selected, regardless of correctness
-    const expectedRemainingByCount = Math.max(0, expectedOverride - selectedCount);
+    // If an override exists for this question, **use it** (by correct selections)
+    const expected = this.getExpectedCorrectCount(index);
+    if (typeof expected === 'number' && expected > 0) {
+      const overrideRemaining = Math.max(0, expected - selectedCorrect);
+      return overrideRemaining; // override is authoritative for this question
+    }
 
-    // Enforce the stricter of the two
-    return Math.max(canonicalRemaining, expectedRemainingByCount);
+    return canonicalRemaining;
   }
 
 
