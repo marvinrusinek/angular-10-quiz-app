@@ -458,37 +458,83 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];
+    options: Option[]; // updated array already passed
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Ensure IDs are stamped for this question first
-    try { this.ensureStableIds(index, (this.quizService as any)?.currentQuestion?.options ?? [], options, this.getLatestOptionsSnapshot()); } catch {}
+    // Snapshot for later passives (kept behavior)
+    this.setOptionsSnapshot(options);
   
-    // Build overlay first (union across sources, canonical correctness)
+    // NEW: Build the CANONICAL OVERLAY first (union of options + snapshot + SelectedOptionService)
     const overlaid = this.getCanonicalOverlay(index, options);
   
-    // >>> Compute remaining from the overlay (not raw options)
+    // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
+    // Primary: authoritative remaining from canonical and union of selected ids
+    // CHANGED: compute remaining from the overlay (not raw options)
     let remaining = this.remainingFromCanonical(index, overlaid);
   
-    // ... your existing totalCorrect / fallback logic unchanged, but
-    // when you need a fallback, use `overlaid` instead of `options`:
+    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-    // e.g.
-    // const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
-    // const totalCorrect = totalCorrectCanon > 0
-    //   ? totalCorrectCanon
-    //   : (overlaid ?? []).filter(o => !!o?.correct).length;
+    const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
+    const totalCorrect = totalCorrectCanon > 0
+      ? totalCorrectCanon
+      : (overlaid ?? []).filter(o => !!o?.correct).length;  // ← use overlay as fallback
   
-    // If you recompute fallback remaining, also do it on `overlaid`
-    // const selectedCorrectFallback = (overlaid ?? []).filter(o => !!o?.correct && !!o?.selected).length;
-    // remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
+    // In that edge case, recompute `remaining` from the overlay so multi still gates.
+    if (totalCorrectCanon === 0 && totalCorrect > 0) {
+      const selectedCorrectFallback = (overlaid ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+      remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+    }
   
-    // >>> Snapshot the overlay (so passives see the same universe)
-    this.setOptionsSnapshot(overlaid);
+    // Decide multi from canonical first; fall back to declared type
+    const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
+    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // ...rest of your gating/hold logic unchanged...
+    // Decisive click behavior (with freeze to avoid flashes)
+    if (isMulti) {
+      if (remaining > 0) {
+        const msg = buildRemainingMsg(remaining);  // e.g., "Select 2 more correct answers..."
+        const cur = this.selectionMessageSubject.getValue();
+        if (cur !== msg) this.selectionMessageSubject.next(msg);
+  
+        // Hard-block any Next-ish messages for a short window to prevent flash
+        const now = performance.now();
+        const hold = now + 1200;
+        this.suppressPassiveUntil.set(index, hold);
+        this.freezeNextishUntil.set(index, hold);
+        return; // never emit Next while remaining > 0
+      }
+  
+      // remaining === 0 → legit Next/Results immediately
+      const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      const cur = this.selectionMessageSubject.getValue();
+      if (cur !== msg) this.selectionMessageSubject.next(msg);
+  
+      const now = performance.now();
+      const hold = now + 300;
+      this.suppressPassiveUntil.set(index, hold);
+      this.freezeNextishUntil.set(index, hold);
+      return;
+    }
+  
+    // Single-answer → always Next/Results after any pick
+    const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    const cur = this.selectionMessageSubject.getValue();
+    if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
+  
+    const now = performance.now();
+    const hold = now + 300;
+    this.suppressPassiveUntil.set(index, hold);
+    this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
