@@ -528,69 +528,29 @@ export class SelectionMessageService {
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // Align IDs across sources so unions/overlays are apples-to-apples
+        // 1) Align IDs across sources so unions/overlays are apples-to-apples
         this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // Build a trusted set of correct IDs (prefer q.answer via helper; else flags)
-        let correctIds: Set<number | string>;
-        if (typeof (this as any).getCorrectIdSet === 'function') {
-          correctIds = (this as any).getCorrectIdSet(index);
-        } else {
-          correctIds = new Set<number | string>();
-          for (let i = 0; i < canonical.length; i++) {
-            const c: any = canonical[i];
-            if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
-          }
-        }
+        // 2) Use the UNION overlay so previous correct picks remain counted
+        const overlaid = this.getCanonicalOverlay(index, options);
   
-        // UNION of selected IDs: current click payload + prior snapshot + SelectedOptionService
-        const selectedIds = new Set<number | string>();
+        // 3) Count ONLY selected-correct from the overlay (no dependence on external id sets)
+        const selectedCorrectCount = overlaid.reduce((n, o) =>
+          n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0);
   
-        // from current click payload
-        for (let i = 0; i < (options?.length ?? 0); i++) {
-          const o: any = options[i];
-          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
-        }
-        // from prior snapshot
-        for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
-          const o: any = priorSnap[i];
-          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
-        }
-        // from SelectedOptionService (ids or objects)
-        try {
-          const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
-          if (rawSel instanceof Set) {
-            rawSel.forEach((id: any) => selectedIds.add(id));
-          } else if (Array.isArray(rawSel)) {
-            rawSel.forEach((so: any, idx: number) =>
-              selectedIds.add(so?.optionId ?? so?.id ?? so?.value ?? idx)
-            );
-          }
-        } catch {}
+        // 4) Target is the override; remaining from selected-correct only
+        const totalForThisQ = expectedOverrideClick || overlaid.filter(o => !!o?.correct).length;
+        const q4Remaining   = Math.max(0, totalForThisQ - selectedCorrectCount);
   
-        // Count ONLY selected-correct (intersection of selectedIds ∩ correctIds)
-        let selectedCorrectCount = 0;
-        correctIds.forEach(id => { if (selectedIds.has(id)) selectedCorrectCount++; });
-  
-        // For Q4, use the override as the authoritative target
-        const totalForThisQ = expectedOverrideClick || correctIds.size;
-  
-        // Candidate remaining based on CORRECT selections only
-        const q4CandidateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
-  
-        // 🧷 Q4 MONOTONIC CLAMP:
-        // Never allow remaining to increase compared to last computed value for this question.
+        // 5) Optional monotonic clamp to avoid transient increases
         const prev = this.lastRemainingByIndex.get(index);
-        if (typeof prev === 'number' && prev > 0) {
-          gateRemaining = Math.min(prev, q4CandidateRemaining);
-        } else {
-          gateRemaining = q4CandidateRemaining;
-        }
+        gateRemaining = (typeof prev === 'number' && prev >= 0)
+          ? Math.min(prev, q4Remaining)
+          : q4Remaining;
   
-        // Update tracker for next click
         this.lastRemainingByIndex.set(index, gateRemaining);
-        // Optional debug:
-        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, q4CandidateRemaining, prev, gateRemaining });
+        // // Debug if needed:
+        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, q4Remaining, gateRemaining });
       }
   
       if (gateRemaining > 0) {
@@ -636,8 +596,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
