@@ -518,17 +518,29 @@ export class SelectionMessageService {
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      // ── NEW: override-aware remaining using SELECTED-CORRECT ────────────────
+      // ── NEW: override-aware remaining using SELECTED-CORRECT via trusted correctId set ──
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
-      const overlaidForCorrect = this.getCanonicalOverlay(index, options);
-      const selectedCorrectCount = overlaidForCorrect.reduce(
-        (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
-      );
-      const expectedRemainingByCorrect = Math.max(0, (expectedOverrideClick ?? 0) - selectedCorrectCount);
   
-      // keep canonical remaining too (already computed above as `remaining`)
+      // Overlay to get selected state with stable ids
+      const overlaidForCorrect = this.getCanonicalOverlay(index, options);
+  
+      // Trusted set of correct ids (prefer q.answer, fallback to flags)
+      const correctIds = this.getCorrectIdSet(index);
+  
+      // Count only selected items that are actually correct by id
+      const selectedCorrectCount = overlaidForCorrect.reduce((n, o, idx) => {
+        const oid = (o as any)?.optionId ?? idx;
+        return n + ((!!o?.selected && correctIds.has(oid)) ? 1 : 0);
+      }, 0);
+  
+      // Expected total for this Q: override if present, else size of correct id set
+      const totalForThisQ = (expectedOverrideClick ?? correctIds.size);
+  
+      const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
+  
+      // Keep canonical remaining too (already computed above as `remaining`)
       const enforcedRemainingClick = Math.max(remaining, expectedRemainingByCorrect);
-      // ────────────────────────────────────────────────────────────────────────
+      // ──────────────────────────────────────────────────────────────────────────
   
       if (enforcedRemainingClick > 0) {
         const msg = buildRemainingMsg(enforcedRemainingClick);
@@ -564,6 +576,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   
