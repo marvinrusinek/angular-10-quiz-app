@@ -304,33 +304,25 @@ export class SelectionMessageService {
     const isNextish =
       /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(low);
   
-    // ──────────────────────────────────────────────────────────────────────────
-    // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
-    // ──────────────────────────────────────────────────────────────────────────
     // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
     const stats = this.computeSelectionStats(baseSnapshot);
     // stats: { totalCorrectLike, selectedTotal, selectedCorrectLike }
 
-    // ⬇️ Explicit expected-count short-circuit (Q4)
+    // ⬇️ NEW: explicit expected-count short-circuit (fixes Q4 2nd click)
     const expectedOverride = this.getExpectedCorrectCount?.(i0);
     if (isMulti && typeof expectedOverride === 'number' && expectedOverride > 0) {
       const expectedRemaining = Math.max(0, expectedOverride - stats.selectedCorrectLike);
       if (expectedRemaining > 0) {
-        // Use the wording you want: “answer(s)”
+        // exact wording: “answer(s)”
         const forced = `Select ${expectedRemaining} more correct answer${expectedRemaining === 1 ? '' : 's'} to continue...`;
+        if (current !== forced) this.selectionMessageSubject.next(forced);
 
-        // Emit now…
-        const currentLower = (current || '').toLowerCase();
-        const isAlreadyForced = currentLower.startsWith('select ') && currentLower.includes('continue');
-        if (!isAlreadyForced || current !== forced) {
-          this.selectionMessageSubject.next(forced);
-        }
-
-        // …and schedule a post-frame clamp to beat any late writers
-        this.scheduleSelectionClamp(i0, expectedRemaining, forced);
-
-        // Debug: prove if something else fights us
-        // console.debug('[Clamp] Q', i0 + 1, 'expectedRemaining=', expectedRemaining, 'selectedCorrectLike=', stats.selectedCorrectLike);
+        // Post-frame clamp to beat any late "Next" writers in the same tick
+        requestAnimationFrame(() => {
+          const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
+          const isNextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+          if (isNextish) this.selectionMessageSubject.next(forced);
+        });
 
         return; // hard-stop: do not allow “Next” until explicit expected is satisfied
       }
@@ -351,8 +343,12 @@ export class SelectionMessageService {
       if (overlaid?.forceMessage) {
         if (current !== overlaid.forceMessage) {
           this.selectionMessageSubject.next(overlaid.forceMessage);
-          // Also ensure last-writer wins if someone emits "Next" after us
-          this.scheduleSelectionClamp(i0, 1, overlaid.forceMessage);
+          // ensure last-writer wins if someone emits "Next" after us
+          requestAnimationFrame(() => {
+            const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
+            const isNextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+            if (isNextish) this.selectionMessageSubject.next(overlaid.forceMessage);
+          });
         }
         return;
       }
@@ -365,7 +361,8 @@ export class SelectionMessageService {
         effectiveRemaining = overlayRemaining;
       }
     }
-      
+
+
     // ──────────────────────────────────────────────────────────────────────────
     // 2) Suppression windows: block “Next-ish” flashes while user is still selecting
     // ──────────────────────────────────────────────────────────────────────────
