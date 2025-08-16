@@ -288,19 +288,23 @@ export class SelectionMessageService {
     const isMulti =
       (totalCorrect > 1) ||
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      ((expectedOverrideUM ?? 0) > 1);
-  
+      //((expectedOverrideUM ?? 0) > 1);
+      ((this.getExpectedCorrectCount(i0) ?? 0) > 1);
+
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
     const expectedOverride = this.getExpectedCorrectCount(i0);
-  
-    // ⬇️ CHANGED: use selected-CORRECT instead of total selected
+
+    // Count only CORRECT selections using canonical overlay
     const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
-    const selectedCorrectCount = overlaidForCorrect.reduce(
-      (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
-    );
-    const expectedRemainingByCorrect = Math.max(0, (expectedOverride ?? 0) - selectedCorrectCount);
-  
+    const totalCorrectCanonical = overlaidForCorrect.filter(o => !!o?.correct).length;
+    const selectedCorrectCount  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
+
+    // Expected total for this Q: prefer override, else canonical correct count
+    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
+
+    // Enforce remaining using CORRECT picks, and keep canonical guard too
+    const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
     const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
   
     // Classifiers
