@@ -34,6 +34,7 @@ export class SelectionMessageService {
   private lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>();
   private expectedCorrectByIndex = new Map<number, number>();
+  private forcedGuardByIndex = new Map<number, number>();  // index -> remaining to enforce
 
   constructor(
     private quizService: QuizService, 
@@ -308,23 +309,38 @@ export class SelectionMessageService {
     const stats = this.computeSelectionStats(baseSnapshot);
     // stats: { totalCorrectLike, selectedTotal, selectedCorrectLike }
 
-    // ⬇️ NEW: explicit expected-count short-circuit (fixes Q4 2nd click)
+    // ⬇️ NEW: explicit expected-count short-circuit with sticky latch (fixes Q4 2nd click)
     const expectedOverride = this.getExpectedCorrectCount?.(i0);
     if (isMulti && typeof expectedOverride === 'number' && expectedOverride > 0) {
       const expectedRemaining = Math.max(0, expectedOverride - stats.selectedCorrectLike);
+
       if (expectedRemaining > 0) {
-        // exact wording: “answer(s)”
+        // Latch this requirement so later writers in this tick/next calls can’t override it
+        this.forcedGuardByIndex.set(i0, expectedRemaining);
+
         const forced = `Select ${expectedRemaining} more correct answer${expectedRemaining === 1 ? '' : 's'} to continue...`;
         if (current !== forced) this.selectionMessageSubject.next(forced);
 
-        // Post-frame clamp to beat any late "Next" writers in the same tick
+        // Post-frame clamps to beat late "Next" writers
+        queueMicrotask(() => {
+          const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
+          const nextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+          if (nextish && (this.forcedGuardByIndex.get(i0) ?? 0) > 0) {
+            this.selectionMessageSubject.next(forced);
+          }
+        });
         requestAnimationFrame(() => {
           const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
-          const isNextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
-          if (isNextish) this.selectionMessageSubject.next(forced);
+          const nextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+          if (nextish && (this.forcedGuardByIndex.get(i0) ?? 0) > 0) {
+            this.selectionMessageSubject.next(forced);
+          }
         });
 
         return; // hard-stop: do not allow “Next” until explicit expected is satisfied
+      } else {
+        // Clear latch once expectation is met
+        this.forcedGuardByIndex.delete(i0);
       }
     }
 
@@ -343,11 +359,23 @@ export class SelectionMessageService {
       if (overlaid?.forceMessage) {
         if (current !== overlaid.forceMessage) {
           this.selectionMessageSubject.next(overlaid.forceMessage);
-          // ensure last-writer wins if someone emits "Next" after us
+
+          // Respect latch if set
+          const latched = this.forcedGuardByIndex.get(i0) ?? 0;
+          const forced = latched > 0
+            ? `Select ${latched} more correct answer${latched === 1 ? '' : 's'} to continue...`
+            : overlaid.forceMessage;
+
+          // Ensure last-writer wins if someone emits "Next" after us
+          queueMicrotask(() => {
+            const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
+            const nextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+            if (nextish) this.selectionMessageSubject.next(forced);
+          });
           requestAnimationFrame(() => {
             const cur = (this.selectionMessageSubject.getValue() ?? '').toLowerCase();
-            const isNextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
-            if (isNextish) this.selectionMessageSubject.next(overlaid.forceMessage);
+            const nextish = /\b(next|next button|proceed|continue|advance|show results|results)\b/.test(cur);
+            if (nextish) this.selectionMessageSubject.next(forced);
           });
         }
         return;
@@ -361,7 +389,6 @@ export class SelectionMessageService {
         effectiveRemaining = overlayRemaining;
       }
     }
-
 
     // ──────────────────────────────────────────────────────────────────────────
     // 2) Suppression windows: block “Next-ish” flashes while user is still selecting
