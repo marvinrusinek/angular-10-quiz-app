@@ -531,13 +531,27 @@ export class SelectionMessageService {
         // 1) Align IDs across sources so unions/overlays are apples-to-apples
         this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // 2) Build a trusted set of correct IDs — STRICTLY from q.answer if present, else flags
-        const correctIds = new Set<number | string>();
-        const ans: any = (q as any)?.answer;
-        const norm = (x: any) => String(x ?? '').trim().toLowerCase();
+        // ---- Q4 TIGHTEN (union of answers + flags, key-based, sticky) --------------------
   
+        // helpers
+        const norm = (x: any) => String(x ?? '').trim().toLowerCase();
+        const keyOf = (o: any, i: number) => `vt:${norm(o?.value)}|${norm(o?.text ?? o?.label)}`;
+  
+        // map ids -> keys for canonical (useful when services pass ids)
+        const idToKey = new Map<any, string>();
+        const canonKeys: string[] = [];
+        for (let i = 0; i < canonical.length; i++) {
+          const c: any = canonical[i];
+          const k = keyOf(c, i);
+          canonKeys.push(k);
+          const cid = c?.optionId ?? c?.id ?? i;
+          idToKey.set(cid, k);
+        }
+  
+        // 2a) correct from q.answer → keys (match by id or value/text)
+        const correctKeysFromAnswer = new Set<string>();
+        const ans: any = (q as any)?.answer;
         if (Array.isArray(ans) && ans.length) {
-          // Map answers to canonical option IDs by id|value|text match
           for (let i = 0; i < canonical.length; i++) {
             const c: any = canonical[i];
             const cid = c?.optionId ?? c?.id ?? i;
@@ -545,72 +559,109 @@ export class SelectionMessageService {
             const t = norm(c?.text ?? c?.label);
             const matched = ans.some((a: any) => {
               if (a == null) return false;
-              if (a === cid || a === c?.id) return true;
+              if (a === cid || a === c?.id) return true;       // id match
               const s = norm(a);
-              return !!s && (s === v || s === t);
+              return !!s && (s === v || s === t);              // value/text match
             });
-            if (matched) correctIds.add(cid);
-          }
-        }
-        if (correctIds.size === 0) {
-          // fallback to flags
-          for (let i = 0; i < canonical.length; i++) {
-            const c: any = canonical[i];
-            if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
+            if (matched) correctKeysFromAnswer.add(canonKeys[i]);
           }
         }
   
-        // 3) UNION of selected IDs: current click payload + prior snapshot + SelectedOptionService
-        const selectedIds = new Set<number | string>();
+        // 2b) correct from flags → keys
+        const correctKeysFromFlags = new Set<string>();
+        for (let i = 0; i < canonical.length; i++) {
+          const c: any = canonical[i];
+          if (c?.correct) correctKeysFromFlags.add(canonKeys[i]);
+        }
+  
+        // 2c) UNION is authoritative for Q4
+        const correctKeySet = new Set<string>([
+          ...correctKeysFromAnswer,
+          ...correctKeysFromFlags
+        ]);
+  
+        // 3) UNION of selected keys: current payload + prior snapshot + SelectedOptionService
+        const selectedKeySet = new Set<string>();
   
         // from current click payload
         for (let i = 0; i < (options?.length ?? 0); i++) {
           const o: any = options[i];
-          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
+          if (!o?.selected) continue;
+          const k = (o?.optionId != null || o?.id != null)
+            ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
+            : keyOf(o, i);
+          selectedKeySet.add(k);
         }
+  
         // from prior snapshot (BEFORE we overwrite it)
         for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
           const o: any = priorSnap[i];
-          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
+          if (!o?.selected) continue;
+          const k = (o?.optionId != null || o?.id != null)
+            ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
+            : keyOf(o, i);
+          selectedKeySet.add(k);
         }
+  
         // from SelectedOptionService (ids or objects)
         try {
           const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
           if (rawSel instanceof Set) {
-            rawSel.forEach((id: any) => selectedIds.add(id));
+            rawSel.forEach((id: any) => {
+              const k = idToKey.get(id);
+              if (k) selectedKeySet.add(k);
+            });
           } else if (Array.isArray(rawSel)) {
-            rawSel.forEach((so: any, idx: number) =>
-              selectedIds.add(so?.optionId ?? so?.id ?? so?.value ?? idx)
-            );
+            rawSel.forEach((so: any, i2: number) => {
+              const k = (so?.optionId != null || so?.id != null)
+                ? (idToKey.get(so?.optionId ?? so?.id) ?? keyOf(so, i2))
+                : keyOf(so, i2);
+              selectedKeySet.add(k);
+            });
           }
         } catch {}
   
-        // 4) Q4 sticky corrects: persist every correct id we've ever seen selected
-        let sticky = this.stickyCorrectIdsByIndex.get(index);
+        // 4) Sticky corrects (by KEY): persist every correct key we've ever seen selected
+        let sticky = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
         if (!sticky) {
-          sticky = new Set<number | string>();
-          this.stickyCorrectIdsByIndex.set(index, sticky);
+          sticky = new Set<string>();
+          // @ts-ignore allow storing Set<string> in the same map (no runtime issue)
+          this.stickyCorrectIdsByIndex.set(index, sticky as unknown as Set<number | string>);
         }
   
-        // Add any correct IDs present in the UNION (never remove on deselect for Q4)
-        correctIds.forEach(id => { if (selectedIds.has(id)) sticky!.add(id); });
+        // Add any correct keys present in the UNION (never remove on deselect for Q4)
+        correctKeySet.forEach(k => { if (selectedKeySet.has(k)) (sticky as Set<string>).add(k); });
   
-        // 5) Gate purely by override vs sticky correct count
-        const totalForThisQ = expectedOverrideClick || correctIds.size;
-        gateRemaining = Math.max(0, totalForThisQ - sticky.size);
+        // 5) Target is override if present, else the size of the correct-key set
+        const totalForThisQ = (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0)
+          ? expectedOverrideClick
+          : correctKeySet.size;
   
-        // Optional: monotonic clamp to avoid transient bumps (kept conservative)
+        // 6) Remaining by sticky correct keys only
+        let q4Remaining = Math.max(0, totalForThisQ - (sticky as Set<string>).size);
+  
+        // 7) Monotonic clamp to avoid transient increases
         const prev = this.lastRemainingByIndex.get(index);
-        if (typeof prev === 'number' && prev >= 0) {
-          gateRemaining = Math.min(prev, gateRemaining);
-        }
-        this.lastRemainingByIndex.set(index, gateRemaining);
+        const gateRemainingCandidate = q4Remaining;
+        let gateRemainingLocal =
+          (typeof prev === 'number' && prev >= 0) ? Math.min(prev, gateRemainingCandidate)
+                                                  : gateRemainingCandidate;
+  
+        // Update tracker and replace outer variable
+        this.lastRemainingByIndex.set(index, gateRemainingLocal);
+        gateRemaining = gateRemainingLocal;
   
         // // Debug if needed:
-        // console.debug('[Q4 gate]', {
-        //   sticky: [...sticky], expected: totalForThisQ, gateRemaining,
-        //   selectedIds: [...selectedIds], correctIds: [...correctIds]
+        // console.debug('[Q4 tighten]', {
+        //   corrAnsKeys:  [...correctKeysFromAnswer],
+        //   corrFlagKeys: [...correctKeysFromFlags],
+        //   correctKeys:  [...correctKeySet],
+        //   selectedKeys: [...selectedKeySet],
+        //   sticky:       [...(sticky as Set<string>)],
+        //   totalForThisQ, q4Remaining, prev, gateRemaining
         // });
+  
+        // ---- END Q4 TIGHTEN --------------------------------------------------------------
       }
   
       if (gateRemaining > 0) {
@@ -656,7 +707,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
   
   
   
