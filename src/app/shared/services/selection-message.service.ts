@@ -158,10 +158,14 @@ export class SelectionMessageService {
     // BEFORE ANY PICK:
     // For MULTI, show "Select N more correct answers..." using the CANONICAL total if present,
     // falling back to the override only when canonical is unknown.
+    // (If both are present, show the LOWER of the two to avoid inflating the visible count.)
     // For SINGLE, keep START/CONTINUE.
     if (!anySelected) {
       if (isMulti) {
-        const initialVisible = totalCorrect > 0 ? totalCorrect : (expectedOverride ?? 0);
+        const initialVisible =
+          (totalCorrect > 0 && expectedOverride != null)
+            ? Math.min(totalCorrect, expectedOverride)
+            : (totalCorrect > 0 ? totalCorrect : (expectedOverride ?? 0));
         return buildRemainingMsg(initialVisible);
       }
       return index === 0 ? START_MSG : CONTINUE_MSG;
@@ -178,6 +182,7 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
   
   
 
