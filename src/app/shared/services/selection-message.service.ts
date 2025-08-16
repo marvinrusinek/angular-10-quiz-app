@@ -521,53 +521,44 @@ export class SelectionMessageService {
       // Start with your existing enforced remaining
       let gateRemaining = enforcedRemaining;
   
-      // 🔒 Tighten behavior ONLY when an explicit override exists *and* this is Q4 (idx 3)
+      // 🔒 Tighten ONLY when an explicit override exists *and* this is Q4 (idx 3)
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
       const tightenForThisQ =
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // ── ID ALIGNMENT (so selected ids in `options` match canonical ids) ─────────────
+        // ── ID ALIGNMENT (so ids in the overlay match canonical) ─────────────
         this.ensureStableIds(index, canonical, options);
   
-        // ── Build trusted correct-id set: prefer q.answer, fallback to canonical flags ──
-        const correctIds = new Set<number | string>();
-        const ans: any = (q as any)?.answer;
-        const norm = (x: any) => String(x ?? '').trim().toLowerCase();
+        // ── UNION OVERLAY (use union of sources so the first correct pick stays counted) ─
+        const overlaidForCorrect = this.getCanonicalOverlay(index, options);
   
-        if (Array.isArray(ans) && ans.length) {
-          for (let i = 0; i < canonical.length; i++) {
-            const c: any = canonical[i];
-            const cid = c?.optionId ?? c?.id ?? i;
-            const val = norm(c?.value);
-            const txt = norm(c?.text ?? c?.label);
-            const matched = ans.some((a: any) => {
-              if (a == null) return false;
-              if (a === cid || a === c?.id) return true;
-              const s = norm(a);
-              return !!s && (s === val || s === txt);
-            });
-            if (matched) correctIds.add(cid);
-          }
-        }
-        if (correctIds.size === 0) {
-          for (let i = 0; i < canonical.length; i++) {
-            const c: any = canonical[i];
-            if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
+        // Build correct-id set (prefer q.answer via helper if present; else flags)
+        let correctIds: Set<number | string> | null = null;
+        if (typeof (this as any).getCorrectIdSet === 'function') {
+          correctIds = (this as any).getCorrectIdSet(index);
+        } else {
+          correctIds = new Set<number | string>();
+          for (let i = 0; i < overlaidForCorrect.length; i++) {
+            const o: any = overlaidForCorrect[i];
+            if (o?.correct) correctIds.add(o?.optionId ?? o?.id ?? i);
           }
         }
   
-        // ── Count ONLY selected-correct from the just-clicked `options` (no stale unions) ─
-        const selectedCorrectCount = (options ?? []).reduce((n, o, i) => {
+        // Count ONLY selected-correct from the overlay (union), not from `options` alone
+        const selectedCorrectCount = overlaidForCorrect.reduce((n, o, i) => {
           const oid = (o as any)?.optionId ?? i;
-          return n + ((!!o?.selected && correctIds.has(oid)) ? 1 : 0);
+          return n + ((!!o?.selected && correctIds!.has(oid)) ? 1 : 0);
         }, 0);
   
-        // Authoritative target is the override for this Q (fallback to correctIds if needed)
+        // Authoritative target is the override for this Q; fallback to correctIds if needed
         const totalForThisQ = expectedOverrideClick || correctIds.size;
   
-        // Remaining based on CORRECT selections only (don’t let stale canon inflate it)
-        gateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
+        // Remaining based on CORRECT selections only
+        const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
+  
+        // ✅ For Q4, trust the override-by-correct result (don’t let canonical re-inflate it)
+        gateRemaining = expectedRemainingByCorrect;
       }
   
       if (gateRemaining > 0) {
@@ -604,6 +595,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)

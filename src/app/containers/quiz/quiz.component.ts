@@ -516,23 +516,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
       console.log('[✅ QuizComponent] Questions fetched.');
 
       this.questionsArray.forEach((qq: any, idx: number) => {
+        // Prefer explicit expectedCorrect when valid (>0)
         const fromMeta =
-          (typeof qq?.expectedCorrect === 'number' && qq.expectedCorrect > 0)
-            ? qq.expectedCorrect
-            : (Array.isArray(qq?.answer) ? qq.answer.length : undefined);
+          Number.isFinite(qq?.expectedCorrect) && qq.expectedCorrect > 0
+            ? Math.floor(qq.expectedCorrect)
+            : (Array.isArray(qq?.answer)
+                // De-dupe answers in case metadata has duplicates / different forms
+                ? new Set(qq.answer.map((a: any) => String(a ?? '').trim().toLowerCase())).size
+                : undefined);
       
-        const fromFlags =
-          Array.isArray(qq?.options)
-            ? qq.options.reduce((n: number, o: any) => n + (o?.correct ? 1 : 0), 0)
-            : 0;
+        // Fallback to flags on options
+        const fromFlags = Array.isArray(qq?.options)
+          ? qq.options.reduce((n: number, o: any) => n + (o?.correct ? 1 : 0), 0)
+          : 0;
       
-        const expected = (fromMeta ?? fromFlags);
+        const expected = fromMeta ?? fromFlags;
       
         // Only set when we actually expect multiple correct answers.
         if (Number.isFinite(expected) && expected > 1) {
           this.selectionMessageService.setExpectedCorrectCount(idx, expected as number);
         }
-      });
+      });      
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
     }
