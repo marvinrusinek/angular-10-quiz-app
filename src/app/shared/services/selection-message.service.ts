@@ -464,59 +464,56 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Normalize/stamp IDs for this question up front (prevents index drift on Q4)
-    try {
-      this.ensureStableIds(
-        index,
-        (this.quizService as any)?.currentQuestion?.options ?? [],
-        options,
-        this.getLatestOptionsSnapshot()
-      );
-    } catch {}
-  
-    // Snapshot (kept)
-    this.setOptionsSnapshot(options);
-  
-    // --- Normalize IDs so canonical/UI share the same optionId space ---
+    // Resolve canonical once
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-    try {
-      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
+    // 1) Freshly stamp IDs so canonical/UI/snapshot share the same space (fixes Q4)
+    try { this.stampIdsFresh(index, canonical, options, this.getLatestOptionsSnapshot()); } catch {}
   
-      // Stamp registry ids onto the clicked list
-      const idMap = this.idMapByIndex.get(index);
-      if (idMap) {
-        for (const o of options) {
-          const key = this.keyOf(o);
-          const cid = idMap.get(key);
-          if (cid != null) (o as any).optionId = cid;
-        }
-      }
-    } catch {}
+    // 2) Snapshot for later passives (kept behavior)
+    this.setOptionsSnapshot(options);
   
-    // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
+    // 3) Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService)
     const overlaid = this.getCanonicalOverlay(index, options);
   
-    // --- Compute totals/remaining from the overlay (authoritative for gating) ---
+    // 4) Compute totals/remaining from the overlay (authoritative for gating)
     const totalCorrect = overlaid.filter(o => !!o?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    // Decide multi from canonical data first; fall back to declared type
+    // Intersect with canonical IDs to avoid cross-question bleed
+    const canonicalIds = new Set<number | string>();
+    for (let i = 0; i < canonical.length; i++) {
+      canonicalIds.add(this.getOptionIdFor(index, canonical[i], i));
+    }
+    const selectedIds = this.buildSelectedIdUnion(index, options);
+    for (const id of Array.from(selectedIds)) {
+      if (!canonicalIds.has(id)) selectedIds.delete(id);
+    }
+    // Recompute selectedCorrect from intersection (robust on Q4)
+    let selectedCorrectSafe = 0;
+    for (let i = 0; i < canonical.length; i++) {
+      if (!canonical[i]?.correct) continue;
+      const cid = this.getOptionIdFor(index, canonical[i], i);
+      if (selectedIds.has(cid)) selectedCorrectSafe++;
+    }
+    const remaining = Math.max(0, totalCorrect - selectedCorrectSafe);
+  
+    // Decide multi from canonical first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // --- Now that we've computed correctly, snapshot the overlay for future passes ---
+    // Now that we've computed correctly, snapshot the overlay for future passes
     this.setOptionsSnapshot(overlaid);
   
-    // --- Decisive click behavior (with freeze to avoid flashes) ---
+    // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);  // e.g., "Select 1 more correct option..."
+        const msg = buildRemainingMsg(remaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -524,7 +521,7 @@ export class SelectionMessageService {
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-        return; // never emit Next while remaining > 0
+        return;
       }
   
       // remaining === 0 → legit Next/Results immediately
@@ -549,6 +546,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
@@ -694,30 +692,49 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
   
-    // Ensure IDs are stamped for this question (safe no-op if already stamped)
-    try { this.ensureStableIds(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
+    // Freshly (re)stamp IDs for this question (prevents stale collisions on Q4)
+    try { this.stampIdsFresh(index, canonical, uiOpts ?? this.getLatestOptionsSnapshot()); } catch {}
+  
+    // Build canonical id set for intersection
+    const canonicalIds = new Set<number | string>();
+    for (let i = 0; i < canonical.length; i++) {
+      canonicalIds.add(this.getOptionIdFor(index, canonical[i], i));
+    }
   
     // Unified selected IDs (index-aware)
     const selectedIds = this.buildSelectedIdUnion(index, uiOpts);
   
-    // Count using canonical correctness + stable IDs
+    // ⚠️ Intersect: ignore any ids not in this question's canonical set
+    for (const id of Array.from(selectedIds)) {
+      if (!canonicalIds.has(id)) selectedIds.delete(id);
+    }
+  
+    // Count using canonical correctness + intersected IDs
     let totalCorrect = 0;
     let selectedCorrect = 0;
     for (let i = 0; i < canonical.length; i++) {
       const c = canonical[i];
       if (!c?.correct) continue;
       totalCorrect++;
-      const id = this.getOptionIdFor(index, c, i);      // ← index-aware compare
-      if (selectedIds.has(id)) selectedCorrect++;        // ← index-aware membership
+      const id = this.getOptionIdFor(index, c, i);
+      if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
   }
+  
 
   // Content-only key (never uses ids) to detect duplicate labels/values safely
   private contentKey(o: any): string {
     const v = String(o?.value ?? '').trim().toLowerCase();
     const t = String(o?.text ?? o?.label ?? '').trim().toLowerCase();
     return `vt:${v}|${t}`;
+  }
+
+  private stampIdsFresh(index: number, canonical: Option[] | null | undefined, ...uiLists: (Option[] | null | undefined)[]): void {
+    // Blow away any stale mapping for this index
+    this.idMapByIndex.delete(index);
+    // Recreate + stamp via existing routine
+    this.ensureStableIds(index, canonical ?? [], ...uiLists);
   }
 
   // Ensure every canonical option has a stable optionId.
