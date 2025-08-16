@@ -464,56 +464,59 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Resolve canonical once
+    // Normalize/stamp IDs for this question up front (prevents index drift on Q4)
+    try {
+      this.ensureStableIds(
+        index,
+        (this.quizService as any)?.currentQuestion?.options ?? [],
+        options,
+        this.getLatestOptionsSnapshot()
+      );
+    } catch {}
+  
+    // Snapshot (kept)
+    this.setOptionsSnapshot(options);
+  
+    // --- Normalize IDs so canonical/UI share the same optionId space ---
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-    // 1) Freshly stamp IDs so canonical/UI/snapshot share the same space (fixes Q4)
-    try { this.stampIdsFresh(index, canonical, options, this.getLatestOptionsSnapshot()); } catch {}
+    try {
+      this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot());
   
-    // 2) Snapshot for later passives (kept behavior)
-    this.setOptionsSnapshot(options);
+      // Stamp registry ids onto the clicked list
+      const idMap = this.idMapByIndex.get(index);
+      if (idMap) {
+        for (const o of options) {
+          const key = this.keyOf(o);
+          const cid = idMap.get(key);
+          if (cid != null) (o as any).optionId = cid;
+        }
+      }
+    } catch {}
   
-    // 3) Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService)
+    // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
     const overlaid = this.getCanonicalOverlay(index, options);
   
-    // 4) Compute totals/remaining from the overlay (authoritative for gating)
+    // --- Compute totals/remaining from the overlay (authoritative for gating) ---
     const totalCorrect = overlaid.filter(o => !!o?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    // Intersect with canonical IDs to avoid cross-question bleed
-    const canonicalIds = new Set<number | string>();
-    for (let i = 0; i < canonical.length; i++) {
-      canonicalIds.add(this.getOptionIdFor(index, canonical[i], i));
-    }
-    const selectedIds = this.buildSelectedIdUnion(index, options);
-    for (const id of Array.from(selectedIds)) {
-      if (!canonicalIds.has(id)) selectedIds.delete(id);
-    }
-    // Recompute selectedCorrect from intersection (robust on Q4)
-    let selectedCorrectSafe = 0;
-    for (let i = 0; i < canonical.length; i++) {
-      if (!canonical[i]?.correct) continue;
-      const cid = this.getOptionIdFor(index, canonical[i], i);
-      if (selectedIds.has(cid)) selectedCorrectSafe++;
-    }
-    const remaining = Math.max(0, totalCorrect - selectedCorrectSafe);
-  
-    // Decide multi from canonical first; fall back to declared type
+    // Decide multi from canonical data first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // Now that we've computed correctly, snapshot the overlay for future passes
+    // --- Now that we've computed correctly, snapshot the overlay for future passes ---
     this.setOptionsSnapshot(overlaid);
   
-    // Decisive click behavior (with freeze to avoid flashes)
+    // --- Decisive click behavior (with freeze to avoid flashes) ---
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);
+        const msg = buildRemainingMsg(remaining);  // e.g., "Select 1 more correct option..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -521,7 +524,7 @@ export class SelectionMessageService {
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-        return;
+        return; // never emit Next while remaining > 0
       }
   
       // remaining === 0 → legit Next/Results immediately
@@ -546,7 +549,6 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
-  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
