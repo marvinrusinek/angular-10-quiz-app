@@ -307,11 +307,23 @@ export class SelectionMessageService {
     // ──────────────────────────────────────────────────────────────────────────
     // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
     // ──────────────────────────────────────────────────────────────────────────
+    // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
     const stats = this.computeSelectionStats(baseSnapshot);
     // stats: { totalCorrectLike, selectedTotal, selectedCorrectLike }
-  
+
+    // ⬇️ NEW: explicit expected-count short-circuit (fixes Q4 2nd click)
+    const expectedOverride = this.getExpectedCorrectCount?.(i0);
+    if (isMulti && typeof expectedOverride === 'number' && expectedOverride > 0) {
+      const expectedRemaining = Math.max(0, expectedOverride - stats.selectedCorrectLike);
+      if (expectedRemaining > 0) {
+        const forced = `Select ${expectedRemaining} more correct answer${expectedRemaining === 1 ? '' : 's'} to continue...`;
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return; // hard-stop: do not allow “Next” until explicit expected is satisfied
+      }
+    }
+
     let effectiveRemaining = remaining;
-  
+
     if (isMulti) {
       const overlaid = this.overlayGuard(
         {
@@ -321,14 +333,14 @@ export class SelectionMessageService {
         },
         qTypeDeclared as QuestionType | undefined
       );
-  
+
       if (overlaid?.forceMessage) {
         if (current !== overlaid.forceMessage) {
           this.selectionMessageSubject.next(overlaid.forceMessage);
         }
         return;
       }
-  
+
       if (overlaid?.overlayTotalCorrect && overlaid.overlayTotalCorrect > totalCorrect) {
         const overlayRemaining = Math.max(
           0,
@@ -337,6 +349,7 @@ export class SelectionMessageService {
         effectiveRemaining = overlayRemaining;
       }
     }
+
   
     // ──────────────────────────────────────────────────────────────────────────
     // 2) Suppression windows: block “Next-ish” flashes while user is still selecting
