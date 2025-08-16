@@ -33,6 +33,7 @@ export class SelectionMessageService {
   // Per-question remaining tracker and short enforcement window
   private lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>();
+  private expectedCorrectByIndex = new Map<number, number>();
 
   constructor(
     private quizService: QuizService, 
@@ -1088,5 +1089,16 @@ export class SelectionMessageService {
     const v = String(o.value ?? '').trim().toLowerCase();
     const t = String(o.text ?? o.label ?? '').trim().toLowerCase();
     return `vt:${v}|${t}`;
+  }
+
+  public setExpectedCorrectCount(index: number, count: number): void {
+    if (Number.isInteger(index) && index >= 0 && Number.isFinite(count) && count > 0) {
+      this.expectedCorrectByIndex.set(index, count);
+    }
+  }
+  
+  private getExpectedCorrectCount(index: number): number | undefined {
+    const n = this.expectedCorrectByIndex.get(index);
+    return (typeof n === 'number' && n > 0) ? n : undefined;
   }
 }
