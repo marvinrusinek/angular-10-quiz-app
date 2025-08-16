@@ -430,39 +430,34 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // 🔹 Fetch canonical once, then stamp stable IDs onto the UI list FIRST
+    // --- Normalize IDs so canonical/UI share the same optionId space ---
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-  
-    // ✅ Normalize IDs so canonical/UI share the same optionId space
     try { this.ensureStableIds(index, (q as any)?.options ?? [], options); } catch {}
   
-    // Snapshot for later passives (kept behavior) — now with stamped optionId’s
-    this.setOptionsSnapshot(options);
+    // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
+    //     Do this BEFORE touching the snapshot so we don't lose previous selections.
+    const overlaid = this.getCanonicalOverlay(index, options);
   
-    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
-    let remaining = this.remainingFromCanonical(index, options);
+    // --- Compute totals/remaining from the overlay (authoritative for gating) ---
+    const totalCorrect = overlaid.filter(o => !!o?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!o?.correct && !!o?.selected).length;
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
-    const totalCorrect = totalCorrectCanon > 0
-      ? totalCorrectCanon
-      : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
-  
-    if (totalCorrectCanon === 0 && totalCorrect > 0) {
-      const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
-      remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
-    }
-  
+    // Decide multi from canonical data first; fall back to declared type
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast = totalQuestions > 0 && index === totalQuestions - 1;
   
+    // --- Now that we've computed correctly, snapshot the overlay for future passes ---
+    this.setOptionsSnapshot(overlaid);
+  
+    // --- Decisive click behavior (with freeze to avoid flashes) ---
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining);
+        const msg = buildRemainingMsg(remaining);  // e.g., "Select 1 more correct option..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -470,9 +465,10 @@ export class SelectionMessageService {
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-        return;
+        return; // never emit Next while remaining > 0
       }
   
+      // remaining === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
@@ -484,6 +480,7 @@ export class SelectionMessageService {
       return;
     }
   
+    // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
@@ -492,7 +489,8 @@ export class SelectionMessageService {
     const hold = now + 300;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
-  }  
+  }
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
