@@ -527,38 +527,14 @@ export class SelectionMessageService {
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // ── ID ALIGNMENT (so ids in the overlay match canonical) ─────────────
-        this.ensureStableIds(index, canonical, options);
+        // Use union overlay + stable ids and count SELECTED-CORRECT only
+        const selectedCorrect = this.countSelectedCorrectUnion(index, options);
+        const totalForThisQ   = expectedOverrideClick; // authoritative target for Q4
   
-        // ── UNION OVERLAY (use union of sources so the first correct pick stays counted) ─
-        const overlaidForCorrect = this.getCanonicalOverlay(index, options);
-  
-        // Build correct-id set (prefer q.answer via helper if present; else flags)
-        let correctIds: Set<number | string> | null = null;
-        if (typeof (this as any).getCorrectIdSet === 'function') {
-          correctIds = (this as any).getCorrectIdSet(index);
-        } else {
-          correctIds = new Set<number | string>();
-          for (let i = 0; i < overlaidForCorrect.length; i++) {
-            const o: any = overlaidForCorrect[i];
-            if (o?.correct) correctIds.add(o?.optionId ?? o?.id ?? i);
-          }
-        }
-  
-        // Count ONLY selected-correct from the overlay (union), not from `options` alone
-        const selectedCorrectCount = overlaidForCorrect.reduce((n, o, i) => {
-          const oid = (o as any)?.optionId ?? i;
-          return n + ((!!o?.selected && correctIds!.has(oid)) ? 1 : 0);
-        }, 0);
-  
-        // Authoritative target is the override for this Q; fallback to correctIds if needed
-        const totalForThisQ = expectedOverrideClick || correctIds.size;
-  
-        // Remaining based on CORRECT selections only
-        const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
-  
-        // ✅ For Q4, trust the override-by-correct result (don’t let canonical re-inflate it)
-        gateRemaining = expectedRemainingByCorrect;
+        // Trust the override on Q4 (don’t let canonical re-inflate on wrong clicks)
+        gateRemaining = Math.max(0, totalForThisQ - selectedCorrect);
+        // Optional debug:
+        // console.debug('[Q4 gate]', { selectedCorrect, totalForThisQ, gateRemaining });
       }
   
       if (gateRemaining > 0) {
@@ -595,6 +571,7 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
@@ -883,7 +860,56 @@ export class SelectionMessageService {
 
     return ids;
   }
+
+  private countSelectedCorrectUnion(index: number, options?: Option[]): number {
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
+    // Align IDs across sources
+    const snap = this.getLatestOptionsSnapshot();
+    this.ensureStableIds(index, canonical, options ?? [], snap);
+  
+    // Union overlay (your existing method already unions sources)
+    const overlaid = this.getCanonicalOverlay(index, options ?? []);
+  
+    // Build trusted correct-id set (prefer q.answer, fallback to flags)
+    const correctIds = new Set<number | string>();
+    const ans: any = (q as any)?.answer;
+    const norm = (x: any) => String(x ?? '').trim().toLowerCase();
+  
+    if (Array.isArray(ans) && ans.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = c?.optionId ?? c?.id ?? i;
+        const val = norm(c?.value);
+        const txt = norm(c?.text ?? c?.label);
+        const matched = ans.some((a: any) => {
+          if (a == null) return false;
+          if (a === cid || a === c?.id) return true;
+          const s = norm(a);
+          return !!s && (s === val || s === txt);
+        });
+        if (matched) correctIds.add(cid);
+      }
+    }
+    if (correctIds.size === 0) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
+      }
+    }
+  
+    // Count ONLY selected-correct from overlay (union)
+    return overlaid.reduce((n, o, i) => {
+      const id = (o as any)?.optionId ?? i;
+      return n + ((!!o?.selected && correctIds.has(id)) ? 1 : 0);
+    }, 0);
+  }
+
   // Key that survives reorder/clone/missing ids (NO index fallback)
   private keyOf(o: any): string {
     if (!o) return '__nil';
