@@ -436,10 +436,11 @@ export class SelectionMessageService {
     const q: QuizQuestion | undefined =
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-    try { this.ensureStableIds(index, (q as any)?.options ?? [], options); } catch {}
+  
+    // ⬇️ ONE extra argument added: this.getLatestOptionsSnapshot()
+    try { this.ensureStableIds(index, (q as any)?.options ?? [], options, this.getLatestOptionsSnapshot()); } catch {}
   
     // --- Build a CANONICAL OVERLAY (union of: ctx.options + snapshot + SelectedOptionService) ---
-    //     Do this BEFORE touching the snapshot so we don't lose previous selections.
     const overlaid = this.getCanonicalOverlay(index, options);
   
     // --- Compute totals/remaining from the overlay (authoritative for gating) ---
