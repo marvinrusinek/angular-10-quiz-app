@@ -139,7 +139,7 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
   
-    // NEW: expected-correct override (e.g., Q4 ⇒ 3)
+    // NEW: expected-correct override (e.g., Q4 ⇒ 2)
     const expectedOverride = this.getExpectedCorrectCount(index);
   
     // ⬇️ UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
@@ -156,16 +156,12 @@ export class SelectionMessageService {
     const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
   
     // BEFORE ANY PICK:
-    // For MULTI, show "Select N more correct answers..." using the CANONICAL total if present,
-    // falling back to the override only when canonical is unknown.
-    // (If both are present, show the LOWER of the two to avoid inflating the visible count.)
+    // For MULTI, show "Select N more correct answers..." preferring the override if present.
     // For SINGLE, keep START/CONTINUE.
     if (!anySelected) {
       if (isMulti) {
-        const initialVisible =
-          (totalCorrect > 0 && expectedOverride != null)
-            ? Math.min(totalCorrect, expectedOverride)
-            : (totalCorrect > 0 ? totalCorrect : (expectedOverride ?? 0));
+        // 🔧 Prefer override when provided; otherwise use canonical.
+        const initialVisible = (expectedOverride != null) ? expectedOverride : totalCorrect;
         return buildRemainingMsg(initialVisible);
       }
       return index === 0 ? START_MSG : CONTINUE_MSG;
@@ -182,9 +178,6 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
-  
-  
-  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
