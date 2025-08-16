@@ -139,8 +139,13 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
   
-    // NEW: expected-correct override (e.g., Q4 ⇒ 2)
-    const expectedOverride = this.getExpectedCorrectCount(index);
+    // NEW: expected-correct override (prefer explicit store; fall back to content if available)
+    const expectedFromContent =
+      (typeof (q as any)?.expectedCorrect === 'number' && (q as any).expectedCorrect > 0)
+        ? (q as any).expectedCorrect
+        : (Array.isArray((q as any)?.answer) ? (q as any).answer.length : undefined);
+  
+    const expectedOverride = this.getExpectedCorrectCount(index) ?? expectedFromContent;
   
     // ⬇️ UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
     const isMulti =
@@ -148,22 +153,22 @@ export class SelectionMessageService {
       (qType === QuestionType.MultipleAnswer) ||
       ((expectedOverride ?? 0) > 1);
   
-    const selectedCount = (opts ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
-    const expectedRemainingByCount = Math.max(
-      0,
-      (expectedOverride ?? 0) - selectedCount
+    // Count selected CORRECT picks (not just total selections)
+    const selectedCorrect = (opts ?? []).reduce(
+      (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
     );
-    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
   
-    // 🩹 NEW: widen the “any selection yet” detector to tolerate stale snapshots.
-    // If enforcedRemaining < initial target, a selection has occurred.
-    const initialTarget = Math.max(totalCorrect, expectedOverride ?? 0);
-    const anySelectedWide = anySelected || (isMulti && enforcedRemaining < initialTarget);
+    // If we have an override, use it as the authoritative remaining; else use canonical
+    const overrideRemaining =
+      (expectedOverride != null) ? Math.max(0, expectedOverride - selectedCorrect) : undefined;
+  
+    const enforcedRemaining =
+      (expectedOverride != null) ? (overrideRemaining as number) : remaining;
   
     // BEFORE ANY PICK:
-    // For MULTI, show "Select N more correct answers..." preferring override if present.
+    // For MULTI, show "Select N more correct answers..." preferring the override if present.
     // For SINGLE, keep START/CONTINUE.
-    if (!anySelectedWide) {
+    if (!anySelected) {
       if (isMulti) {
         const initialVisible = (expectedOverride != null) ? expectedOverride : totalCorrect;
         return buildRemainingMsg(initialVisible);
@@ -182,10 +187,11 @@ export class SelectionMessageService {
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
-    index: number;  // 0-based
+    index: number  // 0-based
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
