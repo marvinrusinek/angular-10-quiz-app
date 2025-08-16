@@ -292,37 +292,49 @@ export class SelectionMessageService {
     // 1) Overlay guard for under-flagged canonical correctness (e.g., Q4)
     //    If content under-reports total correct, do NOT jump to “Next”.
     // ──────────────────────────────────────────────────────────────────────────
-    const stats = this.computeSelectionStats(baseSnapshot);
-    // stats: { totalCorrectLike, selectedTotal, selectedCorrectLike }
+  
+    // Tight detectors: avoid counting “Incorrect — the correct answer is …” as correct-like
+    const rxIncorrect = /\b(incorrect|❌|wrong|not correct|that'?s wrong)\b/i;
+    const rxCorrectStrict = /\b(correct|✅|that's right|you are right|is right)\b/i;
+    const rxTrapPhrase = /\b(the\s+correct\s+answer\s+is)\b/i; // appears in wrong-option feedback
+  
+    const correctLike = (o: Option) => {
+      const fb = o?.feedback ?? '';
+      if (o?.correct === true) return true;
+      if (!fb) return false;
+      if (rxIncorrect.test(fb)) return false;
+      if (rxTrapPhrase.test(fb)) return false; // don't credit “the correct answer is …”
+      return rxCorrectStrict.test(fb);
+    };
+  
+    const incorrectLike = (o: Option) => {
+      const fb = o?.feedback ?? '';
+      return (o?.correct === false) || (!!fb && rxIncorrect.test(fb));
+    };
+  
+    const stats = (() => {
+      let totalCorrectLike = 0, selectedTotal = 0, selectedCorrectLike = 0, unselectedCorrectLike = 0;
+      for (const o of baseSnapshot) {
+        const isCL = correctLike(o);
+        const isSel = !!o?.selected;
+        if (isCL) totalCorrectLike++;
+        if (isSel) {
+          selectedTotal++;
+          if (isCL) selectedCorrectLike++;
+        } else if (isCL) {
+          unselectedCorrectLike++;
+        }
+      }
+      return { totalCorrectLike, selectedTotal, selectedCorrectLike, unselectedCorrectLike };
+    })();
   
     let effectiveRemaining = remaining;
   
     if (isMulti) {
-      const overlaid = this.overlayGuard(
-        {
-          canonicalTotalCorrect: totalCorrect,
-          selectedCorrectLike: stats.selectedCorrectLike,
-          selectedTotal: stats.selectedTotal
-        },
-        qTypeDeclared
-      );
-  
-      if (overlaid?.forceMessage) {
-        // Guard says to keep user selecting → emit override and exit.
-        if (current !== overlaid.forceMessage) {
-          this.selectionMessageSubject.next(overlaid.forceMessage);
-        }
-        return;
-      }
-  
-      // If overlay signals more correct answers than canonical, recompute remaining conservatively
-      if (overlaid?.overlayTotalCorrect && overlaid.overlayTotalCorrect > totalCorrect) {
-        const overlayRemaining = Math.max(
-          0,
-          overlaid.overlayTotalCorrect - stats.selectedCorrectLike
-        );
-        effectiveRemaining = overlayRemaining;
-      }
+      // If our inferred total exceeds canonical, prefer it.
+      const inferredTotal = Math.max(totalCorrect, stats.totalCorrectLike);
+      const inferredRemaining = Math.max(0, inferredTotal - stats.selectedCorrectLike);
+      effectiveRemaining = Math.max(effectiveRemaining, inferredRemaining);
     }
   
     // ──────────────────────────────────────────────────────────────────────────
@@ -349,40 +361,23 @@ export class SelectionMessageService {
   
     // ──────────────────────────────────────────────────────────────────────────
     // 3) MULTI hard guard + Q4 CLAMP:
-    //    anchor strictly to remaining correct picks and inferred “correct-like”
-    //    → prevents premature “Next” when authoring is wrong or user toggles
+    //    anchor to inferred remaining and block “Next” if any correct-like remains unselected
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
-      // 3.1) Build a correct-like view from the *current* snapshot
-      const snap = baseSnapshot;
-      const correctLike = (o: Option) =>
-        o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
+      // If there are any correct-like options still unselected, clamp to “Select N more …”
+      const hardRemaining = Math.max(
+        effectiveRemaining,
+        stats.unselectedCorrectLike
+      );
   
-      const totalCorrectCanonical = totalCorrect; // from canonical
-      const totalCorrectLike = snap.reduce((n, o) => n + (correctLike(o) ? 1 : 0), 0);
-      const selectedCorrectLike  = snap.reduce((n, o) => n + (correctLike(o) && !!o?.selected ? 1 : 0), 0);
-      const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+      // BONUS clamp: if user selected something that looks incorrect, never drop to Next early.
+      // (This stops a false “all done” when feedback text contains “correct answer is …”.)
+      const anySelectedIncorrect = baseSnapshot.some(o => !!o?.selected && incorrectLike(o));
   
-      // Prefer the larger of canonical vs inferred, so under-flagged authoring can’t slip through.
-      const inferredTotal = Math.max(totalCorrectCanonical, totalCorrectLike);
-  
-      // Recompute effective remaining against the inferred total (Q4 fix)
-      const inferredRemaining = Math.max(0, inferredTotal - selectedCorrectLike);
-      const hardRemaining = Math.max(effectiveRemaining, inferredRemaining);
-  
-      // Enforce “Select N more…” while any inferred remaining exists or our short enforce window is active
-      if (hardRemaining > 0 || inEnforce || unselectedCorrectLike > 0) {
-        const forced = buildRemainingMsg(Math.max(1, hardRemaining || unselectedCorrectLike));
+      if (hardRemaining > 0 || inEnforce || anySelectedIncorrect) {
+        const forced = buildRemainingMsg(Math.max(1, hardRemaining || 1));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return; // absolutely block Next/Results
-      }
-  
-      // LAST-MILE CLAMP: Even if hardRemaining is 0, re-check for *any* correct-like not selected.
-      // This catches racey writes where remainingFromCanonical said 0 but inference says otherwise.
-      if (unselectedCorrectLike > 0) {
-        const forced = buildRemainingMsg(unselectedCorrectLike);
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return;
       }
   
       // Safe to allow Next/Results
@@ -408,12 +403,10 @@ export class SelectionMessageService {
     if (isNextish && anySelected) {
       // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
       if (qTypeDeclared === QuestionType.MultipleAnswer) {
-        const snap = baseSnapshot;
-        const correctLike = (o: Option) =>
-          o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
-        const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
-        if (unselectedCorrectLike > 0) {
-          const forced = buildRemainingMsg(unselectedCorrectLike);
+        const unselectedCorrectLike = baseSnapshot.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+        const anySelectedIncorrect  = baseSnapshot.some(o => !!o?.selected && incorrectLike(o));
+        if (unselectedCorrectLike > 0 || anySelectedIncorrect) {
+          const forced = buildRemainingMsg(Math.max(1, unselectedCorrectLike || 1));
           if (current !== forced) this.selectionMessageSubject.next(forced);
           return;
         }
@@ -429,12 +422,10 @@ export class SelectionMessageService {
   
     // ——— FINAL NEXT-ISH KILL-SWITCH (Q4 safety net) ———
     if (isNextish && qTypeDeclared === QuestionType.MultipleAnswer) {
-      const snap = baseSnapshot;
-      const correctLike = (o: Option) =>
-        o?.correct === true || /(^|\b)(correct|✅|right|true)\b/i.test(o?.feedback ?? '');
-      const unselectedCorrectLike = snap.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
-      if (unselectedCorrectLike > 0) {
-        const forced = buildRemainingMsg(unselectedCorrectLike);
+      const unselectedCorrectLike = baseSnapshot.reduce((n, o) => n + (correctLike(o) && !o?.selected ? 1 : 0), 0);
+      const anySelectedIncorrect  = baseSnapshot.some(o => !!o?.selected && incorrectLike(o));
+      if (unselectedCorrectLike > 0 || anySelectedIncorrect) {
+        const forced = buildRemainingMsg(Math.max(1, unselectedCorrectLike || 1));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
@@ -442,6 +433,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   /* ────────────────────────────────────────────────────────────────────────────
