@@ -282,14 +282,26 @@ export class SelectionMessageService {
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter(o => !!o?.correct).length;
-    const isMulti = (totalCorrect > 1) || (qTypeDeclared === QuestionType.MultipleAnswer);
+  
+    // Honor override when deciding multi (unchanged from your last version)
+    const expectedOverrideUM = this.getExpectedCorrectCount(i0);
+    const isMulti =
+      (totalCorrect > 1) ||
+      (qTypeDeclared === QuestionType.MultipleAnswer) ||
+      ((expectedOverrideUM ?? 0) > 1);
   
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
     const expectedOverride = this.getExpectedCorrectCount(i0);
-    const selectedCount = (snap ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
-    const expectedRemainingByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
-    const enforcedRemaining = Math.max(remaining, expectedRemainingByCount);
+  
+    // ⬇️ CHANGED: use selected-CORRECT instead of total selected
+    const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
+    const selectedCorrectCount = overlaidForCorrect.reduce(
+      (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
+    );
+    const expectedRemainingByCorrect = Math.max(0, (expectedOverride ?? 0) - selectedCorrectCount);
+  
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
   
     // Classifiers
     const low = next.toLowerCase();
@@ -351,6 +363,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
 
   // Helper: Compute and push atomically (passes options to guard)
