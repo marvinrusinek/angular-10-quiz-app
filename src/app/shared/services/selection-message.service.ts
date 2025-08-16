@@ -479,8 +479,8 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // Snapshot for later passives (kept behavior)
-    this.setOptionsSnapshot(options);
+    // Snapshot for later passives — DEFERRED to end so union can see prior selections
+    const priorSnap = this.getLatestOptionsSnapshot();
   
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
@@ -527,14 +527,57 @@ export class SelectionMessageService {
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // Use union overlay + stable ids and count SELECTED-CORRECT only
-        const selectedCorrect = this.countSelectedCorrectUnion(index, options);
-        const totalForThisQ   = expectedOverrideClick; // authoritative target for Q4
+        // ── ID ALIGNMENT across sources (canonical, current options, prior snapshot) ──
+        this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // Trust the override on Q4 (don’t let canonical re-inflate on wrong clicks)
-        gateRemaining = Math.max(0, totalForThisQ - selectedCorrect);
-        // Optional debug:
-        // console.debug('[Q4 gate]', { selectedCorrect, totalForThisQ, gateRemaining });
+        // ── Build trusted correct-id set: prefer q.answer via helper; fallback to flags ──
+        let correctIds: Set<number | string>;
+        if (typeof (this as any).getCorrectIdSet === 'function') {
+          correctIds = (this as any).getCorrectIdSet(index);
+        } else {
+          correctIds = new Set<number | string>();
+          for (let i = 0; i < canonical.length; i++) {
+            const c: any = canonical[i];
+            if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
+          }
+        }
+  
+        // ── UNION selected ids: current options + prior snapshot + SelectedOptionService ──
+        const selectedIds = new Set<number | string>();
+  
+        // from current click payload
+        for (let i = 0; i < (options?.length ?? 0); i++) {
+          const o: any = options[i];
+          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
+        }
+  
+        // from prior snapshot (BEFORE we overwrite it)
+        for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
+          const o: any = priorSnap[i];
+          if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
+        }
+  
+        // from SelectedOptionService (ids or objects)
+        try {
+          const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+          if (rawSel instanceof Set) {
+            rawSel.forEach((id: any) => selectedIds.add(id));
+          } else if (Array.isArray(rawSel)) {
+            rawSel.forEach((so: any, idx: number) =>
+              selectedIds.add(so?.optionId ?? so?.id ?? so?.value ?? idx)
+            );
+          }
+        } catch {}
+  
+        // Count ONLY selected-correct = intersection(selectedIds ∩ correctIds)
+        let selectedCorrectCount = 0;
+        correctIds.forEach(id => { if (selectedIds.has(id)) selectedCorrectCount++; });
+  
+        const totalForThisQ = expectedOverrideClick || correctIds.size;
+  
+        // Trust override-based remaining for Q4 so wrong clicks don’t bump it back up
+        gateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
+        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, gateRemaining, selectedIds: [...selectedIds], correctIds: [...correctIds] });
       }
   
       if (gateRemaining > 0) {
@@ -546,6 +589,9 @@ export class SelectionMessageService {
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
+  
+        // now safe to update snapshot for future passives
+        this.setOptionsSnapshot(options);
         return; // never emit Next while remaining > 0
       }
   
@@ -558,6 +604,9 @@ export class SelectionMessageService {
       const hold = now + 300;
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
+  
+      // update snapshot after decision
+      this.setOptionsSnapshot(options);
       return;
     }
   
@@ -570,9 +619,10 @@ export class SelectionMessageService {
     const hold = now + 300;
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
+  
+    // update snapshot after decision
+    this.setOptionsSnapshot(options);
   }
-  
-  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
