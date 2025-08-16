@@ -518,20 +518,49 @@ export class SelectionMessageService {
   
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
-      // ── NEW: override-aware remaining using SELECTED-CORRECT ────────────────
+      // Start with your existing enforced remaining
+      let gateRemaining = enforcedRemaining;
+  
+      // 🔒 Tighten ONLY when an explicit override exists *and* this is Q4 (idx 3)
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
-      const overlaidForCorrect = this.getCanonicalOverlay(index, options);
-      const selectedCorrectCount = overlaidForCorrect.reduce(
-        (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
-      );
-      const expectedRemainingByCorrect = Math.max(0, (expectedOverrideClick ?? 0) - selectedCorrectCount);
+      const tightenForThisQ =
+        (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
-      // keep canonical remaining too (already computed above as `remaining`)
-      const enforcedRemainingClick = Math.max(remaining, expectedRemainingByCorrect);
-      // ────────────────────────────────────────────────────────────────────────
+      if (tightenForThisQ) {
+        // ── ID ALIGNMENT (so selected ids in `options` match canonical ids) ─────────────
+        this.ensureStableIds(index, canonical, options);
   
-      if (enforcedRemainingClick > 0) {
-        const msg = buildRemainingMsg(enforcedRemainingClick);
+        // ── TRUST THE JUST-CLICKED ARRAY (avoid stale unions) ──────────────────────────
+        // Build a trusted set of correct ids; prefer q.answer if helper exists, else flags.
+        let correctIds: Set<number | string> | null = null;
+        if (typeof (this as any).getCorrectIdSet === 'function') {
+          correctIds = (this as any).getCorrectIdSet(index);
+        } else {
+          correctIds = new Set<number | string>();
+          for (let i = 0; i < canonical.length; i++) {
+            const c: any = canonical[i];
+            if (c?.correct) correctIds.add(c?.optionId ?? c?.id ?? i);
+          }
+        }
+  
+        // Count ONLY selected-correct from the fresh `options` list (not overlay/snapshot)
+        const selectedCorrectCount = (options ?? []).reduce((n, o, i) => {
+          const oid = (o as any)?.optionId ?? i;
+          return n + ((!!o?.selected && correctIds!.has(oid)) ? 1 : 0);
+        }, 0);
+  
+        // Authoritative target is the override for this Q
+        const totalForThisQ = expectedOverrideClick;
+  
+        // Remaining based on CORRECT selections only
+        const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
+  
+        // ✅ Use the override-based remaining as truth for Q4 (don’t let stale canon bump it up)
+        gateRemaining = expectedRemainingByCorrect;
+      }
+  
+      if (gateRemaining > 0) {
+        const msg = buildRemainingMsg(gateRemaining);
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -564,6 +593,8 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
+  
+  
   
   
   
