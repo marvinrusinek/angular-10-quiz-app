@@ -394,15 +394,14 @@ export class SelectionMessageService {
     if (!opt) return '__nil';
     if (opt.optionId != null) return opt.optionId;
     if (opt.id != null) return opt.id;
-
+  
     const key = this.keyOf(opt);
     const map = this.idMapByIndex.get(qIndex);
     const mapped = map?.get(key);
     if (mapped != null) return mapped;
-
-    // Last resort: content-based stable key
-    return key;
-  }
+  
+    return key;  // content-based stable fallback
+  }  
 
   // Reserve a write slot for this question; returns the token to attach to the write.
   public beginWrite(index: number, freezeMs = 600): number {
@@ -569,6 +568,7 @@ export class SelectionMessageService {
   
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
+  // Overlay UI/service selection onto CANONICAL options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -578,41 +578,39 @@ export class SelectionMessageService {
 
     const canonical: Option[] = Array.isArray(q?.options) ? q!.options : [];
 
-    // Collect selected ids from ctx options (if provided)
+    // Ensure IDs are stamped and mappable for this question (safe no-op if already done)
+    try { this.ensureStableIds(i0, canonical, optsCtx ?? this.getLatestOptionsSnapshot()); } catch {}
+
+    // 1) Collect selected ids from ctx options (if provided), using index-aware resolver
     const selectedIds = new Set<number | string>();
     const source = Array.isArray(optsCtx) && optsCtx.length ? optsCtx : this.getLatestOptionsSnapshot();
     for (let i = 0; i < (source?.length ?? 0); i++) {
       const o = source[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(i0, o, i));
     }
 
-    // Union with current snapshot
+    // 2) Union with current snapshot (index-aware)
     const snap = this.getLatestOptionsSnapshot();
     for (let i = 0; i < (snap?.length ?? 0); i++) {
       const o = snap[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
+      if (o?.selected) selectedIds.add(this.getOptionIdFor(i0, o, i));
     }
 
-    // Union with SelectedOptionService map (if it stores ids/objs)
+    // 3) Union with SelectedOptionService (ids or objects) (index-aware)
     try {
       const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
       if (rawSel instanceof Set) {
         rawSel.forEach((id: any) => selectedIds.add(id));
       } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => {
-          const id = (so?.optionId ?? so?.id ?? so?.value ?? idx);
-          if (id !== undefined) selectedIds.add(id);
-        });
+        rawSel.forEach((so: any, idx: number) => selectedIds.add(this.getOptionIdFor(i0, so, idx)));
       }
     } catch {}
 
-    // Return canonical with selected overlay (fallback to ctx/source if canonical missing)
+    // 4) Return canonical with selected overlay (index-aware id on canonical side)
     return canonical.length
       ? canonical.map((o, idx) => {
-          const id = (o as any)?.optionId ?? idx;
-          return { ...o, selected: selectedIds.has(id) };
+          const cid = this.getOptionIdFor(i0, o, idx);
+          return { ...o, selected: selectedIds.has(cid) };
         })
       : source.map(o => ({ ...o }));
   }
