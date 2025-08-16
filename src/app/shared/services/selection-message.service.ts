@@ -29,7 +29,7 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
 
-  private idMapByIndex = new Map<number, Map<string, string | number>>();   // key -> canonicalId
+  private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
 
   // Per-question remaining tracker and short enforcement window
   private lastRemainingByIndex = new Map<number, number>();
@@ -430,7 +430,7 @@ export class SelectionMessageService {
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
 
-    // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
+    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
     let remaining = this.remainingFromCanonical(index, options);
 
@@ -497,7 +497,7 @@ export class SelectionMessageService {
   }
   
   // Passive: call from navigation/reset/timer-expiry/etc.
-  // This auto-skips during a freeze (so it won’t fight the click).
+  // This auto-skips during a freeze (so it won’t fight the click)
   public emitPassive(params: {
     index: number;
     totalQuestions: number;
@@ -533,7 +533,7 @@ export class SelectionMessageService {
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
   
-  // Overlay UI/service selection onto CANONICAL options (correct flags intact)
+  // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
