@@ -450,8 +450,7 @@ export class SelectionMessageService {
   /** End a guarded write for this index.
    *  - If `token` is stale (not the latest), we do nothing.
    *  - If it’s the latest, we immediately end the “freeze window”
-   *    so legit Next/Results can show (once remaining === 0).
-   */
+   *    so legit Next/Results can show (once remaining === 0). */
    public endWrite(index: number, token?: number, opts?: { clearTokenWindow?: boolean }): void {
     if (typeof token === 'number') {
       const latest = this.latestByIndex.get(index);
@@ -469,14 +468,11 @@ export class SelectionMessageService {
     const latest = this.latestByIndex.get(index);
     const stillFrozen = this.inFreezeWindow(index);
   
-    // Only frozen if:
-    // - The token matches the latest one
-    // - We're still inside the freeze window
+    // Only frozen if the token matches the latest one and we're still inside the freeze window
     return token === latest && stillFrozen;
   }
 
-  // Authoritative: call ONLY from the option click with the UPDATED array
-  // Authoritative: call ONLY from the option click with the UPDATED array
+  // Authoritative: call only from the option click with the updated array
   public emitFromClick(params: {
     index: number;
     totalQuestions: number;
@@ -488,8 +484,8 @@ export class SelectionMessageService {
     // Snapshot for later passives (kept behavior)
     this.setOptionsSnapshot(options);
 
-    // --- Always derive gating from CANONICAL correctness (UI may lack reliable `correct`) ---
-    // Primary: authoritative remaining from canonical + union of selected ids
+    // Always derive gating from CANONICAL correctness (UI may lack reliable `correct`)
+    // Primary: authoritative remaining from canonical and union of selected ids
     let remaining = this.remainingFromCanonical(index, options);
 
     // Compute totalCorrect from canonical; fallback to passed array if canonical absent
@@ -522,7 +518,7 @@ export class SelectionMessageService {
     // Decisive click behavior (with freeze to avoid flashes)
     if (isMulti) {
       if (remaining > 0) {
-        const msg = buildRemainingMsg(remaining); // e.g., "Select 2 more correct answers..."
+        const msg = buildRemainingMsg(remaining);  // e.g., "Select 2 more correct answers..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
 
@@ -556,7 +552,6 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   }
-
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click).
@@ -582,7 +577,7 @@ export class SelectionMessageService {
     if (forced) {
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== forced) this.selectionMessageSubject.next(forced);
-      return; // never emit Next while remaining>0
+      return;  // never emit Next while remaining>0
     }
   
     const anySelected = overlaid.some(o => !!o?.selected);
@@ -662,11 +657,6 @@ export class SelectionMessageService {
     return q?.type ?? QuestionType.SingleAnswer;
   }
 
-  // Single source of stable IDs
-  private stableId(o: any, idx: number): number | string {
-    return (o?.optionId ?? o?.id ?? `${o?.value ?? ''}|${o?.text ?? ''}|${idx}`);
-  }
-
   private setRemainingLock(index: number, remaining: number): void {
     this.remainingByIndex.set(index, Math.max(0, remaining));
     if (remaining > 0) {
@@ -687,7 +677,7 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     if (!canonical.length) return 0;
 
-    // Build selected IDs union from UI + SelectedOptionService
+    // Build selected IDs union from UI and SelectedOptionService
     const selectedIds = new Set<number | string>();
 
     // a) from UI options if provided
@@ -726,16 +716,6 @@ export class SelectionMessageService {
       if (selectedIds.has(id)) selectedCorrect++;
     }
     return Math.max(0, totalCorrect - selectedCorrect);
-  }
-
-  // Key that survives reorder/clone/missing ids (NO index fallback)
-  private keyOf(o: any): string {
-    if (!o) return '__nil';
-    const id = (o.optionId ?? o.id);
-    if (id != null) return `id:${String(id)}`;
-    const v = String(o.value ?? '').trim().toLowerCase();
-    const t = String(o.text ?? o.label ?? '').trim().toLowerCase();
-    return `vt:${v}|${t}`;
   }
 
   // Ensure every canonical option has a stable optionId.
@@ -781,5 +761,15 @@ export class SelectionMessageService {
         if (cid != null) (o as any).optionId = cid;
       });
     }
+  }
+  
+  // Key that survives reorder/clone/missing ids (NO index fallback)
+  private keyOf(o: any): string {
+    if (!o) return '__nil';
+    const id = (o.optionId ?? o.id);
+    if (id != null) return `id:${String(id)}`;
+    const v = String(o.value ?? '').trim().toLowerCase();
+    const t = String(o.text ?? o.label ?? '').trim().toLowerCase();
+    return `vt:${v}|${t}`;
   }
 }
