@@ -482,7 +482,7 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, options } = params;
   
-    // 🟡 DO NOT update snapshot yet—keep the previous one so union can see prior selections
+    // Keep the previous snapshot so unions can see earlier selections
     const priorSnap = this.getLatestOptionsSnapshot();
   
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
@@ -513,29 +513,25 @@ export class SelectionMessageService {
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // NEW: expected-correct override merged with canonical remaining (legacy path)
+    // Expected-correct override merged with canonical remaining (legacy path)
     const expectedOverride = this.getExpectedCorrectCount(index);
     const selectedCount    = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
     const expectedRemainByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
     const enforcedRemaining     = Math.max(remaining, expectedRemainByCount);
   
-    // ────────────────────────────────────────────────────────────────────────────
-    // Decisive click behavior (with freeze to avoid flashes)
-    // ────────────────────────────────────────────────────────────────────────────
     if (isMulti) {
-      // Start with the existing enforced remaining
       let gateRemaining = enforcedRemaining;
   
-      // 🔒 Tighten ONLY when an explicit override exists *and* this is Q4 (idx 3)
+      // Tighten ONLY when an explicit override exists AND this is Q4 (idx 3)
       const expectedOverrideClick = this.getExpectedCorrectCount(index);
       const tightenForThisQ =
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // 1) Align IDs across sources so unions/overlays are apples-to-apples
+        // Align IDs across sources so unions/overlays are apples-to-apples
         this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // 2) Build a trusted set of correct IDs (prefer q.answer via helper; else flags)
+        // Build a trusted set of correct IDs (prefer q.answer via helper; else flags)
         let correctIds: Set<number | string>;
         if (typeof (this as any).getCorrectIdSet === 'function') {
           correctIds = (this as any).getCorrectIdSet(index);
@@ -547,7 +543,7 @@ export class SelectionMessageService {
           }
         }
   
-        // 3) UNION of selected IDs: current click payload + prior snapshot + SelectedOptionService
+        // UNION of selected IDs: current click payload + prior snapshot + SelectedOptionService
         const selectedIds = new Set<number | string>();
   
         // from current click payload
@@ -555,13 +551,11 @@ export class SelectionMessageService {
           const o: any = options[i];
           if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
         }
-  
-        // from prior snapshot (BEFORE we overwrite it)
+        // from prior snapshot
         for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
           const o: any = priorSnap[i];
           if (o?.selected) selectedIds.add(o?.optionId ?? o?.id ?? i);
         }
-  
         // from SelectedOptionService (ids or objects)
         try {
           const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
@@ -574,19 +568,29 @@ export class SelectionMessageService {
           }
         } catch {}
   
-        // 4) Count ONLY selected-correct (intersection of selectedIds ∩ correctIds)
+        // Count ONLY selected-correct (intersection of selectedIds ∩ correctIds)
         let selectedCorrectCount = 0;
         correctIds.forEach(id => { if (selectedIds.has(id)) selectedCorrectCount++; });
   
-        // 5) For Q4, trust the override count as the target
+        // For Q4, use the override as the authoritative target
         const totalForThisQ = expectedOverrideClick || correctIds.size;
   
-        // 6) Remaining based on CORRECT selections only (wrong clicks can't bump it back up)
-        gateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
+        // Candidate remaining based on CORRECT selections only
+        const q4CandidateRemaining = Math.max(0, totalForThisQ - selectedCorrectCount);
   
+        // 🧷 Q4 MONOTONIC CLAMP:
+        // Never allow remaining to increase compared to last computed value for this question.
+        const prev = this.lastRemainingByIndex.get(index);
+        if (typeof prev === 'number' && prev > 0) {
+          gateRemaining = Math.min(prev, q4CandidateRemaining);
+        } else {
+          gateRemaining = q4CandidateRemaining;
+        }
+  
+        // Update tracker for next click
+        this.lastRemainingByIndex.set(index, gateRemaining);
         // Optional debug:
-        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, gateRemaining,
-        //   selectedIds: [...selectedIds], correctIds: [...correctIds] });
+        // console.debug('[Q4 gate]', { selectedCorrectCount, totalForThisQ, q4CandidateRemaining, prev, gateRemaining });
       }
   
       if (gateRemaining > 0) {
@@ -599,7 +603,7 @@ export class SelectionMessageService {
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
   
-        // ✅ NOW update snapshot (after decision)
+        // Update snapshot after the decision
         this.setOptionsSnapshot(options);
         return; // never emit Next while remaining > 0
       }
@@ -614,12 +618,12 @@ export class SelectionMessageService {
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
   
-      // ✅ update snapshot after decision
+      // Update snapshot after the decision
       this.setOptionsSnapshot(options);
       return;
     }
   
-    // SINGLE → always Next/Results after any pick
+    // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur = this.selectionMessageSubject.getValue();
     if (cur !== singleMsg) this.selectionMessageSubject.next(singleMsg);
@@ -629,9 +633,11 @@ export class SelectionMessageService {
     this.suppressPassiveUntil.set(index, hold);
     this.freezeNextishUntil.set(index, hold);
   
-    // ✅ update snapshot after decision
+    // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
