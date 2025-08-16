@@ -975,6 +975,11 @@ export class SelectionMessageService {
     }, 0);
   }
 
+  // Optional helper to clear when changing question
+  public clearStickyFor(index: number): void {
+    this.stickyCorrectIdsByIndex.delete(index);
+  }
+
   // Key that survives reorder/clone/missing ids (NO index fallback)
   private keyOf(o: any): string {
     if (!o) return '__nil';
