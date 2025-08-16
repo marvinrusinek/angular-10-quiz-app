@@ -500,6 +500,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         // Clear any per-question selections
         this.selectedOptionService.selectedOptionIndices[idx] = [];
 
+        // Reset sticky correct ids for the newly-entered question (Q4 logic helper)
+        this.selectionMessageService.stickyCorrectIdsByIndex.delete(idx);
+
         // Wake OnPush so the template updates
         this.cdRef.markForCheck();
       });
@@ -536,15 +539,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         if (Number.isFinite(expected) && expected > 1) {
           this.selectionMessageService.setExpectedCorrectCount(idx, expected as number);
         }
-      });
-      const overrides = this.questionsArray.map((_, i) => ({
-        index: i,
-        override: this.selectionMessageService.getExpectedCorrectCount?.(i) ?? null,
-      }));
-      console.table(overrides);
-      // sanity: Q4 is index 3, should be 2
-      console.debug('[override@3]', this.selectionMessageService.getExpectedCorrectCount?.(3));
-      console.debug('[override@0]', this.selectionMessageService.getExpectedCorrectCount?.(0)); // Q1      
+      });      
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
     }

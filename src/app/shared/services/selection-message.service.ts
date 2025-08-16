@@ -38,7 +38,7 @@ export class SelectionMessageService {
   private expectedCorrectByIndex = new Map<number, number>();
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
-  private stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
+  public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
 
   constructor(
     private quizService: QuizService, 
