@@ -605,6 +605,66 @@ export class SelectionMessageService {
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
     this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
   
+    // ─────────────────────────────────────────────────────────────
+    // EARLY OVERRIDE GATE (authoritative when expected-correct is set)
+    // - Count selected-correct STRICTLY from CURRENT payload (optsCtx if provided, else snapshot ONLY)
+    // - Do NOT nag before first pick
+    // - If remaining > 0 → "Select N more..."
+    // - If remaining === 0 → Next/Show Results
+    // ─────────────────────────────────────────────────────────────
+    {
+      const expectedOverride = this.getExpectedCorrectCount(i0);
+      if (typeof expectedOverride === 'number' && expectedOverride > 0) {
+        const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
+        const anySelectedNow = (src ?? []).some(o => !!o?.selected);
+  
+        if (!anySelectedNow) {
+          // No picks yet → keep it friendly
+          const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
+          if (current !== fallback) this.selectionMessageSubject.next(fallback);
+          return;
+        }
+  
+        // Trusted correct-id set; your getCorrectIdSet should be strict (ids/indices)
+        const correctIds = this.getCorrectIdSet(i0);
+  
+        let picked = 0;
+        for (let i = 0; i < (src?.length ?? 0); i++) {
+          const o: any = src[i];
+          if (!o?.selected) continue;
+          const cid = (o?.optionId ?? o?.id ?? i);
+          if (correctIds.has(cid)) picked++;
+        }
+  
+        let remainingOverride = Math.max(0, expectedOverride - picked);
+  
+        // Keep your per-question lock bookkeeping coherent
+        const nowTs = performance.now();
+        const prevRem = this.lastRemainingByIndex.get(i0);
+        if (prevRem === undefined || remainingOverride !== prevRem) {
+          this.lastRemainingByIndex.set(i0, remainingOverride);
+          if (remainingOverride > 0 && (prevRem === undefined || remainingOverride < prevRem)) {
+            this.enforceUntilByIndex.set(i0, nowTs + 800);
+          }
+          if (remainingOverride === 0) this.enforceUntilByIndex.delete(i0);
+        }
+  
+        if (remainingOverride > 0) {
+          const forced = buildRemainingMsg(remainingOverride);
+          if (current !== forced) this.selectionMessageSubject.next(forced);
+          return;
+        }
+  
+        const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+        const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+        return;
+      }
+    }
+    // ─────────────────────────────────────────────────────────────
+    // (No override present) → fall back to your existing canonical + union logic
+    // ─────────────────────────────────────────────────────────────
+  
     // Authoritative remaining from canonical + union of selected ids
     const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
   
@@ -622,7 +682,7 @@ export class SelectionMessageService {
   
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
-    const expectedOverride = this.getExpectedCorrectCount(i0);
+    const expectedOverride2 = this.getExpectedCorrectCount(i0);
   
     // Count only CORRECT selections using canonical overlay
     const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
@@ -630,35 +690,11 @@ export class SelectionMessageService {
     const selectedCorrectCountOverlay  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
   
     // Expected total for this Q: prefer override, else canonical correct count
-    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
+    const totalForThisQ = (expectedOverride2 ?? totalCorrectCanonical);
   
-    // === BEGIN: override-aware calculation: CURRENT payload only, no union ===
-    // Build a trusted correct-id set from canonical (prefer q.answer inside your service)
-    const correctIds = this.getCorrectIdSet(i0);
-  
-    // Choose source: optsCtx if provided; else snapshot ONLY (no SelectedOptionService union)
-    const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
-  
-    // Count selected-correct strictly from `src`, mapping to canonical ids
-    let selectedCorrectFromSrc = 0;
-    for (let i = 0; i < (src?.length ?? 0); i++) {
-      const o: any = src[i];
-      if (!o?.selected) continue;
-      const cid = (o?.optionId ?? o?.id ?? i);
-      if (correctIds.has(cid)) selectedCorrectFromSrc++;
-    }
-  
-    // Compute the override-based remaining from CURRENT payload
-    const overrideRemainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
-  
-    // Decide enforcedRemaining:
-    // - If override exists → use overrideRemainingByCurrent (authoritative, no max with canonical)
-    // - Else → original behavior (max of canonical union and overlay)
-    const enforcedRemaining =
-      (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? overrideRemainingByCurrent
-        : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
-    // === END: override-aware calculation ===
+    // Enforce remaining using CORRECT picks, and keep canonical guard too
+    const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCountOverlay);
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
   
     // Classifiers
     const low = next.toLowerCase();
