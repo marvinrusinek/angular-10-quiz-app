@@ -1282,6 +1282,9 @@ export class SelectionMessageService {
 
   // Resolve the set of correct option IDs for a question.
   // Prefer metadata (q.answer) and fall back to canonical `correct` flags.
+  // Resolve the set of correct option IDs for a question.
+  // Prefer metadata (q.answer) and fall back to canonical `correct` flags.
+  // UPDATED: strict matching only (id / optionId / numeric index). No value/text fuzz.
   private getCorrectIdSet(index: number): Set<number | string> {
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -1296,35 +1299,80 @@ export class SelectionMessageService {
     // Ensure canonical is stamped with stable optionId
     this.ensureStableIds(index, canonical);
 
-    // 1) Prefer explicit answer metadata if present
+    // Helper: convert possibly 1-based or 0-based indices to canonical optionId
+    const idFromIndex = (ix: number): number | string | null => {
+      if (!Number.isFinite(ix)) return null;
+      const zero = Math.trunc(ix);
+      // allow both 0-based and 1-based references
+      const candidates = [zero, zero - 1];
+      for (const cand of candidates) {
+        if (cand >= 0 && cand < canonical.length) {
+          const c: any = canonical[cand];
+          return (c?.optionId ?? c?.id ?? cand);
+        }
+      }
+      return null;
+      };
+
+    // 1) Prefer explicit answer metadata if present (STRICT: id/optionId or numeric index only)
     const ans: any = (q as any)?.answer;
     if (Array.isArray(ans) && ans.length) {
-      // Build quick lookups for value/text
-      const norm = (x: any) => String(x ?? '').trim().toLowerCase();
       for (let i = 0; i < canonical.length; i++) {
-        const c = canonical[i] as any;
-        const cid = c.optionId ?? c.id ?? i;
-        const val = norm(c.value);
-        const txt = norm(c.text ?? c.label);
+        const c: any = canonical[i];
+        const cid = (c?.optionId ?? c?.id ?? i);
 
         const matched = ans.some((a: any) => {
           if (a == null) return false;
-          // direct id / optionId
-          if (a === cid || a === c.id) return true;
-          // tolerant string match on value/text
-          const s = norm(a);
-          return (s && (s === val || s === txt));
+
+          // Object with id/optionId or explicit numeric index
+          if (typeof a === 'object') {
+            if (a.optionId != null && String(a.optionId) === String(cid)) return true;
+            if (a.id != null && String(a.id) === String(cid)) return true;
+            const idxFields = [a.index, a.idx, a.ordinal, a.optionIndex, a.optionIdx];
+            for (const f of idxFields) {
+              if (Number.isFinite(f)) {
+                const mapped = idFromIndex(Number(f));
+                if (mapped != null && String(mapped) === String(cid)) return true;
+              }
+            }
+            return false; // strict: do NOT fall back to value/text string matching
+          }
+
+          // Number or numeric string → index or direct id
+          if (typeof a === 'number') {
+            const mapped = idFromIndex(a);
+            if (mapped != null && String(mapped) === String(cid)) return true;
+            // also allow direct id equality if author used raw numeric ids in answer
+            if (String(a) === String(cid)) return true;
+            return false;
+          }
+
+          // String → numeric only (no fuzzy text/value matching)
+          const s = String(a).trim();
+          if (s === '') return false;
+          const num = Number(s);
+          if (Number.isFinite(num)) {
+            const mapped = idFromIndex(num);
+            if (mapped != null && String(mapped) === String(cid)) return true;
+            if (String(num) === String(cid)) return true;
+          } else {
+            // also allow exact id string equality (when answer stores the exact optionId string)
+            if (s === String(cid)) return true;
+          }
+          return false;
         });
 
         if (matched) ids.add(cid);
       }
     }
 
-    // 2) Fallback to canonical `correct` flags
+    // 2) Fallback to canonical `correct` flags ONLY if answer metadata didn't define any
     if (ids.size === 0) {
       for (let i = 0; i < canonical.length; i++) {
-        const c = canonical[i] as any;
-        if (c?.correct) ids.add(c.optionId ?? c.id ?? i);
+        const c: any = canonical[i];
+        if (c?.correct === true) {
+          ids.add(c?.optionId ?? c?.id ?? i);
+        }
       }
     }
 
