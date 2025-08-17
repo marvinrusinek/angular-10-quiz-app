@@ -40,6 +40,7 @@ export class SelectionMessageService {
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
   public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
+  private observedCorrectIds = new Map<number, Set<number>>();
 
   constructor(
     private quizService: QuizService, 
@@ -195,29 +196,27 @@ export class SelectionMessageService {
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
-    index: number  // 0-based
+    index: number;  // 0-based
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];
   }): string {
     const { index, totalQuestions, questionType, options } = params;
   
-    const isLast   = totalQuestions > 0 && index === totalQuestions - 1;
-    const correct  = (options ?? []).filter(o => !!o?.correct);
-    const selected = correct.filter(o => !!o?.selected).length;
-    const isMulti  = questionType === QuestionType.MultipleAnswer;
+    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
+    const isMulti = questionType === QuestionType.MultipleAnswer;
   
     if (isMulti) {
-      const remaining = Math.max(0, correct.length - selected);
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining);
-      }
+      const target    = this.resolveTargetTotal(index, options);
+      const picked    = this.observedCorrectIds.get(index)?.size ?? 0; // id-deduped, from registerClick
+      const remaining = Math.max(0, target - picked);
+  
+      if (remaining > 0) return buildRemainingMsg(remaining);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // Single-answer: after any click, show Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }
+  }  
   
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
@@ -1095,7 +1094,55 @@ export class SelectionMessageService {
     }
     return 'Please click the next button to continue.';
   }
+
+  private resolveTargetTotal(index: number, optionsNow: Option[]): number {
+    const hinted = this.getExpectedCorrectCount(index);
+    if (typeof hinted === 'number' && hinted > 0) return hinted;
   
+    // fallback when no hint provided (OK for well-flagged items)
+    return (optionsNow ?? []).filter(o => o?.correct === true).length;
+  }
+
+  private knownCorrectIdSet(index: number, optionsNow: Option[]): Set<number> {
+    const set = new Set<number>();
+    // canonical
+    const svc: any = this.quizService as any;
+    const q = Array.isArray(svc?.questions) ? svc.questions[index] : svc?.currentQuestion;
+    (q?.options ?? []).forEach((o: any) => { if (o?.correct === true && Number.isFinite(o?.optionId)) set.add(o.optionId); });
+    // overlay from optionsNow
+    (optionsNow ?? []).forEach((o: any) => {
+      const looksCorrect = o?.correct === true || o?.answer === true || o?.value === true ||
+        (typeof o?.feedback === 'string' && /correct/i.test(o.feedback));
+      if (looksCorrect && Number.isFinite(o?.optionId)) set.add(o.optionId);
+    });
+    return set;
+  }
+  
+  private reconcileObservedWithCurrentSelection(index: number, optionsNow: Option[]): void {
+    const observed = this.observedCorrectIds.get(index);
+    if (!observed) return;
+    const known = this.knownCorrectIdSet(index, optionsNow);
+    const selectedCorrect = new Set<number>();
+    (optionsNow ?? []).forEach((o: any) => {
+      const id = Number(o?.optionId);
+      if (o?.selected === true && Number.isFinite(id) && known.has(id)) selectedCorrect.add(id);
+    });
+    // If we ever drifted high (due to deselect/back nav), snap down.
+    if (observed.size > selectedCorrect.size) this.observedCorrectIds.set(index, selectedCorrect);
+  }
+
+  public registerClick(index: number, optionId: number, wasCorrect: boolean): void {
+    if (!wasCorrect) return;  // only count correct clicks
+    const id = Number(optionId);
+    if (!Number.isFinite(id)) return;
+  
+    let set = this.observedCorrectIds.get(index);
+    if (!set) {
+      set = new Set<number>();
+      this.observedCorrectIds.set(index, set);
+    }
+    set.add(id);
+  }
 
   // Optional helper to clear when changing question
   public clearStickyFor(index: number): void {
