@@ -55,7 +55,6 @@ export interface LoadedQuestionData {
 
 interface Override { idx: number; html: string; }
 
-
 @Component({
   selector: 'codelab-quiz-component',
   templateUrl: './quiz.component.html',
