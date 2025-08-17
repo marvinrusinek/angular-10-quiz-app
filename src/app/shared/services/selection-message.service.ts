@@ -254,6 +254,159 @@ export class SelectionMessageService {
   }
   
   // Method to update the message  
+  /* public updateSelectionMessage( 
+    message: string,
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
+  ): void {
+    const current = this.selectionMessageSubject.getValue();
+    const next = (message ?? '').trim();
+    if (!next) return;
+  
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : (this.quizService.currentQuestionIndex ?? 0);
+  
+    // ─────────────────────────────────────────────────────────────
+    // Anti-bounce clamp: if we're already showing "Select N more..."
+    // and a late update tries to INCREASE N (e.g., 1 -> 2), ignore it.
+    // This avoids the flash you saw on Q2's 3rd click.
+    // ─────────────────────────────────────────────────────────────
+    {
+      const parseRemaining = (msg: string): number | null => {
+        const m = /select\s+(\d+)\s+more/i.exec(msg);
+        return m ? Number(m[1]) : null;
+      };
+      const curRem = parseRemaining(current);
+      const nextRem = parseRemaining(next);
+      if (typeof curRem === 'number' && typeof nextRem === 'number' && nextRem > curRem) {
+        return; // drop regressive update that would increase the visible remaining
+      }
+    }
+    // ─────────────────────────────────────────────────────────────
+  
+    const qTypeDeclared: QuestionType | undefined =
+      ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+  
+    // Prefer updated options if provided; else snapshot for our gate
+    const optsCtx: Option[] | undefined =
+      (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
+  
+    // Resolve canonical once
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+  
+    // Normalize ids so subsequent remaining/guards compare apples-to-apples
+    this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Authoritative remaining from canonical + union of selected ids
+    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Decide multi from data or declared type (canonical is truth)
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    const totalCorrect = canonical.filter(o => !!o?.correct).length;
+  
+    // Honor override when deciding multi (unchanged from your last version)
+    const expectedOverrideUM = this.getExpectedCorrectCount(i0);
+    const isMulti =
+      (totalCorrect > 1) ||
+      (qTypeDeclared === QuestionType.MultipleAnswer) ||
+      //((expectedOverrideUM ?? 0) > 1);
+      ((this.getExpectedCorrectCount(i0) ?? 0) > 1);
+  
+    // NEW: expected-correct override merged with canonical remaining
+    const snap = optsCtx ?? this.getLatestOptionsSnapshot();
+    const expectedOverride = this.getExpectedCorrectCount(i0);
+  
+    // Count only CORRECT selections using canonical overlay
+    const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
+    const totalCorrectCanonical = overlaidForCorrect.filter(o => !!o?.correct).length;
+    const selectedCorrectCountOverlay  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
+  
+    // Expected total for this Q: prefer override, else canonical correct count
+    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
+  
+    // === BEGIN: override-aware selected-correct calculation (as requested) ===
+    // If an override exists, count selected-correct STRICTLY from optsCtx (current payload only).
+    // Otherwise, fall back to the overlay count.
+    const selectedCorrectFromCtx = Array.isArray(optsCtx)
+      ? optsCtx.reduce((n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0)
+      : selectedCorrectCountOverlay;
+  
+    // Enforce remaining using CORRECT picks:
+    // - With override: remaining = totalForThisQ - selectedCorrectFromCtx
+    // - Without override: remaining = totalForThisQ - selectedCorrectCountOverlay
+    const expectedRemainingByCorrect =
+      (typeof expectedOverride === 'number' && expectedOverride > 0)
+        ? Math.max(0, totalForThisQ - selectedCorrectFromCtx)
+        : Math.max(0, totalForThisQ - selectedCorrectCountOverlay);
+  
+    // Keep canonical guard too by taking the max with `remaining`
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
+    // === END: override-aware selected-correct calculation ===
+  
+    // Classifiers
+    const low = next.toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish   = low.includes('next button') || low.includes('show results');
+  
+    // Suppression windows: block Next-ish flips
+    const now = performance.now();
+    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
+    if (now < passiveHold && isNextish) return;
+    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
+    if (now < nextFreeze && isNextish) return;
+  
+    // Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || enforcedRemaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, enforcedRemaining);
+      if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
+      }
+      if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
+  
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    if (isMulti) {
+      if (enforcedRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+      const isLast = i0 === (this.quizService.totalQuestions - 1);
+      const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    }
+  
+    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
+    const anySelected = (snap ?? []).some(o => !!o?.selected);
+    const isLast = i0 === (this.quizService.totalQuestions - 1);
+  
+    if (isSelectish) {
+      const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                                      : (i0 === 0 ? START_MSG : CONTINUE_MSG);
+      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+      return;
+    }
+  
+    if (isNextish && anySelected) {
+      if (current !== next) this.selectionMessageSubject.next(next);
+      return;
+    }
+  
+    // Stale writer guard (only for ambiguous cases)
+    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
+    const latestToken = this.latestByIndex.get(i0);
+    if (inFreeze && ctx?.token !== latestToken) return;
+  
+    if (current !== next) this.selectionMessageSubject.next(next);
+  } */
   public updateSelectionMessage( 
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
@@ -323,14 +476,27 @@ export class SelectionMessageService {
     // Count only CORRECT selections using canonical overlay
     const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
     const totalCorrectCanonical = overlaidForCorrect.filter(o => !!o?.correct).length;
-    const selectedCorrectCount  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
+    const selectedCorrectCountOverlay  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
   
     // Expected total for this Q: prefer override, else canonical correct count
     const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
   
-    // Enforce remaining using CORRECT picks, and keep canonical guard too
-    const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCount);
-    const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
+    // If an override exists, count selected-correct STRICTLY from optsCtx (current payload only).
+    const selectedCorrectFromCtx = Array.isArray(optsCtx)
+      ? optsCtx.reduce((n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0)
+      : selectedCorrectCountOverlay;
+  
+    // Enforce remaining using CORRECT picks:
+    // - With override: remaining = totalForThisQ - selectedCorrectFromCtx  (authoritative)
+    // - Without override: remaining = max(canonical-union gate, overlay-based gate)
+    let enforcedRemaining: number;
+    if (typeof expectedOverride === 'number' && expectedOverride > 0) {
+      const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectFromCtx);
+      enforcedRemaining = expectedRemainingByCorrect; // <-- use override path exclusively
+    } else {
+      const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCountOverlay);
+      enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
+    }
   
     // Classifiers
     const low = next.toLowerCase();
@@ -392,6 +558,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
 
