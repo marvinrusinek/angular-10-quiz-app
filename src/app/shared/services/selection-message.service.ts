@@ -682,6 +682,15 @@ export class SelectionMessageService {
         : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
     // === END: STRICT override-aware calculation ===
   
+    // 🔒 NEW (critical): force MULTI after we know totalForThisQ/override
+    //     This prevents dropping into the SINGLE branch on Q4’s first click.
+    const forcedMulti = (typeof expectedOverride === 'number' && expectedOverride > 1);
+    const isMultiFinal =
+      forcedMulti ||                         // override says it's multi
+      (totalForThisQ > 1) ||                 // derived from canonical/answer
+      (qTypeDeclared === QuestionType.MultipleAnswer) ||
+      (totalCorrect > 1);                    // original canonical check
+  
     // Classifiers
     const low = next.toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
@@ -716,7 +725,7 @@ export class SelectionMessageService {
     const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
     const anySelectedNow     = anySelectedFromCtx || anySelectedSnap;
   
-    if (isMulti) {
+    if (isMultiFinal) {   // ⬅️ use the recomputed flag
       // HARD OVERRIDE GATE (authoritative when expected-correct is set)
       if (typeof expectedOverride === 'number' && expectedOverride > 0) {
         if (!anySelectedNow) {
@@ -777,9 +786,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
-  
-  
+   
   
   
   
