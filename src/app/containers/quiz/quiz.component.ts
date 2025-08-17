@@ -63,7 +63,7 @@ interface Override { idx: number; html: string; }
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [UserPreferenceService]
 })
-export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChecked, AfterViewInit {
+export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild(QuizQuestionComponent, { static: false })
   quizQuestionComponent!: QuizQuestionComponent;
   @ViewChild(SharedOptionComponent, { static: false })
