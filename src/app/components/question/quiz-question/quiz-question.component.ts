@@ -3300,8 +3300,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.updateOptionSelection(event, option);
     this.handleOptionSelection(option, event.index, this.currentQuestion);
     this.applyFeedbackIfNeeded(option);
+  
+    // Tell SMS about this click (id-deduped)
+    // Only bump when the option is now selected (avoid counting deselects)
+    const nowSelected = !!option.selected;  // or event.checked if that’s your source of truth
+    if (nowSelected) {
+      const idx   = this.currentQuestionIndex;
+      const optId = Number(option.optionId);
+  
+      // Prefer a truth set by your pipeline; fall back to signals
+      const wasCorrect =
+        (option as any).wasCorrect === true ||        // if you set this upstream
+        (option as any).isCorrect === true  ||
+        option.correct === true             ||
+        (typeof option.feedback === 'string' && /correct/i.test(option.feedback));
+  
+      this.selectionMessageService.registerClick(idx, optId, !!wasCorrect);
+    }
+  
+    // Emit exactly once; service builds the message
     this.handleSelectionMessageUpdate();
-  }
+  }  
 
   private setAnsweredAndDisplayState(): void {
     this.selectedOptionService.setAnswered(true);
