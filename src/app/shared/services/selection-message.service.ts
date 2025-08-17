@@ -569,7 +569,7 @@ export class SelectionMessageService {
     const next = (message ?? '').trim();
     if (!next) return;
   
-    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index)) 
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
@@ -620,6 +620,10 @@ export class SelectionMessageService {
   
     // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
+  
+    // 🔧 Re-stamp ids on the snapshot we're about to use for overlay counting
+    this.ensureStableIds(i0, canonical, snap);
+  
     const expectedOverride = this.getExpectedCorrectCount(i0);
   
     // Count only CORRECT selections using canonical overlay
@@ -634,7 +638,8 @@ export class SelectionMessageService {
     // Build source: optsCtx if provided; else snapshot ONLY
     const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
   
-    // Stamp IDs onto src so ids match canonical (fixes “first option / first click”)
+    // 🔧 Re-stamp IDs ON THE EXACT PAYLOAD we are about to evaluate
+    //     (fixes “first option / first click” race)
     this.ensureStableIds(i0, canonical, src);
   
     // Prefer explicit override-correct ids if you set them; else trust **canonical boolean flags only**
@@ -771,6 +776,8 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
+  
   
   
   
