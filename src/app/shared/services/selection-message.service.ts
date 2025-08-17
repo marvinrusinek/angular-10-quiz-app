@@ -630,20 +630,38 @@ export class SelectionMessageService {
     // Expected total for this Q: prefer override, else canonical correct count
     const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
   
-    // === BEGIN: override-aware calculation: CURRENT payload only, no union ===
-    // Build a trusted correct-id set from canonical (prefer q.answer inside your service)
-    const correctIds = this.getCorrectIdSet(i0);
-  
-    // Choose source: optsCtx if provided; else snapshot ONLY (no SelectedOptionService union)
+    // === BEGIN: STRICT override-aware calculation (CURRENT payload only, no unions, no fuzzy) ===
+    // Build source: optsCtx if provided; else snapshot ONLY
     const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
   
-    // Count selected-correct strictly from `src`, mapping to canonical ids
+    // Stamp IDs onto src so ids match canonical (fixes “first option / first click”)
+    this.ensureStableIds(i0, canonical, src);
+  
+    // Prefer explicit override-correct ids if you set them; else trust **canonical boolean flags only**
+    const overrideIds: Set<string> | undefined =
+      (this as any).getOverrideCorrectIds?.(i0) ?? undefined;
+  
+    const correctIdsStrict = new Set<string>();
+    if (overrideIds && overrideIds.size) {
+      overrideIds.forEach(id => correctIdsStrict.add(String(id)));
+    } else {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const id = String(c?.optionId ?? c?.id ?? i);
+        // STRICT: only boolean/explicit truthy flags; no fuzzy value/text matching
+        if (c?.correct === true || c?.isCorrect === true || String(c?.correct).toLowerCase() === 'true') {
+          correctIdsStrict.add(id);
+        }
+      }
+    }
+  
+    // Count selected-correct strictly from CURRENT src against strict correctIds
     let selectedCorrectFromSrc = 0;
     for (let i = 0; i < (src?.length ?? 0); i++) {
       const o: any = src[i];
       if (!o?.selected) continue;
-      const cid = (o?.optionId ?? o?.id ?? i);
-      if (correctIds.has(cid)) selectedCorrectFromSrc++;
+      const cid = String(o?.optionId ?? o?.id ?? i);
+      if (correctIdsStrict.has(cid)) selectedCorrectFromSrc++;
     }
   
     // Compute the override-based remaining from CURRENT payload
@@ -656,7 +674,7 @@ export class SelectionMessageService {
       (typeof expectedOverride === 'number' && expectedOverride > 0)
         ? overrideRemainingByCurrent
         : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
-    // === END: override-aware calculation ===
+    // === END: STRICT override-aware calculation ===
   
     // Classifiers
     const low = next.toLowerCase();
@@ -753,6 +771,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
@@ -1253,40 +1272,55 @@ export class SelectionMessageService {
 
   // Ensure every canonical option has a stable optionId.
   // Also stamp matching ids onto any UI list passed in.
-  private ensureStableIds(index: number, canonical: Option[] | null | undefined, ...uiLists: (Option[] | null | undefined)[]): void {
+  // Ensure every canonical option has a stable optionId.
+  // Also stamp matching ids onto any UI list(s) passed in.
+  // More tolerant keying (value|text|label|title|optionText|displayText) + index fallback.
+  private ensureStableIds(
+    index: number,
+    canonical: Option[] | null | undefined,
+    ...uiLists: (Option[] | null | undefined)[]
+  ): void {
     const canon = Array.isArray(canonical) ? canonical : [];
     if (!canon.length) return;
 
+    // Robust keying helpers
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const keyOf = (o: any, i: number): string => {
+      if (!o) return '__nil';
+      // Prefer explicit ids if present
+      const id = o.optionId ?? o.id;
+      if (id != null) return `id:${String(id)}`;
+      // Value/text family (cover all common fields)
+      const v = norm(o.value);
+      const t = norm(o.text ?? o.label ?? o.title ?? o.optionText ?? o.displayText);
+      if (v || t) return `vt:${v}|${t}`;
+      // Last resort: align by index if arrays are corresponding
+      return `ix:${i}`;
+    };
+
     // Build or reuse mapping for this question
     let fwd = this.idMapByIndex.get(index);
-    if (!fwd) {
-      fwd = new Map();
-      // seed from canonical
-      canon.forEach((c, i) => {
-        const key = this.keyOf(c);
-        const cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
-        (c as any).optionId = cid;  // stamp canonical
-        fwd!.set(key, cid);
-      });
-      this.idMapByIndex.set(index, fwd);
-    } else {
-      // Make sure canonical is stamped if we created map earlier
-      canon.forEach((c, i) => {
-        const key = this.keyOf(c);
-        let cid = fwd!.get(key);
-        if (cid == null) {
-          cid = (c as any).optionId ?? (c as any).id ?? `q${index}o${i}`;
-          fwd!.set(key, cid);
-        }
-        (c as any).optionId = cid;
-      });
-    }
-    // Stamp ids onto any UI lists using their keys
+    if (!fwd) fwd = new Map<string, string | number>();
+
+    // Seed/update mapping from canonical
+    canon.forEach((c, i) => {
+      const k = keyOf(c as any, i);
+      let cid = (c as any).optionId ?? (c as any).id;
+      if (cid == null) cid = `q${index}o${i}`;  // deterministic fallback id
+      (c as any).optionId = cid;                // stamp canonical
+      fwd!.set(k, cid);                         // key match
+      fwd!.set(`ix:${i}`, cid);                 // index alignment fallback
+    });
+    this.idMapByIndex.set(index, fwd!);
+
+    // Stamp ids onto any provided UI lists using key → id, then fall back to index
     for (const list of uiLists) {
       if (!Array.isArray(list)) continue;
-      list.forEach((o) => {
-        const key = this.keyOf(o as any);
-        const cid = fwd!.get(key);
+      list.forEach((o, i) => {
+        const k = keyOf(o as any, i);
+        let cid = fwd!.get(k);
+        if (cid == null) cid = fwd!.get(`ix:${i}`);   // index fallback saves "first option" cases
         if (cid != null) (o as any).optionId = cid;
       });
     }
