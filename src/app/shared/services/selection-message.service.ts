@@ -216,21 +216,13 @@ export class SelectionMessageService {
       questionType === QuestionType.MultipleAnswer || target > 1;
   
     if (isEffectivelyMulti) {
-      const picked    = this.observedCorrectIds?.get(index)?.size ?? 0; // id-deduped, from registerClick
+      const picked    = this.observedCorrectIds?.get(index)?.size ?? 0;  // id-deduped, from registerClick
       const remaining = Math.max(0, target - picked);
-  
-      if (this.debugSelectionMessages) {
-        console.log('[QMsg]', { index, target, picked, remaining, questionType, coercedMA: target > 1 });
-      }
   
       if (remaining > 0) return buildRemainingMsg(remaining);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // Single-answer: after any click, show Next/Results
-    if (this.debugSelectionMessages) {
-      console.log('[QMsg-SA]', { index, target, questionType });
-    }
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
   
