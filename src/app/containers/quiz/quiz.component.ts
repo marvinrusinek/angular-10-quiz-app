@@ -501,6 +501,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         this.selectedOptionService.selectedOptionIndices[idx] = [];
 
         // Reset sticky correct ids for the newly-entered question (Q4 logic helper)
+        this.selectionMessageService.lastRemainingByIndex?.delete?.(idx);
         this.selectionMessageService.stickyCorrectIdsByIndex?.delete?.(idx);
         this.selectionMessageService.stickyAnySelectedKeysByIndex?.delete?.(idx);
 

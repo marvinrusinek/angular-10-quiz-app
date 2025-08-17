@@ -31,7 +31,7 @@ export class SelectionMessageService {
   private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
 
   // Per-question remaining tracker and short enforcement window
-  private lastRemainingByIndex = new Map<number, number>();
+  lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>();
 
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
@@ -486,11 +486,7 @@ export class SelectionMessageService {
     // Keep the previous snapshot so unions can see earlier selections
     const priorSnap = this.getLatestOptionsSnapshot();
   
-    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
-    // Primary: authoritative remaining from canonical and union of selected ids
-    let remaining = this.remainingFromCanonical(index, options);
-  
-    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
+    // Resolve canonical once
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
@@ -498,6 +494,13 @@ export class SelectionMessageService {
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
+    // Stabilize IDs across sources so unions/overlays are apples-to-apples
+    this.ensureStableIds(index, canonical, options, priorSnap);
+  
+    // Primary: authoritative remaining from canonical and union of selected ids
+    let remaining = this.remainingFromCanonical(index, options);
+  
+    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const totalCorrectCanon = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
@@ -512,21 +515,24 @@ export class SelectionMessageService {
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
   
-    // Decide multi from canonical first; fall back to declared type
-    const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
+    // Decide multi from canonical first; fall back to declared type; honor override>1
+    const expectedOverride = this.getExpectedCorrectCount(index);
+    const isMulti =
+      (totalCorrect > 1) ||
+      (questionType === QuestionType.MultipleAnswer) ||
+      ((expectedOverride ?? 0) > 1);
+  
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4-ONLY: Gate by SELECTED-CORRECT using answers ∪ flags (no sticky/monotonic).
-    // Keeps other questions unchanged.
+    // Q4-ONLY hard guard (index 3): gate by SELECTED-CORRECT using (answers ∪ flags)
+    // Robust keying so ids/HTML/index changes don’t break matches.
+    // Leaves other questions exactly as-is.
     // ──────────────────────────────────────────────────────────────────────────
     let gateRemaining = remaining;
   
-    const expectedOverride = this.getExpectedCorrectCount(index);
-    const hasExplicitOverride = (typeof expectedOverride === 'number' && expectedOverride > 0);
-  
-    if (index === 3 && hasExplicitOverride) {
-      // Robust keying to match by value/text (fallback to id)
+    if (isMulti && index === 3) {
+      // target: prefer explicit override, else union size
       const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
       const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
       const keyOf     = (o: any, i: number) => {
@@ -535,7 +541,18 @@ export class SelectionMessageService {
         return (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
       };
   
-      // Build CORRECT-KEY set from canonical answers ∪ flags
+      // Map: canonical id -> canonical key, and list of canonical keys
+      const idToKey = new Map<any, string>();
+      const canonKeys: string[] = [];
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const k = keyOf(c, i);
+        canonKeys[i] = k;
+        const cid = c?.optionId ?? c?.id ?? i;
+        idToKey.set(cid, k);
+      }
+  
+      // 1) Build CORRECT set = answers ∪ flags (by canonical keys)
       const correctKeySet = new Set<string>();
       const ans: any = (q as any)?.answer;
   
@@ -543,7 +560,8 @@ export class SelectionMessageService {
         const c: any = canonical[i];
         const v = norm(c?.value);
         const t = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-        const flagged = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
+        const flagged =
+          !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
   
         let matchedByAnswer = false;
         if (Array.isArray(ans) && ans.length) {
@@ -559,29 +577,72 @@ export class SelectionMessageService {
           });
         }
   
-        if (matchedByAnswer || flagged) correctKeySet.add(keyOf(c, i));
+        if (matchedByAnswer || flagged) correctKeySet.add(canonKeys[i]);
       }
   
-      // Compute SELECTED-KEY set from the *current* click payload only
+      const target =
+        (typeof expectedOverride === 'number' && expectedOverride > 0)
+          ? expectedOverride
+          : (correctKeySet.size || totalCorrect);
+  
+      // 2) Build SELECTED set = current payload + prior snapshot + canonical overlay + SelectedOptionService
       const selectedKeySet = new Set<string>();
+  
+      // current payload
       for (let i = 0; i < (options?.length ?? 0); i++) {
         const o: any = options[i];
         if (!o?.selected) continue;
-        selectedKeySet.add(keyOf(o, i));
+        const id = o?.optionId ?? o?.id ?? i;
+        const k  = idToKey.get(id) ?? keyOf(o, i);
+        selectedKeySet.add(k);
       }
   
-      // Intersection => selected-correct count
+      // prior snapshot
+      for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
+        const o: any = priorSnap[i];
+        if (!o?.selected) continue;
+        const id = o?.optionId ?? o?.id ?? i;
+        const k  = idToKey.get(id) ?? keyOf(o, i);
+        selectedKeySet.add(k);
+      }
+  
+      // canonical overlay (ensures canonical-aligned selection)
+      const overlaid = this.getCanonicalOverlay(index, options);
+      for (let i = 0; i < overlaid.length; i++) {
+        const o: any = overlaid[i];
+        if (!o?.selected) continue;
+        const id = o?.optionId ?? o?.id ?? i;
+        const k  = idToKey.get(id) ?? keyOf(o, i);
+        selectedKeySet.add(k);
+      }
+  
+      // SelectedOptionService (ids or objects)
+      try {
+        const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+        if (rawSel instanceof Set) {
+          rawSel.forEach((id: any) => { const k = idToKey.get(id); if (k) selectedKeySet.add(k); });
+        } else if (Array.isArray(rawSel)) {
+          rawSel.forEach((so: any, i2: number) => {
+            const id = so?.optionId ?? so?.id ?? i2;
+            const k  = idToKey.get(id) ?? keyOf(so, i2);
+            selectedKeySet.add(k);
+          });
+        }
+      } catch {}
+  
+      // 3) Intersect → selectedCorrect
       let selectedCorrectCount = 0;
-      if (correctKeySet.size > 0) {
-        correctKeySet.forEach(k => { if (selectedKeySet.has(k)) selectedCorrectCount++; });
-      } else {
-        // Fallback if authoring exposes no corrects in canonical:
-        selectedCorrectCount = (options ?? []).reduce((n, o: any) =>
-          n + (((!!o?.correct || !!o?.isCorrect) && !!o?.selected) ? 1 : 0), 0);
-      }
+      correctKeySet.forEach(k => { if (selectedKeySet.has(k)) selectedCorrectCount++; });
   
-      const target = expectedOverride; // explicit expected count for Q4
-      gateRemaining = Math.max(0, target - selectedCorrectCount);
+      // 4) Remaining is target - selectedCorrect (no credit for wrong picks)
+      let q4Remaining = Math.max(0, target - selectedCorrectCount);
+  
+      // Monotonic clamp (avoid bumps during toggles/passives)
+      const prev = this.lastRemainingByIndex.get(index);
+      if (typeof prev === 'number' && prev >= 0) q4Remaining = Math.min(prev, q4Remaining);
+      this.lastRemainingByIndex.set(index, q4Remaining);
+  
+      gateRemaining = q4Remaining;
     }
     // ──────────────────────────────────────────────────────────────────────────
   
@@ -629,8 +690,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
