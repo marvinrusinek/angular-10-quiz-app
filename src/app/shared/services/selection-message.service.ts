@@ -1348,9 +1348,27 @@ export class SelectionMessageService {
   }
   
   public getExpectedCorrectCount(index: number): number | undefined {
-    const n = this.expectedCorrectByIndex.get(index);
-    return (typeof n === 'number' && n > 0) ? n : undefined;
-  }
+    // 1) exact index match (what you have today)
+    const fromIndex = this.expectedCorrectByIndex.get(index);
+    if (typeof fromIndex === 'number' && fromIndex > 0) return fromIndex;
+  
+    // 2) resolve the question object and try an id-based override
+    try {
+      const svc: any = this.quizService as any;
+      const arr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+      const q: any =
+        (index >= 0 && index < arr.length ? arr[index] : undefined) ??
+        (svc.currentQuestion as QuizQuestion | undefined);
+  
+      const qid = q?.id ?? q?._id ?? q?.questionId ?? q?.uuid;
+      if (qid !== undefined && qid !== null) {
+        const fromId = this.expectedCorrectByQid.get(qid);
+        if (typeof fromId === 'number' && fromId > 0) return fromId;
+      }
+    } catch { /* noop */ }
+  
+    return undefined;
+  }  
 
   // Resolve the set of correct option IDs for a question.
   // Prefer metadata (q.answer) and fall back to canonical `correct` flags.
