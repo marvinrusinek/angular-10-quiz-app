@@ -3297,30 +3297,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     event: any,
     option: SelectedOption
   ): void {
+    // Capture pre-toggle selection state BEFORE we mutate
+    const prevSelected = !!option.selected;
+  
     this.updateOptionSelection(event, option);
     this.handleOptionSelection(option, event.index, this.currentQuestion);
     this.applyFeedbackIfNeeded(option);
   
     // Tell SMS about this click (id-deduped)
-    // Only bump when the option is now selected (avoid counting deselects)
-    const nowSelected = !!option.selected;  // or event.checked if that’s your source of truth
-    if (nowSelected) {
+    // Only bump when we have a true transition: unselected → selected AND it’s correct
+    const nowSelected = !!option.selected;  // after updateOptionSelection()
+    const becameSelected = !prevSelected && nowSelected;
+  
+    if (becameSelected) {
       const idx   = this.currentQuestionIndex;
       const optId = Number(option.optionId);
   
-      // Prefer a truth set by your pipeline; fall back to signals
+      // Use fields that actually exist on your model
       const wasCorrect =
-        (option as any).wasCorrect === true ||        // if you set this upstream
-        (option as any).isCorrect === true  ||
-        option.correct === true             ||
+        option.correct === true ||
         (typeof option.feedback === 'string' && /correct/i.test(option.feedback));
   
-      this.selectionMessageService.registerClick(idx, optId, !!wasCorrect);
+      if (Number.isFinite(optId)) {
+        this.selectionMessageService.registerClick(idx, optId, wasCorrect);
+      }
+    }
+  
+    // Reconcile deselects when selected → unselected
+    const becameDeselected = prevSelected && !nowSelected;
+    if (becameDeselected) {
+      const idx = this.currentQuestionIndex;
+      const optsNow = (this.optionsToDisplay?.length ? this.optionsToDisplay : this.currentQuestion?.options) as Option[] || [];
+      this.selectionMessageService['reconcileObservedWithCurrentSelection']?.(idx, optsNow);
     }
   
     // Emit exactly once; service builds the message
     this.handleSelectionMessageUpdate();
-  }  
+  }
 
   private setAnsweredAndDisplayState(): void {
     this.selectedOptionService.setAnswered(true);
