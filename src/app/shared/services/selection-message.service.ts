@@ -44,6 +44,8 @@ export class SelectionMessageService {
   private lastSelectTsByIndex = new Map<number, number>();
   private lastSelectRemainingByIndex = new Map<number, number>();
 
+  private observedCorrectIds = new Map<number, Set<string>>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -687,14 +689,34 @@ export class SelectionMessageService {
   
     // ─────────────────────────────────────────────────────────────
     // Mirror rule for multis: only show "Select ..." AFTER first pick.
-    // If nothing is selected yet, show START/CONTINUE instead of nagging.
-    // Also compute "any selected" from (optsCtx OR snap) to avoid stale empty snapshots.
+    // If override exists, this gate is authoritative (no "Next" until picked == target).
+    // If nothing selected yet, show START/CONTINUE instead of nagging.
     // ─────────────────────────────────────────────────────────────
     const anySelectedFromCtx = Array.isArray(optsCtx) ? optsCtx.some(o => !!o?.selected) : false;
     const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
     const anySelectedNow     = anySelectedFromCtx || anySelectedSnap;
   
     if (isMulti) {
+      // HARD OVERRIDE GATE (authoritative when expected-correct is set)
+      if (typeof expectedOverride === 'number' && expectedOverride > 0) {
+        if (!anySelectedNow) {
+          // No picks yet → keep it friendly
+          const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
+          if (current !== fallback) this.selectionMessageSubject.next(fallback);
+          return;
+        }
+        if (overrideRemainingByCurrent > 0) {
+          const forced = buildRemainingMsg(overrideRemainingByCurrent);
+          if (current !== forced) this.selectionMessageSubject.next(forced);
+          return;
+        }
+        const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+        const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+        return;
+      }
+  
+      // No override: original gating using enforcedRemaining
       if ((enforcedRemaining > 0 && anySelectedNow) || inEnforce) {
         const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
@@ -716,15 +738,6 @@ export class SelectionMessageService {
     const anySelected = anySelectedNow; // use ctx OR snap (prevents Next→Continue downgrade)
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
-    // Additional downgrade guard: if we're already showing Next/Results,
-    // ignore late START/CONTINUE while a selection is present.
-    const currentLow = current.toLowerCase();
-    const currentIsNextish = currentLow.includes('next button') || currentLow.includes('show results');
-    const isStartOrContinue = (next === START_MSG || next === CONTINUE_MSG);
-    if (isStartOrContinue && (anySelected || currentIsNextish)) {
-      return; // block spurious downgrade due to transient empty snapshots
-    }
-  
     if (isSelectish) {
       const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
                                       : (i0 === 0 ? START_MSG : CONTINUE_MSG);
@@ -744,6 +757,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
@@ -1459,5 +1473,22 @@ export class SelectionMessageService {
   private parseRemainingFromMessage(msg: string): number | null {
     const m = /select\s+(\d+)\s+more/i.exec(msg);
     return m ? Number(m[1]) : null;
-  }  
+  }
+
+  public registerClick(index: number, optionId: number | string, wasCorrect: boolean, selectedNow = true): void {
+    const key = String(optionId);
+    let set = this.observedCorrectIds.get(index);
+    if (!set) { set = new Set<string>(); this.observedCorrectIds.set(index, set); }
+    if (wasCorrect && selectedNow) set.add(key);
+    if (!selectedNow) set.delete(key);
+  }
+  
+  private getPickedCorrectCount(index: number): number {
+    return this.observedCorrectIds.get(index)?.size ?? 0;
+  }
+  
+  // Clear when navigating to a different question
+  public clearObservedFor(index: number): void {
+    this.observedCorrectIds.delete(index);
+  }
 }
