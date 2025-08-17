@@ -203,20 +203,37 @@ export class SelectionMessageService {
   }): string {
     const { index, totalQuestions, questionType, options } = params;
   
-    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
-    const isMulti = questionType === QuestionType.MultipleAnswer;
+    // Always reconcile first to avoid drift on deselect/back
+    this.reconcileObservedWithCurrentSelection?.(index, options);
   
-    if (isMulti) {
-      const target    = this.resolveTargetTotal(index, options);
-      const picked    = this.observedCorrectIds.get(index)?.size ?? 0; // id-deduped, from registerClick
+    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
+  
+    // Resolve ground-truth target FIRST
+    const target  = this.resolveTargetTotal(index, options) ?? 0;
+  
+    // Coerce to multi-answer if target says so (saves you when questionType is wrong/undefined)
+    const isEffectivelyMulti =
+      questionType === QuestionType.MultipleAnswer || target > 1;
+  
+    if (isEffectivelyMulti) {
+      const picked    = this.observedCorrectIds?.get(index)?.size ?? 0; // id-deduped, from registerClick
       const remaining = Math.max(0, target - picked);
+  
+      if (this.debugSelectionMessages) {
+        console.log('[QMsg]', { index, target, picked, remaining, questionType, coercedMA: target > 1 });
+      }
   
       if (remaining > 0) return buildRemainingMsg(remaining);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
+    // Single-answer: after any click, show Next/Results
+    if (this.debugSelectionMessages) {
+      console.log('[QMsg-SA]', { index, target, questionType });
+    }
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }  
+  }
+  
   
   async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
