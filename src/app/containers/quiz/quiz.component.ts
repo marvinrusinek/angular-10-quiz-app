@@ -526,8 +526,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
           Number.isFinite(qq?.expectedCorrect) && qq.expectedCorrect > 0
             ? Math.floor(qq.expectedCorrect)
             : (Array.isArray(qq?.answer)
-                // De-dupe answers in case metadata has duplicates / different forms
-                ? new Set(qq.answer.map((a: any) => String(a ?? '').trim().toLowerCase())).size
+                ? new Set(
+                    qq.answer.map((a: any) => String(a ?? '').trim().toLowerCase())
+                  ).size
                 : undefined);
       
         // Fallback to flags on options
@@ -535,13 +536,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
           ? qq.options.reduce((n: number, o: any) => n + (o?.correct ? 1 : 0), 0)
           : 0;
       
-        const expected = fromMeta ?? fromFlags;
+        // Compute total correct count from options array
+        const totalCorrectFromOptions = Array.isArray(qq?.options)
+          ? qq.options.filter((o: any) => o?.correct === true).length
+          : 0;
       
-        // Only set when we actually expect multiple correct answers.
-        if (Number.isFinite(expected) && expected > 1) {
+        // Final expected = metadata → answer array length → explicit flag count
+        const expected = fromMeta ?? fromFlags ?? totalCorrectFromOptions;
+      
+        if (Number.isFinite(expected) && expected > 0) {
           this.selectionMessageService.setExpectedCorrectCount(idx, expected as number);
         }
-      });      
+      });            
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
     }
