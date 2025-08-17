@@ -517,67 +517,129 @@ export class SelectionMessageService {
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4-CONFINED delta-correct gating (explicit override only)
-    // Count ONLY newly clicked corrects in THIS event (delta vs prior snapshot),
-    // stick them per question, and gate by override - stickyCorrectCount.
-    // Uses canonical flags ONLY (no answer mapping here).
+    // Expected-correct override merged with canonical remaining — Q4-CONFINED
+    // Only for Q4 (idx 3) AND when an explicit override is set.
+    // Build CORRECT-KEY set from answer ∪ flags, and SELECTED-KEY set from:
+    //   current payload  + prior snapshot + canonical overlay + SelectedOptionService
+    // Gate by sticky selected-CORRECT only: remaining = target − |stickyCorrectKeys|.
     // ──────────────────────────────────────────────────────────────────────────
     const expectedOverrideRaw = this.getExpectedCorrectCount(index);
-    let enforcedRemaining = remaining;
-  
     // Force multi when Q4 has an explicit override > 1 (authoring bug workaround)
     if (index === 3 && typeof expectedOverrideRaw === 'number' && expectedOverrideRaw > 1) {
       isMulti = true;
     }
   
+    let enforcedRemaining = remaining;
+  
     if (index === 3 && typeof expectedOverrideRaw === 'number' && expectedOverrideRaw > 0) {
-      // Normalize/stamp IDs across canonical, current click payload, and prior snapshot
+      // Stabilize IDs across sources so unions/overlays are apples-to-apples
       this.ensureStableIds(index, canonical, options, priorSnap);
   
-      // Build set of canonical-correct ids from flags
-      const correctIds = new Set<number | string>();
+      // helpers for robust keying
+      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+      const keyOf     = (o: any, i: number) => {
+        const v = norm(o?.value);
+        const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+        return (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
+      };
+  
+      // Map ids -> keys for canonical (helps resolve id-bearing payloads)
+      const idToKey = new Map<any, string>();
+      const canonKeys: string[] = [];
       for (let i = 0; i < canonical.length; i++) {
         const c: any = canonical[i];
-        const isCorr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
-        if (isCorr) correctIds.add(c?.optionId ?? c?.id ?? i);
+        const k = keyOf(c, i);
+        canonKeys[i] = k;
+        const cid = (c?.optionId ?? c?.id ?? i);
+        idToKey.set(cid, k);
       }
   
-      // Selected-correct NOW (from current options)
-      const selectedCorrectNow = new Set<number | string>();
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        const id = o?.optionId ?? o?.id ?? i;
-        if (o?.selected && correctIds.has(id)) selectedCorrectNow.add(id);
+      // 1) CORRECT key set = UNION(answer-derived, flag-derived)
+      const correctKeySet = new Set<string>();
+  
+      const ans: any = (q as any)?.answer;
+      if (Array.isArray(ans) && ans.length) {
+        for (let i = 0; i < canonical.length; i++) {
+          const c: any = canonical[i];
+          const cid = c?.optionId ?? c?.id ?? i;
+          const v   = norm(c?.value);
+          const t   = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+          const matched = ans.some((a: any) => {
+            if (a == null) return false;
+            if (typeof a === 'object') {
+              const aid = (a?.optionId ?? a?.id);
+              if (aid != null && aid === cid) return true;
+              const av = norm(a?.value);
+              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+              return (!!av && av === v) || (!!at && at === t);
+            }
+            if (a === cid) return true;
+            const s = norm(a);
+            return (!!s && (s === v || s === t));
+          });
+          if (matched) correctKeySet.add(canonKeys[i]);
+        }
+      }
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const flag = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
+        if (flag) correctKeySet.add(canonKeys[i]);
       }
   
-      // Selected-correct PREV (from prior snapshot)
-      const selectedCorrectPrev = new Set<number | string>();
-      for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
-        const o: any = priorSnap[i];
-        const id = o?.optionId ?? o?.id ?? i;
-        if (o?.selected && correctIds.has(id)) selectedCorrectPrev.add(id);
+      // 2) SELECTED key set (current payload + prior snapshot + overlay + SelectedOptionService)
+      const selectedKeySet = new Set<string>();
+      const addSel = (list: any[] | undefined | null) => {
+        if (!Array.isArray(list)) return;
+        for (let i = 0; i < list.length; i++) {
+          const o: any = list[i];
+          if (!o?.selected) continue;
+          const k = (o?.optionId != null || o?.id != null)
+            ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
+            : keyOf(o, i);
+          selectedKeySet.add(k);
+        }
+      };
+      addSel(options);
+      addSel(priorSnap);
+  
+      const overlaid = this.getCanonicalOverlay(index, options);
+      addSel(overlaid);
+  
+      try {
+        const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+        if (rawSel instanceof Set) {
+          rawSel.forEach((id: any) => { const k = idToKey.get(id); if (k) selectedKeySet.add(k); });
+        } else if (Array.isArray(rawSel)) {
+          rawSel.forEach((so: any, i2: number) => {
+            const k = (so?.optionId != null || so?.id != null)
+              ? (idToKey.get(so?.optionId ?? so?.id) ?? keyOf(so, i2))
+              : keyOf(so, i2);
+            selectedKeySet.add(k);
+          });
+        }
+      } catch {}
+  
+      // 3) STICKY selected-CORRECT keys (persist across clicks; never remove in Q4)
+      let stickyCorr = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
+      if (!stickyCorr) {
+        stickyCorr = new Set<string>();
+        // Reuse the existing map; store Set<string> safely
+        this.stickyCorrectIdsByIndex.set(index, stickyCorr as unknown as Set<number | string>);
       }
+      correctKeySet.forEach(k => { if (selectedKeySet.has(k)) (stickyCorr as Set<string>).add(k); });
   
-      // Δ newly selected corrects in THIS click
-      const deltaNew = new Set<number | string>();
-      selectedCorrectNow.forEach(id => { if (!selectedCorrectPrev.has(id)) deltaNew.add(id); });
+      // 4) Target prefers explicit override, else falls back to authoring
+      const target = Math.max(
+        Number.isFinite(expectedOverrideRaw as number) ? (expectedOverrideRaw as number) : 0,
+        correctKeySet.size || 0,
+        totalCorrect || 0
+      );
   
-      // Sticky per-question correct ids (never remove on deselect)
-      let sticky = this.stickyCorrectIdsByIndex.get(index);
-      if (!sticky) {
-        sticky = new Set<number | string>();
-        this.stickyCorrectIdsByIndex.set(index, sticky);
-      }
-      // Only add NEWLY selected corrects from this interaction
-      deltaNew.forEach(id => sticky!.add(id));
+      // Remaining is pure target − sticky selected-correct (so wrong picks don't increase it)
+      let q4Remaining = Math.max(0, target - (stickyCorr as Set<string>).size);
   
-      // Target for Q4 = explicit override (fallback to number of canonical-corrects if override mis-set)
-      const target = expectedOverrideRaw || correctIds.size || totalCorrect;
-  
-      // Remaining is pure target - stickyCorrects
-      let q4Remaining = Math.max(0, target - sticky.size);
-  
-      // Monotonic clamp (avoid bumps when UI toggles or passives intervene)
+      // Monotonic clamp (never let remaining increase within this question)
       const prev = this.lastRemainingByIndex.get(index);
       if (typeof prev === 'number' && prev >= 0) q4Remaining = Math.min(prev, q4Remaining);
       this.lastRemainingByIndex.set(index, q4Remaining);
@@ -633,9 +695,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
-  
+    
   
   
   
