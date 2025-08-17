@@ -632,32 +632,33 @@ export class SelectionMessageService {
     // Expected total for this Q: prefer override, else canonical correct count
     const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
   
-    // === BEGIN: override-aware calculation using optsCtx ONLY, plus a clamp ===
-    // If an override exists, count selected-correct STRICTLY from optsCtx (current payload only).
-    const selectedCorrectFromCtx = Array.isArray(optsCtx)
-      ? optsCtx.reduce((n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0)
-      : selectedCorrectCountOverlay;
+    // === BEGIN: override-aware calculation: CURRENT payload only, no union ===
+    // Build a trusted correct-id set from canonical (prefer q.answer inside your service)
+    const correctIds = this.getCorrectIdSet(i0);
   
-    let enforcedRemaining: number;
+    // Choose source: optsCtx if provided; else snapshot ONLY (no SelectedOptionService union)
+    const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
   
-    if (typeof expectedOverride === 'number' && expectedOverride > 0) {
-      // Raw remaining from CURRENT payload vs override target
-      let expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectFromCtx);
-  
-      // Clamp: do not allow remaining to drop to 0 unless CURRENT selection actually meets the target.
-      // If computed 0 but selectedCorrectFromCtx < target (e.g., due to partial payload), keep previous remaining (>0) if present.
-      const prevRemClamp = this.lastRemainingByIndex.get(i0);
-      if (expectedRemainingByCorrect === 0 && selectedCorrectFromCtx < totalForThisQ && typeof prevRemClamp === 'number' && prevRemClamp > 0) {
-        expectedRemainingByCorrect = prevRemClamp; // hold at least the previous >0 remaining
-      }
-  
-      enforcedRemaining = expectedRemainingByCorrect;  // <-- authoritative under override (do NOT max with canonical)
-    } else {
-      // No override: original behavior (overlay + canonical guard)
-      const expectedRemainingByCorrect = Math.max(0, totalForThisQ - selectedCorrectCountOverlay);
-      enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
+    // Count selected-correct strictly from `src`, mapping to canonical ids
+    let selectedCorrectFromSrc = 0;
+    for (let i = 0; i < (src?.length ?? 0); i++) {
+      const o: any = src[i];
+      if (!o?.selected) continue;
+      const cid = (o?.optionId ?? o?.id ?? i);
+      if (correctIds.has(cid)) selectedCorrectFromSrc++;
     }
-    // === END: override-aware calculation using optsCtx ONLY, plus a clamp ===
+  
+    // Compute the override-based remaining from CURRENT payload
+    const overrideRemainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
+  
+    // Decide enforcedRemaining:
+    // - If override exists → use overrideRemainingByCurrent (authoritative, no max with canonical)
+    // - Else → original behavior (max of canonical union and overlay)
+    const enforcedRemaining =
+      (typeof expectedOverride === 'number' && expectedOverride > 0)
+        ? overrideRemainingByCurrent
+        : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
+    // === END: override-aware calculation ===
   
     // Classifiers
     const low = next.toLowerCase();
@@ -719,6 +720,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
