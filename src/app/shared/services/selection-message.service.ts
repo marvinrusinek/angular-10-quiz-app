@@ -688,8 +688,11 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Mirror rule for multis: only show "Select ..." AFTER first pick.
     // If nothing is selected yet, show START/CONTINUE instead of nagging.
+    // Also compute "any selected" from (optsCtx OR snap) to avoid stale empty snapshots.
     // ─────────────────────────────────────────────────────────────
-    const anySelectedNow = (snap ?? []).some(o => !!o?.selected);
+    const anySelectedFromCtx = Array.isArray(optsCtx) ? optsCtx.some(o => !!o?.selected) : false;
+    const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
+    const anySelectedNow     = anySelectedFromCtx || anySelectedSnap;
   
     if (isMulti) {
       if ((enforcedRemaining > 0 && anySelectedNow) || inEnforce) {
@@ -710,8 +713,17 @@ export class SelectionMessageService {
     }
   
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = (snap ?? []).some(o => !!o?.selected);
+    const anySelected = anySelectedNow; // use ctx OR snap (prevents Next→Continue downgrade)
     const isLast = i0 === (this.quizService.totalQuestions - 1);
+  
+    // Additional downgrade guard: if we're already showing Next/Results,
+    // ignore late START/CONTINUE while a selection is present.
+    const currentLow = current.toLowerCase();
+    const currentIsNextish = currentLow.includes('next button') || currentLow.includes('show results');
+    const isStartOrContinue = (next === START_MSG || next === CONTINUE_MSG);
+    if (isStartOrContinue && (anySelected || currentIsNextish)) {
+      return; // block spurious downgrade due to transient empty snapshots
+    }
   
     if (isSelectish) {
       const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
@@ -732,6 +744,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
 
