@@ -609,17 +609,8 @@ export class SelectionMessageService {
   
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrect = canonical.filter(o => !!o?.correct).length;
+    const totalCorrectFlags = canonical.filter(o => !!o?.correct).length;
   
-    // Honor override when deciding multi (unchanged from your last version)
-    const expectedOverrideUM = this.getExpectedCorrectCount(i0);
-    const isMulti =
-      (totalCorrect > 1) ||
-      (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      //((expectedOverrideUM ?? 0) > 1);
-      ((this.getExpectedCorrectCount(i0) ?? 0) > 1);
-  
-    // NEW: expected-correct override merged with canonical remaining
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
   
     // 🔧 Re-stamp ids on the snapshot we're about to use for overlay counting
@@ -632,64 +623,115 @@ export class SelectionMessageService {
     const totalCorrectCanonical = overlaidForCorrect.filter(o => !!o?.correct).length;
     const selectedCorrectCountOverlay  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
   
-    // Expected total for this Q: prefer override, else canonical correct count
-    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
+    // === prefer: override → robust q.answer count → canonical flags ===
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
   
-    // === BEGIN: STRICT override-aware calculation (CURRENT payload only, no unions, no fuzzy) ===
+    const ansArr: any[] = Array.isArray((q as any)?.answer) ? (q as any).answer : [];
+  
+    // Build robust answer-id set by checking each canonical option against q.answer
+    const answerIdSet = new Set<string>();
+    if (ansArr.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = String(c?.optionId ?? c?.id ?? i);
+        const zeroIx = i;
+        const oneIx  = i + 1;
+        const cVal   = norm(c?.value);
+        const cText  = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+        const matched = ansArr.some((a: any) => {
+          if (a == null) return false;
+  
+          if (typeof a === 'object') {
+            const aid = a?.optionId ?? a?.id;
+            if (aid != null && String(aid) === cid) return true;
+  
+            const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+            if (Number.isFinite(idx) && (idx === zeroIx || idx === oneIx)) return true;
+  
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === cVal) || (!!at && at === cText);
+          }
+  
+          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+  
+          const s = String(a);
+          const n = Number(s);
+          if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+  
+          const ns = norm(s);
+          return (!!ns && (ns === cVal || ns === cText));
+        });
+  
+        if (matched) answerIdSet.add(cid);
+      }
+    }
+  
+    const totalFromAnswer = answerIdSet.size;
+  
+    const totalForThisQ =
+      (typeof expectedOverride === 'number' && expectedOverride > 0) ? expectedOverride
+        : (totalFromAnswer > 0 ? totalFromAnswer : totalCorrectCanonical);
+  
+    // === BEGIN: STRICT override-aware calculation (CURRENT payload only, no unions) ===
     // Build source: optsCtx if provided; else snapshot ONLY
     const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
   
     // 🔧 Re-stamp IDs ON THE EXACT PAYLOAD we are about to evaluate
-    //     (fixes “first option / first click” race)
     this.ensureStableIds(i0, canonical, src);
   
-    // Prefer explicit override-correct ids if you set them; else trust **canonical boolean flags only**
+    // Prefer explicit override-correct ids if you set them
     const overrideIds: Set<string> | undefined =
       (this as any).getOverrideCorrectIds?.(i0) ?? undefined;
   
-    const correctIdsStrict = new Set<string>();
-    if (overrideIds && overrideIds.size) {
-      overrideIds.forEach(id => correctIdsStrict.add(String(id)));
-    } else {
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const id = String(c?.optionId ?? c?.id ?? i);
-        // STRICT: only boolean/explicit truthy flags; no fuzzy value/text matching
-        if (c?.correct === true || c?.isCorrect === true || String(c?.correct).toLowerCase() === 'true') {
-          correctIdsStrict.add(id);
-        }
+    // Strict canonical flag ids (true/'true'/1)
+    const flagIdSet = new Set<string>();
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const cid = String(c?.optionId ?? c?.id ?? i);
+      const corr = c?.correct;
+      if (corr === true || c?.isCorrect === true || String(corr).toLowerCase() === 'true' || Number(corr) === 1) {
+        flagIdSet.add(cid);
       }
     }
   
-    // Count selected-correct strictly from CURRENT src against strict correctIds
+    // Union of authoritative correctness sources
+    const correctIdsUnion = new Set<string>();
+    if (overrideIds && overrideIds.size) overrideIds.forEach(id => correctIdsUnion.add(String(id)));
+    answerIdSet.forEach(id => correctIdsUnion.add(id));
+    flagIdSet.forEach(id => correctIdsUnion.add(id));
+  
+    // Count selected-correct strictly from CURRENT src against the union set
     let selectedCorrectFromSrc = 0;
     for (let i = 0; i < (src?.length ?? 0); i++) {
       const o: any = src[i];
       if (!o?.selected) continue;
       const cid = String(o?.optionId ?? o?.id ?? i);
-      if (correctIdsStrict.has(cid)) selectedCorrectFromSrc++;
+      if (correctIdsUnion.has(cid)) selectedCorrectFromSrc++;
     }
   
-    // Compute the override-based remaining from CURRENT payload
-    const overrideRemainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
+    // Compute the remaining from CURRENT payload
+    const remainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
   
     // Decide enforcedRemaining:
-    // - If override exists → use overrideRemainingByCurrent (authoritative, no max with canonical)
+    // - If we have authoritative target (override or answer-derived) → use remainingByCurrent
     // - Else → original behavior (max of canonical union and overlay)
+    const hasAuthoritativeTarget =
+      (typeof expectedOverride === 'number' && expectedOverride > 0) || (totalFromAnswer > 0);
+  
     const enforcedRemaining =
-      (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? overrideRemainingByCurrent
+      hasAuthoritativeTarget
+        ? remainingByCurrent
         : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
     // === END: STRICT override-aware calculation ===
   
-    // 🔒 NEW (critical): force MULTI after we know totalForThisQ/override
-    //     This prevents dropping into the SINGLE branch on Q4’s first click.
-    const forcedMulti = (typeof expectedOverride === 'number' && expectedOverride > 1);
+    // 🔒 Compute multi AFTER totalForThisQ so we never fall into the single branch on Q4
     const isMultiFinal =
-      forcedMulti ||                         // override says it's multi
-      (totalForThisQ > 1) ||                 // derived from canonical/answer
+      (totalForThisQ > 1) ||
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      (totalCorrect > 1);                    // original canonical check
+      (totalCorrectFlags > 1);
   
     // Classifiers
     const low = next.toLowerCase();
@@ -718,43 +760,22 @@ export class SelectionMessageService {
   
     // ─────────────────────────────────────────────────────────────
     // Mirror rule for multis: only show "Select ..." AFTER first pick.
-    // If override exists, this gate is authoritative (no "Next" until picked == target).
+    // If authoritative target exists, that gate rules (no "Next" until picked == target).
     // If nothing selected yet, show START/CONTINUE instead of nagging.
     // ─────────────────────────────────────────────────────────────
     const anySelectedFromCtx = Array.isArray(optsCtx) ? optsCtx.some(o => !!o?.selected) : false;
     const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
     const anySelectedNow     = anySelectedFromCtx || anySelectedSnap;
   
-    if (isMultiFinal) {   // ⬅️ use the recomputed flag
-      // HARD OVERRIDE GATE (authoritative when expected-correct is set)
-      if (typeof expectedOverride === 'number' && expectedOverride > 0) {
-        if (!anySelectedNow) {
-          // No picks yet → keep it friendly
-          const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
-          if (current !== fallback) this.selectionMessageSubject.next(fallback);
-          return;
-        }
-        if (overrideRemainingByCurrent > 0) {
-          const forced = buildRemainingMsg(overrideRemainingByCurrent);
-          if (current !== forced) this.selectionMessageSubject.next(forced);
-          return;
-        }
-        const isLastQ = i0 === (this.quizService.totalQuestions - 1);
-        const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
-        return;
-      }
-  
-      // No override: original gating using enforcedRemaining
-      if ((enforcedRemaining > 0 && anySelectedNow) || inEnforce) {
-        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
-        if (current !== forced) this.selectionMessageSubject.next(forced);
-        return;
-      }
-      if (enforcedRemaining > 0 && !anySelectedNow) {
-        // No picks yet → keep it friendly
+    if (isMultiFinal) {
+      if (!anySelectedNow) {
         const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
         if (current !== fallback) this.selectionMessageSubject.next(fallback);
+        return;
+      }
+      if (enforcedRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
@@ -764,7 +785,7 @@ export class SelectionMessageService {
     }
   
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = anySelectedNow; // use ctx OR snap (prevents Next→Continue downgrade)
+    const anySelected = anySelectedNow;
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
@@ -786,6 +807,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
    
   
