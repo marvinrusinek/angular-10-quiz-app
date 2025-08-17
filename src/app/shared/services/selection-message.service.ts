@@ -39,7 +39,7 @@ export class SelectionMessageService {
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
-  private stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
+  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
 
   constructor(
     private quizService: QuizService, 
@@ -503,8 +503,6 @@ export class SelectionMessageService {
       ? totalCorrectCanon
       : (options ?? []).filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;  // last-resort fallback
   
-    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
-    // In that edge case, recompute `remaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
       const selectedCorrectFallback = (options ?? []).filter(
         o => ( (!!(o as any)?.correct || !!(o as any)?.isCorrect) && !!(o as any)?.selected )
@@ -531,19 +529,13 @@ export class SelectionMessageService {
         (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0 && index === 3);
   
       if (tightenForThisQ) {
-        // 1) Align IDs across sources so unions/overlays are apples-to-apples
-        this.ensureStableIds(index, canonical, options, priorSnap);
-  
-        // ---- Q4 TIGHTEN (robust union of answers + flags, key-based, sticky) ----
+        // ── Robust tighten: union(answer+flags) by normalized KEY, with sticky & fallback ──
         const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-        const norm = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-  
-        const keyOf = (o: any, i: number) => {
+        const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+        const keyOf     = (o: any, i: number) => {
           const v = norm(o?.value);
-          const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.content ?? o?.display ?? o?.displayText);
-          // prefer value|text signature; fall back to id if both missing
-          const sig = (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
-          return sig;
+          const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+          return (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
         };
   
         // Map ids -> keys for canonical (helps match ids coming from services)
@@ -557,7 +549,7 @@ export class SelectionMessageService {
           idToKey.set(cid, k);
         }
   
-        // 2) Build correct key set = UNION(answer-derived, flag-derived)
+        // 1) Build correct key set = UNION(answer-derived, flag-derived)
         const correctKeysFromAnswer = new Set<string>();
         const correctKeysFromFlags  = new Set<string>();
   
@@ -568,11 +560,8 @@ export class SelectionMessageService {
             const cid = c?.optionId ?? c?.id ?? i;
             const v   = norm(c?.value);
             const t   = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-  
-            // Normalize each answer element into a comparable token set
-            const match = ans.some((a: any) => {
+            const matched = ans.some((a: any) => {
               if (a == null) return false;
-              // object answer: check multiple fields
               if (typeof a === 'object') {
                 const aid = (a?.optionId ?? a?.id);
                 if (aid != null && (aid === cid)) return true;
@@ -580,30 +569,25 @@ export class SelectionMessageService {
                 const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
                 return (!!av && av === v) || (!!at && at === t);
               }
-              // primitive answer: id or string compare
               if (a === cid) return true;
               const s = norm(a);
               return (!!s && (s === v || s === t));
             });
-  
-            if (match) correctKeysFromAnswer.add(canonKeys[i]);
+            if (matched) correctKeysFromAnswer.add(canonKeys[i]);
           }
         }
-  
-        // Flags may be `correct`, `isCorrect`, or string "true"
         for (let i = 0; i < canonical.length; i++) {
           const c: any = canonical[i];
           const flag = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
           if (flag) correctKeysFromFlags.add(canonKeys[i]);
         }
   
-        // UNION is authoritative for Q4
         const correctKeySet = new Set<string>([
           ...correctKeysFromAnswer,
           ...correctKeysFromFlags
         ]);
   
-        // 3) UNION of selected keys: current payload + prior snapshot + SelectedOptionService
+        // 2) UNION of selected keys: current payload + prior snapshot + SelectedOptionService
         const selectedKeySet = new Set<string>();
   
         // current payload
@@ -615,8 +599,7 @@ export class SelectionMessageService {
             : keyOf(o, i);
           selectedKeySet.add(k);
         }
-  
-        // prior snapshot (BEFORE overwrite)
+        // prior snapshot
         for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
           const o: any = priorSnap[i];
           if (!o?.selected) continue;
@@ -625,15 +608,11 @@ export class SelectionMessageService {
             : keyOf(o, i);
           selectedKeySet.add(k);
         }
-  
-        // SelectedOptionService (ids or objects)
+        // selectedOptionService
         try {
           const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
           if (rawSel instanceof Set) {
-            rawSel.forEach((id: any) => {
-              const k = idToKey.get(id);
-              if (k) selectedKeySet.add(k);
-            });
+            rawSel.forEach((id: any) => { const k = idToKey.get(id); if (k) selectedKeySet.add(k); });
           } else if (Array.isArray(rawSel)) {
             rawSel.forEach((so: any, i2: number) => {
               const k = (so?.optionId != null || so?.id != null)
@@ -644,46 +623,54 @@ export class SelectionMessageService {
           }
         } catch {}
   
-        // 4) Sticky corrects (by KEY): persist every correct key we've ever seen selected
-        let sticky = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
-        if (!sticky) {
-          sticky = new Set<string>();
-          // store Set<string> in the same map (runtime-safe)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          this.stickyCorrectIdsByIndex.set(index, sticky as unknown as Set<number | string>);
+        // 3) STICKY by correct keys (primary) OR fallback by any selected keys if no corrects are exposed
+        const hasAuthoritativeCorrects = correctKeySet.size > 0;
+  
+        if (hasAuthoritativeCorrects) {
+          // primary sticky: correct keys
+          let stickyCorr = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
+          if (!stickyCorr) {
+            stickyCorr = new Set<string>();
+            // store Set<string> in same map (runtime-safe)
+            this.stickyCorrectIdsByIndex.set(index, stickyCorr as unknown as Set<number | string>);
+          }
+          correctKeySet.forEach(k => { if (selectedKeySet.has(k)) (stickyCorr as Set<string>).add(k); });
+  
+          const totalForThisQ = expectedOverrideClick ?? correctKeySet.size;
+          let q4Remaining     = Math.max(0, totalForThisQ - (stickyCorr as Set<string>).size);
+  
+          const prev = this.lastRemainingByIndex.get(index);
+          let gateRemainingLocal =
+            (typeof prev === 'number' && prev >= 0) ? Math.min(prev, q4Remaining) : q4Remaining;
+  
+          this.lastRemainingByIndex.set(index, gateRemainingLocal);
+          gateRemaining = gateRemainingLocal;
+        } else {
+          // Fallback sticky: when authoring exposes NO corrects, gate by unique selections up to override
+          let stickyAny = this.stickyAnySelectedKeysByIndex.get(index);
+          if (!stickyAny) {
+            stickyAny = new Set<string>();
+            this.stickyAnySelectedKeysByIndex.set(index, stickyAny);
+          }
+          selectedKeySet.forEach(k => stickyAny!.add(k));
+  
+          const target = expectedOverrideClick ?? 0;
+          let q4Remaining = Math.max(0, target - stickyAny.size);
+  
+          const prev = this.lastRemainingByIndex.get(index);
+          let gateRemainingLocal =
+            (typeof prev === 'number' && prev >= 0) ? Math.min(prev, q4Remaining) : q4Remaining;
+  
+          this.lastRemainingByIndex.set(index, gateRemainingLocal);
+          gateRemaining = gateRemainingLocal;
+  
+          // Optional: warn once so you can fix content later
+          if (target > 0) {
+            console.warn('[Q4 tighten][fallback-any-selected] No authoring-corrects found; gating by selections.', {
+              target, selectedKeys: [...selectedKeySet]
+            });
+          }
         }
-  
-        // Add any correct keys present in the UNION (never remove on deselect for Q4)
-        correctKeySet.forEach(k => { if (selectedKeySet.has(k)) (sticky as Set<string>).add(k); });
-  
-        // 5) Target is override if present, else the size of the correct-key set
-        const totalForThisQ = (typeof expectedOverrideClick === 'number' && expectedOverrideClick > 0)
-          ? expectedOverrideClick
-          : correctKeySet.size;
-  
-        // 6) Remaining by sticky correct keys only
-        let q4Remaining = Math.max(0, totalForThisQ - (sticky as Set<string>).size);
-  
-        // 7) Monotonic clamp to avoid transient increases
-        const prev = this.lastRemainingByIndex.get(index);
-        const gateRemainingCandidate = q4Remaining;
-        let gateRemainingLocal =
-          (typeof prev === 'number' && prev >= 0) ? Math.min(prev, gateRemainingCandidate)
-                                                  : gateRemainingCandidate;
-  
-        this.lastRemainingByIndex.set(index, gateRemainingLocal);
-        gateRemaining = gateRemainingLocal;
-  
-        // // DEBUG (enable if needed)
-        // console.debug('[Q4 tighten]', {
-        //   expectedOverride: expectedOverrideClick,
-        //   correctKeys:  [...correctKeySet],
-        //   selectedKeys: [...selectedKeySet],
-        //   stickyKeys:   [...(sticky as Set<string>)],
-        //   totalForThisQ, q4Remaining, prev, gateRemaining
-        // });
-  
-        // ---- END Q4 TIGHTEN --------------------------------------------------------------
       }
   
       if (gateRemaining > 0) {
@@ -729,6 +716,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
