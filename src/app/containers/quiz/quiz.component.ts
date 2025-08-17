@@ -543,10 +543,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewChe
         // Final expected = metadata → answer array length → explicit flag count
         const expected = fromMeta ?? fromFlags ?? totalCorrectFromOptions;
       
-        if (Number.isFinite(expected) && expected > 0) {
+        // 🔑 Resolve a stable question id for id-based override
+        const qid =
+          qq?.id ?? qq?._id ?? qq?.questionId ?? qq?.uuid ?? qq?.qid ?? qq?.questionID ?? null;
+      
+        // Only set when we actually expect multiple correct answers.
+        if (Number.isFinite(expected) && (expected as number) > 1) {
+          // index-based (existing behavior)
           this.selectionMessageService.setExpectedCorrectCount(idx, expected as number);
+      
+          // id-based (NEW, preferred — fixes index drift/race issues)
+          if (qid !== null && qid !== undefined) {
+            this.selectionMessageService.setExpectedCorrectCountForId(qid, expected as number);
+          }
         }
-      });            
+      });                  
     } catch (err) {
       console.error('[❌ QuizComponent] Failed to fetch questions:', err);
     }
