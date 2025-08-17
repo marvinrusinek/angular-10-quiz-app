@@ -6228,7 +6228,5 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       options: opts,
       token
     });
-  
-    // Let freeze window expire naturally
   }  
 }
