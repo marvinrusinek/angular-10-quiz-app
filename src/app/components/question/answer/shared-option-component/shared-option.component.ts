@@ -17,6 +17,7 @@ import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
+import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { SoundService } from '../../../../shared/services/sound.service';
 import { UserPreferenceService } from '../../../../shared/services/user-preference.service';
 import { HighlightOptionDirective } from '../../../../directives/highlight-option.directive';
@@ -123,6 +124,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   trackByQuestionScoped = (_: number, b: OptionBindings) =>
     `${this.questionVersion}-${b.option.optionId}`;
 
+  private _msgRafId: number | null = null;
+  private _msgPending:
+    | { index: number; questionType: QuestionType; options: Option[] }
+    | null = null;
+
   onDestroy$ = new Subject<void>();
 
   constructor(
@@ -131,6 +137,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService,
+    private selectionMessageService: SelectionMessageService,
     private soundService: SoundService,
     private userPreferenceService: UserPreferenceService,
     private cdRef: ChangeDetectorRef,
@@ -2227,5 +2234,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Rrebuild bindings and trigger one CD cycle
     this.generateOptionBindings();
     this.cdRef.detectChanges();
+  }
+
+  private scheduleMsg(ctx: { index: number; questionType: QuestionType; options: Option[] }) {
+    this._msgPending = ctx;
+    if (this._msgRafId !== null) return; // already scheduled this frame
+  
+    // defer to next microtask + animation frame so selection is settled
+    queueMicrotask(() => {
+      this._msgRafId = requestAnimationFrame(() => {
+        const p = this._msgPending!;
+        this._msgPending = null;
+        this._msgRafId = null;
+        this.selectionMessageService.updateSelectionMessage('compute', p);
+      });
+    });
   }
 }
