@@ -826,7 +826,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return option.showIcon === true;
   }
 
-  public updateOptionAndUI(
+  /* public updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
     event: MatCheckboxChange | MatRadioChange
@@ -1013,7 +1013,217 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     // Final UI change detection
     this.cdRef.detectChanges();
-  }
+  } */
+  public updateOptionAndUI(
+    optionBinding: OptionBindings,
+    index: number,
+    event: MatCheckboxChange | MatRadioChange
+  ): void {
+    const currentIndex = this.quizService.getCurrentQuestionIndex();
+  
+    if (this.lastFeedbackQuestionIndex !== currentIndex) {
+      this.feedbackConfigs = {};
+      this.showFeedbackForOption = {};
+      this.lastFeedbackOptionId = -1;
+      this.lastFeedbackQuestionIndex = currentIndex;
+    } 
+  
+    const optionId = optionBinding.option.optionId;
+    const now = Date.now();
+    const checked = 'checked' in event ? (event as MatCheckboxChange).checked : true;
+  
+    const alreadySelected = optionBinding.option.selected && checked === true;
+  
+    // Always set the selection state first
+    optionBinding.option.selected = checked;
+    console.log('[🧪 updateOptionAndUI] option.selected:', optionBinding.option.selected);
+  
+    // --- NEW: defer message once the model is settled (post-mutation, next frame) ---
+    const postMsg = () => {
+      const qIdx  = this.quizService.getCurrentQuestionIndex();
+      const qType = this.currentQuestion?.type;
+      const payload = (this.currentQuestion?.options ?? this.optionsToDisplay ?? []).map(o => ({ ...o }));
+      queueMicrotask(() => {
+        requestAnimationFrame(() => {
+          this.selectionMessageService.updateSelectionMessage('compute', {
+            index: qIdx,
+            questionType: qType,
+            options: payload
+          });
+        });
+      });
+    };
+    // -------------------------------------------------------------------------------
+  
+    if (alreadySelected) {
+      console.warn('[🔒 Already selected – short-circuit]', optionId);
+  
+      // keep this row’s own colour / icon, but…
+      if (this.lastFeedbackOptionId !== -1 &&
+          this.lastFeedbackOptionId !== optionId) {
+  
+        // …hide every bubble
+        Object.keys(this.showFeedbackForOption).forEach(k => {
+          this.showFeedbackForOption[+k] = false;
+        });
+  
+        // …and show it only on the genuine anchor row
+        this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+  
+        // make sure that row’s config still says showFeedback = true
+        const cfg = this.feedbackConfigs[this.lastFeedbackOptionId];
+        if (cfg) cfg.showFeedback = true;
+  
+        this.cdRef.detectChanges();   // one CD pass so the *ngIf runs
+      }
+  
+      postMsg();   // <<— ensure the message reflects current model, then exit
+      return;
+    }
+  
+    // Block rapid duplicate unselect toggle
+    if (
+      this.lastClickedOptionId === optionId &&
+      this.lastClickTimestamp &&
+      now - this.lastClickTimestamp < 150 &&
+      checked === false
+    ) {
+      console.warn('[⛔ Duplicate false event]', optionId);
+      postMsg();   // <<— still emit the message for the current model
+      return;
+    }
+  
+    this.lastClickedOptionId = optionId;
+    this.lastClickTimestamp = now;
+    this.freezeOptionBindings ??= true;
+    this.hasUserClicked = true;
+  
+    // Apply selection state
+    optionBinding.option.selected = checked;
+    this.perQuestionHistory.add(optionId);
+  
+    if (this.type === 'single') {  // radio-style questions only
+      this.selectedOptionMap.clear();
+      this.optionBindings.forEach(b => {
+        const id = b.option.optionId;
+        const shouldPaint = this.perQuestionHistory.has(id);
+  
+        // wipe every row
+        b.isSelected        = shouldPaint;
+        b.option.selected   = shouldPaint;
+        b.option.highlight  = shouldPaint;
+        b.option.showIcon   = shouldPaint;
+    
+        // hide any lingering feedback
+        if (b.showFeedbackForOption) {
+          b.showFeedbackForOption[b.option.optionId] = false;
+        }
+  
+        this.showFeedbackForOption[id] = id === optionId;
+    
+        // repaint immediately so old color/icon disappears
+        b.directiveInstance?.updateHighlight();
+      });
+    }
+    
+    optionBinding.isSelected = true;
+    optionBinding.option.highlight = true;
+    optionBinding.option.showIcon = true;
+    this.selectedOptionMap.set(optionId, true);
+  
+    this.showFeedback = true;
+    
+    // Track selection history
+    const isAlreadyVisited = this.selectedOptionHistory.includes(optionId);
+  
+    if (!isAlreadyVisited) {
+      this.selectedOptionHistory.push(optionId);
+    }
+  
+    if (alreadySelected || isAlreadyVisited) {
+      console.log('[↩️ Reselected existing option — preserving feedback anchor on previous option]');
+    
+      // Reset all feedback visibility
+      Object.keys(this.showFeedbackForOption).forEach(key => {
+        this.showFeedbackForOption[+key] = false;
+      });
+  
+      // Keep feedback visible only on the last anchor
+      if (this.lastFeedbackOptionId !== -1) {
+        this.showFeedbackForOption[this.lastFeedbackOptionId] = true;
+  
+        // Ensure config is still valid
+        const cfg = this.feedbackConfigs[this.lastFeedbackOptionId];
+        if (cfg) cfg.showFeedback = true;
+      }
+  
+      this.cdRef.detectChanges();
+      postMsg();   // <<—
+      return;
+    }
+  
+    // Update showFeedback flag for current option
+    this.showFeedbackForOption = { [optionId]: true };
+    this.lastFeedbackOptionId = optionId;
+    
+    this.toggleSelectedOption(optionBinding.option);
+    this.forceHighlightRefresh(optionId);
+  
+    // Iterate through ALL optionBindings and sync selected state + feedback
+    this.optionBindings.forEach((binding) => {
+      const id = binding.option.optionId;
+      const isSelected = this.selectedOptionMap.get(id) === true;
+    
+      binding.isSelected = isSelected;
+      binding.option.selected = isSelected;
+  
+      // Don't touch feedback if this is not the newly selected option
+      if (id !== optionId) return;
+  
+      // Build missing feedback config
+      const correctOptions = this.optionsToDisplay.filter(opt => opt.correct);
+      const dynamicFeedback = this.feedbackService.generateFeedbackForOptions(correctOptions, this.optionsToDisplay);
+  
+      if (!this.feedbackConfigs[optionId]) {
+        this.feedbackConfigs[optionId] = {
+          feedback: dynamicFeedback,
+          showFeedback: true,
+          options: this.optionsToDisplay,
+          question: this.currentQuestion,
+          selectedOption: optionBinding.option,
+          correctMessage: dynamicFeedback,
+          idx: index
+        };
+      }
+  
+      this.showFeedbackForOption[optionId] = true;
+      this.lastFeedbackOptionId = optionId;
+    });
+    
+    // Apply highlight and feedback for this specific option again
+    this.applyHighlighting(optionBinding);
+    this.applyFeedback(optionBinding);
+    
+    // Enforce single-answer logic
+    if (this.type === 'single') {
+      this.enforceSingleSelection(optionBinding);
+    }
+  
+    this.selectedOptionHistory.forEach(id => {
+      const b = this.optionBindings.find(x => x.option.optionId === id);
+      b?.option && (b.option.selected = true);
+    });
+    this.syncSelectedFlags();  // set .selected for every row
+    this.highlightDirectives?.forEach(d => d.updateHighlight());
+    
+    // Sync explanation
+    this.emitExplanation(this.quizService.currentQuestionIndex)
+  
+    // Final UI change detection
+    this.cdRef.detectChanges();
+  
+    postMsg();   // <<— always send a single deferred message update at the end
+  }  
   
   private applyHighlighting(optionBinding: OptionBindings): void {
     const optionId = optionBinding.option.optionId;
