@@ -572,11 +572,6 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // ─────────────────────────────────────────────────────────────
-    // Anti-bounce clamp: if we're already showing "Select N more..."
-    // and a late update tries to INCREASE N (e.g., 1 -> 2), ignore it.
-    // This avoids the flash you saw on Q2's 3rd click.
-    // ─────────────────────────────────────────────────────────────
     {
       const parseRemaining = (msg: string): number | null => {
         const m = /select\s+(\d+)\s+more/i.exec(msg);
