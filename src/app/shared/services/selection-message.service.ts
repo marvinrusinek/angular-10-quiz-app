@@ -720,6 +720,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
@@ -1113,26 +1114,34 @@ export class SelectionMessageService {
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
     // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
+    const canonicalCorrect = overlaid.filter(o => !!o?.correct).length;
     const isMulti =
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
-      (overlaid.filter(o => !!o?.correct).length > 1);
-
+      (canonicalCorrect > 1);
+  
     if (!isMulti) return null;
-
+  
+    // NEW: Do NOT force "Select ..." before any pick
+    const anySelected = overlaid.some(o => !!o?.selected);
+    if (!anySelected) return null;
+  
     // Total required: prefer explicit override, else canonical count
-    const totalCorrectCanonical = overlaid.filter(o => !!o?.correct).length;
-    const totalForThisQ = (expectedOverride ?? totalCorrectCanonical);
-
+    const totalForThisQ =
+      (typeof expectedOverride === 'number' && expectedOverride > 0)
+        ? expectedOverride
+        : canonicalCorrect;
+  
     // Count only the selected CORRECT options
     const selectedCorrect = overlaid.reduce(
       (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
     );
-
+  
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
+  
 
 
   private getQuestionTypeForIndex(index: number): QuestionType {
