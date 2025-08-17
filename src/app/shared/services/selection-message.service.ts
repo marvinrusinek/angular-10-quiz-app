@@ -36,6 +36,7 @@ export class SelectionMessageService {
 
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
   private expectedCorrectByIndex = new Map<number, number>();
+  private expectedCorrectByQid   = new Map<string | number, number>();
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
@@ -1330,6 +1331,13 @@ export class SelectionMessageService {
         if (cid == null) cid = fwd!.get(`ix:${i}`);   // index fallback saves "first option" cases
         if (cid != null) (o as any).optionId = cid;
       });
+    }
+  }
+
+  // Prefer to set by a stable question id
+  public setExpectedCorrectCountForId(qid: string | number, count: number): void {
+    if ((qid !== null && qid !== undefined) && Number.isFinite(count) && count > 0) {
+      this.expectedCorrectByQid.set(qid, count);
     }
   }
 
