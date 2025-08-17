@@ -39,6 +39,7 @@ export class SelectionMessageService {
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
+  private stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
 
   constructor(
     private quizService: QuizService, 
@@ -497,15 +498,17 @@ export class SelectionMessageService {
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-    const totalCorrectCanon = canonical.filter(o => !!o?.correct).length;
+    const totalCorrectCanon = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
-      : (options ?? []).filter(o => !!o?.correct).length;  // last-resort fallback
+      : (options ?? []).filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;  // last-resort fallback
   
     // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
     // In that edge case, recompute `remaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
-      const selectedCorrectFallback = (options ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+      const selectedCorrectFallback = (options ?? []).filter(
+        o => ( (!!(o as any)?.correct || !!(o as any)?.isCorrect) && !!(o as any)?.selected )
+      ).length;
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
   
@@ -515,7 +518,7 @@ export class SelectionMessageService {
   
     // Expected-correct override merged with canonical remaining (legacy path)
     const expectedOverride = this.getExpectedCorrectCount(index);
-    const selectedCount    = (options ?? []).reduce((n, o) => n + (o?.selected ? 1 : 0), 0);
+    const selectedCount    = (options ?? []).reduce((n, o) => n + ((o as any)?.selected ? 1 : 0), 0);
     const expectedRemainByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
     const enforcedRemaining     = Math.max(remaining, expectedRemainByCount);
   
@@ -531,11 +534,19 @@ export class SelectionMessageService {
         // 1) Align IDs across sources so unions/overlays are apples-to-apples
         this.ensureStableIds(index, canonical, options, priorSnap);
   
-        // ---- Q4 TIGHTEN (union of answers + flags, key-based, sticky) --------------------
-        const norm  = (x: any) => String(x ?? '').trim().toLowerCase();
-        const keyOf = (o: any, i: number) => `vt:${norm(o?.value)}|${norm(o?.text ?? o?.label)}`;
+        // ---- Q4 TIGHTEN (robust union of answers + flags, key-based, sticky) ----
+        const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+        const norm = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
   
-        // Map ids -> keys for canonical
+        const keyOf = (o: any, i: number) => {
+          const v = norm(o?.value);
+          const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.content ?? o?.display ?? o?.displayText);
+          // prefer value|text signature; fall back to id if both missing
+          const sig = (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
+          return sig;
+        };
+  
+        // Map ids -> keys for canonical (helps match ids coming from services)
         const idToKey = new Map<any, string>();
         const canonKeys: string[] = [];
         for (let i = 0; i < canonical.length; i++) {
@@ -556,21 +567,37 @@ export class SelectionMessageService {
             const c: any = canonical[i];
             const cid = c?.optionId ?? c?.id ?? i;
             const v   = norm(c?.value);
-            const t   = norm(c?.text ?? c?.label);
-            const matched = ans.some((a: any) => {
+            const t   = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+            // Normalize each answer element into a comparable token set
+            const match = ans.some((a: any) => {
               if (a == null) return false;
-              if (a === cid || a === c?.id) return true;     // id match
+              // object answer: check multiple fields
+              if (typeof a === 'object') {
+                const aid = (a?.optionId ?? a?.id);
+                if (aid != null && (aid === cid)) return true;
+                const av = norm(a?.value);
+                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                return (!!av && av === v) || (!!at && at === t);
+              }
+              // primitive answer: id or string compare
+              if (a === cid) return true;
               const s = norm(a);
-              return !!s && (s === v || s === t);            // value/text match
+              return (!!s && (s === v || s === t));
             });
-            if (matched) correctKeysFromAnswer.add(canonKeys[i]);
+  
+            if (match) correctKeysFromAnswer.add(canonKeys[i]);
           }
         }
+  
+        // Flags may be `correct`, `isCorrect`, or string "true"
         for (let i = 0; i < canonical.length; i++) {
           const c: any = canonical[i];
-          if (c?.correct) correctKeysFromFlags.add(canonKeys[i]);
+          const flag = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
+          if (flag) correctKeysFromFlags.add(canonKeys[i]);
         }
   
+        // UNION is authoritative for Q4
         const correctKeySet = new Set<string>([
           ...correctKeysFromAnswer,
           ...correctKeysFromFlags
@@ -621,6 +648,7 @@ export class SelectionMessageService {
         let sticky = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
         if (!sticky) {
           sticky = new Set<string>();
+          // store Set<string> in the same map (runtime-safe)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.stickyCorrectIdsByIndex.set(index, sticky as unknown as Set<number | string>);
         }
@@ -633,21 +661,10 @@ export class SelectionMessageService {
           ? expectedOverrideClick
           : correctKeySet.size;
   
-        // If authoring under-reports corrects, LOG it loudly so you can fix the data.
-        if (typeof expectedOverrideClick === 'number'
-            && expectedOverrideClick > correctKeySet.size) {
-          console.warn('[Q4 tighten][UNDER-FLAGGED DATA]', {
-            expectedOverride: expectedOverrideClick,
-            recognizedCorrect: [...correctKeySet],
-            canonicalPreview: canonical.map((c: any, i: number) => ({
-              i, id: (c?.optionId ?? c?.id ?? i), value: c?.value, text: c?.text ?? c?.label, correct: !!c?.correct
-            }))
-          });
-        }
-  
-        // 6) Remaining by sticky correct keys only (monotonic)
+        // 6) Remaining by sticky correct keys only
         let q4Remaining = Math.max(0, totalForThisQ - (sticky as Set<string>).size);
   
+        // 7) Monotonic clamp to avoid transient increases
         const prev = this.lastRemainingByIndex.get(index);
         const gateRemainingCandidate = q4Remaining;
         let gateRemainingLocal =
@@ -657,7 +674,7 @@ export class SelectionMessageService {
         this.lastRemainingByIndex.set(index, gateRemainingLocal);
         gateRemaining = gateRemainingLocal;
   
-        // // DEBUG (uncomment to verify live)
+        // // DEBUG (enable if needed)
         // console.debug('[Q4 tighten]', {
         //   expectedOverride: expectedOverrideClick,
         //   correctKeys:  [...correctKeySet],
@@ -665,6 +682,7 @@ export class SelectionMessageService {
         //   stickyKeys:   [...(sticky as Set<string>)],
         //   totalForThisQ, q4Remaining, prev, gateRemaining
         // });
+  
         // ---- END Q4 TIGHTEN --------------------------------------------------------------
       }
   
@@ -711,8 +729,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
