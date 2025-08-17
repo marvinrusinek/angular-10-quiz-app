@@ -475,7 +475,7 @@ export class SelectionMessageService {
   }
 
   // Authoritative: call only from the option click with the updated array
-  public emitFromClick(params: {
+  /* public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -672,8 +672,29 @@ export class SelectionMessageService {
   
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
-  }
+  } */
+  public emitFromClick(params: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[]; // updated array already passed
+  }): void {
+    const { index, totalQuestions, questionType, options } = params;
   
+    // Keep the previous snapshot so unions can see earlier selections (no longer used for counting remaining)
+    const priorSnap = this.getLatestOptionsSnapshot?.();
+  
+    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
+    // Primary: authoritative remaining from canonical and current selected ids
+    const remaining = this.remainingFromCanonical(index, options);
+  
+    // Build message ONLY from canonical remaining
+    const message = this.buildSelectionMessage(remaining);
+  
+    // Emit with your existing path (keeps your logging/ctx pattern)
+    this.updateSelectionMessage(message, { options, index, questionType });
+  }
+
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
@@ -1010,6 +1031,71 @@ export class SelectionMessageService {
       return n + ((!!o?.selected && correctIds.has(id)) ? 1 : 0);
     }, 0);
   }
+
+  /** Canonical source of truth for correctness + current selection */
+  /** Pulls correctness from both canonical question + updated options (multi-signal). */
+  private getCanonicalSnapshot(index: number, options: Option[]) {
+    const svc: any = this.quizService as any;
+
+    const qArr: QuizQuestion[] = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined = (index >= 0 && index < qArr.length)
+      ? qArr[index]
+      : (svc.currentQuestion as QuizQuestion | undefined);
+
+    // ---- Selected now (authoritative for "picked") ----
+    const selectedNow = new Set<number>(
+      (options ?? [])
+        .filter(o => o && Number.isFinite(o.optionId) && o.selected === true)
+        .map(o => o.optionId as number)
+    );
+
+    // ---- Canonical correct from stored question ----
+    const canonicalCorrectIds = new Set<number>(
+      (q?.options ?? [])
+        .filter(o => o && o.correct === true && Number.isFinite(o.optionId))
+        .map(o => o.optionId as number)
+    );
+
+    // ---- Signals from the UPDATED options payload (overlay) ----
+    const looksCorrect = (o: any) =>
+      o?.correct === true ||
+      o?.answer === true ||
+      o?.value === true ||
+      (typeof o?.feedback === 'string' && /correct/i.test(o.feedback));
+
+    const signaledCorrectIds = new Set<number>(
+      (options ?? [])
+        .filter(o => o && Number.isFinite(o.optionId) && looksCorrect(o))
+        .map(o => o.optionId as number)
+    );
+
+    // Union to get the *known* set of correct ids we can identify by id
+    const knownCorrectIds = new Set<number>(canonicalCorrectIds);
+    signaledCorrectIds.forEach(id => knownCorrectIds.add(id));
+
+    // Optional: total-correct hint from service (if you have one)
+    // Return 0/undefined if you don't—this line is safe either way.
+    const hintedTotal: number = Number.isFinite(svc?.getTotalCorrectForIndex?.(index))
+      ? Number(svc.getTotalCorrectForIndex(index))
+      : (Number.isFinite(svc?.totalCorrectMap?.[index]) ? Number(svc.totalCorrectMap[index]) : 0);
+
+    // Target = max(known-by-id size, hinted total)
+    const targetTotal = Math.max(knownCorrectIds.size, hintedTotal || 0);
+
+    // Count picked-correct using the same correctness signals (not just canonical)
+    let pickedCorrect = 0;
+    selectedNow.forEach(id => { if (knownCorrectIds.has(id)) pickedCorrect++; });
+
+    return { selectedNow, knownCorrectIds, pickedCorrect, targetTotal };
+  }
+
+  private buildSelectionMessage(remaining: number): string {
+    if (remaining > 0) {
+      return `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`;
+    }
+    return 'Please click the next button to continue.';
+  }
+  
 
   // Optional helper to clear when changing question
   public clearStickyFor(index: number): void {

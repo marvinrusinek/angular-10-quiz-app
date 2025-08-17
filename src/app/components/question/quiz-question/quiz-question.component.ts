@@ -3469,46 +3469,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
           : this.currentQuestion?.options) as Option[] || [];
-
+  
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
-
-        const token = this.selectionMessageService['beginWrite']?.(this.currentQuestionIndex);  // or expose a wrapper
   
+        const token = this.selectionMessageService['beginWrite']?.(i0);  // or expose a wrapper
+  
+        // Build once in the service (handles MultipleAnswer/SingleAnswer + last question)
+        const msg = this.selectionMessageService.buildMessageFromSelection({
+          index: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: qType,
+          options: optionsNow
+        });
+  
+        // Single write—no second branch, no race
         this.selectionMessageService.updateSelectionMessage(
-          this.selectionMessageService.buildMessageFromSelection({
-            index: this.currentQuestionIndex,
-            totalQuestions: this.totalQuestions,
-            questionType: this.currentQuestion?.type,
-            options: optionsNow
-          }),
-          { options: optionsNow, index: this.currentQuestionIndex, questionType: this.currentQuestion?.type, token }
+          msg,
+          { options: optionsNow, index: i0, questionType: qType, token }
         );
-  
-        if (qType === QuestionType.MultipleAnswer) {
-          const remaining =
-            this.selectionMessageService.getRemainingCorrectCount(optionsNow);
-  
-          const msg = (remaining > 0)
-            ? `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`
-            : (isLast
-                ? 'Please click the Show Results button.'
-                : 'Please click the next button to continue...');
-  
-          this.selectionMessageService.updateSelectionMessage(msg);
-          return;
-        }
-  
-        // Single-answer: NEVER show “Select …” after a click
-        const msg = isLast
-          ? 'Please click the Show Results button.'
-          : 'Please click the next button to continue...';
-  
-        this.selectionMessageService.updateSelectionMessage(msg);
       });
     });
   }
-  
 
   private async finalizeAfterClick(
     option: SelectedOption,
