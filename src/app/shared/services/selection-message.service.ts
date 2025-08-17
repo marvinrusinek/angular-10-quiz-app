@@ -514,11 +514,127 @@ export class SelectionMessageService {
     const isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
-    // Expected-correct override merged with canonical remaining (legacy path)
-    const expectedOverride = this.getExpectedCorrectCount(index);
-    const selectedCount    = (options ?? []).reduce((n, o) => n + ((o as any)?.selected ? 1 : 0), 0);
-    const expectedRemainByCount = Math.max(0, (expectedOverride ?? 0) - selectedCount);
-    const enforcedRemaining     = Math.max(remaining, expectedRemainByCount);
+    // ──────────────────────────────────────────────────────────────────────────
+    // Expected-correct override merged with canonical remaining — use SELECTED-CORRECT
+    // and derive the target from (override) ∪ (q.answer) ∪ (flags), in that order.
+    // This prevents wrong picks from satisfying the quota and avoids under-flagged data.
+    // ──────────────────────────────────────────────────────────────────────────
+    const expectedOverrideRaw = this.getExpectedCorrectCount(index);
+  
+    // Normalizers + keying that survive reorder/id drift
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const keyOf     = (o: any, i: number) => {
+      const v = norm(o?.value);
+      const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+      return (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
+    };
+  
+    // Map ids -> keys to reconcile id-only paths
+    const idToKey = new Map<any, string>();
+    const canonKeys: string[] = [];
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const k = keyOf(c, i);
+      canonKeys.push(k);
+      const cid = c?.optionId ?? c?.id ?? i;
+      idToKey.set(cid, k);
+    }
+  
+    // Correct keys from q.answer
+    const correctKeysFromAnswer = new Set<string>();
+    const ans: any = (q as any)?.answer;
+    if (Array.isArray(ans) && ans.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = c?.optionId ?? c?.id ?? i;
+        const v   = norm(c?.value);
+        const t   = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+        const matched = ans.some((a: any) => {
+          if (a == null) return false;
+          if (typeof a === 'object') {
+            const aid = (a?.optionId ?? a?.id);
+            if (aid != null && aid === cid) return true;
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === v) || (!!at && at === t);
+          }
+          if (a === cid) return true;
+          const s = norm(a);
+          return (!!s && (s === v || s === t));
+        });
+        if (matched) correctKeysFromAnswer.add(canonKeys[i]);
+      }
+    }
+  
+    // Correct keys from flags (correct/isCorrect)
+    const correctKeysFromFlags = new Set<string>();
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const flag = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
+      if (flag) correctKeysFromFlags.add(canonKeys[i]);
+    }
+  
+    const correctKeySet = new Set<string>([
+      ...correctKeysFromAnswer,
+      ...correctKeysFromFlags
+    ]);
+  
+    // Decide the target: override > answers > flags
+    const answerBasedTarget = correctKeySet.size;
+    const expectedTarget =
+      (typeof expectedOverrideRaw === 'number' && expectedOverrideRaw > 0)
+        ? expectedOverrideRaw
+        : (answerBasedTarget > 0 ? answerBasedTarget : totalCorrect);
+  
+    // Build selected key set (current payload + prior snapshot + SelectedOptionService)
+    const selectedKeySet = new Set<string>();
+  
+    // from current payload
+    for (let i = 0; i < (options?.length ?? 0); i++) {
+      const o: any = options[i];
+      if (!o?.selected) continue;
+      const k = (o?.optionId != null || o?.id != null)
+        ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
+        : keyOf(o, i);
+      selectedKeySet.add(k);
+    }
+    // from prior snapshot
+    for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
+      const o: any = priorSnap[i];
+      if (!o?.selected) continue;
+      const k = (o?.optionId != null || o?.id != null)
+        ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
+        : keyOf(o, i);
+      selectedKeySet.add(k);
+    }
+    // from SelectedOptionService (ids or objects)
+    try {
+      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
+      if (rawSel instanceof Set) {
+        rawSel.forEach((id: any) => { const k = idToKey.get(id); if (k) selectedKeySet.add(k); });
+      } else if (Array.isArray(rawSel)) {
+        rawSel.forEach((so: any, i2: number) => {
+          const k = (so?.optionId != null || so?.id != null)
+            ? (idToKey.get(so?.optionId ?? so?.id) ?? keyOf(so, i2))
+            : keyOf(so, i2);
+          selectedKeySet.add(k);
+        });
+      }
+    } catch {}
+  
+    // Count SELECTED-CORRECT as intersection(selected, correct)
+    const selectedCorrectCount = [...selectedKeySet].reduce(
+      (n, k) => n + (correctKeySet.has(k) ? 1 : 0),
+      0
+    );
+  
+    // Remaining driven by correct picks only
+    const expectedRemainingByCorrect = Math.max(0, expectedTarget - selectedCorrectCount);
+  
+    // Final enforced remaining combines canonical remaining + override/answer-based remaining
+    const enforcedRemaining = Math.max(remaining, expectedRemainingByCorrect);
+    // ──────────────────────────────────────────────────────────────────────────
   
     if (isMulti) {
       let gateRemaining = enforcedRemaining;
@@ -530,113 +646,114 @@ export class SelectionMessageService {
   
       if (tightenForThisQ) {
         // ── Robust tighten: union(answer+flags) by normalized KEY, with sticky & fallback ──
-        const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-        const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-        const keyOf     = (o: any, i: number) => {
-          const v = norm(o?.value);
-          const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+        const stripHtmlT = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+        const normT      = (x: any) => stripHtmlT(x).replace(/\s+/g, ' ').trim().toLowerCase();
+        const keyOfT     = (o: any, i: number) => {
+          const v = normT(o?.value);
+          const t = normT(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
           return (v || t) ? `vt:${v}|${t}` : `id:${String(o?.optionId ?? o?.id ?? i)}`;
         };
   
+        // Align IDs across sources so unions/overlays are apples-to-apples
+        this.ensureStableIds(index, canonical, options, priorSnap);
+  
         // Map ids -> keys for canonical (helps match ids coming from services)
-        const idToKey = new Map<any, string>();
-        const canonKeys: string[] = [];
+        const idToKeyT = new Map<any, string>();
+        const canonKeysT: string[] = [];
         for (let i = 0; i < canonical.length; i++) {
           const c: any = canonical[i];
-          const k = keyOf(c, i);
-          canonKeys.push(k);
+          const k = keyOfT(c, i);
+          canonKeysT.push(k);
           const cid = c?.optionId ?? c?.id ?? i;
-          idToKey.set(cid, k);
+          idToKeyT.set(cid, k);
         }
   
         // 1) Build correct key set = UNION(answer-derived, flag-derived)
-        const correctKeysFromAnswer = new Set<string>();
-        const correctKeysFromFlags  = new Set<string>();
+        const correctKeysFromAnswerT = new Set<string>();
+        const correctKeysFromFlagsT  = new Set<string>();
   
-        const ans: any = (q as any)?.answer;
-        if (Array.isArray(ans) && ans.length) {
+        const ansT: any = (q as any)?.answer;
+        if (Array.isArray(ansT) && ansT.length) {
           for (let i = 0; i < canonical.length; i++) {
             const c: any = canonical[i];
             const cid = c?.optionId ?? c?.id ?? i;
-            const v   = norm(c?.value);
-            const t   = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-            const matched = ans.some((a: any) => {
+            const v   = normT(c?.value);
+            const t   = normT(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+            const matched = ansT.some((a: any) => {
               if (a == null) return false;
               if (typeof a === 'object') {
                 const aid = (a?.optionId ?? a?.id);
                 if (aid != null && (aid === cid)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                const av = normT(a?.value);
+                const at = normT(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
                 return (!!av && av === v) || (!!at && at === t);
               }
               if (a === cid) return true;
-              const s = norm(a);
+              const s = normT(a);
               return (!!s && (s === v || s === t));
             });
-            if (matched) correctKeysFromAnswer.add(canonKeys[i]);
+            if (matched) correctKeysFromAnswerT.add(canonKeysT[i]);
           }
         }
         for (let i = 0; i < canonical.length; i++) {
           const c: any = canonical[i];
           const flag = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
-          if (flag) correctKeysFromFlags.add(canonKeys[i]);
+          if (flag) correctKeysFromFlagsT.add(canonKeysT[i]);
         }
   
-        const correctKeySet = new Set<string>([
-          ...correctKeysFromAnswer,
-          ...correctKeysFromFlags
+        const correctKeySetT = new Set<string>([
+          ...correctKeysFromAnswerT,
+          ...correctKeysFromFlagsT
         ]);
   
         // 2) UNION of selected keys: current payload + prior snapshot + SelectedOptionService
-        const selectedKeySet = new Set<string>();
+        const selectedKeySetT = new Set<string>();
   
         // current payload
         for (let i = 0; i < (options?.length ?? 0); i++) {
           const o: any = options[i];
           if (!o?.selected) continue;
           const k = (o?.optionId != null || o?.id != null)
-            ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
-            : keyOf(o, i);
-          selectedKeySet.add(k);
+            ? (idToKeyT.get(o?.optionId ?? o?.id) ?? keyOfT(o, i))
+            : keyOfT(o, i);
+          selectedKeySetT.add(k);
         }
-        // prior snapshot
+        // prior snapshot (BEFORE we overwrite it)
         for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
           const o: any = priorSnap[i];
           if (!o?.selected) continue;
           const k = (o?.optionId != null || o?.id != null)
-            ? (idToKey.get(o?.optionId ?? o?.id) ?? keyOf(o, i))
-            : keyOf(o, i);
-          selectedKeySet.add(k);
+            ? (idToKeyT.get(o?.optionId ?? o?.id) ?? keyOfT(o, i))
+            : keyOfT(o, i);
+          selectedKeySetT.add(k);
         }
-        // selectedOptionService
+        // SelectedOptionService (ids or objects)
         try {
           const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(index);
           if (rawSel instanceof Set) {
-            rawSel.forEach((id: any) => { const k = idToKey.get(id); if (k) selectedKeySet.add(k); });
+            rawSel.forEach((id: any) => { const k = idToKeyT.get(id); if (k) selectedKeySetT.add(k); });
           } else if (Array.isArray(rawSel)) {
-            rawSel.forEach((so: any, i2: number) => {
+            rawSel.forEach((so: any, idx: number) => {
               const k = (so?.optionId != null || so?.id != null)
-                ? (idToKey.get(so?.optionId ?? so?.id) ?? keyOf(so, i2))
-                : keyOf(so, i2);
-              selectedKeySet.add(k);
+                ? (idToKeyT.get(so?.optionId ?? so?.id) ?? keyOfT(so, idx))
+                : keyOfT(so, idx);
+              selectedKeySetT.add(k);
             });
           }
         } catch {}
   
         // 3) STICKY by correct keys (primary) OR fallback by any selected keys if no corrects are exposed
-        const hasAuthoritativeCorrects = correctKeySet.size > 0;
+        const hasAuthoritativeCorrects = correctKeySetT.size > 0;
   
         if (hasAuthoritativeCorrects) {
-          // primary sticky: correct keys
           let stickyCorr = this.stickyCorrectIdsByIndex.get(index) as Set<string> | undefined;
           if (!stickyCorr) {
             stickyCorr = new Set<string>();
-            // store Set<string> in same map (runtime-safe)
             this.stickyCorrectIdsByIndex.set(index, stickyCorr as unknown as Set<number | string>);
           }
-          correctKeySet.forEach(k => { if (selectedKeySet.has(k)) (stickyCorr as Set<string>).add(k); });
+          correctKeySetT.forEach(k => { if (selectedKeySetT.has(k)) (stickyCorr as Set<string>).add(k); });
   
-          const totalForThisQ = expectedOverrideClick ?? correctKeySet.size;
+          const totalForThisQ = expectedOverrideClick ?? correctKeySetT.size;
           let q4Remaining     = Math.max(0, totalForThisQ - (stickyCorr as Set<string>).size);
   
           const prev = this.lastRemainingByIndex.get(index);
@@ -646,13 +763,12 @@ export class SelectionMessageService {
           this.lastRemainingByIndex.set(index, gateRemainingLocal);
           gateRemaining = gateRemainingLocal;
         } else {
-          // Fallback sticky: when authoring exposes NO corrects, gate by unique selections up to override
           let stickyAny = this.stickyAnySelectedKeysByIndex.get(index);
           if (!stickyAny) {
             stickyAny = new Set<string>();
             this.stickyAnySelectedKeysByIndex.set(index, stickyAny);
           }
-          selectedKeySet.forEach(k => stickyAny!.add(k));
+          selectedKeySetT.forEach(k => stickyAny!.add(k));
   
           const target = expectedOverrideClick ?? 0;
           let q4Remaining = Math.max(0, target - stickyAny.size);
@@ -664,10 +780,9 @@ export class SelectionMessageService {
           this.lastRemainingByIndex.set(index, gateRemainingLocal);
           gateRemaining = gateRemainingLocal;
   
-          // Optional: warn once so you can fix content later
           if (target > 0) {
             console.warn('[Q4 tighten][fallback-any-selected] No authoring-corrects found; gating by selections.', {
-              target, selectedKeys: [...selectedKeySet]
+              target, selectedKeys: [...selectedKeySetT]
             });
           }
         }
@@ -716,6 +831,8 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
+  
   
   
   
