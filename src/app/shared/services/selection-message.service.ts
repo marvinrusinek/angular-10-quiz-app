@@ -45,6 +45,7 @@ export class SelectionMessageService {
   private lastSelectRemainingByIndex = new Map<number, number>();
 
   private observedCorrectIds = new Map<number, Set<string>>();
+  private hardBlockNextishUntilMet = new Map<number, boolean>();
 
   constructor(
     private quizService: QuizService, 
