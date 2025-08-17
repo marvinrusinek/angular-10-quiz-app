@@ -685,14 +685,26 @@ export class SelectionMessageService {
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
     const inEnforce = now < enforceUntil;
   
+    // ─────────────────────────────────────────────────────────────
+    // Mirror rule for multis: only show "Select ..." AFTER first pick.
+    // If nothing is selected yet, show START/CONTINUE instead of nagging.
+    // ─────────────────────────────────────────────────────────────
+    const anySelectedNow = (snap ?? []).some(o => !!o?.selected);
+  
     if (isMulti) {
-      if (enforcedRemaining > 0 || inEnforce) {
+      if ((enforcedRemaining > 0 && anySelectedNow) || inEnforce) {
         const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
-      const isLast = i0 === (this.quizService.totalQuestions - 1);
-      const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (enforcedRemaining > 0 && !anySelectedNow) {
+        // No picks yet → keep it friendly
+        const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
+        if (current !== fallback) this.selectionMessageSubject.next(fallback);
+        return;
+      }
+      const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+      const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
@@ -720,6 +732,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
 
   // Helper: Compute and push atomically (passes options to guard)
