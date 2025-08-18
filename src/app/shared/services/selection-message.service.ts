@@ -48,6 +48,9 @@ export class SelectionMessageService {
   private observedCorrectIds = new Map<number, Set<string>>();
   private hardBlockNextishUntilMet = new Map<number, boolean>();
 
+  // Mutes non-payload writes per question for a short window after a payload write
+  private payloadGuardUntil = new Map<number, number>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
