@@ -1342,8 +1342,7 @@ export class SelectionMessageService {
     const { index: i0, totalQuestions, questionType, options } = params;
   
     // Respect click suppression
-    // (We only apply this to non-forced messages; see below.)
-    // NOTE: We compute overlay first so multi can show immediately.
+    // (We only apply this to non-forced messages; multi hint should bypass it.)
     const overlaid = this.getCanonicalOverlay(i0, options);
     this.setOptionsSnapshot(overlaid);
   
@@ -1366,11 +1365,12 @@ export class SelectionMessageService {
     const msg = (qType === QuestionType.MultipleAnswer)
       ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
       : (anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-                     : CONTINUE_MSG); // <- no START_MSG fallback
+                     : CONTINUE_MSG); // <-- no START_MSG fallback anywhere
   
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
+  
   
   
   
@@ -1430,7 +1430,7 @@ export class SelectionMessageService {
     // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
   
-    // ── Derive canonical correctness from the quiz question (flags ∪ answers)
+    // Derive canonical correctness from the quiz question (flags ∪ answers)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
@@ -1438,16 +1438,13 @@ export class SelectionMessageService {
       (svc?.currentQuestion as QuizQuestion | undefined);
   
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-  
-    // Flags-based count from canonical (accept .correct or .isCorrect)
     const flagsCorrect = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
   
-    // Answer metadata count as fallback (if your data supplies answer array/indices)
-    let answerCorrect = 0;
+    // If your data includes an answer array, use its length as another signal
     const ans: any = (q as any)?.answer;
-    if (Array.isArray(ans)) answerCorrect = ans.length;
+    const answerCorrect = Array.isArray(ans) ? ans.length : 0;
   
-    // Union: prefer the larger signal we can establish
+    // Union (robust): prefer whichever signal is available (>0)
     const unionCorrectCount = Math.max(flagsCorrect, answerCorrect);
   
     // Quick check based on declared type/override/overlaid flags
@@ -1463,23 +1460,22 @@ export class SelectionMessageService {
   
     const anySelected = overlaid.some(o => !!o?.selected);
   
-    // Total required: prefer explicit override, else union count
-    // Clamp the override into [1, unionCorrectCount]
+    // Total required: prefer explicit override, else union count.
+    // IMPORTANT: accept override only if it is >= actual correct; clamp down if too high.
     const totalForThisQ =
       (typeof expectedOverride === 'number' && expectedOverride >= unionCorrectCount)
         ? Math.min(expectedOverride, unionCorrectCount)
         : unionCorrectCount;
   
-    // Count only the selected CORRECT options (use .correct/.isCorrect on overlaid;
-    // if those are missing, union count still ensures totalForThisQ > 1 so we’ll show remaining)
+    // Count only the selected CORRECT options (use available flags on overlaid)
     const selectedCorrect = overlaid.reduce(
-      (n, o) => n + ((!!(o as any)?.selected && (!!(o as any)?.correct || !!(o as any)?.isCorrect) ) ? 1 : 0),
+      (n, o) => n + ((!!o?.selected && (!!(o as any)?.correct || !!(o as any)?.isCorrect)) ? 1 : 0),
       0
     );
   
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
   
-    // Show the full required count before any pick
+    // Show the full required count before any pick (so Q2/Q4 say "Select 2 more..." immediately)
     if (!anySelected && remaining > 0) {
       return buildRemainingMsg(remaining);
     }
