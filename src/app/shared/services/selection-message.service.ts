@@ -1084,48 +1084,76 @@ export class SelectionMessageService {
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // AUTHORITATIVE MULTI GATE (overlay-only; current payload only)
+    // AUTHORITATIVE MULTI GATE (current payload only; canonical-truth mapping)
     // ──────────────────────────────────────────────────────────────────────────
   
     // Stabilize IDs across sources so mapping by id works when available
     this.ensureStableIds(index, canonical, options, priorSnap);
   
-    // Overlay canonical flags onto the CURRENT options array
-    const overlaidNow: Option[] = this.getCanonicalOverlay(index, options);
+    // Helpers (no overlay dependency — leaves Q2 pre-pick UX untouched)
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const sigOf     = (o: any) => `v:${norm(o?.value)}|t:${norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText)}`;
   
-    // How many correct exist for THIS question?
-    const correctCountOverlay = overlaidNow.filter(o =>
-      !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
-    ).length;
+    // Build canonical lookups (ID and value/text signature) and correctness flags
+    const canonIdToCorrect  = new Map<string, boolean>();
+    const canonSigToCorrect = new Map<string, boolean>();
   
-    // How many of those correct are currently selected?
-    const selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
-      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
-    , 0);
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const corr = (c?.correct === true) ||
+                   (c?.isCorrect === true) ||
+                   (String(c?.correct).toLowerCase() === 'true') ||
+                   (Number(c?.correct) === 1);
+      const id = c?.optionId ?? c?.id;
+      if (id != null) canonIdToCorrect.set(String(id), corr);
+      canonSigToCorrect.set(sigOf(c), corr);
+    }
   
-    // Target: prefer explicit override if present; clamp to overlay real count (never higher)
+    // Count how many correct answers actually exist per canonical
+    const realCorrectCount = Math.max(
+      1,
+      Array.from(canonIdToCorrect.values()).filter(Boolean).length ||
+      Array.from(canonSigToCorrect.values()).filter(Boolean).length ||
+      totalCorrect
+    );
+  
+    // Count selected-correct STRICTLY from the CURRENT click payload by canonical truth
+    let selectedCorrectNow = 0;
+    for (let i = 0; i < (options?.length ?? 0); i++) {
+      const o: any = options[i];
+      if (!o?.selected) continue;
+  
+      let isCorrect = false;
+      const oid = o?.optionId ?? o?.id;
+      if (oid != null && canonIdToCorrect.has(String(oid))) {
+        isCorrect = !!canonIdToCorrect.get(String(oid));
+      } else {
+        const sig = sigOf(o);
+        if (canonSigToCorrect.has(sig)) isCorrect = !!canonSigToCorrect.get(sig);
+      }
+  
+      if (isCorrect) selectedCorrectNow++;
+    }
+  
+    // Target: prefer explicit override if present; clamp so it can NEVER be < realCorrectCount
     const expectedOverride = this.getExpectedCorrectCount(index);
-  
-    // ── FIX: derive real correct count from overlay and clamp target so it can NEVER be less
-    const realCorrectCount = Math.max(1, correctCountOverlay);
-  
-    // ── FIX: apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
     let target: number = realCorrectCount;
     if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     }
   
-    // ── FIX: NEVER downshift multi once canonical says it's multi
+    // NEVER downshift multi once canonical says it's multi
     const isMultiCanonical = realCorrectCount > 1;
     isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
     // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, target - selectedCorrectNow);
   
-    // ✅ completion latch — once satisfied, prevent regressions from passive writers
+    // completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
     (this as any).completedByIndex.set(index, remainingClick === 0);
-  
+
     // ──────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
     // ──────────────────────────────────────────────────────────────────────────
@@ -1134,45 +1162,48 @@ export class SelectionMessageService {
         const msg = buildRemainingMsg(remainingClick);   // e.g., "Select 1 more correct answer to continue..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
+
         const now  = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-  
+
         // Update snapshot after the decision
         this.setOptionsSnapshot(options);
         return; // never emit Next while remaining > 0
       }
-  
+
       // remainingClick === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
+
       const now  = performance.now();
       const hold = now + 300;
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
-  
+
       // Update snapshot after the decision
       this.setOptionsSnapshot(options);
       return;
     }
-  
+
     // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur2 = this.selectionMessageSubject.getValue();
     if (cur2 !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-  
+
     const now2  = performance.now();
     const hold2 = now2 + 300;
     this.suppressPassiveUntil.set(index, hold2);
     this.freezeNextishUntil.set(index, hold2);
-  
+
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+
+
+
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
