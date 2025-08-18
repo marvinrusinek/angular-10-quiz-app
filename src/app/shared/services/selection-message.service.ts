@@ -1466,10 +1466,8 @@ export class SelectionMessageService {
     // Total required: prefer explicit override, else union count
     // Clamp the override into [1, unionCorrectCount]
     const totalForThisQ =
-      (typeof expectedOverride === 'number' &&
-       expectedOverride >= 1 &&
-       expectedOverride <= unionCorrectCount)
-        ? expectedOverride
+      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrectCount)
+        ? Math.min(expectedOverride, unionCorrectCount)
         : unionCorrectCount;
   
     // Count only the selected CORRECT options (use .correct/.isCorrect on overlaid;
