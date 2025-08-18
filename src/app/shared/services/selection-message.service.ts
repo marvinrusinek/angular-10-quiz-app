@@ -164,7 +164,7 @@ export class SelectionMessageService {
   
     const expectedOverride = this.getExpectedCorrectCount(index) ?? expectedFromContent;
   
-    // ⬇️ UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
+    // UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
     const isMulti =
       (totalCorrect > 1) ||
       (qType === QuestionType.MultipleAnswer) ||
