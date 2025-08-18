@@ -1210,91 +1210,91 @@ export class SelectionMessageService {
     const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
     const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
     const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
-    const keyOf     = (o: any, i: number) => {
-      const v = norm(o?.value);
-      const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
-      return (v || t) ? `vt:${v}|${t}` : `id:${String(idOf(o, i))}`;
-    };
-    const asNum = (s: any) => {
-      const n = Number(s);
-      return Number.isFinite(n) ? n : null;
-    };
+    const valOf     = (o: any) => norm(o?.value);
+    const textOf    = (o: any) => norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
   
-    // Map id -> key for canonical (prefer canonical keys)
-    const idToKey = new Map<any, string>();
-    const canonKeys: string[] = [];
-    for (let i = 0; i < canonical.length; i++) {
-      const k = keyOf(canonical[i], i);
-      canonKeys[i] = k;
-      idToKey.set(idOf(canonical[i], i), k);
-    }
+    // Build canonical indexes and correctness flags (canonical truth)
+    const canonIdToIndex = new Map<string, number>();
+    const canonSigToIndex = new Map<string, number>(); // value/text signature → index
+    const canonCorrectByIndex: boolean[] = [];
   
-    // CORRECT-KEYS from flags
-    const correctKeysFromFlags = new Set<string>();
     for (let i = 0; i < canonical.length; i++) {
       const c: any = canonical[i];
-      const isCorr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
-      if (isCorr) correctKeysFromFlags.add(canonKeys[i]);
+      const id = c?.optionId ?? c?.id;
+      if (id != null) canonIdToIndex.set(String(id), i);
+      const sig = `v:${valOf(c)}|t:${textOf(c)}`;
+      canonSigToIndex.set(sig, i);
+      const corr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
+      canonCorrectByIndex[i] = corr;
     }
   
-    // CORRECT-KEYS from answers (robust: id | index | value | text)
-    const correctKeysFromAnswer = new Set<string>();
+    const canonicalHasFlags = canonCorrectByIndex.some(Boolean);
+  
+    // Robust mapper: current option → canonical index
+    const mapToCanonicalIndex = (o: any, i: number): number | null => {
+      // 1) ID exact match
+      const id = o?.optionId ?? o?.id;
+      if (id != null) {
+        const hit = canonIdToIndex.get(String(id));
+        if (typeof hit === 'number') return hit;
+      }
+      // 2) Exact value/text signature match
+      const sig = `v:${valOf(o)}|t:${textOf(o)}`;
+      const sHit = canonSigToIndex.get(sig);
+      if (typeof sHit === 'number') return sHit;
+  
+      // 3) Last-chance: if both arrays look aligned and texts match at position, allow positional fallback
+      if (i < canonical.length) {
+        const c = canonical[i] as any;
+        if (textOf(o) && textOf(o) === textOf(c)) return i;
+      }
+      return null;
+    };
+  
+    // CORRECT-KEYS from answers (kept for target fallback only)
+    const correctFromAnswerIndex = new Set<number>();
     const ans: any = (q as any)?.answer;
     if (Array.isArray(ans) && ans.length) {
       for (let i = 0; i < canonical.length; i++) {
         const c: any = canonical[i];
-        const cid    = idOf(c, i);
-        const cv     = norm(c?.value);
-        const ct     = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-        const zeroIx = i;       // 0-based
-        const oneIx  = i + 1;   // 1-based
+        const cid = String(c?.optionId ?? c?.id ?? i);
+        const cv  = valOf(c);
+        const ct  = textOf(c);
+        const zeroIx = i, oneIx = i + 1;
+        const asNum = (s: any) => { const n = Number(s); return Number.isFinite(n) ? n : null; };
   
         const matched = ans.some((a: any) => {
           if (a == null) return false;
           if (typeof a === 'object') {
-            const aid = (a?.optionId ?? a?.id);
-            if (aid != null && String(aid) === String(cid)) return true;
+            const aid = a?.optionId ?? a?.id;
+            if (aid != null && String(aid) === cid) return true;
             const aNum = asNum(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
             if (aNum != null && (aNum === zeroIx || aNum === oneIx)) return true;
-            const av = norm(a?.value);
-            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            const av = norm(a?.value); const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
             return (!!av && av === cv) || (!!at && at === ct);
           }
-          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx) || (String(a) === String(cid));
-          const s = String(a);
-          const n = asNum(s);
-          if (n != null && (n === zeroIx || n === oneIx || String(n) === String(cid))) return true;
-          const ns = norm(s);
-          return (!!ns && (ns === cv || ns === ct));
+          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+          const s = String(a); const n = asNum(s);
+          if (n != null && (n === zeroIx || n === oneIx)) return true;
+          const ns = norm(s); return (!!ns && (ns === cv || ns === ct));
         });
   
-        if (matched) correctKeysFromAnswer.add(canonKeys[i]);
+        if (matched) correctFromAnswerIndex.add(i);
       }
     }
-  
-    // Union the two sources of truth
-    const correctKeySet = new Set<string>([
-      ...correctKeysFromFlags,
-      ...correctKeysFromAnswer
-    ]);
   
     // How many correct answers should be selected to proceed?
     const expectedOverride = this.getExpectedCorrectCount(index);
   
-    // ──────────────────────────────────────────────────────────
-    // CHANGE #1: target = canonical-correct-by-index (fallback union/option flags)
-    // Prevents under-gating on Q4 and avoids key mismatches that broke Q2.
-    // ──────────────────────────────────────────────────────────
-    const canonCorrectByIndex: boolean[] = canonical.map(
-      (c: any) => !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true'
-    );
+    // TARGET: prefer canonical flags count; fallback to answer-derived; else last-resort totalCorrect
     const canonicalCount = canonCorrectByIndex.filter(Boolean).length;
+    const answerCount    = correctFromAnswerIndex.size;
   
     const realCorrectCount =
       (canonicalCount > 0 ? canonicalCount :
-       (correctKeySet.size > 0 ? correctKeySet.size : totalCorrect));
+       (answerCount    > 0 ? answerCount    : totalCorrect));
   
-    // Accept override only if it is >= the real count; clamp down if too high.
+    // Accept override only if it is >= real count; clamp if too high
     let target: number;
     if (typeof expectedOverride === 'number' && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
@@ -1305,26 +1305,27 @@ export class SelectionMessageService {
     // If target indicates multi, honor it (helps when declared type is wrong)
     if (target > 1) isMulti = true;
   
-    // ──────────────────────────────────────────────────────────
-    // CHANGE #2: count selected-correct by POSITION first, then fallback.
-    // Fixes Q2 (no key mismatch) and Q4 (wrong options don’t increment).
-    // ──────────────────────────────────────────────────────────
+    // Count selected-correct STRICTLY from the CURRENT click payload (`options`) via canonical mapping
     let selectedCorrectNow = 0;
     for (let i = 0; i < (options?.length ?? 0); i++) {
       const o: any = options[i];
       if (!o?.selected) continue;
   
-      // 1) Prefer positional canonical flag (avoids key mismatches)
-      let isCorrect = (i < canonCorrectByIndex.length) ? canonCorrectByIndex[i] : false;
+      const ci = mapToCanonicalIndex(o, i);
+      let isCorrect = false;
   
-      // 2) If canonical flags are absent BUT union exists, use union
-      if (!isCorrect && canonicalCount === 0 && correctKeySet.size > 0) {
-        const k = keyOf(o, i);
-        isCorrect = correctKeySet.has(k);
+      if (ci != null) {
+        // Canonical truth first
+        if (canonicalHasFlags) {
+          isCorrect = !!canonCorrectByIndex[ci];
+        } else if (answerCount > 0) {
+          // Only if canonical flags absent, allow answer-derived correctness
+          isCorrect = correctFromAnswerIndex.has(ci);
+        }
       }
   
-      // 3) Last-resort: trust the option’s own flag if present
-      if (!isCorrect) {
+      // Very last resort (only when neither canonical flags nor answers exist)
+      if (!isCorrect && !canonicalHasFlags && answerCount === 0) {
         isCorrect = !!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true';
       }
   
@@ -1333,10 +1334,14 @@ export class SelectionMessageService {
   
     // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, Math.max(0, target) - selectedCorrectNow);
+  
+    // ✅ completion latch — keep multi from regressing once satisfied
     if (remainingClick === 0) {
-      this.completedByIndex.set(index, true);
+      (this as any).completedByIndex ??= new Map<number, boolean>();
+      (this as any).completedByIndex.set(index, true);
     } else {
-      this.completedByIndex.set(index, false);
+      (this as any).completedByIndex ??= new Map<number, boolean>();
+      (this as any).completedByIndex.set(index, false);
     }
   
     // ──────────────────────────────────────────────────────────────────────────
