@@ -1098,25 +1098,61 @@ export class SelectionMessageService {
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // ── REPLACED: selected-correct strictly from the OVERLAY of the CURRENT payload
-    const selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
-      n + ((!!o?.selected) &&
-           (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true')
-           ? 1 : 0), 0);
+    // ──────────────────────────────────────────────────────────────────────────
+    // REPLACED: selected-correct — sync CURRENT selections → overlay, then count
+    // (Fixes cases where getCanonicalOverlay() doesn't preserve `selected`)
+    // ──────────────────────────────────────────────────────────────────────────
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const sigOf     = (o: any) =>
+      `v:${norm(o?.value)}|t:${norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText)}`;
+  
+    // Build maps of which CURRENT options are selected (by id and by signature)
+    const selectedById  = new Map<string, boolean>();
+    const selectedBySig = new Map<string, boolean>();
+    for (let i = 0; i < (options?.length ?? 0); i++) {
+      const o: any = options[i];
+      if (!o?.selected) continue;
+      const oid = o?.optionId ?? o?.id;
+      if (oid != null) selectedById.set(String(oid), true);
+      const sig = sigOf(o);
+      if (sig) selectedBySig.set(sig, true);
+    }
+  
+    // Push selection into overlay (don’t assume overlay preserved it), then count selected & correct
+    let selectedCorrectNow = 0;
+    for (let i = 0; i < overlaidNow.length; i++) {
+      const oo: any = overlaidNow[i];
+  
+      // derive selected from CURRENT options by id first, else signature; fallback to overlay flag
+      const oid = oo?.optionId ?? oo?.id;
+      const sig = sigOf(oo);
+      const sel =
+        (oid != null && selectedById.get(String(oid)) === true) ||
+        (!!sig && selectedBySig.get(sig) === true) ||
+        (!!oo?.selected);
+  
+      // write-through to keep snapshot consistent
+      oo.selected = !!sel;
+  
+      const corr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
+      if (sel && corr) selectedCorrectNow++;
+    }
+    // ──────────────────────────────────────────────────────────────────────────
   
     // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
   
-    // derive real correct count from overlay and clamp target so it can NEVER be less
+    // ── FIX: derive real correct count from overlay and clamp target so it can NEVER be less
     const realCorrectCount = Math.max(1, correctCountOverlay);
   
-    // apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
+    // ── FIX: apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
     let target: number = realCorrectCount;
     if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     }
   
-    // NEVER downshift multi once canonical says it's multi
+    // ── FIX: NEVER downshift multi once canonical says it's multi
     const isMultiCanonical = realCorrectCount > 1;
     isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
@@ -1174,6 +1210,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
