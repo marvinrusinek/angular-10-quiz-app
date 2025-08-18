@@ -1246,13 +1246,14 @@ export class SelectionMessageService {
     const realCorrectCount =
       correctKeySet.size > 0 ? correctKeySet.size : totalCorrect;
 
-    // Apply override only if it is within [1, realCorrectCount]; otherwise use realCorrectCount.
-    let target =
-      (typeof expectedOverride === 'number' &&
-      expectedOverride >= 1 &&
-      expectedOverride <= realCorrectCount)
-        ? expectedOverride
-        : realCorrectCount;
+    // Apply override only if it is >= the real count; then clamp down to the real count.
+    // This guarantees multi gating for Q4 (2 correct), even if some override says 1.
+    let target: number;
+    if (typeof expectedOverride === 'number' && expectedOverride >= realCorrectCount) {
+      target = Math.min(expectedOverride, realCorrectCount);
+    } else {
+      target = realCorrectCount;
+    }
 
     // Clamp the target so we never demand more correct answers than actually exist.
     if (target > realCorrectCount) {
