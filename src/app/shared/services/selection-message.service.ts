@@ -635,18 +635,24 @@ export class SelectionMessageService {
     const selectedCorrect = overlaid.filter(o => !!(o as any)?.correct && !!o?.selected).length;
   
     const expectedOverride = this.getExpectedCorrectCount(i0);
-    const target =
-      (typeof expectedOverride === 'number' && expectedOverride >= 1)
-        ? Math.min(expectedOverride, Math.max(1, totalCorrectCanonical))
-        : Math.max(1, totalCorrectCanonical);
   
+    // ── FIX: derive real correct count from CURRENT overlay; at least 1
+    const realCorrectCount = Math.max(1, totalCorrectCanonical);
+  
+    // ── FIX: clamp target so it can NEVER be less than realCorrectCount.
+    // Apply override ONLY if it is ≥ realCorrectCount; then clamp to realCorrectCount.
+    let target: number = realCorrectCount;
+    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
+      target = Math.min(expectedOverride, realCorrectCount);
+    }
+  
+    // Enforced remaining strictly from CURRENT payload
     const enforcedRemaining = Math.max(0, target - selectedCorrect);
   
-    // Compute multi AFTER target so Q4 can’t fall into single branch
+    // ── FIX: multi is canonical; do NOT let it downshift because target was smaller.
     const isMultiFinal =
-      (target > 1) ||
-      (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      (totalCorrectCanonical > 1);
+      (realCorrectCount > 1) ||
+      (qTypeDeclared === QuestionType.MultipleAnswer);
   
     // Classifiers
     const low = toLower(next);
@@ -730,6 +736,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
@@ -1098,13 +1105,19 @@ export class SelectionMessageService {
   
     // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
-    let target =
-      (typeof expectedOverride === 'number' && expectedOverride >= 1)
-        ? Math.min(expectedOverride, Math.max(1, correctCountOverlay))
-        : Math.max(1, correctCountOverlay);
   
-    // If target indicates multi, honor it (helps when declared type is wrong)
-    if (target > 1) isMulti = true;
+    // ── FIX: derive real correct count from overlay and clamp target so it can NEVER be less
+    const realCorrectCount = Math.max(1, correctCountOverlay);
+  
+    // ── FIX: apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
+    let target: number = realCorrectCount;
+    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
+      target = Math.min(expectedOverride, realCorrectCount);
+    }
+  
+    // ── FIX: NEVER downshift multi once canonical says it's multi
+    const isMultiCanonical = realCorrectCount > 1;
+    isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
     // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, target - selectedCorrectNow);
@@ -1160,10 +1173,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
-
-
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
