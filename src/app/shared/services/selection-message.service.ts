@@ -1360,13 +1360,13 @@ export class SelectionMessageService {
     const anySelected = overlaid.some(o => !!o?.selected);
     const msg = (qType === QuestionType.MultipleAnswer)
       ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-      : (anySelected
-          ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-          : CONTINUE_MSG);
+      : (anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                     : CONTINUE_MSG);
   
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
+  
   
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
@@ -1424,32 +1424,135 @@ export class SelectionMessageService {
     // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
   
-    // Canonical "correct" count from flags (accept either .correct or .isCorrect)
-    const canonicalCorrect = overlaid.filter(o => !!o?.correct || !!(o as any)?.isCorrect).length;
+    // ──────────────────────────────────────────────────────────────────────────
+    // NEW: Derive canonical correctness from the quiz question (flags ∪ answers).
+    // This makes first-render (before any click) robust even if `overlaid` lacks flags.
+    // ──────────────────────────────────────────────────────────────────────────
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (svc?.currentQuestion as QuizQuestion | undefined);
   
-    const isMulti =
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+  
+    // Helpers (mirror emitFromClick)
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
+    const keyOf     = (o: any, i: number) => {
+      const v = norm(o?.value);
+      const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+      return (v || t) ? `vt:${v}|${t}` : `id:${String(idOf(o, i))}`;
+    };
+    const asNum = (s: any) => {
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    };
+  
+    // Build canonical keys
+    const canonKeys: string[] = [];
+    for (let i = 0; i < canonical.length; i++) {
+      canonKeys[i] = keyOf(canonical[i], i);
+    }
+  
+    // CORRECT-KEYS from flags
+    const correctKeysFromFlags = new Set<string>();
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const isCorr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
+      if (isCorr) correctKeysFromFlags.add(canonKeys[i]);
+    }
+  
+    // CORRECT-KEYS from answers (robust: id | index | value | text)
+    const correctKeysFromAnswer = new Set<string>();
+    const ans: any = (q as any)?.answer;
+    if (Array.isArray(ans) && ans.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid    = idOf(c, i);
+        const cv     = norm(c?.value);
+        const ct     = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+        const zeroIx = i;       // 0-based
+        const oneIx  = i + 1;   // 1-based
+  
+        const matched = ans.some((a: any) => {
+          if (a == null) return false;
+          if (typeof a === 'object') {
+            const aid = (a?.optionId ?? a?.id);
+            if (aid != null && String(aid) === String(cid)) return true;
+            const aNum = asNum(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+            if (aNum != null && (aNum === zeroIx || aNum === oneIx)) return true;
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === cv) || (!!at && at === ct);
+          }
+          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx) || (String(a) === String(cid));
+          const s = String(a);
+          const n = asNum(s);
+          if (n != null && (n === zeroIx || n === oneIx || String(n) === String(cid))) return true;
+          const ns = norm(s);
+          return (!!ns && (ns === cv || ns === ct));
+        });
+  
+        if (matched) correctKeysFromAnswer.add(canonKeys[i]);
+      }
+    }
+  
+    // Union the two sources of truth for "what is correct" on this question
+    const correctKeySet = new Set<string>([
+      ...correctKeysFromFlags,
+      ...correctKeysFromAnswer
+    ]);
+  
+    // Real number of correct answers available on this question
+    const canonicalCorrectFlags = correctKeysFromFlags.size;
+    const unionCorrectCount = correctKeySet.size > 0 ? correctKeySet.size : canonicalCorrectFlags;
+  
+    // Original quick check using declared type/override/flags
+    let canonicalCorrect = overlaid.filter(o => !!o?.correct || !!(o as any)?.isCorrect).length;
+  
+    const isMultiQuick =
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
       (canonicalCorrect > 1);
   
+    // ──────────────────────────────────────────────────────────────────────────
+    // Decide multi with robust union fallback (so first render works)
+    // ──────────────────────────────────────────────────────────────────────────
+    const isMulti = isMultiQuick || (unionCorrectCount > 1);
     if (!isMulti) return null;
   
-    // NEW: We DO want to show the remaining message even before any pick.
-    // (Previously: returned null if !anySelected; that caused "Please start..." to appear.)
+    // NEW: Do NOT force "Select ..." before any pick → actually we DO want to show remaining before any pick
     const anySelected = overlaid.some(o => !!o?.selected);
-    // Keep the variable for clarity; just don't early-return.
+    // Keep variable for clarity; do not early-return on !anySelected.
   
-    // Total required: prefer explicit override, else canonical count
+    // Total required: prefer explicit override, else union-correct.
     // Clamp the override so we never require more correct answers than actually exist.
     const totalForThisQ =
       (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? Math.min(expectedOverride, canonicalCorrect)
-        : canonicalCorrect;
+        ? Math.min(expectedOverride, unionCorrectCount)
+        : unionCorrectCount;
   
-    // Count only the selected CORRECT options
-    const selectedCorrect = overlaid.reduce(
-      (n, o) => n + ((!!(o?.correct || (o as any)?.isCorrect) && !!o?.selected) ? 1 : 0), 0
-    );
+    // Count selected CORRECT options based on union correctness
+    // Map overlaid items to canonical/union keys when possible
+    const overKeyOf = (o: any, i: number) => {
+      // try to align to canonical by id if present
+      const id = (o?.optionId ?? o?.id ?? i);
+      // if ids match canonical positions, prefer text/value fallback
+      return keyOf(o, i);
+    };
+  
+    let selectedCorrect = 0;
+    for (let i = 0; i < overlaid.length; i++) {
+      const o = overlaid[i] as any;
+      if (!o?.selected) continue;
+      const k = overKeyOf(o, i);
+      const isCorrectByUnion = correctKeySet.size > 0
+        ? correctKeySet.has(k)
+        : (!!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true');
+      if (isCorrectByUnion) selectedCorrect++;
+    }
   
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
   
@@ -1462,8 +1565,6 @@ export class SelectionMessageService {
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
-  
-  
   
   private getQuestionTypeForIndex(index: number): QuestionType {
     const svc: any = this.quizService as any;
