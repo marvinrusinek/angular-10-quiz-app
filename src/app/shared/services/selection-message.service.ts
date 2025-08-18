@@ -1222,53 +1222,77 @@ export class SelectionMessageService {
   
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
-  private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
+  // Robustly overlay canonical correctness onto the CURRENT payload for question `qIndex`.
+  // Priority:
+  //   1) Exact ID match (optionId | id)
+  //   2) Exact normalized value/text signature match
+  // No positional/index matching (prevents leakage on Q4 and reorders).
+  private getCanonicalOverlay(qIndex: number, current: Option[] | undefined | null): Option[] {
+    const cur = Array.isArray(current) ? current : [];
+
+    // Resolve canonical once from your service (keep your structure intact)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q: QuizQuestion | undefined =
-      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (qIndex >= 0 && qIndex < qArr.length ? qArr[qIndex] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
 
-    const canonical: Option[] = Array.isArray(q?.options) ? q!.options : [];
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
 
-    // Collect selected ids from ctx options (if provided)
-    const selectedIds = new Set<number | string>();
-    const source = Array.isArray(optsCtx) && optsCtx.length ? optsCtx : this.getLatestOptionsSnapshot();
-    for (let i = 0; i < (source?.length ?? 0); i++) {
-      const o = source[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
+    // Helpers (same normalization everywhere)
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
+    const sigOf     = (o: any) => `v:${norm((o as any)?.value)}|t:${norm((o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText)}`;
+
+    // Build fast canonical lookups
+    const canonById  = new Map<string, { correct: boolean }>();
+    const canonBySig = new Map<string, { correct: boolean }>();
+
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      const corr = (c?.correct === true) ||
+                  (c?.isCorrect === true) ||
+                  (String(c?.correct).toLowerCase() === 'true') ||
+                  (Number(c?.correct) === 1);
+      const id = c?.optionId ?? c?.id;
+      if (id != null) canonById.set(String(id), { correct: corr });
+      canonBySig.set(sigOf(c), { correct: corr });
     }
 
-    // Union with current snapshot
-    const snap = this.getLatestOptionsSnapshot();
-    for (let i = 0; i < (snap?.length ?? 0); i++) {
-      const o = snap[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
-    }
+    // Create overlaid copy of CURRENT payload with canonical correctness stamped in
+    const overlaid: Option[] = cur.map((o: any, i: number) => {
+      // clone (preserve your structure & flags)
+      const copy: any = { ...o };
 
-    // Union with SelectedOptionService map (if it stores ids/objs)
-    try {
-      const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => {
-          const id = (so?.optionId ?? so?.id ?? so?.value ?? idx);
-          if (id !== undefined) selectedIds.add(id);
-        });
+      // default to false unless proven true by canonical
+      let corr = false;
+
+      // 1) ID match wins
+      const oid = o?.optionId ?? o?.id;
+      if (oid != null) {
+        const hit = canonById.get(String(oid));
+        if (hit) corr = !!hit.correct;
       }
-    } catch {}
 
-    // Return canonical with selected overlay (fallback to ctx/source if canonical missing)
-    return canonical.length
-      ? canonical.map((o, idx) => {
-          const id = (o as any)?.optionId ?? idx;
-          return { ...o, selected: selectedIds.has(id) };
-        })
-      : source.map(o => ({ ...o }));
+      // 2) If no ID match, try exact value/text signature
+      if (!corr && (oid == null || !canonById.has(String(oid)))) {
+        const sig = sigOf(o);
+        const hit = canonBySig.get(sig);
+        if (hit) corr = !!hit.correct;
+      }
+
+      // Never use positional fallback — prevents Q4 miscount when lists reorder
+      copy.correct = !!corr;   // force boolean
+      // Keep any existing selection flag intact
+      copy.selected = !!o?.selected;
+
+      return copy as Option;
+    });
+
+    return overlaid;
   }
+
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
   // UPDATED: honor expected-correct override and count only SELECTED-CORRECT
