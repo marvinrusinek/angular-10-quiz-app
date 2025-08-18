@@ -1163,13 +1163,35 @@ export class SelectionMessageService {
     // Q4 SAFETY FUSE: lock remaining to canonical truth and prevent multi→single downshift
     // (Keeps Q2 intact — we only clamp the minimum remaining when canonical says multi)
     // ──────────────────────────────────────────────────────────────────────────
-    const canonicalCorrectCount = (canonical ?? []).reduce((n, o: any) =>
+    const canonicalCorrectCountFuse = (canonical ?? []).reduce((n, o: any) =>
       n + ((o?.correct === true) || (o?.isCorrect === true) || (String(o?.correct).toLowerCase() === 'true') ? 1 : 0), 0
     );
   
-    if (canonicalCorrectCount > 1) {
-      const minRemaining = Math.max(0, canonicalCorrectCount - selectedCorrectNow);
+    if (canonicalCorrectCountFuse > 1) {
+      // Count canonically-correct selections in CURRENT payload (no overlay dependency)
+      const canonIds = new Set<string>();
+      const canonSigs = new Set<string>();
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const corr = c?.correct === true || c?.isCorrect === true || String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
+        if (!corr) continue;
+        canonIds.add(String(c?.optionId ?? c?.id ?? i));
+        const s = sigOf(c);
+        if (s) canonSigs.add(s);
+      }
+  
+      let selectedCorrectCanonicalNow = 0;
+      for (let i = 0; i < (options?.length ?? 0); i++) {
+        const o: any = options[i];
+        if (!o?.selected) continue;
+        const oid = String(o?.optionId ?? o?.id ?? i);
+        const s = sigOf(o);
+        if (canonIds.has(oid) || (s && canonSigs.has(s))) selectedCorrectCanonicalNow++;
+      }
+  
+      const minRemaining = Math.max(0, canonicalCorrectCountFuse - selectedCorrectCanonicalNow);
       if (remainingClick < minRemaining) remainingClick = minRemaining;
+  
       // also hard-lock multi so a wrong 2nd click can't flip to "Next"
       isMulti = true;
     }
@@ -1224,11 +1246,7 @@ export class SelectionMessageService {
   
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
-  }
-  
-  
-  
-  
+  }  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
