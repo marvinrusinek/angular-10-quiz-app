@@ -580,9 +580,7 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // ─────────────────────────────────────────────────────────────
-    // QUICK HELPERS
-    // ─────────────────────────────────────────────────────────────
+    // Quick helpers
     const toLower = (s: string) => (s ?? '').toLowerCase();
     const isSelectMore = (s: string) => {
       const l = toLower(s);
@@ -605,10 +603,7 @@ export class SelectionMessageService {
     const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
   
-    // ─────────────────────────────────────────────────────────────
-    // NORMALIZE: never show START_MSG except on very first question,
-    // and never for multi-answer questions.
-    // ─────────────────────────────────────────────────────────────
+    // NORMALIZE: never show START_MSG except on very first question, and never for multis
     if (next === START_MSG && (i0 > 0 || qTypeDeclared === QuestionType.MultipleAnswer)) {
       next = CONTINUE_MSG; // e.g., "Please select an option to continue..."
     }
@@ -627,155 +622,56 @@ export class SelectionMessageService {
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
     this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
   
-    // Authoritative remaining from canonical + union of selected ids (informational only now)
-    const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
-  
     // Decide multi from data or declared type (canonical is truth)
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrectFlags = canonical.filter(o => !!o?.correct).length;
-  
     const snap = optsCtx ?? this.getLatestOptionsSnapshot();
   
     // 🔧 Re-stamp ids on the snapshot we're about to use for overlay counting
     this.ensureStableIds(i0, canonical, snap);
   
+    // Count only CORRECT selections using canonical overlay (CURRENT payload only)
+    const overlaid = this.getCanonicalOverlay(i0, snap);
+    const totalCorrectCanonical = overlaid.filter(o => !!(o as any)?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!(o as any)?.correct && !!o?.selected).length;
+  
     const expectedOverride = this.getExpectedCorrectCount(i0);
+    const target =
+      (typeof expectedOverride === 'number' && expectedOverride >= 1)
+        ? Math.min(expectedOverride, Math.max(1, totalCorrectCanonical))
+        : Math.max(1, totalCorrectCanonical);
   
-    // Count only CORRECT selections using canonical overlay
-    const overlaidForCorrect = this.getCanonicalOverlay(i0, snap);
-    const totalCorrectCanonical = overlaidForCorrect.filter(o => !!o?.correct).length;
-    const selectedCorrectCountOverlay  = overlaidForCorrect.filter(o => !!o?.correct && !!o?.selected).length;
+    const enforcedRemaining = Math.max(0, target - selectedCorrect);
   
-    // === prefer: override → robust q.answer count → canonical flags ===
-    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-  
-    const ansArr: any[] = Array.isArray((q as any)?.answer) ? (q as any).answer : [];
-  
-    // Build robust answer-id set by checking each canonical option against q.answer
-    const answerIdSet = new Set<string>();
-    if (ansArr.length) {
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const cid = String(c?.optionId ?? c?.id ?? i);
-        const zeroIx = i;
-        const oneIx  = i + 1;
-        const cVal   = norm(c?.value);
-        const cText  = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-  
-        const matched = ansArr.some((a: any) => {
-          if (a == null) return false;
-  
-          if (typeof a === 'object') {
-            const aid = a?.optionId ?? a?.id;
-            if (aid != null && String(aid) === cid) return true;
-  
-            const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-            if (Number.isFinite(idx) && (idx === zeroIx || idx === oneIx)) return true;
-  
-            const av = norm(a?.value);
-            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-            return (!!av && av === cVal) || (!!at && at === cText);
-          }
-  
-          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-  
-          const s = String(a);
-          const n = Number(s);
-          if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-  
-          const ns = norm(s);
-          return (!!ns && (ns === cVal || ns === cText));
-        });
-  
-        if (matched) answerIdSet.add(cid);
-      }
-    }
-  
-    const totalFromAnswer = answerIdSet.size;
-  
-    // ⬇️ NEW: robust union of "how many correct actually exist"
-    const unionCorrect = Math.max(totalFromAnswer, totalCorrectCanonical);
-  
-    // Clamp totalForThisQ so it's never less than real correct count
-    const totalForThisQ =
-      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrect)
-        ? Math.min(expectedOverride, unionCorrect)
-        : unionCorrect;
-  
-    // === BEGIN: STRICT override-aware calculation (CURRENT payload only, no unions) ===
-    // Build source: optsCtx if provided; else snapshot ONLY
-    const src: Option[] = Array.isArray(optsCtx) ? optsCtx : this.getLatestOptionsSnapshot();
-  
-    // 🔧 Re-stamp IDs ON THE EXACT PAYLOAD we are about to evaluate
-    this.ensureStableIds(i0, canonical, src);
-  
-    // Prefer explicit override-correct ids if you set them
-    const overrideIds: Set<string> | undefined =
-      (this as any).getOverrideCorrectIds?.(i0) ?? undefined;
-  
-    // Strict canonical flag ids (true/'true'/1)
-    const flagIdSet = new Set<string>();
-    for (let i = 0; i < canonical.length; i++) {
-      const c: any = canonical[i];
-      const cid = String(c?.optionId ?? c?.id ?? i);
-      const corr = c?.correct;
-      if (corr === true || c?.isCorrect === true || String(corr).toLowerCase() === 'true' || Number(corr) === 1) {
-        flagIdSet.add(cid);
-      }
-    }
-  
-    // Union of authoritative correctness sources
-    const correctIdsUnion = new Set<string>();
-    if (overrideIds && overrideIds.size) overrideIds.forEach(id => correctIdsUnion.add(String(id)));
-    answerIdSet.forEach(id => correctIdsUnion.add(id));
-    flagIdSet.forEach(id => correctIdsUnion.add(id));
-  
-    // Count selected-correct strictly from CURRENT src against the union set
-    let selectedCorrectFromSrc = 0;
-    for (let i = 0; i < (src?.length ?? 0); i++) {
-      const o: any = src[i];
-      if (!o?.selected) continue;
-      const cid = String(o?.optionId ?? o?.id ?? i);
-      if (correctIdsUnion.has(cid)) selectedCorrectFromSrc++;
-    }
-  
-    // Compute the remaining from CURRENT payload
-    const remainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
-  
-    // 🔁 CHANGE: Gating must be based ONLY on current payload to avoid Q4 drift.
-    // Ignore the union/snapshot-based `remaining`.
-    const enforcedRemaining = remainingByCurrent;
-    // === END: STRICT override-aware calculation ===
-  
-    // 🔒 Compute multi AFTER totalForThisQ so we never fall into the single branch on Q4
+    // Compute multi AFTER target so Q4 can’t fall into single branch
     const isMultiFinal =
-      (totalForThisQ > 1) ||
+      (target > 1) ||
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      (totalCorrectFlags > 1);
+      (totalCorrectCanonical > 1);
   
     // Classifiers
-    const low = next.toLowerCase();
+    const low = toLower(next);
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // EARLY EXIT GUARD (MULTI completion freeze): don’t regress after completion
+    // ✅ completion freeze (MULTI): once completed, always stick to Next/Results
     const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
-    if (isMultiFinal && wasCompleted && isSelectMore(next)) {
+    if (isMultiFinal && wasCompleted) {
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+  
+      // If someone tries to send "Select N more..." (or anything else), ignore and keep final
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
   
-    // Suppression windows: block Next-ish flips
+    // Suppression windows: block Next-ish flips while suppressed
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
     if (now < passiveHold && isNextish) return;
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
     if (now < nextFreeze && isNextish) return;
   
-    // Per-question "remaining" lock. While remaining>0, force "Select N..." and return.
+    // Per-question "remaining" lock bookkeeping (optional visual smoothing)
     const prevRem = this.lastRemainingByIndex.get(i0);
     if (prevRem === undefined || enforcedRemaining !== prevRem) {
       this.lastRemainingByIndex.set(i0, enforcedRemaining);
@@ -788,26 +684,23 @@ export class SelectionMessageService {
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
     const inEnforce = now < enforceUntil;
   
-    // ─────────────────────────────────────────────────────────────
-    // Mirror rule for multis: only show "Select ..." AFTER first pick.
-    // If authoritative target exists, that gate rules (no "Next" until picked == target).
-    // If nothing selected yet, show remaining instead of START/CONTINUE (multi).
-    // ─────────────────────────────────────────────────────────────
-    const anySelectedFromCtx = Array.isArray(optsCtx) ? optsCtx.some(o => !!o?.selected) : false;
-    const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
-    const anySelectedNow     = anySelectedFromCtx || anySelectedSnap;
-  
+    // MULTI behavior: before any pick → "Select N more…"; otherwise enforce remaining → Next/Results
     if (isMultiFinal) {
+      const anySelectedNow = overlaid.some(o => !!o?.selected);
+  
       if (!anySelectedNow) {
-        const forced = buildRemainingMsg(Math.max(1, totalForThisQ));
+        const forced = buildRemainingMsg(Math.max(1, target)); // e.g., "Select 2 more correct options..."
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
+  
+      // While remaining>0 (or in enforce window), keep "Select N more..."
       if (enforcedRemaining > 0 || inEnforce) {
         const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
+  
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
@@ -815,7 +708,7 @@ export class SelectionMessageService {
     }
   
     // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = anySelectedNow;
+    const anySelected = overlaid.some(o => !!o?.selected);
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
@@ -1288,14 +1181,23 @@ export class SelectionMessageService {
     const { index: i0, totalQuestions, questionType, options } = params;
   
     // Respect click suppression
-    // (We only apply this to non-forced messages; multi hint should bypass it.)
+    const until = this.suppressPassiveUntil.get(i0) ?? 0;
+    if (performance.now() < until) return;
+  
     const overlaid = this.getCanonicalOverlay(i0, options);
     this.setOptionsSnapshot(overlaid);
   
     const qType = questionType ?? this.getQuestionTypeForIndex(i0);
     const isLast = totalQuestions > 0 && i0 === totalQuestions - 1;
   
-    // Try to force a multi-remaining message (even before any pick)
+    // ✅ completion freeze (MULTI): once completed, keep Next/Results and exit early
+    if (qType === QuestionType.MultipleAnswer && (this as any).completedByIndex?.get(i0) === true) {
+      const finalMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      const cur = this.selectionMessageSubject.getValue();
+      if (cur !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    }
+  
     const forced = this.multiGateMessage(i0, qType, overlaid);
     if (forced) {
       const cur = this.selectionMessageSubject.getValue();
@@ -1303,21 +1205,15 @@ export class SelectionMessageService {
       return;  // never emit Next while remaining>0
     }
   
-    // For non-forced fallbacks, honor suppression
-    const until = this.suppressPassiveUntil.get(i0) ?? 0;
-    if (performance.now() < until) return;
-  
     const anySelected = overlaid.some(o => !!o?.selected);
     const msg = (qType === QuestionType.MultipleAnswer)
       ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
       : (anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-                     : CONTINUE_MSG); // <-- no START_MSG fallback anywhere
+                     : (i0 === 0 ? START_MSG : CONTINUE_MSG));
   
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
-  
-  
   
   
   
