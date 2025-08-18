@@ -580,6 +580,16 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
+    // ─────────────────────────────────────────────────────────────
+    // QUICK HELPERS (added)
+    // ─────────────────────────────────────────────────────────────
+    const toLower = (s: string) => (s ?? '').toLowerCase();
+    const isSelectMore = (s: string) => {
+      const l = toLower(s);
+      return l.startsWith('select ') && l.includes('more') && l.includes('continue');
+    };
+    // (We still compute isNextish later where we already lower-case `next`.)
+  
     {
       const parseRemaining = (msg: string): number | null => {
         const m = /select\s+(\d+)\s+more/i.exec(msg);
@@ -662,7 +672,7 @@ export class SelectionMessageService {
             const aid = a?.optionId ?? a?.id;
             if (aid != null && String(aid) === cid) return true;
   
-            const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+          const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
             if (Number.isFinite(idx) && (idx === zeroIx || idx === oneIx)) return true;
   
             const av = norm(a?.value);
@@ -758,6 +768,19 @@ export class SelectionMessageService {
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
+    // ─────────────────────────────────────────────────────────────
+    // EARLY EXIT GUARD (MULTI completion freeze):
+    // If this multi question is completed, block any attempt to show "Select N more..."
+    // and force the stable Next/Results message instead.
+    // ─────────────────────────────────────────────────────────────
+    const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
+    if (isMultiFinal && wasCompleted && isSelectMore(next)) {
+      const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+      const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    }
+  
     // Suppression windows: block Next-ish flips
     const now = performance.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
@@ -828,11 +851,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
-    
-      
-  
-  
    
   
   
