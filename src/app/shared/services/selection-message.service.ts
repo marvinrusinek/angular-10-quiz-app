@@ -1338,22 +1338,24 @@ export class SelectionMessageService {
   }): void {
     const { index: i0, totalQuestions, questionType, options } = params;
   
-    // Respect click suppression
-    const until = this.suppressPassiveUntil.get(i0) ?? 0;
-    if (performance.now() < until) return;
-  
+    // Build the overlaid options first so we can compute a forced multi message
     const overlaid = this.getCanonicalOverlay(i0, options);
     this.setOptionsSnapshot(overlaid);
   
     const qType = questionType ?? this.getQuestionTypeForIndex(i0);
     const isLast = totalQuestions > 0 && i0 === totalQuestions - 1;
   
+    // Try to force a multi-remaining message (even before any pick)
     const forced = this.multiGateMessage(i0, qType, overlaid);
     if (forced) {
-      const cur = this.selectionMessageSubject.getValue();
-      if (cur !== forced) this.selectionMessageSubject.next(forced);
+      const cur0 = this.selectionMessageSubject.getValue();
+      if (cur0 !== forced) this.selectionMessageSubject.next(forced);
       return;  // never emit Next while remaining>0
     }
+  
+    // Respect click suppression for non-forced messages only
+    const until = this.suppressPassiveUntil.get(i0) ?? 0;
+    if (performance.now() < until) return;
   
     const anySelected = overlaid.some(o => !!o?.selected);
     const msg = (qType === QuestionType.MultipleAnswer)
@@ -1364,6 +1366,7 @@ export class SelectionMessageService {
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
   }
+  
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
@@ -1458,6 +1461,7 @@ export class SelectionMessageService {
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
+  
   
   
   private getQuestionTypeForIndex(index: number): QuestionType {
