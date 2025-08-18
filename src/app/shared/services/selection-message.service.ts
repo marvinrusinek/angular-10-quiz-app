@@ -581,14 +581,13 @@ export class SelectionMessageService {
       : (this.quizService.currentQuestionIndex ?? 0);
   
     // ─────────────────────────────────────────────────────────────
-    // QUICK HELPERS (added)
+    // QUICK HELPERS
     // ─────────────────────────────────────────────────────────────
     const toLower = (s: string) => (s ?? '').toLowerCase();
     const isSelectMore = (s: string) => {
       const l = toLower(s);
       return l.startsWith('select ') && l.includes('more') && l.includes('continue');
     };
-    // (We still compute isNextish later where we already lower-case `next`.)
   
     {
       const parseRemaining = (msg: string): number | null => {
@@ -609,7 +608,6 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // NORMALIZE: never show START_MSG except on very first question,
     // and never for multi-answer questions.
-    // This prevents "Please start the quiz..." on Q2/Q4 etc.
     // ─────────────────────────────────────────────────────────────
     if (next === START_MSG && (i0 > 0 || qTypeDeclared === QuestionType.MultipleAnswer)) {
       next = CONTINUE_MSG; // e.g., "Please select an option to continue..."
@@ -629,7 +627,7 @@ export class SelectionMessageService {
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
     this.ensureStableIds(i0, (q as any)?.options ?? [], optsCtx ?? this.getLatestOptionsSnapshot());
   
-    // Authoritative remaining from canonical + union of selected ids
+    // Authoritative remaining from canonical + union of selected ids (informational only now)
     const remaining = this.remainingFromCanonical(i0, optsCtx ?? this.getLatestOptionsSnapshot());
   
     // Decide multi from data or declared type (canonical is truth)
@@ -672,7 +670,7 @@ export class SelectionMessageService {
             const aid = a?.optionId ?? a?.id;
             if (aid != null && String(aid) === cid) return true;
   
-          const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+            const idx = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
             if (Number.isFinite(idx) && (idx === zeroIx || idx === oneIx)) return true;
   
             const av = norm(a?.value);
@@ -745,16 +743,9 @@ export class SelectionMessageService {
     // Compute the remaining from CURRENT payload
     const remainingByCurrent = Math.max(0, totalForThisQ - selectedCorrectFromSrc);
   
-    // Decide enforcedRemaining:
-    // - If we have authoritative target (override or answer-derived) → use remainingByCurrent
-    // - Else → original behavior (max of canonical union and overlay)
-    const hasAuthoritativeTarget =
-      (typeof expectedOverride === 'number' && expectedOverride > 0) || (totalFromAnswer > 0);
-  
-    const enforcedRemaining =
-      hasAuthoritativeTarget
-        ? remainingByCurrent
-        : Math.max(remaining, Math.max(0, totalForThisQ - selectedCorrectCountOverlay));
+    // 🔁 CHANGE: Gating must be based ONLY on current payload to avoid Q4 drift.
+    // Ignore the union/snapshot-based `remaining`.
+    const enforcedRemaining = remainingByCurrent;
     // === END: STRICT override-aware calculation ===
   
     // 🔒 Compute multi AFTER totalForThisQ so we never fall into the single branch on Q4
@@ -768,11 +759,7 @@ export class SelectionMessageService {
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // ─────────────────────────────────────────────────────────────
-    // EARLY EXIT GUARD (MULTI completion freeze):
-    // If this multi question is completed, block any attempt to show "Select N more..."
-    // and force the stable Next/Results message instead.
-    // ─────────────────────────────────────────────────────────────
+    // EARLY EXIT GUARD (MULTI completion freeze): don’t regress after completion
     const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
     if (isMultiFinal && wasCompleted && isSelectMore(next)) {
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
@@ -804,7 +791,7 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Mirror rule for multis: only show "Select ..." AFTER first pick.
     // If authoritative target exists, that gate rules (no "Next" until picked == target).
-    // If nothing selected yet, show START/CONTINUE instead of nagging.
+    // If nothing selected yet, show remaining instead of START/CONTINUE (multi).
     // ─────────────────────────────────────────────────────────────
     const anySelectedFromCtx = Array.isArray(optsCtx) ? optsCtx.some(o => !!o?.selected) : false;
     const anySelectedSnap    = (snap ?? []).some(o => !!o?.selected);
@@ -812,8 +799,7 @@ export class SelectionMessageService {
   
     if (isMultiFinal) {
       if (!anySelectedNow) {
-        // 🔁 CHANGE: for multi, before any pick, show remaining (not START/CONTINUE)
-        const forced = buildRemainingMsg(Math.max(1, totalForThisQ)); // e.g., "Select 2 more correct options..."
+        const forced = buildRemainingMsg(Math.max(1, totalForThisQ));
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
@@ -851,8 +837,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-   
-  
   
   
   
