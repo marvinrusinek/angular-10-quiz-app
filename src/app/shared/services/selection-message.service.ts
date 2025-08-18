@@ -1142,16 +1142,16 @@ export class SelectionMessageService {
     options: Option[]; // updated array already passed
   }): void {
     const { index, totalQuestions, questionType, options } = params;
-
+  
     // Keep the previous snapshot so unions can see earlier selections
     // (We won't use it for counting; it's here to keep your structure intact.)
     const priorSnap = this.getLatestOptionsSnapshot();
-
+  
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
     // (Kept for single-answer path / legacy; for multi we will rely on selected-correct from *options* only.)
     let remaining = this.remainingFromCanonical(index, options);
-
+  
     // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
@@ -1159,12 +1159,12 @@ export class SelectionMessageService {
       (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-
+  
     const totalCorrectCanon = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
     const totalCorrect = totalCorrectCanon > 0
       ? totalCorrectCanon
       : (options ?? []).filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;  // last-resort fallback
-
+  
     // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
     // In that edge case, recompute `remaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
@@ -1173,18 +1173,18 @@ export class SelectionMessageService {
       ).length;
       remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
-
+  
     // Decide multi from canonical first; fall back to declared type
     let isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
-
+  
     // ──────────────────────────────────────────────────────────────────────────
     // NEW: Generic multi-answer gating (answers ∪ flags) × selected-correct from CURRENT payload
     // ──────────────────────────────────────────────────────────────────────────
-
+  
     // Stabilize IDs across sources so mapping by id works when available
     this.ensureStableIds(index, canonical, options, priorSnap);
-
+  
     // Helpers
     const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
     const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
@@ -1198,7 +1198,7 @@ export class SelectionMessageService {
       const n = Number(s);
       return Number.isFinite(n) ? n : null;
     };
-
+  
     // Map id -> key for canonical (prefer canonical keys)
     const idToKey = new Map<any, string>();
     const canonKeys: string[] = [];
@@ -1207,7 +1207,7 @@ export class SelectionMessageService {
       canonKeys[i] = k;
       idToKey.set(idOf(canonical[i], i), k);
     }
-
+  
     // CORRECT-KEYS from flags
     const correctKeysFromFlags = new Set<string>();
     for (let i = 0; i < canonical.length; i++) {
@@ -1215,7 +1215,7 @@ export class SelectionMessageService {
       const isCorr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true';
       if (isCorr) correctKeysFromFlags.add(canonKeys[i]);
     }
-
+  
     // CORRECT-KEYS from answers (robust: id | index | value | text)
     const correctKeysFromAnswer = new Set<string>();
     const ans: any = (q as any)?.answer;
@@ -1227,7 +1227,7 @@ export class SelectionMessageService {
         const ct     = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
         const zeroIx = i;       // 0-based
         const oneIx  = i + 1;   // 1-based
-
+  
         const matched = ans.some((a: any) => {
           if (a == null) return false;
           if (typeof a === 'object') {
@@ -1246,64 +1246,73 @@ export class SelectionMessageService {
           const ns = norm(s);
           return (!!ns && (ns === cv || ns === ct));
         });
-
+  
         if (matched) correctKeysFromAnswer.add(canonKeys[i]);
       }
     }
-
+  
     // Union the two sources of truth
     const correctKeySet = new Set<string>([
       ...correctKeysFromFlags,
       ...correctKeysFromAnswer
     ]);
-
+  
     // How many correct answers should be selected to proceed?
     const expectedOverride = this.getExpectedCorrectCount(index);
-
-    // ── CHANGE 1: Anchor the real count to CANONICAL flags first, then fall back.
+  
+    // ──────────────────────────────────────────────────────────
+    // CHANGE #1: target = canonical-correct-by-index (fallback union/option flags)
+    // Prevents under-gating on Q4 and avoids key mismatches that broke Q2.
+    // ──────────────────────────────────────────────────────────
+    const canonCorrectByIndex: boolean[] = canonical.map(
+      (c: any) => !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true'
+    );
+    const canonicalCount = canonCorrectByIndex.filter(Boolean).length;
+  
     const realCorrectCount =
-      (correctKeysFromFlags.size > 0 ? correctKeysFromFlags.size : 0) ||
-      (correctKeySet.size > 0 ? correctKeySet.size : 0) ||
-      totalCorrect;
-
-    // Apply override only if it is >= the real count; then clamp down if too high.
-    // This guarantees multi gating for Q4 (2 correct), even if some override says 1.
+      (canonicalCount > 0 ? canonicalCount :
+       (correctKeySet.size > 0 ? correctKeySet.size : totalCorrect));
+  
+    // Accept override only if it is >= the real count; clamp down if too high.
     let target: number;
     if (typeof expectedOverride === 'number' && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     } else {
       target = realCorrectCount;
     }
-
+  
     // If target indicates multi, honor it (helps when declared type is wrong)
     if (target > 1) isMulti = true;
-
-    // Count selected-correct STRICTLY from the CURRENT click payload (`options`)
+  
+    // ──────────────────────────────────────────────────────────
+    // CHANGE #2: count selected-correct by POSITION first, then fallback.
+    // Fixes Q2 (no key mismatch) and Q4 (wrong options don’t increment).
+    // ──────────────────────────────────────────────────────────
     let selectedCorrectNow = 0;
     for (let i = 0; i < (options?.length ?? 0); i++) {
       const o: any = options[i];
       if (!o?.selected) continue;
-      // map to canonical key (prefer id mapping)
-      const k = (o?.optionId != null || o?.id != null)
-        ? (idToKey.get(idOf(o, i)) ?? keyOf(o, i))
-        : keyOf(o, i);
-
-      // ── CHANGE 2: Prefer CANONICAL flags first so wrong picks aren't miscounted.
-      const isCorrectByCanonical =
-        (correctKeysFromFlags.size > 0) ? correctKeysFromFlags.has(k) : null;
-
-      const isCorrectByUnion =
-        (isCorrectByCanonical === null)
-          ? (correctKeySet.size > 0 ? correctKeySet.has(k)
-                                    : (!!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true'))
-          : isCorrectByCanonical;
-
-      if (isCorrectByUnion) selectedCorrectNow++;
+  
+      // 1) Prefer positional canonical flag (avoids key mismatches)
+      let isCorrect = (i < canonCorrectByIndex.length) ? canonCorrectByIndex[i] : false;
+  
+      // 2) If canonical flags are absent BUT union exists, use union
+      if (!isCorrect && canonicalCount === 0 && correctKeySet.size > 0) {
+        const k = keyOf(o, i);
+        isCorrect = correctKeySet.has(k);
+      }
+  
+      // 3) Last-resort: trust the option’s own flag if present
+      if (!isCorrect) {
+        isCorrect = !!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true';
+      }
+  
+      if (isCorrect) selectedCorrectNow++;
     }
-
+  
     // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, Math.max(0, target) - selectedCorrectNow);
-
+  
     // ──────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
     // ──────────────────────────────────────────────────────────────────────────
@@ -1312,45 +1321,46 @@ export class SelectionMessageService {
         const msg = buildRemainingMsg(remainingClick);   // e.g., "Select 1 more correct answer..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
-
+  
         const now  = performance.now();
         const hold = now + 1200;
         this.suppressPassiveUntil.set(index, hold);
         this.freezeNextishUntil.set(index, hold);
-
+  
         // Update snapshot after the decision
         this.setOptionsSnapshot(options);
         return; // never emit Next while remaining > 0
       }
-
+  
       // remainingClick === 0 → legit Next/Results immediately
       const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       const cur = this.selectionMessageSubject.getValue();
       if (cur !== msg) this.selectionMessageSubject.next(msg);
-
+  
       const now  = performance.now();
       const hold = now + 300;
       this.suppressPassiveUntil.set(index, hold);
       this.freezeNextishUntil.set(index, hold);
-
+  
       // Update snapshot after the decision
       this.setOptionsSnapshot(options);
       return;
     }
-
+  
     // Single-answer → always Next/Results after any pick
     const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     const cur2 = this.selectionMessageSubject.getValue();
     if (cur2 !== singleMsg) this.selectionMessageSubject.next(singleMsg);
-
+  
     const now2  = performance.now();
     const hold2 = now2 + 300;
     this.suppressPassiveUntil.set(index, hold2);
     this.freezeNextishUntil.set(index, hold2);
-
+  
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
 
 
   
