@@ -1362,8 +1362,9 @@ export class SelectionMessageService {
     const anySelected = overlaid.some(o => !!o?.selected);
     const msg = (qType === QuestionType.MultipleAnswer)
       ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-      : (anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-                     : CONTINUE_MSG);
+      : (anySelected
+          ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+          : CONTINUE_MSG);
   
     const token = this.beginWrite(i0, 0);
     this.updateSelectionMessage(msg, { options: overlaid, index: i0, token, questionType: qType });
