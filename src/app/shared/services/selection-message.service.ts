@@ -1048,7 +1048,7 @@ export class SelectionMessageService {
     // Always derive gating from canonical correctness (UI may lack reliable `correct`)
     // Primary: authoritative remaining from canonical and union of selected ids
     // (Kept for single-answer path / legacy; for multi we will rely on selected-correct from *options* only.)
-    let remaining = this.remainingFromCanonical(index, options);
+    let _legacyRemaining = this.remainingFromCanonical(index, options); // informational only now
   
     // Compute totalCorrect from canonical; fallback to passed array if canonical absent
     const svc: any = this.quizService as any;
@@ -1064,12 +1064,12 @@ export class SelectionMessageService {
       : (options ?? []).filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;  // last-resort fallback
   
     // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
-    // In that edge case, recompute `remaining` from the passed array so multi still gates.
+    // In that edge case, recompute `_legacyRemaining` from the passed array so multi still gates.
     if (totalCorrectCanon === 0 && totalCorrect > 0) {
       const selectedCorrectFallback = (options ?? []).filter(
         o => (((o as any)?.correct || (o as any)?.isCorrect) && (o as any)?.selected)
       ).length;
-      remaining = Math.max(0, totalCorrect - selectedCorrectFallback);
+      _legacyRemaining = Math.max(0, totalCorrect - selectedCorrectFallback);
     }
   
     // Decide multi from canonical first; fall back to declared type
@@ -1077,27 +1077,26 @@ export class SelectionMessageService {
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // NEW: Overlay-based truth — map canonical correctness onto CURRENT payload,
-    // then count directly off that (bulletproof against index/id/value drift).
+    // AUTHORITATIVE MULTI GATE (overlay-only; current payload only)
     // ──────────────────────────────────────────────────────────────────────────
   
-    // Make sure any id stabilization you rely on stays intact
+    // Stabilize IDs across sources so mapping by id works when available
     this.ensureStableIds(index, canonical, options, priorSnap);
   
-    // Overlay canonical flags onto the currently clicked options array
+    // Overlay canonical flags onto the CURRENT options array
     const overlaidNow: Option[] = this.getCanonicalOverlay(index, options);
   
-    // How many correct actually exist for THIS question? (from overlay)
+    // How many correct exist for THIS question?
     const correctCountOverlay = overlaidNow.filter(o =>
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // Selected-correct from the CURRENT payload only (overlay truth)
+    // How many of those correct are currently selected?
     const selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
       n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
     , 0);
   
-    // Target: prefer explicit override if sensible; else clamp to overlay’s real count
+    // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
     let target =
       (typeof expectedOverride === 'number' && expectedOverride >= 1)
@@ -1107,23 +1106,19 @@ export class SelectionMessageService {
     // If target indicates multi, honor it (helps when declared type is wrong)
     if (target > 1) isMulti = true;
   
-    // Remaining for multi based on CURRENT selection only (overlay-based)
+    // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, target - selectedCorrectNow);
   
-    // ✅ completion latch — keep multi from regressing once satisfied
+    // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
-    if (remainingClick === 0) {
-      (this as any).completedByIndex.set(index, true);
-    } else {
-      (this as any).completedByIndex.set(index, false);
-    }
+    (this as any).completedByIndex.set(index, remainingClick === 0);
   
     // ──────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
       if (remainingClick > 0) {
-        const msg = buildRemainingMsg(remainingClick);   // e.g., "Select 1 more correct answer..."
+        const msg = buildRemainingMsg(remainingClick);   // e.g., "Select 1 more correct answer to continue..."
         const cur = this.selectionMessageSubject.getValue();
         if (cur !== msg) this.selectionMessageSubject.next(msg);
   
@@ -1271,57 +1266,42 @@ export class SelectionMessageService {
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
     // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
+    const canonicalCorrect = overlaid.filter(o =>
+      !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
+    ).length;
   
-    // Derive canonical correctness from the quiz question (flags ∪ answers)
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
-      (svc?.currentQuestion as QuizQuestion | undefined);
-  
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const flagsCorrect = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
-  
-    // If your data includes an answer array, use its length as another signal
-    const ans: any = (q as any)?.answer;
-    const answerCorrect = Array.isArray(ans) ? ans.length : 0;
-  
-    // Union (robust): prefer whichever signal is available (>0)
-    const unionCorrectCount = Math.max(flagsCorrect, answerCorrect);
-  
-    // Quick check based on declared type/override/overlaid flags
-    const overlaidFlags = overlaid.filter(o => !!o?.correct || !!(o as any)?.isCorrect).length;
-    const isMultiQuick =
+    const isMulti =
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
-      (overlaidFlags > 1);
+      (canonicalCorrect > 1);
   
-    // Decide multi with union fallback (first render safety)
-    const isMulti = isMultiQuick || (unionCorrectCount > 1);
     if (!isMulti) return null;
   
+    // Do NOT force "Select ..." before any pick — unless you explicitly want it.
+    // If you want to always show remaining even before first pick, set `requirePick=false`.
     const anySelected = overlaid.some(o => !!o?.selected);
+    if (!anySelected) {
+      // Show remaining for multi before first pick (your recent requirement for Q2/Q4)
+      const totalForThisQ =
+        (typeof expectedOverride === 'number' && expectedOverride >= 1 && expectedOverride <= canonicalCorrect)
+          ? expectedOverride
+          : canonicalCorrect;
+      return buildRemainingMsg(Math.max(1, totalForThisQ));
+    }
   
-    // Total required: prefer explicit override, else union count.
-    // IMPORTANT: accept override only if it is >= actual correct; clamp down if too high.
+    // Total required: prefer explicit override if sensible; else canonical count
     const totalForThisQ =
-      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrectCount)
-        ? Math.min(expectedOverride, unionCorrectCount)
-        : unionCorrectCount;
+      (typeof expectedOverride === 'number' && expectedOverride >= 1 && expectedOverride <= canonicalCorrect)
+        ? expectedOverride
+        : canonicalCorrect;
   
-    // Count only the selected CORRECT options (use available flags on overlaid)
+    // Count only the selected CORRECT options (overlay truth)
     const selectedCorrect = overlaid.reduce(
-      (n, o) => n + ((!!o?.selected && (!!(o as any)?.correct || !!(o as any)?.isCorrect)) ? 1 : 0),
+      (n, o: any) => n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0),
       0
     );
   
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
-  
-    // Show the full required count before any pick (so Q2/Q4 say "Select 2 more..." immediately)
-    if (!anySelected && remaining > 0) {
-      return buildRemainingMsg(remaining);
-    }
-  
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
