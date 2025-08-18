@@ -1423,28 +1423,30 @@ export class SelectionMessageService {
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
       (canonicalCorrect > 1);
-  
+
     if (!isMulti) return null;
-  
+
     // NEW: Do NOT force "Select ..." before any pick
     const anySelected = overlaid.some(o => !!o?.selected);
     if (!anySelected) return null;
-  
-    // Total required: prefer explicit override, else canonical count
+
+    // Total required: prefer explicit override, else canonical count.
+    // Clamp the override so we never require more correct answers than actually exist.
     const totalForThisQ =
       (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? expectedOverride
+        ? Math.min(expectedOverride, canonicalCorrect) // clamp to canonicalCorrect
         : canonicalCorrect;
-  
+
     // Count only the selected CORRECT options
     const selectedCorrect = overlaid.reduce(
       (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
     );
-  
+
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
+
   
 
 
