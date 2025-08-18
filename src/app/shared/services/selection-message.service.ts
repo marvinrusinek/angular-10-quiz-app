@@ -1200,147 +1200,44 @@ export class SelectionMessageService {
     const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // NEW: Generic multi-answer gating (answers ∪ flags) × selected-correct from CURRENT payload
+    // NEW: Overlay-based truth — map canonical correctness onto CURRENT payload,
+    // then count directly off that (bulletproof against index/id/value drift).
     // ──────────────────────────────────────────────────────────────────────────
   
-    // Stabilize IDs across sources so mapping by id works when available
+    // Make sure any id stabilization you rely on stays intact
     this.ensureStableIds(index, canonical, options, priorSnap);
   
-    // Helpers
-    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-    const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
-    const valOf     = (o: any) => norm(o?.value);
-    const textOf    = (o: any) => norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+    // Overlay canonical flags onto the currently clicked options array
+    const overlaidNow: Option[] = this.getCanonicalOverlay(index, options);
   
-    // Build canonical indexes and correctness flags (canonical truth)
-    const canonIdToIndex = new Map<string, number>();
-    const canonSigToIndex = new Map<string, number>(); // value/text signature → index
-    const canonCorrectByIndex: boolean[] = [];
+    // How many correct actually exist for THIS question? (from overlay)
+    const correctCountOverlay = overlaidNow.filter(o =>
+      !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
+    ).length;
   
-    for (let i = 0; i < canonical.length; i++) {
-      const c: any = canonical[i];
-      const id = c?.optionId ?? c?.id;
-      if (id != null) canonIdToIndex.set(String(id), i);
-      const sig = `v:${valOf(c)}|t:${textOf(c)}`;
-      canonSigToIndex.set(sig, i);
-      const corr = !!c?.correct || !!c?.isCorrect || String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-      canonCorrectByIndex[i] = corr;
-    }
+    // Selected-correct from the CURRENT payload only (overlay truth)
+    const selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
+      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
+    , 0);
   
-    const canonicalHasFlags = canonCorrectByIndex.some(Boolean);
-  
-    // Robust mapper: current option → canonical index
-    const mapToCanonicalIndex = (o: any, i: number): number | null => {
-      // 1) ID exact match
-      const id = o?.optionId ?? o?.id;
-      if (id != null) {
-        const hit = canonIdToIndex.get(String(id));
-        if (typeof hit === 'number') return hit;
-      }
-      // 2) Exact value/text signature match
-      const sig = `v:${valOf(o)}|t:${textOf(o)}`;
-      const sHit = canonSigToIndex.get(sig);
-      if (typeof sHit === 'number') return sHit;
-  
-      // 3) Last-chance: if both arrays look aligned and texts match at position, allow positional fallback
-      if (i < canonical.length) {
-        const c = canonical[i] as any;
-        if (textOf(o) && textOf(o) === textOf(c)) return i;
-      }
-      return null;
-    };
-  
-    // CORRECT-KEYS from answers (kept for target fallback only)
-    const correctFromAnswerIndex = new Set<number>();
-    const ans: any = (q as any)?.answer;
-    if (Array.isArray(ans) && ans.length) {
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const cid = String(c?.optionId ?? c?.id ?? i);
-        const cv  = valOf(c);
-        const ct  = textOf(c);
-        const zeroIx = i, oneIx = i + 1;
-        const asNum = (s: any) => { const n = Number(s); return Number.isFinite(n) ? n : null; };
-  
-        const matched = ans.some((a: any) => {
-          if (a == null) return false;
-          if (typeof a === 'object') {
-            const aid = a?.optionId ?? a?.id;
-            if (aid != null && String(aid) === cid) return true;
-            const aNum = asNum(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-            if (aNum != null && (aNum === zeroIx || aNum === oneIx)) return true;
-            const av = norm(a?.value); const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-            return (!!av && av === cv) || (!!at && at === ct);
-          }
-          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-          const s = String(a); const n = asNum(s);
-          if (n != null && (n === zeroIx || n === oneIx)) return true;
-          const ns = norm(s); return (!!ns && (ns === cv || ns === ct));
-        });
-  
-        if (matched) correctFromAnswerIndex.add(i);
-      }
-    }
-  
-    // How many correct answers should be selected to proceed?
+    // Target: prefer explicit override if sensible; else clamp to overlay’s real count
     const expectedOverride = this.getExpectedCorrectCount(index);
-  
-    // TARGET: prefer canonical flags count; fallback to answer-derived; else last-resort totalCorrect
-    const canonicalCount = canonCorrectByIndex.filter(Boolean).length;
-    const answerCount    = correctFromAnswerIndex.size;
-  
-    const realCorrectCount =
-      (canonicalCount > 0 ? canonicalCount :
-       (answerCount    > 0 ? answerCount    : totalCorrect));
-  
-    // Accept override only if it is >= real count; clamp if too high
-    let target: number;
-    if (typeof expectedOverride === 'number' && expectedOverride >= realCorrectCount) {
-      target = Math.min(expectedOverride, realCorrectCount);
-    } else {
-      target = realCorrectCount;
-    }
+    let target =
+      (typeof expectedOverride === 'number' && expectedOverride >= 1)
+        ? Math.min(expectedOverride, Math.max(1, correctCountOverlay))
+        : Math.max(1, correctCountOverlay);
   
     // If target indicates multi, honor it (helps when declared type is wrong)
     if (target > 1) isMulti = true;
   
-    // Count selected-correct STRICTLY from the CURRENT click payload (`options`) via canonical mapping
-    let selectedCorrectNow = 0;
-    for (let i = 0; i < (options?.length ?? 0); i++) {
-      const o: any = options[i];
-      if (!o?.selected) continue;
-  
-      const ci = mapToCanonicalIndex(o, i);
-      let isCorrect = false;
-  
-      if (ci != null) {
-        // Canonical truth first
-        if (canonicalHasFlags) {
-          isCorrect = !!canonCorrectByIndex[ci];
-        } else if (answerCount > 0) {
-          // Only if canonical flags absent, allow answer-derived correctness
-          isCorrect = correctFromAnswerIndex.has(ci);
-        }
-      }
-  
-      // Very last resort (only when neither canonical flags nor answers exist)
-      if (!isCorrect && !canonicalHasFlags && answerCount === 0) {
-        isCorrect = !!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true';
-      }
-  
-      if (isCorrect) selectedCorrectNow++;
-    }
-  
-    // Remaining for multi based on CURRENT selection only
-    const remainingClick = Math.max(0, Math.max(0, target) - selectedCorrectNow);
+    // Remaining for multi based on CURRENT selection only (overlay-based)
+    const remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ✅ completion latch — keep multi from regressing once satisfied
+    (this as any).completedByIndex ??= new Map<number, boolean>();
     if (remainingClick === 0) {
-      (this as any).completedByIndex ??= new Map<number, boolean>();
       (this as any).completedByIndex.set(index, true);
     } else {
-      (this as any).completedByIndex ??= new Map<number, boolean>();
       (this as any).completedByIndex.set(index, false);
     }
   
@@ -1391,6 +1288,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
 
 
