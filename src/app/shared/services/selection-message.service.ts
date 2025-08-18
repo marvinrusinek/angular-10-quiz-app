@@ -1326,6 +1326,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
@@ -1418,38 +1419,47 @@ export class SelectionMessageService {
   private multiGateMessage(i0: number, qType: QuestionType, overlaid: Option[]): string | null {
     // Decide if this is multi using declared, override, or canonical
     const expectedOverride = this.getExpectedCorrectCount(i0);
-    const canonicalCorrect = overlaid.filter(o => !!o?.correct).length;
+  
+    // Canonical "correct" count from flags (accept either .correct or .isCorrect)
+    const canonicalCorrect = overlaid.filter(o => !!o?.correct || !!(o as any)?.isCorrect).length;
+  
     const isMulti =
       qType === QuestionType.MultipleAnswer ||
       ((expectedOverride ?? 0) > 1) ||
       (canonicalCorrect > 1);
-
+  
     if (!isMulti) return null;
-
-    // NEW: Do NOT force "Select ..." before any pick
+  
+    // NEW: We DO want to show the remaining message even before any pick.
+    // (Previously: returned null if !anySelected; that caused "Please start..." to appear.)
     const anySelected = overlaid.some(o => !!o?.selected);
-    if (!anySelected) return null;
-
-    // Total required: prefer explicit override, else canonical count.
+    // Keep the variable for clarity; just don't early-return.
+  
+    // Total required: prefer explicit override, else canonical count
     // Clamp the override so we never require more correct answers than actually exist.
     const totalForThisQ =
       (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? Math.min(expectedOverride, canonicalCorrect) // clamp to canonicalCorrect
+        ? Math.min(expectedOverride, canonicalCorrect)
         : canonicalCorrect;
-
+  
     // Count only the selected CORRECT options
     const selectedCorrect = overlaid.reduce(
-      (n, o) => n + ((!!o?.correct && !!o?.selected) ? 1 : 0), 0
+      (n, o) => n + ((!!(o?.correct || (o as any)?.isCorrect) && !!o?.selected) ? 1 : 0), 0
     );
-
+  
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
+  
+    // If nothing selected yet and it's multi → show the full required count
+    // This makes Q2/Q4 say "Select 2 more correct options to continue..." before the first click.
+    if (!anySelected && remaining > 0) {
+      return buildRemainingMsg(remaining);
+    }
+  
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
   }
-
   
-
-
+  
   private getQuestionTypeForIndex(index: number): QuestionType {
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
