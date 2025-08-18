@@ -51,6 +51,9 @@ export class SelectionMessageService {
   // Mutes non-payload writes per question for a short window after a payload write
   private payloadGuardUntil = new Map<number, number>();
 
+  // Latch to prevent regressions after a multi question is satisfied
+  private completedByIndex = new Map<number, boolean>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
@@ -1312,6 +1315,11 @@ export class SelectionMessageService {
   
     // Remaining for multi based on CURRENT selection only
     const remainingClick = Math.max(0, Math.max(0, target) - selectedCorrectNow);
+    if (remainingClick === 0) {
+      this.completedByIndex.set(index, true);
+    } else {
+      this.completedByIndex.set(index, false);
+    }
   
     // ──────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
