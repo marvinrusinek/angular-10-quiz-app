@@ -570,7 +570,7 @@ export class SelectionMessageService {
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
   ): void {
     const current = this.selectionMessageSubject.getValue();
-    const next = (message ?? '').trim();
+    let next = (message ?? '').trim();  // ← made mutable so we can normalize START→CONTINUE
     if (!next) return;
   
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index)) 
@@ -592,6 +592,15 @@ export class SelectionMessageService {
   
     const qTypeDeclared: QuestionType | undefined =
       ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+  
+    // ─────────────────────────────────────────────────────────────
+    // NORMALIZE: never show START_MSG except on very first question,
+    // and never for multi-answer questions.
+    // This prevents "Please start the quiz..." on Q2/Q4 etc.
+    // ─────────────────────────────────────────────────────────────
+    if (next === START_MSG && (i0 > 0 || qTypeDeclared === QuestionType.MultipleAnswer)) {
+      next = CONTINUE_MSG; // e.g., "Please select an option to continue..."
+    }
   
     // Prefer updated options if provided; else snapshot for our gate
     const optsCtx: Option[] | undefined =
@@ -674,9 +683,14 @@ export class SelectionMessageService {
   
     const totalFromAnswer = answerIdSet.size;
   
+    // ⬇️ NEW: robust union of "how many correct actually exist"
+    const unionCorrect = Math.max(totalFromAnswer, totalCorrectCanonical);
+  
+    // Clamp totalForThisQ so it's never less than real correct count
     const totalForThisQ =
-      (typeof expectedOverride === 'number' && expectedOverride > 0) ? expectedOverride
-        : (totalFromAnswer > 0 ? totalFromAnswer : totalCorrectCanonical);
+      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrect)
+        ? Math.min(expectedOverride, unionCorrect)
+        : unionCorrect;
   
     // === BEGIN: STRICT override-aware calculation (CURRENT payload only, no unions) ===
     // Build source: optsCtx if provided; else snapshot ONLY
@@ -772,8 +786,9 @@ export class SelectionMessageService {
   
     if (isMultiFinal) {
       if (!anySelectedNow) {
-        const fallback = (i0 === 0 ? START_MSG : CONTINUE_MSG);
-        if (current !== fallback) this.selectionMessageSubject.next(fallback);
+        // 🔁 CHANGE: for multi, before any pick, show remaining (not START/CONTINUE)
+        const forced = buildRemainingMsg(Math.max(1, totalForThisQ)); // e.g., "Select 2 more correct options..."
+        if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
       if (enforcedRemaining > 0 || inEnforce) {
@@ -810,6 +825,9 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
+    
+      
   
   
    
@@ -1242,9 +1260,11 @@ export class SelectionMessageService {
     // How many correct answers should be selected to proceed?
     const expectedOverride = this.getExpectedCorrectCount(index);
 
-    // Compute how many correct answers actually exist (flags and answer metadata).
+    // ── CHANGE 1: Anchor the real count to CANONICAL flags first, then fall back.
     const realCorrectCount =
-      correctKeySet.size > 0 ? correctKeySet.size : totalCorrect;
+      (correctKeysFromFlags.size > 0 ? correctKeysFromFlags.size : 0) ||
+      (correctKeySet.size > 0 ? correctKeySet.size : 0) ||
+      totalCorrect;
 
     // Apply override only if it is >= the real count; then clamp down if too high.
     // This guarantees multi gating for Q4 (2 correct), even if some override says 1.
@@ -1252,11 +1272,6 @@ export class SelectionMessageService {
     if (typeof expectedOverride === 'number' && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     } else {
-      target = realCorrectCount;
-    }
-
-    // Clamp the target so we never demand more correct answers than actually exist.
-    if (target > realCorrectCount) {
       target = realCorrectCount;
     }
 
@@ -1273,9 +1288,16 @@ export class SelectionMessageService {
         ? (idToKey.get(idOf(o, i)) ?? keyOf(o, i))
         : keyOf(o, i);
 
-      // If we have a correctKeySet from answers/flags, use it; otherwise fall back to `o.correct`
-      const isCorrectByUnion = correctKeySet.size > 0 ? correctKeySet.has(k)
-                                                      : (!!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true');
+      // ── CHANGE 2: Prefer CANONICAL flags first so wrong picks aren't miscounted.
+      const isCorrectByCanonical =
+        (correctKeysFromFlags.size > 0) ? correctKeysFromFlags.has(k) : null;
+
+      const isCorrectByUnion =
+        (isCorrectByCanonical === null)
+          ? (correctKeySet.size > 0 ? correctKeySet.has(k)
+                                    : (!!o?.correct || !!o?.isCorrect || String(o?.correct).toLowerCase() === 'true'))
+          : isCorrectByCanonical;
+
       if (isCorrectByUnion) selectedCorrectNow++;
     }
 
@@ -1329,6 +1351,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+
 
   
   // Passive: call from navigation/reset/timer-expiry/etc.
