@@ -1246,9 +1246,11 @@ export class SelectionMessageService {
     const realCorrectCount =
       correctKeySet.size > 0 ? correctKeySet.size : totalCorrect;
 
-    // Apply override if provided, otherwise use the real count.
+    // Apply override only if it is within [1, realCorrectCount]; otherwise use realCorrectCount.
     let target =
-      typeof expectedOverride === 'number' && expectedOverride > 0
+      (typeof expectedOverride === 'number' &&
+      expectedOverride >= 1 &&
+      expectedOverride <= realCorrectCount)
         ? expectedOverride
         : realCorrectCount;
 
@@ -1530,9 +1532,11 @@ export class SelectionMessageService {
     // Total required: prefer explicit override, else union-correct.
     // Clamp the override so we never require more correct answers than actually exist.
     const totalForThisQ =
-      (typeof expectedOverride === 'number' && expectedOverride > 0)
-        ? Math.min(expectedOverride, unionCorrectCount)
-        : unionCorrectCount;
+      (typeof expectedOverride === 'number' &&
+      expectedOverride >= 1 &&
+      expectedOverride <= canonicalCorrect)
+        ? expectedOverride
+        : canonicalCorrect;
   
     // Count selected CORRECT options based on union correctness
     // Map overlaid items to canonical/union keys when possible
