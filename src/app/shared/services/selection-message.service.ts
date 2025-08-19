@@ -1160,73 +1160,48 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // ONE-CHANGE-PER-CLICK GUARD
-    // Prevent multiple simultaneous selection flips from counting as extra progress.
-    // Prefers a wrong-to-true toggle when several go true (so Q4 1→2 stays at “Select 1 more…”).
-    // Keeps Q2 behavior intact when exactly one option changes.
+    // ONE-CHANGE-PER-CLICK GUARD (INDEX-BASED)
+    // If more than one option’s “selected” flipped vs the previous snapshot in this tick,
+    // constrain correct-count change to at most one, derived from the *prior snapshot*.
+    // Prefers a to-true WRONG toggle first (so Q4 1→2 stays at “Select 1 more…”).
     // ──────────────────────────────────────────────────────────────────────────
     try {
-      const keyOf = (o: any, i: number) => {
-        const id  = String(o?.optionId ?? o?.id ?? `idx:${i}`);
-        const txt = norm(o?.value ?? o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
-        return `${id}|${txt}`;
-      };
-  
-      // Build canonical-correct key set (truth source)
-      const correctKeys = new Set<string>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const corr = c?.correct === true || c?.isCorrect === true || String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-        if (corr) correctKeys.add(keyOf(c, i));
-      }
-  
-      // Prior snapshot selection map + prior correct count (using canonical overlay)
       const prior = Array.isArray(priorSnap) ? priorSnap : [];
-      const priorSel = new Map<string, boolean>();
-      for (let i = 0; i < prior.length; i++) {
-        const p: any = prior[i];
-        priorSel.set(keyOf(p, i), !!p?.selected);
-      }
-      const priorOver = this.getCanonicalOverlay(index, prior);
-      const priorCorrectSelected = priorOver.reduce((n, x: any) =>
-        n + (x?.selected && (x?.correct === true || x?.isCorrect === true || String(x?.correct).toLowerCase() === 'true') ? 1 : 0), 0);
+      const len = Math.min(prior.length, options?.length ?? 0);
   
-      // Current selection map keyed + meta (sel, idx, correct?)
-      const currMeta = new Map<string, { sel: boolean; idx: number; correct: boolean }>();
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        const k = keyOf(o, i);
-        const sel = !!o?.selected;
-        const corr = correctKeys.has(k);
-        currMeta.set(k, { sel, idx: i, correct: corr });
+      // What changed by index?
+      const changed: Array<{ idx: number; from: boolean; to: boolean }> = [];
+      for (let i = 0; i < len; i++) {
+        const beforeSel = !!(prior[i] as any)?.selected;
+        const afterSel  = !!(options[i] as any)?.selected;
+        if (beforeSel !== afterSel) changed.push({ idx: i, from: beforeSel, to: afterSel });
       }
-  
-      // Detect which keys actually changed selection in this click
-      const changed: Array<{ key: string; from: boolean; to: boolean; idx: number; correct: boolean }> = [];
-      currMeta.forEach((v, k) => {
-        const was = priorSel.get(k) ?? false;
-        if (was !== v.sel) changed.push({ key: k, from: was, to: v.sel, idx: v.idx, correct: v.correct });
-      });
   
       if (changed.length > 1) {
-        // Choose ONE change to count:
-        // 1) prefer a to-true WRONG toggle (so accidental correct toggle doesn’t advance),
-        // 2) else to-true CORRECT,
-        // 3) else a to-false CORRECT (decrement),
-        // tie-breaker: lowest idx for determinism.
-        const byIdx = (a: any, b: any) => a.idx - b.idx;
-        const toTrueWrong  = changed.filter(c => c.to && !c.correct).sort(byIdx);
-        const toTrueRight  = changed.filter(c => c.to &&  c.correct).sort(byIdx);
-        const toFalseRight = changed.filter(c => !c.to && c.correct).sort(byIdx);
-        const chosen = (toTrueWrong[0] ?? toTrueRight[0] ?? toFalseRight[0] ?? changed.sort(byIdx)[0]);
+        // Prior correct-selected count from canonical overlay of the prior snapshot
+        const priorOver = this.getCanonicalOverlay(index, prior);
+        const priorCorrect = priorOver.reduce((n, x: any) =>
+          n + (x?.selected && (x?.correct === true || x?.isCorrect === true || String(x?.correct).toLowerCase() === 'true') ? 1 : 0), 0);
+  
+        // Determine correctness of each changed index using current overlay (canonical flags)
+        const isIdxCorrect = (i: number) => {
+          const oo: any = overlaidNow[i];
+          return !!(oo?.correct === true || oo?.isCorrect === true || String(oo?.correct).toLowerCase() === 'true');
+        };
+  
+        // Choose ONE change to count this tick:
+        // 1) to-true & WRONG, 2) to-true & RIGHT, 3) to-false & RIGHT, else first by index.
+        const toTrueWrong  = changed.filter(c =>  c.to && !isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
+        const toTrueRight  = changed.filter(c =>  c.to &&  isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
+        const toFalseRight = changed.filter(c => !c.to &&  isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
+        const chosen = (toTrueWrong[0] ?? toTrueRight[0] ?? toFalseRight[0] ?? changed.sort((a,b)=>a.idx-b.idx)[0]);
   
         // Recompute gated correct count from *prior* plus only the chosen delta
-        let gatedCorrect = priorCorrectSelected;
-        if (chosen.to && chosen.correct) gatedCorrect = priorCorrectSelected + 1;
-        else if (!chosen.to && chosen.correct) gatedCorrect = Math.max(0, priorCorrectSelected - 1);
-        // else (wrong toggled) → no change to correct count
+        let gatedCorrect = priorCorrect;
+        if (chosen.to && isIdxCorrect(chosen.idx))       gatedCorrect = priorCorrect + 1;        // picked a correct
+        else if (!chosen.to && isIdxCorrect(chosen.idx)) gatedCorrect = Math.max(0, priorCorrect - 1); // unpicked a correct
+        // else wrong toggled → no change
   
-        // Apply to this click’s gate
         selectedCorrectNow = gatedCorrect;
         remainingClick = Math.max(0, target - selectedCorrectNow);
       }
@@ -1319,7 +1294,8 @@ export class SelectionMessageService {
   
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
-  }  
+  }
+  
   
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
