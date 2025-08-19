@@ -1149,53 +1149,76 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 STRICT PATCH (index === 3): index-FREE signature matching
-    // Count selected-correct strictly vs canonical-correct by: id → signature (value/text) → index.
-    // This prevents a wrong 2nd click (Option 2) from erasing the first correct (Option 1).
-    // Only scoped to Q4 so Q2 is unaffected.
+    // Q4 STRICT PATCH (index === 3): selection UNION (options ∪ priorSnap ∪ overlay),
+    // matched against canonical-correct by id → signature(value/text) → index.
+    // Keeps first correct counted when the second click is wrong (Option 2).
+    // Scoped to Q4 only — Q2 remains unchanged.
     // ──────────────────────────────────────────────────────────────────────────
     if (index === 3 && realCorrectCount > 1) {
       const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
       const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
       const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? null);
       const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText;
-  
-      // ⬇️ IMPORTANT: index-free signature — order-independent
+      // Order-independent signature
       const sigOf     = (o: any) => `v:${norm((o as any)?.value)}|t:${norm(textOf(o))}`;
-  
       const isCorr    = (o: any) =>
         o?.correct === true || o?.isCorrect === true ||
         String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
   
-      // Build canonical-correct sets
-      const canonIds  = new Set<string>();
-      const canonSigs = new Set<string>();
-      const canonIdx  = new Set<number>();
+      // Canonical-correct lookups
+      const canonIdToIdx  = new Map<string, number>();
+      const canonSigToIdx = new Map<string, number>();
+      const canonIdxSet   = new Set<number>();
       for (let i = 0; i < canonical.length; i++) {
         const c: any = canonical[i];
         if (!isCorr(c)) continue;
         const cid = idOf(c, i);
-        if (cid != null) canonIds.add(String(cid));
-        canonSigs.add(sigOf(c));        // ← no index suffix
-        canonIdx.add(i);
+        if (cid != null) canonIdToIdx.set(String(cid), i);
+        canonSigToIdx.set(sigOf(c), i);
+        canonIdxSet.add(i);
       }
+      const strictTarget = Math.max(1, canonIdxSet.size || realCorrectCount);
   
-      // Strictly count CURRENT selected that match canonical-correct
-      let strictSelCorrect = 0;
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        if (!o?.selected) continue;
-        const oid = idOf(o, i);
-        if (oid != null && canonIds.has(String(oid))) { strictSelCorrect++; continue; }
-        if (canonSigs.has(sigOf(o)))                  { strictSelCorrect++; continue; }
-        if (canonIdx.has(i))                          { strictSelCorrect++; continue; }
-      }
+      // Build selection UNION (options ∪ priorSnap ∪ overlay)
+      const selIdSet  = new Set<string>();
+      const selSigSet = new Set<string>();
+      const selIdxSet = new Set<number>();
+      const ingest = (arr?: Option[]) => {
+        if (!Array.isArray(arr)) return;
+        for (let i = 0; i < arr.length; i++) {
+          const o: any = arr[i];
+          if (!o?.selected) continue;
+          const oid = idOf(o, i);
+          if (oid != null) selIdSet.add(String(oid));
+          selSigSet.add(sigOf(o));
+          selIdxSet.add(i);
+        }
+      };
+      ingest(options);
+      ingest(priorSnap);
+      ingest(overlaidNow);
   
-      // Force the remaining/target from strict view
-      const strictTarget = Math.max(1, canonIdx.size || realCorrectCount);
-      const strictRem    = Math.max(0, strictTarget - strictSelCorrect);
+      // Count unique canonical-correct indices matched by the union
+      const seen = new Set<number>();
+      // 1) via ids
+      selIdSet.forEach(id => {
+        const j = canonIdToIdx.get(id);
+        if (j !== undefined) seen.add(j);
+      });
+      // 2) via signatures
+      selSigSet.forEach(sig => {
+        const j = canonSigToIdx.get(sig);
+        if (j !== undefined) seen.add(j);
+      });
+      // 3) fallback by index (only if that canonical index is correct)
+      selIdxSet.forEach(iSel => {
+        if (canonIdxSet.has(iSel)) seen.add(iSel);
+      });
   
-      // Only ever raise remaining; never lower (no flashing)
+      const strictSelCorrect = seen.size;
+      const strictRem        = Math.max(0, strictTarget - strictSelCorrect);
+  
+      // Only ever RAISE the remaining (so we don't downshift/flap)
       if (strictRem > remainingClick) remainingClick = strictRem;
   
       // Also lock multi for Q4
@@ -1253,9 +1276,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
-  
   
     
   
