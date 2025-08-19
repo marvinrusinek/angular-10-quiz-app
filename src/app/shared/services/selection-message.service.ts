@@ -1066,7 +1066,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   } */
-  public emitFromClick(params: { 
+  public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -1076,139 +1076,62 @@ export class SelectionMessageService {
   
     // Keep the previous snapshot so unions can see earlier selections
     // (We won't use it for counting; it's here to keep your structure intact.)
-    const priorSnap = this.getLatestOptionsSnapshot();
+    const priorSnap = this.getLatestOptionsSnapshot?.();
   
-    // Always derive gating from canonical correctness (UI may lack reliable `correct`)
-    // Primary: authoritative remaining from canonical and union of selected ids
-    // (Kept for single-answer path / legacy; for multi we will rely on selected-correct from *options* only.)
-    let _legacyRemaining = this.remainingFromCanonical(index, options); // informational only now
+    // Guard: must have a current options array for THIS index
+    if (!Array.isArray(options) || options.length === 0) return;
   
-    // Compute totalCorrect from canonical; fallback to passed array if canonical absent
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-    const q: QuizQuestion | undefined =
-      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+    // ────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (Q2 etc.) — keep behavior stable:
+    // - If any option is selected → "Next"
+    // - Otherwise → "Select 1 correct answer…"
+    // ────────────────────────────────────────────────────────────
+    if (questionType === QuestionType.SingleAnswer) {
+      const anySelected = options.some(o => !!o?.selected);
+      const msg = anySelected
+        ? 'Please click the Next button to continue.'
+        : 'Select 1 correct answer to continue...';
   
-    const totalCorrectCanon = canonical.filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;
-    const totalCorrect = totalCorrectCanon > 0
-      ? totalCorrectCanon
-      : (options ?? []).filter(o => !!(o as any)?.correct || !!(o as any)?.isCorrect).length;  // last-resort fallback
-  
-    // If canonical was empty and fallback found nothing, remainingFromCanonical would be 0.
-    // In that edge case, recompute `_legacyRemaining` from the passed array so multi still gates.
-    if (totalCorrectCanon === 0 && totalCorrect > 0) {
-      const selectedCorrectFallback = (options ?? []).filter(
-        o => (((o as any)?.correct || (o as any)?.isCorrect) && (o as any)?.selected)
-      ).length;
-      _legacyRemaining = Math.max(0, totalCorrect - selectedCorrectFallback);
-    }
-  
-    // Decide multi from canonical first; fall back to declared type
-    let isMulti = (totalCorrect > 1) || (questionType === QuestionType.MultipleAnswer);
-    const isLast  = totalQuestions > 0 && index === totalQuestions - 1;
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // AUTHORITATIVE MULTI GATE (overlay-only; current payload only)
-    // ──────────────────────────────────────────────────────────────────────────
-  
-    // Stabilize IDs across sources so mapping by id works when available
-    this.ensureStableIds(index, canonical, options, priorSnap);
-  
-    // Overlay canonical flags onto the CURRENT options array
-    const overlaidNow: Option[] = this.getCanonicalOverlay(index, options);
-  
-    // How many correct exist for THIS question?
-    const correctCountOverlay = overlaidNow.filter(o =>
-      !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
-    ).length;
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // FIX: selected-correct should be computed from CURRENT payload selection,
-    // synced by INDEX to the overlay’s canonical-correct flags.
-    // (Don’t trust overlay-selected; it can be stale after a second click.)
-    // ──────────────────────────────────────────────────────────────────────────
-    let selectedCorrectNow = 0;
-    const len = Math.min(options?.length ?? 0, overlaidNow.length);
-    for (let i = 0; i < len; i++) {
-      const sel = !!(options[i] as any)?.selected;
-      if (!sel) continue;
-      const oo: any = overlaidNow[i];
-      const corr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
-      if (corr) selectedCorrectNow++;
-    }
-  
-    // Target: prefer explicit override if present; clamp to overlay real count (never higher)
-    const expectedOverride = this.getExpectedCorrectCount(index);
-  
-    // derive real correct count from overlay (min 1)
-    const realCorrectCount = Math.max(1, correctCountOverlay);
-  
-    // apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
-    let target: number = realCorrectCount;
-    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
-      target = Math.min(expectedOverride, realCorrectCount);
-    }
-  
-    // NEVER downshift multi once canonical says it's multi
-    const isMultiCanonical = realCorrectCount > 1;
-    isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
-  
-    // Remaining for multi based on CURRENT selection only
-    let remainingClick = Math.max(0, target - selectedCorrectNow);
-  
-    // ✅ completion latch — once satisfied, prevent regressions from passive writers
-    (this as any).completedByIndex ??= new Map<number, boolean>();
-    (this as any).completedByIndex.set(index, remainingClick === 0);
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // Decisive click behavior (with freeze to avoid flashes)
-    // ──────────────────────────────────────────────────────────────────────────
-    if (isMulti) {
-      if (remainingClick > 0) {
-        const msg = buildRemainingMsg(remainingClick);   // e.g., "Select 1 more correct answer to continue..."
-        const cur = this.selectionMessageSubject.getValue();
-        if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
-        const now  = performance.now();
-        const hold = now + 1200;
-        this.suppressPassiveUntil.set(index, hold);
-        this.freezeNextishUntil.set(index, hold);
-  
-        // Update snapshot after the decision
-        this.setOptionsSnapshot(options);
-        return; // never emit Next while remaining > 0
-      }
-  
-      // remainingClick === 0 → legit Next/Results immediately
-      const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      const cur = this.selectionMessageSubject.getValue();
-      if (cur !== msg) this.selectionMessageSubject.next(msg);
-  
-      const now  = performance.now();
-      const hold = now + 300;
-      this.suppressPassiveUntil.set(index, hold);
-      this.freezeNextishUntil.set(index, hold);
-  
-      // Update snapshot after the decision
-      this.setOptionsSnapshot(options);
+      this.updateSelectionMessage(msg, { options, index, questionType });
       return;
     }
   
-    // Single-answer → always Next/Results after any pick
-    const singleMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    const cur2 = this.selectionMessageSubject.getValue();
-    if (cur2 !== singleMsg) this.selectionMessageSubject.next(singleMsg);
+    // ────────────────────────────────────────────────────────────
+    // MULTIPLE-ANSWER (Q4) — count ONLY selected+correct NOW
+    // (Ignore stale unions / snapshots for counting.)
+    // ────────────────────────────────────────────────────────────
+    // Prefer correctness from the payload; if under-flagged, try canonical.
+    let totalCorrect = options.filter(o => !!o?.correct).length;
+    if (totalCorrect === 0) {
+      try {
+        const svc: any = this.quizService as any;
+        const qArr = Array.isArray(svc?.questions) ? (svc.questions as any[]) : [];
+        const q = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
+        if (q?.options?.length) {
+          totalCorrect = q.options.filter((o: any) => !!o?.correct).length || 0;
+        }
+      } catch { /* swallow */ }
+    }
   
-    const now2  = performance.now();
-    const hold2 = now2 + 300;
-    this.suppressPassiveUntil.set(index, hold2);
-    this.freezeNextishUntil.set(index, hold2);
+    // Count only selected & correct on the *current* array
+    const selectedCorrect = options.reduce((acc, o) => {
+      return acc + ((o?.selected && o?.correct) ? 1 : 0);
+    }, 0);
   
-    // Update snapshot after the decision
-    this.setOptionsSnapshot(options);
+    const remaining = Math.max((totalCorrect || 0) - selectedCorrect, 0);
+  
+    let nextMsg: string;
+    if (remaining > 0) {
+      nextMsg = `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`;
+    } else {
+      // All required correct answers have been selected.
+      // (If you gate “extra wrongs” elsewhere, don’t block here.)
+      nextMsg = 'Please click the Next button to continue.';
+    }
+  
+    this.updateSelectionMessage(nextMsg, { options, index, questionType });
   }
+  
   
   
   
