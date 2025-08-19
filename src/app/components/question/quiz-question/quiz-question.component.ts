@@ -2977,13 +2977,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
   
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
-      this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-      this.selectionMessageService.emitFromClick({
-        index: i0,
-        totalQuestions: this.totalQuestions,
-        questionType: this.currentQuestion?.type,
-        options: canonicalOpts
-      });
+
+      queueMicrotask(() => {
+        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+        this.selectionMessageService.emitFromClick({
+          index: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: this.currentQuestion?.type,
+          options: canonicalOpts
+        });
+      }); 
   
       // Delay setting state flags just slightly to let message render first
       // End the freeze and then set flags on the next microtask (kept intention)
