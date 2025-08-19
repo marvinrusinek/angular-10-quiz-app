@@ -2973,11 +2973,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const remaining = Math.max(0, correct.length - selectedCorrect);
       const isLast  = i0 === (this.totalQuestions - 1);
   
-      // 👉 Decide “answered” ONCE here (don’t override later)
+      // Decide “answered” ONCE here (don’t override later)
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
   
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
-
       queueMicrotask(() => {
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
         this.selectionMessageService.emitFromClick({
