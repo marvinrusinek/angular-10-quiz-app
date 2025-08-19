@@ -1097,44 +1097,83 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER (Q4) — count ONLY selected+correct NOW
-    // (Ignore stale unions / snapshots for counting.)
+    // MULTIPLE-ANSWER (Q4) — STRICT canonical gating:
+    // - totalCorrect = canonical.size if available, else payload-correct count
+    // - selectedCorrect = count selected ∩ canonical (if canonical exists)
+    //                      else selected ∩ payload.correct
+    // This prevents a wrong payload/text match (e.g., Option 2) from being
+    // counted as correct when it isn’t in canonical.
     // ────────────────────────────────────────────────────────────
-    // Prefer correctness from the payload; if under-flagged, try canonical.
-    let totalCorrect = options.filter(o => !!o?.correct).length;
-    if (totalCorrect === 0) {
+    {
+      // Build canonical correct ID set (prefer IDs; text only if IDs absent)
+      const normalize = (s: string) =>
+        (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  
+      let canonicalIdSet = new Set<any>();
+      let canonicalTextSet = new Set<string>();
       try {
         const svc: any = this.quizService as any;
-        const qArr = Array.isArray(svc?.questions) ? (svc.questions as any[]) : [];
+        const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
         const q = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
-        if (q?.options?.length) {
-          totalCorrect = q.options.filter((o: any) => !!o?.correct).length || 0;
+        const canonOpts: any[] = Array.isArray(q?.options) ? q.options : [];
+  
+        for (const c of canonOpts) {
+          if (!!c?.correct) {
+            const cid = c?.optionId ?? c?.id ?? c?.value ?? c?.key;
+            if (cid != null) canonicalIdSet.add(cid);
+            const ctxt = normalize(c?.text ?? c?.label ?? '');
+            if (ctxt) canonicalTextSet.add(ctxt);
+          }
+        }
+  
+        // If canonical has correct flags but no IDs, project IDs via text from current options
+        if (canonicalIdSet.size === 0 && canonicalTextSet.size > 0) {
+          for (const o of options) {
+            const oid = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value ?? (o as any)?.key;
+            const otxt = normalize((o as any)?.text ?? (o as any)?.label ?? '');
+            if (oid != null && otxt && canonicalTextSet.has(otxt)) {
+              canonicalIdSet.add(oid);
+            }
+          }
         }
       } catch { /* swallow */ }
+  
+      // Fallback payload-correct set only if canonical is unavailable
+      const payloadCorrectIdSet = new Set<any>(
+        canonicalIdSet.size === 0
+          ? options
+              .filter(o => !!o?.correct)
+              .map(o => (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value ?? (o as any)?.key)
+              .filter(id => id != null)
+          : []
+      );
+  
+      // totalCorrect: prefer canonical, else payload count
+      const totalCorrect = (canonicalIdSet.size > 0)
+        ? canonicalIdSet.size
+        : payloadCorrectIdSet.size;
+  
+      // selectedCorrect: STRICTLY intersect with canonical if available,
+      // otherwise intersect with payload-correct
+      const isCorrectById = (id: any) =>
+        canonicalIdSet.size > 0 ? canonicalIdSet.has(id) : payloadCorrectIdSet.has(id);
+  
+      const selectedCorrect = options.reduce((acc, o) => {
+        if (!o?.selected) return acc;
+        const id = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value ?? (o as any)?.key;
+        return acc + ((id != null && isCorrectById(id)) ? 1 : 0);
+      }, 0);
+  
+      const remaining = Math.max((totalCorrect || 0) - selectedCorrect, 0);
+  
+      const nextMsg =
+        remaining > 0
+          ? `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`
+          : 'Please click the Next button to continue.';
+  
+      this.updateSelectionMessage(nextMsg, { options, index, questionType });
     }
-  
-    // Count only selected & correct on the *current* array
-    const selectedCorrect = options.reduce((acc, o) => {
-      return acc + ((o?.selected && o?.correct) ? 1 : 0);
-    }, 0);
-  
-    const remaining = Math.max((totalCorrect || 0) - selectedCorrect, 0);
-  
-    let nextMsg: string;
-    if (remaining > 0) {
-      nextMsg = `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`;
-    } else {
-      // All required correct answers have been selected.
-      // (If you gate “extra wrongs” elsewhere, don’t block here.)
-      nextMsg = 'Please click the Next button to continue.';
-    }
-  
-    this.updateSelectionMessage(nextMsg, { options, index, questionType });
   }
-  
-  
-  
-  
   
   
   
@@ -1281,6 +1320,45 @@ export class SelectionMessageService {
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
+  }
+
+  /**
+   * Canonical set of correct option IDs for the given index.
+   * - Primary: quizService.questions[index].options[].correct
+   * - ID resolution: prefers option.optionId, then id, then value; if missing, tries text match.
+   * - Returns empty set if canonical not available.
+   */
+  private getCanonicalCorrectIdSet(index: number, options: Option[]): Set<number | string> {
+    const set = new Set<number | string>();
+    try {
+      const svc: any = this.quizService as any;
+      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
+      const q = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
+      const canonicalOpts: any[] = Array.isArray(q?.options) ? q.options : [];
+
+      // Build a quick lookup by text to recover IDs if canonical lacks IDs
+      const textToId = new Map<string, number | string>();
+      for (const o of options || []) {
+        const id = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value;
+        const key = (o as any)?.text ?? (o as any)?.label ?? '';
+        if (id != null && key) textToId.set(String(key), id);
+      }
+
+      for (const c of canonicalOpts) {
+        if (!!c?.correct) {
+          // Prefer canonical ID; if absent, map by text to local ID
+          let id = c?.optionId ?? c?.id ?? c?.value;
+          if (id == null) {
+            const key = c?.text ?? c?.label ?? '';
+            if (key) id = textToId.get(String(key));
+          }
+          if (id != null) set.add(id);
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return set;
   }
   
   
