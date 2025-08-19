@@ -1149,64 +1149,35 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // SAFETY FUSE: only when a NEWLY selected option is incorrect (Q4 sequence)
-    // Compare current vs prior selection deltas using CANONICAL truth (id→preferred, else text/value sig).
-    // If a *new* selection is incorrect and strict-canonical selected-correct < target,
-    // force remainingClick back to the strict value (≥1), preventing a false "Next".
+    // SAFETY FUSE (index-aligned, Q2-safe):
+    // Re-compute a strict remaining using canonical correctness by index
+    // against the CURRENT `options` selection. If strictRemaining is higher
+    // than our current remainingClick, raise remainingClick (never lower).
+    // This prevents a false "Next" when the 2nd click is WRONG on a multi (Q4).
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti) {
-      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-      const keyOf     = (o: any, i: number) => {
-        if (o?.optionId != null || o?.id != null) return `id:${String(o.optionId ?? o.id)}`;
-        const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText ?? o?.value);
-        return t ? `txt:${t}` : `ix:${i}`;
-      };
-  
-      // Canonical correct keys
-      const canonCorrect = new Set<string>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const corr = c?.correct === true || c?.isCorrect === true ||
-                     String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-        if (corr) canonCorrect.add(keyOf(c, i));
+      // Build set of correct indices from overlay's canonical flags
+      const correctIdx = new Set<number>();
+      for (let i = 0; i < overlaidNow.length; i++) {
+        const oo: any = overlaidNow[i];
+        const corr = (oo?.correct === true) || (oo?.isCorrect === true) ||
+                     (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
+        if (corr) correctIdx.add(i);
       }
   
-      // Current selected keys
-      const selNow = new Set<string>();
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        if (!o?.selected) continue;
-        selNow.add(keyOf(o, i));
+      // Count selected-correct strictly by index using CURRENT options' selection
+      let strictSelected = 0;
+      const L = Math.min(options?.length ?? 0, overlaidNow.length);
+      for (let i = 0; i < L; i++) {
+        const sel = !!(options[i] as any)?.selected;
+        if (sel && correctIdx.has(i)) strictSelected++;
       }
   
-      // Prior selected keys
-      const selPrev = new Set<string>();
-      const prevArr: any[] = Array.isArray(priorSnap) ? priorSnap as any[] : [];
-      for (let i = 0; i < prevArr.length; i++) {
-        const p = prevArr[i];
-        if (!p?.selected) continue;
-        selPrev.add(keyOf(p, i));
-      }
+      const strictRemaining = Math.max(0, target - strictSelected);
   
-      // Newly selected keys
-      const newlySelected: string[] = [];
-      selNow.forEach(k => { if (!selPrev.has(k)) newlySelected.push(k); });
-  
-      // Any newly selected incorrect?
-      const anyNewIncorrect = newlySelected.some(k => !canonCorrect.has(k));
-  
-      if (anyNewIncorrect) {
-        // Strict selected-correct by canonical set on CURRENT payload
-        let strictSelectedCorrect = 0;
-        selNow.forEach(k => { if (canonCorrect.has(k)) strictSelectedCorrect++; });
-  
-        const strictRemaining = Math.max(0, target - strictSelectedCorrect);
-  
-        // Only intervene if strict says we still owe answers
-        if (strictRemaining > 0 && strictRemaining > remainingClick) {
-          remainingClick = strictRemaining;    // e.g., force back to "Select 1 more..."
-        }
+      // Only ever RAISE the remaining (no downshift). Q2’s happy path stays intact.
+      if (strictRemaining > remainingClick) {
+        remainingClick = strictRemaining;
       }
     }
   
@@ -1261,6 +1232,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
     
   
