@@ -1218,8 +1218,10 @@ export class SelectionMessageService {
       const strictSelCorrect = seen.size;
       const strictRem        = Math.max(0, strictTarget - strictSelCorrect);
   
-      // Only ever RAISE the remaining (so we don't downshift/flap)
-      if (strictRem > remainingClick) remainingClick = strictRem;
+      // Source-of-truth on Q4: take strict numbers exactly (allow downshift)
+      remainingClick     = strictRem;
+      target             = strictTarget;
+      selectedCorrectNow = strictSelCorrect;
   
       // Also lock multi for Q4
       isMulti = true;
@@ -1276,6 +1278,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
     
   
