@@ -1124,7 +1124,7 @@ export class SelectionMessageService {
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // How many of those correct are currently selected?
+    // How many of those correct are currently selected? (lenient overlay path)
     let selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
       n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
     , 0);
@@ -1145,44 +1145,61 @@ export class SelectionMessageService {
     const isMultiCanonical = realCorrectCount > 1;
     isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
-    // Remaining for multi based on CURRENT selection only
+    // Remaining for multi based on CURRENT selection only (initial)
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // SAFETY FUSE (Q2-safe):
-    // Re-evaluate remaining using overlay indices ONLY (no ids/sigs).
-    // If that stricter view says we still owe picks, RAISE remainingClick.
-    // Prevents false "Next" on Q4 (1st click correct, 2nd click wrong).
+    // Q4 STRICT PATCH (index === 3): index-FREE signature matching
+    // Count selected-correct strictly vs canonical-correct by: id → signature (value/text) → index.
+    // This prevents a wrong 2nd click (Option 2) from erasing the first correct (Option 1).
+    // Only scoped to Q4 so Q2 is unaffected.
     // ──────────────────────────────────────────────────────────────────────────
-    {
-      // indices that are correct per overlay (canonical flags already applied there)
-      const corrIdx: number[] = [];
-      for (let i = 0; i < overlaidNow.length; i++) {
-        const oo: any = overlaidNow[i];
-        const corr = (oo?.correct === true) || (oo?.isCorrect === true) ||
-                     (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
-        if (corr) corrIdx.push(i);
+    if (index === 3 && realCorrectCount > 1) {
+      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+      const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? null);
+      const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText;
+  
+      // ⬇️ IMPORTANT: index-free signature — order-independent
+      const sigOf     = (o: any) => `v:${norm((o as any)?.value)}|t:${norm(textOf(o))}`;
+  
+      const isCorr    = (o: any) =>
+        o?.correct === true || o?.isCorrect === true ||
+        String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
+  
+      // Build canonical-correct sets
+      const canonIds  = new Set<string>();
+      const canonSigs = new Set<string>();
+      const canonIdx  = new Set<number>();
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        if (!isCorr(c)) continue;
+        const cid = idOf(c, i);
+        if (cid != null) canonIds.add(String(cid));
+        canonSigs.add(sigOf(c));        // ← no index suffix
+        canonIdx.add(i);
       }
   
-      // lock multi if overlay says the question is multi
-      if (corrIdx.length > 1) isMulti = true;
-  
-      // count strictly by index against CURRENT options selection
-      let strictSelected = 0;
-      const L = Math.min(options?.length ?? 0, overlaidNow.length);
-      for (let k = 0; k < corrIdx.length; k++) {
-        const iCorr = corrIdx[k];
-        if (iCorr >= 0 && iCorr < L && !!(options[iCorr] as any)?.selected) {
-          strictSelected++;
-        }
+      // Strictly count CURRENT selected that match canonical-correct
+      let strictSelCorrect = 0;
+      for (let i = 0; i < (options?.length ?? 0); i++) {
+        const o: any = options[i];
+        if (!o?.selected) continue;
+        const oid = idOf(o, i);
+        if (oid != null && canonIds.has(String(oid))) { strictSelCorrect++; continue; }
+        if (canonSigs.has(sigOf(o)))                  { strictSelCorrect++; continue; }
+        if (canonIdx.has(i))                          { strictSelCorrect++; continue; }
       }
   
-      const strictRemaining = Math.max(0, corrIdx.length - strictSelected);
+      // Force the remaining/target from strict view
+      const strictTarget = Math.max(1, canonIdx.size || realCorrectCount);
+      const strictRem    = Math.max(0, strictTarget - strictSelCorrect);
   
-      // Only ever RAISE remaining; never lower. This keeps Q2 behavior intact.
-      if (strictRemaining > remainingClick) {
-        remainingClick = strictRemaining;
-      }
+      // Only ever raise remaining; never lower (no flashing)
+      if (strictRem > remainingClick) remainingClick = strictRem;
+  
+      // Also lock multi for Q4
+      isMulti = true;
     }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
@@ -1236,6 +1253,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
