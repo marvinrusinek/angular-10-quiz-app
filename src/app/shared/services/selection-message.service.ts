@@ -1119,94 +1119,55 @@ export class SelectionMessageService {
     // Overlay canonical flags onto the CURRENT options array
     const overlaidNow: Option[] = this.getCanonicalOverlay(index, options);
   
-    // How many correct exist for THIS question? (overlay view for fallback)
-    let correctCountOverlay = overlaidNow.filter(o =>
+    // How many correct exist for THIS question?
+    const correctCountOverlay = overlaidNow.filter(o =>
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // ──────────────────────────────────────────────────────────────────────────
-    // PATCH: robust canonical-first matching (ID → value/text signature → text-only),
-    // with overlay fallback ONLY if no canonical match exists.
-    // This keeps Q2 correct and prevents Q4’s Option 2 from being counted.
-    // ──────────────────────────────────────────────────────────────────────────
-    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-    const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
-    const sigFull   = (o: any, i: number) => `v:${norm(o?.value)}|t:${norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText)}`;
-    const sigText   = (o: any) => norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+    // How many of those correct are currently selected?
+    let selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
+      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
+    , 0);
   
-    // Canonical maps: correctness by id / full signature / text-only signature
-    const canonCorrectById      = new Map<string, boolean>();
-    const canonCorrectBySigFull = new Map<string, boolean>();
-    const canonCorrectBySigText = new Map<string, boolean>();
-    let realCorrectCount = 0;
-  
-    for (let i = 0; i < canonical.length; i++) {
-      const c: any = canonical[i];
-      const corr = (c?.correct === true) || (c?.isCorrect === true) ||
-                   (String(c?.correct).toLowerCase() === 'true') || (Number(c?.correct) === 1);
-      const cid  = String(idOf(c, i));
-      canonCorrectById.set(cid, corr);
-      canonCorrectBySigFull.set(sigFull(c, i), corr);
-      canonCorrectBySigText.set(sigText(c), corr);
-      if (corr) realCorrectCount++;
-    }
-  
-    // If canonical has no flags, fall back to overlay count; else keep canonical truth
-    if (realCorrectCount === 0) {
-      realCorrectCount = correctCountOverlay || totalCorrect || 1;
-    }
-  
-    // Count selected-correct strictly from CURRENT payload via canonical-first mapping
-    let selectedCorrectNow = 0;
-    for (let i = 0; i < (options?.length ?? 0); i++) {
-      const o: any = options[i];
-      if (!o?.selected) continue;
-  
-      // 1) Try id
-      const byId = canonCorrectById.get(String(idOf(o, i)));
-      if (typeof byId === 'boolean') {
-        if (byId) selectedCorrectNow++;
-        continue;
-      }
-  
-      // 2) Try full signature (value+text)
-      const byFull = canonCorrectBySigFull.get(sigFull(o, i));
-      if (typeof byFull === 'boolean') {
-        if (byFull) selectedCorrectNow++;
-        continue;
-      }
-  
-      // 3) Try text-only signature
-      const byText = canonCorrectBySigText.get(sigText(o));
-      if (typeof byText === 'boolean') {
-        if (byText) selectedCorrectNow++;
-        continue;
-      }
-  
-      // 4) Last resort: overlay’s flag at the *same index* (only if no canonical match exists)
-      if (i < overlaidNow.length) {
-        const oo: any = overlaidNow[i];
-        const isCorr = (oo?.correct === true) || (oo?.isCorrect === true) ||
-                       (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
-        if (isCorr) selectedCorrectNow++;
-      }
-    }
-  
-    // Target: number of canonical-correct options; never downshift below that.
+    // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
-    let target = realCorrectCount;
-  
-    // Apply override only if it doesn't undercut canonical truth; clamp high for safety
+    const realCorrectCount = Math.max(1, correctCountOverlay);
+    let target: number = realCorrectCount;
     if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     }
   
-    // If canonical says multi, never downshift to single
-    if (realCorrectCount > 1) isMulti = true;
+    // NEVER downshift multi once canonical says it's multi
+    const isMultiCanonical = realCorrectCount > 1;
+    isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
     // Remaining for multi based on CURRENT selection only
-    const remainingClick = Math.max(0, target - selectedCorrectNow);
+    let remainingClick = Math.max(0, target - selectedCorrectNow);
+  
+    // ──────────────────────────────────────────────────────────────────────────
+    // 🔒 SAFETY FUSE (index-aligned canonical check):
+    // Re-count selected-correct using STRICT index alignment to the current payload:
+    //  - only count when the item at the same index is both selected (from `options`)
+    //    AND marked correct in the overlay (from canonical).
+    // This prevents a wrong second click from ever flipping to "Next" (Q4),
+    // while leaving Q2 intact (overlay carries the right correct flags).
+    // ──────────────────────────────────────────────────────────────────────────
+    if (isMultiCanonical) {
+      let selectedCorrectIndexAligned = 0;
+      const L = Math.min(overlaidNow.length, options?.length ?? 0);
+      for (let i = 0; i < L; i++) {
+        const oo: any = overlaidNow[i];         // overlay holds canonical correctness
+        const op: any = options[i];             // current payload holds current selection
+        const isCorr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
+        const isSel  = !!op?.selected || !!oo?.selected; // prefer current selection; fallback overlay if present
+        if (isCorr && isSel) selectedCorrectIndexAligned++;
+      }
+      const remainingIndexAligned = Math.max(0, target - selectedCorrectIndexAligned);
+      // Take the stricter remaining to avoid accidental downshift to "Next"
+      if (remainingIndexAligned > remainingClick) {
+        remainingClick = remainingIndexAligned;
+      }
+    }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1259,6 +1220,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
