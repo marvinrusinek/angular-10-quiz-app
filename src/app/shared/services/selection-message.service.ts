@@ -1149,42 +1149,57 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 OVERRIDE (index === 3) — id-free, overlay-free recount by normalized text/value
-    // Keeps the first correct counted when the second click is wrong (Option 2).
-    // Does NOT touch any other question (Q1–Q3 stay as-is).
+    // GENERIC STICKY-CORRECT GUARD (multi only):
+    // If previously selected *canonical-correct* answers are STILL selected now,
+    // don't let the recount drop below that prior correct-count. This avoids
+    // the wrong 2nd click “wiping out” the earlier correct and showing “Select 2…”.
     // ──────────────────────────────────────────────────────────────────────────
-    if (index === 3) {
+    if (isMulti && realCorrectCount > 1) {
+      // helpers for stable content-based keys
       const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
       const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
       const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
       const valOf     = (o: any) => (o as any)?.value ?? '';
-      const isCorr    = (o: any) =>
-        o?.correct === true || o?.isCorrect === true ||
-        String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
+      const keyOf     = (o: any) => {
+        const t = norm(textOf(o));
+        const v = norm(valOf(o));
+        return t || v ? `vt:${v}|${t}` : '';
+      };
   
-      // canonical-correct keys by visible content
-      const canonCorr = new Set<string>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        if (!isCorr(c)) continue;
-        const key = norm(textOf(c)) || norm(valOf(c));
-        if (key) canonCorr.add(key);
+      // Prior snapshot overlaid with canonical flags → build set & count of prior selected-correct keys
+      const priorOverlaid: Option[] = this.getCanonicalOverlay(index, priorSnap);
+      const priorCorrectKeys = new Set<string>();
+      let priorSelectedCorrect = 0;
+      if (Array.isArray(priorOverlaid)) {
+        for (let i = 0; i < priorOverlaid.length; i++) {
+          const po: any = priorOverlaid[i];
+          const isCorr = po?.correct === true || po?.isCorrect === true || String(po?.correct).toLowerCase() === 'true';
+          if (isCorr && po?.selected) {
+            priorSelectedCorrect++;
+            const k = keyOf(po);
+            if (k) priorCorrectKeys.add(k);
+          }
+        }
       }
   
-      // count selected-correct from CURRENT options by the same visible key
-      let selCorrQ4 = 0;
+      // Current selection keys from the *current* payload (what user actually has checked now)
+      const currentSelectedKeys = new Set<string>();
       for (let i = 0; i < (options?.length ?? 0); i++) {
         const o: any = options[i];
         if (!o?.selected) continue;
-        const key = norm(textOf(o)) || norm(valOf(o));
-        if (key && canonCorr.has(key)) selCorrQ4++;
+        const k = keyOf(o);
+        if (k) currentSelectedKeys.add(k);
       }
   
-      const targetQ4 = Math.max(1, canonCorr.size || realCorrectCount);
-      selectedCorrectNow = selCorrQ4;
-      target             = targetQ4;
-      remainingClick     = Math.max(0, targetQ4 - selCorrQ4);
-      isMulti            = targetQ4 > 1 || isMulti; // lock multi
+      // Are all previously-correct selections still currently selected?
+      let prevCorrectStillSelected = true;
+      priorCorrectKeys.forEach(k => { if (!currentSelectedKeys.has(k)) prevCorrectStillSelected = false; });
+  
+      // If they are, never let the recount drop below prior correct-count
+      if (prevCorrectStillSelected && selectedCorrectNow < priorSelectedCorrect) {
+        selectedCorrectNow = priorSelectedCorrect;
+        remainingClick = Math.max(0, target - selectedCorrectNow);
+      }
     }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
@@ -1238,6 +1253,8 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
+  
   
   
   
