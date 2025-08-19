@@ -1149,12 +1149,11 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 STRICT PATCH: robust Q4 detection + strict recount from CURRENT options ∪ priorSnap
-    // (id → signature → canonical index). Counts UNIQUE canonical-correct picks.
-    // Prevents losing the first correct when second click is wrong.
+    // Q4 STRICT PATCH: robust Q4 detect + strict recount from CURRENT options ∪ priorSnap
+    // id → signature → index-fallback (index only counts if canonical index is correct).
+    // Counts UNIQUE canonical-correct picks. No overlay involved here.
     // ──────────────────────────────────────────────────────────────────────────
     {
-      // Robust zero-based index for current question
       const iZero = Number.isFinite(index) ? Number(index) : (this.quizService.currentQuestionIndex ?? 0);
       const isLikelyQ4 =
         iZero === 3 ||
@@ -1194,13 +1193,20 @@ export class SelectionMessageService {
           for (let i = 0; i < arr.length; i++) {
             const o: any = arr[i];
             if (!o?.selected) continue;
+  
+            // 1) id match → canonical index
             const oid = o?.optionId ?? o?.id;
             if (oid != null) {
               const j = canonIdToIdx.get(String(oid));
               if (j !== undefined) { seen.add(j); continue; }
             }
+  
+            // 2) signature match → canonical index
             const j2 = canonSigToIdx.get(sigOf(o, i));
-            if (j2 !== undefined) seen.add(j2);
+            if (j2 !== undefined) { seen.add(j2); continue; }
+  
+            // 3) index fallback ONLY if that canonical index is actually correct
+            if (corrIdxSet.has(i)) { seen.add(i); }
           }
         };
         ingest(options);
@@ -1210,7 +1216,7 @@ export class SelectionMessageService {
         const strictSelCorrect  = seen.size;
         const strictRem         = Math.max(0, strictTarget - strictSelCorrect);
   
-        // Take strict numbers EXACTLY for Q4
+        // Use strict numbers EXACTLY for Q4
         remainingClick     = strictRem;
         target             = strictTarget;
         selectedCorrectNow = strictSelCorrect;
@@ -1269,6 +1275,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
