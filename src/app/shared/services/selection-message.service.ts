@@ -1124,10 +1124,20 @@ export class SelectionMessageService {
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // How many of those correct are currently selected? (lenient overlay path)
-    let selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
-      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
-    , 0);
+    // ──────────────────────────────────────────────────────────────────────────
+    // FIX: selected-correct should be computed from CURRENT payload selection,
+    // synced by INDEX to the overlay’s canonical-correct flags.
+    // (Don’t trust overlay-selected; it can be stale after a second click.)
+    // ──────────────────────────────────────────────────────────────────────────
+    let selectedCorrectNow = 0;
+    const len = Math.min(options?.length ?? 0, overlaidNow.length);
+    for (let i = 0; i < len; i++) {
+      const sel = !!(options[i] as any)?.selected;
+      if (!sel) continue;
+      const oo: any = overlaidNow[i];
+      const corr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
+      if (corr) selectedCorrectNow++;
+    }
   
     // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
@@ -1145,115 +1155,8 @@ export class SelectionMessageService {
     const isMultiCanonical = realCorrectCount > 1;
     isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
-    // ──────────────────────────────────────────────────────────────────────────
-    // STICKY-CORRECT (generic, Q2-safe):
-    // If previously selected canonical-correct answers are STILL selected now,
-    // ensure we don’t recount below that number (prevents “downshift” on a wrong 2nd click).
-    // ──────────────────────────────────────────────────────────────────────────
-    if (isMulti && realCorrectCount > 1) {
-      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-      const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
-      const valOf     = (o: any) => (o as any)?.value ?? '';
-      const keyOf     = (o: any, i: number) => {
-        // Prefer stable ids; fall back to normalized value/text; last resort index
-        if (o?.optionId != null || o?.id != null) return `id:${String(o.optionId ?? o.id)}`;
-        const v = norm(valOf(o)), t = norm(textOf(o));
-        return (v || t) ? `vt:${v}|${t}` : `ix:${i}`;
-      };
-  
-      // Prior snapshot overlaid with canonical flags → collect keys of prior selected & correct
-      const priorOverlaid = this.getCanonicalOverlay(index, priorSnap);
-      const priorCorrectKeys = new Set<string>();
-      if (Array.isArray(priorOverlaid)) {
-        for (let i = 0; i < priorOverlaid.length; i++) {
-          const po: any = priorOverlaid[i];
-          const isCorr = po?.correct === true || po?.isCorrect === true || String(po?.correct).toLowerCase() === 'true';
-          if (isCorr && po?.selected) priorCorrectKeys.add(keyOf(po, i));
-        }
-      }
-  
-      // Current selection keys from the CURRENT payload
-      const currentSelectedKeys = new Set<string>();
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        if (!o?.selected) continue;
-        currentSelectedKeys.add(keyOf(o, i));
-      }
-  
-      // Count how many of those prior-correct are still selected now
-      let stillSelectedCorrect = 0;
-      priorCorrectKeys.forEach(k => { if (currentSelectedKeys.has(k)) stillSelectedCorrect++; });
-  
-      if (stillSelectedCorrect > selectedCorrectNow) {
-        selectedCorrectNow = stillSelectedCorrect;
-      }
-    }
-  
     // Remaining for multi based on CURRENT selection only
     let remainingClick = Math.max(0, target - selectedCorrectNow);
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // MULTI STRICT FUSE (generic, raise-only):
-    // For any multi-answer question, recompute a strict selected-correct count
-    // against *canonical* correct options using ONLY the current `options` payload.
-    // If strict indicates more remaining than our lenient path, RAISE remaining.
-    // This prevents a wrong 2nd click from flipping to "Next", without touching Q2.
-    // ──────────────────────────────────────────────────────────────────────────
-    {
-      const strip = (s:any)=>String(s ?? '').replace(/<[^>]*>/g, ' ');
-      const norm  = (x:any)=>strip(x).replace(/\s+/g, ' ').trim().toLowerCase();
-      const textOf = (o:any)=> o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText ?? '';
-      const valOf  = (o:any)=> o?.value ?? '';
-      const keyVT  = (o:any,i:number)=>{
-        const v = norm(valOf(o)), t = norm(textOf(o));
-        return (v || t) ? `vt:${v}|${t}` : `ix:${i}`;
-      };
-      const idOf   = (o:any,i:number)=> (o?.optionId ?? o?.id ?? null);
-  
-      // Canonical: which indices are correct?
-      const canonCorrectIdx = new Set<number>();
-      const canonIdToIdx    = new Map<string, number>();
-      const canonVtToIdx    = new Map<string, number>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c:any = canonical[i];
-        const corr = c?.correct === true || c?.isCorrect === true ||
-                     String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-        if (!corr) continue;
-        canonCorrectIdx.add(i);
-        const cid = idOf(c, i);
-        if (cid != null) canonIdToIdx.set(String(cid), i);
-        canonVtToIdx.set(keyVT(c, i), i);
-      }
-  
-      const canonicalCorrectCount = canonCorrectIdx.size;
-      if (canonicalCorrectCount > 1) {
-        // Count strictly correct from CURRENT click payload only (no unions)
-        const seenIdx = new Set<number>();
-        for (let i = 0; i < (options?.length ?? 0); i++) {
-          const o:any = options[i];
-          if (!o?.selected) continue;
-  
-          // Prefer id → else value/text; no raw index fallback (avoids false positives)
-          const oid = idOf(o, i);
-          let j: number | undefined = (oid != null) ? canonIdToIdx.get(String(oid)) : undefined;
-          if (j === undefined) j = canonVtToIdx.get(keyVT(o, i));
-          if (j === undefined) continue;           // no canonical mapping → don't count
-          if (!canonCorrectIdx.has(j)) continue;   // maps to canonical but not correct → don't count
-          seenIdx.add(j);
-        }
-  
-        const strictSelCorrect = seenIdx.size;
-        const strictTarget     = Math.max(1, canonicalCorrectCount); // anchor to canonical
-        const strictRem        = Math.max(0, strictTarget - strictSelCorrect);
-  
-        // RAISE-ONLY: if strict says we still owe more, raise remainingClick
-        if (strictRem > remainingClick) remainingClick = strictRem;
-  
-        // Ensure multi never downshifts once canonical says multi
-        isMulti = true;
-      }
-    }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
