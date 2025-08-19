@@ -1243,7 +1243,45 @@ export class SelectionMessageService {
     const hold2 = now2 + 300;
     this.suppressPassiveUntil.set(index, hold2);
     this.freezeNextishUntil.set(index, hold2);
-  
+
+    // ─── DEBUG: compact, scoped to Q4, logs only when selection pattern changes ───
+    try {
+      const Q4_INDEX = 3; // adjust if your Q4 is 1-based or at a different index
+      if (index === Q4_INDEX) {
+        // Build a small selection signature so we only log on actual user selection changes
+        const selSig = (options ?? []).map((o: any) => (o?.selected ? '1' : '0')).join('');
+        (this as any)._smDbg ??= { lastSelSig: '' };
+
+        if ((this as any)._smDbg.lastSelSig !== selSig) {
+          (this as any)._smDbg.lastSelSig = selSig;
+
+          // Decide what message is about to be pushed (mirror your branch logic)
+          let aboutToShow =
+            isMulti
+              ? (remainingClick > 0
+                  ? buildRemainingMsg(remainingClick)
+                  : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG))
+              : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
+
+          // One clean, searchable line
+          console.log(
+            `SM[Q4] selSig=${selSig} | selCorr=${selectedCorrectNow} target=${target} rem=${remainingClick} | msg="${aboutToShow}"`
+          );
+
+          // If you want detail, expand this group manually:
+          console.groupCollapsed('SM[Q4] details');
+          console.table((options ?? []).map((o: any, i: number) => ({
+            i,
+            selected: !!o?.selected,
+            text: o?.text ?? o?.label ?? o?.value,
+            id: o?.id ?? o?.optionId,
+            correct: !!(o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true')
+          })));
+          console.groupEnd();
+        }
+      }
+    } catch {}
+      
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }  
