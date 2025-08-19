@@ -1193,6 +1193,68 @@ export class SelectionMessageService {
     // Remaining for multi based on CURRENT selection only
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
+    // ──────────────────────────────────────────────────────────────────────────
+    // MULTI STRICT FUSE (generic, raise-only):
+    // For any multi-answer question, recompute a strict selected-correct count
+    // against *canonical* correct options using ONLY the current `options` payload.
+    // If strict indicates more remaining than our lenient path, RAISE remaining.
+    // This prevents a wrong 2nd click from flipping to "Next", without touching Q2.
+    // ──────────────────────────────────────────────────────────────────────────
+    {
+      const strip = (s:any)=>String(s ?? '').replace(/<[^>]*>/g, ' ');
+      const norm  = (x:any)=>strip(x).replace(/\s+/g, ' ').trim().toLowerCase();
+      const textOf = (o:any)=> o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText ?? '';
+      const valOf  = (o:any)=> o?.value ?? '';
+      const keyVT  = (o:any,i:number)=>{
+        const v = norm(valOf(o)), t = norm(textOf(o));
+        return (v || t) ? `vt:${v}|${t}` : `ix:${i}`;
+      };
+      const idOf   = (o:any,i:number)=> (o?.optionId ?? o?.id ?? null);
+  
+      // Canonical: which indices are correct?
+      const canonCorrectIdx = new Set<number>();
+      const canonIdToIdx    = new Map<string, number>();
+      const canonVtToIdx    = new Map<string, number>();
+      for (let i = 0; i < canonical.length; i++) {
+        const c:any = canonical[i];
+        const corr = c?.correct === true || c?.isCorrect === true ||
+                     String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
+        if (!corr) continue;
+        canonCorrectIdx.add(i);
+        const cid = idOf(c, i);
+        if (cid != null) canonIdToIdx.set(String(cid), i);
+        canonVtToIdx.set(keyVT(c, i), i);
+      }
+  
+      const canonicalCorrectCount = canonCorrectIdx.size;
+      if (canonicalCorrectCount > 1) {
+        // Count strictly correct from CURRENT click payload only (no unions)
+        const seenIdx = new Set<number>();
+        for (let i = 0; i < (options?.length ?? 0); i++) {
+          const o:any = options[i];
+          if (!o?.selected) continue;
+  
+          // Prefer id → else value/text; no raw index fallback (avoids false positives)
+          const oid = idOf(o, i);
+          let j: number | undefined = (oid != null) ? canonIdToIdx.get(String(oid)) : undefined;
+          if (j === undefined) j = canonVtToIdx.get(keyVT(o, i));
+          if (j === undefined) continue;           // no canonical mapping → don't count
+          if (!canonCorrectIdx.has(j)) continue;   // maps to canonical but not correct → don't count
+          seenIdx.add(j);
+        }
+  
+        const strictSelCorrect = seenIdx.size;
+        const strictTarget     = Math.max(1, canonicalCorrectCount); // anchor to canonical
+        const strictRem        = Math.max(0, strictTarget - strictSelCorrect);
+  
+        // RAISE-ONLY: if strict says we still owe more, raise remainingClick
+        if (strictRem > remainingClick) remainingClick = strictRem;
+  
+        // Ensure multi never downshifts once canonical says multi
+        isMulti = true;
+      }
+    }
+  
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
     (this as any).completedByIndex.set(index, remainingClick === 0);
@@ -1244,6 +1306,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
