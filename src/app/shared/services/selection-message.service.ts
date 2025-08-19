@@ -1145,62 +1145,53 @@ export class SelectionMessageService {
     const isMultiCanonical = realCorrectCount > 1;
     isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
   
-    // Remaining for multi based on CURRENT selection only (initial)
-    let remainingClick = Math.max(0, target - selectedCorrectNow);
-  
     // ──────────────────────────────────────────────────────────────────────────
-    // GENERIC STICKY-CORRECT GUARD (multi only):
-    // If previously selected *canonical-correct* answers are STILL selected now,
-    // don't let the recount drop below that prior correct-count. This avoids
-    // the wrong 2nd click “wiping out” the earlier correct and showing “Select 2…”.
+    // STICKY-CORRECT (generic, Q2-safe):
+    // If previously selected canonical-correct answers are STILL selected now,
+    // ensure we don’t recount below that number (prevents “downshift” on a wrong 2nd click).
     // ──────────────────────────────────────────────────────────────────────────
     if (isMulti && realCorrectCount > 1) {
-      // helpers for stable content-based keys
       const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
       const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
       const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
       const valOf     = (o: any) => (o as any)?.value ?? '';
-      const keyOf     = (o: any) => {
-        const t = norm(textOf(o));
-        const v = norm(valOf(o));
-        return t || v ? `vt:${v}|${t}` : '';
+      const keyOf     = (o: any, i: number) => {
+        // Prefer stable ids; fall back to normalized value/text; last resort index
+        if (o?.optionId != null || o?.id != null) return `id:${String(o.optionId ?? o.id)}`;
+        const v = norm(valOf(o)), t = norm(textOf(o));
+        return (v || t) ? `vt:${v}|${t}` : `ix:${i}`;
       };
   
-      // Prior snapshot overlaid with canonical flags → build set & count of prior selected-correct keys
-      const priorOverlaid: Option[] = this.getCanonicalOverlay(index, priorSnap);
+      // Prior snapshot overlaid with canonical flags → collect keys of prior selected & correct
+      const priorOverlaid = this.getCanonicalOverlay(index, priorSnap);
       const priorCorrectKeys = new Set<string>();
-      let priorSelectedCorrect = 0;
       if (Array.isArray(priorOverlaid)) {
         for (let i = 0; i < priorOverlaid.length; i++) {
           const po: any = priorOverlaid[i];
           const isCorr = po?.correct === true || po?.isCorrect === true || String(po?.correct).toLowerCase() === 'true';
-          if (isCorr && po?.selected) {
-            priorSelectedCorrect++;
-            const k = keyOf(po);
-            if (k) priorCorrectKeys.add(k);
-          }
+          if (isCorr && po?.selected) priorCorrectKeys.add(keyOf(po, i));
         }
       }
   
-      // Current selection keys from the *current* payload (what user actually has checked now)
+      // Current selection keys from the CURRENT payload
       const currentSelectedKeys = new Set<string>();
       for (let i = 0; i < (options?.length ?? 0); i++) {
         const o: any = options[i];
         if (!o?.selected) continue;
-        const k = keyOf(o);
-        if (k) currentSelectedKeys.add(k);
+        currentSelectedKeys.add(keyOf(o, i));
       }
   
-      // Are all previously-correct selections still currently selected?
-      let prevCorrectStillSelected = true;
-      priorCorrectKeys.forEach(k => { if (!currentSelectedKeys.has(k)) prevCorrectStillSelected = false; });
+      // Count how many of those prior-correct are still selected now
+      let stillSelectedCorrect = 0;
+      priorCorrectKeys.forEach(k => { if (currentSelectedKeys.has(k)) stillSelectedCorrect++; });
   
-      // If they are, never let the recount drop below prior correct-count
-      if (prevCorrectStillSelected && selectedCorrectNow < priorSelectedCorrect) {
-        selectedCorrectNow = priorSelectedCorrect;
-        remainingClick = Math.max(0, target - selectedCorrectNow);
+      if (stillSelectedCorrect > selectedCorrectNow) {
+        selectedCorrectNow = stillSelectedCorrect;
       }
     }
+  
+    // Remaining for multi based on CURRENT selection only
+    let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1253,6 +1244,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
