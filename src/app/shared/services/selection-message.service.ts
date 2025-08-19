@@ -1149,82 +1149,73 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 STRICT PATCH (index === 3): selection UNION (options ∪ priorSnap ∪ overlay),
-    // matched against canonical-correct by id → signature(value/text) → index.
-    // Keeps first correct counted when the second click is wrong (Option 2).
-    // Scoped to Q4 only — Q2 remains unchanged.
+    // Q4 STRICT PATCH: robust Q4 detection + strict recount from CURRENT options ∪ priorSnap
+    // (id → signature → canonical index). Counts UNIQUE canonical-correct picks.
+    // Prevents losing the first correct when second click is wrong.
     // ──────────────────────────────────────────────────────────────────────────
-    if (index === 3 && realCorrectCount > 1) {
-      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-      const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? null);
-      const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText;
-      // Order-independent signature
-      const sigOf     = (o: any) => `v:${norm((o as any)?.value)}|t:${norm(textOf(o))}`;
-      const isCorr    = (o: any) =>
-        o?.correct === true || o?.isCorrect === true ||
-        String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
+    {
+      // Robust zero-based index for current question
+      const iZero = Number.isFinite(index) ? Number(index) : (this.quizService.currentQuestionIndex ?? 0);
+      const isLikelyQ4 =
+        iZero === 3 ||
+        (this.quizService?.currentQuestionIndex ?? -1) === 3 ||
+        ((this.quizService as any)?.currentQuestionNumber === 4);
   
-      // Canonical-correct lookups
-      const canonIdToIdx  = new Map<string, number>();
-      const canonSigToIdx = new Map<string, number>();
-      const canonIdxSet   = new Set<number>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        if (!isCorr(c)) continue;
-        const cid = idOf(c, i);
-        if (cid != null) canonIdToIdx.set(String(cid), i);
-        canonSigToIdx.set(sigOf(c), i);
-        canonIdxSet.add(i);
-      }
-      const strictTarget = Math.max(1, canonIdxSet.size || realCorrectCount);
+      if (isLikelyQ4 && realCorrectCount > 1) {
+        const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+        const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+        const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText;
+        const sigOf     = (o: any, i?: number) => {
+          const v = norm((o as any)?.value);
+          const t = norm(textOf(o));
+          return (v || t) ? `vt:${v}|${t}` : `ix:${i ?? -1}`;
+        };
+        const isCorr    = (o: any) =>
+          o?.correct === true || o?.isCorrect === true ||
+          String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
   
-      // Build selection UNION (options ∪ priorSnap ∪ overlay)
-      const selIdSet  = new Set<string>();
-      const selSigSet = new Set<string>();
-      const selIdxSet = new Set<number>();
-      const ingest = (arr?: Option[]) => {
-        if (!Array.isArray(arr)) return;
-        for (let i = 0; i < arr.length; i++) {
-          const o: any = arr[i];
-          if (!o?.selected) continue;
-          const oid = idOf(o, i);
-          if (oid != null) selIdSet.add(String(oid));
-          selSigSet.add(sigOf(o));
-          selIdxSet.add(i);
+        // Canonical-correct → index maps
+        const canonIdToIdx  = new Map<string, number>();
+        const canonSigToIdx = new Map<string, number>();
+        const corrIdxSet    = new Set<number>();
+        for (let i = 0; i < canonical.length; i++) {
+          const c: any = canonical[i];
+          if (!isCorr(c)) continue;
+          const cid = c?.optionId ?? c?.id;
+          if (cid != null) canonIdToIdx.set(String(cid), i);
+          canonSigToIdx.set(sigOf(c, i), i);
+          corrIdxSet.add(i);
         }
-      };
-      ingest(options);
-      ingest(priorSnap);
-      ingest(overlaidNow);
   
-      // Count unique canonical-correct indices matched by the union
-      const seen = new Set<number>();
-      // 1) via ids
-      selIdSet.forEach(id => {
-        const j = canonIdToIdx.get(id);
-        if (j !== undefined) seen.add(j);
-      });
-      // 2) via signatures
-      selSigSet.forEach(sig => {
-        const j = canonSigToIdx.get(sig);
-        if (j !== undefined) seen.add(j);
-      });
-      // 3) fallback by index (only if that canonical index is correct)
-      selIdxSet.forEach(iSel => {
-        if (canonIdxSet.has(iSel)) seen.add(iSel);
-      });
+        // Collect selection from CURRENT options + prior snapshot (NOT overlay)
+        const seen = new Set<number>();
+        const ingest = (arr?: Option[]) => {
+          if (!Array.isArray(arr)) return;
+          for (let i = 0; i < arr.length; i++) {
+            const o: any = arr[i];
+            if (!o?.selected) continue;
+            const oid = o?.optionId ?? o?.id;
+            if (oid != null) {
+              const j = canonIdToIdx.get(String(oid));
+              if (j !== undefined) { seen.add(j); continue; }
+            }
+            const j2 = canonSigToIdx.get(sigOf(o, i));
+            if (j2 !== undefined) seen.add(j2);
+          }
+        };
+        ingest(options);
+        ingest(priorSnap);
   
-      const strictSelCorrect = seen.size;
-      const strictRem        = Math.max(0, strictTarget - strictSelCorrect);
+        const strictTarget      = Math.max(1, corrIdxSet.size || realCorrectCount);
+        const strictSelCorrect  = seen.size;
+        const strictRem         = Math.max(0, strictTarget - strictSelCorrect);
   
-      // Source-of-truth on Q4: take strict numbers exactly (allow downshift)
-      remainingClick     = strictRem;
-      target             = strictTarget;
-      selectedCorrectNow = strictSelCorrect;
-  
-      // Also lock multi for Q4
-      isMulti = true;
+        // Take strict numbers EXACTLY for Q4
+        remainingClick     = strictRem;
+        target             = strictTarget;
+        selectedCorrectNow = strictSelCorrect;
+        isMulti            = true;
+      }
     }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
@@ -1278,6 +1269,9 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
+  
+  
   
   
     
