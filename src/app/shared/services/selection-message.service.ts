@@ -1149,33 +1149,37 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // SAFETY FUSE (index-aligned, Q2-safe):
-    // Re-compute a strict remaining using canonical correctness by index
-    // against the CURRENT `options` selection. If strictRemaining is higher
-    // than our current remainingClick, raise remainingClick (never lower).
-    // This prevents a false "Next" when the 2nd click is WRONG on a multi (Q4).
+    // SAFETY FUSE (Q2-safe):
+    // Re-evaluate remaining using overlay indices ONLY (no ids/sigs).
+    // If that stricter view says we still owe picks, RAISE remainingClick.
+    // Prevents false "Next" on Q4 (1st click correct, 2nd click wrong).
     // ──────────────────────────────────────────────────────────────────────────
-    if (isMulti) {
-      // Build set of correct indices from overlay's canonical flags
-      const correctIdx = new Set<number>();
+    {
+      // indices that are correct per overlay (canonical flags already applied there)
+      const corrIdx: number[] = [];
       for (let i = 0; i < overlaidNow.length; i++) {
         const oo: any = overlaidNow[i];
         const corr = (oo?.correct === true) || (oo?.isCorrect === true) ||
                      (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
-        if (corr) correctIdx.add(i);
+        if (corr) corrIdx.push(i);
       }
   
-      // Count selected-correct strictly by index using CURRENT options' selection
+      // lock multi if overlay says the question is multi
+      if (corrIdx.length > 1) isMulti = true;
+  
+      // count strictly by index against CURRENT options selection
       let strictSelected = 0;
       const L = Math.min(options?.length ?? 0, overlaidNow.length);
-      for (let i = 0; i < L; i++) {
-        const sel = !!(options[i] as any)?.selected;
-        if (sel && correctIdx.has(i)) strictSelected++;
+      for (let k = 0; k < corrIdx.length; k++) {
+        const iCorr = corrIdx[k];
+        if (iCorr >= 0 && iCorr < L && !!(options[iCorr] as any)?.selected) {
+          strictSelected++;
+        }
       }
   
-      const strictRemaining = Math.max(0, target - strictSelected);
+      const strictRemaining = Math.max(0, corrIdx.length - strictSelected);
   
-      // Only ever RAISE the remaining (no downshift). Q2’s happy path stays intact.
+      // Only ever RAISE remaining; never lower. This keeps Q2 behavior intact.
       if (strictRemaining > remainingClick) {
         remainingClick = strictRemaining;
       }
@@ -1232,6 +1236,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
     
