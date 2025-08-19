@@ -1099,150 +1099,142 @@ export class SelectionMessageService {
     ).length;
   
     // ──────────────────────────────────────────────────────────────────────────
-    // REPLACED: selected-correct — sync CURRENT selections → overlay, then count
-    // (Fixes cases where getCanonicalOverlay() doesn't preserve `selected`)
+    // FIX: robust mapping & union correctness (ids → sig → index fallback)
+    // with RANGE-AWARE numeric index matching for q.answer (NO double-matching)
     // ──────────────────────────────────────────────────────────────────────────
     const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
     const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-    const sigOf     = (o: any) =>
-      `v:${norm(o?.value)}|t:${norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText)}`;
+    const idOf      = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
+    const sigOf     = (o: any, i: number) => {
+      const v = norm(o?.value);
+      const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText);
+      return (v || t) ? `vt:${v}|${t}` : `ix:${i}`;
+    };
   
-    // Build maps of which CURRENT options are selected (by id and by signature)
-    const selectedById  = new Map<string, boolean>();
-    const selectedBySig = new Map<string, boolean>();
+    // Canonical index maps
+    const canonIdToIdx = new Map<string, number>();
+    const canonSigToIdx = new Map<string, number>();
+    for (let i = 0; i < canonical.length; i++) {
+      const c: any = canonical[i];
+      canonIdToIdx.set(String(idOf(c, i)), i);
+      canonSigToIdx.set(sigOf(c, i), i);
+    }
+  
+    // Union correctness per canonical index: FLAGS ∪ q.answer
+    const fromFlags: boolean[] = canonical.map((c: any) =>
+      c?.correct === true || c?.isCorrect === true ||
+      String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1
+    );
+  
+    const len = canonical.length;
+    const inZeroRange  = (n: number) => Number.isFinite(n) && n >= 0 && n < len;
+    const inOneRange   = (n: number) => Number.isFinite(n) && n >= 1 && n <= len;
+  
+    // Range-aware numeric matcher: for a given number, match exactly one convention
+    const matchesNum = (num: number, i: number): boolean => {
+      if (inOneRange(num)) return (i + 1) === num;    // treat as 1-based
+      if (inZeroRange(num)) return i === num;         // else treat as 0-based
+      return false;
+    };
+  
+    // Range-aware object index matcher (index/idx/ordinal/optionIndex/optionIdx)
+    const matchesObjIndex = (obj: any, i: number): boolean => {
+      const raw = obj?.index ?? obj?.idx ?? obj?.ordinal ?? obj?.optionIndex ?? obj?.optionIdx;
+      const n = Number(raw);
+      return matchesNum(n, i);
+    };
+  
+    const ansArr: any[] = Array.isArray((q as any)?.answer) ? (q as any).answer : [];
+    const fromAnswer: boolean[] = new Array(canonical.length).fill(false);
+    if (ansArr.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = String(idOf(c, i));
+        const cv  = norm(c?.value);
+        const ct  = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+        const matched = ansArr.some((a: any) => {
+          if (a == null) return false;
+  
+          // id match (authoritative)
+          if (typeof a === 'object') {
+            const aid = a?.optionId ?? a?.id;
+            if (aid != null && String(aid) === cid) return true;
+            // index match (range-aware, no double counting)
+            if (matchesObjIndex(a, i)) return true;
+            // value/text match
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === cv) || (!!at && at === ct);
+          }
+  
+          // plain number → range-aware index match only
+          if (typeof a === 'number') return matchesNum(a, i);
+  
+          // plain string → try number (range-aware) else value/text
+          const s = String(a);
+          const n = Number(s);
+          if (Number.isFinite(n) && matchesNum(n, i)) return true;
+          const ns = norm(s);
+          return (!!ns && (ns === cv || ns === ct));
+        });
+  
+        if (matched) fromAnswer[i] = true;
+      }
+    }
+  
+    const corrUnionIdx: boolean[] = fromFlags.map((b, i) => b || fromAnswer[i]);
+  
+    // Real correct count from union (fallback to overlay flags if union is empty)
+    const realCorrectCount = Math.max(
+      1,
+      corrUnionIdx.some(Boolean) ? corrUnionIdx.filter(Boolean).length : correctCountOverlay
+    );
+  
+    // Count selected-correct STRICTLY from CURRENT click payload with robust mapping:
+    // id → canonical index; else signature → canonical index; else index fallback; OR use overlay correctness at same i.
+    let selectedCorrectNow = 0;
     for (let i = 0; i < (options?.length ?? 0); i++) {
       const o: any = options[i];
       if (!o?.selected) continue;
-      const oid = o?.optionId ?? o?.id;
-      if (oid != null) selectedById.set(String(oid), true);
-      const sig = sigOf(o);
-      if (sig) selectedBySig.set(sig, true);
+  
+      const byId = canonIdToIdx.get(String(idOf(o, i)));
+      let j: number | undefined = byId;
+      if (j === undefined) {
+        const bySig = canonSigToIdx.get(sigOf(o, i));
+        j = (bySig !== undefined) ? bySig : ((i >= 0 && i < canonical.length) ? i : undefined);
+      }
+  
+      // Decide correctness:
+      let isCorrect = false;
+      if (j !== undefined) {
+        isCorrect = !!corrUnionIdx[j];                               // (1) union by resolved canonical index
+        if (!isCorrect && i < overlaidNow.length) {
+          const oo: any = overlaidNow[i];                             // (2) overlay correctness at same index
+          isCorrect = !!(oo?.correct === true || oo?.isCorrect === true ||
+                         String(oo?.correct).toLowerCase() === 'true' || Number(oo?.correct) === 1);
+        }
+      } else if (i < overlaidNow.length) {
+        const oo: any = overlaidNow[i];                               // (3) pure overlay fallback (rare)
+        isCorrect = !!(oo?.correct === true || oo?.isCorrect === true ||
+                       String(oo?.correct).toLowerCase() === 'true' || Number(oo?.correct) === 1);
+      }
+  
+      if (isCorrect) selectedCorrectNow++;
     }
   
-    // Push selection into overlay (don’t assume overlay preserved it), then count selected & correct
-    let selectedCorrectNow = 0;
-    for (let i = 0; i < overlaidNow.length; i++) {
-      const oo: any = overlaidNow[i];
-  
-      // derive selected from CURRENT options by id first, else signature; fallback to overlay flag
-      const oid = oo?.optionId ?? oo?.id;
-      const sig = sigOf(oo);
-      const sel =
-        (oid != null && selectedById.get(String(oid)) === true) ||
-        (!!sig && selectedBySig.get(sig) === true) ||
-        (!!oo?.selected);
-  
-      // write-through to keep snapshot consistent
-      oo.selected = !!sel;
-  
-      const corr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
-      if (sel && corr) selectedCorrectNow++;
-    }
-    // ──────────────────────────────────────────────────────────────────────────
-  
-    // Target: prefer explicit override if present; clamp to overlay real count (never higher)
+    // Target: prefer explicit override if present; clamp to [1 .. realCorrectCount]
     const expectedOverride = this.getExpectedCorrectCount(index);
+    let target =
+      (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= 1)
+        ? Math.min(expectedOverride, realCorrectCount)
+        : realCorrectCount;
   
-    // ── FIX: derive real correct count from overlay and clamp target so it can NEVER be less
-    const realCorrectCount = Math.max(1, correctCountOverlay);
-  
-    // ── FIX: apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
-    let target: number = realCorrectCount;
-    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
-      target = Math.min(expectedOverride, realCorrectCount);
-    }
-  
-    // ── FIX: NEVER downshift multi once canonical says it's multi
-    const isMultiCanonical = realCorrectCount > 1;
-    isMulti = isMultiCanonical || (questionType === QuestionType.MultipleAnswer);
+    // If target indicates multi, honor it (helps when declared type is wrong)
+    if (target > 1) isMulti = true;
   
     // Remaining for multi based on CURRENT selection only
     let remainingClick = Math.max(0, target - selectedCorrectNow);
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // ONE-CHANGE-PER-CLICK GUARD (INDEX-BASED)
-    // If more than one option’s “selected” flipped vs the previous snapshot in this tick,
-    // constrain correct-count change to at most one, derived from the *prior snapshot*.
-    // Prefers a to-true WRONG toggle first (so Q4 1→2 stays at “Select 1 more…”).
-    // ──────────────────────────────────────────────────────────────────────────
-    try {
-      const prior = Array.isArray(priorSnap) ? priorSnap : [];
-      const len = Math.min(prior.length, options?.length ?? 0);
-  
-      // What changed by index?
-      const changed: Array<{ idx: number; from: boolean; to: boolean }> = [];
-      for (let i = 0; i < len; i++) {
-        const beforeSel = !!(prior[i] as any)?.selected;
-        const afterSel  = !!(options[i] as any)?.selected;
-        if (beforeSel !== afterSel) changed.push({ idx: i, from: beforeSel, to: afterSel });
-      }
-  
-      if (changed.length > 1) {
-        // Prior correct-selected count from canonical overlay of the prior snapshot
-        const priorOver = this.getCanonicalOverlay(index, prior);
-        const priorCorrect = priorOver.reduce((n, x: any) =>
-          n + (x?.selected && (x?.correct === true || x?.isCorrect === true || String(x?.correct).toLowerCase() === 'true') ? 1 : 0), 0);
-  
-        // Determine correctness of each changed index using current overlay (canonical flags)
-        const isIdxCorrect = (i: number) => {
-          const oo: any = overlaidNow[i];
-          return !!(oo?.correct === true || oo?.isCorrect === true || String(oo?.correct).toLowerCase() === 'true');
-        };
-  
-        // Choose ONE change to count this tick:
-        // 1) to-true & WRONG, 2) to-true & RIGHT, 3) to-false & RIGHT, else first by index.
-        const toTrueWrong  = changed.filter(c =>  c.to && !isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
-        const toTrueRight  = changed.filter(c =>  c.to &&  isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
-        const toFalseRight = changed.filter(c => !c.to &&  isIdxCorrect(c.idx)).sort((a,b)=>a.idx-b.idx);
-        const chosen = (toTrueWrong[0] ?? toTrueRight[0] ?? toFalseRight[0] ?? changed.sort((a,b)=>a.idx-b.idx)[0]);
-  
-        // Recompute gated correct count from *prior* plus only the chosen delta
-        let gatedCorrect = priorCorrect;
-        if (chosen.to && isIdxCorrect(chosen.idx))       gatedCorrect = priorCorrect + 1;        // picked a correct
-        else if (!chosen.to && isIdxCorrect(chosen.idx)) gatedCorrect = Math.max(0, priorCorrect - 1); // unpicked a correct
-        // else wrong toggled → no change
-  
-        selectedCorrectNow = gatedCorrect;
-        remainingClick = Math.max(0, target - selectedCorrectNow);
-      }
-    } catch { /* no-op */ }
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // Q4 SAFETY FUSE: lock remaining to canonical truth and prevent multi→single downshift
-    // (Keeps Q2 intact — we only clamp the minimum remaining when canonical says multi)
-    // ──────────────────────────────────────────────────────────────────────────
-    const canonicalCorrectCountFuse = (canonical ?? []).reduce((n, o: any) =>
-      n + ((o?.correct === true) || (o?.isCorrect === true) || (String(o?.correct).toLowerCase() === 'true') ? 1 : 0), 0
-    );
-  
-    if (canonicalCorrectCountFuse > 1) {
-      // Count canonically-correct selections in CURRENT payload (no overlay dependency)
-      const canonIds = new Set<string>();
-      const canonSigs = new Set<string>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const corr = c?.correct === true || c?.isCorrect === true || String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-        if (!corr) continue;
-        canonIds.add(String(c?.optionId ?? c?.id ?? i));
-        const s = sigOf(c);
-        if (s) canonSigs.add(s);
-      }
-  
-      let selectedCorrectCanonicalNow = 0;
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        if (!o?.selected) continue;
-        const oid = String(o?.optionId ?? o?.id ?? i);
-        const s = sigOf(o);
-        if (canonIds.has(oid) || (s && canonSigs.has(s))) selectedCorrectCanonicalNow++;
-      }
-  
-      const minRemaining = Math.max(0, canonicalCorrectCountFuse - selectedCorrectCanonicalNow);
-      if (remainingClick < minRemaining) remainingClick = minRemaining;
-  
-      // also hard-lock multi so a wrong 2nd click can't flip to "Next"
-      isMulti = true;
-    }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1295,6 +1287,8 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
