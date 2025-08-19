@@ -1149,72 +1149,55 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 STRICT PATCH: robust Q4 detect + strict recount from CURRENT options ∪ priorSnap
-    // id → signature → index-fallback (index only counts if canonical index is correct).
-    // Counts UNIQUE canonical-correct picks. No overlay involved here.
+    // Q4 TEXT-BASED STRICT RECOUNT (ONLY Q4) — robust to id/signature drift
+    // Uses CURRENT options ∪ priorSnap, matches against canonical-correct by normalized text/value.
+    // Ensures the first correct pick remains counted when second click is wrong.
     // ──────────────────────────────────────────────────────────────────────────
     {
       const iZero = Number.isFinite(index) ? Number(index) : (this.quizService.currentQuestionIndex ?? 0);
-      const isLikelyQ4 =
+      const isQ4 =
         iZero === 3 ||
         (this.quizService?.currentQuestionIndex ?? -1) === 3 ||
         ((this.quizService as any)?.currentQuestionNumber === 4);
   
-      if (isLikelyQ4 && realCorrectCount > 1) {
+      if (isQ4 && realCorrectCount > 1) {
         const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
         const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-        const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText;
-        const sigOf     = (o: any, i?: number) => {
-          const v = norm((o as any)?.value);
-          const t = norm(textOf(o));
-          return (v || t) ? `vt:${v}|${t}` : `ix:${i ?? -1}`;
-        };
+        const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
+        const valOf     = (o: any) => (o as any)?.value ?? '';
         const isCorr    = (o: any) =>
           o?.correct === true || o?.isCorrect === true ||
           String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
   
-        // Canonical-correct → index maps
-        const canonIdToIdx  = new Map<string, number>();
-        const canonSigToIdx = new Map<string, number>();
-        const corrIdxSet    = new Set<number>();
+        // Build canonical-correct TEXT signatures
+        const corrTextSet = new Set<string>();
         for (let i = 0; i < canonical.length; i++) {
           const c: any = canonical[i];
           if (!isCorr(c)) continue;
-          const cid = c?.optionId ?? c?.id;
-          if (cid != null) canonIdToIdx.set(String(cid), i);
-          canonSigToIdx.set(sigOf(c, i), i);
-          corrIdxSet.add(i);
+          const key = (norm(textOf(c)) || norm(valOf(c)));
+          if (key) corrTextSet.add(key);
         }
   
-        // Collect selection from CURRENT options + prior snapshot (NOT overlay)
-        const seen = new Set<number>();
+        // Union CURRENT options + priorSnap selected texts
+        const selTextSet = new Set<string>();
         const ingest = (arr?: Option[]) => {
           if (!Array.isArray(arr)) return;
           for (let i = 0; i < arr.length; i++) {
             const o: any = arr[i];
             if (!o?.selected) continue;
-  
-            // 1) id match → canonical index
-            const oid = o?.optionId ?? o?.id;
-            if (oid != null) {
-              const j = canonIdToIdx.get(String(oid));
-              if (j !== undefined) { seen.add(j); continue; }
-            }
-  
-            // 2) signature match → canonical index
-            const j2 = canonSigToIdx.get(sigOf(o, i));
-            if (j2 !== undefined) { seen.add(j2); continue; }
-  
-            // 3) index fallback ONLY if that canonical index is actually correct
-            if (corrIdxSet.has(i)) { seen.add(i); }
+            const key = (norm(textOf(o)) || norm(valOf(o)));
+            if (key) selTextSet.add(key);
           }
         };
         ingest(options);
         ingest(priorSnap);
   
-        const strictTarget      = Math.max(1, corrIdxSet.size || realCorrectCount);
-        const strictSelCorrect  = seen.size;
-        const strictRem         = Math.max(0, strictTarget - strictSelCorrect);
+        // Count unique matches by text/value
+        let strictSelCorrect = 0;
+        selTextSet.forEach(k => { if (corrTextSet.has(k)) strictSelCorrect++; });
+  
+        const strictTarget = Math.max(1, corrTextSet.size || realCorrectCount);
+        const strictRem    = Math.max(0, strictTarget - strictSelCorrect);
   
         // Use strict numbers EXACTLY for Q4
         remainingClick     = strictRem;
@@ -1275,6 +1258,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
   
   
   
