@@ -1124,32 +1124,20 @@ export class SelectionMessageService {
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // ──────────────────────────────────────────────────────────────────────────
-    // FIX: Count selected-correct using CURRENT options' selection
-    //      × canonical correctness from overlay at the SAME INDEX.
-    //      (Don't rely on overlay.selected; only on overlay.correct.)
-    // ──────────────────────────────────────────────────────────────────────────
-    let selectedCorrectNow = 0;
-    const L = Math.min(options?.length ?? 0, overlaidNow.length);
-    for (let i = 0; i < L; i++) {
-      const sel = !!(options[i] as any)?.selected;
-      const oo  = overlaidNow[i] as any;
-      const isCorr = (oo?.correct === true) || (oo?.isCorrect === true) ||
-                     (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
-      if (sel && isCorr) selectedCorrectNow++;
-    }
+    // How many of those correct are currently selected?
+    let selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
+      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
+    , 0);
   
     // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
   
-    // Derive real correct count from the overlay (min 1 to keep gating sane)
+    // derive real correct count from overlay (min 1)
     const realCorrectCount = Math.max(1, correctCountOverlay);
   
-    // Apply override ONLY if it is ≥ realCorrectCount (prevents multi→single downshift)
+    // apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
     let target: number = realCorrectCount;
-    if (typeof expectedOverride === 'number' &&
-        Number.isFinite(expectedOverride) &&
-        expectedOverride >= realCorrectCount) {
+    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     }
   
@@ -1159,6 +1147,68 @@ export class SelectionMessageService {
   
     // Remaining for multi based on CURRENT selection only
     let remainingClick = Math.max(0, target - selectedCorrectNow);
+  
+    // ──────────────────────────────────────────────────────────────────────────
+    // SAFETY FUSE: only when a NEWLY selected option is incorrect (Q4 sequence)
+    // Compare current vs prior selection deltas using CANONICAL truth (id→preferred, else text/value sig).
+    // If a *new* selection is incorrect and strict-canonical selected-correct < target,
+    // force remainingClick back to the strict value (≥1), preventing a false "Next".
+    // ──────────────────────────────────────────────────────────────────────────
+    if (isMulti) {
+      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+      const keyOf     = (o: any, i: number) => {
+        if (o?.optionId != null || o?.id != null) return `id:${String(o.optionId ?? o.id)}`;
+        const t = norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText ?? o?.value);
+        return t ? `txt:${t}` : `ix:${i}`;
+      };
+  
+      // Canonical correct keys
+      const canonCorrect = new Set<string>();
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const corr = c?.correct === true || c?.isCorrect === true ||
+                     String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
+        if (corr) canonCorrect.add(keyOf(c, i));
+      }
+  
+      // Current selected keys
+      const selNow = new Set<string>();
+      for (let i = 0; i < (options?.length ?? 0); i++) {
+        const o: any = options[i];
+        if (!o?.selected) continue;
+        selNow.add(keyOf(o, i));
+      }
+  
+      // Prior selected keys
+      const selPrev = new Set<string>();
+      const prevArr: any[] = Array.isArray(priorSnap) ? priorSnap as any[] : [];
+      for (let i = 0; i < prevArr.length; i++) {
+        const p = prevArr[i];
+        if (!p?.selected) continue;
+        selPrev.add(keyOf(p, i));
+      }
+  
+      // Newly selected keys
+      const newlySelected: string[] = [];
+      selNow.forEach(k => { if (!selPrev.has(k)) newlySelected.push(k); });
+  
+      // Any newly selected incorrect?
+      const anyNewIncorrect = newlySelected.some(k => !canonCorrect.has(k));
+  
+      if (anyNewIncorrect) {
+        // Strict selected-correct by canonical set on CURRENT payload
+        let strictSelectedCorrect = 0;
+        selNow.forEach(k => { if (canonCorrect.has(k)) strictSelectedCorrect++; });
+  
+        const strictRemaining = Math.max(0, target - strictSelectedCorrect);
+  
+        // Only intervene if strict says we still owe answers
+        if (strictRemaining > 0 && strictRemaining > remainingClick) {
+          remainingClick = strictRemaining;    // e.g., force back to "Select 1 more..."
+        }
+      }
+    }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1211,6 +1261,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
+  
     
   
   
