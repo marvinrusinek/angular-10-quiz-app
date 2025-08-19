@@ -1124,20 +1124,32 @@ export class SelectionMessageService {
       !!(o as any)?.correct || !!(o as any)?.isCorrect || String((o as any)?.correct).toLowerCase() === 'true'
     ).length;
   
-    // How many of those correct are currently selected?
-    let selectedCorrectNow = overlaidNow.reduce((n, o: any) =>
-      n + ((!!o?.selected) && (o?.correct === true || o?.isCorrect === true || String(o?.correct).toLowerCase() === 'true') ? 1 : 0)
-    , 0);
+    // ──────────────────────────────────────────────────────────────────────────
+    // FIX: Count selected-correct using CURRENT options' selection
+    //      × canonical correctness from overlay at the SAME INDEX.
+    //      (Don't rely on overlay.selected; only on overlay.correct.)
+    // ──────────────────────────────────────────────────────────────────────────
+    let selectedCorrectNow = 0;
+    const L = Math.min(options?.length ?? 0, overlaidNow.length);
+    for (let i = 0; i < L; i++) {
+      const sel = !!(options[i] as any)?.selected;
+      const oo  = overlaidNow[i] as any;
+      const isCorr = (oo?.correct === true) || (oo?.isCorrect === true) ||
+                     (String(oo?.correct).toLowerCase() === 'true') || (Number(oo?.correct) === 1);
+      if (sel && isCorr) selectedCorrectNow++;
+    }
   
     // Target: prefer explicit override if present; clamp to overlay real count (never higher)
     const expectedOverride = this.getExpectedCorrectCount(index);
   
-    // derive real correct count from overlay (min 1)
+    // Derive real correct count from the overlay (min 1 to keep gating sane)
     const realCorrectCount = Math.max(1, correctCountOverlay);
   
-    // apply override ONLY if it is ≥ realCorrectCount; then clamp down to realCorrectCount
+    // Apply override ONLY if it is ≥ realCorrectCount (prevents multi→single downshift)
     let target: number = realCorrectCount;
-    if (typeof expectedOverride === 'number' && Number.isFinite(expectedOverride) && expectedOverride >= realCorrectCount) {
+    if (typeof expectedOverride === 'number' &&
+        Number.isFinite(expectedOverride) &&
+        expectedOverride >= realCorrectCount) {
       target = Math.min(expectedOverride, realCorrectCount);
     }
   
@@ -1148,104 +1160,9 @@ export class SelectionMessageService {
     // Remaining for multi based on CURRENT selection only
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
-    // ──────────────────────────────────────────────────────────────────────────
-    // ✅ COMPLETION LATCH (multi): once completed, keep Next/Results sticky
-    // This prevents Q2 from flipping back if the user clicks extra wrong options after completing.
-    // ──────────────────────────────────────────────────────────────────────────
+    // ✅ completion latch — once satisfied, prevent regressions from passive writers
     (this as any).completedByIndex ??= new Map<number, boolean>();
-    const completedWas = (this as any).completedByIndex.get(index) === true;
-    if (remainingClick === 0) {
-      (this as any).completedByIndex.set(index, true);
-    }
-  
-    if (isMulti && completedWas) {
-      const msgSticky = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      const curSticky = this.selectionMessageSubject.getValue();
-      if (curSticky !== msgSticky) this.selectionMessageSubject.next(msgSticky);
-  
-      // light freeze to avoid flicker
-      const nowS = performance.now();
-      const holdS = nowS + 300;
-      this.suppressPassiveUntil.set(index, holdS);
-      this.freezeNextishUntil.set(index, holdS);
-  
-      this.setOptionsSnapshot(options);
-      return;
-    }
-  
-    // ──────────────────────────────────────────────────────────────────────────
-    // 🔒 “NEWLY-WRONG CLICK” FUSE (Q4-specific behavior, Q2-neutral)
-    // Only if we're multi AND our current logic says remaining==0 (i.e., would show Next),
-    // check whether the *latest* change was selecting a new option that is NOT canonical-correct.
-    // If so, recompute remaining using index-aligned overlay and force "Select 1 more...".
-    // This catches Q4 Option-2 second click without affecting Q2 flows.
-    // ──────────────────────────────────────────────────────────────────────────
-    if (isMulti && remainingClick === 0) {
-      // helpers
-      const strip = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-      const norm  = (x: any) => strip(x).replace(/\s+/g, ' ').trim().toLowerCase();
-      const idOf  = (o: any, i: number) => (o?.optionId ?? o?.id ?? i);
-      const textOf = (o: any) => norm(o?.text ?? o?.label ?? o?.title ?? o?.optionText ?? o?.displayText ?? o?.value);
-  
-      // prior selected sets (by id + text)
-      const prevSelIds = new Set<string>();
-      const prevSelTxt = new Set<string>();
-      for (let i = 0; i < (priorSnap?.length ?? 0); i++) {
-        const po: any = priorSnap[i];
-        if (!po?.selected) continue;
-        prevSelIds.add(String(idOf(po, i)));
-        prevSelTxt.add(textOf(po));
-      }
-  
-      // canonical-correct sets (by id + text)
-      const canonCorrIds = new Set<string>();
-      const canonCorrTxt = new Set<string>();
-      for (let i = 0; i < canonical.length; i++) {
-        const c: any = canonical[i];
-        const corr = c?.correct === true || c?.isCorrect === true ||
-                     String(c?.correct).toLowerCase() === 'true' || Number(c?.correct) === 1;
-        if (!corr) continue;
-        canonCorrIds.add(String(idOf(c, i)));
-        canonCorrTxt.add(textOf(c));
-      }
-  
-      // detect newly selected options this click
-      const newlySelected: number[] = [];
-      for (let i = 0; i < (options?.length ?? 0); i++) {
-        const o: any = options[i];
-        if (!o?.selected) continue;
-        const oid = String(idOf(o, i));
-        const otx = textOf(o);
-        const wasSelectedBefore = prevSelIds.has(oid) || prevSelTxt.has(otx);
-        if (!wasSelectedBefore) newlySelected.push(i);
-      }
-  
-      // if a newly selected exists AND it is not canonical-correct, we treat this as the Q4 wrong second click
-      const hasNewWrong = newlySelected.some(i => {
-        const o: any = options[i];
-        const oid = String(idOf(o, i));
-        const otx = textOf(o);
-        return !(canonCorrIds.has(oid) || canonCorrTxt.has(otx));
-      });
-  
-      if (hasNewWrong) {
-        // recompute selected-correct by strict index-aligned overlay
-        let selCorrIdxAligned = 0;
-        const L = Math.min(overlaidNow.length, options?.length ?? 0);
-        for (let i = 0; i < L; i++) {
-          const oo: any = overlaidNow[i]; // canonical correctness
-          const op: any = options[i];     // current selection
-          const isCorr = (oo?.correct === true) || (oo?.isCorrect === true) || (String(oo?.correct).toLowerCase() === 'true');
-          const isSel  = !!op?.selected || !!oo?.selected;
-          if (isCorr && isSel) selCorrIdxAligned++;
-        }
-        const forcedRemaining = Math.max(0, target - selCorrIdxAligned);
-  
-        if (forcedRemaining > 0) {
-          remainingClick = forcedRemaining; // force back to “Select N more...”
-        }
-      }
-    }
+    (this as any).completedByIndex.set(index, remainingClick === 0);
   
     // ──────────────────────────────────────────────────────────────────────────
     // Decisive click behavior (with freeze to avoid flashes)
@@ -1294,7 +1211,7 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
+    
   
   
   
