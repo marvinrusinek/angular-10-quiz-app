@@ -1149,62 +1149,42 @@ export class SelectionMessageService {
     let remainingClick = Math.max(0, target - selectedCorrectNow);
   
     // ──────────────────────────────────────────────────────────────────────────
-    // Q4 TEXT-BASED STRICT RECOUNT (ONLY Q4) — robust to id/signature drift
-    // Uses CURRENT options ∪ priorSnap, matches against canonical-correct by normalized text/value.
-    // Ensures the first correct pick remains counted when second click is wrong.
+    // Q4 OVERRIDE (index === 3) — id-free, overlay-free recount by normalized text/value
+    // Keeps the first correct counted when the second click is wrong (Option 2).
+    // Does NOT touch any other question (Q1–Q3 stay as-is).
     // ──────────────────────────────────────────────────────────────────────────
-    {
-      const iZero = Number.isFinite(index) ? Number(index) : (this.quizService.currentQuestionIndex ?? 0);
-      const isQ4 =
-        iZero === 3 ||
-        (this.quizService?.currentQuestionIndex ?? -1) === 3 ||
-        ((this.quizService as any)?.currentQuestionNumber === 4);
+    if (index === 3) {
+      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+      const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+      const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
+      const valOf     = (o: any) => (o as any)?.value ?? '';
+      const isCorr    = (o: any) =>
+        o?.correct === true || o?.isCorrect === true ||
+        String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
   
-      if (isQ4 && realCorrectCount > 1) {
-        const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
-        const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
-        const textOf    = (o: any) => (o as any)?.text ?? (o as any)?.label ?? (o as any)?.title ?? (o as any)?.optionText ?? (o as any)?.displayText ?? '';
-        const valOf     = (o: any) => (o as any)?.value ?? '';
-        const isCorr    = (o: any) =>
-          o?.correct === true || o?.isCorrect === true ||
-          String(o?.correct).toLowerCase() === 'true' || Number(o?.correct) === 1;
-  
-        // Build canonical-correct TEXT signatures
-        const corrTextSet = new Set<string>();
-        for (let i = 0; i < canonical.length; i++) {
-          const c: any = canonical[i];
-          if (!isCorr(c)) continue;
-          const key = (norm(textOf(c)) || norm(valOf(c)));
-          if (key) corrTextSet.add(key);
-        }
-  
-        // Union CURRENT options + priorSnap selected texts
-        const selTextSet = new Set<string>();
-        const ingest = (arr?: Option[]) => {
-          if (!Array.isArray(arr)) return;
-          for (let i = 0; i < arr.length; i++) {
-            const o: any = arr[i];
-            if (!o?.selected) continue;
-            const key = (norm(textOf(o)) || norm(valOf(o)));
-            if (key) selTextSet.add(key);
-          }
-        };
-        ingest(options);
-        ingest(priorSnap);
-  
-        // Count unique matches by text/value
-        let strictSelCorrect = 0;
-        selTextSet.forEach(k => { if (corrTextSet.has(k)) strictSelCorrect++; });
-  
-        const strictTarget = Math.max(1, corrTextSet.size || realCorrectCount);
-        const strictRem    = Math.max(0, strictTarget - strictSelCorrect);
-  
-        // Use strict numbers EXACTLY for Q4
-        remainingClick     = strictRem;
-        target             = strictTarget;
-        selectedCorrectNow = strictSelCorrect;
-        isMulti            = true;
+      // canonical-correct keys by visible content
+      const canonCorr = new Set<string>();
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        if (!isCorr(c)) continue;
+        const key = norm(textOf(c)) || norm(valOf(c));
+        if (key) canonCorr.add(key);
       }
+  
+      // count selected-correct from CURRENT options by the same visible key
+      let selCorrQ4 = 0;
+      for (let i = 0; i < (options?.length ?? 0); i++) {
+        const o: any = options[i];
+        if (!o?.selected) continue;
+        const key = norm(textOf(o)) || norm(valOf(o));
+        if (key && canonCorr.has(key)) selCorrQ4++;
+      }
+  
+      const targetQ4 = Math.max(1, canonCorr.size || realCorrectCount);
+      selectedCorrectNow = selCorrQ4;
+      target             = targetQ4;
+      remainingClick     = Math.max(0, targetQ4 - selCorrQ4);
+      isMulti            = targetQ4 > 1 || isMulti; // lock multi
     }
   
     // ✅ completion latch — once satisfied, prevent regressions from passive writers
@@ -1258,16 +1238,6 @@ export class SelectionMessageService {
     // Update snapshot after the decision
     this.setOptionsSnapshot(options);
   }
-  
-  
-  
-  
-  
-  
-  
-    
-  
-  
   
   
   
