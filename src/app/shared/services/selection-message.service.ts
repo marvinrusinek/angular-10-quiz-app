@@ -54,8 +54,9 @@ export class SelectionMessageService {
   // Latch to prevent regressions after a multi question is satisfied
   private completedByIndex = new Map<number, boolean>();
 
-  // Coalesce by question index so older emits can't overwrite newer ones
+  // Coalesce per index and protect SingleAnswer decisions
   private _lastTokByIndex = new Map<number, number>();
+  private _lastTypeByIndex = new Map<number, QuestionType>();
 
   // at the top of your SelectionMessageService (or wherever emitFromClick lives)
   private maxCorrectByIndex: Map<number, number> = new Map();
@@ -880,9 +881,9 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[]; // updated array already passed
   }): void {
-    const { index, totalQuestions, questionType, options } = params;
+    const { index, totalQuestions, questionType, options } = params as any;
   
-    console.log('[emitFromClick]', options.map(o => ({
+    console.log('[emitFromClick]', options.map((o: any) => ({
       text: o.text,
       selected: o.selected,
       correct: o.correct
@@ -892,13 +893,36 @@ export class SelectionMessageService {
     const tok = typeof (params as any)?.token === 'number' ? (params as any).token : Number.MAX_SAFE_INTEGER;
     const idx = index;
   
-    // Drop stale emits for this index
-    const prev = this._lastTokByIndex.get(idx) ?? -Infinity;
-    if (tok < prev) {
-      // console.debug('[emitFromClick] drop stale', { idx, tok, prev });
+    // ────────────────────────────────────────────────────────────
+    // Type-aware coalescing (MINIMAL CHANGES):
+    // - Drop stale tokens.
+    // - If we've already recorded SingleAnswer for this index, DO NOT let a different
+    //   type overwrite it (only a newer SingleAnswer may replace it).
+    // ────────────────────────────────────────────────────────────
+    // lazy init so you don't need class-level declarations right now
+    // @ts-ignore
+    this._lastTokByIndex  ??= new Map<number, number>();
+    // @ts-ignore
+    this._lastTypeByIndex ??= new Map<number, QuestionType>();
+  
+    const prevTok  = this._lastTokByIndex.get(idx)  ?? -Infinity;
+    const prevType = this._lastTypeByIndex.get(idx) ?? undefined;
+  
+    // 1) Drop stale emits
+    if (tok < prevTok) {
+      // console.debug('[emitFromClick] drop stale', { idx, tok, prevTok });
       return;
     }
+  
+    // 2) Protect SingleAnswer decisions from being clobbered by any later different type
+    if (prevType === QuestionType.SingleAnswer && questionType !== QuestionType.SingleAnswer) {
+      // console.debug('[emitFromClick] protect SingleAnswer', { idx, prevType, incoming: questionType });
+      return;
+    }
+  
+    // Record this emit as the latest for this index
     this._lastTokByIndex.set(idx, tok);
+    this._lastTypeByIndex.set(idx, questionType);
   
     // Keep the previous snapshot so unions can see earlier selections
     // (We won't use it for counting; it's here to keep your structure intact.)
@@ -913,7 +937,7 @@ export class SelectionMessageService {
     // - Otherwise → "Select 1 correct answer…"
     // ────────────────────────────────────────────────────────────
     if (questionType === QuestionType.SingleAnswer) {
-      const anySelected = options.some(o => !!o?.selected);
+      const anySelected = options.some((o: any) => !!o?.selected);
       const msg = anySelected
         ? 'Please click the Next button to continue.'
         : 'Select 1 correct answer to continue...';
@@ -1019,6 +1043,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType });
     }
   }
+  
   
   
   
