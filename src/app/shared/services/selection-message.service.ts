@@ -968,22 +968,22 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // Effective type:
-    // prefer sticky canonical; if unknown, trust declared questionType; else fallback to payload
+    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
+    // This prevents Q2 (Single) from being inferred as Multi on cold start.
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
-    if (canon === 1) {
-      effType = QuestionType.SingleAnswer;
-    } else if (canon > 1) {
+    if (canon > 1) {
       effType = QuestionType.MultipleAnswer;
-    } else if (questionType === QuestionType.SingleAnswer) {
-      // Canonical not known yet → respect declared type to avoid flip after restart
+    } else if (canon === 1) {
       effType = QuestionType.SingleAnswer;
+    } else if (questionType === QuestionType.SingleAnswer) {
+      effType = QuestionType.SingleAnswer; // trust declared
     } else if (questionType === QuestionType.MultipleAnswer) {
+      effType = QuestionType.MultipleAnswer; // trust declared
+    } else if (payloadCorrectCount > 1) {
       effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount === 1) {
       effType = QuestionType.SingleAnswer;
-    } else if (payloadCorrectCount > 1) {
-      effType = QuestionType.MultipleAnswer;
     } else {
       effType = questionType;
     }
@@ -1047,7 +1047,7 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
-      // CHANGE: Single-answer message now uses NEXT_BTN_MSG (not CONTINUE_MSG) once selected
+      // Use NEXT when selected, START when not
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
@@ -1060,7 +1060,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (+ soft DI floor)
+    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (+ DI soft floor)
     // ────────────────────────────────────────────────────────────
     {
       // Canonical correct TEXTS
@@ -1092,19 +1092,13 @@ export class SelectionMessageService {
           this.quizService.currentQuestionIndex === index
         );
   
-      // Determine expected total:
-      // 1) prefer sticky canonical count we cached (from top of function)
-      // 2) else payload count if present
-      // 3) else, for DI only, assume a soft floor of 2 to prevent early “Next”
-      const stickyCanon  = this._canonCountByKey.get(qKey) ?? 0;
-      const payloadCount = payloadTextSet.size;
+      // Expected total:
+      // - Start from union size of canonical/payload
+      // - Apply DI floor: at least 2
+      // - Keep non-decreasing per qKey
+      const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
+      let expectedTotal = looksLikeDI ? Math.max(unionSize, 2) : unionSize;
   
-      let expectedTotal =
-        stickyCanon > 0
-          ? stickyCanon
-          : (payloadCount > 0 ? payloadCount : (looksLikeDI ? 2 : 0));
-  
-      // Keep expectedTotal non-decreasing per question KEY
       const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
       expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey.set(qKey, expectedTotal);
@@ -1150,6 +1144,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
