@@ -58,8 +58,11 @@ export class SelectionMessageService {
   private _lastTokByIndex = new Map<number, number>();
   private _lastTypeByIndex = new Map<number, QuestionType>();
 
-  // at the top of your SelectionMessageService (or wherever emitFromClick lives)
+  // At the top of SelectionMessageService (or wherever emitFromClick lives)
   private maxCorrectByIndex: Map<number, number> = new Map();
+
+  // 🔒 Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
+  private _typeLockByIndex = new Map<number, QuestionType>();
 
   constructor(
     private quizService: QuizService, 
@@ -894,35 +897,59 @@ export class SelectionMessageService {
     const idx = index;
   
     // ────────────────────────────────────────────────────────────
-    // Type-aware coalescing (MINIMAL CHANGES):
-    // - Drop stale tokens.
-    // - If we've already recorded SingleAnswer for this index, DO NOT let a different
-    //   type overwrite it (only a newer SingleAnswer may replace it).
+    // TYPE RESOLUTION + COALESCER (SingleAnswer lock)
     // ────────────────────────────────────────────────────────────
-    // lazy init so you don't need class-level declarations right now
+    // lazy init small caches
     // @ts-ignore
-    this._lastTokByIndex  ??= new Map<number, number>();
+    this._lastTokByIndex   ??= new Map<number, number>();
     // @ts-ignore
-    this._lastTypeByIndex ??= new Map<number, QuestionType>();
+    this._lastTypeByIndex  ??= new Map<number, QuestionType>();
+    // @ts-ignore
+    this._typeLockByIndex  ??= new Map<number, QuestionType>(); // ← NEW: locks final type per index
   
+    // Prefer canonical to infer effective type
+    let canonicalOpts: any[] = [];
+    try {
+      const svc: any = this.quizService as any;
+      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
+      const qRef = (idx >= 0 && idx < qArr.length) ? qArr[idx] : svc?.currentQuestion;
+      canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
+    } catch { /* swallow */ }
+  
+    const canonicalCorrectCount = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
+    const payloadCorrectCount   = Array.isArray(options) ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0) : 0;
+  
+    let effType: QuestionType =
+      (canonicalCorrectCount === 1) ? QuestionType.SingleAnswer :
+      (canonicalCorrectCount >  1) ? QuestionType.MultipleAnswer :
+      (payloadCorrectCount   === 1) ? QuestionType.SingleAnswer :
+      (payloadCorrectCount    >  1) ? QuestionType.MultipleAnswer :
+      questionType;
+  
+    // If we proved SingleAnswer from canonical/payload, LOCK it for this index.
+    if (effType === QuestionType.SingleAnswer) {
+      this._typeLockByIndex.set(idx, QuestionType.SingleAnswer);
+    }
+  
+    // Coalescer: drop stale tokens
     const prevTok  = this._lastTokByIndex.get(idx)  ?? -Infinity;
+    if (tok < prevTok) return;
+  
+    // If locked SingleAnswer, block ANY non-Single for this index (even with newer token)
+    const lockedType = this._typeLockByIndex.get(idx);
+    if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
+      return;
+    }
+  
+    // Otherwise, standard SingleAnswer priority: if a Single was already recorded, block later non-Single
     const prevType = this._lastTypeByIndex.get(idx) ?? undefined;
-  
-    // 1) Drop stale emits
-    if (tok < prevTok) {
-      // console.debug('[emitFromClick] drop stale', { idx, tok, prevTok });
+    if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
       return;
     }
   
-    // 2) Protect SingleAnswer decisions from being clobbered by any later different type
-    if (prevType === QuestionType.SingleAnswer && questionType !== QuestionType.SingleAnswer) {
-      // console.debug('[emitFromClick] protect SingleAnswer', { idx, prevType, incoming: questionType });
-      return;
-    }
-  
-    // Record this emit as the latest for this index
+    // Record latest
     this._lastTokByIndex.set(idx, tok);
-    this._lastTypeByIndex.set(idx, questionType);
+    this._lastTypeByIndex.set(idx, effType);
   
     // Keep the previous snapshot so unions can see earlier selections
     // (We won't use it for counting; it's here to keep your structure intact.)
@@ -935,14 +962,39 @@ export class SelectionMessageService {
     // SINGLE-ANSWER (Q2 etc.) — keep behavior stable:
     // - If any option is selected → "Next"
     // - Otherwise → "Select 1 correct answer…"
+    // Robust against stale arrays by consulting service/snapshot if needed
     // ────────────────────────────────────────────────────────────
-    if (questionType === QuestionType.SingleAnswer) {
-      const anySelected = options.some((o: any) => !!o?.selected);
+    if (effType === QuestionType.SingleAnswer) {
+      let anySelected = options.some((o: any) => !!o?.selected);
+  
+      if (!anySelected) {
+        try {
+          const selSvc: any =
+            (this as any).selectedOptionService ??
+            (this as any).selectionService ??
+            (this as any).quizService;
+  
+          const byIds = selSvc?.getSelectedIdsForQuestion?.(index);
+          if (byIds instanceof Set) anySelected ||= byIds.size > 0;
+          else if (Array.isArray(byIds)) anySelected ||= byIds.length > 0;
+          else if (byIds != null) anySelected ||= true;
+  
+          if (!anySelected && typeof selSvc?.getSelectedOption === 'function') {
+            const one = selSvc.getSelectedOption(index);
+            anySelected ||= !!one;
+          }
+        } catch { /* ignore */ }
+      }
+  
+      if (!anySelected && Array.isArray(priorSnap)) {
+        try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
+      }
+  
       const msg = anySelected
-        ? 'Please click the Next button to continue.'
+        ? 'Please click the next button to continue.' // exact casing you want
         : 'Select 1 correct answer to continue...';
   
-      this.updateSelectionMessage(msg, { options, index, questionType });
+      this.updateSelectionMessage(msg, { options, index, questionType: effType });
       return;
     }
   
@@ -956,16 +1008,6 @@ export class SelectionMessageService {
     {
       const norm = (s: string) =>
         (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-  
-      // 1) Pull canonical options (service question at this index)
-      let canonicalOpts: any[] = [];
-      let qRef: any = undefined;
-      try {
-        const svc: any = this.quizService as any;
-        const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-        qRef = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
-        canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
-      } catch { /* swallow */ }
   
       // 2) Canonical correct TEXTS
       const canonicalTextSet = new Set<string>();
@@ -986,38 +1028,39 @@ export class SelectionMessageService {
       }
   
       // 4) Detect the DI Q4 and enforce a hard canonical
+      let qRef: any = undefined;
+      try {
+        const svc: any = this.quizService as any;
+        const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
+        qRef = (idx >= 0 && idx < qArr.length) ? qArr[idx] : svc?.currentQuestion;
+      } catch { /* swallow */ }
+  
       const looksLikeQ4 =
-        (typeof index === 'number' && index === 3) ||
+        (typeof idx === 'number' && idx === 3) ||
         (typeof qRef?.questionText === 'string' &&
           /dependency injection.*select all/i.test(qRef.questionText || ''));
   
       if (looksLikeQ4) {
-        // hard canonical for Q4 (normalized exact texts you shared)
         const hard1 = norm('DI is a technique where a class receives its dependencies from external sources rather than creating them itself.');
         const hard2 = norm('DI helps in reducing the coupling between classes, making the code more modular.');
-  
         canonicalTextSet.clear();
         canonicalTextSet.add(hard1);
         canonicalTextSet.add(hard2);
-        // Ignore payload correctness for counting when we positively identified Q4
         payloadTextSet.clear();
       }
   
       // 5) Stable expected total (non-decreasing per index) + Q4 floor ≥ 2
-      // @ts-ignore - lazy init if field not declared on the service
+      // ensure class field exists
+      // @ts-ignore
       this.maxCorrectByIndex ??= new Map<number, number>();
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
-      const prevMax   = this.maxCorrectByIndex.get(index) ?? 0;
+      const prevMax   = this.maxCorrectByIndex.get(idx) ?? 0;
       let expectedTotal = Math.max(prevMax, unionSize);
-  
-      if (looksLikeQ4) {
-        expectedTotal = Math.max(expectedTotal, 2);
-      }
-  
-      this.maxCorrectByIndex.set(index, expectedTotal);
+      if (looksLikeQ4) expectedTotal = Math.max(expectedTotal, 2);
+      this.maxCorrectByIndex.set(idx, expectedTotal);
   
       if (expectedTotal === 0) {
-        this.updateSelectionMessage('Select 1 more correct answer to continue...', { options, index, questionType });
+        this.updateSelectionMessage('Select 1 more correct answer to continue...', { options, index: idx, questionType: effType });
         return;
       }
   
@@ -1038,24 +1081,13 @@ export class SelectionMessageService {
       const nextMsg =
         remaining > 0
           ? `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`
-          : 'Please click the Next button to continue.';
+          : 'Please click the next button to continue.'; // match exact casing
   
-      this.updateSelectionMessage(nextMsg, { options, index, questionType });
+      this.updateSelectionMessage(nextMsg, { options, index: idx, questionType: effType });
     }
   }
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
 
   
   // Passive: call from navigation/reset/timer-expiry/etc.
