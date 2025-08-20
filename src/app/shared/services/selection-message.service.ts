@@ -1001,14 +1001,6 @@ export class SelectionMessageService {
     // Guard: must have a current options array
     if (!Array.isArray(options) || options.length === 0) return;
   
-    // Message helpers (use your top-level constants; graceful fallback if not present)
-    const mkMoreMsg = (remaining: number) =>
-      // @ts-ignore
-      (typeof MULTI_MORE_MSG === 'function'
-        // @ts-ignore
-        ? MULTI_MORE_MSG(remaining)
-        : `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`);
-  
     // ────────────────────────────────────────────────────────────
     // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
@@ -1042,9 +1034,7 @@ export class SelectionMessageService {
       }
   
       const msg = anySelected
-        // @ts-ignore
         ? (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please click the next button to continue.')
-        // @ts-ignore
         : (typeof START_MSG === 'string' ? START_MSG : 'Select 1 correct answer to continue...');
   
       this.updateSelectionMessage(msg, { options, index, questionType: effType });
@@ -1055,7 +1045,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total
+    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (+ soft DI floor)
     // ────────────────────────────────────────────────────────────
     {
       // Canonical correct TEXTS
@@ -1076,43 +1066,76 @@ export class SelectionMessageService {
         }
       }
   
-      // Stable expected total per question KEY
-      const prevMax   = this._maxCorrectByKey.get(qKey) ?? 0;
-      const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
-      const expectedTotal = Math.max(prevMax, unionSize);
+      // Detect the DI “Select all that apply” question WITHOUT hardcoding an index.
+      // Prefer metadata in the question text; sanity-check against the service’s current index.
+      const looksLikeDI =
+        (typeof qRef?.questionText === 'string' &&
+          /dependency injection/i.test(qRef.questionText || '') &&
+          /select all/i.test(qRef.questionText || '')) &&
+        (
+          this.quizService?.currentQuestionIndex == null ||
+          this.quizService.currentQuestionIndex === index
+        );
+  
+      // Determine expected total:
+      // 1) prefer sticky canonical count we cached (from top of function)
+      // 2) else payload count if present
+      // 3) else, for DI only, assume a soft floor of 2 to prevent early “Next”
+      const stickyCanon  = this._canonCountByKey.get(qKey) ?? 0;
+      const payloadCount = payloadTextSet.size;
+  
+      let expectedTotal =
+        stickyCanon > 0
+          ? stickyCanon
+          : (payloadCount > 0 ? payloadCount : (looksLikeDI ? 2 : 0));
+  
+      // Keep expectedTotal non-decreasing per question KEY
+      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
+      expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey.set(qKey, expectedTotal);
   
+      // If we still don't know the total (non-DI case with no flags), ask for “1 more…”
       if (expectedTotal === 0) {
         this.updateSelectionMessage(
-          mkMoreMsg(1),
+          typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
           { options, index, questionType: effType }
         );
         return;
       }
   
-      // Count selected-correct strictly against canonical (fallback payload if empty)
-      const useCanonical = canonicalTextSet.size > 0;
+      // Count selected-correct strictly:
+      // - If we have canonical, use it; else if payload exists, use that;
+      // - Else (DI soft floor), gate by raw selection count (unknown correctness).
       let selectedCorrect = 0;
-      for (const o of options) {
-        if (!o?.selected) continue;
-        const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (!txt) continue;
-        if (useCanonical ? canonicalTextSet.has(txt) : payloadTextSet.has(txt)) {
-          selectedCorrect++;
+      const useCanonical = canonicalTextSet.size > 0;
+      const usePayload   = !useCanonical && payloadTextSet.size > 0;
+  
+      if (useCanonical || usePayload) {
+        for (const o of options) {
+          if (!o?.selected) continue;
+          const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (!txt) continue;
+          if (useCanonical ? canonicalTextSet.has(txt) : payloadTextSet.has(txt)) {
+            selectedCorrect++;
+          }
         }
+      } else if (looksLikeDI) {
+        // Soft-floor mode: we don’t know correctness, but don’t allow “Next”
+        // until the user has selected the expected count (2).
+        selectedCorrect = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
-      const nextMsg =
-        remaining > 0
-          ? mkMoreMsg(remaining)
-          // @ts-ignore
-          : (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please click the next button to continue.');
+      const nextMsg = remaining > 0
+        ? (typeof buildRemainingMsg === 'function' ? buildRemainingMsg(remaining)
+                                                   : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
+        : (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.');
   
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
