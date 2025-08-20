@@ -662,6 +662,46 @@ export class SelectionMessageService {
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
+    // Keep prior snapshot only for selection fallback (not for correctness math)
+    const priorSnap = this.getLatestOptionsSnapshot?.();
+  
+    // Guard: must have a current options array
+    if (!Array.isArray(options) || options.length === 0) return;
+  
+    // Helper: union check for "any selected" across UI + services (+ prior snapshot)
+    const getAnySelectedUnion = (): boolean => {
+      let any = options.some((o: any) => !!o?.selected);
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+  
+        const idsResolved = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
+        if (idsResolved instanceof Set) any ||= idsResolved.size > 0;
+        else if (Array.isArray(idsResolved)) any ||= idsResolved.length > 0;
+        else if (idsResolved != null) any ||= true;
+  
+        if (!any) {
+          const idsUi = selSvc?.getSelectedIdsForQuestion?.(index);
+          if (idsUi instanceof Set) any ||= idsUi.size > 0;
+          else if (Array.isArray(idsUi)) any ||= idsUi.length > 0;
+          else if (idsUi != null) any ||= true;
+  
+          if (!any && typeof selSvc?.getSelectedOption === 'function') {
+            const oneResolved = selSvc.getSelectedOption(resolvedIndex);
+            const oneUi = selSvc.getSelectedOption(index);
+            any ||= !!oneResolved || !!oneUi;
+          }
+        }
+      } catch { /* ignore */ }
+  
+      if (!any && Array.isArray(priorSnap)) {
+        try { any ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
+      }
+      return any;
+    };
+  
     // ────────────────────────────────────────────────────────────
     // Effective type:
     // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
@@ -704,12 +744,6 @@ export class SelectionMessageService {
     // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
-  
-    // Keep prior snapshot only for selection fallback (not for correctness math)
-    const priorSnap = this.getLatestOptionsSnapshot?.();
-  
-    // Guard: must have a current options array
-    if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
     // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
@@ -761,32 +795,7 @@ export class SelectionMessageService {
     // ────────────────────────────────────────────────────────────
     {
       // STRONG "no selection yet" gate (union of UI options + selection service for both indices)
-      let anySelectedUnion = options.some((o: any) => !!o?.selected);
-      try {
-        const selSvc: any =
-          (this as any).selectedOptionService ??
-          (this as any).selectionService ??
-          (this as any).quizService;
-  
-        const idsResolved = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
-        if (idsResolved instanceof Set) anySelectedUnion ||= idsResolved.size > 0;
-        else if (Array.isArray(idsResolved)) anySelectedUnion ||= idsResolved.length > 0;
-        else if (idsResolved != null) anySelectedUnion ||= true;
-  
-        if (!anySelectedUnion) {
-          const idsUi = selSvc?.getSelectedIdsForQuestion?.(index);
-          if (idsUi instanceof Set) anySelectedUnion ||= idsUi.size > 0;
-          else if (Array.isArray(idsUi)) anySelectedUnion ||= idsUi.length > 0;
-          else if (idsUi != null) anySelectedUnion ||= true;
-  
-          if (!anySelectedUnion && typeof selSvc?.getSelectedOption === 'function') {
-            const oneResolved = selSvc.getSelectedOption(resolvedIndex);
-            const oneUi = selSvc.getSelectedOption(index);
-            anySelectedUnion ||= !!oneResolved || !!oneUi;
-          }
-        }
-      } catch { /* ignore */ }
-  
+      const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg =
           (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
@@ -895,6 +904,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
 
   
