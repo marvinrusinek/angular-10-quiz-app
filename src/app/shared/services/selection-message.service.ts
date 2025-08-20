@@ -920,10 +920,23 @@ export class SelectionMessageService {
     // Pull canonical question (id/text/options) to build a stable key
     let qRef: any = undefined;
     let canonicalOpts: any[] = [];
+    let resolvedIndex = index; // <─ NEW: resolve via service first
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-      qRef = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
+  
+      // Prefer the service's current index on cold start/async loads
+      const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : null;
+      if (svcIdx != null && svcIdx >= 0 && svcIdx < qArr.length) {
+        resolvedIndex = svcIdx;
+      }
+  
+      // If the passed index is valid and differs, keep a tiny debug trace (harmless)
+      if (resolvedIndex !== index) {
+        // console.debug('[emitFromClick] index drift', { passed: index, svcIdx: resolvedIndex });
+      }
+  
+      qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
       canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
     } catch { /* swallow */ }
   
@@ -969,7 +982,7 @@ export class SelectionMessageService {
     // ────────────────────────────────────────────────────────────
     // Effective type:
     // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
-    // This prevents Q2 (Single) from being inferred as Multi on cold start.
+    // Prevents Q2 (Single) from being inferred as Multi on cold start.
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -1030,13 +1043,13 @@ export class SelectionMessageService {
             (this as any).selectionService ??
             (this as any).quizService;
   
-          const byIds = selSvc?.getSelectedIdsForQuestion?.(index);
+          const byIds = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
           if (byIds instanceof Set) anySelected ||= byIds.size > 0;
           else if (Array.isArray(byIds)) anySelected ||= byIds.length > 0;
           else if (byIds != null) anySelected ||= true;
   
           if (!anySelected && typeof selSvc?.getSelectedOption === 'function') {
-            const one = selSvc.getSelectedOption(index);
+            const one = selSvc.getSelectedOption(resolvedIndex);
             anySelected ||= !!one;
           }
         } catch { /* ignore */ }
@@ -1086,11 +1099,7 @@ export class SelectionMessageService {
       const looksLikeDI =
         (typeof qRef?.questionText === 'string' &&
           /dependency injection/i.test(qRef.questionText || '') &&
-          /select all/i.test(qRef.questionText || '')) &&
-        (
-          this.quizService?.currentQuestionIndex == null ||
-          this.quizService.currentQuestionIndex === index
-        );
+          /select all/i.test(qRef.questionText || ''));
   
       // Expected total:
       // - Start from union size of canonical/payload
@@ -1131,7 +1140,6 @@ export class SelectionMessageService {
       } else if (looksLikeDI) {
         // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
         const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        // Cap so we always leave at least 1 remaining (prevents early "Next")
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
@@ -1145,6 +1153,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
