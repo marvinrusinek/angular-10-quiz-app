@@ -662,6 +662,22 @@ export class SelectionMessageService {
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
+    // Cold-start guard for MultipleAnswer: if quiz not hydrated, don’t jump to “Next”
+    const coldStartLikely =
+      !(this.quizService?.questions?.length > 0) ||
+      this.quizService?.currentQuestion == null;
+  
+    if (coldStartLikely && (questionType === QuestionType.MultipleAnswer || canon > 1 || payloadCorrectCount > 1)) {
+      queueMicrotask(() => {
+        const baseMsg = (typeof CONTINUE_MSG === 'string'
+          ? CONTINUE_MSG
+          : 'Please select an option to continue...');
+        this.updateSelectionMessage(baseMsg, { options, index, questionType });
+      });
+      // do not return for Single, because we still allow “Next” when selected
+      if (questionType === QuestionType.MultipleAnswer) return;
+    }
+  
     // Keep prior snapshot only for selection fallback (not for correctness math)
     const priorSnap = this.getLatestOptionsSnapshot?.();
   
@@ -777,13 +793,13 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
-      // Use NEXT when selected, START when not
+      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
-  
-      // IMPORTANT: pass resolvedIndex here so downstream stays in-sync on cold start
-      this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
+      queueMicrotask(() => {
+        this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
+      });
   
       // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
@@ -799,8 +815,10 @@ export class SelectionMessageService {
       if (!anySelectedUnion) {
         const baseMsg =
           (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
-        // Route using UI index to avoid cross-question clobber after restart
-        this.updateSelectionMessage(baseMsg, { options, index, questionType: effType });
+        queueMicrotask(() => {
+          // Route using UI index to avoid cross-question clobber after restart
+          this.updateSelectionMessage(baseMsg, { options, index, questionType: effType });
+        });
         return;
       }
   
@@ -822,25 +840,27 @@ export class SelectionMessageService {
         }
       }
   
-      // Detect the DI “Select all that apply” question WITHOUT hardcoding an index.
-      // Use question text; also ensure we aren't mismatched on index during cold start.
-      const svcIdx = (this.quizService?.currentQuestionIndex != null)
-        ? Number(this.quizService.currentQuestionIndex)
-        : null;
-  
+      // Detect the DI “Select all that apply” question **by text only** (no index gating).
       const looksLikeDI =
-        (typeof qRef?.questionText === 'string' &&
-          /dependency injection/i.test(qRef.questionText || '') &&
-          /select all/i.test(qRef.questionText || '')) &&
-        (svcIdx == null || svcIdx === index);
+        typeof qRef?.questionText === 'string' &&
+        /dependency injection/i.test(qRef.questionText || '') &&
+        /select all/i.test(qRef.questionText || '');
+  
+      // If this is DI and canonical is light/late, **inject the two known correct texts**
+      if (looksLikeDI) {
+        const hard1 = norm('DI is a technique where a class receives its dependencies from external sources rather than creating them itself.');
+        const hard2 = norm('DI helps in reducing the coupling between classes, making the code more modular.');
+        if (!canonicalTextSet.has(hard1)) canonicalTextSet.add(hard1);
+        if (!canonicalTextSet.has(hard2)) canonicalTextSet.add(hard2);
+      }
   
       // Expected total:
       // - Start from union size of canonical/payload
-      // - For DI: floor at 2 and prefer canonical (ignore payload if canonical present)
+      // - For DI: floor at 2 and prefer canonical
       // - Keep non-decreasing per qKey
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
       let expectedTotal = looksLikeDI
-        ? Math.max(canonicalTextSet.size || 2, 2) // if canonical unknown, floor at 2
+        ? Math.max(canonicalTextSet.size || 2, 2)
         : unionSize;
   
       const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
@@ -849,30 +869,29 @@ export class SelectionMessageService {
   
       // If still unknown total (non-DI with no flags), ask for “1 more…”
       if (expectedTotal === 0) {
-        this.updateSelectionMessage(
-          typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
-          // IMPORTANT: route message using the UI's passed index, not resolvedIndex
-          { options, index, questionType: effType }
-        );
+        queueMicrotask(() => {
+          this.updateSelectionMessage(
+            typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
+            { options, index, questionType: effType }
+          );
+        });
         return;
       }
   
       // Count selected-correct:
-      // - DI: count strictly against canonical if available; otherwise soft-floor by count (never let remaining hit 0)
+      // - DI: count strictly against canonical (after hard injection); no payload
       // - Non-DI: count against canonical if available, else payload
       let selectedCorrect = 0;
   
       if (looksLikeDI) {
-        if (canonicalTextSet.size > 0) {
-          for (const o of options) {
-            if (!o?.selected) continue;
-            const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-            if (txt && canonicalTextSet.has(txt)) selectedCorrect++;
-          }
-        } else {
-          // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
-          const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-          selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
+        for (const o of options) {
+          if (!o?.selected) continue;
+          const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (txt && canonicalTextSet.has(txt)) selectedCorrect++;
+        }
+        // Safety: don’t allow remaining to hit 0 unless we have ≥ 2 canonical matches
+        if (selectedCorrect < 2) {
+          selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
         }
       } else {
         const useCanonical = canonicalTextSet.size > 0;
@@ -901,12 +920,24 @@ export class SelectionMessageService {
               : 'Please click the next button to continue.');
   
       // IMPORTANT: use UI index for message routing to avoid cross-question clobber after restart
-      this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
+      queueMicrotask(() => {
+        this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
+      });
+  
+      // Optional, tiny DI debug (remove later)
+      try {
+        if (looksLikeDI) {
+          console.debug('[emitFromClick:DI]', {
+            qKey,
+            expectedTotal,
+            selectedCorrect,
+            remaining,
+            msg: remaining > 0 ? 'more' : 'next'
+          });
+        }
+      } catch {}
     }
   }
-  
-  
-
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
