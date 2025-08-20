@@ -1114,7 +1114,7 @@ export class SelectionMessageService {
   
       // Count selected-correct strictly:
       // - If we have canonical, use it; else if payload exists, use that;
-      // - Else (DI soft floor), gate by raw selection count (unknown correctness).
+      // - Else (DI soft floor), NEVER allow Next: cap the proxy so remaining ≥ 1.
       let selectedCorrect = 0;
       const useCanonical = canonicalTextSet.size > 0;
       const usePayload   = !useCanonical && payloadTextSet.size > 0;
@@ -1129,9 +1129,10 @@ export class SelectionMessageService {
           }
         }
       } else if (looksLikeDI) {
-        // Soft-floor mode: we don’t know correctness, but don’t allow “Next”
-        // until the user has selected the expected count (2).
-        selectedCorrect = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+        // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
+        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+        // Cap so we always leave at least 1 remaining (prevents early "Next")
+        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -1144,6 +1145,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
