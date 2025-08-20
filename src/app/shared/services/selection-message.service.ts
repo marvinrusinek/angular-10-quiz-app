@@ -1071,6 +1071,16 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — canonical TEXT + stable expected total (+ DI soft floor)
     // ────────────────────────────────────────────────────────────
     {
+      // If nothing is selected yet, show the generic continue prompt (not remaining counter)
+      const noneSelectedYet = !options.some((o: any) => !!o?.selected);
+      if (noneSelectedYet) {
+        const baseMsg =
+          (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
+        // Route message using the UI's passed index to avoid cross-question clobber after restart
+        this.updateSelectionMessage(baseMsg, { options, index, questionType: effType });
+        return;
+      }
+  
       // Canonical correct TEXTS
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
@@ -1139,7 +1149,7 @@ export class SelectionMessageService {
       } else if (looksLikeDI) {
         // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
         const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1)); // keep ≥1 remaining
+        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -1153,6 +1163,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
