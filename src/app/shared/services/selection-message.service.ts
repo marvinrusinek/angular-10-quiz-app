@@ -898,52 +898,62 @@ export class SelectionMessageService {
       correct: o.correct
     })));
   
-    // Accept optional token without changing your callers (harmless if absent)
+    // NOTE: ensure these exist as class fields somewhere:
+    // private _lastTokByKey = new Map<string, number>();
+    // private _lastTypeByKey = new Map<string, QuestionType>();
+    // private _typeLockByKey = new Map<string, QuestionType>();
+    // private _singleNextLockedByKey = new Set<string>();
+    // private _maxCorrectByKey = new Map<string, number>();
+  
+    // Optional token; harmless if absent
     const tok = typeof (params as any)?.token === 'number' ? (params as any).token : Number.MAX_SAFE_INTEGER;
-    const idx = index;
   
-    // ────────────────────────────────────────────────────────────
-    // Stable key (fix for Q2): coalesce/lock by question KEY, not wobbling index
-    // ────────────────────────────────────────────────────────────
+    // Helpers
     const norm = (s: string) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+    const optionSig = (arr: any[]) =>
+      (Array.isArray(arr) ? arr : [])
+        .map(o => norm(o?.text ?? o?.label ?? ''))
+        .filter(Boolean)
+        .sort()
+        .join('|'); // simple deterministic signature
   
-    // Pull canonical question to build a stable key
+    // Pull canonical question (to get id/text and options)
     let qRef: any = undefined;
     let canonicalOpts: any[] = [];
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-      qRef = (idx >= 0 && idx < qArr.length) ? qArr[idx] : svc?.currentQuestion;
+      qRef = (index >= 0 && index < qArr.length) ? qArr[index] : svc?.currentQuestion;
       canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
     } catch { /* swallow */ }
   
+    // 🔑 Stable question key:
     const qKey: string =
       (qRef?.id != null) ? `id:${String(qRef.id)}` :
       (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}` :
-      `idx:${idx}`; // last resort
+      `opts:${optionSig(options?.length ? options : canonicalOpts)}`; // final fallback
   
     // ────────────────────────────────────────────────────────────
-    // Coalescer + SINGLE-NEXT FREEZE — keyed by qKey (not index)
+    // Coalescer + Single-Answer freeze, all keyed by qKey
     // ────────────────────────────────────────────────────────────
-    // Ensure caches exist
+    // lazy init if not declared (safe, but keep the class fields for clarity)
     // @ts-ignore
-    this._lastTokByKey   ??= new Map<string, number>();
+    this._lastTokByKey          ??= new Map<string, number>();
     // @ts-ignore
-    this._lastTypeByKey  ??= new Map<string, QuestionType>();
+    this._lastTypeByKey         ??= new Map<string, QuestionType>();
     // @ts-ignore
-    this._typeLockByKey  ??= new Map<string, QuestionType>();
+    this._typeLockByKey         ??= new Map<string, QuestionType>();
     // @ts-ignore
     this._singleNextLockedByKey ??= new Set<string>();
-    // Stable max-corrects per key (multi-answer)
     // @ts-ignore
-    this._maxCorrectByKey ??= new Map<string, number>();
+    this._maxCorrectByKey       ??= new Map<string, number>();
   
-    // If this question is frozen in Single-Answer “Next”, ignore any further emits
+    // If Single-Answer “Next” already shown for this question, ignore further emits
     if (this._singleNextLockedByKey.has(qKey)) {
       return;
     }
   
-    // Infer effective type (prefer canonical, fallback to payload, else param)
+    // Infer effective type from canonical first, payload second, then param
     const canonicalCorrectCount = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const payloadCorrectCount   = Array.isArray(options) ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0) : 0;
   
@@ -954,6 +964,7 @@ export class SelectionMessageService {
       (payloadCorrectCount    >  1) ? QuestionType.MultipleAnswer :
       questionType;
   
+    // If SingleAnswer determined, lock that type for this question
     if (effType === QuestionType.SingleAnswer) {
       this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
     }
@@ -962,38 +973,36 @@ export class SelectionMessageService {
     const prevTok  = this._lastTokByKey.get(qKey) ?? -Infinity;
     if (tok < prevTok) return;
   
-    // If locked SingleAnswer, block ANY non-Single for this key
+    // If locked SingleAnswer, block ANY non-Single emit for this question
     const lockedType = this._typeLockByKey.get(qKey);
     if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
       return;
     }
   
-    // SingleAnswer priority: if a Single was already recorded for this key, block later non-Single
+    // SingleAnswer priority: if a SingleDecision was recorded, block later non-Single
     const prevType = this._lastTypeByKey.get(qKey) ?? undefined;
     if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
       return;
     }
   
-    // Record latest (by key)
+    // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
   
-    // Keep the previous snapshot so unions can see earlier selections
-    // (We won't use it for counting; it's here to keep your structure intact.)
+    // Keep prior snapshot (don’t use for counts, only fallback to detect selection)
     const priorSnap = this.getLatestOptionsSnapshot?.();
   
-    // Guard: must have a current options array for THIS index
+    // Must have options
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (Q2 etc.) — keep behavior stable:
-    // - If any option is selected → "Next"
-    // - Otherwise → "Select 1 correct answer…"
-    // Robust against stale arrays by consulting service/snapshot if needed
+    // SINGLE-ANSWER (Q2 etc.) — robust selection detection
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
+      // 1) current array
       let anySelected = options.some((o: any) => !!o?.selected);
   
+      // 2) selection service fallback
       if (!anySelected) {
         try {
           const selSvc: any =
@@ -1013,6 +1022,7 @@ export class SelectionMessageService {
         } catch { /* ignore */ }
       }
   
+      // 3) prior snapshot fallback
       if (!anySelected && Array.isArray(priorSnap)) {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
@@ -1023,20 +1033,16 @@ export class SelectionMessageService {
   
       this.updateSelectionMessage(msg, { options, index, questionType: effType });
   
-      // 🔒 Freeze this question once we’ve shown “Next” for Single-Answer
+      // 🔒 Freeze once we’ve shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER (Q4) — canonical TEXT first + stable expected total
-    // - expectedTotal = max(prevMaxForKey, max(canonicalText.size, payloadText.size))
-    // - selectedCorrect = | selectedTexts ∩ canonicalTexts |
-    //   (fallback to payloadTexts only if canonical is empty)
-    // - Q4 hard canonical: for DI "Select all that apply", pin canonical to the 2 known correct texts and floor total ≥ 2
+    // MULTIPLE-ANSWER (Q4) — canonical TEXT + stable expected total
     // ────────────────────────────────────────────────────────────
     {
-      // 2) Canonical correct TEXTS
+      // Canonical correct TEXTS
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
@@ -1045,7 +1051,7 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Payload-correct TEXTS (backup only)
+      // Payload-correct TEXTS (backup only)
       const payloadTextSet = new Set<string>();
       for (const o of options) {
         if (!!o?.correct) {
@@ -1054,9 +1060,9 @@ export class SelectionMessageService {
         }
       }
   
-      // 4) Detect the DI Q4 and enforce a hard canonical
+      // Q4 hard canonical: DI “Select all that apply”
       const looksLikeQ4 =
-        (typeof idx === 'number' && idx === 3) ||
+        (typeof index === 'number' && index === 3) ||
         (typeof qRef?.questionText === 'string' &&
           /dependency injection.*select all/i.test(qRef.questionText || ''));
   
@@ -1069,7 +1075,7 @@ export class SelectionMessageService {
         payloadTextSet.clear();
       }
   
-      // 5) Stable expected total (non-decreasing per question KEY) + Q4 floor ≥ 2
+      // Stable expected total per question KEY
       const prevMax   = this._maxCorrectByKey.get(qKey) ?? 0;
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
       let expectedTotal = Math.max(prevMax, unionSize);
@@ -1081,7 +1087,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 6) Count selected-correct STRICTLY vs canonical (never payload if Q4 hard canonical applied)
+      // Count selected-correct strictly against canonical (fallback payload if empty)
       const useCanonical = canonicalTextSet.size > 0;
       let selectedCorrect = 0;
       for (const o of options) {
@@ -1103,6 +1109,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
 
