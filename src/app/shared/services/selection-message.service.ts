@@ -1001,6 +1001,14 @@ export class SelectionMessageService {
     // Guard: must have a current options array
     if (!Array.isArray(options) || options.length === 0) return;
   
+    // Message helpers (use your top-level constants; graceful fallback if not present)
+    const mkMoreMsg = (remaining: number) =>
+      // @ts-ignore
+      (typeof MULTI_MORE_MSG === 'function'
+        // @ts-ignore
+        ? MULTI_MORE_MSG(remaining)
+        : `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`);
+  
     // ────────────────────────────────────────────────────────────
     // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
@@ -1034,8 +1042,10 @@ export class SelectionMessageService {
       }
   
       const msg = anySelected
-        ? 'Please click the next button to continue.'
-        : 'Select 1 correct answer to continue...';
+        // @ts-ignore
+        ? (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please click the next button to continue.')
+        // @ts-ignore
+        : (typeof START_MSG === 'string' ? START_MSG : 'Select 1 correct answer to continue...');
   
       this.updateSelectionMessage(msg, { options, index, questionType: effType });
   
@@ -1045,7 +1055,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER (Q4) — canonical TEXT + stable expected total
+    // MULTIPLE-ANSWER — canonical TEXT + stable expected total
     // ────────────────────────────────────────────────────────────
     {
       // Canonical correct TEXTS
@@ -1066,30 +1076,17 @@ export class SelectionMessageService {
         }
       }
   
-      // Detect the DI Q4 and enforce a hard canonical
-      const looksLikeQ4 =
-        (typeof index === 'number' && index === 3) ||
-        (typeof qRef?.questionText === 'string' &&
-          /dependency injection.*select all/i.test(qRef.questionText || ''));
-  
-      if (looksLikeQ4) {
-        const hard1 = norm('DI is a technique where a class receives its dependencies from external sources rather than creating them itself.');
-        const hard2 = norm('DI helps in reducing the coupling between classes, making the code more modular.');
-        canonicalTextSet.clear();
-        canonicalTextSet.add(hard1);
-        canonicalTextSet.add(hard2);
-        payloadTextSet.clear();
-      }
-  
       // Stable expected total per question KEY
       const prevMax   = this._maxCorrectByKey.get(qKey) ?? 0;
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
-      let expectedTotal = Math.max(prevMax, unionSize);
-      if (looksLikeQ4) expectedTotal = Math.max(expectedTotal, 2);
+      const expectedTotal = Math.max(prevMax, unionSize);
       this._maxCorrectByKey.set(qKey, expectedTotal);
   
       if (expectedTotal === 0) {
-        this.updateSelectionMessage('Select 1 more correct answer to continue...', { options, index, questionType: effType });
+        this.updateSelectionMessage(
+          mkMoreMsg(1),
+          { options, index, questionType: effType }
+        );
         return;
       }
   
@@ -1109,12 +1106,14 @@ export class SelectionMessageService {
   
       const nextMsg =
         remaining > 0
-          ? `Select ${remaining === 1 ? '1 more correct answer' : `${remaining} more correct answers`} to continue...`
-          : 'Please click the next button to continue.';
+          ? mkMoreMsg(remaining)
+          // @ts-ignore
+          : (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please click the next button to continue.');
   
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
