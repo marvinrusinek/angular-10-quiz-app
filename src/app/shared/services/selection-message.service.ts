@@ -875,7 +875,7 @@ export class SelectionMessageService {
     options: Option[]; // updated array already passed
   }): void {
     const { index, totalQuestions, questionType, options } = params;
-
+  
     console.log('[emitFromClick]', options.map(o => ({
       text: o.text,
       selected: o.selected,
@@ -897,7 +897,7 @@ export class SelectionMessageService {
     if (questionType === QuestionType.SingleAnswer) {
       const anySelected = options.some(o => !!o?.selected);
       const msg = anySelected
-        ? 'Please click the next button to continue.'
+        ? 'Please click the Next button to continue.'
         : 'Select 1 correct answer to continue...';
   
       this.updateSelectionMessage(msg, { options, index, questionType });
@@ -970,6 +970,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType });
     }
   }
+  
   
   
   
