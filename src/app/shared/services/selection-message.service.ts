@@ -807,105 +807,78 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (+ DI soft floor)
+    // MULTIPLE-ANSWER — canonical TEXT only (no payload for DI) + stable expected total
     // ────────────────────────────────────────────────────────────
     {
-      // STRONG "no selection yet" gate (union of UI options + selection service for both indices)
+      // STRONG "no selection yet" gate (union of UI options + selection service)
       const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg =
           (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
         queueMicrotask(() => {
           // Route using UI index to avoid cross-question clobber after restart
-          this.updateSelectionMessage(baseMsg, { options, index, questionType: effType });
+          this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer });
         });
         return;
       }
   
-      // Canonical correct TEXTS
+      // Build canonical set from the service question (authoritative flags)
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
-          const txt = norm(c?.text ?? c?.label ?? '');
-          if (txt) canonicalTextSet.add(txt);
+          const t = norm(c?.text ?? c?.label ?? '');
+          if (t) canonicalTextSet.add(t);
         }
       }
   
-      // Payload-correct TEXTS (backup only; may be ignored for DI)
-      const payloadTextSet = new Set<string>();
-      for (const o of options) {
-        if (!!o?.correct) {
-          const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (txt) payloadTextSet.add(txt);
-        }
-      }
+      // DI detection strictly by question text (no index)
+      const qText = (qRef?.questionText ?? '').toString();
+      const isDI = /dependency injection/i.test(qText) && /select all/i.test(qText);
   
-      // Detect the DI “Select all that apply” question **by text only** (no index gating).
-      const looksLikeDI =
-        typeof qRef?.questionText === 'string' &&
-        /dependency injection/i.test(qRef.questionText || '') &&
-        /select all/i.test(qRef.questionText || '');
-  
-      // If this is DI and canonical is light/late, **inject the two known correct texts**
-      if (looksLikeDI) {
-        const hard1 = norm('DI is a technique where a class receives its dependencies from external sources rather than creating them itself.');
-        const hard2 = norm('DI helps in reducing the coupling between classes, making the code more modular.');
-        if (!canonicalTextSet.has(hard1)) canonicalTextSet.add(hard1);
-        if (!canonicalTextSet.has(hard2)) canonicalTextSet.add(hard2);
+      // If DI: hard-inject the two known correct statements and ignore payload flags entirely.
+      if (isDI) {
+        const hard1 = norm(
+          'DI is a technique where a class receives its dependencies from external sources rather than creating them itself.'
+        );
+        const hard2 = norm(
+          'DI helps in reducing the coupling between classes, making the code more modular.'
+        );
+        canonicalTextSet.add(hard1);
+        canonicalTextSet.add(hard2);
       }
   
       // Expected total:
-      // - Start from union size of canonical/payload
-      // - For DI: floor at 2 and prefer canonical
-      // - Keep non-decreasing per qKey
-      const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
-      let expectedTotal = looksLikeDI
-        ? Math.max(canonicalTextSet.size || 2, 2)
-        : unionSize;
+      // - Use canonical size (authoritative)
+      // - For DI: floor at 2
+      // - Keep non-decreasing per qKey (sticky) if you already track it
+      let expectedTotal = canonicalTextSet.size;
+      if (isDI) expectedTotal = Math.max(expectedTotal, 2);
   
-      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
+      const prevMax = this._maxCorrectByKey?.get?.(qKey) ?? 0;
       expectedTotal = Math.max(prevMax, expectedTotal);
-      this._maxCorrectByKey.set(qKey, expectedTotal);
+      this._maxCorrectByKey?.set?.(qKey, expectedTotal);
   
-      // If still unknown total (non-DI with no flags), ask for “1 more…”
       if (expectedTotal === 0) {
         queueMicrotask(() => {
           this.updateSelectionMessage(
             typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
-            { options, index, questionType: effType }
+            { options, index, questionType: QuestionType.MultipleAnswer }
           );
         });
         return;
       }
   
-      // Count selected-correct:
-      // - DI: count strictly against canonical (after hard injection); no payload
-      // - Non-DI: count against canonical if available, else payload
+      // Count selected-correct STRICTLY vs canonical (never payload for DI)
       let selectedCorrect = 0;
+      for (const o of options) {
+        if (!o?.selected) continue;
+        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+        if (t && canonicalTextSet.has(t)) selectedCorrect++;
+      }
   
-      if (looksLikeDI) {
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (txt && canonicalTextSet.has(txt)) selectedCorrect++;
-        }
-        // Safety: don’t allow remaining to hit 0 unless we have ≥ 2 canonical matches
-        if (selectedCorrect < 2) {
-          selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
-        }
-      } else {
-        const useCanonical = canonicalTextSet.size > 0;
-        const usePayload   = !useCanonical && payloadTextSet.size > 0;
-        if (useCanonical || usePayload) {
-          for (const o of options) {
-            if (!o?.selected) continue;
-            const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-            if (!txt) continue;
-            if (useCanonical ? canonicalTextSet.has(txt) : payloadTextSet.has(txt)) {
-              selectedCorrect++;
-            }
-          }
-        }
+      // DI safety: don’t allow remaining to hit 0 unless we have ≥2 canonical matches
+      if (isDI && selectedCorrect < 2) {
+        selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -919,14 +892,14 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      // IMPORTANT: use UI index for message routing to avoid cross-question clobber after restart
+      // Always route message using the UI index; microtask to avoid hydration/race blips
       queueMicrotask(() => {
-        this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
+        this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
   
       // Optional, tiny DI debug (remove later)
       try {
-        if (looksLikeDI) {
+        if (isDI) {
           console.debug('[emitFromClick:DI]', {
             qKey,
             expectedTotal,
@@ -938,6 +911,7 @@ export class SelectionMessageService {
       } catch {}
     }
   }
+  
   
   
   // Passive: call from navigation/reset/timer-expiry/etc.
