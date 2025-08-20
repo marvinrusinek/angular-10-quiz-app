@@ -966,13 +966,27 @@ export class SelectionMessageService {
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // Effective type: prefer sticky canonical; fallback to payload; finally param
-    let effType: QuestionType =
-      (canon === 1) ? QuestionType.SingleAnswer :
-      (canon  >  1) ? QuestionType.MultipleAnswer :
-      (payloadCorrectCount === 1) ? QuestionType.SingleAnswer :
-      (payloadCorrectCount  >  1) ? QuestionType.MultipleAnswer :
-      questionType;
+    // ────────────────────────────────────────────────────────────
+    // Effective type:
+    // prefer sticky canonical; if unknown, trust declared questionType; else fallback to payload
+    // ────────────────────────────────────────────────────────────
+    let effType: QuestionType;
+    if (canon === 1) {
+      effType = QuestionType.SingleAnswer;
+    } else if (canon > 1) {
+      effType = QuestionType.MultipleAnswer;
+    } else if (questionType === QuestionType.SingleAnswer) {
+      // Canonical not known yet → respect declared type to avoid flip after restart
+      effType = QuestionType.SingleAnswer;
+    } else if (questionType === QuestionType.MultipleAnswer) {
+      effType = QuestionType.MultipleAnswer;
+    } else if (payloadCorrectCount === 1) {
+      effType = QuestionType.SingleAnswer;
+    } else if (payloadCorrectCount > 1) {
+      effType = QuestionType.MultipleAnswer;
+    } else {
+      effType = questionType;
+    }
   
     // If determined SingleAnswer, lock type for this question
     if (effType === QuestionType.SingleAnswer) {
@@ -1033,9 +1047,10 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
+      // CHANGE: Single-answer message now uses NEXT_BTN_MSG (not CONTINUE_MSG) once selected
       const msg = anySelected
-        ? (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please click the next button to continue.')
-        : (typeof START_MSG === 'string' ? START_MSG : 'Select 1 correct answer to continue...');
+        ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
+        : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
   
       this.updateSelectionMessage(msg, { options, index, questionType: effType });
   
@@ -1135,6 +1150,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
