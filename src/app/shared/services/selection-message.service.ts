@@ -64,6 +64,12 @@ export class SelectionMessageService {
   // 🔒 Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
   private _typeLockByIndex = new Map<number, QuestionType>();
 
+  private _singleNextLockedByKey: Set<string> = new Set<string>();
+  private _lastTokByKey: Map<string, number> = new Map<string, number>();
+  private _maxCorrectByKey: Map<string, number> = new Map<string, number>();
+  private _typeLockByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
+  private _lastTypeByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService
