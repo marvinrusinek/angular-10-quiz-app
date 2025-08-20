@@ -64,11 +64,16 @@ export class SelectionMessageService {
   // 🔒 Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
   private _typeLockByIndex = new Map<number, QuestionType>();
 
+  // Coalescer/Locks by stable question key
   private _singleNextLockedByKey: Set<string> = new Set<string>();
   private _lastTokByKey: Map<string, number> = new Map<string, number>();
   private _maxCorrectByKey: Map<string, number> = new Map<string, number>();
   private _typeLockByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
   private _lastTypeByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
+
+  
+  // Cache canonical correct count per question key (sticky)
+  private _canonCountByKey = new Map<string, number>();
 
   constructor(
     private quizService: QuizService, 
@@ -898,26 +903,21 @@ export class SelectionMessageService {
       correct: o.correct
     })));
   
-    // NOTE: ensure these exist as class fields somewhere:
-    // private _lastTokByKey = new Map<string, number>();
-    // private _lastTypeByKey = new Map<string, QuestionType>();
-    // private _typeLockByKey = new Map<string, QuestionType>();
-    // private _singleNextLockedByKey = new Set<string>();
-    // private _maxCorrectByKey = new Map<string, number>();
-  
-    // Optional token; harmless if absent
+    // Optional token (if caller sent one)
     const tok = typeof (params as any)?.token === 'number' ? (params as any).token : Number.MAX_SAFE_INTEGER;
   
-    // Helpers
+    // ────────────────────────────────────────────────────────────
+    // Stable key + helpers
+    // ────────────────────────────────────────────────────────────
     const norm = (s: string) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
     const optionSig = (arr: any[]) =>
       (Array.isArray(arr) ? arr : [])
         .map(o => norm(o?.text ?? o?.label ?? ''))
         .filter(Boolean)
         .sort()
-        .join('|'); // simple deterministic signature
+        .join('|');
   
-    // Pull canonical question (to get id/text and options)
+    // Pull canonical question (id/text/options) to build a stable key
     let qRef: any = undefined;
     let canonicalOpts: any[] = [];
     try {
@@ -927,16 +927,14 @@ export class SelectionMessageService {
       canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
     } catch { /* swallow */ }
   
-    // 🔑 Stable question key:
     const qKey: string =
-      (qRef?.id != null) ? `id:${String(qRef.id)}` :
-      (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}` :
-      `opts:${optionSig(options?.length ? options : canonicalOpts)}`; // final fallback
+      (qRef?.id != null) ? `id:${String(qRef.id)}`
+        : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
+        : `opts:${optionSig(options?.length ? options : canonicalOpts)}`; // final fallback
   
     // ────────────────────────────────────────────────────────────
-    // Coalescer + Single-Answer freeze, all keyed by qKey
+    // Coalescer/locks by qKey (lazy init if fields not declared)
     // ────────────────────────────────────────────────────────────
-    // lazy init if not declared (safe, but keep the class fields for clarity)
     // @ts-ignore
     this._lastTokByKey          ??= new Map<string, number>();
     // @ts-ignore
@@ -947,56 +945,64 @@ export class SelectionMessageService {
     this._singleNextLockedByKey ??= new Set<string>();
     // @ts-ignore
     this._maxCorrectByKey       ??= new Map<string, number>();
+    // @ts-ignore
+    this._canonCountByKey       ??= new Map<string, number>();
   
     // If Single-Answer “Next” already shown for this question, ignore further emits
-    if (this._singleNextLockedByKey.has(qKey)) {
-      return;
+    if (this._singleNextLockedByKey.has(qKey)) return;
+  
+    // ────────────────────────────────────────────────────────────
+    // Sticky canonical correct count (prefer canonical; cache once known)
+    // ────────────────────────────────────────────────────────────
+    const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
+    const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
+    const canon = Math.max(prevCanon, currCanon);
+    if (canon > 0 && canon !== prevCanon) {
+      this._canonCountByKey.set(qKey, canon);
     }
   
-    // Infer effective type from canonical first, payload second, then param
-    const canonicalCorrectCount = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
-    const payloadCorrectCount   = Array.isArray(options) ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0) : 0;
+    // Payload fallback (only if canonical still unknown)
+    const payloadCorrectCount = Array.isArray(options)
+      ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
+      : 0;
   
+    // Effective type: prefer sticky canonical; fallback to payload; finally param
     let effType: QuestionType =
-      (canonicalCorrectCount === 1) ? QuestionType.SingleAnswer :
-      (canonicalCorrectCount >  1) ? QuestionType.MultipleAnswer :
-      (payloadCorrectCount   === 1) ? QuestionType.SingleAnswer :
-      (payloadCorrectCount    >  1) ? QuestionType.MultipleAnswer :
+      (canon === 1) ? QuestionType.SingleAnswer :
+      (canon  >  1) ? QuestionType.MultipleAnswer :
+      (payloadCorrectCount === 1) ? QuestionType.SingleAnswer :
+      (payloadCorrectCount  >  1) ? QuestionType.MultipleAnswer :
       questionType;
   
-    // If SingleAnswer determined, lock that type for this question
+    // If determined SingleAnswer, lock type for this question
     if (effType === QuestionType.SingleAnswer) {
       this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
     }
   
-    // Drop stale tokens (by key)
-    const prevTok  = this._lastTokByKey.get(qKey) ?? -Infinity;
+    // Coalesce by qKey: drop stale token
+    const prevTok = this._lastTokByKey.get(qKey) ?? -Infinity;
     if (tok < prevTok) return;
   
     // If locked SingleAnswer, block ANY non-Single emit for this question
     const lockedType = this._typeLockByKey.get(qKey);
-    if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
-      return;
-    }
+    if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
-    // SingleAnswer priority: if a SingleDecision was recorded, block later non-Single
+    // SingleAnswer priority: if a Single was recorded, block later non-Single
     const prevType = this._lastTypeByKey.get(qKey) ?? undefined;
-    if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) {
-      return;
-    }
+    if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
     // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
   
-    // Keep prior snapshot (don’t use for counts, only fallback to detect selection)
+    // Keep prior snapshot only for selection fallback (not for correctness math)
     const priorSnap = this.getLatestOptionsSnapshot?.();
   
-    // Must have options
+    // Guard: must have a current options array
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (Q2 etc.) — robust selection detection
+    // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
       // 1) current array
@@ -1033,7 +1039,7 @@ export class SelectionMessageService {
   
       this.updateSelectionMessage(msg, { options, index, questionType: effType });
   
-      // 🔒 Freeze once we’ve shown “Next” for this Single-Answer question
+      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
@@ -1060,7 +1066,7 @@ export class SelectionMessageService {
         }
       }
   
-      // Q4 hard canonical: DI “Select all that apply”
+      // Detect the DI Q4 and enforce a hard canonical
       const looksLikeQ4 =
         (typeof index === 'number' && index === 3) ||
         (typeof qRef?.questionText === 'string' &&
