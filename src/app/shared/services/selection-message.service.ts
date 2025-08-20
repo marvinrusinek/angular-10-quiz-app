@@ -889,7 +889,7 @@ export class SelectionMessageService {
   }
 
   // Authoritative: call only from the option click with the updated array
-  public emitFromClick(params: {
+  public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -1089,13 +1089,22 @@ export class SelectionMessageService {
         }
       }
   
-      // Detect the DI “Select all that apply” question without hardcoding an index
+      // Detect the DI “Select all that apply” question WITHOUT hardcoding an index.
+      // Use question text; also ensure we aren't mismatched on index during cold start.
+      const svcIdx = (this.quizService?.currentQuestionIndex != null)
+        ? Number(this.quizService.currentQuestionIndex)
+        : null;
+  
       const looksLikeDI =
         (typeof qRef?.questionText === 'string' &&
           /dependency injection/i.test(qRef.questionText || '') &&
-          /select all/i.test(qRef.questionText || ''));
+          /select all/i.test(qRef.questionText || '')) &&
+        (svcIdx == null || svcIdx === index);
   
-      // Expected total: union size, DI floor ≥2, non-decreasing per qKey
+      // Expected total:
+      // - Start from union size of canonical/payload
+      // - Apply DI floor: at least 2
+      // - Keep non-decreasing per qKey
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
       let expectedTotal = looksLikeDI ? Math.max(unionSize, 2) : unionSize;
   
@@ -1107,7 +1116,8 @@ export class SelectionMessageService {
       if (expectedTotal === 0) {
         this.updateSelectionMessage(
           typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
-          { options, index: resolvedIndex, questionType: effType }
+          // IMPORTANT: route message using the UI's passed index, not resolvedIndex
+          { options, index, questionType: effType }
         );
         return;
       }
@@ -1127,6 +1137,7 @@ export class SelectionMessageService {
           }
         }
       } else if (looksLikeDI) {
+        // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
         const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1)); // keep ≥1 remaining
       }
@@ -1138,10 +1149,11 @@ export class SelectionMessageService {
                                                    : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
         : (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.');
   
-      // IMPORTANT: pass resolvedIndex here as well
-      this.updateSelectionMessage(nextMsg, { options, index: resolvedIndex, questionType: effType });
+      // IMPORTANT: use UI index for message routing to avoid cross-question clobber after restart
+      this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
     }
   }
+  
   
   
   
