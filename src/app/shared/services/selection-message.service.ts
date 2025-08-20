@@ -1072,13 +1072,13 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[]; // updated array already passed
   }): void {
+    const { index, totalQuestions, questionType, options } = params;
+
     console.log('[emitFromClick]', options.map(o => ({
       text: o.text,
       selected: o.selected,
       correct: o.correct
     })));
-    
-    const { index, totalQuestions, questionType, options } = params;
   
     // Keep the previous snapshot so unions can see earlier selections
     // (We won't use it for counting; it's here to keep your structure intact.)
