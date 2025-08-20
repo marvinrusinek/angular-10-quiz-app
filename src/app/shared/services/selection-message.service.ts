@@ -920,20 +920,14 @@ export class SelectionMessageService {
     // Pull canonical question (id/text/options) to build a stable key
     let qRef: any = undefined;
     let canonicalOpts: any[] = [];
-    let resolvedIndex = index; // <─ NEW: resolve via service first
+    let resolvedIndex = index; // ← use service index first on cold start
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
   
-      // Prefer the service's current index on cold start/async loads
       const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : null;
       if (svcIdx != null && svcIdx >= 0 && svcIdx < qArr.length) {
         resolvedIndex = svcIdx;
-      }
-  
-      // If the passed index is valid and differs, keep a tiny debug trace (harmless)
-      if (resolvedIndex !== index) {
-        // console.debug('[emitFromClick] index drift', { passed: index, svcIdx: resolvedIndex });
       }
   
       qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
@@ -1065,7 +1059,8 @@ export class SelectionMessageService {
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
   
-      this.updateSelectionMessage(msg, { options, index, questionType: effType });
+      // IMPORTANT: pass resolvedIndex here so downstream stays in-sync on cold start
+      this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
   
       // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
@@ -1094,17 +1089,13 @@ export class SelectionMessageService {
         }
       }
   
-      // Detect the DI “Select all that apply” question WITHOUT hardcoding an index.
-      // Prefer metadata in the question text; sanity-check against the service’s current index.
+      // Detect the DI “Select all that apply” question without hardcoding an index
       const looksLikeDI =
         (typeof qRef?.questionText === 'string' &&
           /dependency injection/i.test(qRef.questionText || '') &&
           /select all/i.test(qRef.questionText || ''));
   
-      // Expected total:
-      // - Start from union size of canonical/payload
-      // - Apply DI floor: at least 2
-      // - Keep non-decreasing per qKey
+      // Expected total: union size, DI floor ≥2, non-decreasing per qKey
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
       let expectedTotal = looksLikeDI ? Math.max(unionSize, 2) : unionSize;
   
@@ -1112,18 +1103,16 @@ export class SelectionMessageService {
       expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey.set(qKey, expectedTotal);
   
-      // If we still don't know the total (non-DI case with no flags), ask for “1 more…”
+      // If still unknown total (non-DI with no flags), ask for “1 more…”
       if (expectedTotal === 0) {
         this.updateSelectionMessage(
           typeof buildRemainingMsg === 'function' ? buildRemainingMsg(1) : 'Select 1 more correct answer to continue...',
-          { options, index, questionType: effType }
+          { options, index: resolvedIndex, questionType: effType }
         );
         return;
       }
   
-      // Count selected-correct strictly:
-      // - If we have canonical, use it; else if payload exists, use that;
-      // - Else (DI soft floor), NEVER allow Next: cap the proxy so remaining ≥ 1.
+      // Count selected-correct strictly. In DI soft-floor, never allow Next pre-flags.
       let selectedCorrect = 0;
       const useCanonical = canonicalTextSet.size > 0;
       const usePayload   = !useCanonical && payloadTextSet.size > 0;
@@ -1138,9 +1127,8 @@ export class SelectionMessageService {
           }
         }
       } else if (looksLikeDI) {
-        // Soft-floor mode: correctness unknown → gate by count but *never* hit zero remaining.
         const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
+        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1)); // keep ≥1 remaining
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -1150,11 +1138,10 @@ export class SelectionMessageService {
                                                    : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
         : (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.');
   
-      this.updateSelectionMessage(nextMsg, { options, index, questionType: effType });
+      // IMPORTANT: pass resolvedIndex here as well
+      this.updateSelectionMessage(nextMsg, { options, index: resolvedIndex, questionType: effType });
     }
   }
-  
-  
   
   
   
