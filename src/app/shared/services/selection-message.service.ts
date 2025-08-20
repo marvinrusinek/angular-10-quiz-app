@@ -905,17 +905,17 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER (Q4) — strict TEXT-based canonical gating
-    // - canonical = normalized texts where question.options[].correct === true
-    // - selectedCorrect = | selected normalized texts ∩ canonical |
-    // - totalCorrect = canonical.size (fallback to payload if canonical empty)
-    // This fits your Q4 shape (no IDs), and prevents Option 2 from counting.
+    // MULTIPLE-ANSWER (Q4) — canonical TEXT first + stable expected total
+    // - expectedTotal = max(prevMaxForIndex, max(canonicalText.size, payloadText.size))
+    // - selectedCorrect = | selectedTexts ∩ canonicalTexts |
+    //   (fallback to payloadTexts only if canonical is empty)
+    // - Never emit "Next" if expectedTotal == 0
     // ────────────────────────────────────────────────────────────
     {
       const norm = (s: string) =>
         (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
   
-      // 1) Pull canonical options (from service question at this index)
+      // 1) Pull canonical options (service question at this index)
       let canonicalOpts: any[] = [];
       try {
         const svc: any = this.quizService as any;
@@ -924,7 +924,7 @@ export class SelectionMessageService {
         canonicalOpts = Array.isArray(qRef?.options) ? qRef.options : [];
       } catch { /* swallow */ }
   
-      // 2) Build canonical set of correct TEXTS (normalized)
+      // 2) Canonical correct TEXTS
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
@@ -933,34 +933,41 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Fallback if canonical is empty: use payload .correct flags
-      if (canonicalTextSet.size === 0) {
-        for (const o of options) {
-          if (!!o?.correct) {
-            const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-            if (txt) canonicalTextSet.add(txt);
-          }
+      // 3) Payload-correct TEXTS (backup only)
+      const payloadTextSet = new Set<string>();
+      for (const o of options) {
+        if (!!o?.correct) {
+          const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (txt) payloadTextSet.add(txt);
         }
       }
   
-      // 4) totalCorrect from canonical (or 0 if truly unknown)
-      const totalCorrect = canonicalTextSet.size;
+      // 4) Stable expected total (non-decreasing per index)
+      // @ts-ignore - lazy init if field not declared on the service
+      this.maxCorrectByIndex ??= new Map<number, number>();
+      const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
+      const prevMax   = this.maxCorrectByIndex.get(index) ?? 0;
+      const expectedTotal = Math.max(prevMax, unionSize);
+      this.maxCorrectByIndex.set(index, expectedTotal);
   
-      // If we still don't know expected total, never say "Next"
-      if (totalCorrect === 0) {
+      if (expectedTotal === 0) {
         this.updateSelectionMessage('Select 1 more correct answer to continue...', { options, index, questionType });
         return;
       }
   
-      // 5) Count selected-correct strictly vs canonical TEXTS
+      // 5) Count selected-correct STRICTLY vs canonical (fallback: payload if canonical empty)
+      const useCanonical = canonicalTextSet.size > 0;
       let selectedCorrect = 0;
       for (const o of options) {
         if (!o?.selected) continue;
         const txt = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (txt && canonicalTextSet.has(txt)) selectedCorrect++;
+        if (!txt) continue;
+        if (useCanonical ? canonicalTextSet.has(txt) : payloadTextSet.has(txt)) {
+          selectedCorrect++;
+        }
       }
   
-      const remaining = Math.max(totalCorrect - selectedCorrect, 0);
+      const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       const nextMsg =
         remaining > 0
@@ -970,6 +977,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(nextMsg, { options, index, questionType });
     }
   }
+  
   
   
   
