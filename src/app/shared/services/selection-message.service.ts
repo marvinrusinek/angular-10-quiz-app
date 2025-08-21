@@ -923,6 +923,7 @@ export class SelectionMessageService {
   
   
   
+  
   // Passive: call from navigation/reset/timer-expiry/etc.
   // This auto-skips during a freeze (so it won’t fight the click)
   public emitPassive(params: {
