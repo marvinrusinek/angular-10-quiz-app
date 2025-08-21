@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
@@ -77,7 +78,8 @@ export class SelectionMessageService {
 
   constructor(
     private quizService: QuizService, 
-    private selectedOptionService: SelectedOptionService
+    private selectedOptionService: SelectedOptionService,
+    private route: ActivatedRoute
   ) {}
 
   // Getter for the current selection message
