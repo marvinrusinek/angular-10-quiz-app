@@ -809,11 +809,11 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + sticky expected total (quiz-agnostic)
+    // MULTIPLE-ANSWER — canonical TEXT authoritative; payload only if canonical absent
     // ────────────────────────────────────────────────────────────
     {
       // Early "no selection yet" guard (union of UI + services + prior snapshot if you keep one)
-      const anySelectedUnion = options.some((o: any) => !!o?.selected);
+      const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg =
           (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
@@ -830,7 +830,7 @@ export class SelectionMessageService {
         }
       }
   
-      // 2) Fallback: payload-correct TEXTS (only used if canonical is empty)
+      // 2) Payload-correct TEXTS (only used if canonical is empty)
       const payloadTextSet = new Set<string>();
       if (canonicalTextSet.size === 0) {
         for (const o of options) {
@@ -842,18 +842,19 @@ export class SelectionMessageService {
       }
   
       // 3) Expected total:
-      //    - Prefer canonical count when available
-      //    - Else use payload fallback count
-      //    - Keep non-decreasing per question key (sticky) to avoid "Next" flicker
-      const rawExpected = (canonicalTextSet.size > 0)
-        ? canonicalTextSet.size
-        : payloadTextSet.size;
+      //    • If we have canonical → it is authoritative. OVERWRITE sticky value with canonical size.
+      //    • If no canonical yet → use payload size and keep sticky (max) behavior.
+      let expectedTotal: number;
   
-      // @ts-ignore (lazy init somewhere earlier in your class)
-      this._maxCorrectByKey ??= new Map<string, number>();
-      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
-      const expectedTotal = Math.max(prevMax, rawExpected);
-      this._maxCorrectByKey.set(qKey, expectedTotal);
+      if (canonicalTextSet.size > 0) {
+        expectedTotal = canonicalTextSet.size;
+        this._maxCorrectByKey.set(qKey, expectedTotal); // authoritative overwrite (fixes Q4 premature “Next”)
+      } else {
+        const rawExpected = payloadTextSet.size;
+        const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
+        expectedTotal = Math.max(prevMax, rawExpected);
+        this._maxCorrectByKey.set(qKey, expectedTotal);
+      }
   
       // If still unknown, keep them in the "select more..." state (assume at least 1)
       if (expectedTotal === 0) {
@@ -864,14 +865,20 @@ export class SelectionMessageService {
         return;
       }
   
-      // 4) Count selected-correct STRICTLY against the active set
-      const activeCorrectSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
-  
+      // 4) Count selected-correct:
+      //    • If canonical exists: STRICT match vs canonical (payload ignored completely)
+      //    • Else (payload only): soft gating by count so “Next” never appears prematurely
       let selectedCorrect = 0;
-      for (const o of options) {
-        if (!o?.selected) continue;
-        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (t && activeCorrectSet.has(t)) selectedCorrect++;
+  
+      if (canonicalTextSet.size > 0) {
+        for (const o of options) {
+          if (!o?.selected) continue;
+          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (t && canonicalTextSet.has(t)) selectedCorrect++;
+        }
+      } else {
+        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1)); // soft gate
       }
   
       // 5) Remaining + message
@@ -889,6 +896,7 @@ export class SelectionMessageService {
       queueMicrotask(() => this.updateSelectionMessage(nextMsg, { options, index, questionType: effType }));
     }
   }
+  
   
   
   
