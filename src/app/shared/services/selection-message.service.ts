@@ -809,101 +809,73 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
+    // MULTIPLE-ANSWER — canonical TEXT + sticky expected total (quiz-agnostic)
     // ────────────────────────────────────────────────────────────
     {
-      // 0) Identify quiz & build a stable question key
-      const quizId =
-        (this.quizService as any)?.quizId ??
-        this.route?.snapshot?.paramMap?.get?.('quizId') ??
-        'default';
-  
-      const qText = (qRef?.questionText ?? '').toString();
-      const questionId =
-        (qRef?.id != null) ? String(qRef.id)
-          : (qText ? `txt:${norm(qText)}` : `idx:${resolvedIndex}`);
-  
-      const qqKey = `${quizId}::${qKey}`; // quiz-aware sticky key
-  
-      // 1) Early “no selection yet” guard (union of UI + services)
-      const anySelectedUnion = getAnySelectedUnion();
+      // Early "no selection yet" guard (union of UI + services + prior snapshot if you keep one)
+      const anySelectedUnion = options.some((o: any) => !!o?.selected);
       if (!anySelectedUnion) {
-        const baseMsg = (typeof CONTINUE_MSG === 'string'
-          ? CONTINUE_MSG
-          : 'Please select an option to continue...');
-        queueMicrotask(() => {
-          // Route using the UI index to avoid cross-question clobber after restart
-          this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer });
-        });
+        const baseMsg =
+          (typeof CONTINUE_MSG === 'string' ? CONTINUE_MSG : 'Please select an option to continue...');
+        queueMicrotask(() => this.updateSelectionMessage(baseMsg, { options, index, questionType: effType }));
         return;
       }
   
-      // 2) Canonical correct TEXTS (authoritative when present)
+      // 1) Canonical correct TEXTS from the service question (authoritative when present)
       const canonicalTextSet = new Set<string>();
-      for (const c of canonicalOpts) {
+      for (const c of (Array.isArray(canonicalOpts) ? canonicalOpts : [])) {
         if (!!c?.correct) {
           const t = norm(c?.text ?? c?.label ?? '');
           if (t) canonicalTextSet.add(t);
         }
       }
   
-      // 3) Expected-total derivation (quiz-aware):
-      //    - Prefer canonical count when available.
-      //    - Else allow a per-quiz override map (optional) for cold start.
-      //    - Keep non-decreasing per (quizId + qKey).
-      //
-      // Optional structure (seed at quiz init if you want):
-      //   this.EXPECTED_CORRECT_BY_QUIZ ??= new Map<string, Map<string, number>>();
-      //   const map = new Map<string, number>();
-      //   map.set(questionIdOrSignature, 2);
-      //   this.EXPECTED_CORRECT_BY_QUIZ.set(quizId, map);
-      const quizMap: Map<string, number> | undefined =
-        (this as any).EXPECTED_CORRECT_BY_QUIZ?.get?.(quizId);
+      // 2) Fallback: payload-correct TEXTS (only used if canonical is empty)
+      const payloadTextSet = new Set<string>();
+      if (canonicalTextSet.size === 0) {
+        for (const o of options) {
+          if (!!o?.correct) {
+            const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+            if (t) payloadTextSet.add(t);
+          }
+        }
+      }
   
-      const overrideTotal =
-        quizMap?.get?.(questionId) ??
-        quizMap?.get?.(qKey) ??
-        undefined;
-  
-      let expectedTotal = (canonicalTextSet.size > 0)
+      // 3) Expected total:
+      //    - Prefer canonical count when available
+      //    - Else use payload fallback count
+      //    - Keep non-decreasing per question key (sticky) to avoid "Next" flicker
+      const rawExpected = (canonicalTextSet.size > 0)
         ? canonicalTextSet.size
-        : (typeof overrideTotal === 'number' ? overrideTotal : 0);
+        : payloadTextSet.size;
   
-      // sticky per-quiz key: don't let expectedTotal go backwards across emits
-      const prevMax = this._maxCorrectByKey?.get?.(qqKey) ?? 0;
-      expectedTotal = Math.max(prevMax, expectedTotal);
-      this._maxCorrectByKey?.set?.(qqKey, expectedTotal);
+      // @ts-ignore (lazy init somewhere earlier in your class)
+      this._maxCorrectByKey ??= new Map<string, number>();
+      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
+      const expectedTotal = Math.max(prevMax, rawExpected);
+      this._maxCorrectByKey.set(qKey, expectedTotal);
   
-      // 4) If we still don't know the total, keep user in “Select …” until flags/override appear
+      // If still unknown, keep them in the "select more..." state (assume at least 1)
       if (expectedTotal === 0) {
-        queueMicrotask(() => {
-          const msg = (typeof buildRemainingMsg === 'function')
-            ? buildRemainingMsg(1)
-            : 'Select 1 more correct answer to continue...';
-          this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer });
-        });
+        const msg = (typeof buildRemainingMsg === 'function')
+          ? buildRemainingMsg(1)
+          : 'Select 1 more correct answer to continue...';
+        queueMicrotask(() => this.updateSelectionMessage(msg, { options, index, questionType: effType }));
         return;
       }
   
-      // 5) Count selected-correct:
-      //    - If canonical known: STRICT match vs canonical
-      //    - If only override known: soft gate by count, never let remaining hit 0
-      let selectedCorrect = 0;
+      // 4) Count selected-correct STRICTLY against the active set
+      const activeCorrectSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
   
-      if (canonicalTextSet.size > 0) {
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && canonicalTextSet.has(t)) selectedCorrect++;
-        }
-      } else {
-        // Soft gating on count: never let remaining reach 0 with override-only knowledge
-        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
+      let selectedCorrect = 0;
+      for (const o of options) {
+        if (!o?.selected) continue;
+        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+        if (t && activeCorrectSet.has(t)) selectedCorrect++;
       }
   
+      // 5) Remaining + message
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
-  
       const nextMsg =
         remaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -913,12 +885,11 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      // Always route with the UI index; microtask avoids hydration/race blips
-      queueMicrotask(() => {
-        this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
-      });
+      // Route message with UI index; queue to avoid hydration/race flashes
+      queueMicrotask(() => this.updateSelectionMessage(nextMsg, { options, index, questionType: effType }));
     }
   }
+  
   
   
   
