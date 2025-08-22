@@ -660,8 +660,7 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
-    // Payload flags are NOT used for expected total (only as last-ditch soft count),
-    // but we keep them to infer effType when nothing else is available.
+    // We only use payload flags to infer type when nothing else is available.
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
@@ -796,7 +795,6 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
-      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
@@ -804,13 +802,12 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
       });
   
-      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
+    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe, with optional allow-list filtering
     // ────────────────────────────────────────────────────────────
     {
       // 0) Early “no selection yet” guard (union of UI + services)
@@ -841,11 +838,33 @@ export class SelectionMessageService {
       seedFrom(uiQuestion?.options);
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // 2) Compute expected total:
-      //    - ONLY trust canonical size (never payload) for expected target.
-      //    - If canonical unknown (0), stay in a soft-gate mode: while there are still
-      //      unselected options, force remaining >= 1 so we never show Next prematurely.
-      //    - Sticky per-question so it never decreases once known.
+      // 2) OPTIONAL per-quiz allow-list: if provided, filter canonical down to allowed texts.
+      //    This fixes “Option 2 incorrectly counts as correct” without hardcoding any quiz.
+      const quizId =
+        (this.quizService as any)?.quizId ??
+        this.route?.snapshot?.paramMap?.get?.('quizId') ??
+        'default';
+  
+      const allowMapByQuiz: Map<string, Map<string, Set<string>>> | undefined =
+        (this as any).ALLOWED_CORRECT_TEXTS_BY_QUIZ;
+  
+      const perQuiz = allowMapByQuiz?.get?.(quizId);
+      const allowedForQuestion: Set<string> | undefined =
+        perQuiz?.get?.(qKey) ??
+        (typeof qRef?.questionText === 'string' ? perQuiz?.get?.(`txt:${norm(qRef.questionText)}`) : undefined);
+  
+      if (allowedForQuestion && allowedForQuestion.size > 0) {
+        for (const t of Array.from(canonicalTextSet)) {
+          if (!allowedForQuestion.has(norm(t))) {
+            canonicalTextSet.delete(t);
+          }
+        }
+      }
+  
+      // 3) Compute expected total:
+      //    - ONLY trust (filtered) canonical size for target.
+      //    - If canonical unknown (0), soft-gate: while unselected options remain, force remaining ≥ 1.
+      //    - Sticky per question so expected total never decreases once known.
       const stickyKey = `qa::${qKey}`;
       let expectedTotal = canonicalTextSet.size;
   
@@ -858,7 +877,7 @@ export class SelectionMessageService {
       const selectedCountNow = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
       const hasUnselected = selectedCountNow < options.length;
   
-      // 3) Count selected-correct strictly if canonical known; otherwise soft-gate
+      // 4) Count selected-correct strictly if canonical known; otherwise soft-gate
       let selectedCorrect = 0;
   
       if (expectedTotal > 0) {
@@ -869,16 +888,13 @@ export class SelectionMessageService {
         }
       } else {
         // canonical unknown → soft floor: while unselected options remain, keep at least 1 remaining
-        // (prevents the 2nd-click “Next”)
-        selectedCorrect = 0; // not used in this branch
+        selectedCorrect = 0; // not used in soft mode
       }
   
       let remaining: number;
-  
       if (expectedTotal > 0) {
         remaining = Math.max(expectedTotal - selectedCorrect, 0);
       } else {
-        // Soft gate when canonical unknown:
         remaining = hasUnselected ? 1 : 0;
       }
   
@@ -891,12 +907,12 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      // Always route with the UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
     }
   }
+  
   
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
