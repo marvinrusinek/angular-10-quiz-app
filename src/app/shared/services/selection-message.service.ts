@@ -720,9 +720,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type:
-    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
-    // Prevents Q2 (Single) from being inferred as Multi on cold start.
+    // Effective type (prefer canonical, then declared, then payload)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -809,27 +807,26 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
-    //   * Select-all floor: if prompt contains “select all”, require ≥2 before Next.
+    //   * “Select all” floor: never show Next until ≥2 canonical matches; if canonical
+    //     unknown, ignore payload and soft-gate by selection count (keep ≥1 remaining).
     // ────────────────────────────────────────────────────────────
     {
-      // 0) Identify “select all” (quiz-agnostic)
       const qText = (qRef?.questionText ?? '').toString();
       const isSelectAll = /select all/i.test(qText);
   
-      // 1) Early “no selection yet” guard (union of UI + services)
+      // Early “no selection yet” guard (union of UI + services)
       const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
         queueMicrotask(() => {
-          // Route using the UI index to avoid cross-question clobber after restart
           this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer });
         });
         return;
       }
   
-      // 2) Canonical correct TEXTS (authoritative when present)
+      // Canonical correct TEXTS from service (authoritative)
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
@@ -838,9 +835,9 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Payload-correct TEXTS (backup only if canonical empty)
+      // Payload only if canonical empty (NEVER for select-all; we’ll soft-gate instead)
       const payloadTextSet = new Set<string>();
-      if (canonicalTextSet.size === 0) {
+      if (!isSelectAll && canonicalTextSet.size === 0) {
         for (const o of options) {
           if (!!o?.correct) {
             const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
@@ -849,7 +846,7 @@ export class SelectionMessageService {
         }
       }
   
-      // 4) Expected total (sticky, select-all floor)
+      // Expected total (sticky; minimum 2 for “select all”)
       const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
       let expectedTotal = unionSize;
       if (isSelectAll) expectedTotal = Math.max(expectedTotal, 2);
@@ -869,28 +866,39 @@ export class SelectionMessageService {
         return;
       }
   
-      // 5) Count selected-correct:
-      //    - Prefer canonical when available; else payload; else soft count
+      // Count selected-correct using ONLY the UI array (no service union here to avoid double counting)
       let selectedCorrect = 0;
-      const hasCanonical = canonicalTextSet.size > 0;
-      const hasPayload = payloadTextSet.size > 0;
   
-      if (hasCanonical || hasPayload) {
-        const acceptSet = hasCanonical ? canonicalTextSet : payloadTextSet;
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && acceptSet.has(t)) selectedCorrect++;
+      if (isSelectAll) {
+        if (canonicalTextSet.size > 0) {
+          for (const o of options) {
+            if (!o?.selected) continue;
+            const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+            if (t && canonicalTextSet.has(t)) selectedCorrect++;
+          }
+          // Don’t allow Next until at least two canonical matches
+          if (selectedCorrect < 2) {
+            selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
+          }
+        } else {
+          // Canonical unknown for select-all → ignore payload and soft-gate by count
+          const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+          selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
         }
       } else {
-        // Soft gating when we don't know correctness: never let remaining hit 0 too early
-        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
-      }
-  
-      // Extra safety for “select all” — don’t allow Next until at least 2 are matched
-      if (isSelectAll && selectedCorrect < 2) {
-        selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
+        const hasCanonical = canonicalTextSet.size > 0;
+        const acceptSet = hasCanonical ? canonicalTextSet : payloadTextSet;
+        if (acceptSet.size > 0) {
+          for (const o of options) {
+            if (!o?.selected) continue;
+            const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+            if (t && acceptSet.has(t)) selectedCorrect++;
+          }
+        } else {
+          // Last-resort soft gate
+          const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+          selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
+        }
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -904,12 +912,12 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      // Always route with UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
     }
   }
+  
   
   
   
