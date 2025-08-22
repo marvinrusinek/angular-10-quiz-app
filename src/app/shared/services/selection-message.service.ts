@@ -16,6 +16,7 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
+
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -659,7 +660,7 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
-    // We only use payload flags to infer type when nothing else is available.
+    // Payload flags kept for effType + fallback
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
@@ -676,6 +677,7 @@ export class SelectionMessageService {
           : 'Please select an option to continue...');
         this.updateSelectionMessage(baseMsg, { options, index, questionType });
       });
+      // do not return for Single, because we still allow “Next” when selected
       if (questionType === QuestionType.MultipleAnswer) return;
     }
   
@@ -794,6 +796,7 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
+      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
@@ -801,12 +804,13 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
       });
   
+      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe, with optional allow-list filtering
+    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic, strict vs canonical)
     // ────────────────────────────────────────────────────────────
     {
       // 0) Early “no selection yet” guard (union of UI + services)
@@ -821,7 +825,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 1) Canonical correct TEXTS from quizService (authoritative)
+      // 1) Canonical correct TEXTS from quizService (authoritative when present)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
       const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
@@ -837,64 +841,54 @@ export class SelectionMessageService {
       seedFrom(uiQuestion?.options);
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // 2) OPTIONAL per-quiz allow-list: if provided, filter canonical down to allowed texts.
-      //    This fixes “Option 2 incorrectly counts as correct” without hardcoding any quiz.
-      const quizId =
-        (this.quizService as any)?.quizId ??
-        this.route?.snapshot?.paramMap?.get?.('quizId') ??
-        'default';
-  
-      const allowMapByQuiz: Map<string, Map<string, Set<string>>> | undefined =
-        (this as any).ALLOWED_CORRECT_TEXTS_BY_QUIZ;
-  
-      const perQuiz = allowMapByQuiz?.get?.(quizId);
-      const allowedForQuestion: Set<string> | undefined =
-        perQuiz?.get?.(qKey) ??
-        (typeof qRef?.questionText === 'string' ? perQuiz?.get?.(`txt:${norm(qRef.questionText)}`) : undefined);
-  
-      if (allowedForQuestion && allowedForQuestion.size > 0) {
-        for (const t of Array.from(canonicalTextSet)) {
-          if (!allowedForQuestion.has(norm(t))) {
-            canonicalTextSet.delete(t);
-          }
-        }
-      }
-  
-      // 3) Compute expected total:
-      //    - ONLY trust (filtered) canonical size for target.
-      //    - If canonical unknown (0), soft-gate: while unselected options remain, force remaining ≥ 1.
-      //    - Sticky per question so expected total never decreases once known.
-      const stickyKey = `qa::${qKey}`;
-      let expectedTotal = canonicalTextSet.size;
-  
-      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
-      if (expectedTotal > 0) {
-        expectedTotal = Math.max(prevMax, expectedTotal);
-        this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
-      }
-  
-      const selectedCountNow = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-      const hasUnselected = selectedCountNow < options.length;
-  
-      // 4) Count selected-correct strictly if canonical known; otherwise soft-gate
-      let selectedCorrect = 0;
-  
-      if (expectedTotal > 0) {
-        for (const o of options) {
-          if (!o?.selected) continue;
+      // 2) Payload-correct TEXTS (fallback ONLY if canonical is empty)
+      const payloadTextSet = new Set<string>();
+      for (const o of (Array.isArray(options) ? options : [])) {
+        if (!!(o as any)?.correct) {
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && canonicalTextSet.has(t)) selectedCorrect++;
+          if (t) payloadTextSet.add(t);
         }
-      } else {
-        // canonical unknown → soft floor: while unselected options remain, keep at least 1 remaining
-        selectedCorrect = 0; // not used in soft mode
       }
   
-      let remaining: number;
-      if (expectedTotal > 0) {
-        remaining = Math.max(expectedTotal - selectedCorrect, 0);
-      } else {
-        remaining = hasUnselected ? 1 : 0;
+      // 3) Expected total:
+      //    - If canonical exists → use canonical size
+      //    - Else → use payload size
+      //    - Sticky so it never decreases for this question
+      const baseTotal = (canonicalTextSet.size > 0) ? canonicalTextSet.size : payloadTextSet.size;
+      const stickyKey = `qa::${qKey}`;
+      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
+      let expectedTotal = Math.max(prevMax, baseTotal);
+      this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
+  
+      // 4) If still unknown total, keep user in “Select …”
+      if (expectedTotal === 0) {
+        queueMicrotask(() => {
+          const msg = (typeof buildRemainingMsg === 'function')
+            ? buildRemainingMsg(1)
+            : 'Select 1 more correct answer to continue...';
+          this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer });
+        });
+        return;
+      }
+  
+      // 5) Count selected-correct:
+      //    - If canonical exists: STRICTLY vs canonical (IGNORE payload)
+      //    - Else: vs payload
+      const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
+  
+      let selectedCorrect = 0;
+      for (const o of options) {
+        if (!o?.selected) continue;
+        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+        if (t && judgeSet.has(t)) selectedCorrect++;
+      }
+  
+      // Anti-premature NEXT: if there are still unselected options and we haven't satisfied expectedTotal yet, force remaining ≥ 1.
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
+  
+      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
+        remaining = Math.max(1, remaining);
       }
   
       const nextMsg =
@@ -906,6 +900,7 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
+      // Always route with the UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
@@ -913,6 +908,9 @@ export class SelectionMessageService {
   }
   
   
+  
+  
+
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
