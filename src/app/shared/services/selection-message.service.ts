@@ -722,25 +722,34 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type:
-    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
-    // Prevents Q2 (Single) from being inferred as Multi on cold start.
+    // Effective type (with select-all override)
+    // Prefer canonical; if unknown, trust declared; else fallback to payload.
+    // Also, if question text says "select all", **force Multiple** and clear Single lock.
     // ────────────────────────────────────────────────────────────
+    const qTextEarly = (qRef?.questionText ?? '').toString();
+    const isSelectAllEarly = /select all/i.test(qTextEarly); // FIX: select-all (early)
+  
     let effType: QuestionType;
     if (canon > 1) {
       effType = QuestionType.MultipleAnswer;
     } else if (canon === 1) {
       effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.SingleAnswer) {
-      effType = QuestionType.SingleAnswer; // trust declared
+      effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.MultipleAnswer) {
-      effType = QuestionType.MultipleAnswer; // trust declared
+      effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount > 1) {
       effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount === 1) {
       effType = QuestionType.SingleAnswer;
     } else {
       effType = questionType;
+    }
+  
+    // FIX: select-all — force MultipleAnswer and clear any prior Single lock for this key
+    if (isSelectAllEarly && effType !== QuestionType.MultipleAnswer) {
+      effType = QuestionType.MultipleAnswer;
+      try { this._typeLockByKey.delete(qKey); } catch {}
     }
   
     // If determined SingleAnswer, lock type for this question
@@ -752,13 +761,13 @@ export class SelectionMessageService {
     const prevTok = this._lastTokByKey.get(qKey) ?? -Infinity;
     if (tok < prevTok) return;
   
-    // If locked SingleAnswer, block ANY non-Single emit for this question
+    // If locked SingleAnswer, block ANY non-Single emit for this question — except our select-all override
     const lockedType = this._typeLockByKey.get(qKey);
-    if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
+    if (!isSelectAllEarly && lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
-    // SingleAnswer priority: if a Single was recorded, block later non-Single
+    // SingleAnswer priority: if a Single was recorded, block later non-Single — except our select-all override
     const prevType = this._lastTypeByKey.get(qKey) ?? undefined;
-    if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
+    if (!isSelectAllEarly && prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
     // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
@@ -796,7 +805,6 @@ export class SelectionMessageService {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
-      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
@@ -804,29 +812,23 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
       });
   
-      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
     // MULTIPLE-ANSWER — quiz-agnostic, restart-safe
-    // - Prefer canonical from quizService
-    // - Fallback to payload flags only if canonical missing
-    // - “select all” questions get a floor of 2 to prevent early Next
-    // - Route message with UI index; update in a microtask
+    // Prefers canonical; falls back to payload.
+    // Select-all: floor expectedTotal at 2 and never let remaining hit 0 after a single click.
     // ────────────────────────────────────────────────────────────
     {
-      // 0) Identify quiz & compose a sticky key that survives re-renders
       const quizId =
         (this.quizService as any)?.quizId ??
         this.route?.snapshot?.paramMap?.get?.('quizId') ??
         'default';
   
-      const qText = (qRef?.questionText ?? '').toString();
-      const isSelectAll = /select all/i.test(qText);
-  
       const quizStickyKey = `${quizId}::${qKey}`;
+      const isSelectAll = isSelectAllEarly; // same detection
   
       // 1) Early “no selection yet” guard (union of UI + services)
       const anySelectedUnion = getAnySelectedUnion();
@@ -840,7 +842,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 2) Canonical correct TEXTS (authoritative when present)
+      // 2) Canonical correct TEXTS
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
@@ -849,7 +851,7 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Payload-correct TEXTS only for fallback use (never override canonical)
+      // 3) Payload-correct TEXTS (fallback only if canonical missing)
       const payloadTextSet = new Set<string>();
       if (canonicalTextSet.size === 0) {
         for (const o of options) {
@@ -860,55 +862,42 @@ export class SelectionMessageService {
         }
       }
   
-      // 4) Derive expectedTotal
-      //    - Prefer canonical size
-      //    - Else use payload size
-      //    - If “select all”, enforce a floor of 2
-      let expectedTotal = (canonicalTextSet.size > 0)
-        ? canonicalTextSet.size
-        : payloadTextSet.size;
-  
+      // 4) expectedTotal (prefer canonical, else payload). For select-all, floor at 2.
+      let expectedTotal = (canonicalTextSet.size > 0) ? canonicalTextSet.size : payloadTextSet.size;
       if (isSelectAll) expectedTotal = Math.max(expectedTotal, 2);
   
-      // sticky per quiz+question key: never let expectedTotal decrease
       const prevMax = this._maxCorrectByKey?.get?.(quizStickyKey) ?? 0;
       expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey?.set?.(quizStickyKey, expectedTotal);
   
-      // 5) Compute selectedCorrect
+      // 5) selectedCorrect (strict vs whichever set is active)
       let selectedCorrect = 0;
-      if (canonicalTextSet.size > 0) {
+      const hasCanonical = canonicalTextSet.size > 0;
+      const activeSet = hasCanonical ? canonicalTextSet : payloadTextSet;
+  
+      if (activeSet.size > 0) {
         for (const o of options) {
           if (!o?.selected) continue;
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && canonicalTextSet.has(t)) selectedCorrect++;
-        }
-      } else {
-        // Fallback against payload flags only
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && payloadTextSet.has(t)) selectedCorrect++;
+          if (t && activeSet.has(t)) selectedCorrect++;
         }
       }
   
-      // 6) FINAL GUARD to prevent early “Next”:
-      //    If we *still* have expectedTotal < 2 on a select-all, bump it.
-      if (isSelectAll && expectedTotal < 2) expectedTotal = 2;
+      // 6) FINAL select-all guard: never allow “remaining === 0” after the first correct click
+      //    i.e., if select-all and selectedCorrect < expectedTotal, cap so at least 1 remains.
+      if (isSelectAll && selectedCorrect < expectedTotal) {
+        selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
+      }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
-      // Diagnostics (temporary — remove when happy)
+      // Diagnostics (temporary)
       try {
         console.debug('[emitFromClick/MULTI]', {
-          quizId,
-          qKey,
-          isSelectAll,
-          expectedTotal,
+          quizId, qKey, isSelectAll, expectedTotal,
           canonicalSize: canonicalTextSet.size,
           payloadSize: payloadTextSet.size,
-          selectedCorrect,
-          remaining,
+          selectedCorrect, remaining,
           selectedTexts: options.filter((o: any) => o?.selected).map((o: any) => norm(o?.text ?? o?.label ?? ''))
         });
       } catch {}
@@ -927,6 +916,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
