@@ -721,7 +721,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type
+    // Effective type (trust canonical → declared → payload)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -757,7 +757,7 @@ export class SelectionMessageService {
     this._lastTypeByKey.set(qKey, effType);
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER
+    // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
       let anySelected = options.some((o: any) => !!o?.selected);
@@ -800,7 +800,7 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — quiz-agnostic, restart-safe
     // ────────────────────────────────────────────────────────────
     {
-      // Early “no selection yet” gate
+      // 1) Early “no selection yet” guard
       const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
@@ -812,7 +812,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // Build canonical from *visible* service question first (restart-safe), then fall back
+      // 2) Canonical set (prefer service question; fallback to qRef)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
       const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
@@ -828,8 +828,7 @@ export class SelectionMessageService {
       seedFrom(uiQuestion?.options);
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // Expected total = UNION(canonical, payload). This fixes “2nd click flips to Next”
-      // when payload knows more correct answers than canonical at startup.
+      // 3) Expected total = UNION(canonical.size, payloadCorrectCount)
       let expectedTotal = Math.max(canonicalTextSet.size, payloadCorrectCount);
   
       // Sticky so it never decreases during rapid emits
@@ -838,18 +837,7 @@ export class SelectionMessageService {
       expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
   
-      // If still unknown, keep them in “Select …”
-      if (expectedTotal === 0) {
-        queueMicrotask(() => {
-          const msg = (typeof buildRemainingMsg === 'function')
-            ? buildRemainingMsg(1)
-            : 'Select 1 more correct answer to continue...';
-          this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer });
-        });
-        return;
-      }
-  
-      // Count selected-correct strictly vs canonical when available; otherwise soft-gate
+      // 4) Count selected-correct strictly vs canonical when available; otherwise soft-gate by count
       let selectedCorrect = 0;
       if (canonicalTextSet.size > 0) {
         for (const o of options) {
@@ -862,11 +850,18 @@ export class SelectionMessageService {
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
-      // “Select all” guard: if stem says it and we’d hit Next too early (e.g. after 2nd click),
-      // bump the target to at least selectedCorrect+1 so the message stays “Select 1 more…”.
+      // 5) “Select-all” guard (broader & conservative):
+      //    If the stem suggests select-all (or similar) OR we simply haven’t seen all options selected yet,
+      //    and we’d otherwise show Next too early (expectedTotal <= selectedCorrect),
+      //    then keep at least one remaining while there are still unselected options.
       const qText = (qRef?.questionText ?? '').toString();
-      const looksLikeSelectAll = /select all/i.test(qText);
-      if (looksLikeSelectAll && expectedTotal <= selectedCorrect) {
+      const looksLikeSelectAll =
+        /\b(select|choose|pick)\b/i.test(qText) && /\b(all|apply)\b/i.test(qText);
+  
+      const selectedCountNow = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+      const hasUnselected = selectedCountNow < options.length;
+  
+      if (hasUnselected && expectedTotal <= selectedCorrect && (looksLikeSelectAll || questionType === QuestionType.MultipleAnswer)) {
         expectedTotal = selectedCorrect + 1;
         this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
       }
@@ -883,10 +878,12 @@ export class SelectionMessageService {
               : 'Please click the next button to continue.');
   
       queueMicrotask(() => {
+        // Route with UI index to avoid cross-question clobber after restart
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
     }
   }
+  
   
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
