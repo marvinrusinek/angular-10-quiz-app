@@ -888,8 +888,6 @@ export class SelectionMessageService {
     }
   }
   
-    
-  
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
     const svc: any = this.quizService as any;
