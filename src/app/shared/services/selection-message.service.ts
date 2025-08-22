@@ -810,12 +810,16 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic, strict vs canonical)
+    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe
+    // - CONTINUE before any selection
+    // - Canonical-first; if unknown, soft floor of 2 (prevents “Next” on 2nd click)
+    // - Sticky expectedTotal per question key
+    // - Route messages with UI index; queue in microtask
     // ────────────────────────────────────────────────────────────
     {
-      // 0) Early “no selection yet” guard (union of UI + services)
-      const anySelectedUnion = getAnySelectedUnion();
-      if (!anySelectedUnion) {
+      // CONTINUE before any selection
+      const selectedCountNow = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
+      if (selectedCountNow === 0) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
@@ -825,10 +829,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 1) Canonical correct TEXTS from quizService (authoritative when present)
-      const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
-      const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
-  
+      // Canonical correct TEXTS (authoritative when present)
       const canonicalTextSet = new Set<string>();
       const seedFrom = (arr: any[]) => {
         for (const c of (Array.isArray(arr) ? arr : [])) {
@@ -838,58 +839,57 @@ export class SelectionMessageService {
           }
         }
       };
-      seedFrom(uiQuestion?.options);
+  
+      // Prefer service's current question options; fall back to the canonicalOpts we derived above
+      try {
+        const svcQs: any[] = (this.quizService as any)?.questions ?? [];
+        const uiQ = (index >= 0 && index < svcQs.length) ? svcQs[index] : undefined;
+        seedFrom(uiQ?.options);
+      } catch { /* ignore */ }
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // 2) Payload-correct TEXTS (fallback ONLY if canonical is empty)
+      // If canonical is unknown, infer from payload *only* as a last resort
       const payloadTextSet = new Set<string>();
-      for (const o of (Array.isArray(options) ? options : [])) {
-        if (!!(o as any)?.correct) {
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t) payloadTextSet.add(t);
+      if (canonicalTextSet.size === 0) {
+        for (const o of options) {
+          if (!!(o as any)?.correct) {
+            const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+            if (t) payloadTextSet.add(t);
+          }
         }
       }
   
-      // 3) Expected total:
-      //    - If canonical exists → use canonical size
-      //    - Else → use payload size
-      //    - Sticky so it never decreases for this question
-      const baseTotal = (canonicalTextSet.size > 0) ? canonicalTextSet.size : payloadTextSet.size;
+      // Decide judge set (canonical > payload), and compute base total
+      const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
+      const baseTotal = judgeSet.size; // may be 0
+  
+      // Sticky expected total: if unknown, apply a soft floor of 2 so we never flip to Next on 2nd click.
       const stickyKey = `qa::${qKey}`;
-      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
-      let expectedTotal = Math.max(prevMax, baseTotal);
+      const prevMaxMA = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
+      let expectedTotal =
+        (baseTotal > 0)
+          ? Math.max(prevMaxMA, baseTotal)
+          : Math.max(prevMaxMA, 2); // ← only floor to 2 when unknown
+  
       this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
   
-      // 4) If still unknown total, keep user in “Select …”
-      if (expectedTotal === 0) {
-        queueMicrotask(() => {
-          const msg = (typeof buildRemainingMsg === 'function')
-            ? buildRemainingMsg(1)
-            : 'Select 1 more correct answer to continue...';
-          this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer });
-        });
-        return;
-      }
-  
-      // 5) Count selected-correct:
-      //    - If canonical exists: STRICTLY vs canonical (IGNORE payload)
-      //    - Else: vs payload
-      const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
-  
+      // Count selected-correct
       let selectedCorrect = 0;
-      for (const o of options) {
-        if (!o?.selected) continue;
-        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (t && judgeSet.has(t)) selectedCorrect++;
+      if (judgeSet.size > 0) {
+        // Strictly vs judge set (canonical preferred)
+        for (const o of options) {
+          if (!o?.selected) continue;
+          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (t && judgeSet.has(t)) selectedCorrect++;
+        }
+      } else {
+        // No flags at all → soft gate by count: let it decrease but never reach 0
+        // (so first click → remaining=1, second click still remaining=1, preventing premature Next)
+        const selectedCount = selectedCountNow;
+        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
-      // Anti-premature NEXT: if there are still unselected options and we haven't satisfied expectedTotal yet, force remaining ≥ 1.
-      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-  
-      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
-        remaining = Math.max(1, remaining);
-      }
+      const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       const nextMsg =
         remaining > 0
@@ -900,13 +900,13 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      // Always route with the UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
     }
   }
   
+
   
   
   
