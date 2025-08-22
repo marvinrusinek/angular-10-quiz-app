@@ -16,7 +16,7 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
-  
+
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -643,11 +643,9 @@ export class SelectionMessageService {
     // @ts-ignore
     this._singleNextLockedByKey ??= new Set<string>();
     // @ts-ignore
-    this._maxCorrectByKey       ??= new Map<string, number>(); // sticky upper bound per q
+    this._maxCorrectByKey       ??= new Map<string, number>();
     // @ts-ignore
-    this._canonCountByKey       ??= new Map<string, number>(); // sticky canonical count
-    // @ts-ignore
-    this._minExpectedByKey      ??= new Map<string, number>(); // NEW: sticky lower bound per q
+    this._canonCountByKey       ??= new Map<string, number>();
   
     // If Single-Answer “Next” already shown for this question, ignore further emits
     if (this._singleNextLockedByKey.has(qKey)) return;
@@ -815,8 +813,7 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
     //   • CONTINUE before any selection
     //   • Judge strictly vs canonical; payload only if canonical empty
-    //   • expectedTotal = max(canonicalCount, payloadCount, dynamicLB, 2) then sticky
-    //   • dynamicLB grows to selectedCorrect+1 if we’d otherwise hit Next while options remain
+    //   • expectedTotal = max(canonicalCount, payloadCount), then floor to 2, then sticky
     //   • Route with UI index; microtask DOM update
     // ────────────────────────────────────────────────────────────
     {
@@ -832,29 +829,23 @@ export class SelectionMessageService {
         return;
       }
   
-      // 1) Canonical correct TEXTS (authoritative when present)
-      const canonicalTextSet = new Set<string>();
-      for (const c of (Array.isArray(canonicalOpts) ? canonicalOpts : [])) {
-        if (!!c?.correct) {
-          const t = norm(c?.text ?? c?.label ?? '');
-          if (t) canonicalTextSet.add(t);
-        }
-      }
+      // 1) Canonical correct TEXTS from quizService (authoritative when present)
+      const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
+      const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
-      // Also try the service’s question at the UI index
-      try {
-        const svcQ = (this.quizService as any)?.questions?.[index];
-        if (svcQ?.options && canonicalTextSet.size === 0) {
-          for (const c of svcQ.options) {
-            if (!!c?.correct) {
-              const t = norm(c?.text ?? c?.label ?? '');
-              if (t) canonicalTextSet.add(t);
-            }
+      const canonicalTextSet = new Set<string>();
+      const seedFrom = (arr: any[]) => {
+        for (const c of (Array.isArray(arr) ? arr : [])) {
+          if (!!c?.correct) {
+            const t = norm(c?.text ?? c?.label ?? '');
+            if (t) canonicalTextSet.add(t);
           }
         }
-      } catch { /* ignore */ }
+      };
+      seedFrom(uiQuestion?.options);
+      if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // 2) Payload-correct TEXTS (fallback only if canonical empty)
+      // 2) Payload-correct TEXTS (for total only if canonical incomplete/empty)
       const payloadTextSet = new Set<string>();
       for (const o of (Array.isArray(options) ? options : [])) {
         if (!!(o as any)?.correct) {
@@ -866,7 +857,19 @@ export class SelectionMessageService {
       // 3) Judge set: canonical if present; else payload
       const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
   
-      // 4) Count selected-correct strictly vs judgeSet
+      // 4) expectedTotal:
+      //    - Use the UNION principle for robustness: max(canonicalCount, payloadCount)
+      //    - Floor to 2 for multi-answer ergonomics
+      //    - Sticky (non-decreasing) per question key
+      const unionCount = Math.max(canonicalTextSet.size, payloadTextSet.size);
+      let baseTotal = Math.max(unionCount, 2);
+  
+      const stickyKey = `qa::${qKey}`;
+      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
+      const expectedTotal = Math.max(prevMax, baseTotal);
+      this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
+  
+      // 5) Count selected-correct strictly against judgeSet
       let selectedCorrect = 0;
       for (const o of options) {
         if (!o?.selected) continue;
@@ -874,32 +877,11 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++;
       }
   
-      // 5) Compute base expected total from flags (robust), with floor 2
-      const canonicalCount = canonicalTextSet.size;
-      const payloadCount   = payloadTextSet.size;
-      const unionCount     = Math.max(canonicalCount, payloadCount);
-      let baseExpected     = Math.max(unionCount, 2);
-  
-      // 6) Dynamic lower bound:
-      //    If we’d otherwise reach 0 remaining (selectedCorrect >= baseExpected) BUT there are still
-      //    unselected options and canonical is unknown/possibly incomplete, raise a lower bound to (selectedCorrect + 1).
-      const hasUnselected = options.some((o: any) => !o?.selected);
-      let dynamicLB = this._minExpectedByKey.get(qKey) ?? 0;
-  
-      const canonicalKnown = canonicalCount > 0; // if canonical known, we trust it and don't synthesize LB
-      if (!canonicalKnown && hasUnselected && selectedCorrect >= baseExpected) {
-        dynamicLB = Math.max(dynamicLB, selectedCorrect + 1);
-        this._minExpectedByKey.set(qKey, dynamicLB);
-      }
-  
-      // 7) Sticky upper bound per question (never decrease once learned)
-      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
-      let expectedTotal = Math.max(prevMax, baseExpected, dynamicLB);
-      this._maxCorrectByKey.set(qKey, expectedTotal);
-  
-      // 8) Remaining calculation with a small anti-premature safeguard
+      // 6) Remaining — if we haven't satisfied expectedTotal and there are unselected options,
+      //    keep remaining ≥ 1 (avoids premature Next when totals are still being learned).
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-      if (hasUnselected && selectedCorrect < expectedTotal) {
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
+      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
