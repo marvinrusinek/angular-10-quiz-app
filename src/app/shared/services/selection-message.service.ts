@@ -722,9 +722,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type:
-    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
-    // Prevents Q2 (Single) from being inferred as Multi on cold start.
+    // Effective type (quiz-agnostic, restart-safe)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -765,13 +763,11 @@ export class SelectionMessageService {
     this._lastTypeByKey.set(qKey, effType);
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
+    // SINGLE-ANSWER — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
-      // 1) current array
       let anySelected = options.some((o: any) => !!o?.selected);
   
-      // 2) selection service fallback
       if (!anySelected) {
         try {
           const selSvc: any =
@@ -791,12 +787,10 @@ export class SelectionMessageService {
         } catch { /* ignore */ }
       }
   
-      // 3) prior snapshot fallback
       if (!anySelected && Array.isArray(priorSnap)) {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
-      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
@@ -804,17 +798,17 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
       });
   
-      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe
-    // - CONTINUE before any selection
-    // - Canonical-first; if canonical size < 2 (unknown/partial), floor needed to 2
-    // - Sticky expectedTotal; strict vs canonical when known, else payload, else soft-gate
-    // - Route with UI index; queue in microtask
+    // MULTIPLE-ANSWER — quiz-agnostic & restart-safe
+    //   • CONTINUE before any selection
+    //   • Canonical-first judge set; payload only if canonical empty
+    //   • Floor expected total to 2 for Multiple-Answer (prevents Next on 2nd click)
+    //   • Sticky expected total; strict check vs canonical when available
+    //   • Route with UI index; microtask DOM update
     // ────────────────────────────────────────────────────────────
     {
       // CONTINUE before any selection
@@ -829,7 +823,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // Canonical correct TEXTS (authoritative when present)
+      // Canonical correct TEXTS (authoritative)
       const canonicalTextSet = new Set<string>();
       const seedFrom = (arr: any[]) => {
         for (const c of (Array.isArray(arr) ? arr : [])) {
@@ -839,12 +833,11 @@ export class SelectionMessageService {
           }
         }
       };
-  
       try {
         const svcQs: any[] = (this.quizService as any)?.questions ?? [];
         const uiQ = (index >= 0 && index < svcQs.length) ? svcQs[index] : undefined;
         seedFrom(uiQ?.options);
-      } catch { /* ignore */ }
+      } catch {}
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
       // Payload set ONLY if canonical empty
@@ -858,35 +851,21 @@ export class SelectionMessageService {
         }
       }
   
-      // Judge set (strictly canonical when available)
       const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
   
-      // Base expected total
+      // Base expected total from judge set — floor to 2 for Multiple-Answer
       let baseTotal = judgeSet.size;
+      if (baseTotal < 2) baseTotal = 2;
   
-      // ⬅️ CORE FIX: If canonical is unknown/partial (<2) for a MultipleAnswer, require 2.
-      if (effType === QuestionType.MultipleAnswer && canonicalTextSet.size < 2) {
-        baseTotal = Math.max(baseTotal, 2);
-      }
-  
-      // Sticky expected total
+      // Sticky expected total (non-decreasing)
       const stickyKey = `qa::${qKey}`;
       const prevMaxMA = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
       const expectedTotal = Math.max(prevMaxMA, baseTotal);
       this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
   
-      // Count selected-correct
+      // Count selected-correct (strict vs judgeSet when possible; soft if empty)
       let selectedCorrect = 0;
-  
-      if (canonicalTextSet.size > 0) {
-        // strict vs canonical
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && canonicalTextSet.has(t)) selectedCorrect++;
-        }
-      } else if (judgeSet.size > 0) {
-        // strict vs payload when canonical missing
+      if (judgeSet.size > 0) {
         for (const o of options) {
           if (!o?.selected) continue;
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
@@ -898,7 +877,8 @@ export class SelectionMessageService {
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
-      // Remaining; if we haven't satisfied expectedTotal and options remain, keep ≥1
+      // If we haven't satisfied expectedTotal and there are unselected options,
+      // force remaining ≥ 1 to avoid premature Next.
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
@@ -919,6 +899,8 @@ export class SelectionMessageService {
       });
     }
   }
+  
+  
   
   
 
