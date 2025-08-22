@@ -660,7 +660,7 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
-    // Payload count (used only for *type inference* if canonical absent — not for correctness)
+    // Payload count (only for *type inference* if canonical absent)
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
@@ -807,8 +807,10 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe, canonical-only counting
-    // If canonical unknown, soft-gate (remaining never reaches 0) to avoid early “Next”
+    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe, canonical-first
+    // - Canonical from quizService[currentQuestionIndex]
+    // - Detect “select all” by text, floor expectedTotal ≥ 2
+    // - If canonical size < 2 on a select-all, never allow remaining to hit 0
     // ────────────────────────────────────────────────────────────
     {
       // Quiz-aware sticky key (prevents mixing across quizzes/routes on restart)
@@ -834,7 +836,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 2) Canonical correct TEXTS (authoritative when present)
+      // 2) Canonical correct TEXTS (service is authoritative; ignore payload)
       const canonicalTextSet = new Set<string>();
       for (const c of canonicalOpts) {
         if (!!c?.correct) {
@@ -843,21 +845,15 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) expectedTotal:
-      //    Prefer canonical size. If canonical unknown:
-      //      - for “select all”, floor at 2 (prevents early Next)
-      //      - otherwise 0 (we’ll stay in “Select …” until canonical arrives)
+      // 3) expectedTotal (sticky, with select-all floor)
       let expectedTotal = canonicalTextSet.size;
-      if (expectedTotal === 0 && isSelectAll) {
-        expectedTotal = 2;
-      }
+      if (isSelectAll) expectedTotal = Math.max(expectedTotal, 2);
   
-      // Stickiness per (quizId + qKey): never decrease across emits/restarts
       const prevMax = this._maxCorrectByKey?.get?.(quizStickyKey) ?? 0;
       expectedTotal = Math.max(prevMax, expectedTotal);
       this._maxCorrectByKey?.set?.(quizStickyKey, expectedTotal);
   
-      // If we still don’t know the total, keep prompting “Select 1 more…”
+      // Unknown total → keep prompting for at least one more
       if (expectedTotal === 0) {
         queueMicrotask(() => {
           const msg = (typeof buildRemainingMsg === 'function')
@@ -868,20 +864,18 @@ export class SelectionMessageService {
         return;
       }
   
-      // 4) Count selected-correct
-      //    - If canonical is known: STRICT match vs canonical ONLY (ignore payload)
-      //    - If canonical unknown (only select-all floor): soft-gate by count so remaining > 0
+      // 4) Count selected-correct STRICTLY vs canonical
       let selectedCorrect = 0;
+      for (const o of options) {
+        if (!o?.selected) continue;
+        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+        if (t && canonicalTextSet.has(t)) selectedCorrect++;
+      }
   
-      if (canonicalTextSet.size > 0) {
-        for (const o of options) {
-          if (!o?.selected) continue;
-          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && canonicalTextSet.has(t)) selectedCorrect++;
-        }
-      } else {
-        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-        selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
+      // If this is a select-all question but canonical size < 2 (flags incomplete),
+      // force "at least 1 remaining" so we never show Next on click 2.
+      if (isSelectAll && canonicalTextSet.size < 2) {
+        selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
       }
   
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -901,6 +895,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
