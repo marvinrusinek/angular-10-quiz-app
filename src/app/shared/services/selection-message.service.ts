@@ -647,15 +647,18 @@ export class SelectionMessageService {
     // @ts-ignore
     this._canonCountByKey       ??= new Map<string, number>();
   
+    // If Single-Answer “Next” already shown for this question, ignore further emits
     if (this._singleNextLockedByKey.has(qKey)) return;
   
-    // Sticky canonical count (prefer canonical; cache once known)
+    // Sticky canonical correct count (prefer canonical; cache once known)
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
     const canon = Math.max(prevCanon, currCanon);
-    if (canon > 0 && canon !== prevCanon) this._canonCountByKey.set(qKey, canon);
+    if (canon > 0 && canon !== prevCanon) {
+      this._canonCountByKey.set(qKey, canon);
+    }
   
-    // Payload count (only for type inference if canonical absent)
+    // Payload fallback (only if canonical still unknown)
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
@@ -672,12 +675,17 @@ export class SelectionMessageService {
           : 'Please select an option to continue...');
         this.updateSelectionMessage(baseMsg, { options, index, questionType });
       });
+      // do not return for Single, because we still allow “Next” when selected
       if (questionType === QuestionType.MultipleAnswer) return;
     }
   
+    // Keep prior snapshot only for selection fallback (not for correctness math)
     const priorSnap = this.getLatestOptionsSnapshot?.();
+  
+    // Guard: must have a current options array
     if (!Array.isArray(options) || options.length === 0) return;
   
+    // Helper: union check for "any selected" across UI + services (+ prior snapshot)
     const getAnySelectedUnion = (): boolean => {
       let any = options.some((o: any) => !!o?.selected);
       try {
@@ -703,42 +711,65 @@ export class SelectionMessageService {
             any ||= !!oneResolved || !!oneUi;
           }
         }
-      } catch {}
+      } catch { /* ignore */ }
+  
       if (!any && Array.isArray(priorSnap)) {
         try { any ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
       return any;
     };
   
-    // Effective type (prefer canonical; trust declared if unknown)
+    // ────────────────────────────────────────────────────────────
+    // Effective type:
+    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
+    // Prevents Q2 (Single) from being inferred as Multi on cold start.
+    // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
-    if (canon > 1) effType = QuestionType.MultipleAnswer;
-    else if (canon === 1) effType = QuestionType.SingleAnswer;
-    else if (questionType === QuestionType.SingleAnswer) effType = QuestionType.SingleAnswer;
-    else if (questionType === QuestionType.MultipleAnswer) effType = QuestionType.MultipleAnswer;
-    else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
-    else if (payloadCorrectCount === 1) effType = QuestionType.SingleAnswer;
-    else effType = questionType;
+    if (canon > 1) {
+      effType = QuestionType.MultipleAnswer;
+    } else if (canon === 1) {
+      effType = QuestionType.SingleAnswer;
+    } else if (questionType === QuestionType.SingleAnswer) {
+      effType = QuestionType.SingleAnswer; // trust declared
+    } else if (questionType === QuestionType.MultipleAnswer) {
+      effType = QuestionType.MultipleAnswer; // trust declared
+    } else if (payloadCorrectCount > 1) {
+      effType = QuestionType.MultipleAnswer;
+    } else if (payloadCorrectCount === 1) {
+      effType = QuestionType.SingleAnswer;
+    } else {
+      effType = questionType;
+    }
   
-    if (effType === QuestionType.SingleAnswer) this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
+    // If determined SingleAnswer, lock type for this question
+    if (effType === QuestionType.SingleAnswer) {
+      this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
+    }
   
+    // Coalesce by qKey: drop stale token
     const prevTok = this._lastTokByKey.get(qKey) ?? -Infinity;
     if (tok < prevTok) return;
   
+    // If locked SingleAnswer, block ANY non-Single emit for this question
     const lockedType = this._typeLockByKey.get(qKey);
     if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
+    // SingleAnswer priority: if a Single was recorded, block later non-Single
     const prevType = this._lastTypeByKey.get(qKey) ?? undefined;
     if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
+    // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER
+    // SINGLE-ANSWER (Q2 etc.) — robust selection detection + freeze on “Next”
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
+      // 1) current array
       let anySelected = options.some((o: any) => !!o?.selected);
+  
+      // 2) selection service fallback
       if (!anySelected) {
         try {
           const selSvc: any =
@@ -755,92 +786,79 @@ export class SelectionMessageService {
             const one = selSvc.getSelectedOption(resolvedIndex);
             anySelected ||= !!one;
           }
-        } catch {}
+        } catch { /* ignore */ }
       }
   
+      // 3) prior snapshot fallback
       if (!anySelected && Array.isArray(priorSnap)) {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
   
+      // Use NEXT when selected, START when not  (microtask to avoid hydration race)
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
-      queueMicrotask(() => this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType }));
+      queueMicrotask(() => {
+        this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType });
+      });
+  
+      // Freeze once we've shown “Next” for this Single-Answer question
       if (anySelected) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — quiz-agnostic, restart-safe, **override-capable**
-    //   1) Prefer OVERRIDE_CORRECT_TEXTS_BY_QUIZ (if provided) for true correctness.
-    //   2) Else use canonical from quizService[currentQuestionIndex].
-    //   3) If still unknown, conservative soft gate (never "Next" on click #2).
+    // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
+    //   * Select-all floor: if prompt contains “select all”, require ≥2 before Next.
     // ────────────────────────────────────────────────────────────
     {
-      // Quiz-aware sticky key (prevents mixing across quizzes/routes on restart)
-      const quizId =
-        (this.quizService as any)?.quizId ??
-        this.route?.snapshot?.paramMap?.get?.('quizId') ??
-        'default';
-  
-      const quizStickyKey = `${quizId}::${qKey}`;
+      // 0) Identify “select all” (quiz-agnostic)
       const qText = (qRef?.questionText ?? '').toString();
       const isSelectAll = /select all/i.test(qText);
   
-      // 0) Early “no selection yet” union guard
+      // 1) Early “no selection yet” guard (union of UI + services)
       const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        queueMicrotask(() => this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer }));
+        queueMicrotask(() => {
+          // Route using the UI index to avoid cross-question clobber after restart
+          this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer });
+        });
         return;
       }
   
-      // 1) Build a quiz+question signature for optional overrides
-      const questionSig =
-        (qRef?.id != null) ? `id:${String(qRef.id)}`
-          : (qText ? `txt:${norm(qText)}` : `idx:${resolvedIndex}`);
-  
-      const overrideMap: Map<string, Set<string> | string[]> | undefined =
-        (this as any).OVERRIDE_CORRECT_TEXTS_BY_QUIZ?.get?.(quizId);
-  
-      const overrideSetRaw = overrideMap?.get?.(questionSig) ?? overrideMap?.get?.(qKey);
-      const overrideSet = (() => {
-        if (!overrideSetRaw) return undefined;
-        const s = new Set<string>();
-        if (Array.isArray(overrideSetRaw)) {
-          overrideSetRaw.forEach(t => { const n = norm(String(t)); if (n) s.add(n); });
-        } else if (overrideSetRaw instanceof Set) {
-          overrideSetRaw.forEach(t => { const n = norm(String(t)); if (n) s.add(n); });
+      // 2) Canonical correct TEXTS (authoritative when present)
+      const canonicalTextSet = new Set<string>();
+      for (const c of canonicalOpts) {
+        if (!!c?.correct) {
+          const t = norm(c?.text ?? c?.label ?? '');
+          if (t) canonicalTextSet.add(t);
         }
-        return s.size ? s : undefined;
-      })();
+      }
   
-      // 2) Authoritative correct TEXTS:
-      //    - If override exists → use it (ignore service flags).
-      //    - Else use canonical from service flags.
-      const correctTextSet = new Set<string>();
-      if (overrideSet) {
-        overrideSet.forEach(t => correctTextSet.add(t));
-      } else {
-        for (const c of canonicalOpts) {
-          if (!!c?.correct) {
-            const t = norm(c?.text ?? c?.label ?? '');
-            if (t) correctTextSet.add(t);
+      // 3) Payload-correct TEXTS (backup only if canonical empty)
+      const payloadTextSet = new Set<string>();
+      if (canonicalTextSet.size === 0) {
+        for (const o of options) {
+          if (!!o?.correct) {
+            const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+            if (t) payloadTextSet.add(t);
           }
         }
       }
   
-      // 3) expectedTotal (sticky, with select-all floor)
-      let expectedTotal = correctTextSet.size;
+      // 4) Expected total (sticky, select-all floor)
+      const unionSize = Math.max(canonicalTextSet.size, payloadTextSet.size);
+      let expectedTotal = unionSize;
       if (isSelectAll) expectedTotal = Math.max(expectedTotal, 2);
   
-      const prevMax = this._maxCorrectByKey?.get?.(quizStickyKey) ?? 0;
+      const prevMax = this._maxCorrectByKey.get(qKey) ?? 0;
       expectedTotal = Math.max(prevMax, expectedTotal);
-      this._maxCorrectByKey?.set?.(quizStickyKey, expectedTotal);
+      this._maxCorrectByKey.set(qKey, expectedTotal);
   
-      // Unknown total → keep prompting for at least one more
+      // If still unknown total (no flags), prompt for “1 more…”
       if (expectedTotal === 0) {
         queueMicrotask(() => {
           const msg = (typeof buildRemainingMsg === 'function')
@@ -851,24 +869,27 @@ export class SelectionMessageService {
         return;
       }
   
-      // 4) Count selected-correct STRICTLY vs correctTextSet if it exists,
-      //    else soft-gate on count (never allow remaining to hit 0 on early clicks)
+      // 5) Count selected-correct:
+      //    - Prefer canonical when available; else payload; else soft count
       let selectedCorrect = 0;
+      const hasCanonical = canonicalTextSet.size > 0;
+      const hasPayload = payloadTextSet.size > 0;
   
-      if (correctTextSet.size > 0) {
+      if (hasCanonical || hasPayload) {
+        const acceptSet = hasCanonical ? canonicalTextSet : payloadTextSet;
         for (const o of options) {
           if (!o?.selected) continue;
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t && correctTextSet.has(t)) selectedCorrect++;
+          if (t && acceptSet.has(t)) selectedCorrect++;
         }
       } else {
+        // Soft gating when we don't know correctness: never let remaining hit 0 too early
         const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
-      // Extra safety for “select all” : if we only have partial truth (e.g., override absent and
-      // service flags flaky) and selectedCorrect < expectedTotal, keep at least 1 remaining.
-      if (isSelectAll && correctTextSet.size < expectedTotal) {
+      // Extra safety for “select all” — don’t allow Next until at least 2 are matched
+      if (isSelectAll && selectedCorrect < 2) {
         selectedCorrect = Math.min(selectedCorrect, Math.max(0, expectedTotal - 1));
       }
   
@@ -883,11 +904,13 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
+      // Always route with UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer });
       });
     }
   }
+  
   
   
   
