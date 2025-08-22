@@ -812,14 +812,14 @@ export class SelectionMessageService {
     // ────────────────────────────────────────────────────────────
     // MULTIPLE-ANSWER — quiz-agnostic, restart-safe
     // - CONTINUE before any selection
-    // - Canonical-first; if unknown, soft floor of 2 (prevents “Next” on 2nd click)
-    // - Sticky expectedTotal per question key
-    // - Route messages with UI index; queue in microtask
+    // - Canonical-first; if canonical size < 2 (unknown/partial), floor needed to 2
+    // - Sticky expectedTotal; strict vs canonical when known, else payload, else soft-gate
+    // - Route with UI index; queue in microtask
     // ────────────────────────────────────────────────────────────
     {
       // CONTINUE before any selection
-      const selectedCountNow = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
-      if (selectedCountNow === 0) {
+      const anySelectedUnion = getAnySelectedUnion();
+      if (!anySelectedUnion) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
@@ -840,7 +840,6 @@ export class SelectionMessageService {
         }
       };
   
-      // Prefer service's current question options; fall back to the canonicalOpts we derived above
       try {
         const svcQs: any[] = (this.quizService as any)?.questions ?? [];
         const uiQ = (index >= 0 && index < svcQs.length) ? svcQs[index] : undefined;
@@ -848,7 +847,7 @@ export class SelectionMessageService {
       } catch { /* ignore */ }
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // If canonical is unknown, infer from payload *only* as a last resort
+      // Payload set ONLY if canonical empty
       const payloadTextSet = new Set<string>();
       if (canonicalTextSet.size === 0) {
         for (const o of options) {
@@ -859,37 +858,52 @@ export class SelectionMessageService {
         }
       }
   
-      // Decide judge set (canonical > payload), and compute base total
+      // Judge set (strictly canonical when available)
       const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
-      const baseTotal = judgeSet.size; // may be 0
   
-      // Sticky expected total: if unknown, apply a soft floor of 2 so we never flip to Next on 2nd click.
+      // Base expected total
+      let baseTotal = judgeSet.size;
+  
+      // ⬅️ CORE FIX: If canonical is unknown/partial (<2) for a MultipleAnswer, require 2.
+      if (effType === QuestionType.MultipleAnswer && canonicalTextSet.size < 2) {
+        baseTotal = Math.max(baseTotal, 2);
+      }
+  
+      // Sticky expected total
       const stickyKey = `qa::${qKey}`;
       const prevMaxMA = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
-      let expectedTotal =
-        (baseTotal > 0)
-          ? Math.max(prevMaxMA, baseTotal)
-          : Math.max(prevMaxMA, 2); // ← only floor to 2 when unknown
-  
+      const expectedTotal = Math.max(prevMaxMA, baseTotal);
       this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
   
       // Count selected-correct
       let selectedCorrect = 0;
-      if (judgeSet.size > 0) {
-        // Strictly vs judge set (canonical preferred)
+  
+      if (canonicalTextSet.size > 0) {
+        // strict vs canonical
+        for (const o of options) {
+          if (!o?.selected) continue;
+          const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+          if (t && canonicalTextSet.has(t)) selectedCorrect++;
+        }
+      } else if (judgeSet.size > 0) {
+        // strict vs payload when canonical missing
         for (const o of options) {
           if (!o?.selected) continue;
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
           if (t && judgeSet.has(t)) selectedCorrect++;
         }
       } else {
-        // No flags at all → soft gate by count: let it decrease but never reach 0
-        // (so first click → remaining=1, second click still remaining=1, preventing premature Next)
-        const selectedCount = selectedCountNow;
+        // No flags at all → soft gate by count (never allow remaining 0 on 2nd click)
+        const selectedCount = options.reduce((n, o) => n + (!!o?.selected ? 1 : 0), 0);
         selectedCorrect = Math.min(selectedCount, Math.max(0, expectedTotal - 1));
       }
   
-      const remaining = Math.max(expectedTotal - selectedCorrect, 0);
+      // Remaining; if we haven't satisfied expectedTotal and options remain, keep ≥1
+      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
+      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
+        remaining = Math.max(1, remaining);
+      }
   
       const nextMsg =
         remaining > 0
@@ -905,6 +919,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
 
   
