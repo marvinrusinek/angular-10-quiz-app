@@ -666,6 +666,7 @@ export class SelectionMessageService {
     this.updateSelectionMessage(message, { options, index, token: tok, questionType });
   }
   
+  
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
   
   private bumpMsgToken(i: number): number {
