@@ -582,83 +582,177 @@ export class SelectionMessageService {
 
   // Authoritative: call only from the option click with the updated array
   // TEMP: if you know Q4 must have 3 correct, set here to prove data vs logic.
-// Remove after you fix canonical data.
-private expectedTotalCorrectOverride: Record<number, number> = {
-  3: 3, // Q4 is zero-based index 3; change if your index differs
-};
+  // Remove after you fix canonical data.
+  private expectedTotalCorrectOverride: Record<number, number> = {
+    3: 3, // Q4 is zero-based index 3; change if your index differs
+  };
 
-public emitFromClick(params: {
-  index: number;
-  totalQuestions: number;
-  questionType: QuestionType;
-  options: Option[];
-}): void {
-  const { index, questionType, options } = params as any;
-
-  // --- Canonical correctness (authoritative) ---
-  const canonQ = this.getCanonicalQuestionByIndex(index);
-  const canonMap = this.buildCanonicalMap(canonQ?.options ?? []);
-
-  // --- Count using canonical ONLY; de-dupe by stable key ---
-  const keysSelected = new Set<string>();
-  let selectedCorrect = 0;
-  let selectedIncorrect = 0;
-
-  for (const u of options ?? []) {
-    if (!u?.selected) continue;
-    const k = this.keyFor(u);
-    if (!k) continue;
-    if (keysSelected.has(k)) continue; // de-dupe
-    keysSelected.add(k);
-
-    const tagged = this.lookupCanonicalCorrect(k, u, canonMap);
-    if (tagged) selectedCorrect++; else selectedIncorrect++;
-  }
-
-  // Total correct from canonical (with TEMP override for Q4)
-  const totalCorrectCanonical = this.countTotalCorrect(canonMap);
-  const totalCorrect = this.expectedTotalCorrectOverride.hasOwnProperty(index)
-    ? this.expectedTotalCorrectOverride[index]
-    : totalCorrectCanonical;
-
-  const remaining = Math.max(0, totalCorrect - selectedCorrect);
-
-  // --- HARD GUARDS: never unlock early on multi-answer ---
-  let message: string;
-  if (questionType === QuestionType.MultipleAnswer) {
-    const guardSatisfied = (selectedCorrect === totalCorrect) && (selectedIncorrect === 0);
-
-    // EXTRA SAFETY: if canonical says only 1 correct on a multi question, require at least 2.
-    const multiFloorOk = totalCorrect >= 2;
-
-    if (guardSatisfied && multiFloorOk) {
-      message = 'Please click the next button to continue.';
-    } else {
-      const need = Math.max(1, remaining); // never show 0 here
-      const plural = need === 1 ? 'answer' : 'answers';
-      message = `Select ${need} more correct ${plural} to continue...`;
+  public emitFromClick(params: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[]; // updated array already passed (current UI state)
+  }): void {
+    const { index, questionType, options } = params as any;
+  
+    // Keep your logging (helps verify Q2/Q4)
+    console.log('[emitFromClick]', options.map((o: any) => ({
+      id: o?.optionId, text: o?.text, selected: !!o?.selected, correct_UI: !!o?.correct
+    })));
+  
+    // Per-question monotonic token to defeat stale paths
+    const tok = this.bumpMsgToken(index);
+    (this as any).latestByIndex ??= new Map<number, number>();
+    (this as any).latestByIndex.set(index, tok);
+  
+    // --- Canonical truth --------------------------------------------------------
+    const canonQ  = this.getCanonicalQuestionByIndex(index);
+    const canon   = Array.isArray(canonQ?.options) ? (canonQ!.options as Option[]) : [];
+    const canonMap = this.buildCanonicalMap(canon);
+  
+    // Target total correct (covers under-flagged canonical via q.answer union + optional override)
+    const totalTarget = this.deriveTotalTarget(index, canon, canonMap, canonQ as any);
+  
+    // --- Count current selection strictly from canonical, de-duped by stable key
+    const seen = new Set<string>();
+    let selectedCorrect = 0;
+    let selectedIncorrect = 0;
+    let anySelected = false;
+  
+    for (const u of options ?? []) {
+      if (!u?.selected) continue;
+      anySelected = true;
+  
+      const k = this.keyFor(u);
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+  
+      const isCorrect = this.lookupCanonicalCorrect(k, u, canonMap);
+      if (isCorrect) selectedCorrect++; else selectedIncorrect++;
     }
-  } else {
-    message = selectedCorrect >= 1
-      ? 'Please click the next button to continue.'
-      : 'Select the correct answer to continue...';
+  
+    const remaining = Math.max(0, totalTarget - selectedCorrect);
+  
+    // --- Decide message (source of truth; no premature Next) --------------------
+    let message: string;
+  
+    if (questionType === QuestionType.MultipleAnswer || totalTarget > 1) {
+      // HARD GUARD: all correct selected AND no wrongs selected
+      const guardSatisfied = (selectedCorrect === totalTarget) && (selectedIncorrect === 0);
+  
+      if (!anySelected) {
+        // Before first pick on multi → explicit remaining for clarity
+        const need0 = Math.max(1, totalTarget);
+        message = `Select ${need0} more correct ${need0 === 1 ? 'answer' : 'answers'} to continue...`;
+      } else if (!guardSatisfied) {
+        const need = Math.max(1, remaining);
+        message = `Select ${need} more correct ${need === 1 ? 'answer' : 'answers'} to continue...`;
+      } else {
+        message = 'Please click the next button to continue.';
+      }
+    } else {
+      // Single-answer: unlock only when a correct is selected
+      message = selectedCorrect >= 1
+        ? 'Please click the next button to continue.'
+        : 'Select the correct answer to continue...';
+    }
+  
+    // Debug truth table (paste me in console for Q2/Q4)
+    console.log('[EMIT:GATE]', {
+      index, totalTarget, selectedCorrect, selectedIncorrect, remaining, anySelected, message
+    });
+  
+    // Hand the message to the sink with the monotonic token (prevents stale overrides)
+    this.updateSelectionMessage(message, { options, index, token: tok, questionType });
   }
-
-  // --- Emit + deep debug (prints once per click) ---
-  console.log('[Q-GATE]', {
-    index,
-    totalCorrectCanonical,
-    totalCorrectEffective: totalCorrect,
-    selectedCorrect,
-    selectedIncorrect,
-    remaining,
-    keysSelected: Array.from(keysSelected),
-    canonKeys: Array.from(canonMap.keys()),
-    message
-  });
-
-  this.updateSelectionMessage(message, { options, index, questionType });
-}
+  
+  /* ───────────── helpers (reuse yours if you already have them) ───────────── */
+  
+  private bumpMsgToken(i: number): number {
+    (this as any).__msgTokByIndex ??= new Map<number, number>();
+    const cur = (this as any).__msgTokByIndex.get(i) ?? 0;
+    const next = cur + 1;
+    (this as any).__msgTokByIndex.set(i, next);
+    return next;
+  }
+  
+  private getCanonicalQuestionByIndex(i: number): QuizQuestion | undefined {
+    try {
+      const svc: any = this.quizService as any;
+      const arr = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
+      if (i >= 0 && i < arr.length) return arr[i];
+      return svc?.currentQuestion as QuizQuestion | undefined;
+    } catch { return undefined; }
+  }
+  
+  private buildCanonicalMap(options: Option[]): Map<string, { correct: boolean; textKey: string }> {
+    const m = new Map<string, { correct: boolean; textKey: string }>();
+    for (const o of options ?? []) {
+      const k = this.keyFor(o);
+      if (!k) continue;
+      m.set(k, { correct: !!o.correct, textKey: this.textKey(o?.text) });
+    }
+    return m;
+  }
+  
+  /** Union of canonical flags with q.answer[] and optional override hook */
+  private deriveTotalTarget(
+    index: number,
+    canonical: Option[],
+    canonMap: Map<string, { correct: boolean; textKey: string }>,
+    q: { answer?: any } | undefined
+  ): number {
+    const totalFromFlags = this.countTotalCorrect(canonMap);
+  
+    // robust parse of q.answer
+    const norm = (x: any) => String(x ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    const ansArr: any[] = Array.isArray(q?.answer) ? q!.answer : (q?.answer != null ? [q!.answer] : []);
+    const answerIdSet = new Set<string>();
+  
+    if (ansArr.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = String(c?.optionId ?? c?.id ?? i);
+        const zeroIx = i, oneIx = i + 1;
+        const cVal = norm(c?.value);
+        const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+        const matched = ansArr.some((a: any) => {
+          if (a == null) return false;
+          if (typeof a === 'object') {
+            const aid = a?.optionId ?? a?.id;
+            if (aid != null && String(aid) === cid) return true;
+            const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === cVal) || (!!at && at === cTxt);
+          }
+          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+          const s = String(a);
+          const n = Number(s);
+          if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+          const ns = norm(s);
+          return (!!ns && (ns === cVal || ns === cTxt));
+        });
+  
+        if (matched) answerIdSet.add(cid);
+      }
+    }
+  
+    const totalFromAnswer = answerIdSet.size;
+    const unionCorrect = Math.max(totalFromFlags, totalFromAnswer, 0);
+  
+    // Optional: support your existing override hook if present
+    const expectedOverride = (this as any).getExpectedCorrectCount?.(index);
+    const target =
+      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrect && expectedOverride > 0)
+        ? Math.min(expectedOverride, Math.max(1, unionCorrect))
+        : Math.max(1, unionCorrect);
+  
+    return target || 1; // never let it be 0
+  }
+  
 
   /* ================= helpers ================= */
   private lookupCanonicalCorrect(
@@ -673,26 +767,6 @@ public emitFromClick(params: {
       if (v.textKey === tKey) return !!v.correct;
     }
     return false;
-  }
-
-  private getCanonicalQuestionByIndex(i: number): QuizQuestion | undefined {
-    try {
-      const svc: any = this.quizService as any;
-      const arr = Array.isArray(svc?.questions) ? (svc.questions as QuizQuestion[]) : [];
-      if (i >= 0 && i < arr.length) return arr[i];
-      return svc?.currentQuestion as QuizQuestion | undefined;
-    } catch { return undefined; }
-  }
-  
-  /* ===== helpers (same as before) ===== */
-  private buildCanonicalMap(options: Option[]): Map<string, { correct: boolean; textKey: string }> {
-    const m = new Map<string, { correct: boolean; textKey: string }>();
-    for (const o of options ?? []) {
-      const k = this.keyFor(o);
-      if (!k) continue;
-      m.set(k, { correct: !!o.correct, textKey: this.textKey(o?.text) });
-    }
-    return m;
   }
   
   private keyFor(o?: Option): string | null {
