@@ -338,6 +338,8 @@ export class SelectionMessageService {
     // Count correctness from canonical flags
     const totalCorrectCanonical = overlaid.filter(o => !!(o as any)?.correct).length;
     const selectedCorrect = overlaid.filter(o => !!(o as any)?.correct && !!o?.selected).length;
+    // 🔒 HARD GUARD input: also track incorrect selections
+    const selectedIncorrect = overlaid.filter(o => !!o?.selected && !(o as any)?.correct).length;
   
     // Robust q.answer → canonical match to augment correctness if provided
     const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
@@ -392,6 +394,10 @@ export class SelectionMessageService {
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
       (totalCorrectCanonical > 1);
   
+    // 🔒 HARD GUARD decision (authoritative)
+    const guardSatisfiedMulti = (selectedCorrect === totalForThisQ) && (selectedIncorrect === 0) && (totalForThisQ >= 2);
+    const guardSatisfiedSingle = (selectedCorrect >= 1);
+  
     // Normalize: never show START_MSG except on very first question and only for single-answer
     if (next === START_MSG && (i0 > 0 || isMultiFinal)) {
       next = CONTINUE_MSG;  // e.g., "Please select an option to continue..."
@@ -435,8 +441,8 @@ export class SelectionMessageService {
   
     // MULTI behavior:
     //  - Before any pick → force "Select N more..." (Q2/Q4 fix)
-    //  - While remaining>0 → keep "Select N more..."
-    //  - When remaining==0 → Next/Results
+    //  - While remaining>0 OR guard not satisfied → keep "Select N more..."
+    //  - When guard satisfied → Next/Results
     const anySelectedNow = overlaid.some(o => !!o?.selected);
   
     if (isMultiFinal) {
@@ -445,8 +451,10 @@ export class SelectionMessageService {
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
-      if (enforcedRemaining > 0 || inEnforce) {
-        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
+      // 🔒 HARD GUARD in force for multi
+      if (!guardSatisfiedMulti || enforcedRemaining > 0 || inEnforce) {
+        const need = Math.max(1, enforcedRemaining);
+        const forced = buildRemainingMsg(need);
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
@@ -456,18 +464,26 @@ export class SelectionMessageService {
       return;
     }
   
-    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
-    const anySelected = anySelectedNow;
+    // SINGLE → never allow "Select more..."; allow Next/Results only when guardSatisfiedSingle
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
     if (isSelectish) {
-      const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-                                      : (i0 === 0 ? START_MSG : CONTINUE_MSG);
+      const replacement = guardSatisfiedSingle ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                                              : (i0 === 0 ? START_MSG : CONTINUE_MSG);
       if (current !== replacement) this.selectionMessageSubject.next(replacement);
       return;
     }
   
-    if (isNextish && anySelected) {
+    // 🔒 HARD GUARD for any Next-ish attempt
+    if (isNextish && !guardSatisfiedMulti && !guardSatisfiedSingle) {
+      // Force correct “Select … more …” instead of allowing a stale Next
+      const need = Math.max(1, enforcedRemaining || totalForThisQ);
+      const forced = buildRemainingMsg(need);
+      if (current !== forced) this.selectionMessageSubject.next(forced);
+      return;
+    }
+  
+    if (isNextish && (guardSatisfiedMulti || guardSatisfiedSingle)) {
       if (current !== next) this.selectionMessageSubject.next(next);
       return;
     }
@@ -479,6 +495,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
  
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
