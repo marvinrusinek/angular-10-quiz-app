@@ -379,11 +379,19 @@ export class SelectionMessageService {
     const totalFromAnswer = answerIdSet.size;
     const unionCorrect = Math.max(totalCorrectCanonical, totalFromAnswer, 0);
   
-    const expectedOverride = this.getExpectedCorrectCount(i0);
+    /* const expectedOverride = this.getExpectedCorrectCount(i0);
     // Clamp: never demand fewer than the real number of correct answers; never more than exist
     const totalForThisQ =
       (typeof expectedOverride === 'number' && expectedOverride >= unionCorrect && expectedOverride > 0)
         ? Math.min(expectedOverride, Math.max(1, unionCorrect))
+        : Math.max(1, unionCorrect); */
+    
+    const expectedOverride = this.getExpectedCorrectCount(i0);
+    // FIX: if authored expects more than unionCorrect (e.g., Q4=3 but union=2),
+    // use the override as a FLOOR so remaining>0 until all are selected.
+    const totalForThisQ =
+      (typeof expectedOverride === 'number' && expectedOverride > 0)
+        ? Math.max(expectedOverride, Math.max(1, unionCorrect))
         : Math.max(1, unionCorrect);
   
     // Compute multi after target so we never fall into single branch on multi questions
