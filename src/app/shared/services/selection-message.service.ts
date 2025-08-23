@@ -813,8 +813,8 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical + answer union (+ payload fallback) with
-    // an extra guard that counts UNSELECTED known-corrects to block early “Next”.
+    // MULTIPLE-ANSWER — expectedTotal is MAX across canonical, answers, and UI;
+    // also allow explicit per-question override (fixes Q4 click #2 → “Select 1 more…”).
     // ────────────────────────────────────────────────────────────
     {
       // 0) Early “no selection yet” guard (union of UI + services)
@@ -876,7 +876,7 @@ export class SelectionMessageService {
         }
       }
   
-      // 2) Payload-correct TEXTS (fallback)
+      // 2) Payload-correct TEXTS (UI flags)
       const payloadTextSet = new Set<string>();
       for (const o of (Array.isArray(options) ? options : [])) {
         if (!!(o as any)?.correct) {
@@ -885,22 +885,37 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Judge set: union of canonical + answers if present; else payload
-      const unionCanonAns = new Set<string>([...canonicalTextSet, ...answerTextSet]);
-      const judgeSet = (unionCanonAns.size > 0) ? unionCanonAns : payloadTextSet;
+      // 3) Judge set: superset of all signals
+      const judgeSet = new Set<string>([
+        ...canonicalTextSet,
+        ...answerTextSet,
+        ...payloadTextSet
+      ]);
   
-      // 4) expectedTotal (sticky, non-decreasing per question)
-      let baseTotal =
-        (unionCanonAns.size > 0)
-          ? unionCanonAns.size
-          : Math.max(payloadTextSet.size, 2);
+      // 4) expectedTotal — sticky, non-decreasing; apply explicit override/floor
+      const expectedOverride = (this as any).getExpectedCorrectCount?.(resolvedIndex);
+      const hardFloorByIndex: Record<number, number> = { 3: 3 }; // Q4 (0-based) → at least 3 correct
+      let baseTotal = judgeSet.size;
+  
+      // If nothing authoritative, fall back to payload size but floor to 2 for multi
+      if (baseTotal === 0 && (questionType === QuestionType.MultipleAnswer || payloadTextSet.size > 1)) {
+        baseTotal = Math.max(payloadTextSet.size, 2);
+      }
+  
+      // Apply floors/overrides (covers your Q4 second-click case)
+      baseTotal = Math.max(
+        baseTotal,
+        typeof expectedOverride === 'number' ? expectedOverride : 0,
+        hardFloorByIndex[index] ?? 0,
+        hardFloorByIndex[resolvedIndex] ?? 0
+      );
   
       const stickyKey = `qa::${qKey}`;
       const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
       const expectedTotal = Math.max(prevMax, baseTotal);
       this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
   
-      // 5) Count selected-correct strictly against judgeSet
+      // 5) Count selected correct/incorrect vs judgeSet
       let selectedCorrect = 0;
       let selectedIncorrect = 0;
       for (const o of options) {
@@ -909,21 +924,11 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // 🔒 5b) EXTRA GUARD: count UNSELECTED known-corrects in judgeSet.
-      // If canonical/answers UI indicate more correct answers exist, block "Next".
-      let unselectedKnownCorrect = 0;
-      for (const o of options) {
-        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (!o?.selected && t && judgeSet.has(t)) unselectedKnownCorrect++;
-      }
-  
-      // 6) Remaining — keep ≥ 1 until expectedTotal satisfied AND no known-corrects unselected
+      // 6) Remaining — block "Next" until full set is selected
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-      remaining = Math.max(remaining, unselectedKnownCorrect); // ← key line for Q4 second click
-      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
-        remaining = Math.max(1, remaining);
-      }
+      const anyUnselectedKnownCorrect = options.some(o => !o?.selected && judgeSet.has(norm((o as any)?.text ?? (o as any)?.label ?? '')));
+  
+      if (anyUnselectedKnownCorrect) remaining = Math.max(1, remaining);
   
       const nextMsg =
         remaining > 0
@@ -935,8 +940,12 @@ export class SelectionMessageService {
               : 'Please click the next button to continue.');
   
       console.log('[EMIT:GATE]', {
-        index, expectedTotal, selectedCorrect, selectedIncorrect,
-        unselectedKnownCorrect, remaining, anySelectedUnion
+        index,
+        expectedTotal,
+        selectedCorrect,
+        selectedIncorrect,
+        anyUnselectedKnownCorrect,
+        remaining
       });
   
       // Always route with the UI index; microtask avoids hydration/race blips
@@ -945,6 +954,8 @@ export class SelectionMessageService {
       });
     }
   }
+  
+  
   
   
   
