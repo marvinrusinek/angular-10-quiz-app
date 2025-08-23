@@ -904,7 +904,6 @@ export class SelectionMessageService {
   
       // *** Q4 FIX PART 3: if user has already selected TWO correct answers
       // and there are still unselected options, require at least one more pick.
-      // This prevents early "Next" on under-flagged data.
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (selectedCorrect === 2 && selectedIncorrect === 0 && anyUnselectedLeft) {
         expectedTotal = Math.max(expectedTotal, 3);
@@ -932,6 +931,20 @@ export class SelectionMessageService {
         remaining = Math.max(1, remaining);
       }
   
+      // 🔑 UNCOMPLETE the question if we still need more picks (kills the stale 'Next' freeze)
+      if (remaining > 0) {
+        (this as any).completedByIndex ??= new Map<number, boolean>();
+        (this as any).completedByIndex.set(index, false);
+        (this as any).completedByIndex.set(resolvedIndex, false);
+        // also clear any Next-ish suppression windows that could pin it to Next
+        try {
+          (this as any).freezeNextishUntil?.set?.(index, 0);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
+          (this as any).suppressPassiveUntil?.set?.(index, 0);
+          (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
+        } catch {}
+      }
+  
       const nextMsg =
         remaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -949,6 +962,7 @@ export class SelectionMessageService {
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
+        remaining,
         msg: nextMsg
       });
   
