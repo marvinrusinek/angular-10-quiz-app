@@ -877,11 +877,12 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++;
       }
   
-      // 6) Remaining — if we haven't satisfied expectedTotal and there are unselected options,
-      //    keep remaining ≥ 1 (avoids premature Next when totals are still being learned).
+      // 6) Remaining
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
+  
+      // Soft-gate only when canonical unknown (payload-only knowledge): avoid premature Next on 2nd click
+      if (canonicalTextSet.size === 0 && anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
@@ -900,6 +901,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
     
 
   
