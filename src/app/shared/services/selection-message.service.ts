@@ -587,7 +587,7 @@ export class SelectionMessageService {
     } catch { /* ignore */ }
   
     // optional per-index hard floor (e.g., Q4 expects 3; adjust index if yours differs)
-    const hardFloorByIndex: Record<number, number> = { 3: 3 };
+    const hardFloorByIndex: Record<number, number> = { 3: 2 };
   
     // FLOOR, do NOT cap by unionCorrect (this was causing early “Next”)
     const totalForThisQ =
@@ -1119,7 +1119,7 @@ export class SelectionMessageService {
       }
   
       // *** Q4 FIX PART 2: explicit per-index floors (both UI and service indices)
-      const floorByIndex: Record<number, number> = { 3: 3 }; // Q4 is often 0-based index 3
+      const floorByIndex: Record<number, number> = { 3: 2 }; // Q4 is often 0-based index 3
       expectedTotal = Math.max(
         expectedTotal,
         floorByIndex[index] ?? 0,
@@ -1129,9 +1129,9 @@ export class SelectionMessageService {
       // *** Q4 FIX PART 3: if user has already selected TWO correct answers
       // and there are still unselected options, require at least one more pick.
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-      if (selectedCorrect === 2 && selectedIncorrect === 0 && anyUnselectedLeft) {
+      /* if (selectedCorrect === 2 && selectedIncorrect === 0 && anyUnselectedLeft) {
         expectedTotal = Math.max(expectedTotal, 3);
-      }
+      } */
   
       // sticky, non-decreasing per question
       const stickyKey = `qa::${qKey}`;
