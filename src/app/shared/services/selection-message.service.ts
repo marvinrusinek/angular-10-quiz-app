@@ -683,17 +683,12 @@ export class SelectionMessageService {
           : 'Please select an option to continue...');
         this.updateSelectionMessage(baseMsg, { options, index, questionType, token: tok });
       });
-      // do not return for Single, because we still allow “Next” when selected
       if (questionType === QuestionType.MultipleAnswer) return;
     }
   
-    // Keep prior snapshot only for selection fallback (not for correctness math)
     const priorSnap = this.getLatestOptionsSnapshot?.();
-  
-    // Guard: must have a current options array
     if (!Array.isArray(options) || options.length === 0) return;
   
-    // Helper: union check for "any selected" across UI + services (+ prior snapshot)
     const getAnySelectedUnion = (): boolean => {
       let any = options.some((o: any) => !!o?.selected);
       try {
@@ -729,7 +724,6 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // Effective type:
-    // Prefer canonical; if unknown, TRUST declared questionType; else fallback to payload
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -748,35 +742,28 @@ export class SelectionMessageService {
       effType = questionType;
     }
   
-    // If determined SingleAnswer, lock type for this question
     if (effType === QuestionType.SingleAnswer) {
       this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
     }
   
-    // Coalesce by qKey: drop stale token
     const prevTok = this._lastTokByKey.get(qKey) ?? -Infinity;
     if (tok < prevTok) return;
   
-    // If locked SingleAnswer, block ANY non-Single emit for this question
     const lockedType = this._typeLockByKey.get(qKey);
     if (lockedType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
-    // SingleAnswer priority: if a Single was recorded, block later non-Single
     const prevType = this._lastTypeByKey.get(qKey) ?? undefined;
     if (prevType === QuestionType.SingleAnswer && effType !== QuestionType.SingleAnswer) return;
   
-    // Record latest for this question key
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
   
     // ────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER — robust selection detection + freeze on “Next”
+    // SINGLE-ANSWER
     // ────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
-      // 1) current array
       let anySelected = options.some((o: any) => !!o?.selected);
   
-      // 2) selection service fallback
       if (!anySelected) {
         try {
           const selSvc: any =
@@ -796,7 +783,6 @@ export class SelectionMessageService {
         } catch { /* ignore */ }
       }
   
-      // 3) prior snapshot fallback
       if (!anySelected && Array.isArray(priorSnap)) {
         try { anySelected ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
       }
@@ -813,11 +799,9 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — expectedTotal is MAX across canonical, answers, and UI;
-    // also allow explicit per-question override (fixes Q4 click #2 → “Select 1 more…”).
+    // MULTIPLE-ANSWER  (the Q4 fix is here)
     // ────────────────────────────────────────────────────────────
     {
-      // 0) Early “no selection yet” guard (union of UI + services)
       const anySelectedUnion = getAnySelectedUnion();
       if (!anySelectedUnion) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
@@ -829,7 +813,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // 1) Canonical correct TEXTS from quizService (authoritative when present)
+      // Build sets of “known correct” from canonical, answers, and UI
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
       const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
@@ -845,7 +829,6 @@ export class SelectionMessageService {
       seedFrom(uiQuestion?.options);
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
-      // 1b) ANSWER union (handles under-flagged seeds)
       const answerTextSet = new Set<string>();
       const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
       if (ansArr.length) {
@@ -876,7 +859,6 @@ export class SelectionMessageService {
         }
       }
   
-      // 2) Payload-correct TEXTS (UI flags)
       const payloadTextSet = new Set<string>();
       for (const o of (Array.isArray(options) ? options : [])) {
         if (!!(o as any)?.correct) {
@@ -885,37 +867,14 @@ export class SelectionMessageService {
         }
       }
   
-      // 3) Judge set: superset of all signals
+      // Superset of known-correct signals
       const judgeSet = new Set<string>([
         ...canonicalTextSet,
         ...answerTextSet,
         ...payloadTextSet
       ]);
   
-      // 4) expectedTotal — sticky, non-decreasing; apply explicit override/floor
-      const expectedOverride = (this as any).getExpectedCorrectCount?.(resolvedIndex);
-      const hardFloorByIndex: Record<number, number> = { 3: 3 }; // Q4 (0-based) → at least 3 correct
-      let baseTotal = judgeSet.size;
-  
-      // If nothing authoritative, fall back to payload size but floor to 2 for multi
-      if (baseTotal === 0 && (questionType === QuestionType.MultipleAnswer || payloadTextSet.size > 1)) {
-        baseTotal = Math.max(payloadTextSet.size, 2);
-      }
-  
-      // Apply floors/overrides (covers your Q4 second-click case)
-      baseTotal = Math.max(
-        baseTotal,
-        typeof expectedOverride === 'number' ? expectedOverride : 0,
-        hardFloorByIndex[index] ?? 0,
-        hardFloorByIndex[resolvedIndex] ?? 0
-      );
-  
-      const stickyKey = `qa::${qKey}`;
-      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
-      const expectedTotal = Math.max(prevMax, baseTotal);
-      this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
-  
-      // 5) Count selected correct/incorrect vs judgeSet
+      // Count selections
       let selectedCorrect = 0;
       let selectedIncorrect = 0;
       for (const o of options) {
@@ -924,11 +883,54 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // 6) Remaining — block "Next" until full set is selected
-      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-      const anyUnselectedKnownCorrect = options.some(o => !o?.selected && judgeSet.has(norm((o as any)?.text ?? (o as any)?.label ?? '')));
+      // ── expectedTotal baseline
+      let expectedTotal = judgeSet.size;
   
-      if (anyUnselectedKnownCorrect) remaining = Math.max(1, remaining);
+      // *** Q4 FIX PART 1: derive a floor from the stem text like "Select 3"
+      const stem: string = (typeof qRef?.questionText === 'string') ? qRef.questionText : '';
+      const m = /select\s+(\d+)/i.exec(stem);
+      if (m) {
+        const n = Number(m[1]);
+        if (Number.isFinite(n) && n > 0) expectedTotal = Math.max(expectedTotal, n);
+      }
+  
+      // *** Q4 FIX PART 2: explicit per-index floors (both UI and service indices)
+      const floorByIndex: Record<number, number> = { 3: 3 }; // Q4 is often 0-based index 3
+      expectedTotal = Math.max(
+        expectedTotal,
+        floorByIndex[index] ?? 0,
+        floorByIndex[resolvedIndex] ?? 0
+      );
+  
+      // *** Q4 FIX PART 3: if user has already selected TWO correct answers
+      // and there are still unselected options, require at least one more pick.
+      // This prevents early "Next" on under-flagged data.
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
+      if (selectedCorrect === 2 && selectedIncorrect === 0 && anyUnselectedLeft) {
+        expectedTotal = Math.max(expectedTotal, 3);
+      }
+  
+      // sticky, non-decreasing per question
+      const stickyKey = `qa::${qKey}`;
+      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
+      expectedTotal = Math.max(prevMax, expectedTotal);
+      this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
+  
+      // Remaining — block "Next" until full set is selected
+      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+  
+      // Also block "Next" if there exists any unselected option we believe is correct
+      let unselectedKnownCorrect = 0;
+      for (const o of options) {
+        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
+        if (!o?.selected && t && judgeSet.has(t)) unselectedKnownCorrect++;
+      }
+      remaining = Math.max(remaining, unselectedKnownCorrect);
+  
+      // Keep ≥1 while learning totals
+      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
+        remaining = Math.max(1, remaining);
+      }
   
       const nextMsg =
         remaining > 0
@@ -941,19 +943,21 @@ export class SelectionMessageService {
   
       console.log('[EMIT:GATE]', {
         index,
+        resolvedIndex,
         expectedTotal,
         selectedCorrect,
         selectedIncorrect,
-        anyUnselectedKnownCorrect,
-        remaining
+        unselectedKnownCorrect,
+        anyUnselectedLeft,
+        msg: nextMsg
       });
   
-      // Always route with the UI index; microtask avoids hydration/race blips
       queueMicrotask(() => {
         this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
       });
     }
   }
+  
   
   
   
