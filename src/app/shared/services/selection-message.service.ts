@@ -813,7 +813,7 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — canonical TEXT + stable expected total (quiz-agnostic)
     //   • CONTINUE before any selection
     //   • Judge strictly vs canonical; payload only if canonical empty
-    //   • expectedTotal = max(canonicalCount, payloadCount), then floor to 2, then sticky
+    //   • expectedTotal uses canonical size if present; otherwise payload size floored to 2; then sticky
     //   • Route with UI index; microtask DOM update
     // ────────────────────────────────────────────────────────────
     {
@@ -858,11 +858,13 @@ export class SelectionMessageService {
       const judgeSet = (canonicalTextSet.size > 0) ? canonicalTextSet : payloadTextSet;
   
       // 4) expectedTotal:
-      //    - Use the UNION principle for robustness: max(canonicalCount, payloadCount)
-      //    - Floor to 2 for multi-answer ergonomics
+      //    - If canonical exists: use canonical size (authoritative; NO floor)
+      //    - Else: use payload size but floor to 2 (prevents “Next on 2nd click”)
       //    - Sticky (non-decreasing) per question key
-      const unionCount = Math.max(canonicalTextSet.size, payloadTextSet.size);
-      let baseTotal = Math.max(unionCount, 2);
+      let baseTotal =
+        (canonicalTextSet.size > 0)
+          ? canonicalTextSet.size
+          : Math.max(payloadTextSet.size, 2);
   
       const stickyKey = `qa::${qKey}`;
       const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
@@ -900,6 +902,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
