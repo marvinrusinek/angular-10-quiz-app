@@ -288,7 +288,7 @@ export class SelectionMessageService {
   }
   
   // Method to update the message  
-  public updateSelectionMessage(
+  /* public updateSelectionMessage(
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
   ): void {
@@ -378,13 +378,6 @@ export class SelectionMessageService {
     // “How many correct actually exist” = union(answer-derived, canonical flags)
     const totalFromAnswer = answerIdSet.size;
     const unionCorrect = Math.max(totalCorrectCanonical, totalFromAnswer, 0);
-  
-    /* const expectedOverride = this.getExpectedCorrectCount(i0);
-    // Clamp: never demand fewer than the real number of correct answers; never more than exist
-    const totalForThisQ =
-      (typeof expectedOverride === 'number' && expectedOverride >= unionCorrect && expectedOverride > 0)
-        ? Math.min(expectedOverride, Math.max(1, unionCorrect))
-        : Math.max(1, unionCorrect); */
     
     const expectedOverride = this.getExpectedCorrectCount(i0);
     // FIX: if authored expects more than unionCorrect (e.g., Q4=3 but union=2),
@@ -486,7 +479,230 @@ export class SelectionMessageService {
     if (inFreeze && ctx?.token !== latestToken) return;
   
     if (current !== next) this.selectionMessageSubject.next(next);
+  } */
+  public updateSelectionMessage(
+    message: string,
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; }
+  ): void {
+    const current = this.selectionMessageSubject.getValue();
+    let next = (message ?? '').trim();  // mutable to normalize START→CONTINUE when needed
+    if (!next) return;
+  
+    const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
+      ? (ctx!.index as number)
+      : (this.quizService.currentQuestionIndex ?? 0);
+  
+    // Drop regressive “Select N more” updates (don’t increase visible remaining)
+    {
+      const parseRemaining = (msg: string): number | null => {
+        const m = /select\s+(\d+)\s+more/i.exec(msg);
+        return m ? Number(m[1]) : null;
+      };
+      const curRem = parseRemaining(current);
+      const nextRem = parseRemaining(next);
+      if (typeof curRem === 'number' && typeof nextRem === 'number' && nextRem > curRem) return;
+    }
+  
+    const qTypeDeclared: QuestionType | undefined =
+      ctx?.questionType ?? this.getQuestionTypeForIndex(i0);
+  
+    // Prefer updated options if provided; else snapshot for our gate
+    const optsCtx: Option[] | undefined =
+      (Array.isArray(ctx?.options) && ctx!.options!.length ? ctx!.options! : undefined);
+  
+    // Resolve canonical once
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+    const q: QuizQuestion | undefined =
+      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined);
+  
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+  
+    // Normalize ids so subsequent remaining/guards compare apples-to-apples
+    this.ensureStableIds(i0, canonical, optsCtx ?? this.getLatestOptionsSnapshot());
+  
+    // Use canonical overlay for correctness (CURRENT payload view)
+    const snap = optsCtx ?? this.getLatestOptionsSnapshot();
+    this.ensureStableIds(i0, canonical, snap);
+    const overlaid = this.getCanonicalOverlay(i0, snap);
+  
+    // Count correctness from canonical flags
+    const totalCorrectCanonical = overlaid.filter(o => !!(o as any)?.correct).length;
+    const selectedCorrect = overlaid.filter(o => !!(o as any)?.correct && !!o?.selected).length;
+  
+    // Robust q.answer → canonical match to augment correctness if provided
+    const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+    const norm      = (x: any) => stripHtml(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    const ansArr: any[] = Array.isArray((q as any)?.answer) ? (q as any).answer : [];
+    const answerIdSet = new Set<string>();
+    if (ansArr.length) {
+      for (let i = 0; i < canonical.length; i++) {
+        const c: any = canonical[i];
+        const cid = String(c?.optionId ?? c?.id ?? i);
+        const zeroIx = i, oneIx = i + 1;
+        const cVal = norm(c?.value);
+        const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+        const matched = ansArr.some((a: any) => {
+          if (a == null) return false;
+          if (typeof a === 'object') {
+            const aid = a?.optionId ?? a?.id;
+            if (aid != null && String(aid) === cid) return true;
+            const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+            const av = norm(a?.value);
+            const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+            return (!!av && av === cVal) || (!!at && at === cTxt);
+          }
+          if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+          const s = String(a);
+          const n = Number(s);
+          if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+          const ns = norm(s);
+          return (!!ns && (ns === cVal || ns === cTxt));
+        });
+  
+        if (matched) answerIdSet.add(cid);
+      }
+    }
+  
+    // “How many correct actually exist” = union(answer-derived, canonical flags)
+    const totalFromAnswer = answerIdSet.size;
+    const unionCorrect = Math.max(totalCorrectCanonical, totalFromAnswer, 0);
+  
+    // ────────────────────────────────────────────────────────────
+    // FIX #1: treat expected counts as FLOORS (override / stem / per-index)
+    // ────────────────────────────────────────────────────────────
+    const expectedOverride = this.getExpectedCorrectCount(i0); // may be undefined
+    // derive from stem "Select N ..."
+    let stemN = 0;
+    try {
+      const stem = stripHtml((q as any)?.questionText ?? (q as any)?.question ?? (q as any)?.text ?? '');
+      const m = /select\s+(\d+)/i.exec(stem);
+      if (m) {
+        const n = Number(m[1]);
+        if (Number.isFinite(n) && n > 0) stemN = n;
+      }
+    } catch { /* ignore */ }
+  
+    // optional per-index hard floor (e.g., Q4 expects 3; adjust index if yours differs)
+    const hardFloorByIndex: Record<number, number> = { 3: 3 };
+  
+    // FLOOR, do NOT cap by unionCorrect (this was causing early “Next”)
+    const totalForThisQ =
+      Math.max(
+        Math.max(1, unionCorrect),
+        (typeof expectedOverride === 'number' && expectedOverride > 0) ? expectedOverride : 0,
+        stemN > 0 ? stemN : 0,
+        hardFloorByIndex[i0] ?? 0
+      );
+  
+    // Compute multi after target so we never fall into single branch on multi questions
+    const isMultiFinal =
+      (totalForThisQ > 1) ||
+      (qTypeDeclared === QuestionType.MultipleAnswer) ||
+      (totalCorrectCanonical > 1);
+  
+    // Normalize: never show START_MSG except on very first question and only for single-answer
+    if (next === START_MSG && (i0 > 0 || isMultiFinal)) {
+      next = CONTINUE_MSG;  // e.g., "Please select an option to continue..."
+    }
+  
+    // Remaining by current payload
+    const enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
+  
+    // Classifiers
+    const low = (next ?? '').toLowerCase();
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish   = low.includes('next button') || low.includes('show results');
+  
+    // ────────────────────────────────────────────────────────────
+    // FIX #2: don't freeze to Next if we still need answers; un-complete it.
+    // ────────────────────────────────────────────────────────────
+    const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
+    if (isMultiFinal && wasCompleted) {
+      if (enforcedRemaining > 0) {
+        try {
+          (this as any).completedByIndex?.set?.(i0, false);
+          this.freezeNextishUntil?.set?.(i0, 0);
+          this.suppressPassiveUntil?.set?.(i0, 0);
+        } catch {}
+        // fall through and show the correct “Select N more...” below
+      } else {
+        const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+        const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+        return;
+      }
+    }
+  
+    // Suppression windows: block Next-ish flips while suppressed
+    const now = performance.now();
+    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
+    if (now < passiveHold && isNextish) return;
+    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
+    if (now < nextFreeze && isNextish) return;
+  
+    // Per-question "remaining" smoothing
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || enforcedRemaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, enforcedRemaining);
+      if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
+      }
+      if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    // MULTI behavior:
+    //  - Before any pick → force "Select N more..." (Q2/Q4 fix)
+    //  - While remaining>0 → keep "Select N more..."
+    //  - When remaining==0 → Next/Results
+    const anySelectedNow = overlaid.some(o => !!o?.selected);
+  
+    if (isMultiFinal) {
+      if (!anySelectedNow) {
+        const forced = buildRemainingMsg(Math.max(1, totalForThisQ)); // e.g., "Select 2 more..."
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+      if (enforcedRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
+      const isLastQ = i0 === (this.quizService.totalQuestions - 1);
+      const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      return;
+    }
+  
+    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
+    const anySelected = anySelectedNow;
+    const isLast = i0 === (this.quizService.totalQuestions - 1);
+  
+    if (isSelectish) {
+      const replacement = anySelected ? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+                                      : (i0 === 0 ? START_MSG : CONTINUE_MSG);
+      if (current !== replacement) this.selectionMessageSubject.next(replacement);
+      return;
+    }
+  
+    if (isNextish && anySelected) {
+      if (current !== next) this.selectionMessageSubject.next(next);
+      return;
+    }
+  
+    // Stale writer guard (only for ambiguous cases)
+    const inFreeze = this.inFreezeWindow?.(i0) ?? false;
+    const latestToken = this.latestByIndex.get(i0);
+    if (inFreeze && ctx?.token !== latestToken) return;
+  
+    if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
  
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
