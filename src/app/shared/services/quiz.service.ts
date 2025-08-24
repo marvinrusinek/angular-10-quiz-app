@@ -2249,5 +2249,10 @@ export class QuizService implements OnDestroy {
     });
   
     console.log('[🚀 Emitted question + options + explanation to payload]');
-  }  
+  }
+
+  public getNumberOfCorrectAnswers(index?: number): number {
+    const i = Number.isFinite(index as number) ? (index as number) : (this.currentQuestionIndex ?? 0);
+    return ((this.questions?.[i]?.options ?? []).filter((o: any) => !!o?.correct).length) || 0;
+  }
 } 
