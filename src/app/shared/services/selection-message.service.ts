@@ -967,6 +967,17 @@ export class SelectionMessageService {
   
     // NEW: cosmetic floor coming from the emitter (e.g., Q4 forces "1 more")
     const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
+    if (floorFromCtx > 0) {
+      // If a Next-ish string sneaks in, rewrite it to a Select message
+      const low = (message ?? '').toLowerCase();
+      const isNextish = low.includes('next button') || low.includes('show results');
+      if (isNextish) {
+        const n = floorFromCtx;
+        message = (typeof buildRemainingMsg === 'function')
+          ? buildRemainingMsg(n)
+          : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`;
+      }
+    }
   
     // Drop regressive “Select N more” updates (don’t increase visible remaining)
     {
