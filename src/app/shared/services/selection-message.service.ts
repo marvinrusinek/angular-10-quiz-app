@@ -1443,6 +1443,18 @@ export class SelectionMessageService {
       : 0;
   
     // ────────────────────────────────────────────────────────────
+    // Parse stem "Select N ..." early (helps both multiSignal and floor)
+    // ────────────────────────────────────────────────────────────
+    let stemN = 0;
+    try {
+      const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const m = /select\s+(\d+)/i.exec(stemSrc);
+      if (m) {
+        const n = Number(m[1]); if (Number.isFinite(n) && n > 0) stemN = n;
+      }
+    } catch { /* ignore */ }
+  
+    // ────────────────────────────────────────────────────────────
     // NEW: multi-signal (for unlocking stale Single locks & forcing Multi)
     // ────────────────────────────────────────────────────────────
     const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
@@ -1453,7 +1465,7 @@ export class SelectionMessageService {
     );
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    const multiSignal = likelyMulti || (expectedBySvc > 1);
+    const multiSignal = likelyMulti || (expectedBySvc > 1) || (stemN > 1); // ← include stemN here
   
     // If Single-Answer “Next” already shown, unlock if we now detect Multi
     if (this._singleNextLockedByKey.has(qKey)) {
@@ -1469,7 +1481,7 @@ export class SelectionMessageService {
       !(this.quizService?.questions?.length > 0) ||
       this.quizService?.currentQuestion == null;
   
-    if (coldStartLikely && (questionType === QuestionType.MultipleAnswer || canon > 1 || payloadCorrectCount > 1)) {
+    if (coldStartLikely && (questionType === QuestionType.MultipleAnswer || canon > 1 || payloadCorrectCount > 1 || stemN > 1)) {
       queueMicrotask(() => {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
@@ -1483,8 +1495,7 @@ export class SelectionMessageService {
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // REPLACE helper: tighter selection detector (no cross-question bleed)
-    // + selectedCountStrict helper so floor can activate even without correctness flags
+    // Tight selection detector + strict count (no cross-question bleed)
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
@@ -1512,9 +1523,7 @@ export class SelectionMessageService {
     };
   
     const selectedCountStrict = (): number => {
-      // count from current payload first
       let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
-      // augment from service (same UI index only)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -1525,7 +1534,6 @@ export class SelectionMessageService {
         else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
         else if (ids != null) cnt = Math.max(cnt, 1);
       } catch { /* ignore */ }
-      // snapshot only if it matches this question's option set
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
@@ -1540,7 +1548,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type (trust multi-signal)
+    // Effective type (trust multi-signal too)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -1559,7 +1567,7 @@ export class SelectionMessageService {
       effType = questionType;
     }
     if (effType !== QuestionType.MultipleAnswer && multiSignal) {
-      effType = QuestionType.MultipleAnswer; // ← force multi to prevent Q4 “Next” on click #2
+      effType = QuestionType.MultipleAnswer; // ← force multi (covers Q4)
     }
   
     if (effType === QuestionType.SingleAnswer) {
@@ -1619,7 +1627,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + local floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       // prevent later writers from flipping back to Single mid-flight
@@ -1724,6 +1732,7 @@ export class SelectionMessageService {
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
         (selectedCount + unselectedKnownCorrect >= 2) ||
+        (stemN > 1) ||
         likelyMulti;
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
@@ -1742,37 +1751,14 @@ export class SelectionMessageService {
         remaining = Math.max(1, remaining);
       }
   
-      // Parse a "Select N ..." stem if present to help set the UX target (covers datasets that under-flag)
-      let stemN = 0;
-      try {
-        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-        const m = /select\s+(\d+)/i.exec(stemSrc);
-        if (m) {
-          const n = Number(m[1]); if (Number.isFinite(n) && n > 0) stemN = n;
-        }
-      } catch { /* ignore */ }
-  
       // ────────────────────────────────────────────────────────────
-      // ⬇️ FLOOR (cosmetic only) + ctx passthrough  ⟵  (STEP 1)
-      //    Local floor: if UX clearly indicates multi and at least one selection
-      //    is made but we haven’t reached the UX target, hold “Select X more…”.
-      //    This is selection-count based (does not depend on correctness flags),
-      //    which fixes Q4 click #2.
+      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough  ← STEP 1
+      //    Target = max(service, stem, 2 when multi-signal). Floor = target - selectedCount.
+      //    Works even if correctness flags are missing → fixes Q4 click #2.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
-  
-      // UX target: prefer the largest of signals (service, stem, min 2 when multi)
-      const uxTarget = (multiSignal
-        ? Math.max(2, expectedTotal, stemN)
-        : Math.max(expectedTotal, stemN));
-  
-      // If user has made some selections but fewer than target, show the gap
-      let localFloor = 0;
-      if (selectedCount > 0 && selectedCount < uxTarget) {
-        localFloor = uxTarget - selectedCount; // e.g., with target 2 and selectedCount 1 → 1
-      }
-  
-      // Final cosmetic floor we want the sink to honor (never affects gating math)
+      const uxTarget = (multiSignal ? Math.max(2, expectedTotal, stemN) : Math.max(expectedTotal, stemN));
+      const localFloor = (selectedCount > 0 && selectedCount < uxTarget) ? (uxTarget - selectedCount) : 0;
       const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -1815,8 +1801,8 @@ export class SelectionMessageService {
         anyUnselectedLeft,
         remaining,
         configuredFloor,
-        localFloor,          // ← local floor (STEP 1, now selection-count based)
-        minDisplayRemaining, // ← what we pass through ctx
+        localFloor,          // ← local floor (STEP 1)
+        minDisplayRemaining, // ← passed via ctx
         displayRemaining,
         msg
       });
