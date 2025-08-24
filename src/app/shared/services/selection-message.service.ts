@@ -1435,22 +1435,26 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
+    // ────────────────────────────────────────────────────────────
     // Payload flags kept for effType + fallback
+    // ────────────────────────────────────────────────────────────
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // Parse stem "Select N ..." (helps both multiSignal and floor)
+    // ────────────────────────────────────────────────────────────
+    // NEW: derive target from stem "Select N ..." to strengthen multi signal
+    // ────────────────────────────────────────────────────────────
     let stemN = 0;
     try {
       const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const m = /select\s+(\d+)/i.exec(stemSrc);
-      if (m) {
-        const n = Number(m[1]); if (Number.isFinite(n) && n > 0) stemN = n;
-      }
+      if (m) { const n = Number(m[1]); if (Number.isFinite(n) && n > 0) stemN = n; }
     } catch { /* ignore */ }
   
+    // ────────────────────────────────────────────────────────────
     // NEW: multi-signal (for unlocking stale Single locks & forcing Multi)
+    // ────────────────────────────────────────────────────────────
     const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
     const expectedBySvcRaw = Number(
       (this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex)
@@ -1489,7 +1493,10 @@ export class SelectionMessageService {
     const priorSnap = this.getLatestOptionsSnapshot?.();
     if (!Array.isArray(options) || options.length === 0) return;
   
-    // Tight selection detector + strict count (no cross-question bleed)
+    // ────────────────────────────────────────────────────────────
+    // REPLACE helper: tighter selection detector (no cross-question bleed)
+    // + strict count for local floor triggers
+    // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
       try {
@@ -1540,7 +1547,9 @@ export class SelectionMessageService {
       return cnt;
     };
   
+    // ────────────────────────────────────────────────────────────
     // Effective type (trust multi-signal too)
+    // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
       effType = QuestionType.MultipleAnswer;
@@ -1618,7 +1627,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + local floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + LOCAL floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       // prevent later writers from flipping back to Single mid-flight
@@ -1737,9 +1746,9 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough (non-brittle)
-      //    Trigger only at the *exact moment* there is exactly one pick on a
-      //    multi-target question. Deactivates on 2nd/3rd picks automatically.
+      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough
+      //    Trigger ONLY when there is exactly one selection on a multi-target Q.
+      //    This yields “Select 1 more …” for the 2nd click on Q4.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, dispFloorCfg);
       const multiTarget =
@@ -1751,11 +1760,18 @@ export class SelectionMessageService {
   
       let localFloor = 0;
       if (selectedIncorrect === 0 && selectedCount === 1 && multiTarget >= 2) {
-        localFloor = 1; // “Select 1 more …” after first pick on multis (e.g., Q4 click #2)
+        localFloor = 1; // show “Select 1 more …” after FIRST pick on a multi question
       }
   
       const minDisplayRemaining = Math.max(configuredFloor, localFloor);
-      const displayRemaining = Math.max(remaining, minDisplayRemaining);
+  
+      // Final display respects the floor (cosmetic) but gating still uses `remaining`
+      let displayRemaining = Math.max(remaining, minDisplayRemaining);
+  
+      // If we *want* precisely “1 more” after the first selection, force it visually:
+      if (localFloor === 1) {
+        displayRemaining = 1;
+      }
   
       const msg =
         displayRemaining > 0
@@ -1781,13 +1797,13 @@ export class SelectionMessageService {
         remaining,
         configuredFloor,
         multiTarget,
-        localFloor,          // ← local floor (only when exactly one pick on multi)
-        minDisplayRemaining, // ← passed via ctx
+        localFloor,          // ← local cosmetic floor (1 when exactly one pick on multi)
+        minDisplayRemaining, // ← sent via ctx so sink can rewrite any stray “Next”
         displayRemaining,
         msg
       });
   
-      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
+      // Send immediately and again in a microtask (guards against late writers)
       this.updateSelectionMessage(
         msg,
         {
@@ -1795,7 +1811,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining // ← pass floor through ctx
+          minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
         } as any
       );
   
@@ -1807,7 +1823,7 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // ← pass floor through ctx
+            minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
           } as any
         );
       });
