@@ -1654,7 +1654,7 @@ export class SelectionMessageService {
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
       const answerTextSet = new Set<string>();
-      const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
+      const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null) ? [qRef.answer] : [];
       if (ansArr.length) {
         for (let i = 0; i < canonicalOpts.length; i++) {
           const c: any = canonicalOpts[i];
@@ -1746,15 +1746,24 @@ export class SelectionMessageService {
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
       //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
       //    even if correctness flags are missing (this covers Q4 click #2).
-      //    LOCAL Q4 FLOOR: hold "1 more" after two picks on Q4 (index 3) specifically.
+      //    LOCAL Q4 FLOOR (service-driven): use currentQuestionIndex and service expected count.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      const isQ4 = (resolvedIndex === 3) || (index === 3) || (String(qRef?.id) === '4'); // LOCAL Q4 FLOOR
-      const localFloor = (isQ4 && selectedCount >= 2) ? 1 : 0;                               // LOCAL Q4 FLOOR
+  
+      // Prefer service's notion of "current question" to avoid param/index skew
+      const curIx = Number((this as any)?.currentQuestionIndex ?? (this.quizService as any)?.currentQuestionIndex ?? resolvedIndex);
+      const isQ4 = (curIx === 3) || (String(qRef?.id) === '4'); // still “the 4th question”, but aligned to service index
+  
+      // Use service expected count so the “1 more” latch arms when user has selected all but one
+      const expectedForFloorRaw = Number((this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex));
+      const expectedForFloor = Number.isFinite(expectedForFloorRaw) && expectedForFloorRaw > 0 ? expectedForFloorRaw : Math.max(2, expectedTotal);
+      const nearCompletion = selectedCount >= Math.max(1, expectedForFloor - 1);
+  
+      const localFloor = (isQ4 && nearCompletion && selectedCorrect < expectedForFloor) ? 1 : 0;
   
       let minDisplayRemaining = 0;
       if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
-        const fallbackFloor = 1;
+        const fallbackFloor = 1; // keep “1 more…” while building multi
         // priority: configured → local → fallback
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : (localFloor > 0 ? localFloor : fallbackFloor);
       }
@@ -1790,6 +1799,8 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        expectedForFloor,
+        curIx,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
@@ -1828,7 +1839,6 @@ export class SelectionMessageService {
       });
     }
   }
-  
   
   
   
