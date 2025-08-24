@@ -1435,9 +1435,7 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
-    // ────────────────────────────────────────────────────────────
     // Payload flags kept for effType + fallback
-    // ────────────────────────────────────────────────────────────
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
@@ -1465,7 +1463,7 @@ export class SelectionMessageService {
     );
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    const multiSignal = likelyMulti || (expectedBySvc > 1) || (stemN > 1); // ← include stemN here
+    const multiSignal = likelyMulti || (expectedBySvc > 1) || (stemN > 1); // ← include stemN
   
     // If Single-Answer “Next” already shown, unlock if we now detect Multi
     if (this._singleNextLockedByKey.has(qKey)) {
@@ -1667,26 +1665,29 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          const cVal = norm(c?.value);
-          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-          const matched = ansArr.some((a: any) => {
-            if (a == null) return false;
-            if (typeof a === 'object') {
-              const aid = a?.optionId ?? a?.id;
-              if (aid != null && String(aid) === cid) return true;
-              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-              if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const av = norm(a?.value);
-              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-              return (!!av && av === cVal) || (!!at && at === cTxt);
-            }
-            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-            const s = String(a); const n = Number(s);
-            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-            const ns = norm(s);
-            return (!!ns && (ns === cVal || ns === cTxt));
-          });
-          if (matched && cTxt) answerTextSet.add(cTxt);
+          theLoop:
+          {
+            const cVal = norm(c?.value);
+            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+            const matched = ansArr.some((a: any) => {
+              if (a == null) return false;
+              if (typeof a === 'object') {
+                const aid = a?.optionId ?? a?.id;
+                if (aid != null && String(aid) === cid) return true;
+                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+                if (Number.isFinite(n) && (n === i || n === i + 1)) return true;
+                const av = norm(a?.value);
+                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                return (!!av && av === cVal) || (!!at && at === cTxt);
+              }
+              if (typeof a === 'number') return (a === i) || (a === i + 1);
+              const s = String(a); const n = Number(s);
+              if (Number.isFinite(n) && (n === i || n === i + 1)) return true;
+              const ns = norm(s);
+              return (!!ns && (ns === cVal || ns === norm(cTxt)));
+            });
+            if (matched && cTxt) answerTextSet.add(cTxt);
+          }
         }
       }
   
@@ -1737,7 +1738,7 @@ export class SelectionMessageService {
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
   
-      // Remaining — real math for gating
+      // Remaining — real math for gating (based on *correct* picks; may undercount if flags missing)
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Also block if we believe there are unselected known-corrects
@@ -1753,16 +1754,19 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough  ← STEP 1
-      //    Target = max(service, stem, 2 when multi-signal). Floor = target - selectedCount.
-      //    Works even if correctness flags are missing → fixes Q4 click #2.
+      //    Target = max(service, stem, 2 when multi-signal).
+      //    Floor = target - selectedCount (count-based, not correctness-based).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
       const uxTarget = (multiSignal ? Math.max(2, expectedTotal, stemN) : Math.max(expectedTotal, stemN));
       const localFloor = (selectedCount > 0 && selectedCount < uxTarget) ? (uxTarget - selectedCount) : 0;
       const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
+      // Strong count-based guard for message (prevents “Next” on click #2)
+      const displayRemainingByCount = Math.max(uxTarget - selectedCount, 0);
+  
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
-      if (remaining > 0 || minDisplayRemaining > 0) {
+      if (remaining > 0 || minDisplayRemaining > 0 || displayRemainingByCount > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
@@ -1775,8 +1779,11 @@ export class SelectionMessageService {
         } catch {}
       }
   
-      // Final display amount respects the floor, but gating still uses `remaining`
-      const displayRemaining = Math.max(remaining, minDisplayRemaining);
+      // Final display amount respects:
+      // - correctness-based remaining,
+      // - configured/local floor,
+      // - and count-based display guard (covers under-flagged datasets like Q4).
+      const displayRemaining = Math.max(remaining, minDisplayRemaining, displayRemainingByCount);
   
       const msg =
         displayRemaining > 0
@@ -1801,8 +1808,9 @@ export class SelectionMessageService {
         anyUnselectedLeft,
         remaining,
         configuredFloor,
-        localFloor,          // ← local floor (STEP 1)
-        minDisplayRemaining, // ← passed via ctx
+        localFloor,              // ← local floor (STEP 1)
+        displayRemainingByCount, // ← count-based guard
+        minDisplayRemaining,     // ← passed via ctx
         displayRemaining,
         msg
       });
@@ -1833,6 +1841,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
