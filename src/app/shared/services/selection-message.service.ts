@@ -1078,7 +1078,9 @@ export class SelectionMessageService {
     const isMultiFinal =
       (totalForThisQ > 1) ||
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
-      (totalCorrectCanonical > 1);
+      (totalCorrectCanonical > 1) ||
+      (floorFromCtx > 0);   // floor implies multi UX
+
   
     // Normalize: never show START_MSG except on very first question and only for single-answer
     if (next === START_MSG && (i0 > 0 || isMultiFinal)) {
@@ -1095,21 +1097,20 @@ export class SelectionMessageService {
     // ────────────────────────────────────────────────────────────
     // HONOR THE COSMETIC FLOOR FROM CTX
     {
-      // Check whether the incoming message is Next-ish BEFORE we rewrite it
       const incomingIsNextish = /next button|show results/i.test(next ?? '');
     
       if (floorFromCtx > 0) {
-        // 1) Visually enforce the floor *before* any Next-ish branch is evaluated
+        // 1) Enforce the floor now (visual only)
         enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
     
-        // 2) If someone sent a Next-ish string, rewrite it immediately
+        // 2) Rewrite any incoming Next-ish to "Select N more..."
         if (incomingIsNextish) {
           next = (typeof buildRemainingMsg === 'function')
             ? buildRemainingMsg(enforcedRemaining)
             : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
         }
     
-        // 3) Un-complete and clear freezes so a previous “Next” cannot pin the UI
+        // 3) Un-complete & clear freezes so "Next" can’t stick
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
           (this as any).completedByIndex.set(i0, false);
