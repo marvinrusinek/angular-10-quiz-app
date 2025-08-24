@@ -1412,7 +1412,7 @@ export class SelectionMessageService {
     //  - service expected > 1 (authoritative/fallback)
     //  - display floor configured (>0) for this question (cosmetic, but proves intent)
     // ────────────────────────────────────────────────────────────
-    const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined; // NEW
+    const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
     const expectedBySvcRaw = Number(
       (this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex)
       ?? (this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex)
@@ -1427,7 +1427,7 @@ export class SelectionMessageService {
     // NEW: but if we have any multi-signal, UNLOCK it so Q4 can proceed.
     if (this._singleNextLockedByKey.has(qKey)) {
       if (multiSignal) {
-        this._singleNextLockedByKey.delete(qKey);        // ← NEW: unfreeze stale single lock
+        this._singleNextLockedByKey.delete(qKey);        // ← unfreeze stale single lock
       } else {
         return; // still truly single → ignore further emits
       }
@@ -1506,7 +1506,7 @@ export class SelectionMessageService {
       effType = questionType;
     }
   
-    // ⚠️ Step 1: if any multi-signal exists, force MultipleAnswer (prevents Q4 falling into Single)
+    // Step 1: if any multi-signal exists, force MultipleAnswer (prevents Q4 falling into Single)
     if (effType !== QuestionType.MultipleAnswer && multiSignal) {
       effType = QuestionType.MultipleAnswer;
     }
@@ -1572,6 +1572,9 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
+      // prevent later writers from flipping back to Single mid-flight
+      this._typeLockByKey.set(qKey, QuestionType.MultipleAnswer);
+  
       const anySelected = anySelectedStrict();
       if (!anySelected) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
@@ -1680,9 +1683,7 @@ export class SelectionMessageService {
       // ⬇️ DROP-IN TAIL (floor → call) — explicit scope + ctx passthrough
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-  
-      // declare ONCE (so it's in scope at call site)
-      let minDisplayRemaining = 0;
+      let minDisplayRemaining = 0; // declared in scope
   
       // Floor applies AFTER first correct pick; allow it to hold even on click #2 (Q4)
       if (selectedIncorrect === 0 && selectedCorrect >= 1) {
@@ -1697,8 +1698,9 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 1500);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1500);
+          // Stronger freeze to block late “Next” writers
+          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -1745,6 +1747,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
