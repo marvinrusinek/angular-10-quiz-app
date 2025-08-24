@@ -1064,6 +1064,7 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
+  
   public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
@@ -1266,7 +1267,7 @@ export class SelectionMessageService {
   
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
-        : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue...');
+        : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
@@ -1276,7 +1277,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (the Q4 fix is here)
+    // MULTIPLE-ANSWER  (configurable display floor + ctx passthrough)
     // ────────────────────────────────────────────────────────────
     {
       const anySelectedUnion = getAnySelectedUnion();
@@ -1344,7 +1345,6 @@ export class SelectionMessageService {
         }
       }
   
-      // Superset of known-correct signals
       const judgeSet = new Set<string>([
         ...canonicalTextSet,
         ...answerTextSet,
@@ -1374,7 +1374,7 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Keep ≥1 while learning totals
+      // Keep ≥1 while learning totals / avoid flicker
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
@@ -1384,13 +1384,16 @@ export class SelectionMessageService {
       // NEW: Configurable DISPLAY floor by stable key (prefer id, fallback index).
       //      Cosmetic only (does NOT change expectedTotal/scoring). Passed to sink via ctx.
       // ────────────────────────────────────────────────────────────
-      const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined; // NEW
-      const dispFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));               // NEW
-      const displayRemainingOverride =
-        (dispFloor > 0 && selectedIncorrect === 0 && selectedCorrect >= 1) ? dispFloor : 0;             // NEW
+      const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
+      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
+      const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
+      let minDisplayRemaining = 0;
+      if (selectedIncorrect === 0 && selectedCorrect >= 1) {
+        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
+      }
   
       // 🔑 UNCOMPLETE the question if we still need more picks (kills stale 'Next' freezes)
-      if (remaining > 0 || displayRemainingOverride > 0) {
+      if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
@@ -1407,7 +1410,7 @@ export class SelectionMessageService {
         remaining > 0
           ? (typeof buildRemainingMsg === 'function'
               ? buildRemainingMsg(remaining)
-              : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
+              : `Select ${remaining} more correct option${remaining === 1 ? '' : 's'} to continue...`)
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
@@ -1415,14 +1418,14 @@ export class SelectionMessageService {
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
-        qId,                          // NEW
+        qId,
         expectedTotal,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        displayRemainingOverride,     // NEW: what we want the sink to enforce
+        minDisplayRemaining, // ← what we want the sink to enforce cosmetically
         msg
       });
   
@@ -1435,13 +1438,13 @@ export class SelectionMessageService {
             index,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: displayRemainingOverride // NEW
+            minDisplayRemaining // ← KEY: sink uses this to keep “Select 1 more…” on click #2
           } as any
         );
       });
     }
   }
-    
+  
   
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
   
