@@ -1357,6 +1357,7 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
+  
   public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
@@ -1762,9 +1763,9 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
+          const nowTs = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, nowTs + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, nowTs + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -1806,7 +1807,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining
+          minDisplayRemaining: minDisplayRemaining // ← pass local floor via ctx (explicit, no shorthand)
         } as any
       );
   
@@ -1818,7 +1819,7 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining
+            minDisplayRemaining: minDisplayRemaining // ← pass again to reinforce floor
           } as any
         );
       });
