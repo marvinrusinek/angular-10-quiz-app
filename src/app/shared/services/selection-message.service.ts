@@ -966,23 +966,36 @@ export class SelectionMessageService {
       : (this.quizService.currentQuestionIndex ?? 0);
   
     // ────────────────────────────────────────────────────────────
-    // NEW — honor cosmetic floor coming from the emitter (Q4 forces "1 more")
-    // Place this block RIGHT AFTER computing i0 and next.
-    // It rewrites any incoming Next-ish text to a Select message and clears stale latches.
+    // NEW — persistent cosmetic floor from emitter (e.g., Q4 forces "1 more")
+    // This goes RIGHT AFTER computing i0 and next.
+    // 1) Persist a floor per question index so later writers without ctx can't flip to "Next".
+    // 2) Immediately rewrite any incoming Next-ish text to a Select message.
+    // 3) Clear stale "completed"/freeze latches.
     // ────────────────────────────────────────────────────────────
-    const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
     const mkSelectMsg = (n: number) =>
       (typeof buildRemainingMsg === 'function'
         ? buildRemainingMsg(n)
         : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`);
   
-    if (floorFromCtx > 0) {
-      const lowNext = (next ?? '').toLowerCase();
-      const isNextishIncoming = lowNext.includes('next button') || lowNext.includes('show results');
-      if (isNextishIncoming) {
-        // Rewrite to a "Select N more..." message immediately
-        next = mkSelectMsg(floorFromCtx);
-        // Un-complete & clear freezes so a previously latched "Next" can't pin the UI
+    // lazy-init store
+    // @ts-ignore
+    this._minDisplayFloorByIndex ??= new Map<number, number>();
+  
+    const incomingFloor = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
+    const storedFloor   = Math.max(0, Number((this as any)._minDisplayFloorByIndex.get(i0) ?? 0));
+    let effectiveFloor  = Math.max(incomingFloor, storedFloor);
+  
+    // Persist strongest floor we know for this index
+    if (effectiveFloor > 0) {
+      (this as any)._minDisplayFloorByIndex.set(i0, effectiveFloor);
+    }
+  
+    // Rewrite Next-ish → "Select N more..." immediately if we have a floor
+    if (effectiveFloor > 0) {
+      const lowNext0 = (next ?? '').toLowerCase();
+      const isNextishIncoming0 = lowNext0.includes('next button') || lowNext0.includes('show results');
+      if (isNextishIncoming0) {
+        next = mkSelectMsg(effectiveFloor);
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
           (this as any).completedByIndex.set(i0, false);
@@ -991,6 +1004,7 @@ export class SelectionMessageService {
         } catch {}
       }
     }
+    // ────────────────────────────────────────────────────────────
   
     // Drop regressive “Select N more” updates (don’t increase visible remaining)
     {
@@ -1103,7 +1117,7 @@ export class SelectionMessageService {
       (totalForThisQ > 1) ||
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
       (totalCorrectCanonical > 1) ||
-      (floorFromCtx > 0);   // floor implies multi UX
+      (effectiveFloor > 0);   // floor implies multi UX
   
     // Normalize: never show START_MSG except on very first question and only for single-answer
     if (next === START_MSG && (i0 > 0 || isMultiFinal)) {
@@ -1114,22 +1128,19 @@ export class SelectionMessageService {
     let enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
   
     // ────────────────────────────────────────────────────────────
-    // NEW: FIX #3 — honor cosmetic floor from ctx (prevents “Next” at sink)
-    //      Also rewrite an incoming Next-ish message into “Select N more…”
-    //      and clear stale-completion freezes while the floor is active.
+    // NEW — honor persistent cosmetic floor (prevents “Next” at sink)
+    // Rewrites Next-ish → “Select N more…” and clears freezes while floor is active.
     // ────────────────────────────────────────────────────────────
     {
       const incomingIsNextish = /next button|show results/i.test(next ?? '');
   
-      if (floorFromCtx > 0) {
+      if (effectiveFloor > 0) {
         // 1) Enforce the floor now (visual only)
-        enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+        enforcedRemaining = Math.max(enforcedRemaining, effectiveFloor);
   
         // 2) Rewrite any incoming Next-ish to "Select N more..."
         if (incomingIsNextish) {
-          next = (typeof buildRemainingMsg === 'function')
-            ? buildRemainingMsg(enforcedRemaining)
-            : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+          next = mkSelectMsg(enforcedRemaining);
         }
   
         // 3) Un-complete & clear freezes so "Next" can’t stick
@@ -1164,6 +1175,8 @@ export class SelectionMessageService {
         const isLastQ = i0 === (this.quizService.totalQuestions - 1);
         const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+        // Clear any stored floor once we actually allow Next/Results
+        (this as any)._minDisplayFloorByIndex.delete(i0);
         return;
       }
     }
@@ -1204,6 +1217,8 @@ export class SelectionMessageService {
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
+      // Clear any stored floor once we actually allow Next/Results
+      (this as any)._minDisplayFloorByIndex.delete(i0);
       return;
     }
   
@@ -1230,7 +1245,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
   
   
   
