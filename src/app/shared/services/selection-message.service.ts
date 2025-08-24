@@ -1452,9 +1452,7 @@ export class SelectionMessageService {
       ?? 0
     );
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
-    const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    // Do NOT force Multi purely from a configured floor; rely on data signals.
     const multiSignal = likelyMulti || (expectedBySvc > 1);
   
     // If Single-Answer “Next” already shown, unlock if we now detect Multi
@@ -1714,17 +1712,14 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // Strict count of currently selected (independent of correctness)
+      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
-  
-      // Known-corrects left (only for safety gating, not for display)
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
           const t = norm(o?.text ?? o?.label ?? '');
           return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
         }, 0);
   
-      // If the service says "1" but signals point to multi, bump to 2
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
@@ -1733,58 +1728,45 @@ export class SelectionMessageService {
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
   
-      // Remaining — correctness-based (for gating safety)
+      // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+  
+      // Also block if we believe there are unselected known-corrects
       if (unselectedKnownCorrect > 0) {
         remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
       }
+  
+      // Avoid flicker while the user is still building up picks
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ COUNT-BASED LOCAL FLOOR (robust & non-brittle) + ctx passthrough
-      //    We show “Select N more…” based on how many picks the user still needs,
-      //    regardless of correctness flags mid-question.
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough  ⟵  (STEP 1)
+      //    Local floor: if UX clearly indicates multi, and the learner has
+      //    at least one selection but hasn’t reached the (UX) target,
+      //    hold “Select 1 more…” regardless of correctness flags.
       // ────────────────────────────────────────────────────────────
-      const expectedPickCount = (() => {
-        let n = Number((this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex));
-        if (!Number.isFinite(n) || n <= 0) {
-          n = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex) ?? 0);
-        }
-        if (!Number.isFinite(n) || n <= 0) {
-          // Try to derive from stem, e.g. “Select 3 …”
-          try {
-            const stem = String((qRef as any)?.questionText ?? (qRef as any)?.question ?? (qRef as any)?.text ?? '');
-            const m = /select\s+(\d+)/i.exec(stem);
-            if (m) {
-              const v = Number(m[1]);
-              if (Number.isFinite(v) && v > 0) n = v;
-            }
-          } catch { /* ignore */ }
-        }
-        if (!Number.isFinite(n) || n <= 0) {
-          // last fallback: typical multi is at least 2
-          n = Math.max(2, canon || 0, payloadCorrectCount || 0, 2);
-        }
-        return n;
-      })();
+      const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
   
-      // How many *picks* remain (independent of correctness flags)?
-      const remainingByPickCount = Math.max(expectedPickCount - selectedCount, 0);
+      // UX target: if any multi signal exists, the *minimum* target is 2
+      const uxTarget = multiSignal ? Math.max(2, expectedTotal) : expectedTotal;
   
-      // Optional configured cosmetic floor (rarely needed once count-based remains is used)
-      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
+      // Local floor logic (dataset-agnostic):
+      // - zero wrong picks so far
+      // - at least one selection made
+      // - but fewer than the UX target (e.g. 2)
+      let localFloor = 0;
+      if (selectedIncorrect === 0 && selectedCount >= 1 && selectedCount < uxTarget) {
+        localFloor = 1; // show “Select 1 more…”
+      }
   
-      // Final display: prefer the intuitive count-based remainder; never exceed it.
-      const minDisplayRemaining =
-        remainingByPickCount > 0
-          ? remainingByPickCount
-          : 0; // if zero, we allow “Next”
+      // Final cosmetic floor we want the sink to honor (never affects gating math)
+      const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
-      // If we’re going to show a remaining prompt, keep UI from flipping to “Next”
-      if (remaining > 0 || minDisplayRemaining > 0 || configuredFloor > 0) {
+      // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
+      if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
@@ -1797,8 +1779,9 @@ export class SelectionMessageService {
         } catch {}
       }
   
-      // What we *say* to the user: use the count-based remainder for clarity.
-      const displayRemaining = minDisplayRemaining; // <- user-facing
+      // Final display amount respects the floor, but gating still uses `remaining`
+      const displayRemaining = Math.max(remaining, minDisplayRemaining);
+  
       const msg =
         displayRemaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -1813,14 +1796,17 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
-        expectedPickCount,
+        uxTarget,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
-        remaining /* correctness-based safety */,
-        displayRemaining /* count-based user-facing */,
+        remaining,
+        configuredFloor,
+        localFloor,          // ← local floor (STEP 1)
+        minDisplayRemaining, // ← what we pass through ctx
+        displayRemaining,
         msg
       });
   
@@ -1832,8 +1818,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          // pass the *count-based* remainder so the sink rewrites any “Next” to “Select N more…”
-          minDisplayRemaining: displayRemaining
+          minDisplayRemaining // ← pass floor through ctx (STEP 1)
         } as any
       );
   
@@ -1845,12 +1830,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: displayRemaining
+            minDisplayRemaining // ← pass floor through ctx (STEP 1)
           } as any
         );
       });
     }
   }
+  
   
   
   
