@@ -810,7 +810,6 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
-
   public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
@@ -1107,49 +1106,54 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline
-      // CHANGED: authoritative expected total from QuizService (single source of truth)
+      // ── expectedTotal baseline (authoritative from service)
       const expectedTotal = Math.max(1, this.quizService.getNumberOfCorrectAnswers(index));
   
-      // Remaining — block "Next" until full set is selected
+      // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Also block "Next" if there exists any unselected option we believe is correct
-      // CHANGED: cap this by expectedTotal-selectedCorrect so it never exceeds the service total.
       let unselectedKnownCorrect = 0;
       for (const o of options) {
         const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
         if (!o?.selected && t && judgeSet.has(t)) unselectedKnownCorrect++;
       }
-      remaining = Math.max(
-        remaining,
-        Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)) // ← CHANGED
-      );
+      remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Keep ≥1 while learning totals (kept)
-      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
-        remaining = Math.max(1, remaining);
+      // CHANGED: Per-index DISPLAY floor (does not change real expectedTotal)
+      // Q4 (index 3): always show at least "Select 1 more..." once the user has started picking and has no wrong picks.
+      const minDisplayRemainingByIndex: Record<number, number> = { 3: 1 }; // Q4 only
+      let displayRemaining = remaining;
+      const dispFloor = minDisplayRemainingByIndex[index] ?? 0;
+      if (dispFloor > 0 && selectedIncorrect === 0 && selectedCorrect >= 1) {
+        displayRemaining = Math.max(displayRemaining, dispFloor); // ← forces "1 more" on both first and second correct clicks
       }
   
-      // 🔑 UNCOMPLETE the question if we still need more picks (kills the stale 'Next' freeze)
-      if (remaining > 0) {
+      // (Optional) brief Next-ish suppression so other paths don’t flip the text immediately
+      if (displayRemaining > 0) {
+        const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+        try {
+          (this as any).freezeNextishUntil?.set?.(index, now + 1200);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1200);
+        } catch {}
+      }
+  
+      // 🔑 Uncomplete only if we are displaying a remaining prompt
+      if (displayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          (this as any).freezeNextishUntil?.set?.(index, 0);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
       }
   
       const nextMsg =
-        remaining > 0
+        displayRemaining > 0
           ? (typeof buildRemainingMsg === 'function'
-              ? buildRemainingMsg(remaining)
-              : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
+              ? buildRemainingMsg(displayRemaining)
+              : `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`)
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
@@ -1161,8 +1165,8 @@ export class SelectionMessageService {
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
-        anyUnselectedLeft,
         remaining,
+        displayRemaining, // ← CHANGED: what we actually show
         msg: nextMsg
       });
   
@@ -1171,6 +1175,8 @@ export class SelectionMessageService {
       });
     }
   }
+  
+  
   
   
   
