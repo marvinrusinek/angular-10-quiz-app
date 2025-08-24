@@ -1331,7 +1331,6 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
-  
   public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
@@ -1409,12 +1408,16 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
+    // ────────────────────────────────────────────────────────────
     // Payload flags kept for effType + fallback
+    // ────────────────────────────────────────────────────────────
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
+    // ────────────────────────────────────────────────────────────
     // NEW: multi-signal (for unlocking stale Single locks & forcing Multi)
+    // ────────────────────────────────────────────────────────────
     const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
     const expectedBySvcRaw = Number(
       (this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex)
@@ -1455,6 +1458,7 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // REPLACE helper: tighter selection detector (no cross-question bleed)
+    // + selectedCountStrict helper so floor can activate even without correctness flags
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
@@ -1479,6 +1483,34 @@ export class SelectionMessageService {
         }
       } catch { /* ignore */ }
       return false;
+    };
+  
+    const selectedCountStrict = (): number => {
+      // count from current payload first
+      let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
+      // augment from service (same UI index only)
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+        const ids = selSvc?.getSelectedIdsForQuestion?.(index);
+        if (ids instanceof Set) cnt = Math.max(cnt, ids.size);
+        else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
+        else if (ids != null) cnt = Math.max(cnt, 1);
+      } catch { /* ignore */ }
+      // snapshot only if it matches this question's option set
+      try {
+        const snap = this.getLatestOptionsSnapshot?.();
+        if (Array.isArray(snap) && snap.length) {
+          const sig = optionSig(options), snapSig = optionSig(snap);
+          if (sig && snapSig && sig === snapSig) {
+            const snapCnt = snap.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0);
+            cnt = Math.max(cnt, snapCnt);
+          }
+        }
+      } catch { /* ignore */ }
+      return cnt;
     };
   
     // ────────────────────────────────────────────────────────────
@@ -1638,7 +1670,7 @@ export class SelectionMessageService {
         ...payloadTextSet
       ]);
   
-      // Count selections
+      // Count selections by correctness (may be 0 if the dataset lacks flags)
       let selectedCorrect = 0;
       let selectedIncorrect = 0;
       for (const o of options) {
@@ -1654,41 +1686,47 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // If the service says "1" but all signals point to multi, bump to 2
+      // If the service says "1" but signals point to multi, bump to 2
+      const selectedCount = selectedCountStrict();
+      const unselectedKnownCorrect =
+        options.reduce((n, o: any) => {
+          const t = norm(o?.text ?? o?.label ?? '');
+          return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
+        }, 0);
+  
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
-        (selectedCorrect + [...options].filter(o => !o?.selected && judgeSet.has(norm((o as any)?.text ?? (o as any)?.label ?? ''))).length >= 2) ||
+        (selectedCount + unselectedKnownCorrect >= 2) ||
         likelyMulti;
+  
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
-      // If we believe there are unselected known-corrects, keep remaining ≥ that count
-      let unselectedKnownCorrect = 0;
-      for (const o of options) {
-        const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-        if (!o?.selected && t && judgeSet.has(t)) unselectedKnownCorrect++;
+      // Also block if we believe there are unselected known-corrects
+      if (unselectedKnownCorrect > 0) {
+        remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
       }
-      remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Avoid flicker while the user is still building up correct picks
+      // Avoid flicker while the user is still building up picks
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ FLOOR (cosmetic only) + ctx passthrough (decoupled from service mis-flags)
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough
+      //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
+      //    even if correctness flags are missing (this covers Q4 click #2).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      // Floor applies AFTER first correct pick, even if service says only 1 total.
-      if (selectedIncorrect === 0 && selectedCorrect >= 1) {
-        const inferredTwoPlus = signalsSayTwoPlus; // ← don’t depend on expectedTotal===2
-        const fallbackFloor = inferredTwoPlus ? 1 : 0;
+      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
+        // If the dataset underflags correctness, rely on multiSignal + selectedCount.
+        const fallbackFloor = 1; // hold "Select 1 more..." while building multi
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
   
@@ -1723,6 +1761,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        selectedCount,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
@@ -1733,7 +1772,7 @@ export class SelectionMessageService {
         msg
       });
   
-      // Send immediately (beats other microtasks) and again in a microtask for reinforcement
+      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
       this.updateSelectionMessage(
         msg,
         {
@@ -1759,6 +1798,8 @@ export class SelectionMessageService {
       });
     }
   }
+  
+  
   
   
   
