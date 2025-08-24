@@ -1356,7 +1356,7 @@ export class SelectionMessageService {
     // Pull canonical question (id/text/options) to build a stable key
     let qRef: any = undefined;
     let canonicalOpts: any[] = [];
-    let resolvedIndex = index; // ← we’ll pass THIS to the sink everywhere
+    let resolvedIndex = index; // ← use service index first on cold start
     try {
       const svc: any = this.quizService as any;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
@@ -1389,23 +1389,18 @@ export class SelectionMessageService {
     // @ts-ignore
     this._canonCountByKey       ??= new Map<string, number>();
   
-    // ────────────────────────────────────────────────────────────
     // Sticky canonical correct count (prefer canonical; cache once known)
-    // (keep this BEFORE checking the Single-Answer lock so we can detect MULTI)
-    // ────────────────────────────────────────────────────────────
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
     const canon = Math.max(prevCanon, currCanon);
-    if (canon > 0 && canon !== prevCanon) {
-      this._canonCountByKey.set(qKey, canon);
-    }
+    if (canon > 0 && canon !== prevCanon) this._canonCountByKey.set(qKey, canon);
   
     // Payload flags kept for effType + fallback
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // STEP 1: If we previously showed Single-Answer “Next” but this behaves like MULTI, clear the lock.
+    // *** KEY: If we previously showed Single-Answer “Next” but this looks like MULTI, clear the lock.
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
     if (this._singleNextLockedByKey.has(qKey)) {
       if (likelyMulti) {
@@ -1429,7 +1424,6 @@ export class SelectionMessageService {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        // CRITICAL: pass resolvedIndex, not UI index
         this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
       });
       if (questionType === QuestionType.MultipleAnswer) return;
@@ -1439,13 +1433,13 @@ export class SelectionMessageService {
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // Tight selection detector (no cross-question bleed)
+    // REPLACE helper: tighter selection detector (no cross-question bleed)
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
       // 0) Current UI array is the ground truth
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
   
-      // 1) Selection service, but ONLY for the resolved index
+      // 1) Selection service for the *resolvedIndex* only
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -1550,7 +1544,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       const anySelected = anySelectedStrict();
@@ -1633,12 +1627,12 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline (authoritative from service; floor Q4 to 2 for gating)
+      // expectedTotal baseline (authoritative; floor Q4 to 2 for gating)
       let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex));
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         expectedTotal = Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
-      const gatingFloorByIndex: Record<number, number> = { 3: 2 }; // Q4 must *pass* on 2
+      const gatingFloorByIndex: Record<number, number> = { 3: 2 }; // Q4 passes on 2
       expectedTotal = Math.max(expectedTotal, gatingFloorByIndex[resolvedIndex] ?? 0);
   
       // Remaining — real math for gating
@@ -1658,13 +1652,13 @@ export class SelectionMessageService {
         remaining = Math.max(1, remaining);
       }
   
-      // STEP 2: Configurable DISPLAY floor (cosmetic only; passed via ctx)
-      // NOTE: We deliberately apply the floor even if selectedCorrect >= expectedTotal
-      //       so Q4 click #2 still shows “Select 1 more…”.
+      // Configurable DISPLAY floor (cosmetic only; passed to sink via ctx)
       const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       const hardDisplayFloorByIndex: Record<number, number> = { 3: 1 }; // Q4 keeps “1 more”
       let minDisplayRemaining = 0;
+  
+      // Floor applies AFTER first correct pick (and no wrong) so click #2 can't flip to Next
       if (selectedIncorrect === 0 && selectedCorrect >= 1) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = Math.max(
@@ -1687,7 +1681,7 @@ export class SelectionMessageService {
   
       // Force the outgoing message to respect the floor (prevents “Next” at source)
       const displayRemaining = Math.max(remaining, minDisplayRemaining);
-  
+
       const msg =
         displayRemaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -1696,7 +1690,7 @@ export class SelectionMessageService {
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
-  
+
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
@@ -1707,32 +1701,26 @@ export class SelectionMessageService {
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        minDisplayRemaining,  // cosmetic floor we want the sink to honor
-        displayRemaining,     // what we actually show now
+        minDisplayRemaining,   // cosmetic floor we want the sink to honor
+        displayRemaining,      // what we actually show now
         msg
       });
-  
+
       // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
           {
             options,
-            index: resolvedIndex, // CRITICAL: always pass resolvedIndex
+            index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // sink uses this to keep “Select 1 more…” on Q4 click #2
+            minDisplayRemaining // ctx passthrough for the sink to enforce the floor
           } as any
         );
       });
     }
-  }
-  
-  
-  
-  
-  
-  
+  }  
   
   
   
