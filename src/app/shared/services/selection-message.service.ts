@@ -1409,13 +1409,22 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
+    // ────────────────────────────────────────────────────────────
     // Payload flags kept for effType + fallback
+    // ────────────────────────────────────────────────────────────
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // NEW: multi-signal (for unlocking stale Single locks & forcing Multi)
-    const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
+    // ────────────────────────────────────────────────────────────
+    // NEW: stronger multi-signal for unlocking stale Single-Answer lock:
+    //  - declared MultipleAnswer
+    //  - canon > 1 (from canonical)
+    //  - payloadCorrectCount > 1 (from UI payload)
+    //  - service expected > 1 (authoritative/fallback)
+    //  - display floor configured (>0) for this question (cosmetic, but proves intent)
+    // ────────────────────────────────────────────────────────────
+    const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined; // NEW
     const expectedBySvcRaw = Number(
       (this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex)
       ?? (this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex)
@@ -1426,16 +1435,17 @@ export class SelectionMessageService {
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
     const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0);
   
-    // If Single-Answer “Next” already shown, unlock if we now detect Multi
+    // If Single-Answer “Next” already shown for this question, ignore further emits
+    // NEW: but if we have any multi-signal, UNLOCK it so Q4 can proceed.
     if (this._singleNextLockedByKey.has(qKey)) {
       if (multiSignal) {
-        this._singleNextLockedByKey.delete(qKey);
+        this._singleNextLockedByKey.delete(qKey);        // ← NEW: unfreeze stale single lock
       } else {
         return; // still truly single → ignore further emits
       }
     }
   
-    // Cold-start guard for MultipleAnswer
+    // Cold-start guard for MultipleAnswer: if quiz not hydrated, don’t jump to “Next”
     const coldStartLikely =
       !(this.quizService?.questions?.length > 0) ||
       this.quizService?.currentQuestion == null;
@@ -1457,17 +1467,23 @@ export class SelectionMessageService {
     // REPLACE helper: tighter selection detector (no cross-question bleed)
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
+      // 0) Current UI array is the ground truth
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
+  
+      // 1) Selection service, but ONLY for the UI index (avoid resolvedIndex bleed)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
+  
         const ids = selSvc?.getSelectedIdsForQuestion?.(index);
         if (ids instanceof Set) return ids.size > 0;
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
       } catch { /* ignore */ }
+  
+      // 2) Prior snapshot only if it clearly refers to THIS question’s option set
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
@@ -1478,6 +1494,7 @@ export class SelectionMessageService {
           }
         }
       } catch { /* ignore */ }
+  
       return false;
     };
   
@@ -1485,21 +1502,14 @@ export class SelectionMessageService {
     // Effective type (trust multi-signal)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
-    if (canon > 1) {
-      effType = QuestionType.MultipleAnswer;
-    } else if (canon === 1) {
-      effType = QuestionType.SingleAnswer;
-    } else if (questionType === QuestionType.SingleAnswer) {
-      effType = QuestionType.SingleAnswer;
-    } else if (questionType === QuestionType.MultipleAnswer) {
-      effType = QuestionType.MultipleAnswer;
-    } else if (payloadCorrectCount > 1) {
-      effType = QuestionType.MultipleAnswer;
-    } else if (payloadCorrectCount === 1) {
-      effType = QuestionType.SingleAnswer;
-    } else {
-      effType = questionType;
-    }
+    if (canon > 1)       effType = QuestionType.MultipleAnswer;
+    else if (canon === 1) effType = QuestionType.SingleAnswer;
+    else if (questionType === QuestionType.SingleAnswer) effType = QuestionType.SingleAnswer;
+    else if (questionType === QuestionType.MultipleAnswer) effType = QuestionType.MultipleAnswer;
+    else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (payloadCorrectCount === 1) effType = QuestionType.SingleAnswer;
+    else effType = questionType;
+  
     if (effType !== QuestionType.MultipleAnswer && multiSignal) {
       effType = QuestionType.MultipleAnswer; // ← force multi to prevent Q4 “Next” on click #2
     }
@@ -1564,7 +1574,7 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
-      // prevent later writers from flipping back to Single mid-flight
+      // prevent late writers from flipping back to Single
       this._typeLockByKey.set(qKey, QuestionType.MultipleAnswer);
   
       const anySelected = anySelectedStrict();
@@ -1654,11 +1664,10 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // If the service says "1" but all signals point to multi, bump to 2
+      // Infer multi even if service says 1
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
-        (selectedCorrect + [...options].filter(o => !o?.selected && judgeSet.has(norm((o as any)?.text ?? (o as any)?.label ?? ''))).length >= 2) ||
         likelyMulti;
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
   
@@ -1680,16 +1689,17 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ FLOOR (cosmetic only) + ctx passthrough (decoupled from service mis-flags)
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough
+      //    ACTIVATES ON ANY SELECTION (not just “correct”)
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
+      const anySelectedNowUi = options.some((o: any) => !!o?.selected) || anySelectedStrict();
       let minDisplayRemaining = 0;
   
-      // Floor applies AFTER first correct pick, even if service says only 1 total.
-      if (selectedIncorrect === 0 && selectedCorrect >= 1) {
-        const inferredTwoPlus = signalsSayTwoPlus; // ← don’t depend on expectedTotal===2
-        const fallbackFloor = inferredTwoPlus ? 1 : 0;
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
+      if (anySelectedNowUi) {
+        // If this smells like multi or service expects ≥2, default the floor to 1 unless configured.
+        const fallbackFloor = (expectedTotal >= 2 || signalsSayTwoPlus) ? 1 : 0;
+        minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -1698,9 +1708,9 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
+          const nowFreeze = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, nowFreeze + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, nowFreeze + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -1717,7 +1727,7 @@ export class SelectionMessageService {
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
-  
+      
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
@@ -1728,23 +1738,12 @@ export class SelectionMessageService {
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        minDisplayRemaining,  // cosmetic floor we want the sink to honor
+        minDisplayRemaining,  // cosmetic floor
         displayRemaining,     // what we actually show now
         msg
       });
-  
-      // Send immediately (beats other microtasks) and again in a microtask for reinforcement
-      this.updateSelectionMessage(
-        msg,
-        {
-          options,
-          index: resolvedIndex,
-          questionType: QuestionType.MultipleAnswer,
-          token: tok,
-          minDisplayRemaining: minDisplayRemaining
-        } as any
-      );
-  
+          
+      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -1753,19 +1752,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining
+            minDisplayRemaining // ← ctx passthrough for the sink to enforce the floor
           } as any
         );
       });
+      return;
     }
   }
-  
-  
-  
-  
-  
-  
-  
   
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
   
