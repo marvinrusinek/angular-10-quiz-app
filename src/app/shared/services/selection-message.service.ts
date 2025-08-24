@@ -967,9 +967,9 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // NEW — persistent cosmetic floor from emitter (e.g., Q4 forces "1 more")
-    // This block belongs RIGHT AFTER computing i0 and next.
+    // This goes RIGHT AFTER computing i0 and next.
     // 1) Persist a floor per question index so later writers without ctx can't flip to "Next".
-    // 2) Immediately rewrite any incoming Next-ish/Continue/Results text to a Select message.
+    // 2) Immediately rewrite any incoming Next-ish text to a Select message.
     // 3) Clear stale "completed"/freeze latches.
     // ────────────────────────────────────────────────────────────
     const mkSelectMsg = (n: number) =>
@@ -990,13 +990,11 @@ export class SelectionMessageService {
       (this as any)._minDisplayFloorByIndex.set(i0, effectiveFloor);
     }
   
-    // Rewrite any Next-ish/Continue/Results to "Select N more..." immediately if we have a floor
+    // Rewrite Next-ish → "Select N more..." immediately if we have a floor
     if (effectiveFloor > 0) {
       const lowNext0 = (next ?? '').toLowerCase();
-      // BROADENED matching: catches "Next", "Continue", "Show results", with or without "button"
-      const isNextishIncoming0 = /\bnext\b|continue|show results/i.test(lowNext0);
-      const isAlreadySelectish0 = /select\s+\d+\s+more/i.test(lowNext0);
-      if (isNextishIncoming0 || !isAlreadySelectish0) {
+      const isNextishIncoming0 = lowNext0.includes('next button') || lowNext0.includes('show results');
+      if (isNextishIncoming0) {
         next = mkSelectMsg(effectiveFloor);
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1131,16 +1129,16 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // NEW — honor persistent cosmetic floor (prevents “Next” at sink)
-    // Rewrites Next-ish/Continue/Results → “Select N more…” and clears freezes while active.
+    // Rewrites Next-ish → “Select N more…” and clears freezes while floor is active.
     // ────────────────────────────────────────────────────────────
     {
-      const incomingIsNextish = /\bnext\b|continue|show results/i.test(next ?? '');
+      const incomingIsNextish = /next button|show results/i.test(next ?? '');
   
       if (effectiveFloor > 0) {
         // 1) Enforce the floor now (visual only)
         enforcedRemaining = Math.max(enforcedRemaining, effectiveFloor);
   
-        // 2) Rewrite any incoming Next-ish/Continue/Results to "Select N more..."
+        // 2) Rewrite any incoming Next-ish to "Select N more..."
         if (incomingIsNextish) {
           next = mkSelectMsg(enforcedRemaining);
         }
@@ -1157,8 +1155,8 @@ export class SelectionMessageService {
   
     // Classifiers (recomputed if next was rewritten above)
     const low = (next ?? '').toLowerCase();
-    const isSelectish = /select\s+\d+\s+more.*continue/.test(low);
-    const isNextish   = /\bnext\b|continue|show results/.test(low);
+    const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
+    const isNextish   = low.includes('next button') || low.includes('show results');
   
     // ────────────────────────────────────────────────────────────
     // FIX #2: don't freeze to Next if we still need answers; un-complete it.
@@ -1247,7 +1245,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
   
   
   
