@@ -1387,13 +1387,20 @@ export class SelectionMessageService {
     // @ts-ignore
     this._singleNextLockedByKey ??= new Set<string>();
     // @ts-ignore
+    this._maxCorrectByKey       ??= new Map<string, number>();
+    // @ts-ignore
     this._canonCountByKey       ??= new Map<string, number>();
   
+    // ────────────────────────────────────────────────────────────
     // Sticky canonical correct count (prefer canonical; cache once known)
+    // (moved above the 'Next lock' guard so we can detect multi before returning)
+    // ────────────────────────────────────────────────────────────
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
     const canon = Math.max(prevCanon, currCanon);
-    if (canon > 0 && canon !== prevCanon) this._canonCountByKey.set(qKey, canon);
+    if (canon > 0 && canon !== prevCanon) {
+      this._canonCountByKey.set(qKey, canon);
+    }
   
     // Payload flags kept for effType + fallback
     const payloadCorrectCount = Array.isArray(options)
@@ -1405,10 +1412,6 @@ export class SelectionMessageService {
     if (this._singleNextLockedByKey.has(qKey)) {
       if (likelyMulti) {
         this._singleNextLockedByKey.delete(qKey); // unfreeze stale single-answer lock for this multi question
-        try {
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
-          (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
-        } catch {}
       } else {
         return; // still truly single → ignore further emits
       }
@@ -1424,7 +1427,7 @@ export class SelectionMessageService {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
+        this.updateSelectionMessage(baseMsg, { options, index, questionType, token: tok });
       });
       if (questionType === QuestionType.MultipleAnswer) return;
     }
@@ -1439,14 +1442,14 @@ export class SelectionMessageService {
       // 0) Current UI array is the ground truth
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
   
-      // 1) Selection service for the *resolvedIndex* only
+      // 1) Selection service, but ONLY for the UI index (avoid resolvedIndex bleed)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
   
-        const ids = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
+        const ids = selSvc?.getSelectedIdsForQuestion?.(index);
         if (ids instanceof Set) return ids.size > 0;
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
@@ -1544,7 +1547,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection + configurable display floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       const anySelected = anySelectedStrict();
@@ -1627,18 +1630,16 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // expectedTotal baseline (authoritative; floor Q4 to 2 for gating)
+      // ── expectedTotal baseline (authoritative from service, use resolvedIndex; fallback to 2)
       let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex));
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         expectedTotal = Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
-      const gatingFloorByIndex: Record<number, number> = { 3: 2 }; // Q4 passes on 2
-      expectedTotal = Math.max(expectedTotal, gatingFloorByIndex[resolvedIndex] ?? 0);
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
-      // Also block "Next" if there exists any unselected option we believe is correct
+      // If we believe there are unselected known-corrects, keep remaining ≥ that count
       let unselectedKnownCorrect = 0;
       for (const o of options) {
         const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
@@ -1646,42 +1647,40 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Keep ≥1 while learning totals / avoid flicker
+      // Avoid flicker while the user is still building up correct picks
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
-      // Configurable DISPLAY floor (cosmetic only; passed to sink via ctx)
+      // Configurable DISPLAY floor (cosmetic only, passed to sink via ctx)
       const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      const hardDisplayFloorByIndex: Record<number, number> = { 3: 1 }; // Q4 keeps “1 more”
       let minDisplayRemaining = 0;
   
-      // Floor applies AFTER first correct pick (and no wrong) so click #2 can't flip to Next
+      // Floor applies AFTER first correct pick and BEFORE (or even at) completion to prevent premature "Next"
+      // (kept generous to cover under-flagged datasets like Q4)
       if (selectedIncorrect === 0 && selectedCorrect >= 1) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
-        minDisplayRemaining = Math.max(
-          configuredFloor,
-          hardDisplayFloorByIndex[resolvedIndex] ?? 0,
-          fallbackFloor
-        );
+        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
   
-      // Clear stale completion & freeze Next-ish while the floor is active
+      // If we’re going to show a remaining prompt, make sure stale 'Next' freezes are cleared
       if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
+        (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1500);
+          (this as any).freezeNextishUntil?.set?.(index, 0);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
+          (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
       }
   
-      // Force the outgoing message to respect the floor (prevents “Next” at source)
+      // Final display amount respects the floor, but gating still uses `remaining`
       const displayRemaining = Math.max(remaining, minDisplayRemaining);
-
+  
       const msg =
         displayRemaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -1690,7 +1689,7 @@ export class SelectionMessageService {
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
-
+  
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
@@ -1701,11 +1700,11 @@ export class SelectionMessageService {
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        minDisplayRemaining,   // cosmetic floor we want the sink to honor
-        displayRemaining,      // what we actually show now
+        minDisplayRemaining,  // cosmetic floor we want the sink to honor
+        displayRemaining,     // what we actually show now
         msg
       });
-
+  
       // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       queueMicrotask(() => {
         this.updateSelectionMessage(
@@ -1720,7 +1719,8 @@ export class SelectionMessageService {
         );
       });
     }
-  }  
+  }
+  
   
   
   
