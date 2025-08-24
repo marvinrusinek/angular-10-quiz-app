@@ -1108,13 +1108,15 @@ export class SelectionMessageService {
       }
   
       // ── expectedTotal baseline
-      // REPLACED: Authoritative expected total from QuizService (single source of truth)
+      // CHANGED: authoritative expected total from QuizService (single source of truth)
       const expectedTotal = Math.max(1, this.quizService.getNumberOfCorrectAnswers(index));
   
       // Remaining — block "Next" until full set is selected
+      // CHANGED: remaining is computed strictly against the service total
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Also block "Next" if there exists any unselected option we believe is correct
+      // (kept: uses judgeSet so we don't prematurely show "Next" when a known-correct remains)
       let unselectedKnownCorrect = 0;
       for (const o of options) {
         const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
@@ -1122,7 +1124,7 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, unselectedKnownCorrect);
   
-      // Keep ≥1 while learning totals
+      // Keep ≥1 while learning totals (kept)
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
@@ -1133,7 +1135,6 @@ export class SelectionMessageService {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
-        // also clear any Next-ish suppression windows that could pin it to Next
         try {
           (this as any).freezeNextishUntil?.set?.(index, 0);
           (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
@@ -1154,7 +1155,7 @@ export class SelectionMessageService {
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
-        expectedTotal,
+        expectedTotal,            // ← proves what the service says for this Q
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
@@ -1168,6 +1169,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
