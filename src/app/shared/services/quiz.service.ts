@@ -206,6 +206,9 @@ export class QuizService implements OnDestroy {
 
   private expectedCountOverride: Record<number, number> = {};
 
+  // Sticky per-index minimums
+  private minExpectedByIndex: Record<number, number> = {};
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -2255,19 +2258,34 @@ export class QuizService implements OnDestroy {
 
   // Replace your getter with this minimal version
   public getNumberOfCorrectAnswers(index?: number): number {
-    const i = Number.isFinite(index as number) ? (index as number) : (this.currentQuestionIndex ?? 0);
+    const i = Number.isFinite(index as number)
+      ? (index as number)
+      : (this.currentQuestionIndex ?? 0);
   
-    // If we have a sticky value, use it
+    // Use sticky if present
     const cached = this.expectedCountOverride[i];
-    if (typeof cached === 'number' && cached >= 0) return cached;
+    const floor  = this.minExpectedByIndex[i] ?? 0;
+    if (typeof cached === 'number') return Math.max(cached, floor, 1);
   
-    // Compute from data
+    // Compute from data (simple count)
     const opts = this.questions?.[i]?.options ?? [];
-    const count = opts.filter((o: any) => !!o?.correct).length || 0;
+    const dataCount = opts.filter((o: any) => !!o?.correct).length || 0;
   
-    // Only cache once the options are actually present (prevents caching 0 before hydration)
-    if (opts.length > 0) this.expectedCountOverride[i] = count;
+    // Seed sticky only when options exist (prevents caching 0 pre-hydration)
+    let v = Math.max(dataCount, floor, 1);
+    if (opts.length > 0) this.expectedCountOverride[i] = v;
   
-    return count;
+    return v;
   }
-} 
+
+  // Call this once when you land on a question that should require more picks
+  public setMinExpectedForIndex(i: number, n: number): void {
+    const v = Math.max(1, Math.floor(n || 0));
+    this.minExpectedByIndex[i] = v;
+    // If we already cached a value for this index, bump it up immediately
+    const cached = (this as any).expectedCountOverride?.[i];
+    if (typeof cached === 'number') {
+      (this as any).expectedCountOverride[i] = Math.max(cached, v);
+    }
+  }
+}
