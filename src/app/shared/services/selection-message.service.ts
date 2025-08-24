@@ -1555,6 +1555,7 @@ export class SelectionMessageService {
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
+        // NOTE: no minDisplayRemaining here (prevents TS18004 and keeps single clean)
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
   
@@ -1671,8 +1672,12 @@ export class SelectionMessageService {
         remaining = Math.max(1, remaining);
       }
   
-      // Configurable DISPLAY floor (cosmetic only, passed to sink via ctx)
-      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
+      // ────────────────────────────────────────────────────────────
+      // ⬇️ DROP-IN TAIL (floor → call) — explicit scope + ctx passthrough
+      // ────────────────────────────────────────────────────────────
+      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
+  
+      // 🔒 declare ONCE, outside of any if-blocks (so it’s in scope for the call below)
       let minDisplayRemaining = 0;
   
       // Floor applies AFTER first correct pick; allow it to hold even on click #2 (Q4)
@@ -1687,8 +1692,9 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          (this as any).freezeNextishUntil?.set?.(index, 0);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
+          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, now + 1500);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1500);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -1721,21 +1727,22 @@ export class SelectionMessageService {
         msg
       });
   
-      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
+      // ✅ Pass the display override explicitly so the sink won’t flip to “Next”
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
           {
             options,
-            index,
+            index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // ctx passthrough for the sink to enforce the floor
+            minDisplayRemaining: minDisplayRemaining // explicit property avoids TS18004
           } as any
         );
       });
     }
   }
+  
   
   
   
