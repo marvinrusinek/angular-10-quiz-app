@@ -1108,36 +1108,8 @@ export class SelectionMessageService {
       }
   
       // ── expectedTotal baseline
-      let expectedTotal = judgeSet.size;
-  
-      // *** Q4 FIX PART 1: derive a floor from the stem text like "Select 3"
-      const stem: string = (typeof qRef?.questionText === 'string') ? qRef.questionText : '';
-      const m = /select\s+(\d+)/i.exec(stem);
-      if (m) {
-        const n = Number(m[1]);
-        if (Number.isFinite(n) && n > 0) expectedTotal = Math.max(expectedTotal, n);
-      }
-  
-      // *** Q4 FIX PART 2: explicit per-index floors (both UI and service indices)
-      const floorByIndex: Record<number, number> = { 3: 2 }; // Q4 is often 0-based index 3
-      expectedTotal = Math.max(
-        expectedTotal,
-        floorByIndex[index] ?? 0,
-        floorByIndex[resolvedIndex] ?? 0
-      );
-  
-      // *** Q4 FIX PART 3: if user has already selected TWO correct answers
-      // and there are still unselected options, require at least one more pick.
-      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
-      /* if (selectedCorrect === 2 && selectedIncorrect === 0 && anyUnselectedLeft) {
-        expectedTotal = Math.max(expectedTotal, 3);
-      } */
-  
-      // sticky, non-decreasing per question
-      const stickyKey = `qa::${qKey}`;
-      const prevMax = this._maxCorrectByKey?.get?.(stickyKey) ?? 0;
-      expectedTotal = Math.max(prevMax, expectedTotal);
-      this._maxCorrectByKey?.set?.(stickyKey, expectedTotal);
+      // REPLACED: Authoritative expected total from QuizService (single source of truth)
+      const expectedTotal = Math.max(1, this.quizService.getNumberOfCorrectAnswers(index));
   
       // Remaining — block "Next" until full set is selected
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -1151,6 +1123,7 @@ export class SelectionMessageService {
       remaining = Math.max(remaining, unselectedKnownCorrect);
   
       // Keep ≥1 while learning totals
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
@@ -1195,6 +1168,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
