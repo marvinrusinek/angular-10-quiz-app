@@ -1358,7 +1358,7 @@ export class SelectionMessageService {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
   
-  public emitFromClick(params: {  
+  public emitFromClick(params: {   
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -1745,16 +1745,23 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
-      //    even if correctness flags are missing (this covers Q4 click #2).
+      //    IMPORTANT: local hotfix for Q4 (zero-based 3) to force "1 more" after second click.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
-        // If the dataset underflags correctness, rely on multiSignal + selectedCount.
-        const fallbackFloor = 1; // hold "Select 1 more..." while building multi
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
+      // Local per-question display floor override (hotfix):
+      // Q4 (resolvedIndex === 3) should hold 1 more after click #2.
+      const localDisplayFloorByIndex: Record<number, number> = { 3: 1 };
+      const localFloor = Math.max(0, Number(localDisplayFloorByIndex[resolvedIndex] ?? 0));
+  
+      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1) || localFloor > 0)) {
+        // If the dataset underflags correctness, rely on multiSignal + selectedCount or the local floor.
+        const fallbackFloor = localFloor > 0 ? localFloor : 1; // ensure "1 more" floor when building multi
+        minDisplayRemaining = Math.max(
+          configuredFloor > 0 ? configuredFloor : fallbackFloor,
+          localFloor
+        );
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -1807,7 +1814,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← pass local floor via ctx (explicit, no shorthand)
+          minDisplayRemaining: minDisplayRemaining // ← pass local floor via ctx
         } as any
       );
   
@@ -1825,6 +1832,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
