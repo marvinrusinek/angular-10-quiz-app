@@ -1095,34 +1095,31 @@ export class SelectionMessageService {
     //      and clear stale-completion freezes while the floor is active.
     // ────────────────────────────────────────────────────────────
     // HONOR THE COSMETIC FLOOR FROM CTX
-    enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
-    if (floorFromCtx > 0 && /next button|show results/i.test(next))
-      next = (typeof buildRemainingMsg === 'function')
-        ? buildRemainingMsg(enforcedRemaining)
-        : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+    {
+      // Check whether the incoming message is Next-ish BEFORE we rewrite it
+      const incomingIsNextish = /next button|show results/i.test(next ?? '');
 
-    const lowNext = (next ?? '').toLowerCase();
-    const isNextishIncoming = lowNext.includes('next button') || lowNext.includes('show results');
-  
-    if (floorFromCtx > 0) {
-      // If emitter wants to show at least N, enforce it here visually
-      enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
-  
-      // If someone sent a Next-ish string, rewrite it to a Select message right here
-      if (isNextishIncoming) {
-        next = (typeof buildRemainingMsg === 'function')
-          ? buildRemainingMsg(enforcedRemaining)
-          : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+      if (floorFromCtx > 0) {
+        // If emitter wants to show at least N, enforce it here visually
+        enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+
+        // If someone sent a Next-ish string, rewrite it to a Select message right here
+        if (incomingIsNextish) {
+          next = (typeof buildRemainingMsg === 'function')
+            ? buildRemainingMsg(enforcedRemaining)
+            : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+        }
+
+        // Un-complete and clear freezes so a previous “Next” cannot pin the UI
+        try {
+          (this as any).completedByIndex ??= new Map<number, boolean>();
+          (this as any).completedByIndex.set(i0, false);
+          this.freezeNextishUntil?.set?.(i0, 0);
+          this.suppressPassiveUntil?.set?.(i0, 0);
+        } catch {}
       }
-  
-      // Un-complete and clear freezes so a previous “Next” cannot pin the UI
-      try {
-        (this as any).completedByIndex ??= new Map<number, boolean>();
-        (this as any).completedByIndex.set(i0, false);
-        this.freezeNextishUntil?.set?.(i0, 0);
-        this.suppressPassiveUntil?.set?.(i0, 0);
-      } catch {}
     }
+
   
     // Classifiers (recomputed if next was rewritten above)
     const low = (next ?? '').toLowerCase();
