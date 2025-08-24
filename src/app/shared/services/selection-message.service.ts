@@ -1654,7 +1654,7 @@ export class SelectionMessageService {
       if (canonicalTextSet.size === 0) seedFrom(canonicalOpts);
   
       const answerTextSet = new Set<string>();
-      const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null) ? [qRef.answer] : [];
+      const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
       if (ansArr.length) {
         for (let i = 0; i < canonicalOpts.length; i++) {
           const c: any = canonicalOpts[i];
@@ -1759,10 +1759,12 @@ export class SelectionMessageService {
       const expectedForFloor = Number.isFinite(expectedForFloorRaw) && expectedForFloorRaw > 0 ? expectedForFloorRaw : Math.max(2, expectedTotal);
       const nearCompletion = selectedCount >= Math.max(1, expectedForFloor - 1);
   
+      // LOCAL floor holds “1 more” on Q4 when the user is one away (even if a pick was incorrect)
       const localFloor = (isQ4 && nearCompletion && selectedCorrect < expectedForFloor) ? 1 : 0;
   
       let minDisplayRemaining = 0;
-      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
+      // Floor applies whenever the user has started selecting on a multi question
+      if (selectedCount >= 1 && (multiSignal || expectedTotal > 1)) {
         const fallbackFloor = 1; // keep “1 more…” while building multi
         // priority: configured → local → fallback
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : (localFloor > 0 ? localFloor : fallbackFloor);
@@ -1839,6 +1841,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
