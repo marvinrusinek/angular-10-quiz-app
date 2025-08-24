@@ -1409,37 +1409,39 @@ export class SelectionMessageService {
     const priorSnap = this.getLatestOptionsSnapshot?.();
     if (!Array.isArray(options) || options.length === 0) return;
   
-    const getAnySelectedUnion = (): boolean => {
-      let any = options.some((o: any) => !!o?.selected);
+    // ────────────────────────────────────────────────────────────
+    // REPLACE helper: tighter selection detector (no cross-question bleed)
+    // ────────────────────────────────────────────────────────────
+    const anySelectedStrict = (): boolean => {
+      // 0) Current UI array is the ground truth
+      if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
+  
+      // 1) Selection service, but ONLY for the UI index (avoid resolvedIndex bleed)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
   
-        const idsResolved = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
-        if (idsResolved instanceof Set) any ||= idsResolved.size > 0;
-        else if (Array.isArray(idsResolved)) any ||= idsResolved.length > 0;
-        else if (idsResolved != null) any ||= true;
+        const ids = selSvc?.getSelectedIdsForQuestion?.(index);
+        if (ids instanceof Set) return ids.size > 0;
+        if (Array.isArray(ids)) return ids.length > 0;
+        if (ids != null) return true;
+      } catch { /* ignore */ }
   
-        if (!any) {
-          const idsUi = selSvc?.getSelectedIdsForQuestion?.(index);
-          if (idsUi instanceof Set) any ||= idsUi.size > 0;
-          else if (Array.isArray(idsUi)) any ||= idsUi.length > 0;
-          else if (idsUi != null) any ||= true;
-  
-          if (!any && typeof selSvc?.getSelectedOption === 'function') {
-            const oneResolved = selSvc.getSelectedOption(resolvedIndex);
-            const oneUi = selSvc.getSelectedOption(index);
-            any ||= !!oneResolved || !!oneUi;
+      // 2) Prior snapshot only if it clearly refers to THIS question’s option set
+      try {
+        const snap = this.getLatestOptionsSnapshot?.();
+        if (Array.isArray(snap) && snap.length) {
+          const sig = optionSig(options);
+          const snapSig = optionSig(snap);
+          if (sig && snapSig && sig === snapSig) {
+            return snap.some((o: any) => !!o?.selected);
           }
         }
       } catch { /* ignore */ }
   
-      if (!any && Array.isArray(priorSnap)) {
-        try { any ||= priorSnap.some((o: any) => !!o?.selected); } catch {}
-      }
-      return any;
+      return false;
     };
   
     // ────────────────────────────────────────────────────────────
@@ -1522,8 +1524,8 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER  (configurable display floor + ctx passthrough)
     // ────────────────────────────────────────────────────────────
     {
-      const anySelectedUnion = getAnySelectedUnion();
-      if (!anySelectedUnion) {
+      const anySelected = anySelectedStrict();
+      if (!anySelected) {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
@@ -1533,7 +1535,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // Build sets of “known correct” from canonical, answers, and UI
+      // Build judge set (canonical + answers + payload) by TEXT (normalized)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
       const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
@@ -1602,13 +1604,16 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline (authoritative from service)
-      const expectedTotal = Math.max(1, this.quizService.getNumberOfCorrectAnswers(index));
+      // ── expectedTotal baseline (authoritative from service, fallback to 2)
+      let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(index));
+      if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
+        expectedTotal = Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
+      }
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
-      // Also block "Next" if there exists any unselected option we believe is correct
+      // If we believe there are unselected known-corrects, keep remaining ≥ that count
       let unselectedKnownCorrect = 0;
       for (const o of options) {
         const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
@@ -1616,26 +1621,24 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Keep ≥1 while learning totals / avoid flicker
+      // Avoid flicker while the user is still building up correct picks
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
-      // ────────────────────────────────────────────────────────────
-      // NEW: Configurable DISPLAY floor by stable key (prefer id, fallback index).
-      //      Cosmetic only (does NOT change expectedTotal/scoring). Passed to sink via ctx.
-      // ────────────────────────────────────────────────────────────
+      // Configurable DISPLAY floor (cosmetic only, passed to sink via ctx)
       const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
-      const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
       let minDisplayRemaining = 0;
-      if (selectedCorrect >= 1) {
-        // floor activates as soon as user has started selecting (robust to transient wrong flags)
+  
+      // Floor applies only AFTER the first correct selection and BEFORE full completion
+      if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
+        const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
   
-      // 🔑 UNCOMPLETE the question if we still need more picks (kills stale 'Next' freezes)
+      // If we’re going to show a remaining prompt, make sure stale 'Next' freezes are cleared
       if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
@@ -1648,7 +1651,7 @@ export class SelectionMessageService {
         } catch {}
       }
   
-      // Force the outgoing message to respect the floor (prevents “Next” at source)
+      // Final display amount respects the floor, but gating still uses `remaining`
       const displayRemaining = Math.max(remaining, minDisplayRemaining);
   
       const msg =
@@ -1670,8 +1673,8 @@ export class SelectionMessageService {
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        minDisplayRemaining,  // ← what we want the sink to enforce cosmetically
-        displayRemaining,     // ← what we actually show now
+        minDisplayRemaining,  // cosmetic floor we want the sink to honor
+        displayRemaining,     // what we actually show now
         msg
       });
   
@@ -1684,12 +1687,13 @@ export class SelectionMessageService {
             index,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // ← KEY: sink uses this to keep “Select 1 more…” on click #2
+            minDisplayRemaining // ctx passthrough for the sink to enforce the floor
           } as any
         );
       });
     }
   }
+  
   
   
   
