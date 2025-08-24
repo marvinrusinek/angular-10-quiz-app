@@ -1407,13 +1407,24 @@ export class SelectionMessageService {
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // *** KEY: If we previously showed Single-Answer “Next” but this looks like MULTI, clear the lock.
+    // ────────────────────────────────────────────────────────────
+    // STEP 1: Unfreeze stale Single→Next lock if this now looks like MULTI
+    // ────────────────────────────────────────────────────────────
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
     if (this._singleNextLockedByKey.has(qKey)) {
       if (likelyMulti) {
         this._singleNextLockedByKey.delete(qKey); // unfreeze stale single-answer lock for this multi question
+        // clear any freeze/suppress windows so "Next" can't pin
+        try {
+          (this as any).freezeNextishUntil?.set?.(index, 0);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
+          (this as any).suppressPassiveUntil?.set?.(index, 0);
+          (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
+        } catch {}
+        // continue into Multiple-Answer block
       } else {
-        return; // still truly single → ignore further emits
+        // still truly single → ignore further emits
+        return;
       }
     }
   
@@ -1720,6 +1731,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
