@@ -1393,7 +1393,7 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // Sticky canonical correct count (prefer canonical; cache once known)
-    // (moved above the 'Next lock' guard so we can detect multi before returning)
+    // (above lock guard so we can detect MULTI before returning)
     // ────────────────────────────────────────────────────────────
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
@@ -1407,24 +1407,19 @@ export class SelectionMessageService {
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // ────────────────────────────────────────────────────────────
     // STEP 1: Unfreeze stale Single→Next lock if this now looks like MULTI
-    // ────────────────────────────────────────────────────────────
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
     if (this._singleNextLockedByKey.has(qKey)) {
       if (likelyMulti) {
-        this._singleNextLockedByKey.delete(qKey); // unfreeze stale single-answer lock for this multi question
-        // clear any freeze/suppress windows so "Next" can't pin
+        this._singleNextLockedByKey.delete(qKey);
         try {
           (this as any).freezeNextishUntil?.set?.(index, 0);
           (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
-        // continue into Multiple-Answer block
       } else {
-        // still truly single → ignore further emits
-        return;
+        return; // still truly single → ignore further emits
       }
     }
   
@@ -1447,37 +1442,29 @@ export class SelectionMessageService {
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // REPLACE helper: tighter selection detector (no cross-question bleed)
+    // Tight selection detector (no cross-question bleed)
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
-      // 0) Current UI array is the ground truth
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
-  
-      // 1) Selection service, but ONLY for the UI index (avoid resolvedIndex bleed)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
-  
         const ids = selSvc?.getSelectedIdsForQuestion?.(index);
         if (ids instanceof Set) return ids.size > 0;
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
-      } catch { /* ignore */ }
-  
-      // 2) Prior snapshot only if it clearly refers to THIS question’s option set
+      } catch {}
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
-          const sig = optionSig(options);
-          const snapSig = optionSig(snap);
+          const sig = optionSig(options), snapSig = optionSig(snap);
           if (sig && snapSig && sig === snapSig) {
             return snap.some((o: any) => !!o?.selected);
           }
         }
-      } catch { /* ignore */ }
-  
+      } catch {}
       return false;
     };
   
@@ -1490,9 +1477,9 @@ export class SelectionMessageService {
     } else if (canon === 1) {
       effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.SingleAnswer) {
-      effType = QuestionType.SingleAnswer; // trust declared
+      effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.MultipleAnswer) {
-      effType = QuestionType.MultipleAnswer; // trust declared
+      effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount > 1) {
       effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount === 1) {
@@ -1539,7 +1526,7 @@ export class SelectionMessageService {
             const one = selSvc.getSelectedOption(resolvedIndex);
             anySelected ||= !!one;
           }
-        } catch { /* ignore */ }
+        } catch {}
       }
   
       if (!anySelected && Array.isArray(priorSnap)) {
@@ -1558,7 +1545,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       const anySelected = anySelectedStrict();
@@ -1572,7 +1559,7 @@ export class SelectionMessageService {
         return;
       }
   
-      // Build judge set (canonical + answers + payload) by TEXT (normalized)
+      // Judge set from canonical + answers + payload (by normalized text)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
       const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
@@ -1641,11 +1628,13 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline (authoritative from service, fallback to 2)
+      // GATING expectedTotal (authoritative from service BUT floored for Q4 to 2)
       let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(index));
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         expectedTotal = Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
+      const gatingFloorByIndex: Record<number, number> = { 3: 2 }; // Q4 must require 2 picks to pass
+      expectedTotal = Math.max(expectedTotal, gatingFloorByIndex[index] ?? 0);
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -1658,32 +1647,33 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // Avoid flicker while the user is still building up correct picks
+      // Avoid flicker while building up correct picks
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
       if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
         remaining = Math.max(1, remaining);
       }
   
-      // Configurable DISPLAY floor (cosmetic only, passed to sink via ctx)
+      // DISPLAY floor (cosmetic only, passed to sink via ctx)
       const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
+      const hardDisplayFloorByIndex: Record<number, number> = { 3: 1 }; // Q4: always keep "1 more" visible after first pick
       let minDisplayRemaining = 0;
   
-      // Floor applies AFTER first correct pick and BEFORE (or even at) completion to prevent premature "Next"
-      // (kept generous to cover under-flagged datasets like Q4)
-      if (selectedIncorrect === 0 && selectedCorrect >= 1) {
+      if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
+        minDisplayRemaining = Math.max(configuredFloor, hardDisplayFloorByIndex[index] ?? 0, fallbackFloor);
       }
   
-      // If we’re going to show a remaining prompt, make sure stale 'Next' freezes are cleared
+      // If we’re going to show a remaining prompt, clear stale completion and
+      // also set a short Next-ish freeze so nothing flips to "Next"
       if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          (this as any).freezeNextishUntil?.set?.(index, 0);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
+          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, now + 1500);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1500);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -1731,6 +1721,8 @@ export class SelectionMessageService {
       });
     }
   }
+  
+  
   
   
   
