@@ -1454,38 +1454,17 @@ export class SelectionMessageService {
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
     const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0);
   
-    // If Single-Answer “Next” already shown, unlock if we now detect Multi
-    if (this._singleNextLockedByKey.has(qKey)) {
-      if (multiSignal) {
-        this._singleNextLockedByKey.delete(qKey);
-      } else {
-        return; // still truly single → ignore further emits
-      }
-    }
+    // Local per-question display-floor override (Q4 zero-based = 3)
+    const localDisplayFloorByIndex: Record<number, number> = { 3: 1 };
+    const localFloor = Math.max(0, Number(localDisplayFloorByIndex[resolvedIndex] ?? 0));
   
-    // Cold-start guard for MultipleAnswer
-    const coldStartLikely =
-      !(this.quizService?.questions?.length > 0) ||
-      this.quizService?.currentQuestion == null;
-  
-    if (coldStartLikely && (questionType === QuestionType.MultipleAnswer || canon > 1 || payloadCorrectCount > 1)) {
-      queueMicrotask(() => {
-        const baseMsg = (typeof CONTINUE_MSG === 'string'
-          ? CONTINUE_MSG
-          : 'Please select an option to continue...');
-        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
-      });
-      if (questionType === QuestionType.MultipleAnswer) return;
-    }
-  
+    // Will use this soon to include floor in multi detection even if correctness flags are missing
     const priorSnap = this.getLatestOptionsSnapshot?.();
     if (!Array.isArray(options) || options.length === 0) return;
   
     // ────────────────────────────────────────────────────────────
-    // REPLACE helper: tighter selection detector (no cross-question bleed)
-    // + selectedCountStrict helper so floor can activate even without correctness flags
+    // Tighter selection detector + selected count (no cross-question bleed)
     // ────────────────────────────────────────────────────────────
     const anySelectedStrict = (): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
@@ -1513,9 +1492,7 @@ export class SelectionMessageService {
     };
   
     const selectedCountStrict = (): number => {
-      // count from current payload first
       let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
-      // augment from service (same UI index only)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -1526,7 +1503,6 @@ export class SelectionMessageService {
         else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
         else if (ids != null) cnt = Math.max(cnt, 1);
       } catch { /* ignore */ }
-      // snapshot only if it matches this question's option set
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
@@ -1539,6 +1515,36 @@ export class SelectionMessageService {
       } catch { /* ignore */ }
       return cnt;
     };
+  
+    // Include local floor in multi detection once the user has *any* selection on that Q
+    const selCntEarly = selectedCountStrict();
+    const localMultiSignal = (localFloor > 0 && selCntEarly >= 1);
+  
+    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0) || localMultiSignal;
+  
+    // If Single-Answer “Next” already shown, unlock if we now detect Multi
+    if (this._singleNextLockedByKey.has(qKey)) {
+      if (multiSignal) {
+        this._singleNextLockedByKey.delete(qKey);
+      } else {
+        return; // still truly single → ignore further emits
+      }
+    }
+  
+    // Cold-start guard for MultipleAnswer
+    const coldStartLikely =
+      !(this.quizService?.questions?.length > 0) ||
+      this.quizService?.currentQuestion == null;
+  
+    if (coldStartLikely && (questionType === QuestionType.MultipleAnswer || canon > 1 || payloadCorrectCount > 1)) {
+      queueMicrotask(() => {
+        const baseMsg = (typeof CONTINUE_MSG === 'string'
+          ? CONTINUE_MSG
+          : 'Please select an option to continue...');
+        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
+      });
+      if (questionType === QuestionType.MultipleAnswer) return;
+    }
   
     // ────────────────────────────────────────────────────────────
     // Effective type (trust multi-signal)
@@ -1745,42 +1751,37 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: local hotfix for Q4 (zero-based 3) to force "1 more" after second click.
+      //    IMPORTANT: local hotfix for Q4 (zero-based 3) to hold "1 more" after second click.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0;
-  
-      // Local per-question display floor override (hotfix):
-      // Q4 (resolvedIndex === 3) should hold 1 more after click #2.
-      const localDisplayFloorByIndex: Record<number, number> = { 3: 1 };
-      const localFloor = Math.max(0, Number(localDisplayFloorByIndex[resolvedIndex] ?? 0));
-  
-      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1) || localFloor > 0)) {
-        // If the dataset underflags correctness, rely on multiSignal + selectedCount or the local floor.
-        const fallbackFloor = localFloor > 0 ? localFloor : 1; // ensure "1 more" floor when building multi
-        minDisplayRemaining = Math.max(
-          configuredFloor > 0 ? configuredFloor : fallbackFloor,
-          localFloor
-        );
+      let minDisplayRemaining = 0;    
+
+      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (localMultiSignal && selectedCount >= 1))) {
+        // If the dataset under-flags correctness, rely on selection count + local/multi signal.
+        const fallbackFloor = 1; // hold "Select 1 more..." while building multi
+        // Priority: configured floor from service → local per-question floor → fallback
+        minDisplayRemaining = configuredFloor > 0
+          ? configuredFloor
+          : (localFloor > 0 ? localFloor : fallbackFloor);
       }
-  
+
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
-          const nowTs = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, nowTs + 4000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, nowTs + 4000);
+          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
       }
-  
+
       // Final display amount respects the floor, but gating still uses `remaining`
       const displayRemaining = Math.max(remaining, minDisplayRemaining);
-  
+
       const msg =
         displayRemaining > 0
           ? (typeof buildRemainingMsg === 'function'
@@ -1789,7 +1790,7 @@ export class SelectionMessageService {
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
-  
+
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
@@ -1805,7 +1806,7 @@ export class SelectionMessageService {
         displayRemaining,     // what we actually show now
         msg
       });
-  
+
       // Send immediately and again in a microtask (prevents a late writer flipping to Next)
       this.updateSelectionMessage(
         msg,
@@ -1814,10 +1815,11 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← pass local floor via ctx
+          // ⬅️ pass local/configured floor through ctx so the sink enforces it
+          minDisplayRemaining: minDisplayRemaining
         } as any
       );
-  
+
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -1826,12 +1828,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← pass again to reinforce floor
+            minDisplayRemaining: minDisplayRemaining
           } as any
         );
       });
     }
   }
+
   
   
   
