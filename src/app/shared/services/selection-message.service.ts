@@ -1453,8 +1453,10 @@ export class SelectionMessageService {
     );
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
     const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
+  
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0);
+    // 🔧 CHANGE #1: do NOT use dispFloorCfg to force Multi — prevents false positives (e.g., Q2).
+    const multiSignal = likelyMulti || (expectedBySvc > 1);
   
     // If Single-Answer “Next” already shown, unlock if we now detect Multi
     if (this._singleNextLockedByKey.has(qKey)) {
@@ -1744,28 +1746,29 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
-      //    even if correctness flags are missing (this covers Q4 click #2).
-      //    LOCAL Q4 FLOOR (service-driven): use currentQuestionIndex and service expected count.
+      //    IMPORTANT: only apply the cosmetic floor to:
+      //      • Q4 (service-indexed), or
+      //      • questions with an explicit configured floor.
+      //    This prevents Q2 from being affected.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
   
       // Prefer service's notion of "current question" to avoid param/index skew
       const curIx = Number((this as any)?.currentQuestionIndex ?? (this.quizService as any)?.currentQuestionIndex ?? resolvedIndex);
-      const isQ4 = (curIx === 3) || (String(qRef?.id) === '4'); // still “the 4th question”, but aligned to service index
+      const isQ4 = (curIx === 3) || (String(qRef?.id) === '4');
   
-      // Use service expected count so the “1 more” latch arms when user has selected all but one
+      // Use service expected count for “one away” detection
       const expectedForFloorRaw = Number((this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex));
       const expectedForFloor = Number.isFinite(expectedForFloorRaw) && expectedForFloorRaw > 0 ? expectedForFloorRaw : Math.max(2, expectedTotal);
       const nearCompletion = selectedCount >= Math.max(1, expectedForFloor - 1);
   
-      const localFloor = (isQ4 && nearCompletion && selectedCorrect < expectedForFloor) ? 1 : 0;
-  
       let minDisplayRemaining = 0;
-      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
-        const fallbackFloor = 1; // keep “1 more…” while building multi
-        // priority: configured → local → fallback
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : (localFloor > 0 ? localFloor : fallbackFloor);
+  
+      // 🔧 CHANGE #2: floor only if (isQ4 || configuredFloor>0); no global fallback.
+      if ((isQ4 || configuredFloor > 0) && selectedCount >= 1 && (multiSignal || expectedTotal > 1)) {
+        const localFloor = (isQ4 && nearCompletion && selectedCorrect < expectedForFloor) ? 1 : 0;
+        // priority: configured → local; no global fallback = 0 (prevents Q2 spillover)
+        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : localFloor;
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -1820,7 +1823,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          // pass floor through ctx (includes local Q4 floor)
+          // pass floor through ctx (includes configured and local Q4 floor only)
           minDisplayRemaining: minDisplayRemaining
         } as any
       );
@@ -1839,6 +1842,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
