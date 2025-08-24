@@ -204,6 +204,8 @@ export class QuizService implements OnDestroy {
   questionPayloadSubject = new BehaviorSubject<QuestionPayload | null>(null);
   questionPayload$ = this.questionPayloadSubject.asObservable();
 
+  private expectedCountOverride: Record<number, number> = {};
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -2251,8 +2253,21 @@ export class QuizService implements OnDestroy {
     console.log('[🚀 Emitted question + options + explanation to payload]');
   }
 
+  // Replace your getter with this minimal version
   public getNumberOfCorrectAnswers(index?: number): number {
     const i = Number.isFinite(index as number) ? (index as number) : (this.currentQuestionIndex ?? 0);
-    return ((this.questions?.[i]?.options ?? []).filter((o: any) => !!o?.correct).length) || 0;
+  
+    // If we have a sticky value, use it
+    const cached = this.expectedCountOverride[i];
+    if (typeof cached === 'number' && cached >= 0) return cached;
+  
+    // Compute from data
+    const opts = this.questions?.[i]?.options ?? [];
+    const count = opts.filter((o: any) => !!o?.correct).length || 0;
+  
+    // Only cache once the options are actually present (prevents caching 0 before hydration)
+    if (opts.length > 0) this.expectedCountOverride[i] = count;
+  
+    return count;
   }
 } 
