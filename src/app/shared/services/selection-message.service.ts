@@ -1088,6 +1088,13 @@ export class SelectionMessageService {
   
     // Remaining by current payload (pre-floor)
     let enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
+
+    // ⬇HONOR THE COSMETIC FLOOR FROM CTX
+    enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+    if (floorFromCtx > 0 && /next button|show results/i.test(next))
+      next = (typeof buildRemainingMsg === 'function')
+        ? buildRemainingMsg(enforcedRemaining)
+        : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
   
     // ────────────────────────────────────────────────────────────
     // NEW: FIX #3 — honor cosmetic floor from ctx (prevents “Next” at sink)
