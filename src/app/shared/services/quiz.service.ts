@@ -209,6 +209,9 @@ export class QuizService implements OnDestroy {
   // Sticky per-index minimums
   private minExpectedByIndex: Record<number, number> = {};
 
+  private minDisplayRemainingById:    Record<string, number> = {};
+  private minDisplayRemainingByIndex: Record<number, number> = {};
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -2287,5 +2290,25 @@ export class QuizService implements OnDestroy {
     if (typeof cached === 'number') {
       (this as any).expectedCountOverride[i] = Math.max(cached, v);
     }
+  }
+
+  // Prefer by id; fallback to index
+  public getMinDisplayRemaining(index?: number, qId?: string): number {
+    if (qId && (this as any).minDisplayRemainingById?.[qId] != null) {
+      return (this as any).minDisplayRemainingById[qId] as number;
+    }
+    return (this as any).minDisplayRemainingByIndex?.[index ?? this.currentQuestionIndex ?? 0] ?? 0;
+  }
+
+  // Configure a floor by stable question id (recommended)
+  public setMinDisplayRemainingForId(id: string, n: number): void {
+    if (!id) return;
+    this.minDisplayRemainingById[String(id)] = Math.max(1, Math.floor(n || 0));
+  }
+
+  // Fallback: configure by 0-based index
+  public setMinDisplayRemainingForIndex(i: number, n: number): void {
+    if (!Number.isFinite(i as any)) return;
+    this.minDisplayRemainingByIndex[i] = Math.max(1, Math.floor(n || 0));
   }
 }

@@ -1120,40 +1120,40 @@ export class SelectionMessageService {
       }
       remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
   
-      // CHANGED: Per-index DISPLAY floor (does not change real expectedTotal)
-      // Q4 (index 3): always show at least "Select 1 more..." once the user has started picking and has no wrong picks.
-      const minDisplayRemainingByIndex: Record<number, number> = { 3: 1 }; // Q4 only
-      let displayRemaining = remaining;
-      const dispFloor = minDisplayRemainingByIndex[index] ?? 0;
-      if (dispFloor > 0 && selectedIncorrect === 0 && selectedCorrect >= 1) {
-        displayRemaining = Math.max(displayRemaining, dispFloor); // ← forces "1 more" on both first and second correct clicks
+      // Keep ≥1 while learning totals
+      const anyUnselectedLeft = options.some((o: any) => !o?.selected);
+      if (anyUnselectedLeft && selectedCorrect < expectedTotal) {
+        remaining = Math.max(1, remaining);
       }
   
-      // (Optional) brief Next-ish suppression so other paths don’t flip the text immediately
-      if (displayRemaining > 0) {
-        const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-        try {
-          (this as any).freezeNextishUntil?.set?.(index, now + 1200);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1200);
-        } catch {}
-      }
+      // ────────────────────────────────────────────────────────────
+      // NEW: Configurable DISPLAY floor by stable key (prefer id, fallback index).
+      //      Cosmetic only (does NOT change expectedTotal/scoring). Passed to sink via ctx.
+      // ────────────────────────────────────────────────────────────
+      const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined; // NEW
+      const dispFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));               // NEW
+      const displayRemainingOverride =
+        (dispFloor > 0 && selectedIncorrect === 0 && selectedCorrect >= 1) ? dispFloor : 0;             // NEW
   
-      // 🔑 Uncomplete only if we are displaying a remaining prompt
-      if (displayRemaining > 0) {
+      // 🔑 UNCOMPLETE the question if we still need more picks (kills stale 'Next' freezes)
+      if (remaining > 0 || displayRemainingOverride > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
+          (this as any).freezeNextishUntil?.set?.(index, 0);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, 0);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
       }
   
-      const nextMsg =
-        displayRemaining > 0
+      // Build the message we want to show right now
+      const msg =
+        remaining > 0
           ? (typeof buildRemainingMsg === 'function'
-              ? buildRemainingMsg(displayRemaining)
-              : `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`)
+              ? buildRemainingMsg(remaining)
+              : `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`)
           : (typeof NEXT_BTN_MSG === 'string'
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
@@ -1161,31 +1161,33 @@ export class SelectionMessageService {
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
+        qId,                          // NEW
         expectedTotal,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
+        anyUnselectedLeft,
         remaining,
-        displayRemaining, // ← CHANGED: what we actually show
-        msg: nextMsg
+        displayRemainingOverride,     // NEW: what we want the sink to enforce
+        msg
       });
   
+      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       queueMicrotask(() => {
-        this.updateSelectionMessage(nextMsg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+        this.updateSelectionMessage(
+          msg,
+          {
+            options,
+            index,
+            questionType: QuestionType.MultipleAnswer,
+            token: tok,
+            minDisplayRemaining: displayRemainingOverride // NEW
+          } as any
+        );
       });
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    
   
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
   
