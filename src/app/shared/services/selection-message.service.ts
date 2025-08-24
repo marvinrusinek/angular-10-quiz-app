@@ -1112,17 +1112,19 @@ export class SelectionMessageService {
       const expectedTotal = Math.max(1, this.quizService.getNumberOfCorrectAnswers(index));
   
       // Remaining — block "Next" until full set is selected
-      // CHANGED: remaining is computed strictly against the service total
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Also block "Next" if there exists any unselected option we believe is correct
-      // (kept: uses judgeSet so we don't prematurely show "Next" when a known-correct remains)
+      // CHANGED: cap this by expectedTotal-selectedCorrect so it never exceeds the service total.
       let unselectedKnownCorrect = 0;
       for (const o of options) {
         const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
         if (!o?.selected && t && judgeSet.has(t)) unselectedKnownCorrect++;
       }
-      remaining = Math.max(remaining, unselectedKnownCorrect);
+      remaining = Math.max(
+        remaining,
+        Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)) // ← CHANGED
+      );
   
       // Keep ≥1 while learning totals (kept)
       const anyUnselectedLeft = options.some((o: any) => !o?.selected);
@@ -1155,7 +1157,7 @@ export class SelectionMessageService {
       console.log('[EMIT:GATE]', {
         index,
         resolvedIndex,
-        expectedTotal,            // ← proves what the service says for this Q
+        expectedTotal,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
@@ -1169,6 +1171,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
