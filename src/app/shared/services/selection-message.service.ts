@@ -1321,7 +1321,6 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
-  
   public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
@@ -1390,7 +1389,7 @@ export class SelectionMessageService {
   
     // ────────────────────────────────────────────────────────────
     // Sticky canonical correct count (prefer canonical; cache once known)
-    // (moved above the 'Next lock' guard so we can detect multi before returning)
+    // (kept; we need this before the “Next lock” guard below)
     // ────────────────────────────────────────────────────────────
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
@@ -1399,16 +1398,37 @@ export class SelectionMessageService {
       this._canonCountByKey.set(qKey, canon);
     }
   
+    // ────────────────────────────────────────────────────────────
     // Payload flags kept for effType + fallback
+    // ────────────────────────────────────────────────────────────
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
   
-    // *** KEY: If we previously showed Single-Answer “Next” but this looks like MULTI, clear the lock.
+    // ────────────────────────────────────────────────────────────
+    // NEW: stronger multi-signal for unlocking stale Single-Answer lock:
+    //  - declared MultipleAnswer
+    //  - canon > 1 (from canonical)
+    //  - payloadCorrectCount > 1 (from UI payload)
+    //  - service expected > 1 (authoritative/fallback)
+    //  - display floor configured (>0) for this question (cosmetic, but proves intent)
+    // ────────────────────────────────────────────────────────────
+    const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined; // NEW
+    const expectedBySvcRaw = Number(
+      (this.quizService as any)?.getNumberOfCorrectAnswers?.(resolvedIndex)
+      ?? (this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex)
+      ?? 0
+    );
+    const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
+    const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(index, qId) ?? 0));
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
+    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0); // NEW
+  
+    // If Single-Answer “Next” already shown for this question, ignore further emits
+    // NEW: but if we have any multi-signal, UNLOCK it so Q4 can proceed.
     if (this._singleNextLockedByKey.has(qKey)) {
-      if (likelyMulti) {
-        this._singleNextLockedByKey.delete(qKey); // unfreeze stale single-answer lock for this multi question
+      if (multiSignal) {
+        this._singleNextLockedByKey.delete(qKey);        // ← NEW: unfreeze stale single lock
       } else {
         return; // still truly single → ignore further emits
       }
@@ -1539,7 +1559,8 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
   
-      if (anySelected) this._singleNextLockedByKey.add(qKey);
+      // NEW: only lock “Next” for single if we have NO multi-signal at all
+      if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey); // ← NEW
       return;
     }
   
@@ -1553,14 +1574,14 @@ export class SelectionMessageService {
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
         queueMicrotask(() => {
-          this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+          this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
         });
         return;
       }
   
       // Build judge set (canonical + answers + payload) by TEXT (normalized)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
-      const uiQuestion = (resolvedIndex >= 0 && resolvedIndex < svcQuestions.length) ? svcQuestions[resolvedIndex] : undefined;
+      const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
   
       const canonicalTextSet = new Set<string>();
       const seedFrom = (arr: any[]) => {
@@ -1627,10 +1648,11 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline (authoritative from service, use resolvedIndex; fallback to 2)
-      let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex));
+      // ── expectedTotal baseline (authoritative from service, fallback to 2)
+      let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex)); // ← use resolvedIndex
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
-        expectedTotal = Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
+        const exp2 = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex) ?? 0);
+        expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
       // Remaining — real math for gating
@@ -1651,12 +1673,10 @@ export class SelectionMessageService {
       }
   
       // Configurable DISPLAY floor (cosmetic only, passed to sink via ctx)
-      const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
-      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
+      const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
       let minDisplayRemaining = 0;
   
-      // Floor applies AFTER first correct pick and BEFORE (or even at) completion to prevent premature "Next"
-      // (kept generous to cover under-flagged datasets like Q4)
+      // Floor applies AFTER first correct pick; allow it to hold even on click #2 (Q4)
       if (selectedIncorrect === 0 && selectedCorrect >= 1) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
@@ -1708,7 +1728,7 @@ export class SelectionMessageService {
           msg,
           {
             options,
-            index: resolvedIndex,
+            index,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
             minDisplayRemaining // ctx passthrough for the sink to enforce the floor
@@ -1717,9 +1737,6 @@ export class SelectionMessageService {
       });
     }
   }
-  
-  
-  
   
   
   
