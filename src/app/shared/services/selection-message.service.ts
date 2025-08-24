@@ -1419,7 +1419,7 @@ export class SelectionMessageService {
       ?? 0
     );
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
-    const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(index, qId) ?? 0));
+    const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
     const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0); // NEW
   
@@ -1443,7 +1443,7 @@ export class SelectionMessageService {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        this.updateSelectionMessage(baseMsg, { options, index, questionType, token: tok });
+        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
       });
       if (questionType === QuestionType.MultipleAnswer) return;
     }
@@ -1506,6 +1506,11 @@ export class SelectionMessageService {
       effType = questionType;
     }
   
+    // ⚠️ Step 1: if any multi-signal exists, force MultipleAnswer (prevents Q4 falling into Single)
+    if (effType !== QuestionType.MultipleAnswer && multiSignal) {
+      effType = QuestionType.MultipleAnswer;
+    }
+  
     if (effType === QuestionType.SingleAnswer) {
       this._typeLockByKey.set(qKey, QuestionType.SingleAnswer);
     }
@@ -1555,12 +1560,11 @@ export class SelectionMessageService {
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
-        // NOTE: no minDisplayRemaining here (prevents TS18004 and keeps single clean)
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
   
-      // NEW: only lock “Next” for single if we have NO multi-signal at all
-      if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey); // ← NEW
+      // only lock “Next” for single if we have NO multi-signal at all
+      if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey);
       return;
     }
   
@@ -1574,14 +1578,14 @@ export class SelectionMessageService {
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
         queueMicrotask(() => {
-          this.updateSelectionMessage(baseMsg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+          this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
         });
         return;
       }
   
       // Build judge set (canonical + answers + payload) by TEXT (normalized)
       const svcQuestions: any[] = (this.quizService as any)?.questions ?? [];
-      const uiQuestion = (index >= 0 && index < svcQuestions.length) ? svcQuestions[index] : undefined;
+      const uiQuestion = (resolvedIndex >= 0 && resolvedIndex < svcQuestions.length) ? svcQuestions[resolvedIndex] : undefined;
   
       const canonicalTextSet = new Set<string>();
       const seedFrom = (arr: any[]) => {
@@ -1677,7 +1681,7 @@ export class SelectionMessageService {
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
   
-      // 🔒 declare ONCE, outside of any if-blocks (so it’s in scope for the call below)
+      // declare ONCE (so it's in scope at call site)
       let minDisplayRemaining = 0;
   
       // Floor applies AFTER first correct pick; allow it to hold even on click #2 (Q4)
@@ -1727,7 +1731,6 @@ export class SelectionMessageService {
         msg
       });
   
-      // ✅ Pass the display override explicitly so the sink won’t flip to “Next”
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -1736,12 +1739,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // explicit property avoids TS18004
+            minDisplayRemaining: minDisplayRemaining // ctx passthrough for the sink to enforce the floor
           } as any
         );
       });
     }
   }
+  
   
   
   
