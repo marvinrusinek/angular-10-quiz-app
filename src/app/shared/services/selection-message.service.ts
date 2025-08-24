@@ -953,7 +953,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   } */
-  public updateSelectionMessage(
+  public updateSelectionMessage( 
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; minDisplayRemaining?: number; } // ← added minDisplayRemaining to ctx
   ): void {
@@ -965,17 +965,30 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // NEW: cosmetic floor coming from the emitter (e.g., Q4 forces "1 more")
+    // ────────────────────────────────────────────────────────────
+    // NEW — honor cosmetic floor coming from the emitter (Q4 forces "1 more")
+    // Place this block RIGHT AFTER computing i0 and next.
+    // It rewrites any incoming Next-ish text to a Select message and clears stale latches.
+    // ────────────────────────────────────────────────────────────
     const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
+    const mkSelectMsg = (n: number) =>
+      (typeof buildRemainingMsg === 'function'
+        ? buildRemainingMsg(n)
+        : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`);
+  
     if (floorFromCtx > 0) {
-      // If a Next-ish string sneaks in, rewrite it to a Select message
-      const low = (message ?? '').toLowerCase();
-      const isNextish = low.includes('next button') || low.includes('show results');
-      if (isNextish) {
-        const n = floorFromCtx;
-        message = (typeof buildRemainingMsg === 'function')
-          ? buildRemainingMsg(n)
-          : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`;
+      const lowNext = (next ?? '').toLowerCase();
+      const isNextishIncoming = lowNext.includes('next button') || lowNext.includes('show results');
+      if (isNextishIncoming) {
+        // Rewrite to a "Select N more..." message immediately
+        next = mkSelectMsg(floorFromCtx);
+        // Un-complete & clear freezes so a previously latched "Next" can't pin the UI
+        try {
+          (this as any).completedByIndex ??= new Map<number, boolean>();
+          (this as any).completedByIndex.set(i0, false);
+          this.freezeNextishUntil?.set?.(i0, 0);
+          this.suppressPassiveUntil?.set?.(i0, 0);
+        } catch {}
       }
     }
   
@@ -1091,7 +1104,6 @@ export class SelectionMessageService {
       (qTypeDeclared === QuestionType.MultipleAnswer) ||
       (totalCorrectCanonical > 1) ||
       (floorFromCtx > 0);   // floor implies multi UX
-
   
     // Normalize: never show START_MSG except on very first question and only for single-answer
     if (next === START_MSG && (i0 > 0 || isMultiFinal)) {
@@ -1106,21 +1118,20 @@ export class SelectionMessageService {
     //      Also rewrite an incoming Next-ish message into “Select N more…”
     //      and clear stale-completion freezes while the floor is active.
     // ────────────────────────────────────────────────────────────
-    // HONOR THE COSMETIC FLOOR FROM CTX
     {
       const incomingIsNextish = /next button|show results/i.test(next ?? '');
-    
+  
       if (floorFromCtx > 0) {
         // 1) Enforce the floor now (visual only)
         enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
-    
+  
         // 2) Rewrite any incoming Next-ish to "Select N more..."
         if (incomingIsNextish) {
           next = (typeof buildRemainingMsg === 'function')
             ? buildRemainingMsg(enforcedRemaining)
             : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
         }
-    
+  
         // 3) Un-complete & clear freezes so "Next" can’t stick
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
@@ -1219,6 +1230,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
