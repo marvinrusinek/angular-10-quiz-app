@@ -16,7 +16,6 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
-
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -1098,19 +1097,19 @@ export class SelectionMessageService {
     {
       // Check whether the incoming message is Next-ish BEFORE we rewrite it
       const incomingIsNextish = /next button|show results/i.test(next ?? '');
-
+    
       if (floorFromCtx > 0) {
-        // If emitter wants to show at least N, enforce it here visually
+        // 1) Visually enforce the floor *before* any Next-ish branch is evaluated
         enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
-
-        // If someone sent a Next-ish string, rewrite it to a Select message right here
+    
+        // 2) If someone sent a Next-ish string, rewrite it immediately
         if (incomingIsNextish) {
           next = (typeof buildRemainingMsg === 'function')
             ? buildRemainingMsg(enforcedRemaining)
             : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
         }
-
-        // Un-complete and clear freezes so a previous “Next” cannot pin the UI
+    
+        // 3) Un-complete and clear freezes so a previous “Next” cannot pin the UI
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
           (this as any).completedByIndex.set(i0, false);
@@ -1119,7 +1118,6 @@ export class SelectionMessageService {
         } catch {}
       }
     }
-
   
     // Classifiers (recomputed if next was rewritten above)
     const low = (next ?? '').toLowerCase();
