@@ -1627,7 +1627,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + LOCAL floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + LOCAL svc-based floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       // prevent later writers from flipping back to Single mid-flight
@@ -1713,28 +1713,30 @@ export class SelectionMessageService {
         if (t && judgeSet.has(t)) selectedCorrect++; else selectedIncorrect++;
       }
   
-      // ── expectedTotal baseline (authoritative from service, with fixup)
+      // ── expectedTotal baseline (authoritative from service, with sensible fallbacks)
       let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex));
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         const exp2 = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex) ?? 0);
-        expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
+        const fromFlags = Math.max(canonicalTextSet.size, payloadTextSet.size, answerTextSet.size, 0);
+        const fromStem  = stemN > 0 ? stemN : 0;
+        expectedTotal = Math.max(
+          Number.isFinite(exp2) && exp2 > 0 ? exp2 : 0,
+          fromStem,
+          fromFlags,
+          likelyMulti ? 2 : 0
+        );
+        if (expectedTotal <= 0) expectedTotal = 1;
       }
   
-      // If the service says "1" but signals point to multi, bump to 2
-      const selectedCount = selectedCountStrict();
+      // Remaining — real math for gating (based on correctness)
+      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+  
+      // Also block if we believe there are unselected known-corrects
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
           const t = norm(o?.text ?? o?.label ?? '');
           return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
         }, 0);
-  
-      const signalsSayTwoPlus = (canon > 1) || (payloadCorrectCount > 1) || (stemN > 1) || likelyMulti;
-      if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
-  
-      // Remaining — real math for gating
-      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-  
-      // Also block if we believe there are unselected known-corrects
       if (unselectedKnownCorrect > 0) {
         remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
       }
@@ -1747,31 +1749,25 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough
-      //    Trigger ONLY when there is exactly one selection on a multi-target Q.
-      //    This yields “Select 1 more …” for the 2nd click on Q4.
+      //    Use service-reported target vs. *selected count* (not correctness),
+      //    so after the SECOND click on a 3-answer Q (Q4), we force “1 more”.
       // ────────────────────────────────────────────────────────────
-      const configuredFloor = Math.max(0, dispFloorCfg);
-      const multiTarget =
-        Math.max(
-          expectedBySvc > 0 ? expectedBySvc : 0,
-          stemN > 0 ? stemN : 0,
-          (canon > 1 || payloadCorrectCount > 1) ? 2 : 0
-        );
+      const selectedCount = selectedCountStrict();
+      const svcTarget = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex)) || 0;
   
+      // Only apply if we clearly have a multi target and the user is still short.
       let localFloor = 0;
-      if (selectedIncorrect === 0 && selectedCount === 1 && multiTarget >= 2) {
-        localFloor = 1; // show “Select 1 more …” after FIRST pick on a multi question
+      if (svcTarget > 1 && selectedIncorrect === 0 && selectedCount >= 1 && selectedCount < svcTarget) {
+        // Cosmetic minimum: show at least “1 more…” (don’t over-constrain the UI)
+        localFloor = 1;
       }
   
+      // Also respect any configured cosmetic floor
+      const configuredFloor = Math.max(0, dispFloorCfg);
       const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
       // Final display respects the floor (cosmetic) but gating still uses `remaining`
-      let displayRemaining = Math.max(remaining, minDisplayRemaining);
-  
-      // If we *want* precisely “1 more” after the first selection, force it visually:
-      if (localFloor === 1) {
-        displayRemaining = 1;
-      }
+      const displayRemaining = Math.max(remaining, minDisplayRemaining);
   
       const msg =
         displayRemaining > 0
@@ -1787,7 +1783,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
-        expectedBySvc,
+        svcTarget,
         stemN,
         selectedCount,
         selectedCorrect,
@@ -1796,8 +1792,7 @@ export class SelectionMessageService {
         anyUnselectedLeft,
         remaining,
         configuredFloor,
-        multiTarget,
-        localFloor,          // ← local cosmetic floor (1 when exactly one pick on multi)
+        localFloor,          // ← local cosmetic floor (1 when selectedCount < svcTarget)
         minDisplayRemaining, // ← sent via ctx so sink can rewrite any stray “Next”
         displayRemaining,
         msg
@@ -1829,6 +1824,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
