@@ -1742,24 +1742,34 @@ export class SelectionMessageService {
         remaining = Math.max(1, remaining);
       }
   
+      // Parse a "Select N ..." stem if present to help set the UX target (covers datasets that under-flag)
+      let stemN = 0;
+      try {
+        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+        const m = /select\s+(\d+)/i.exec(stemSrc);
+        if (m) {
+          const n = Number(m[1]); if (Number.isFinite(n) && n > 0) stemN = n;
+        }
+      } catch { /* ignore */ }
+  
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough  ⟵  (STEP 1)
-      //    Local floor: if UX clearly indicates multi, and the learner has
-      //    at least one selection but hasn’t reached the (UX) target,
-      //    hold “Select 1 more…” regardless of correctness flags.
+      //    Local floor: if UX clearly indicates multi and at least one selection
+      //    is made but we haven’t reached the UX target, hold “Select X more…”.
+      //    This is selection-count based (does not depend on correctness flags),
+      //    which fixes Q4 click #2.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
   
-      // UX target: if any multi signal exists, the *minimum* target is 2
-      const uxTarget = multiSignal ? Math.max(2, expectedTotal) : expectedTotal;
+      // UX target: prefer the largest of signals (service, stem, min 2 when multi)
+      const uxTarget = (multiSignal
+        ? Math.max(2, expectedTotal, stemN)
+        : Math.max(expectedTotal, stemN));
   
-      // Local floor logic (dataset-agnostic):
-      // - zero wrong picks so far
-      // - at least one selection made
-      // - but fewer than the UX target (e.g. 2)
+      // If user has made some selections but fewer than target, show the gap
       let localFloor = 0;
-      if (selectedIncorrect === 0 && selectedCount >= 1 && selectedCount < uxTarget) {
-        localFloor = 1; // show “Select 1 more…”
+      if (selectedCount > 0 && selectedCount < uxTarget) {
+        localFloor = uxTarget - selectedCount; // e.g., with target 2 and selectedCount 1 → 1
       }
   
       // Final cosmetic floor we want the sink to honor (never affects gating math)
@@ -1796,6 +1806,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        stemN,
         uxTarget,
         selectedCount,
         selectedCorrect,
@@ -1804,7 +1815,7 @@ export class SelectionMessageService {
         anyUnselectedLeft,
         remaining,
         configuredFloor,
-        localFloor,          // ← local floor (STEP 1)
+        localFloor,          // ← local floor (STEP 1, now selection-count based)
         minDisplayRemaining, // ← what we pass through ctx
         displayRemaining,
         msg
@@ -1836,6 +1847,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
