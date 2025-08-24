@@ -1405,12 +1405,7 @@ export class SelectionMessageService {
       : 0;
   
     // ────────────────────────────────────────────────────────────
-    // NEW: stronger multi-signal for unlocking stale Single-Answer lock:
-    //  - declared MultipleAnswer
-    //  - canon > 1 (from canonical)
-    //  - payloadCorrectCount > 1 (from UI payload)
-    //  - service expected > 1 (authoritative/fallback)
-    //  - display floor configured (>0) for this question (cosmetic, but proves intent)
+    // NEW: stronger multi-signal for unlocking stale Single-Answer lock
     // ────────────────────────────────────────────────────────────
     const qId: string | undefined = (qRef as any)?.id != null ? String((qRef as any).id) : undefined;
     const expectedBySvcRaw = Number(
@@ -1421,13 +1416,13 @@ export class SelectionMessageService {
     const expectedBySvc = Number.isFinite(expectedBySvcRaw) ? expectedBySvcRaw : 0;
     const dispFloorCfg = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qId) ?? 0));
     const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
-    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0); // NEW
+    const multiSignal = likelyMulti || (expectedBySvc > 1) || (dispFloorCfg > 0);
   
     // If Single-Answer “Next” already shown for this question, ignore further emits
-    // NEW: but if we have any multi-signal, UNLOCK it so Q4 can proceed.
+    // but if we have any multi-signal, UNLOCK it so multi can proceed.
     if (this._singleNextLockedByKey.has(qKey)) {
       if (multiSignal) {
-        this._singleNextLockedByKey.delete(qKey);        // ← unfreeze stale single lock
+        this._singleNextLockedByKey.delete(qKey);
       } else {
         return; // still truly single → ignore further emits
       }
@@ -1487,7 +1482,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type:
+    // Effective type (trust multi-signal)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -1495,9 +1490,9 @@ export class SelectionMessageService {
     } else if (canon === 1) {
       effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.SingleAnswer) {
-      effType = QuestionType.SingleAnswer; // trust declared
+      effType = QuestionType.SingleAnswer;
     } else if (questionType === QuestionType.MultipleAnswer) {
-      effType = QuestionType.MultipleAnswer; // trust declared
+      effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount > 1) {
       effType = QuestionType.MultipleAnswer;
     } else if (payloadCorrectCount === 1) {
@@ -1505,10 +1500,8 @@ export class SelectionMessageService {
     } else {
       effType = questionType;
     }
-  
-    // Step 1: if any multi-signal exists, force MultipleAnswer (prevents Q4 falling into Single)
     if (effType !== QuestionType.MultipleAnswer && multiSignal) {
-      effType = QuestionType.MultipleAnswer;
+      effType = QuestionType.MultipleAnswer; // ← force multi to prevent Q4 “Next” on click #2
     }
   
     if (effType === QuestionType.SingleAnswer) {
@@ -1563,7 +1556,6 @@ export class SelectionMessageService {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
   
-      // only lock “Next” for single if we have NO multi-signal at all
       if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey);
       return;
     }
@@ -1656,7 +1648,7 @@ export class SelectionMessageService {
       }
   
       // ── expectedTotal baseline (authoritative from service, fallback to 2)
-      let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex)); // ← use resolvedIndex
+      let expectedTotal = Number(this.quizService.getNumberOfCorrectAnswers(resolvedIndex));
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         const exp2 = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex) ?? 0);
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
@@ -1680,25 +1672,24 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ DROP-IN TAIL (floor → call) — explicit scope + ctx passthrough
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0; // declared in scope
+      let minDisplayRemaining = 0; // scoped
   
-      // Floor applies AFTER first correct pick; allow it to hold even on click #2 (Q4)
+      // Floor applies AFTER first correct pick; keep it even when remaining hits 0 (Q4 click #2)
       if (selectedIncorrect === 0 && selectedCorrect >= 1) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
   
-      // If we’re going to show a remaining prompt, make sure stale 'Next' freezes are cleared
+      // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(index, false);
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          // Stronger freeze to block late “Next” writers
           (this as any).freezeNextishUntil?.set?.(index, now + 4000);
           (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
@@ -1733,6 +1724,7 @@ export class SelectionMessageService {
         msg
       });
   
+      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -1741,12 +1733,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ctx passthrough for the sink to enforce the floor
+            minDisplayRemaining: minDisplayRemaining // ← ctx passthrough for the sink to enforce the floor
           } as any
         );
       });
     }
   }
+  
   
   
   
