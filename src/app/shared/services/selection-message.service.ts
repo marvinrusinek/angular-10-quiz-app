@@ -956,13 +956,7 @@ export class SelectionMessageService {
   } */
   public updateSelectionMessage(
     message: string,
-    ctx?: {
-      options?: Option[];
-      index?: number;
-      token?: number;
-      questionType?: QuestionType;
-      minDisplayRemaining?: number; // NEW: cosmetic floor from emitter (e.g., force "1 more" on Q4 click #2)
-    }
+    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; minDisplayRemaining?: number; } // ← added minDisplayRemaining to ctx
   ): void {
     const current = this.selectionMessageSubject.getValue();
     let next = (message ?? '').trim();  // mutable to normalize START→CONTINUE when needed
@@ -971,6 +965,9 @@ export class SelectionMessageService {
     const i0 = (typeof ctx?.index === 'number' && Number.isFinite(ctx.index))
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
+  
+    // NEW: cosmetic floor coming from the emitter (e.g., Q4 forces "1 more")
+    const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
   
     // Drop regressive “Select N more” updates (don’t increase visible remaining)
     {
@@ -1066,10 +1063,10 @@ export class SelectionMessageService {
       }
     } catch { /* ignore */ }
   
-    // optional per-index hard floor (adjust if your Q4 index differs)
+    // optional per-index hard floor (e.g., Q4 expects 2 as a floor for display/gating if data is under-flagged)
     const hardFloorByIndex: Record<number, number> = { 3: 2 };
   
-    // FLOOR, do NOT cap by unionCorrect
+    // FLOOR, do NOT cap by unionCorrect (this was causing early “Next”)
     const totalForThisQ =
       Math.max(
         Math.max(1, unionCorrect),
@@ -1089,57 +1086,55 @@ export class SelectionMessageService {
       next = CONTINUE_MSG;  // e.g., "Please select an option to continue..."
     }
   
-    // Remaining by current payload
-    const enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
+    // Remaining by current payload (pre-floor)
+    let enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
   
-    // Classifiers
+    // ────────────────────────────────────────────────────────────
+    // NEW: FIX #3 — honor cosmetic floor from ctx (prevents “Next” at sink)
+    //      Also rewrite an incoming Next-ish message into “Select N more…”
+    //      and clear stale-completion freezes while the floor is active.
+    // ────────────────────────────────────────────────────────────
+    const lowNext = (next ?? '').toLowerCase();
+    const isNextishIncoming = lowNext.includes('next button') || lowNext.includes('show results');
+  
+    if (floorFromCtx > 0) {
+      // If emitter wants to show at least N, enforce it here visually
+      enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+  
+      // If someone sent a Next-ish string, rewrite it to a Select message right here
+      if (isNextishIncoming) {
+        next = (typeof buildRemainingMsg === 'function')
+          ? buildRemainingMsg(enforcedRemaining)
+          : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+      }
+  
+      // Un-complete and clear freezes so a previous “Next” cannot pin the UI
+      try {
+        (this as any).completedByIndex ??= new Map<number, boolean>();
+        (this as any).completedByIndex.set(i0, false);
+        this.freezeNextishUntil?.set?.(i0, 0);
+        this.suppressPassiveUntil?.set?.(i0, 0);
+      } catch {}
+    }
+  
+    // Classifiers (recomputed if next was rewritten above)
     const low = (next ?? '').toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
-    // Suppression windows: block Next-ish flips while suppressed
-    const now = performance.now?.() ?? Date.now();
-    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
-    if (now < passiveHold && isNextish) return;
-    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
-    if (now < nextFreeze && isNextish) return;
-  
-    // Per-question "remaining" smoothing
-    const prevRem = this.lastRemainingByIndex.get(i0);
-    if (prevRem === undefined || enforcedRemaining !== prevRem) {
-      this.lastRemainingByIndex.set(i0, enforcedRemaining);
-      if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
-        this.enforceUntilByIndex.set(i0, (now as number) + 800);
-      }
-      if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
-    }
-    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
-    const inEnforce = (now as number) < enforceUntil;
-  
-    // MULTI behavior:
-    //  - Before any pick → force "Select N more..." (Q2/Q4 fix)
-    //  - While remaining>0 → keep "Select N more..."
-    //  - When remaining==0 → Next/Results
-    const anySelectedNow = overlaid.some(o => !!o?.selected);
-  
-    // NEW: cosmetic display floor (prefer ctx, but it's optional)
-    const minDisp = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
-  
-    // NEW: floor is active as soon as the user has started picking (don’t try to infer wrong picks here)
-    const floorActive = (minDisp > 0 && anySelectedNow);
-  
     // ────────────────────────────────────────────────────────────
-    // FIX #2: don't freeze to Next if we still need answers; also bypass freeze while floor is active
+    // FIX #2: don't freeze to Next if we still need answers; un-complete it.
+    // (kept from your version, now also covered by floor handler above)
     // ────────────────────────────────────────────────────────────
     const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
     if (isMultiFinal && wasCompleted) {
-      if (enforcedRemaining > 0 || floorActive) {
+      if (enforcedRemaining > 0) {
         try {
           (this as any).completedByIndex?.set?.(i0, false);
           this.freezeNextishUntil?.set?.(i0, 0);
           this.suppressPassiveUntil?.set?.(i0, 0);
         } catch {}
-        // fall through and display the correct “Select N more...”
+        // fall through and show the correct “Select N more...” below
       } else {
         const isLastQ = i0 === (this.quizService.totalQuestions - 1);
         const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -1148,31 +1143,46 @@ export class SelectionMessageService {
       }
     }
   
+    // Suppression windows: block Next-ish flips while suppressed
+    const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+    const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
+    if (now < passiveHold && isNextish) return;
+    const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
+    if (now < nextFreeze && isNextish) return;
+  
+    // Per-question "remaining" smoothing (kept)
+    const prevRem = this.lastRemainingByIndex.get(i0);
+    if (prevRem === undefined || enforcedRemaining !== prevRem) {
+      this.lastRemainingByIndex.set(i0, enforcedRemaining);
+      if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
+        this.enforceUntilByIndex.set(i0, now + 800);
+      }
+      if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
+    }
+    const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
+    const inEnforce = now < enforceUntil;
+  
+    // MULTI behavior (kept)
+    const anySelectedNow = overlaid.some(o => !!o?.selected);
+  
     if (isMultiFinal) {
       if (!anySelectedNow) {
-        const forced0 = buildRemainingMsg(Math.max(1, totalForThisQ)); // e.g., "Select 2 more..."
-        if (current !== forced0) this.selectionMessageSubject.next(forced0);
-        return;
-      }
-  
-      // CHANGED: compute a displayRemaining that respects smoothing AND the cosmetic floor
-      let displayRemaining = enforcedRemaining;
-      if (inEnforce) displayRemaining = Math.max(displayRemaining, 1);
-      if (floorActive) displayRemaining = Math.max(displayRemaining, minDisp);
-  
-      if (displayRemaining > 0) {
-        const forced = buildRemainingMsg(Math.max(1, displayRemaining));
+        const forced = buildRemainingMsg(Math.max(1, totalForThisQ)); // e.g., "Select 2 more..."
         if (current !== forced) this.selectionMessageSubject.next(forced);
         return;
       }
-  
+      if (enforcedRemaining > 0 || inEnforce) {
+        const forced = buildRemainingMsg(Math.max(1, enforcedRemaining));
+        if (current !== forced) this.selectionMessageSubject.next(forced);
+        return;
+      }
       const isLastQ = i0 === (this.quizService.totalQuestions - 1);
       const finalMsg = isLastQ ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       if (current !== finalMsg) this.selectionMessageSubject.next(finalMsg);
       return;
     }
   
-    // SINGLE → never allow "Select more..."; allow Next/Results when any selected
+    // SINGLE → never allow "Select more..."; allow Next/Results when any selected (kept)
     const anySelected = anySelectedNow;
     const isLast = i0 === (this.quizService.totalQuestions - 1);
   
@@ -1195,6 +1205,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
@@ -1693,6 +1704,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
