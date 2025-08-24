@@ -1391,11 +1391,9 @@ export class SelectionMessageService {
     // @ts-ignore
     this._canonCountByKey       ??= new Map<string, number>();
   
-    // If Single-Answer “Next” already shown for this question, ignore further emits
-    if (this._singleNextLockedByKey.has(qKey)) return;
-  
     // ────────────────────────────────────────────────────────────
     // Sticky canonical correct count (prefer canonical; cache once known)
+    // (moved above the 'Next lock' guard so we can detect multi before returning)
     // ────────────────────────────────────────────────────────────
     const currCanon = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
     const prevCanon = this._canonCountByKey.get(qKey) ?? 0;
@@ -1408,6 +1406,16 @@ export class SelectionMessageService {
     const payloadCorrectCount = Array.isArray(options)
       ? options.reduce((n: number, o: any) => n + (!!o?.correct ? 1 : 0), 0)
       : 0;
+  
+    // *** KEY: If we previously showed Single-Answer “Next” but this looks like MULTI, clear the lock.
+    const likelyMulti = (questionType === QuestionType.MultipleAnswer) || (canon > 1) || (payloadCorrectCount > 1);
+    if (this._singleNextLockedByKey.has(qKey)) {
+      if (likelyMulti) {
+        this._singleNextLockedByKey.delete(qKey); // unfreeze stale single-answer lock for this multi question
+      } else {
+        return; // still truly single → ignore further emits
+      }
+    }
   
     // Cold-start guard for MultipleAnswer: if quiz not hydrated, don’t jump to “Next”
     const coldStartLikely =
@@ -1539,7 +1547,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (configurable display floor + ctx passthrough)
+    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       const anySelected = anySelectedStrict();
@@ -1650,8 +1658,9 @@ export class SelectionMessageService {
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(index, qId));
       let minDisplayRemaining = 0;
   
-      // Floor applies only AFTER the first correct selection and BEFORE full completion
-      if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
+      // Floor applies AFTER first correct pick and BEFORE (or even at) completion to prevent premature "Next"
+      // (kept generous to cover under-flagged datasets like Q4)
+      if (selectedIncorrect === 0 && selectedCorrect >= 1) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
@@ -1711,6 +1720,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
