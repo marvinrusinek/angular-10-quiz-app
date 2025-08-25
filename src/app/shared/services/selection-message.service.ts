@@ -2474,7 +2474,9 @@ export class SelectionMessageService {
     };
   
     const selectedCountStrict = (): number => {
+      // count from current payload first
       let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
+      // augment from service (same UI index only)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -2485,6 +2487,7 @@ export class SelectionMessageService {
         else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
         else if (ids != null) cnt = Math.max(cnt, 1);
       } catch { /* ignore */ }
+      // snapshot only if it matches this question's option set
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
@@ -2671,23 +2674,6 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // NEW: derive a "stem" target from the question text like "Select 3 ..."
-      try {
-        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-        const m = /select\s+(\d+)/i.exec(stemSrc);
-        const stemN = m ? Number(m[1]) : 0;
-        if (Number.isFinite(stemN) && stemN > 0) {
-          expectedTotal = Math.max(expectedTotal, stemN);
-        }
-      } catch { /* ignore */ }
-  
-      // Also respect known signals
-      expectedTotal = Math.max(
-        expectedTotal,
-        canon > 0 ? canon : 0,
-        payloadCorrectCount > 0 ? payloadCorrectCount : 0
-      );
-  
       const selectedCount = selectedCountStrict();
   
       const unselectedKnownCorrect =
@@ -2696,6 +2682,7 @@ export class SelectionMessageService {
           return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
         }, 0);
   
+      // If the service says "1" but signals point to multi, bump to 2
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
@@ -2720,24 +2707,20 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    Hold “1 more” while we’re still building toward expectedTotal,
-      //    with no wrong picks, in a multi context. Stem-derived totals
-      //    ensure Q4 (e.g., "Select 3 ...") shows correctly on click #2.
+      //    Triggers whenever we’re still *one away* (e.g., Q4 after 2nd click if only 1 correct so far).
+      //    Uses service config if present, else falls back to 1.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
+      let minDisplayRemaining = 0; // will be passed to sink
   
-      let localFloor = 0;
-      if (
-        (effType === QuestionType.MultipleAnswer || multiSignal) &&
-        expectedTotal >= 2 &&
-        selectedCount > 0 &&
-        selectedCount < expectedTotal &&
-        selectedIncorrect === 0
-      ) {
-        localFloor = 1; // show “Select 1 more …”
+      // Only apply a floor while building the correct set (no penalties for mistakes)
+      if (selectedIncorrect === 0 && selectedCount >= 1 && selectedCorrect < expectedTotal) {
+        // If we are exactly one away, enforce at least "1 more"
+        const oneAway = (expectedTotal - selectedCorrect) === 1;
+        const fallbackFloor = oneAway ? 1 : 0;
+         // LOCAL DISPLAY FLOOR: prefer configured value, else fallback
+        minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
       }
-  
-      const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2746,8 +2729,8 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(index, now + 1200);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1200);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -2775,15 +2758,13 @@ export class SelectionMessageService {
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
-        configuredFloor,
-        localFloor,
         remaining,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
         msg
       });
   
-      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
+      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
       this.updateSelectionMessage(
         msg,
         {
@@ -2791,10 +2772,11 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining // ← pass floor through ctx
+          minDisplayRemaining: minDisplayRemaining // ← LOCAL DISPLAY FLOOR passthrough
         } as any
       );
   
+      // Small reinforcement to win any race with late writers
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -2803,12 +2785,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // ← reinforce floor
+            minDisplayRemaining: minDisplayRemaining
           } as any
         );
       });
     }
   }
+  
   
   
   
