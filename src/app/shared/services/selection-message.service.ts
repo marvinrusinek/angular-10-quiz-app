@@ -2442,7 +2442,7 @@ export class SelectionMessageService {
           : 'Please select an option to continue...');
         this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok, minDisplayRemaining: 0 });
       });
-      if (questionType === QuestionType.MultipleAnswer) return;
+    if (questionType === QuestionType.MultipleAnswer) return;
     }
   
     const priorSnap = this.getLatestOptionsSnapshot?.();
@@ -2506,21 +2506,6 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Count-based local floor (computed ONCE, used everywhere via ctx)
-    // Works even if correctness flags are missing.
-    // Example: expected 3, user picked 2 → floor = 1 (prevents “Next”).
-    // ────────────────────────────────────────────────────────────
-    const selectedCount = selectedCountStrict();
-    const expectedMulti = (Number.isFinite(expectedBySvc) && expectedBySvc > 0)
-      ? expectedBySvc
-      : Math.max(2, canon || payloadCorrectCount || 0, 2);
-  
-    const preFloor =
-      (selectedCount >= 1 && expectedMulti > 1 && selectedCount < expectedMulti)
-        ? (expectedMulti - selectedCount)
-        : 0;
-  
-    // ────────────────────────────────────────────────────────────
     // Effective type (trust multi-signal; also force Multi if ≥2 picks)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
@@ -2539,7 +2524,8 @@ export class SelectionMessageService {
     } else {
       effType = questionType;
     }
-    if (effType !== QuestionType.MultipleAnswer && (multiSignal || selectedCount >= 2)) {
+    const selCountNow = selectedCountStrict();
+    if (effType !== QuestionType.MultipleAnswer && (multiSignal || selCountNow >= 2)) {
       effType = QuestionType.MultipleAnswer; // ← force multi to prevent “Next” on click #2
     }
   
@@ -2558,6 +2544,29 @@ export class SelectionMessageService {
   
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
+  
+    // ────────────────────────────────────────────────────────────
+    // Count-based LOCAL FLOOR (computed ONCE, robust to under-flagging)
+    // - expectedHint prefers service; falls back to canonical/payload; min 2 for Multi UX
+    // - localFloor is (expectedHint - selectedCount) when user has started selecting (>0)
+    // ────────────────────────────────────────────────────────────
+    const canonicalCorrectCount = canon;
+    const answersHint =
+      Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
+      ((qRef as any)?.answer != null ? 1 : 0);
+  
+    let expectedHint = expectedBySvc;
+    if (!Number.isFinite(expectedHint) || expectedHint <= 0) {
+      expectedHint = Math.max(answersHint, canonicalCorrectCount, payloadCorrectCount, 2);
+    }
+  
+    let localFloor = 0;
+    if (effType === QuestionType.MultipleAnswer && selCountNow >= 1) {
+      const need = Math.max(expectedHint - selCountNow, 0);
+      if (need > 0) {
+        localFloor = Math.max(need, 1); // at least “1 more…” while building
+      }
+    }
   
     // ────────────────────────────────────────────────────────────
     // SINGLE-ANSWER
@@ -2594,7 +2603,7 @@ export class SelectionMessageService {
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
-          { options, index: resolvedIndex, questionType: effType, token: tok, minDisplayRemaining: preFloor } as any
+          { options, index: resolvedIndex, questionType: effType, token: tok, minDisplayRemaining: 0 } as any
         );
       });
   
@@ -2616,7 +2625,8 @@ export class SelectionMessageService {
           : 'Please select an option to continue...');
         queueMicrotask(() => {
           this.updateSelectionMessage(baseMsg, {
-            options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok, minDisplayRemaining: preFloor
+            options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok,
+            minDisplayRemaining: 0
           } as any);
         });
         return;
@@ -2718,19 +2728,16 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // LOCAL DISPLAY FLOOR (cosmetic) — merge the preFloor here too
+      // LOCAL DISPLAY FLOOR (cosmetic) — merge author floor + count-based floor
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      // Keep author’s configured floor after first pick
-      if (configuredFloor > 0 && selectedCount >= 1) {
+      if (configuredFloor > 0 && selCountNow >= 1) {
         minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
       }
-  
-      // Count-based floor (works even without correctness flags)
-      if (preFloor > 0) {
-        minDisplayRemaining = Math.max(minDisplayRemaining, preFloor);
+      if (localFloor > 0) {
+        minDisplayRemaining = Math.max(minDisplayRemaining, localFloor);
       }
   
       // Final display amount respects the floor, but gating still uses `remaining`
@@ -2751,7 +2758,8 @@ export class SelectionMessageService {
         qId,
         expectedTotal,
         expectedBySvc,
-        selectedCount,
+        expectedHint,
+        selectedCount: selCountNow,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
@@ -2770,7 +2778,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: Math.max(minDisplayRemaining, preFloor) // ← pass the floor
+          minDisplayRemaining: Math.max(minDisplayRemaining, localFloor)
         } as any
       );
   
@@ -2782,7 +2790,7 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: Math.max(minDisplayRemaining, preFloor)
+            minDisplayRemaining: Math.max(minDisplayRemaining, localFloor)
           } as any
         );
       });
