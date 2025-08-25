@@ -71,7 +71,6 @@ export class SelectionMessageService {
   private _maxCorrectByKey: Map<string, number> = new Map<string, number>();
   private _typeLockByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
   private _lastTypeByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
-
   
   // Cache canonical correct count per question key (sticky)
   private _canonCountByKey = new Map<string, number>();
