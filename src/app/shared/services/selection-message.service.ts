@@ -2653,12 +2653,16 @@ export class SelectionMessageService {
     } catch {}
 
     // Return canonical with selected overlay (fallback to ctx/source if canonical missing)
-    return canonical.length
+    // selectedIds: Set<number|string> built earlier
+    const result: Option[] = canonical.length
       ? canonical.map((o, idx) => {
-          const id = (o as any)?.optionId ?? idx;
-          return { ...o, selected: selectedIds.has(id) };
+          const id = this.toStableId(o, idx);
+          const sel = selectedIds.has(id);
+          return this.toOption(o, idx, sel); // ← always an Option
         })
-      : source.map(o => ({ ...o }));
+      : source.map((o, idx) => this.toOption(o, idx)); // ← always an Option
+
+    return result; // Option[]
   }
   
   // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
@@ -3104,12 +3108,6 @@ export class SelectionMessageService {
     };
   }
 
-  // Optional: if you already have one, keep yours.
-  private toStableId(o: any): number | string {
-    // Prefer stable numeric/string ids; fall back to text as the last resort
-    return (o?.optionId ?? o?.id ?? o?.value ?? o?.text ?? `opt-${Math.random()}`) as number | string;
-  }
-
   // Read side used elsewhere in your code
   public getLatestOptionsSnapshot(): OptionSnapshot[] {
     const snap = this.optionsSnapshotSubject.getValue();
@@ -3171,5 +3169,57 @@ export class SelectionMessageService {
   }
   private isOptionArray(input: any): input is Option[] {
     return Array.isArray(input) && input.every(o => 'optionId' in o || 'id' in o || 'text' in o);
+  }
+
+  // Use the same stable-id logic everywhere
+  private toStableId(o: any, idx?: number): number | string {
+    // 1) Prefer true stable ids if present
+    if (o?.optionId != null) return o.optionId as number | string;
+    if (o?.id != null)       return o.id as number | string;
+    if (o?.value != null)    return o.value as number | string;
+  
+    // 2) Derive from text if available (stable across renders)
+    if (typeof o?.text === 'string' && o.text.trim().length) {
+      return `t:${o.text}`; // prefix to avoid clashing with numeric ids
+    }
+  
+    // 3) Fall back to index if provided
+    if (typeof idx === 'number') {
+      return `i:${idx}`;
+    }
+  
+    // 4) Last-resort constant (still deterministic) – better than Math.random()
+    return 'unknown';
+  }
+  
+
+  // Normalize any candidate into a full Option object
+  private toOption(o: any, idx: number, selectedOverride?: boolean): Option {
+    const optionId = (typeof o?.optionId === 'number' || typeof o?.optionId === 'string')
+      ? o.optionId
+      : this.toStableId(o, idx);
+
+    const selected = typeof selectedOverride === 'boolean'
+      ? selectedOverride
+      : !!o?.selected;
+
+    return {
+      // required/expected fields
+      optionId: optionId as any,
+      text: typeof o?.text === 'string' ? o.text : '',
+      correct: !!o?.correct,
+      value: (o?.value ?? optionId) as any,
+      selected,
+
+      // keep common optional flags consistent
+      active: !!o?.active,
+      highlight: typeof o?.highlight === 'boolean' ? o.highlight : selected,
+      showIcon: typeof o?.showIcon === 'boolean' ? o.showIcon : selected,
+
+      // passthrough optionals with safe defaults
+      answer: o?.answer,
+      feedback: typeof o?.feedback === 'string' ? o.feedback : '',
+      styleClass: typeof o?.styleClass === 'string' ? o.styleClass : ''
+    } as Option;
   }
 }
