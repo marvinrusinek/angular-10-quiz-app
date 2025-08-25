@@ -1803,12 +1803,6 @@ export class SelectionMessageService {
     this.optionsSnapshotSubject.next(safe);
   }
 
-  // Reader: return a defensive copy so external code can’t mutate what we hold
-  public getLatestOptionsSnapshot(): Option[] {
-    const snap = this.optionsSnapshotSubject.getValue();
-    return Array.isArray(snap) ? snap.map(o => ({ ...o })) : [];
-  }
-
   public notifySelectionMutated(options: Option[] | null | undefined): void {
     this.setOptionsSnapshot(options);  // keep existing snapshot
   }
@@ -3109,8 +3103,10 @@ export class SelectionMessageService {
   }
 
   // Read side used elsewhere in your code
-  public getLatestOptionsSnapshot(): ReadonlyArray<OptionSnapshot> | null {
-    return this.latestOptionsSnapshot;
+  public getLatestOptionsSnapshot(): OptionSnapshot[] {
+    const snap = this.optionsSnapshotSubject.getValue();
+    // Return a fresh shallow copy so callers can’t mutate internal state
+    return Array.isArray(snap) ? snap.map(o => ({ ...o })) : [];
   }
 
   // Write side used by emitFromClick()
