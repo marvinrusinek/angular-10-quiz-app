@@ -2618,28 +2618,26 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          the: {
-            const cVal = norm(c?.value);
-            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-            const matched = ansArr.some((a: any) => {
-              if (a == null) return false;
-              if (typeof a === 'object') {
-                const aid = a?.optionId ?? a?.id;
-                if (aid != null && String(aid) === cid) return true;
-                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-                return (!!av && av === cVal) || (!!at && at === cTxt);
-              }
-              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-              const s = String(a); const n = Number(s);
+          const cVal = norm(c?.value);
+          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+          const matched = ansArr.some((a: any) => {
+            if (a == null) return false;
+            if (typeof a === 'object') {
+              const aid = a?.optionId ?? a?.id;
+              if (aid != null && String(aid) === cid) return true;
+              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
               if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const ns = norm(s);
-              return (!!ns && (ns === cVal || ns === cTxt));
-            });
-            if (matched && cTxt) answerTextSet.add(cTxt);
-          }
+              const av = norm(a?.value);
+              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+              return (!!av && av === cVal) || (!!at && at === cTxt);
+            }
+            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+            const s = String(a); const n = Number(s);
+            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+            const ns = norm(s);
+            return (!!ns && (ns === cVal || ns === cTxt));
+          });
+          if (matched && cTxt) answerTextSet.add(cTxt);
         }
       }
   
@@ -2673,6 +2671,23 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
+      // NEW: derive a "stem" target from the question text like "Select 3 ..."
+      try {
+        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+        const m = /select\s+(\d+)/i.exec(stemSrc);
+        const stemN = m ? Number(m[1]) : 0;
+        if (Number.isFinite(stemN) && stemN > 0) {
+          expectedTotal = Math.max(expectedTotal, stemN);
+        }
+      } catch { /* ignore */ }
+  
+      // Also respect known signals
+      expectedTotal = Math.max(
+        expectedTotal,
+        canon > 0 ? canon : 0,
+        payloadCorrectCount > 0 ? payloadCorrectCount : 0
+      );
+  
       const selectedCount = selectedCountStrict();
   
       const unselectedKnownCorrect =
@@ -2705,9 +2720,9 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    Data-safe: hold “1 more” while the number of selections is below the
-      //    service’s expected total, there are no wrong picks, and we’re in multi.
-      //    This fixes Q4 click #2 (expect 3) without affecting Q2 (expect 2).
+      //    Hold “1 more” while we’re still building toward expectedTotal,
+      //    with no wrong picks, in a multi context. Stem-derived totals
+      //    ensure Q4 (e.g., "Select 3 ...") shows correctly on click #2.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
   
@@ -2760,9 +2775,9 @@ export class SelectionMessageService {
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
-        remaining,
         configuredFloor,
         localFloor,
+        remaining,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
         msg
@@ -2794,6 +2809,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
