@@ -2474,9 +2474,7 @@ export class SelectionMessageService {
     };
   
     const selectedCountStrict = (): number => {
-      // count from current payload first
       let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
-      // augment from service (same UI index only)
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -2487,7 +2485,6 @@ export class SelectionMessageService {
         else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
         else if (ids != null) cnt = Math.max(cnt, 1);
       } catch { /* ignore */ }
-      // snapshot only if it matches this question's option set
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         if (Array.isArray(snap) && snap.length) {
@@ -2621,26 +2618,28 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          const cVal = norm(c?.value);
-          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-          const matched = ansArr.some((a: any) => {
-            if (a == null) return false;
-            if (typeof a === 'object') {
-              const aid = a?.optionId ?? a?.id;
-              if (aid != null && String(aid) === cid) return true;
-              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+          the: {
+            const cVal = norm(c?.value);
+            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+            const matched = ansArr.some((a: any) => {
+              if (a == null) return false;
+              if (typeof a === 'object') {
+                const aid = a?.optionId ?? a?.id;
+                if (aid != null && String(aid) === cid) return true;
+                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+                const av = norm(a?.value);
+                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                return (!!av && av === cVal) || (!!at && at === cTxt);
+              }
+              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+              const s = String(a); const n = Number(s);
               if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const av = norm(a?.value);
-              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-              return (!!av && av === cVal) || (!!at && at === cTxt);
-            }
-            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-            const s = String(a); const n = Number(s);
-            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-            const ns = norm(s);
-            return (!!ns && (ns === cVal || ns === cTxt));
-          });
-          if (matched && cTxt) answerTextSet.add(cTxt);
+              const ns = norm(s);
+              return (!!ns && (ns === cVal || ns === cTxt));
+            });
+            if (matched && cTxt) answerTextSet.add(cTxt);
+          }
         }
       }
   
@@ -2706,36 +2705,21 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    Prefer stem “Select N …” when present; else only hold 1 more if:
-      //    - the service claims completion (remaining==0),
-      //    - there are NO wrong picks,
-      //    - the user has at least 2 selections (typical multi UX),
-      //    - and we have evidence of ≥1 additional correct (unselectedKnownCorrect>0)
-      //      or an explicit configured floor is set.
+      //    Data-safe: hold “1 more” while the number of selections is below the
+      //    service’s expected total, there are no wrong picks, and we’re in multi.
+      //    This fixes Q4 click #2 (expect 3) without affecting Q2 (expect 2).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
   
-      // Parse "Select N ..." from stem, if available
-      const rawStem = String((qRef as any)?.questionText ?? (qRef as any)?.question ?? '');
-      const m = /select\s+(\d+)/i.exec(rawStem);
-      const stemN = m ? Math.max(0, Number(m[1])) : 0;
-  
       let localFloor = 0;
-  
-      // Stem-driven floor (most reliable if present)
-      if (stemN > 0 && selectedIncorrect === 0 && selectedCount < stemN) {
-        localFloor = 1;
-      }
-  
-      // Evidence-driven fallback (no brittle hardcoding)
       if (
-        localFloor === 0 &&
-        remaining === 0 &&
-        selectedIncorrect === 0 &&
-        selectedCount >= 2 &&
-        (unselectedKnownCorrect > 0 || configuredFloor > 0)
+        (effType === QuestionType.MultipleAnswer || multiSignal) &&
+        expectedTotal >= 2 &&
+        selectedCount > 0 &&
+        selectedCount < expectedTotal &&
+        selectedIncorrect === 0
       ) {
-        localFloor = 1;
+        localFloor = 1; // show “Select 1 more …”
       }
   
       const minDisplayRemaining = Math.max(configuredFloor, localFloor);
@@ -2771,7 +2755,6 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
-        stemN,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
@@ -2793,7 +2776,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining // ← pass the local/display floor through ctx
+          minDisplayRemaining // ← pass floor through ctx
         } as any
       );
   
@@ -2805,12 +2788,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining // ← reinforce floor in case of late writers
+            minDisplayRemaining // ← reinforce floor
           } as any
         );
       });
     }
   }
+  
   
   
   
