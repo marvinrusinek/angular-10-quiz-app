@@ -2672,7 +2672,6 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
@@ -2704,20 +2703,30 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ PATCH: LOCAL FLOOR (cosmetic only) + ctx passthrough
-      //    Force “1 more” after the first selection when multi is signaled,
-      //    even if correctness flags are missing or stale Next tries to appear.
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough
+      //    IMPORTANT: if the question looks like multi but data is under-flagged,
+      //    hold a *1 more* floor even when service thinks we’re complete.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      // Force 1-more when exactly one option is selected in a multi-context.
-      const forcedOneMore = (selectedCount === 1) && (expectedTotal >= 2 || multiSignal || canon > 1 || payloadCorrectCount > 1);
-      if (forcedOneMore) {
-        minDisplayRemaining = Math.max(configuredFloor, 1);
-      } else if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
+      // Under-flagged multi detector: multi is signaled, but all sources say <=1 correct
+      const underflaggedMulti =
+        multiSignal &&
+        expectedBySvc <= 1 &&
+        canon <= 1 &&
+        payloadCorrectCount <= 1;
+  
+      // 1) Normal floor while building up correct picks
+      if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
         const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
         minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
+      }
+  
+      // 2) Special hold for under-flagged multi (e.g., Q4): keep "1 more" after click #2
+      if (underflaggedMulti && selectedIncorrect === 0 && selectedCount >= 1) {
+        // Force a cosmetic 1-more even if remaining==0 due to bad flags
+        minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor, 1);
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -2751,14 +2760,17 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        expectedBySvc,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
-        minDisplayRemaining,  // cosmetic floor we want the sink to honor
-        displayRemaining,     // what we actually show now
+        configuredFloor,
+        underflaggedMulti,     // ← debug: should be true for your Q4 case
+        minDisplayRemaining,   // cosmetic floor we want the sink to honor
+        displayRemaining,      // what we actually show now
         msg
       });
   
@@ -2788,6 +2800,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
