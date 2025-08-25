@@ -2600,7 +2600,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + local floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       // prevent later writers from flipping back to Single mid-flight
@@ -2640,26 +2640,29 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          const cVal = norm(c?.value);
-          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-          const matched = ansArr.some((a: any) => {
-            if (a == null) return false;
-            if (typeof a === 'object') {
-              const aid = a?.optionId ?? a?.id;
-              if (aid != null && String(aid) === cid) return true;
-              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+          theLoop:
+          {
+            const cVal = norm(c?.value);
+            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+            const matched = ansArr.some((a: any) => {
+              if (a == null) return false;
+              if (typeof a === 'object') {
+                const aid = a?.optionId ?? a?.id;
+                if (aid != null && String(aid) === cid) return true;
+                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+                const av = norm(a?.value);
+                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                return (!!av && av === cVal) || (!!at && at === cTxt);
+              }
+              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+              const s = String(a); const n = Number(s);
               if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const av = norm(a?.value);
-              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-              return (!!av && av === cVal) || (!!at && at === cTxt);
-            }
-            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-            const s = String(a); const n = Number(s);
-            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-            const ns = norm(s);
-            return (!!ns && (ns === cVal || ns === cTxt));
-          });
-          if (matched && cTxt) answerTextSet.add(cTxt);
+              const ns = norm(s);
+              return (!!ns && (ns === cVal || ns === cTxt));
+            });
+            if (matched && cTxt) answerTextSet.add(cTxt);
+          }
         }
       }
   
@@ -2694,14 +2697,12 @@ export class SelectionMessageService {
       }
   
       const selectedCount = selectedCountStrict();
-  
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
           const t = norm(o?.text ?? o?.label ?? '');
           return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
         }, 0);
   
-      // If the service says "1" but signals point to multi, bump to 2
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
@@ -2725,20 +2726,22 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    Triggers whenever we’re still *one away* (e.g., Q4 after 2nd click if only 1 correct so far).
-      //    Uses service config if present, else falls back to 1.
+      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough
+      //    Activate the floor on *any* selection when multiSignal is true,
+      //    even if correctness flags are missing — covers Q4 click #2.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0; // will be passed to sink
+      let minDisplayRemaining = 0;
   
-      // Only apply a floor while building the correct set (no penalties for mistakes)
-      if (selectedIncorrect === 0 && selectedCount >= 1 && selectedCorrect < expectedTotal) {
-        // If we are exactly one away, enforce at least "1 more"
-        const oneAway = (expectedTotal - selectedCorrect) === 1;
-        const fallbackFloor = oneAway ? 1 : 0;
-         // LOCAL DISPLAY FLOOR: prefer configured value, else fallback
-        minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
+      if (selectedIncorrect === 0) {
+        // If the user has begun selecting but hasn't met expectedTotal, hold at least "1 more"
+        if ((selectedCorrect >= 1 || (multiSignal && selectedCount >= 1)) && selectedCorrect < expectedTotal) {
+          const fallbackFloor = 1; // show "Select 1 more..." while building multi
+          minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor > 0 ? configuredFloor : fallbackFloor);
+        } else {
+          // Otherwise honor whatever the config says (usually 0)
+          minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
+        }
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -2748,8 +2751,8 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 1200);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 1200);
+          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -2783,7 +2786,7 @@ export class SelectionMessageService {
         msg
       });
   
-      // Pass the display override so the sink won’t flip to “Next” when we want "1 more"
+      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
       this.updateSelectionMessage(
         msg,
         {
@@ -2791,11 +2794,10 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← LOCAL DISPLAY FLOOR passthrough
+          minDisplayRemaining: minDisplayRemaining // ← pass the local floor through ctx
         } as any
       );
   
-      // Small reinforcement to win any race with late writers
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -2804,16 +2806,12 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining
+            minDisplayRemaining: minDisplayRemaining // ← reinforce the floor in the sink
           } as any
         );
       });
     }
   }
-  
-  
-  
-  
   
   
       
