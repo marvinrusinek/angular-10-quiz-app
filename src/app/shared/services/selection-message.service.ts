@@ -1558,12 +1558,16 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
     // Normalize ids so subsequent remaining/guards compare apples-to-apples
-    this.ensureStableIds(i0, canonical, optsCtx ?? this.getLatestOptionsSnapshot());
-  
+    // Coerce whatever we have into Option[]
+    const prevSnapAsOpts: Option[] = this.toOptionArray(this.getLatestOptionsSnapshot());
+    const ctxAsOpts: Option[] = this.toOptionArray(optsCtx);
+
     // Use canonical overlay for correctness (CURRENT payload view)
-    const snap = optsCtx ?? this.getLatestOptionsSnapshot();
-    this.ensureStableIds(i0, canonical, snap);
-    const overlaid = this.getCanonicalOverlay(i0, snap);
+    this.ensureStableIds(i0, canonical, ctxAsOpts.length ? ctxAsOpts : prevSnapAsOpts);
+
+    const snapOpts: Option[] = ctxAsOpts.length ? ctxAsOpts : prevSnapAsOpts;
+    this.ensureStableIds(i0, canonical, snapOpts);
+    const overlaid = this.getCanonicalOverlay(i0, snapOpts);
   
     // Count correctness from canonical flags
     const totalCorrectCanonical = overlaid.filter(o => !!(o as any)?.correct).length;
@@ -2383,13 +2387,17 @@ export class SelectionMessageService {
   
       // If you keep ID stabilization, preserve it (no-throw guard).
       try {
+        // Coerce prior snapshot → Option[] (handles null/snapshot/option arrays)
+        const priorSnapAsOpts: Option[] = this.toOptionArray(this.getLatestOptionsSnapshot());
+      
         this.ensureStableIds?.(
           index,
-          (q as any)?.options ?? [],
-          options ?? [],
-          priorSnap
+          (q as any)?.options ?? [],  // canonical
+          options ?? [],              // current payload
+          priorSnapAsOpts             // prior snapshot as Option[]
         );
       } catch {}
+      
   
       const canonicalOpts: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
@@ -3129,5 +3137,39 @@ export class SelectionMessageService {
       console.warn('[setLatestOptionsSnapshot] failed; clearing snapshot', e);
       this.latestOptionsSnapshot = null;
     }
+  }
+
+  // Map a single snapshot -> Option
+  private mapSnapshotToOption(s: OptionSnapshot): Option {
+    // Keep your minimal fields; merge into Option shape your code expects.
+    // If your Option interface has more fields, initialize them safely here.
+    return {
+      optionId: s.id as any,
+      selected: !!s.selected,
+      correct: typeof s.correct === 'boolean' ? s.correct : false,
+      // safe defaults for common fields; customize if you have stricter types
+      text: '',
+      value: s.id as any,
+      showIcon: !!s.selected,
+      highlight: !!s.selected,
+      feedback: '',
+      styleClass: ''
+    } as unknown as Option;
+  }
+
+  // Coerce (Option[] | OptionSnapshot[]) -> Option[]
+  private toOptionArray(input: Option[] | OptionSnapshot[] | null | undefined): Option[] {
+    if (!input || !Array.isArray(input) || input.length === 0) return [];
+    if (this.isOptionArray(input)) return input as Option[];
+    if (this.isSnapshotArray(input)) return (input as OptionSnapshot[]).map(s => this.mapSnapshotToOption(s));
+    return [];
+  }
+
+  // Type guards
+  private isSnapshotArray(input: any): input is OptionSnapshot[] {
+    return Array.isArray(input) && input.every(o => 'id' in o && 'selected' in o);
+  }
+  private isOptionArray(input: any): input is Option[] {
+    return Array.isArray(input) && input.every(o => 'optionId' in o || 'id' in o || 'text' in o);
   }
 }
