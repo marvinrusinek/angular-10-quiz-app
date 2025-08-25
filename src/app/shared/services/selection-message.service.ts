@@ -1487,7 +1487,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   } */
-  public updateSelectionMessage(
+  public updateSelectionMessage( 
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; minDisplayRemaining?: number; } // ← added minDisplayRemaining to ctx
   ): void {
@@ -1503,26 +1503,24 @@ export class SelectionMessageService {
     const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
   
     // ────────────────────────────────────────────────────────────
-    // PATCH (near the top, right after i0 & next):
-    // - If a floor is present, enforce it visually immediately.
-    // - IMPORTANT: rewrite **next** (not message) if it is Next-ish.
-    // - Clear stale completion/freezes so “Next” cannot stick.
+    // PATCH (EARLY): if a Next-ish string sneaks in while a floor is active,
+    // rewrite it *immediately* on `next` (not `message`) and clear stale freezes
     // ────────────────────────────────────────────────────────────
-    {
-      const incomingIsNextish = /next button|show results/i.test(next);
-      if (floorFromCtx > 0) {
-        if (incomingIsNextish) {
-          next = (typeof buildRemainingMsg === 'function')
-            ? buildRemainingMsg(floorFromCtx)
-            : `Select ${floorFromCtx} more correct answer${floorFromCtx === 1 ? '' : 's'} to continue...`;
-        }
-        try {
-          (this as any).completedByIndex ??= new Map<number, boolean>();
-          (this as any).completedByIndex.set(i0, false);
-          this.freezeNextishUntil?.set?.(i0, 0);
-          this.suppressPassiveUntil?.set?.(i0, 0);
-        } catch {}
+    if (floorFromCtx > 0) {
+      const isNextishIncoming = /next button|show results/i.test(next);
+      if (isNextishIncoming) {
+        const n = floorFromCtx;
+        next = (typeof buildRemainingMsg === 'function')
+          ? buildRemainingMsg(n)
+          : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`;
       }
+      // Also un-complete & clear freezes so "Next" can’t stick
+      try {
+        (this as any).completedByIndex ??= new Map<number, boolean>();
+        (this as any).completedByIndex.set(i0, false);
+        this.freezeNextishUntil?.set?.(i0, 0);
+        this.suppressPassiveUntil?.set?.(i0, 0);
+      } catch {}
     }
   
     // Drop regressive “Select N more” updates (don’t increase visible remaining)
@@ -1647,19 +1645,40 @@ export class SelectionMessageService {
     let enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
   
     // ────────────────────────────────────────────────────────────
-    // FIX #3 — honor cosmetic floor from ctx:
-    // - enforce remaining ≥ floor
-    // - if next is Next-ish, it’s already rewritten above; still ensure remaining reflects floor
+    // HONOR THE COSMETIC FLOOR FROM CTX (visual only)
     // ────────────────────────────────────────────────────────────
-    enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+    {
+      const incomingIsNextish = /next button|show results/i.test(next ?? '');
   
-    // Classifiers (computed on the possibly rewritten `next`)
+      if (floorFromCtx > 0) {
+        // 1) Enforce the floor now (visual only)
+        enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
+  
+        // 2) Rewrite any Next-ish to "Select N more..." (already done early; keep here for late writers)
+        if (incomingIsNextish) {
+          next = (typeof buildRemainingMsg === 'function')
+            ? buildRemainingMsg(enforcedRemaining)
+            : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
+        }
+  
+        // 3) Un-complete & clear freezes so "Next" cannot stick
+        try {
+          (this as any).completedByIndex ??= new Map<number, boolean>();
+          (this as any).completedByIndex.set(i0, false);
+          this.freezeNextishUntil?.set?.(i0, 0);
+          this.suppressPassiveUntil?.set?.(i0, 0);
+        } catch {}
+      }
+    }
+  
+    // Classifiers (recomputed if next was rewritten above)
     const low = (next ?? '').toLowerCase();
     const isSelectish = low.startsWith('select ') && low.includes('more') && low.includes('continue');
     const isNextish   = low.includes('next button') || low.includes('show results');
   
     // ────────────────────────────────────────────────────────────
     // FIX #2: don't freeze to Next if we still need answers; un-complete it.
+    // (kept from your version, now also covered by floor handler above)
     // ────────────────────────────────────────────────────────────
     const wasCompleted = (this as any).completedByIndex?.get(i0) === true;
     if (isMultiFinal && wasCompleted) {
@@ -1679,23 +1698,23 @@ export class SelectionMessageService {
     }
   
     // Suppression windows: block Next-ish flips while suppressed
-    const nowTs = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+    const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
     const passiveHold = (this.suppressPassiveUntil.get(i0) ?? 0);
-    if (nowTs < passiveHold && isNextish) return;
+    if (now < passiveHold && isNextish) return;
     const nextFreeze = (this.freezeNextishUntil.get(i0) ?? 0);
-    if (nowTs < nextFreeze && isNextish) return;
+    if (now < nextFreeze && isNextish) return;
   
     // Per-question "remaining" smoothing (kept)
     const prevRem = this.lastRemainingByIndex.get(i0);
     if (prevRem === undefined || enforcedRemaining !== prevRem) {
       this.lastRemainingByIndex.set(i0, enforcedRemaining);
       if (enforcedRemaining > 0 && (prevRem === undefined || enforcedRemaining < prevRem)) {
-        this.enforceUntilByIndex.set(i0, nowTs + 800);
+        this.enforceUntilByIndex.set(i0, now + 800);
       }
       if (enforcedRemaining === 0) this.enforceUntilByIndex.delete(i0);
     }
     const enforceUntil = this.enforceUntilByIndex.get(i0) ?? 0;
-    const inEnforce = nowTs < enforceUntil;
+    const inEnforce = now < enforceUntil;
   
     // MULTI behavior (kept)
     const anySelectedNow = overlaid.some(o => !!o?.selected);
@@ -1740,6 +1759,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
  
