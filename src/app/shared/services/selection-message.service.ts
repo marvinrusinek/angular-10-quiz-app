@@ -3110,10 +3110,27 @@ export class SelectionMessageService {
 
   // Read side used elsewhere in your code
   public getLatestOptionsSnapshot(): OptionSnapshot[] {
-    const snap = this.optionsSnapshotSubject.getValue();
-    // Return a fresh shallow copy so callers can’t mutate internal state
-    return Array.isArray(snap) ? snap.map(o => ({ ...o })) : [];
-  }
+    const snapAny = this.optionsSnapshotSubject.getValue();
+  
+    if (this.isSnapshotArray(snapAny)) {
+      // Return a fresh array of *exact* OptionSnapshot objects
+      const arr = snapAny as OptionSnapshot[];
+      return arr.map((s) => ({
+        id: s.id,
+        selected: !!s.selected,
+        // keep 'correct' only if it's a boolean; otherwise omit/undefined
+        correct: typeof s.correct === 'boolean' ? s.correct : undefined,
+      }));
+    }
+  
+    if (this.isOptionArray(snapAny)) {
+      // Normalize Options -> Snapshots on-the-fly
+      const arr = snapAny as Option[];
+      return arr.map((o, idx) => this.optionToSnapshot(o, idx));
+    }
+  
+    return [];
+  }  
 
   // Write side used by emitFromClick()
   public setLatestOptionsSnapshot(options: Option[] | null | undefined): void {
@@ -3221,5 +3238,13 @@ export class SelectionMessageService {
       feedback: typeof o?.feedback === 'string' ? o.feedback : '',
       styleClass: typeof o?.styleClass === 'string' ? o.styleClass : ''
     } as Option;
+  }
+
+  private optionToSnapshot(o: Option, idx?: number): OptionSnapshot {
+    return {
+      id: this.toStableId(o, idx),
+      selected: !!o.selected,
+      correct: typeof o.correct === 'boolean' ? o.correct : undefined,
+    };
   }
 }
