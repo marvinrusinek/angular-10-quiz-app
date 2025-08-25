@@ -2595,7 +2595,7 @@ export class SelectionMessageService {
     }
   
     // ────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER  (tight selection detection + local floor via ctx)
+    // MULTIPLE-ANSWER  (tight selection detection + configurable display floor via ctx)
     // ────────────────────────────────────────────────────────────
     {
       // prevent later writers from flipping back to Single mid-flight
@@ -2635,29 +2635,26 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          theLoop:
-          {
-            const cVal = norm(c?.value);
-            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-            const matched = ansArr.some((a: any) => {
-              if (a == null) return false;
-              if (typeof a === 'object') {
-                const aid = a?.optionId ?? a?.id;
-                if (aid != null && String(aid) === cid) return true;
-                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-                return (!!av && av === cVal) || (!!at && at === cTxt);
-              }
-              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-              const s = String(a); const n = Number(s);
+          const cVal = norm(c?.value);
+          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+          const matched = ansArr.some((a: any) => {
+            if (a == null) return false;
+            if (typeof a === 'object') {
+              const aid = a?.optionId ?? a?.id;
+              if (aid != null && String(aid) === cid) return true;
+              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
               if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const ns = norm(s);
-              return (!!ns && (ns === cVal || ns === cTxt));
-            });
-            if (matched && cTxt) answerTextSet.add(cTxt);
-          }
+              const av = norm(a?.value);
+              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+              return (!!av && av === cVal) || (!!at && at === cTxt);
+            }
+            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+            const s = String(a); const n = Number(s);
+            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+            const ns = norm(s);
+            return (!!ns && (ns === cVal || ns === cTxt));
+          });
+          if (matched && cTxt) answerTextSet.add(cTxt);
         }
       }
   
@@ -2691,6 +2688,7 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
+      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
@@ -2701,6 +2699,7 @@ export class SelectionMessageService {
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
+        (expectedBySvc > 1) ||                       // ← include svc expectation
         (selectedCount + unselectedKnownCorrect >= 2) ||
         likelyMulti;
   
@@ -2721,23 +2720,29 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough
-      //    Activate the floor on *any* selection when multiSignal is true,
-      //    even if correctness flags are missing — covers Q4 click #2.
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough
+      //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
+      //    even if correctness flags are missing (this covers Q4 click #2).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      if (selectedIncorrect === 0) {
-        // If the user has begun selecting but hasn't met expectedTotal, hold at least "1 more"
-        if ((selectedCorrect >= 1 || (multiSignal && selectedCount >= 1)) && selectedCorrect < expectedTotal) {
-          const fallbackFloor = 1; // show "Select 1 more..." while building multi
-          minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor > 0 ? configuredFloor : fallbackFloor);
-        } else {
-          // Otherwise honor whatever the config says (usually 0)
-          minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
-        }
+      // Generic “first-correct (or first pick on multi)” floor
+      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
+        const fallbackFloor = 1; // hold "Select 1 more..." while building multi
+        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
+  
+      // 🔹 LOCAL floor (non-brittle): use currentQuestionIndex + service expectation.
+      // Keeps "1 more" after a first selection when the service or flags briefly suggest "Next".
+      const currentIx = Number((this.quizService as any)?.currentQuestionIndex ?? resolvedIndex ?? index ?? 0);
+      const isThisQ   = currentIx === resolvedIndex;
+      const localFloor =
+        (isThisQ && (expectedBySvc >= 2 || signalsSayTwoPlus) && selectedCount >= 1 && selectedCorrect < expectedTotal)
+          ? 1 : 0;
+  
+      // Honor the strongest floor
+      minDisplayRemaining = Math.max(minDisplayRemaining, localFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2770,6 +2775,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        expectedBySvc,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
@@ -2789,7 +2795,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← pass the local floor through ctx
+          minDisplayRemaining: minDisplayRemaining // ← ctx passthrough
         } as any
       );
   
@@ -2801,15 +2807,14 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← reinforce the floor in the sink
+            minDisplayRemaining: minDisplayRemaining // ← ctx passthrough (floor honored by sink)
           } as any
         );
       });
-    }
-  }
+    } // end MULTIPLE-ANSWER branch
+  } // end emitFromClick
   
   
-      
   
   
   
