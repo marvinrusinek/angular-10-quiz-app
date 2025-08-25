@@ -1487,7 +1487,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   } */
-  public updateSelectionMessage( 
+  public updateSelectionMessage(
     message: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType; minDisplayRemaining?: number; } // ← added minDisplayRemaining to ctx
   ): void {
@@ -1503,8 +1503,10 @@ export class SelectionMessageService {
     const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
   
     // ────────────────────────────────────────────────────────────
-    // EARLY HARD-OVERRIDE: if a floor is present, force "Select N more…" and return.
-    // This prevents any later logic from flipping the message back to "Next".
+    // EARLY FLOOR ENFORCER (critical for Q4 click #2)
+    // If a floor is present, force a "Select N more..." message,
+    // clear stale completion/next freezes, and RETURN immediately
+    // so no later writer can flip it to "Next".
     // ────────────────────────────────────────────────────────────
     if (floorFromCtx > 0) {
       const n = floorFromCtx;
@@ -1512,16 +1514,16 @@ export class SelectionMessageService {
         ? buildRemainingMsg(n)
         : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`;
   
-      // Clear any stale completion/next freezes so this sticks
       try {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(i0, false);
-        this.freezeNextishUntil?.set?.(i0, 0);
+        const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+        this.freezeNextishUntil?.set?.(i0, now + 4000);
         this.suppressPassiveUntil?.set?.(i0, 0);
       } catch {}
   
       if (current !== forced) this.selectionMessageSubject.next(forced);
-      return; // ← IMPORTANT: do not allow later code to reclassify to "Next"
+      return; // ← don’t let any later logic flip it to "Next"
     }
   
     // Drop regressive “Select N more” updates (don’t increase visible remaining)
@@ -1731,7 +1733,6 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
-  
   
   
   
