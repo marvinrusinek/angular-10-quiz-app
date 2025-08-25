@@ -3021,8 +3021,8 @@ export class SelectionMessageService {
     const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
     // Align IDs across sources
-    const snap = this.getLatestOptionsSnapshot();
-    this.ensureStableIds(index, canonical, options ?? [], snap);
+    const snapOpts = this.getLatestOptionsSnapshotAsOptions();
+    this.ensureStableIds(index, canonical, options ?? [], snapOpts);
   
     // Union overlay (your existing method already unions sources)
     const overlaid = this.getCanonicalOverlay(index, options ?? []);
@@ -3247,4 +3247,8 @@ export class SelectionMessageService {
       correct: typeof o.correct === 'boolean' ? o.correct : undefined,
     };
   }
+
+  public getLatestOptionsSnapshotAsOptions(): Option[] {
+    return this.toOptionArray(this.getLatestOptionsSnapshot());
+  }  
 }
