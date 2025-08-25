@@ -16,6 +16,13 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
+// Narrow snapshot type so we don’t drag full Option objects around
+interface OptionSnapshot {
+  id: number | string;
+  selected: boolean;
+  correct?: boolean;   // optional; some flows only need selection
+}
+
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -62,7 +69,7 @@ export class SelectionMessageService {
   // At the top of SelectionMessageService (or wherever emitFromClick lives)
   private maxCorrectByIndex: Map<number, number> = new Map();
 
-  // 🔒 Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
+  // Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
   private _typeLockByIndex = new Map<number, QuestionType>();
 
   // Coalescer/Locks by stable question key
@@ -74,6 +81,8 @@ export class SelectionMessageService {
   
   // Cache canonical correct count per question key (sticky)
   private _canonCountByKey = new Map<string, number>();
+
+  private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
 
   constructor(
     private quizService: QuizService, 
@@ -3081,5 +3090,48 @@ export class SelectionMessageService {
   // Clear when navigating to a different question
   public clearObservedFor(index: number): void {
     this.observedCorrectIds.delete(index);
+  }
+
+  // Optional: shallow→minimal projector used by setter
+  private projectToSnapshot(o: any): OptionSnapshot {
+    return {
+      id: this.toStableId(o),
+      selected: !!o?.selected,
+      // keep correctness if present (canonical overlay may still read it)
+      correct: typeof o?.correct === 'boolean' ? o.correct : undefined
+    };
+  }
+
+  // Optional: if you already have one, keep yours.
+  private toStableId(o: any): number | string {
+    // Prefer stable numeric/string ids; fall back to text as the last resort
+    return (o?.optionId ?? o?.id ?? o?.value ?? o?.text ?? `opt-${Math.random()}`) as number | string;
+  }
+
+  // Read side used elsewhere in your code
+  public getLatestOptionsSnapshot(): ReadonlyArray<OptionSnapshot> | null {
+    return this.latestOptionsSnapshot;
+  }
+
+  // Write side used by emitFromClick()
+  public setLatestOptionsSnapshot(options: Option[] | null | undefined): void {
+    try {
+      if (!Array.isArray(options) || options.length === 0) {
+        // Clear when no options; callers relying on nullability will handle this
+        this.latestOptionsSnapshot = null;
+        return;
+      }
+
+      // Project to minimal, normalized snapshots
+      const snap = options.map(o => this.projectToSnapshot(o));
+
+      // Freeze to avoid accidental mutation downstream
+      // (Object.freeze on the array + each element)
+      for (const s of snap) Object.freeze(s);
+      this.latestOptionsSnapshot = Object.freeze(snap);
+    } catch (e) {
+      console.warn('[setLatestOptionsSnapshot] failed; clearing snapshot', e);
+      this.latestOptionsSnapshot = null;
+    }
   }
 }
