@@ -2319,7 +2319,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {  
+  public emitFromClick(params: {   
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2621,7 +2621,7 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          const cVal = norm(c?.value);
+                 const cVal = norm(c?.value);
           const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
           const matched = ansArr.some((a: any) => {
             if (a == null) return false;
@@ -2648,7 +2648,7 @@ export class SelectionMessageService {
       for (const o of (Array.isArray(options) ? options : [])) {
         if (!!(o as any)?.correct) {
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-          if (t) payloadTextSet.add(t);
+                 if (t) payloadTextSet.add(t);
         }
       }
   
@@ -2674,7 +2674,6 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
@@ -2706,20 +2705,19 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    • Uses configured floor if present
-      //    • Otherwise: when the user is clearly building a multi (≥1 selected AND multi intent),
-      //      hold a floor of 1 so we show “Select 1 more…”
+      //    IMPORTANT: if the service under-reports and remaining hits 0 while the
+      //    user is clearly in a multi flow, hold a floor of 1 (“Select 1 more…”).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0;
+      const multiUX = (expectedTotal > 1) || likelyMulti || (selectedCount >= 2) || (selectedCount >= 1 && anyUnselectedLeft);
   
-      const userMultiSignal = (selectedCount >= 2) || (selectedCount >= 1 && anyUnselectedLeft);
-      const multiUX = (expectedTotal > 1) || likelyMulti || userMultiSignal;
-  
-      if ((selectedCount >= 1) && multiUX && (remaining > 0) && selectedIncorrect === 0) {
-        const fallbackFloor = 1; // show “Select 1 more…” while user builds up multi
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
+      let localFloor = 0;
+      if (selectedIncorrect === 0 && selectedCount >= 1 && multiUX && remaining === 0) {
+        // e.g., Q4 click #2 → service says “done”, but intent looks multi → hold 1 more
+        localFloor = 1;
       }
+  
+      const minDisplayRemaining = Math.max(configuredFloor, localFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2758,6 +2756,8 @@ export class SelectionMessageService {
         unselectedKnownCorrect,
         anyUnselectedLeft,
         remaining,
+        configuredFloor,
+        localFloor,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
         msg
@@ -2789,6 +2789,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
       
   
