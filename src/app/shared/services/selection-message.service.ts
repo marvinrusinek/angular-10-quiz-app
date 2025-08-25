@@ -2317,7 +2317,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {   
+  public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2434,9 +2434,9 @@ export class SelectionMessageService {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok, minDisplayRemaining: 0 });
+        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
       });
-    if (questionType === QuestionType.MultipleAnswer) return;
+      if (questionType === QuestionType.MultipleAnswer) return;
     }
   
     const priorSnap = this.getLatestOptionsSnapshot?.();
@@ -2500,7 +2500,7 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type (trust multi-signal; also force Multi if ≥2 picks)
+    // Effective type (trust multi-signal)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -2518,9 +2518,8 @@ export class SelectionMessageService {
     } else {
       effType = questionType;
     }
-    const selCountNow = selectedCountStrict();
-    if (effType !== QuestionType.MultipleAnswer && (multiSignal || selCountNow >= 2)) {
-      effType = QuestionType.MultipleAnswer; // ← force multi to prevent “Next” on click #2
+    if (effType !== QuestionType.MultipleAnswer && multiSignal) {
+      effType = QuestionType.MultipleAnswer; // ← force multi to prevent Q4 “Next” on click #2
     }
   
     if (effType === QuestionType.SingleAnswer) {
@@ -2538,29 +2537,6 @@ export class SelectionMessageService {
   
     this._lastTokByKey.set(qKey, tok);
     this._lastTypeByKey.set(qKey, effType);
-  
-    // ────────────────────────────────────────────────────────────
-    // Count-based LOCAL FLOOR (computed ONCE, robust to under-flagging)
-    // - expectedHint prefers service; falls back to canonical/payload; min 2 for Multi UX
-    // - localFloor is (expectedHint - selectedCount) when user has started selecting (>0)
-    // ────────────────────────────────────────────────────────────
-    const canonicalCorrectCount = canon;
-    const answersHint =
-      Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
-      ((qRef as any)?.answer != null ? 1 : 0);
-  
-    let expectedHint = expectedBySvc;
-    if (!Number.isFinite(expectedHint) || expectedHint <= 0) {
-      expectedHint = Math.max(answersHint, canonicalCorrectCount, payloadCorrectCount, 2);
-    }
-  
-    let localFloor = 0;
-    if (effType === QuestionType.MultipleAnswer && selCountNow >= 1) {
-      const need = Math.max(expectedHint - selCountNow, 0);
-      if (need > 0) {
-        localFloor = Math.max(need, 1); // at least “1 more…” while building
-      }
-    }
   
     // ────────────────────────────────────────────────────────────
     // SINGLE-ANSWER
@@ -2595,10 +2571,7 @@ export class SelectionMessageService {
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
-        this.updateSelectionMessage(
-          msg,
-          { options, index: resolvedIndex, questionType: effType, token: tok, minDisplayRemaining: 0 } as any
-        );
+        this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
   
       if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey);
@@ -2618,10 +2591,7 @@ export class SelectionMessageService {
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
         queueMicrotask(() => {
-          this.updateSelectionMessage(baseMsg, {
-            options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok,
-            minDisplayRemaining: 0
-          } as any);
+          this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
         });
         return;
       }
@@ -2702,15 +2672,26 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // Remaining — real math for gating
-      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
-  
-      // Also block if we believe there are unselected known-corrects
+      // If the service says "1" but signals point to multi, bump to 2
+      const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
           const t = norm(o?.text ?? o?.label ?? '');
           return (!o?.selected && t && judgeSet.has(t)) ? (n + 1) : n;
         }, 0);
+  
+      const signalsSayTwoPlus =
+        (canon > 1) ||
+        (payloadCorrectCount > 1) ||
+        (selectedCount + unselectedKnownCorrect >= 2) ||
+        likelyMulti;
+  
+      if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
+  
+      // Remaining — real math for gating
+      let remaining = Math.max(expectedTotal - selectedCorrect, 0);
+  
+      // Also block if we believe there are unselected known-corrects
       if (unselectedKnownCorrect > 0) {
         remaining = Math.max(remaining, Math.min(unselectedKnownCorrect, Math.max(expectedTotal - selectedCorrect, 0)));
       }
@@ -2722,16 +2703,34 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // LOCAL DISPLAY FLOOR (cosmetic) — merge author floor + count-based floor
+      // ⬇️ FLOOR (cosmetic only) + ctx passthrough (LOCAL but NON-BRITTLE)
+      //    We activate a floor of 1 whenever:
+      //      - user has at least one selection,
+      //      - there are NO incorrect picks yet,
+      //      - expected total answers is ≥ 2 (after any fixups),
+      //      - and we’re not done yet (selectedCorrect < expectedTotal).
+      //    This guarantees “Select 1 more…” on the second click for multi Qs like Q4.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      if (configuredFloor > 0 && selCountNow >= 1) {
-        minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
+      if (selectedCount >= 1 && selectedIncorrect === 0 && expectedTotal >= 2 && selectedCorrect < expectedTotal) {
+        // Prefer explicit config, else default to 1.
+        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : 1;
       }
-      if (localFloor > 0) {
-        minDisplayRemaining = Math.max(minDisplayRemaining, localFloor);
+  
+      // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
+      if (remaining > 0 || minDisplayRemaining > 0) {
+        (this as any).completedByIndex ??= new Map<number, boolean>();
+        (this as any).completedByIndex.set(index, false);
+        (this as any).completedByIndex.set(resolvedIndex, false);
+        try {
+          const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
+          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
+          (this as any).suppressPassiveUntil?.set?.(index, 0);
+          (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
+        } catch {}
       }
   
       // Final display amount respects the floor, but gating still uses `remaining`
@@ -2751,9 +2750,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
-        expectedBySvc,
-        expectedHint,
-        selectedCount: selCountNow,
+        selectedCount,
         selectedCorrect,
         selectedIncorrect,
         unselectedKnownCorrect,
@@ -2764,7 +2761,7 @@ export class SelectionMessageService {
         msg
       });
   
-      // Send immediately and again in a microtask (helps beat late writers)
+      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
       this.updateSelectionMessage(
         msg,
         {
@@ -2772,7 +2769,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: Math.max(minDisplayRemaining, localFloor)
+          minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
         } as any
       );
   
@@ -2784,12 +2781,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: Math.max(minDisplayRemaining, localFloor)
+            minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
           } as any
         );
       });
     }
   }
+  
   
   
   
