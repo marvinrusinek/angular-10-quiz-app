@@ -1498,22 +1498,21 @@ export class SelectionMessageService {
       ? (ctx!.index as number)
       : (this.quizService.currentQuestionIndex ?? 0);
   
-    // NEW: cosmetic floor coming from the emitter (e.g., Q4 forces "1 more")
+    // ────────────────────────────────────────────────────────────
+    // STEP 1 (PATCH): Honor cosmetic floor from ctx *immediately*
+    // Rewrite any incoming Next-ish message to "Select N more..."
+    // NOTE: mutate `next` (the variable used for the rest of the function),
+    // not `message`. Also clear stale completion/locks.
+    // ────────────────────────────────────────────────────────────
     const floorFromCtx = Math.max(0, Number((ctx as any)?.minDisplayRemaining ?? 0));
-  
-    // ────────────────────────────────────────────────────────────
-    // PATCH (EARLY): if a Next-ish string sneaks in while a floor is active,
-    // rewrite it *immediately* on `next` (not `message`) and clear stale freezes
-    // ────────────────────────────────────────────────────────────
     if (floorFromCtx > 0) {
-      const isNextishIncoming = /next button|show results/i.test(next);
-      if (isNextishIncoming) {
+      const incomingIsNextish = /next button|show results/i.test(next);
+      if (incomingIsNextish) {
         const n = floorFromCtx;
         next = (typeof buildRemainingMsg === 'function')
           ? buildRemainingMsg(n)
           : `Select ${n} more correct answer${n === 1 ? '' : 's'} to continue...`;
       }
-      // Also un-complete & clear freezes so "Next" can’t stick
       try {
         (this as any).completedByIndex ??= new Map<number, boolean>();
         (this as any).completedByIndex.set(i0, false);
@@ -1644,23 +1643,18 @@ export class SelectionMessageService {
     let enforcedRemaining = Math.max(0, totalForThisQ - selectedCorrect);
   
     // ────────────────────────────────────────────────────────────
-    // HONOR THE COSMETIC FLOOR FROM CTX (visual only)
+    // Honor cosmetic floor again at the gating layer (visual only)
+    // If Next-ish sneaks in later, it’ll be rewritten above already.
     // ────────────────────────────────────────────────────────────
     {
       const incomingIsNextish = /next button|show results/i.test(next ?? '');
-  
       if (floorFromCtx > 0) {
-        // 1) Enforce the floor now (visual only)
         enforcedRemaining = Math.max(enforcedRemaining, floorFromCtx);
-  
-        // 2) Rewrite any Next-ish to "Select N more..." (already done early; keep here for late writers)
         if (incomingIsNextish) {
           next = (typeof buildRemainingMsg === 'function')
             ? buildRemainingMsg(enforcedRemaining)
             : `Select ${enforcedRemaining} more correct answer${enforcedRemaining === 1 ? '' : 's'} to continue...`;
         }
-  
-        // 3) Un-complete & clear freezes so "Next" cannot stick
         try {
           (this as any).completedByIndex ??= new Map<number, boolean>();
           (this as any).completedByIndex.set(i0, false);
@@ -1758,6 +1752,7 @@ export class SelectionMessageService {
   
     if (current !== next) this.selectionMessageSubject.next(next);
   }
+  
   
   
   
