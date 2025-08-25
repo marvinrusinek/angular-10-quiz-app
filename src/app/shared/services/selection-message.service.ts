@@ -2687,6 +2687,7 @@ export class SelectionMessageService {
         likelyMulti;
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
+      if (expectedTotal <= 1 && multiSignal) expectedTotal = Math.max(expectedTotal, 2); // extra guard
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -2703,20 +2704,20 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ FLOOR (cosmetic only) + ctx passthrough (LOCAL but NON-BRITTLE)
-      //    We activate a floor of 1 whenever:
-      //      - user has at least one selection,
-      //      - there are NO incorrect picks yet,
-      //      - expected total answers is ≥ 2 (after any fixups),
-      //      - and we’re not done yet (selectedCorrect < expectedTotal).
-      //    This guarantees “Select 1 more…” on the second click for multi Qs like Q4.
+      // ⬇️ PATCH: LOCAL FLOOR (cosmetic only) + ctx passthrough
+      //    Force “1 more” after the first selection when multi is signaled,
+      //    even if correctness flags are missing or stale Next tries to appear.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      if (selectedCount >= 1 && selectedIncorrect === 0 && expectedTotal >= 2 && selectedCorrect < expectedTotal) {
-        // Prefer explicit config, else default to 1.
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : 1;
+      // Force 1-more when exactly one option is selected in a multi-context.
+      const forcedOneMore = (selectedCount === 1) && (expectedTotal >= 2 || multiSignal || canon > 1 || payloadCorrectCount > 1);
+      if (forcedOneMore) {
+        minDisplayRemaining = Math.max(configuredFloor, 1);
+      } else if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
+        const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
+        minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
       }
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
@@ -2726,8 +2727,8 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(index, now + 3000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 3000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -2769,7 +2770,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
+          minDisplayRemaining: minDisplayRemaining // ← ctx passthrough so sink enforces floor
         } as any
       );
   
@@ -2781,12 +2782,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
+            minDisplayRemaining: minDisplayRemaining
           } as any
         );
       });
     }
   }
+  
   
   
   
