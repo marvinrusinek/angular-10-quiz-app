@@ -2333,7 +2333,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {  
+  public emitFromClick(params: {   
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2635,6 +2635,7 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
+          aconst: never;
           const cVal = norm(c?.value);
           const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
           const matched = ansArr.some((a: any) => {
@@ -2723,29 +2724,55 @@ export class SelectionMessageService {
       //    IMPORTANT:
       //    • Base floor: after the first correct on 2-of-N, hold “1 more…”
       //    • Configured floor: from service
-      //    • Local floor (robust): if dataset is under-flagged (user picked ≥ expected,
+      //    • Local floor (robust): if dataset is under-flagged (user picked ≥ expected
       //      but not all picks are counted correct), force a +1 visual floor.
+      //    • Stem floor: if the question stem says “Select N …”, honor the delta (N - selectedCount).
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
   
-      // Under-flag detection: user has selected as many (or more) than service expects,
-      // and at least one of those selections isn’t recognized as correct.
+      // Under-flag detection: user has picked as many as service expects,
+      // but at least one pick isn’t recognized correct (no wrongs).
       const looksUnderFlagged =
         multiSignal &&
         expectedTotal > 0 &&
         selectedCount >= expectedTotal &&
-        selectedCorrect < selectedCount &&  // ← at least one selected isn't flagged correct
-        selectedIncorrect === 0;            // ← don't hold floor if they picked a wrong one
+        selectedCorrect < selectedCount &&
+        selectedIncorrect === 0;
   
-      // Base fallback: after first correct, on typical 2-of-N, keep “1 more…”
-      const baseFallbackFloor = (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal)
-        ? (expectedTotal === 2 ? 1 : 0)
-        : 0;
+      // Base fallback: after first correct on typical 2-of-N, keep “1 more…”
+      const baseFallbackFloor =
+        (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal)
+          ? (expectedTotal === 2 ? 1 : 0)
+          : 0;
   
-      // Local floor: cover the “click #2 still needs ‘1 more’” case when under-flagged
-      const localFloor = looksUnderFlagged ? 1 : 0;
+      // NEW: Stem parser (“Select N ...”) to compute missing picks directly from the stem.
+      const stripHtml = (s: any) => String(s ?? '').replace(/<[^>]*>/g, ' ');
+      let stemN = 0;
+      try {
+        const stem = stripHtml(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+        const m = /select\s+(\d+)/i.exec(stem);
+        if (m) {
+          const n = Number(m[1]);
+          if (Number.isFinite(n) && n > 0) stemN = n;
+        }
+      } catch { /* ignore */ }
   
-      let minDisplayRemaining = Math.max(configuredFloor, baseFallbackFloor, localFloor);
+      let localStemFloor = 0;
+      if (stemN > 0 && selectedIncorrect === 0) {
+        const missingByStem = Math.max(0, stemN - selectedCount);
+        if (missingByStem > 0) localStemFloor = missingByStem; // e.g., on Q4 click #2 when stem says 3 → 1
+      }
+  
+      // Local under-flag floor
+      const localUnderFlagFloor = looksUnderFlagged ? 1 : 0;
+  
+      // Final cosmetic floor (do NOT affect gating math)
+      let minDisplayRemaining = Math.max(
+        configuredFloor,
+        baseFallbackFloor,
+        localStemFloor,
+        localUnderFlagFloor
+      );
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2786,7 +2813,8 @@ export class SelectionMessageService {
         remaining,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
-        looksUnderFlagged,    // ← key: will be true on Q4 click #2 if under-flagged
+        looksUnderFlagged,
+        stemN,
         msg
       });
   
@@ -2816,6 +2844,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
   
