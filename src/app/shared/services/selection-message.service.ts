@@ -2323,7 +2323,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {  
+  public emitFromClick(params: {   
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2440,7 +2440,7 @@ export class SelectionMessageService {
         const baseMsg = (typeof CONTINUE_MSG === 'string'
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
-        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok });
+        this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType, token: tok, minDisplayRemaining: 0 });
       });
       if (questionType === QuestionType.MultipleAnswer) return;
     }
@@ -2506,7 +2506,22 @@ export class SelectionMessageService {
     };
   
     // ────────────────────────────────────────────────────────────
-    // Effective type (trust multi-signal)
+    // Count-based local floor (computed ONCE, used everywhere via ctx)
+    // Works even if correctness flags are missing.
+    // Example: expected 3, user picked 2 → floor = 1 (prevents “Next”).
+    // ────────────────────────────────────────────────────────────
+    const selectedCount = selectedCountStrict();
+    const expectedMulti = (Number.isFinite(expectedBySvc) && expectedBySvc > 0)
+      ? expectedBySvc
+      : Math.max(2, canon || payloadCorrectCount || 0, 2);
+  
+    const preFloor =
+      (selectedCount >= 1 && expectedMulti > 1 && selectedCount < expectedMulti)
+        ? (expectedMulti - selectedCount)
+        : 0;
+  
+    // ────────────────────────────────────────────────────────────
+    // Effective type (trust multi-signal; also force Multi if ≥2 picks)
     // ────────────────────────────────────────────────────────────
     let effType: QuestionType;
     if (canon > 1) {
@@ -2524,8 +2539,8 @@ export class SelectionMessageService {
     } else {
       effType = questionType;
     }
-    if (effType !== QuestionType.MultipleAnswer && multiSignal) {
-      effType = QuestionType.MultipleAnswer; // ← force multi to prevent Q4 “Next” on click #2
+    if (effType !== QuestionType.MultipleAnswer && (multiSignal || selectedCount >= 2)) {
+      effType = QuestionType.MultipleAnswer; // ← force multi to prevent “Next” on click #2
     }
   
     if (effType === QuestionType.SingleAnswer) {
@@ -2577,7 +2592,10 @@ export class SelectionMessageService {
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
-        this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
+        this.updateSelectionMessage(
+          msg,
+          { options, index: resolvedIndex, questionType: effType, token: tok, minDisplayRemaining: preFloor } as any
+        );
       });
   
       if (anySelected && !multiSignal) this._singleNextLockedByKey.add(qKey);
@@ -2597,7 +2615,9 @@ export class SelectionMessageService {
           ? CONTINUE_MSG
           : 'Please select an option to continue...');
         queueMicrotask(() => {
-          this.updateSelectionMessage(baseMsg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+          this.updateSelectionMessage(baseMsg, {
+            options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok, minDisplayRemaining: preFloor
+          } as any);
         });
         return;
       }
@@ -2625,28 +2645,26 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-          the: {
-            const cVal = norm(c?.value);
-            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-            const matched = ansArr.some((a: any) => {
-              if (a == null) return false;
-              if (typeof a === 'object') {
-                const aid = a?.optionId ?? a?.id;
-                if (aid != null && String(aid) === cid) return true;
-                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-                return (!!av && av === cVal) || (!!at && at === cTxt);
-              }
-              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-              const s = String(a); const n = Number(s);
+          const cVal = norm(c?.value);
+          const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+          const matched = ansArr.some((a: any) => {
+            if (a == null) return false;
+            if (typeof a === 'object') {
+              const aid = a?.optionId ?? a?.id;
+              if (aid != null && String(aid) === cid) return true;
+              const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
               if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const ns = norm(s);
-              return (!!ns && (ns === cVal || ns === cTxt));
-            });
-            if (matched && cTxt) answerTextSet.add(cTxt);
-          }
+              const av = norm(a?.value);
+              const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+              return (!!av && av === cVal) || (!!at && at === cTxt);
+            }
+            if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+            const s = String(a); const n = Number(s);
+            if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+            const ns = norm(s);
+            return (!!ns && (ns === cVal || ns === cTxt));
+          });
+          if (matched && cTxt) answerTextSet.add(cTxt);
         }
       }
   
@@ -2700,30 +2718,19 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only, passed via ctx)
-      //    Uses *service* expected count and the user's *selection count*,
-      //    so it works even if correctness flags are missing/under-flagged.
-      //    Example: Q4 expects 3; after the 2nd click → floor = 1.
+      // LOCAL DISPLAY FLOOR (cosmetic) — merge the preFloor here too
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      const selectedCount = selectedCountStrict();
-  
       let minDisplayRemaining = 0;
   
-      // If service expects multiple, show how many more picks are needed by COUNT.
-      if (Number.isFinite(expectedBySvc) && expectedBySvc > 1) {
-        if (selectedCount >= 1 && selectedCount < expectedBySvc) {
-          const countBased = expectedBySvc - selectedCount; // e.g., 3-2 = 1 on Q4 click #2
-          minDisplayRemaining = Math.max(minDisplayRemaining, countBased);
-        }
+      // Keep author’s configured floor after first pick
+      if (configuredFloor > 0 && selectedCount >= 1) {
+        minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
       }
   
-      // Also honor any configured per-question floor (author’s cosmetic intent).
-      if (configuredFloor > 0) {
-        // Only apply after at least one pick to avoid “Select N more” on a blank state.
-        if (selectedCount >= 1) {
-          minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor);
-        }
+      // Count-based floor (works even without correctness flags)
+      if (preFloor > 0) {
+        minDisplayRemaining = Math.max(minDisplayRemaining, preFloor);
       }
   
       // Final display amount respects the floor, but gating still uses `remaining`
@@ -2763,7 +2770,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← pass the floor through ctx
+          minDisplayRemaining: Math.max(minDisplayRemaining, preFloor) // ← pass the floor
         } as any
       );
   
@@ -2775,12 +2782,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← reinforce in case of late writers
+            minDisplayRemaining: Math.max(minDisplayRemaining, preFloor)
           } as any
         );
       });
     }
   }
+  
   
   
   
