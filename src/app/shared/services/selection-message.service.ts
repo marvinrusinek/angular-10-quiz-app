@@ -2621,7 +2621,7 @@ export class SelectionMessageService {
           const c: any = canonicalOpts[i];
           const cid = String(c?.optionId ?? c?.id ?? i);
           const zeroIx = i, oneIx = i + 1;
-                 const cVal = norm(c?.value);
+          const cVal = norm(c?.value);
           const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
           const matched = ansArr.some((a: any) => {
             if (a == null) return false;
@@ -2648,7 +2648,7 @@ export class SelectionMessageService {
       for (const o of (Array.isArray(options) ? options : [])) {
         if (!!(o as any)?.correct) {
           const t = norm((o as any)?.text ?? (o as any)?.label ?? '');
-                 if (t) payloadTextSet.add(t);
+          if (t) payloadTextSet.add(t);
         }
       }
   
@@ -2675,6 +2675,7 @@ export class SelectionMessageService {
       }
   
       const selectedCount = selectedCountStrict();
+  
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
           const t = norm(o?.text ?? o?.label ?? '');
@@ -2705,15 +2706,35 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: if the service under-reports and remaining hits 0 while the
-      //    user is clearly in a multi flow, hold a floor of 1 (“Select 1 more…”).
+      //    Prefer stem “Select N …” when present; else only hold 1 more if:
+      //    - the service claims completion (remaining==0),
+      //    - there are NO wrong picks,
+      //    - the user has at least 2 selections (typical multi UX),
+      //    - and we have evidence of ≥1 additional correct (unselectedKnownCorrect>0)
+      //      or an explicit configured floor is set.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      const multiUX = (expectedTotal > 1) || likelyMulti || (selectedCount >= 2) || (selectedCount >= 1 && anyUnselectedLeft);
+  
+      // Parse "Select N ..." from stem, if available
+      const rawStem = String((qRef as any)?.questionText ?? (qRef as any)?.question ?? '');
+      const m = /select\s+(\d+)/i.exec(rawStem);
+      const stemN = m ? Math.max(0, Number(m[1])) : 0;
   
       let localFloor = 0;
-      if (selectedIncorrect === 0 && selectedCount >= 1 && multiUX && remaining === 0) {
-        // e.g., Q4 click #2 → service says “done”, but intent looks multi → hold 1 more
+  
+      // Stem-driven floor (most reliable if present)
+      if (stemN > 0 && selectedIncorrect === 0 && selectedCount < stemN) {
+        localFloor = 1;
+      }
+  
+      // Evidence-driven fallback (no brittle hardcoding)
+      if (
+        localFloor === 0 &&
+        remaining === 0 &&
+        selectedIncorrect === 0 &&
+        selectedCount >= 2 &&
+        (unselectedKnownCorrect > 0 || configuredFloor > 0)
+      ) {
         localFloor = 1;
       }
   
@@ -2750,6 +2771,7 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
+        stemN,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
@@ -2789,6 +2811,7 @@ export class SelectionMessageService {
       });
     }
   }
+  
   
   
       
