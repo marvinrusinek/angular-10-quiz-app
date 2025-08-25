@@ -2319,7 +2319,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {   
+  public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2674,17 +2674,7 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
-      // Look for a "Select N ..." stem as an extra hint
-      let stemN = 0;
-      try {
-        const stem = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-        const m = /select\s+(\d+)/i.exec(stem);
-        if (m) {
-          const n = Number(m[1]);
-          if (Number.isFinite(n) && n > 0) stemN = n;
-        }
-      } catch { /* ignore */ }
-  
+      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
@@ -2696,8 +2686,7 @@ export class SelectionMessageService {
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
         (selectedCount + unselectedKnownCorrect >= 2) ||
-        likelyMulti ||
-        (stemN > 1);
+        likelyMulti;
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
   
@@ -2716,26 +2705,19 @@ export class SelectionMessageService {
       }
   
       // ────────────────────────────────────────────────────────────
-      // ⬇️ LOCAL FLOOR (cosmetic only) + ctx passthrough
-      //    Activate when we *know or strongly suspect* this is multi
-      //    and the user has started selecting without making a wrong pick.
+      // ⬇️ LOCAL DISPLAY FLOOR (cosmetic only) + ctx passthrough
+      //    • Uses configured floor if present
+      //    • Otherwise: when the user is clearly building a multi (≥1 selected AND multi intent),
+      //      hold a floor of 1 so we show “Select 1 more…”
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
       let minDisplayRemaining = 0;
   
-      // Determine a likely multi target from every available signal
-      const likelyTarget =
-        Math.max(
-          expectedTotal,
-          canon > 0 ? canon : 0,
-          payloadCorrectCount > 0 ? payloadCorrectCount : 0,
-          stemN > 0 ? stemN : 0,
-          multiSignal ? 2 : 1
-        );
+      const userMultiSignal = (selectedCount >= 2) || (selectedCount >= 1 && anyUnselectedLeft);
+      const multiUX = (expectedTotal > 1) || likelyMulti || userMultiSignal;
   
-      if ((selectedCount >= 1) && (selectedIncorrect === 0) && (selectedCorrect < likelyTarget)) {
-        // Hold the UI on “Select 1 more…” while the learner is one short
-        const fallbackFloor = 1;
+      if ((selectedCount >= 1) && multiUX && (remaining > 0) && selectedIncorrect === 0) {
+        const fallbackFloor = 1; // show “Select 1 more…” while user builds up multi
         minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
       }
   
@@ -2775,14 +2757,24 @@ export class SelectionMessageService {
         selectedIncorrect,
         unselectedKnownCorrect,
         anyUnselectedLeft,
-        likelyTarget,
         remaining,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
         msg
       });
   
-      // Send (with floor passthrough in ctx)
+      // Send immediately and again in a microtask (prevents a late writer flipping to Next)
+      this.updateSelectionMessage(
+        msg,
+        {
+          options,
+          index: resolvedIndex,
+          questionType: QuestionType.MultipleAnswer,
+          token: tok,
+          minDisplayRemaining // ← pass the local/display floor through ctx
+        } as any
+      );
+  
       queueMicrotask(() => {
         this.updateSelectionMessage(
           msg,
@@ -2791,12 +2783,15 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← pass local floor through ctx
+            minDisplayRemaining // ← reinforce floor in case of late writers
           } as any
         );
       });
     }
   }
+  
+      
+  
   
   
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
