@@ -2333,7 +2333,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {   
+  public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2699,7 +2699,6 @@ export class SelectionMessageService {
       const signalsSayTwoPlus =
         (canon > 1) ||
         (payloadCorrectCount > 1) ||
-        (expectedBySvc > 1) ||                       // ← include svc expectation
         (selectedCount + unselectedKnownCorrect >= 2) ||
         likelyMulti;
   
@@ -2721,28 +2720,32 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: activate the floor on *any* selection when multiSignal is true,
-      //    even if correctness flags are missing (this covers Q4 click #2).
+      //    IMPORTANT:
+      //    • Base floor: after the first correct on 2-of-N, hold “1 more…”
+      //    • Configured floor: from service
+      //    • Local floor (robust): if dataset is under-flagged (user picked ≥ expected,
+      //      but not all picks are counted correct), force a +1 visual floor.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0;
   
-      // Generic “first-correct (or first pick on multi)” floor
-      if (selectedIncorrect === 0 && (selectedCorrect >= 1 || (multiSignal && selectedCount >= 1))) {
-        const fallbackFloor = 1; // hold "Select 1 more..." while building multi
-        minDisplayRemaining = configuredFloor > 0 ? configuredFloor : fallbackFloor;
-      }
+      // Under-flag detection: user has selected as many (or more) than service expects,
+      // and at least one of those selections isn’t recognized as correct.
+      const looksUnderFlagged =
+        multiSignal &&
+        expectedTotal > 0 &&
+        selectedCount >= expectedTotal &&
+        selectedCorrect < selectedCount &&  // ← at least one selected isn't flagged correct
+        selectedIncorrect === 0;            // ← don't hold floor if they picked a wrong one
   
-      // 🔹 LOCAL floor (non-brittle): use currentQuestionIndex + service expectation.
-      // Keeps "1 more" after a first selection when the service or flags briefly suggest "Next".
-      const currentIx = Number((this.quizService as any)?.currentQuestionIndex ?? resolvedIndex ?? index ?? 0);
-      const isThisQ   = currentIx === resolvedIndex;
-      const localFloor =
-        (isThisQ && (expectedBySvc >= 2 || signalsSayTwoPlus) && selectedCount >= 1 && selectedCorrect < expectedTotal)
-          ? 1 : 0;
+      // Base fallback: after first correct, on typical 2-of-N, keep “1 more…”
+      const baseFallbackFloor = (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal)
+        ? (expectedTotal === 2 ? 1 : 0)
+        : 0;
   
-      // Honor the strongest floor
-      minDisplayRemaining = Math.max(minDisplayRemaining, localFloor);
+      // Local floor: cover the “click #2 still needs ‘1 more’” case when under-flagged
+      const localFloor = looksUnderFlagged ? 1 : 0;
+  
+      let minDisplayRemaining = Math.max(configuredFloor, baseFallbackFloor, localFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2775,7 +2778,6 @@ export class SelectionMessageService {
         resolvedIndex,
         qId,
         expectedTotal,
-        expectedBySvc,
         selectedCount,
         selectedCorrect,
         selectedIncorrect,
@@ -2784,6 +2786,7 @@ export class SelectionMessageService {
         remaining,
         minDisplayRemaining,  // cosmetic floor we want the sink to honor
         displayRemaining,     // what we actually show now
+        looksUnderFlagged,    // ← key: will be true on Q4 click #2 if under-flagged
         msg
       });
   
@@ -2795,7 +2798,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← ctx passthrough
+          minDisplayRemaining: minDisplayRemaining // ← ctx passthrough (sink honors the floor)
         } as any
       );
   
@@ -2807,12 +2810,13 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining // ← ctx passthrough (floor honored by sink)
+            minDisplayRemaining: minDisplayRemaining
           } as any
         );
       });
-    } // end MULTIPLE-ANSWER branch
-  } // end emitFromClick
+    }
+  }
+  
   
   
   
