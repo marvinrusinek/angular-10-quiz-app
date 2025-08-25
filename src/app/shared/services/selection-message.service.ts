@@ -2327,7 +2327,7 @@ export class SelectionMessageService {
       });
     }
   } */
-  public emitFromClick(params: {
+  public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2682,6 +2682,7 @@ export class SelectionMessageService {
         expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : Math.max(2, canonicalTextSet.size || payloadTextSet.size || 0, 2);
       }
   
+      // If the service says "1" but signals point to multi, bump to 2
       const selectedCount = selectedCountStrict();
       const unselectedKnownCorrect =
         options.reduce((n, o: any) => {
@@ -2696,7 +2697,6 @@ export class SelectionMessageService {
         likelyMulti;
   
       if (expectedTotal === 1 && signalsSayTwoPlus) expectedTotal = 2;
-      if (expectedTotal <= 1 && multiSignal) expectedTotal = Math.max(expectedTotal, 2); // extra guard
   
       // Remaining — real math for gating
       let remaining = Math.max(expectedTotal - selectedCorrect, 0);
@@ -2714,30 +2714,24 @@ export class SelectionMessageService {
   
       // ────────────────────────────────────────────────────────────
       // ⬇️ FLOOR (cosmetic only) + ctx passthrough
-      //    IMPORTANT: if the question looks like multi but data is under-flagged,
-      //    hold a *1 more* floor even when service thinks we’re complete.
+      //    LOCAL DISPLAY FLOOR derived from service expected count vs. selected count.
+      //    This ensures on Q4 click #2 you see "Select 1 more..." if the service expects more.
       // ────────────────────────────────────────────────────────────
       const configuredFloor = Math.max(0, this.quizService.getMinDisplayRemaining(resolvedIndex, qId));
-      let minDisplayRemaining = 0;
   
-      // Under-flagged multi detector: multi is signaled, but all sources say <=1 correct
-      const underflaggedMulti =
-        multiSignal &&
-        expectedBySvc <= 1 &&
-        canon <= 1 &&
-        payloadCorrectCount <= 1;
+      // Local floor rule:
+      // - Start showing after at least one selection.
+      // - Use service target (expectedBySvc) when available to keep “N more…” until user
+      //   picks that many options, regardless of correctness flags being incomplete.
+      const displayFloorBySvc =
+        (Number.isFinite(expectedBySvc) && expectedBySvc > 0 && selectedCount >= 1)
+          ? Math.max(0, expectedBySvc - selectedCount)
+          : 0;
   
-      // 1) Normal floor while building up correct picks
-      if (selectedIncorrect === 0 && selectedCorrect >= 1 && selectedCorrect < expectedTotal) {
-        const fallbackFloor = (expectedTotal === 2 ? 1 : 0);
-        minDisplayRemaining = Math.max(configuredFloor, fallbackFloor);
-      }
+      // Keep previous correctness-based fallback too (1 after first good pick)
+      const fallbackFloor = (selectedIncorrect === 0 && selectedCorrect >= 1) ? 1 : 0;
   
-      // 2) Special hold for under-flagged multi (e.g., Q4): keep "1 more" after click #2
-      if (underflaggedMulti && selectedIncorrect === 0 && selectedCount >= 1) {
-        // Force a cosmetic 1-more even if remaining==0 due to bad flags
-        minDisplayRemaining = Math.max(minDisplayRemaining, configuredFloor, 1);
-      }
+      let minDisplayRemaining = Math.max(configuredFloor, displayFloorBySvc, fallbackFloor);
   
       // If we’re going to show a remaining prompt, clear/harden freezes to block late “Next”
       if (remaining > 0 || minDisplayRemaining > 0) {
@@ -2746,8 +2740,8 @@ export class SelectionMessageService {
         (this as any).completedByIndex.set(resolvedIndex, false);
         try {
           const now = (typeof performance?.now === 'function') ? performance.now() : Date.now();
-          (this as any).freezeNextishUntil?.set?.(index, now + 3000);
-          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 3000);
+          (this as any).freezeNextishUntil?.set?.(index, now + 4000);
+          (this as any).freezeNextishUntil?.set?.(resolvedIndex, now + 4000);
           (this as any).suppressPassiveUntil?.set?.(index, 0);
           (this as any).suppressPassiveUntil?.set?.(resolvedIndex, 0);
         } catch {}
@@ -2778,9 +2772,9 @@ export class SelectionMessageService {
         anyUnselectedLeft,
         remaining,
         configuredFloor,
-        underflaggedMulti,     // ← debug: should be true for your Q4 case
-        minDisplayRemaining,   // cosmetic floor we want the sink to honor
-        displayRemaining,      // what we actually show now
+        displayFloorBySvc,    // ← local floor derived from expectedBySvc - selectedCount
+        minDisplayRemaining,  // cosmetic floor we want the sink to honor
+        displayRemaining,     // what we actually show now
         msg
       });
   
@@ -2792,7 +2786,7 @@ export class SelectionMessageService {
           index: resolvedIndex,
           questionType: QuestionType.MultipleAnswer,
           token: tok,
-          minDisplayRemaining: minDisplayRemaining // ← ctx passthrough so sink enforces floor
+          minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
         } as any
       );
   
@@ -2804,15 +2798,12 @@ export class SelectionMessageService {
             index: resolvedIndex,
             questionType: QuestionType.MultipleAnswer,
             token: tok,
-            minDisplayRemaining: minDisplayRemaining
+            minDisplayRemaining: minDisplayRemaining // ← pass floor through ctx
           } as any
         );
       });
     }
   }
-  
-  
-  
   
   
   
