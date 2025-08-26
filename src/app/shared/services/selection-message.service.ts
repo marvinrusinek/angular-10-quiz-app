@@ -3441,13 +3441,22 @@ export class SelectionMessageService {
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Cosmetic floor (NEVER mask completion)
-      const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
+      const configuredFloor = Math.max(
+        0,
+        Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0)
+      );
+
       let localFloor = 0;
       const selCount = bagSum(selectedBag);
+
+      // Only apply floor when we still have >0 remaining
       if (remaining > 0 && expectedTotal >= 2 && selCount > 0 && selCount < expectedTotal) {
-        localFloor = 1; // “Select 1 more …” while building up picks
+        localFloor = 1;
       }
-      const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
+
+      // Final: if remaining == 0, force 0 (Next). Otherwise, allow floor.
+      const displayRemaining =
+        remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
   
       // Message
       const msg =
