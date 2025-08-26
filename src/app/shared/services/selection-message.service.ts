@@ -3115,8 +3115,8 @@ export class SelectionMessageService {
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as number | string;
   
     // Multiset helpers (bags) to avoid duplicate-key collapses
-    const bagAdd = (bag: Map<string | number, number>, k: string | number, n = 1) =>
-      bag.set(k, (bag.get(k) ?? 0) + n);
+    const bagAdd = (bag: Map<string | number, number>, k: string | number) =>
+      bag.set(k, (bag.get(k) ?? 0) + 1);
     const bagSum = (bag: Map<string | number, number>) =>
       [...bag.values()].reduce((a, b) => a + b, 0);
     const bagIntersectCount = (A: Map<string | number, number>, B: Map<string | number, number>) => {
@@ -3126,16 +3126,6 @@ export class SelectionMessageService {
         if (b > 0) s += Math.min(a, b);
       }
       return s;
-    };
-    const bagMergeUpTo = (dst: Map<any, number>, src: Map<any, number>, cap: number) => {
-      let need = cap - bagSum(dst);
-      if (need <= 0) return;
-      for (const [k, c] of src) {
-        if (need <= 0) break;
-        const take = Math.min(c, need);
-        bagAdd(dst, k, take);
-        need -= take;
-      }
     };
   
     // Selected detector (keeps your stricter behavior and avoids cross-question bleed)
@@ -3151,6 +3141,7 @@ export class SelectionMessageService {
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
       } catch {}
+      // snapshot check removed here; we’ll use it inside the multi block for accuracy
       return false;
     };
   
@@ -3267,48 +3258,15 @@ export class SelectionMessageService {
       const hasCanonical = canonicalBag.size > 0;
       const canonicalTotal = bagSum(canonicalBag);
   
-      // Payload “correct” multiset (fallback/augment)
+      // Payload “correct” multiset (fallback only if no canonical)
       const payloadBag = new Map<string | number, number>();
       for (const o of (options ?? [])) if (!!(o as any)?.correct) bagAdd(payloadBag, keyOf(o));
       const payloadTotal = bagSum(payloadBag);
   
-      // Answers-derived multiset (from qRef.answer)
-      const answerBag = new Map<string | number, number>();
-      try {
-        const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
-        if (ansArr.length) {
-          for (let i = 0; i < canonicalOpts.length; i++) {
-            const c: any = canonicalOpts[i];
-            const cid = String(c?.optionId ?? c?.id ?? i);
-            const zeroIx = i, oneIx = i + 1;
-            const cVal = norm(c?.value);
-            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-  
-            const matched = ansArr.some((a: any) => {
-              if (a == null) return false;
-              if (typeof a === 'object') {
-                const aid = a?.optionId ?? a?.id;
-                if (aid != null && String(aid) === cid) return true;
-                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-                return (!!av && av === cVal) || (!!at && at === cTxt);
-              }
-              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-              const s = String(a); const n = Number(s);
-              if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const ns = norm(s);
-              return (!!ns && (ns === cVal || ns === cTxt));
-            });
-  
-            if (matched) bagAdd(answerBag, keyOf(c));
-          }
-        }
-      } catch {}
-  
-      // Selected multiset (project union of signals ONTO canonical occurrences)
+      // ── Selected multiset (derive from canonical using union of signals)
       const selectedBag = new Map<string | number, number>();
+  
+      // 1) Pull selections from service (IDs or indexes)
       const svcSelIds = new Set<string | number>();
       const svcSelIdx = new Set<number>();
       try {
@@ -3325,6 +3283,7 @@ export class SelectionMessageService {
             const ix = Number((a as any)?.index ?? (a as any)?.idx ?? (a as any)?.optionIndex);
             if (Number.isFinite(ix)) svcSelIdx.add(ix);
           } else if (typeof a === 'number') {
+            // treat as possible index (0- or 1-based)
             svcSelIdx.add(a);
             const maybeZero = a - 1;
             if (maybeZero >= 0) svcSelIdx.add(maybeZero);
@@ -3334,9 +3293,11 @@ export class SelectionMessageService {
         }
       } catch {}
   
+      // 2) From payload (last-click frame)
       const payloadSelKeys = new Set<string | number>();
       for (const o of (options ?? [])) if (!!(o as any)?.selected) payloadSelKeys.add(keyOf(o));
   
+      // 3) From snapshot (same question signature)
       const snapSelKeys = new Set<string | number>();
       try {
         const snap = this.getLatestOptionsSnapshot?.();
@@ -3352,6 +3313,7 @@ export class SelectionMessageService {
         }
       } catch {}
   
+      // 4) Project selection onto canonical (counts come from canonical occurrences)
       for (let i = 0; i < canonicalOpts.length; i++) {
         const c: any = canonicalOpts[i];
         const k = keyOf(c);
@@ -3367,47 +3329,39 @@ export class SelectionMessageService {
         if (matched) bagAdd(selectedBag, k);
       }
   
-      // EXPECTED TOTAL: canonical vs service vs stem vs payload vs answers
+      // Count selected-correct using multiset intersection
+      const selectedCorrect = hasCanonical
+        ? bagIntersectCount(selectedBag, canonicalBag)   // STRICT canonical
+        : bagIntersectCount(selectedBag, payloadBag);    // fallback only if no canonical
+  
+      // Expected total: when canonical exists, lock to its count (never override)
       let expectedTotal = hasCanonical
         ? canonicalTotal
         : Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
   
       if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) {
         const exp2 = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex));
-        expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : 0;
+        expectedTotal = Number.isFinite(exp2) && exp2 > 0 ? exp2 : payloadTotal;
+      }
+      if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) expectedTotal = 2; // conservative multi fallback
+  
+      // Only when canonical is absent, allow stem-derived “Select N …”
+      if (!hasCanonical) {
+        try {
+          const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+          const m = /select\s+(\d+)/i.exec(stemSrc);
+          const stemN = m ? Number(m[1]) : 0;
+          if (Number.isFinite(stemN) && stemN > 0) expectedTotal = Math.max(expectedTotal, stemN);
+        } catch {}
       }
   
-      // Stem-derived “Select N …”
-      try {
-        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-        const m = /select\s+(\d+)/i.exec(stemSrc);
-        const stemN = m ? Number(m[1]) : 0;
-        if (Number.isFinite(stemN) && stemN > 0) {
-          expectedTotal = Math.max(expectedTotal, stemN);
-        }
-      } catch {}
-  
-      expectedTotal = Math.max(
-        expectedTotal,
-        payloadTotal,
-        bagSum(answerBag),
-        hasCanonical ? canonicalTotal : 0
-      );
-      if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) expectedTotal = 2;
-  
-      // JUDGE BAG (augmented canonical if needed)
-      const judgeBag = new Map<string | number, number>(canonicalBag);
-      if (bagSum(judgeBag) < expectedTotal) bagMergeUpTo(judgeBag, answerBag, expectedTotal);
-      if (bagSum(judgeBag) < expectedTotal) bagMergeUpTo(judgeBag, payloadBag, expectedTotal);
-  
       // Remaining (authoritative, multiset-based)
-      const selectedCorrect = bagIntersectCount(selectedBag, judgeBag);
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
-      const selCount = bagSum(selectedBag); // bag-based accuracy
+      const selCount = bagSum(selectedBag); // use bag count here for accuracy
       if (remaining > 0 && expectedTotal >= 2 && selCount > 0 && selCount < expectedTotal) {
         localFloor = 1; // “Select 1 more …” while building up correct picks
       }
@@ -3433,18 +3387,18 @@ export class SelectionMessageService {
         );
       });
   
-      // Debug (optional)
+      // Debug (uncomment if needed)
       // console.log('[EMIT:GATE]', {
       //   idx: index, resolvedIndex, expectedTotal, selectedCorrect, remaining, displayRemaining,
       //   canonicalBag: Array.from(canonicalBag.entries()),
-      //   answerBag: Array.from(answerBag.entries()),
-      //   payloadBag: Array.from(payloadBag.entries()),
-      //   judgeBag: Array.from(judgeBag.entries()),
-      //   selectedBag: Array.from(selectedBag.entries())
+      //   selectedBag: Array.from(selectedBag.entries()),
+      //   svcSelIds: Array.from(svcSelIds.values()),
+      //   svcSelIdx: Array.from(svcSelIdx.values()),
+      //   payloadSelKeys: Array.from(payloadSelKeys.values()),
+      //   snapSelKeys: Array.from(snapSelKeys.values())
       // });
     }
   }
-  
   
   
   
