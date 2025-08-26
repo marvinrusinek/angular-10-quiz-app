@@ -1912,14 +1912,17 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Multisets (bags) helpers with correct types
     // ─────────────────────────────────────────────────────────────
-    const bagAdd = <K>(bag: Map<K, number>, k: K, n: number = 1): void =>
-        bag.set(k, (bag.get(k) ?? 0) + n);
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n: number = 1): void => {
+        bag.set(k, (bag.get(k) ?? 0) + n);  // This line is correctly typed, return type is void
+    };
 
-    const bagGet = <K>(bag: Map<K, number>, k: K): number =>
-        bag.get(k) ?? 0;
+    const bagGet = <K>(bag: Map<K, number>, k: K): number => {
+        return bag.get(k) ?? 0;
+    };
 
-    const bagSum = (bag: Map<any, number>): number =>
-        [...bag.values()].reduce((a, b) => a + b, 0);
+    const bagSum = (bag: Map<any, number>): number => {
+        return [...bag.values()].reduce((a, b) => a + b, 0);
+    };
 
     const bagIntersectCount = <K>(A: Map<K, number>, B: Map<K, number>): number => {
         let s = 0;
@@ -1928,6 +1931,31 @@ export class SelectionMessageService {
             if (b > 0) s += Math.min(a, b);
         }
         return s;
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // STRICT STEM PARSER (kept)
+    // ─────────────────────────────────────────────────────────────
+    const parseExpectedFromStem = (raw: string | undefined | null): number => {
+        if (!raw) return 0;
+        const s = String(raw).toLowerCase();
+        const wordToNum: Record<string, number> = {
+            one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10
+        };
+
+        let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
+        if (m) { 
+            const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0); 
+            return Number.isFinite(n) && n > 0 ? n : 0; 
+        }
+        m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+        if (m) { 
+            const tok = m[2]; 
+            const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0); 
+            return Number.isFinite(n) && n > 0 ? n : 0; 
+        }
+
+        return 0;
     };
 
     // ─────────────────────────────────────────────────────────────
@@ -2095,6 +2123,9 @@ export class SelectionMessageService {
         try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
+
+  
+
   
   
   
