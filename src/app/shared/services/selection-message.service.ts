@@ -1923,6 +1923,30 @@ export class SelectionMessageService {
     const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
 
     // ─────────────────────────────────────────────────────────────
+    // STRICT STEM PARSER — only parse numbers tied to select/choose/pick/mark … answers/options
+    // (prevents false positives from “Question 2 of 10”, years, etc.)
+    // ─────────────────────────────────────────────────────────────
+    const parseExpectedFromStem = (raw: string | undefined | null): number => {
+      if (!raw) return 0;
+      const s = String(raw).toLowerCase();
+
+      const wordToNum: Record<string, number> = {
+        one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
+      };
+
+      // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
+      let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
+      if (m) { const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0); return Number.isFinite(n) && n > 0 ? n : 0; }
+
+      // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
+      m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+      if (m) { const tok = m[2]; const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0); return Number.isFinite(n) && n > 0 ? n : 0; }
+
+      // If we didn’t see those verbs, do NOT infer anything.
+      return 0;
+    };
+
+    // ─────────────────────────────────────────────────────────────
     // alias-based matching for option keys (id/optionId/value/text)
     // ─────────────────────────────────────────────────────────────
     const aliasKeys = (o: any): Array<string> => {
@@ -2049,6 +2073,8 @@ export class SelectionMessageService {
             return hit;
         };
 
+
+        
         // Target (what we *must* hit)
         // 1) Prefer canonical-on-UI; fallback to stem/service/answers length
         let target = hasCanonical ? canonicalInUI : 0;
