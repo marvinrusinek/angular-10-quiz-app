@@ -2265,14 +2265,14 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical-on-screen only (no ghost targets), bags
+    // MULTIPLE-ANSWER — canonical-on-screen target + UNION selection (bags)
     // ─────────────────────────────────────────────────────────────────────
     {
-      // UI bag of on-screen options (key-normalized)
+      // 1) UI bag of on-screen options (key-normalized)
       const uiBag = new Map<string, number>();
       for (const o of (options ?? [])) bagAdd(uiBag, kOf(o));
   
-      // Canonical bag of correct keys, **clamped to UI** (provable)
+      // 2) Canonical bag of correct keys, **clamped to UI** (provable)
       const canonicalBagRaw = new Map<string, number>();
       for (const c of (canonicalOpts ?? [])) if (!!(c as any)?.correct) bagAdd(canonicalBagRaw, kOf(c));
       const canonicalBag = new Map<string, number>();
@@ -2283,18 +2283,74 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // Selected bag: **payload-only** (authoritative UI state)
-      const selectedBag = new Map<string, number>();
-      for (const o of (options ?? [])) if (!!(o as any)?.selected) bagAdd(selectedBag, kOf(o));
+      // 3) Build a UNION of selected signals (payload + service + snapshot)
+      const svcSelIds = new Set<string>();  // normalized to 'id:<value>'
+      const svcSelIdx = new Set<number>();
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+        const raw = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
+        const arr = raw instanceof Set ? Array.from(raw) : (Array.isArray(raw) ? raw : (raw != null ? [raw] : []));
+        for (const a of arr) {
+          if (typeof a === 'object') {
+            const id = (a as any)?.optionId ?? (a as any)?.id ?? (a as any)?.value;
+            if (id != null) svcSelIds.add(`id:${String(id)}`);
+            const ix = Number((a as any)?.index ?? (a as any)?.idx ?? (a as any)?.optionIndex);
+            if (Number.isFinite(ix)) svcSelIdx.add(ix);
+          } else if (typeof a === 'number') {
+            svcSelIdx.add(a);
+            const maybeZero = a - 1;
+            if (maybeZero >= 0) svcSelIdx.add(maybeZero);
+          } else if (a != null) {
+            svcSelIds.add(`id:${String(a)}`);
+          }
+        }
+      } catch {}
   
-      // ── TARGET: if canonical exists, **lock to it** (no service/stem/answers bump)
-      //            This ensures that once all canonical-correct are picked, further wrong picks
-      //            do not re-open the gate. Exactly what you want for Q4 clicks 3 & 4.
+      const payloadSelKeys = new Set<string>();
+      for (const o of (options ?? [])) if (!!(o as any)?.selected) payloadSelKeys.add(kOf(o));
+  
+      const snapSelKeys = new Set<string>();
+      try {
+        const snap = this.getLatestOptionsSnapshot?.();
+        if (Array.isArray(snap) && snap.length) {
+          const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
+          const sigSnap = optionSig(snap as any);
+          if (sigNow && sigSnap && sigNow === sigSnap) {
+            for (const s of snap as any[]) if (!!(s as any)?.selected) {
+              const id = (s as any)?.optionId ?? (s as any)?.id ?? (s as any)?.value;
+              snapSelKeys.add(id != null ? `id:${String(id)}` : `t:${norm((s as any)?.text ?? '')}`);
+            }
+          }
+        }
+      } catch {}
+  
+      // 4) Project UNION selection **onto canonical instances on-screen**
+      const selectedBag = new Map<string, number>();
+      for (let i = 0; i < canonicalOpts.length; i++) {
+        const c: any = canonicalOpts[i];
+        const key = kOf(c);
+        if (bagGet(uiBag, key) === 0) continue; // not on screen
+  
+        const candIds = [c?.optionId, c?.id, c?.value].filter(v => v != null).map(v => `id:${String(v)}`);
+        const tKey = `t:${norm(c?.text ?? '')}`;
+  
+        const matched =
+          candIds.some(id => svcSelIds.has(id)) ||
+          svcSelIdx.has(i) || svcSelIdx.has(i + 1) ||
+          payloadSelKeys.has(key) || payloadSelKeys.has(tKey) ||
+          snapSelKeys.has(tKey);
+  
+        if (matched) bagAdd(selectedBag, key);
+      }
+  
+      // 5) TARGET: if canonical exists, **lock to it** (no service/stem/answers bump)
       let target = hasCanonical ? canonicalInUI : 0;
   
-      // Fallback only when canonical is absent:
+      // Fallback only when canonical is absent → try answers, else conservative 2
       if (!hasCanonical) {
-        // Try answers if they exist and are on-screen, else conservative 2
         let answersOnScreen = 0;
         try {
           const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
@@ -2333,11 +2389,11 @@ export class SelectionMessageService {
         target = answersOnScreen > 0 ? answersOnScreen : Math.min(bagSum(uiBag), 2);
       }
   
-      // Compute remaining strictly from bags
+      // 6) Remaining strictly from bags
       const selectedCorrect = bagIntersectCount(selectedBag, canonicalBag);
       const remaining = Math.max(target - selectedCorrect, 0);
   
-      // Cosmetic floor (NEVER mask completion)
+      // 7) Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
       const selCount = bagSum(selectedBag);
@@ -2346,7 +2402,7 @@ export class SelectionMessageService {
       }
       const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
   
-      // Message
+      // 8) Message
       const msg =
         displayRemaining > 0
           ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
@@ -2366,7 +2422,7 @@ export class SelectionMessageService {
         );
       });
   
-      // Debug (enable once to validate Q2/Q4, then disable)
+      // Debug (enable once on a failing run)
       // console.log('[EMIT:GATE]', {
       //   idx: index, resolvedIndex,
       //   canonicalInUI, target, selectedCorrect, remaining, displayRemaining,
@@ -2375,6 +2431,7 @@ export class SelectionMessageService {
       // });
     }
   }
+  
   
   
   
