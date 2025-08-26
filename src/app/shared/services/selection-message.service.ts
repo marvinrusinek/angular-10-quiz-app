@@ -2153,8 +2153,7 @@ export class SelectionMessageService {
         : Number.MAX_SAFE_INTEGER;
   
     // ─────────────────────────────────────────────────────────────────────
-    // RUN DETECTION & STATE RESET (prelude) — prevents cross-run bleed
-    // (assumes you added: _runId, _lastIndexProgress, _snapshotRunId and reset code)
+    // Ensure runtime storage exists (lazy inits so you don't need class fields)
     // ─────────────────────────────────────────────────────────────────────
     // @ts-ignore
     this._runId ??= 0;
@@ -2162,7 +2161,34 @@ export class SelectionMessageService {
     this._lastIndexProgress ??= -1;
     // @ts-ignore
     this._snapshotRunId ??= 0;
+    // @ts-ignore
+    this._lastEmitFrameByKey ??= new Map<string, number>();
+    // @ts-ignore
+    this._emitSeq ??= 0;
+    // @ts-ignore
+    this._multiNextLockedByKey ??= new Set<string>();
+    // @ts-ignore
+    this._singleNextLockedByKey ??= new Set<string>();
+    // @ts-ignore
+    this._lastTokByKey ??= new Map<string, number>();
+    // @ts-ignore
+    this._lastTypeByKey ??= new Map<string, QuestionType>();
+    // @ts-ignore
+    this._typeLockByKey ??= new Map<string, QuestionType>();
+    // @ts-ignore
+    this._canonCountByKey ??= new Map<string, number>();
+    // @ts-ignore
+    this._maxCorrectByKey ??= new Map<string, number>();
+    // @ts-ignore
+    this.completedByIndex ??= new Map<number, boolean>();
+    // @ts-ignore
+    this.freezeNextishUntil ??= new Map<number, number>();
+    // @ts-ignore
+    this.suppressPassiveUntil ??= new Map<number, number>();
   
+    // ─────────────────────────────────────────────────────────────────────
+    // RUN DETECTION & STATE RESET (prelude) — prevents cross-run bleed
+    // ─────────────────────────────────────────────────────────────────────
     let detectedRestart = false;
     if ((this._lastIndexProgress as number) > 0 && index === 0) detectedRestart = true;
     if ((this._lastIndexProgress as number) - index >= 2) detectedRestart = true;
@@ -2180,12 +2206,9 @@ export class SelectionMessageService {
       try { (this as any).freezeNextishUntil?.clear?.(); } catch {}
       try { (this as any).suppressPassiveUntil?.clear?.(); } catch {}
       try { this.setLatestOptionsSnapshot?.([]); } catch {}
-      // also clear frame guards on restart
       this._lastEmitFrameByKey.clear();
-      // @ts-ignore
       this._snapshotRunId = this._runId;
     }
-    // @ts-ignore
     this._lastIndexProgress = index;
   
     // ─────────────────────────────────────────────────────────────────────
@@ -2250,7 +2273,6 @@ export class SelectionMessageService {
         .sort()
         .join('|');
   
-    // @ts-ignore
     const runId: number = this._runId ?? 0;
     const qKey: string =
       `run:${runId}|idx:${resolvedIndex}|` + (
@@ -2315,7 +2337,7 @@ export class SelectionMessageService {
           this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
         }
       });
-      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = runId; } catch {}
+      try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = runId; } catch {}
       return;
     }
   
@@ -2323,10 +2345,6 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — LOCKED TO CANONICAL-ON-UI + NEXT LATCH
     // ─────────────────────────────────────────────────────────────────────
     {
-      // Ensure per-run latch exists
-      // @ts-ignore
-      this._multiNextLockedByKey ??= new Set<string>();
-  
       // 1) UI presence (on-screen)
       const uiBag = new Map<string, number>();
       for (const o of (options ?? [])) bagAdd(uiBag, kOf(o));
@@ -2342,18 +2360,17 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // 3) Fast path: if already completed earlier in THIS run, keep Next latched
+      // 3) If already completed earlier in THIS run, keep Next latched
       if (hasCanonical && (this as any)._multiNextLockedByKey.has(qKey)) {
         const msg = (typeof NEXT_BTN_MSG === 'string'
           ? NEXT_BTN_MSG
           : 'Please click the next button to continue.');
         tryEmit(msg);
-        // keep snapshot fresh for union logic in this run
-        try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = this._runId ?? 0; } catch {}
+        try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = this._runId ?? 0; } catch {}
         return;
       }
   
-      // 4) UNION of selection signals (payload + service + SAME-RUN snapshot) → project onto canonical
+      // 4) UNION selection (payload + service + SAME-RUN snapshot)
       const selId = new Set<string>(), selTx = new Set<string>(), selTs = new Set<string>();
   
       // payload
@@ -2383,7 +2400,6 @@ export class SelectionMessageService {
       // snapshot (SAME RUN + same question signature)
       try {
         const snap = this.getLatestOptionsSnapshot?.();
-        // @ts-ignore
         if (this._snapshotRunId === runId && Array.isArray(snap) && snap.length) {
           const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
           const sigSnap = optionSig(snap as any);
@@ -2398,6 +2414,17 @@ export class SelectionMessageService {
         }
       } catch {}
   
+      // **NEW**: if nothing is selected at all → always show START message and return
+      const unionHasAnySelection = (selId.size + selTx.size + selTs.size) > 0;
+      if (!unionHasAnySelection) {
+        const startMsg = (typeof START_MSG === 'string'
+          ? START_MSG
+          : 'Please select an option to continue.');
+        tryEmit(startMsg);
+        try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = runId; } catch {}
+        return;
+      }
+  
       // project onto canonical instances that are on-screen
       const selectedBag = new Map<string, number>();
       for (const [k, cap] of canonicalBag) {
@@ -2411,41 +2438,40 @@ export class SelectionMessageService {
         if (matched > 0) bagAdd(selectedBag, k, matched);
       }
   
-      // 5) TARGET: strictly canonical-on-UI (no bumps from answers/stem/service)
+      // 5) TARGET: strictly canonical-on-UI (no bumps)
       const target = canonicalInUI;
   
       // 6) Remaining
       const selectedCorrect = bagIntersectCount(selectedBag, canonicalBag);
       const remaining = Math.max(target - selectedCorrect, 0);
   
+      // **NEW**: if complete, latch NEXT immediately and return (prevents any overwrite)
+      if (remaining === 0 && hasCanonical) {
+        const msg = (typeof NEXT_BTN_MSG === 'string'
+          ? NEXT_BTN_MSG
+          : 'Please click the next button to continue.');
+        (this as any)._multiNextLockedByKey.add(qKey);
+        tryEmit(msg);
+        try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = runId; } catch {}
+        return;
+      }
+  
       // 7) Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       const selCount = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
       const localFloor = (remaining > 0 && target >= 2 && selCount > 0 && selCount < target) ? 1 : 0;
-      const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
+      const displayRemaining = Math.max(remaining, configuredFloor, localFloor); // remaining > 0 here
   
-      // 8) Message + latch
+      // 8) Message (not complete)
       const msg =
-        displayRemaining > 0
-          ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
-          : (typeof NEXT_BTN_MSG === 'string'
-              ? NEXT_BTN_MSG
-              : 'Please click the next button to continue.');
-  
-      if (remaining === 0 && hasCanonical) {
-        (this as any)._multiNextLockedByKey.add(qKey); // latch Next for this question in this run
-      }
+        `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`;
   
       tryEmit(msg);
   
       // keep snapshot fresh for union logic in this run
-      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = this._runId ?? 0; } catch {}
+      try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = this._runId ?? 0; } catch {}
     }
   }
-  
-  
-  
-  
   
   
   
