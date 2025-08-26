@@ -139,10 +139,19 @@ export class SelectionMessageService {
     } catch {}
 
     // Ensure canonical and UI snapshot share the same optionId space
-    this.ensureStableIds(questionIndex, (q as any)?.options ?? [], this.getLatestOptionsSnapshot());
+    // Use canonical to enrich snapshot → options (for fields like text)
+    const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
+
+    const priorSnapAsOpts: Option[] = this.getLatestOptionsSnapshotAsOptions(canonical);
+
+    this.ensureStableIds(
+      questionIndex,
+      canonical,                 // canonical options
+      /* current */ this.toOptionArrayWithLookup(options ?? [], canonical),
+      /* prior   */ priorSnapAsOpts
+    );
   
     // Overlay selection into canonical (correct flags intact)
-    const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const overlaid: Option[] = canonical.length
       ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
       : uiSnapshot.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback
@@ -3248,7 +3257,24 @@ export class SelectionMessageService {
     };
   }
 
-  public getLatestOptionsSnapshotAsOptions(): Option[] {
-    return this.toOptionArray(this.getLatestOptionsSnapshot());
-  }  
+  public getLatestOptionsSnapshotAsOptions(lookupFrom?: Option[]): Option[] {
+    const snaps = this.getLatestOptionsSnapshot();            // OptionSnapshot[]
+    return this.toOptionArrayWithLookup(snaps, lookupFrom);   // Option[]
+  }
+
+  private toOptionArrayWithLookup(
+    input: Option[] | OptionSnapshot[] | null | undefined,
+    lookupFrom?: Option[]
+  ): Option[] {
+    if (!input || !Array.isArray(input) || input.length === 0) return [];
+    if (this.isOptionArray(input)) return input as Option[];
+    const lookup = Array.isArray(lookupFrom) ? this.buildOptionLookup(lookupFrom) : undefined;
+    return (input as OptionSnapshot[]).map(s => this.mapSnapshotToOption(s, lookup));
+  }
+
+  private buildOptionLookup(sources: Option[]): Map<string | number, Option> {
+    const map = new Map<string | number, Option>();
+    sources.forEach((o, idx) => map.set(this.toStableId(o, idx), o));
+    return map;
+  }
 }
