@@ -2342,7 +2342,7 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — PROVABLE BUMP (canonical-on-UI + answers-on-UI) + HARD LATCH
+    // MULTIPLE-ANSWER — PROVABLE BUMP (canonical-on-UI + answers-on-UI + STEM) + HARD LATCH
     // ─────────────────────────────────────────────────────────────────────
     {
       // 1) UI presence (on-screen)
@@ -2361,7 +2361,7 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // 3) Answers proved ON-SCREEN (by id/index/value/text)
+      // 3) Answers proved ON-SCREEN (id/index/value/text)
       const answersBag = new Map<string, number>();
       try {
         const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
@@ -2464,8 +2464,22 @@ export class SelectionMessageService {
         if (matched > 0) bagAdd(selectedBag, k, matched);
       }
   
-      // 5) TARGET: canonical-on-UI + answers-on-UI (provable), clamped to UI capacity
-      let target = Math.min(uiCap, canonicalInUI + answersOnUI);
+      // 5) TARGET: canonical-on-UI + answers-on-UI + STEM (provable/clamped)
+      let stemN = 0;
+      try {
+        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+        const m = /(select|choose|pick)\s+(\d+)/i.exec(stemSrc);
+        if (m) {
+          const n = Number(m[2]);
+          if (Number.isFinite(n) && n > 0) stemN = n | 0;
+        }
+      } catch {}
+      // base provable target
+      let target = canonicalInUI + answersOnUI;
+      // allow stem to raise target even if canonical exists, but clamp to UI
+      if (stemN > 0) target = Math.max(target, Math.min(uiCap, stemN));
+      // never exceed UI capacity
+      target = Math.min(target, uiCap);
   
       // Build judge bag: canonical + enough answers to reach target
       const judgeBag = new Map<string, number>(canonicalBag);
@@ -2515,6 +2529,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = this._runId ?? 0; } catch {}
     }
   }
+  
   
   
   
