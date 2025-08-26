@@ -812,7 +812,7 @@ export class SelectionMessageService {
       : START_TEXT_FALLBACK;
   
     // ─────────────────────────────────────────────────────────────
-    // Helpers (deterministic stable key + robust stem parser)
+    // Helpers (deterministic stable key)
     // ─────────────────────────────────────────────────────────────
     const norm = (s: any) =>
       (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
@@ -855,16 +855,34 @@ export class SelectionMessageService {
       return s;
     };
   
+    // ─────────────────────────────────────────────────────────────
+    // STRICT STEM PARSER — only parse numbers tied to select/choose/pick/mark … answers/options
+    // (prevents false positives from “Question 2 of 10”, years, etc.)
+    // ─────────────────────────────────────────────────────────────
     const parseExpectedFromStem = (raw: string | undefined | null): number => {
       if (!raw) return 0;
-      const s = String(raw);
-      const m1 = s.match(/\b(\d{1,2})\b/);
-      if (m1) { const n = Number(m1[1]); if (Number.isFinite(n) && n > 0) return n; }
-      const m2 = s.match(/\((\d{1,2})\)/);
-      if (m2) { const n = Number(m2[1]); if (Number.isFinite(n) && n > 0) return n; }
-      const table: Record<string, number> = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
-      const m3 = s.toLowerCase().match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\b/);
-      if (m3) return table[m3[1]] ?? 0;
+      const s = String(raw).toLowerCase();
+  
+      const wordToNum: Record<string, number> = {
+        one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
+      };
+  
+      // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
+      let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
+      if (m) {
+        const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+  
+      // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
+      m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+      if (m) {
+        const tok = m[2];
+        const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+  
+      // If we didn’t see those verbs, do NOT infer anything.
       return 0;
     };
   
@@ -1111,11 +1129,7 @@ export class SelectionMessageService {
       );
       const demandTarget = Math.min(uiCapacity, Math.max(canonicalInUI, expectedFromSvc, expectedFromStem));
   
-      // ─────────────────────────────────────────────────────────
-      // DEMAND FIX — de-duped union (no double-count on click #2)
-      // Build a demandBag = canonicalBag + answersBag (no duplicates per key),
-      // capped to demandTarget and UI capacity, then intersect with selections.
-      // ─────────────────────────────────────────────────────────
+      // DEMAND — de-duped union: canonical + answers (no per-key double count), capped to demandTarget
       const demandBag = new Map<string | number, number>(canonicalBag);
       let needDemand = Math.max(0, demandTarget - bagSum(demandBag));
       if (needDemand > 0) {
@@ -1162,6 +1176,7 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
+  
   
   
 
