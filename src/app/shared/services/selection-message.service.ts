@@ -2173,27 +2173,14 @@ export class SelectionMessageService {
       return s;
     };
   
-    // Stem parser: digits, “(3)”, and number words
     const parseExpectedFromStem = (raw: string | undefined | null): number => {
       if (!raw) return 0;
       const s = String(raw);
-      // 1) explicit digits anywhere
       const m1 = s.match(/\b(\d{1,2})\b/);
-      if (m1) {
-        const n = Number(m1[1]);
-        if (Number.isFinite(n) && n > 0) return n;
-      }
-      // 2) digits in parentheses: “(3)”
+      if (m1) { const n = Number(m1[1]); if (Number.isFinite(n) && n > 0) return n; }
       const m2 = s.match(/\((\d{1,2})\)/);
-      if (m2) {
-        const n = Number(m2[1]);
-        if (Number.isFinite(n) && n > 0) return n;
-      }
-      // 3) words: one..ten
-      const table: Record<string, number> = {
-        one: 1, two: 2, three: 3, four: 4, five: 5,
-        six: 6, seven: 7, eight: 8, nine: 9, ten: 10
-      };
+      if (m2) { const n = Number(m2[1]); if (Number.isFinite(n) && n > 0) return n; }
+      const table: Record<string, number> = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
       const m3 = s.toLowerCase().match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\b/);
       if (m3) return table[m3[1]] ?? 0;
       return 0;
@@ -2343,6 +2330,24 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
+      // ─────────────────────────────────────────────────────────
+      // Q2 FAST-PATH: exactly one canonical-correct on-screen AND it’s selected
+      // → latch “Next” immediately and return.
+      // (Does not affect Q4 since canonicalInUI === 2 there.)
+      // ─────────────────────────────────────────────────────────
+      if (hasCanonical && canonicalInUI === 1) {
+        const onlyKey = Array.from(canonicalBag.keys())[0];
+        const picked = (options ?? []).some((o: any) => !!o?.selected && keyOf(o) === onlyKey);
+        if (picked) {
+          (this as any)._multiNextLockedByKey.add(qKey);
+          const nextMsg = (typeof NEXT_BTN_MSG === 'string'
+            ? NEXT_BTN_MSG
+            : 'Please click the next button to continue.');
+          tryEmit(nextMsg, QuestionType.MultipleAnswer);
+          return;
+        }
+      }
+  
       // Answers-derived bag (on-screen)
       const answerBag = new Map<string | number, number>();
       try {
@@ -2468,7 +2473,6 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
-  
   
   
   
