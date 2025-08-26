@@ -2151,6 +2151,18 @@ export class SelectionMessageService {
         : Number.MAX_SAFE_INTEGER;
   
     // ─────────────────────────────────────────────────────────────
+    // Message fallbacks (ONLY COPY CHANGE)
+    // ─────────────────────────────────────────────────────────────
+    const NEXT_TEXT_FALLBACK = 'Please select the next button to continue...';
+    const START_TEXT_FALLBACK = 'Please click an option to continue';
+    const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
+      ? (globalThis as any).NEXT_BTN_MSG
+      : NEXT_TEXT_FALLBACK;
+    const START_MSG_TXT = (typeof (globalThis as any)?.START_MSG === 'string' && (globalThis as any).START_MSG)
+      ? (globalThis as any).START_MSG
+      : START_TEXT_FALLBACK;
+  
+    // ─────────────────────────────────────────────────────────────
     // Helpers (deterministic stable key + robust stem parser)
     // ─────────────────────────────────────────────────────────────
     const norm = (s: any) =>
@@ -2159,7 +2171,7 @@ export class SelectionMessageService {
     const keyOf = (o: any): string | number =>
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
-    // NEW: alias-based matching (id/optionId/value/text) to avoid key mismatches
+    // alias-based matching (id/optionId/value/text) to avoid key mismatches
     const aliasKeys = (o: any): Array<string> => {
       const out: string[] = [];
       const push = (pfx: string, v: any) => { if (v != null) out.push(`${pfx}:${String(v)}`); };
@@ -2303,9 +2315,7 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
       const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
-      const msg = anySelected
-        ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
-        : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
+      const msg = anySelected ? NEXT_MSG : START_MSG_TXT;
       queueMicrotask(() => tryEmit(msg, effType));
       return;
     }
@@ -2317,10 +2327,7 @@ export class SelectionMessageService {
     {
       // If previously completed, keep Next latched (no flicker)
       if ((this as any)._multiNextLockedByKey.has(qKey)) {
-        const msg = (typeof NEXT_BTN_MSG === 'string'
-          ? NEXT_BTN_MSG
-          : 'Please click the next button to continue.');
-        tryEmit(msg, QuestionType.MultipleAnswer);
+        tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
         return;
       }
   
@@ -2332,10 +2339,7 @@ export class SelectionMessageService {
       // START message if nothing selected yet (payload-only)
       const anyPayloadSelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
       if (!anyPayloadSelected) {
-        const startMsg = (typeof START_MSG === 'string'
-          ? START_MSG
-          : 'Please select an option to continue.');
-        tryEmit(startMsg, QuestionType.MultipleAnswer);
+        tryEmit(START_MSG_TXT, QuestionType.MultipleAnswer);
         return;
       }
   
@@ -2351,15 +2355,8 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // ─────────────────────────────────────────────────────────
-      // Q2 FAST-PATH (robust alias match):
-      // exactly ONE canonical-correct on-screen AND that specific
-      // canonical option is selected (by id/optionId/value/text).
-      // → latch “Next” immediately and return.
-      // (Does not affect Q4 since canonicalInUI === 2 there.)
-      // ─────────────────────────────────────────────────────────
+      // Q2 FAST-PATH (robust alias match)
       if (hasCanonical && canonicalInUI === 1) {
-        // get the sole canonical-correct option on UI (by alias, not just keyOf)
         const canonicalOnUI = canonicalOpts.filter(c => !!(c as any)?.correct)
           .filter(c => bagGet(uiBag, keyOf(c)) > 0);
         const selectedPayload = (options ?? []).filter((o: any) => !!o?.selected);
@@ -2369,10 +2366,7 @@ export class SelectionMessageService {
   
         if (canonicalSelectedCount === 1) {
           (this as any)._multiNextLockedByKey.add(qKey);
-          const nextMsg = (typeof NEXT_BTN_MSG === 'string'
-            ? NEXT_BTN_MSG
-            : 'Please click the next button to continue.');
-          tryEmit(nextMsg, QuestionType.MultipleAnswer);
+          tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
           return;
         }
       }
@@ -2472,10 +2466,7 @@ export class SelectionMessageService {
       // LATCH NEXT only when BOTH provable and demand are satisfied
       if (hasCanonical && remainingProvable === 0 && demandRemaining === 0) {
         (this as any)._multiNextLockedByKey.add(qKey);
-        const nextMsg = (typeof NEXT_BTN_MSG === 'string'
-          ? NEXT_BTN_MSG
-          : 'Please click the next button to continue.');
-        tryEmit(nextMsg, QuestionType.MultipleAnswer);
+        tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
         return;
       }
   
@@ -2494,9 +2485,7 @@ export class SelectionMessageService {
       const msg =
         displayRemaining > 0
           ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
-          : (typeof NEXT_BTN_MSG === 'string'
-              ? NEXT_BTN_MSG
-              : 'Please click the next button to continue.');
+          : NEXT_MSG;
   
       tryEmit(msg, QuestionType.MultipleAnswer);
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
