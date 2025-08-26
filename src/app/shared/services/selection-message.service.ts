@@ -2361,6 +2361,23 @@ export class SelectionMessageService {
   
     const keyOf = (o: any): string | number =>
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
+    
+    // ─────────────────────────────────────────────────────────────
+    // Multiset helpers (bags)
+    // ─────────────────────────────────────────────────────────────
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void => {
+      bag.set(k, (bag.get(k) ?? 0) + n);
+    };    
+    const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
+    const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
+    const bagIntersectCount = <K>(A: Map<K, number>, B: Map<K, number>) => {
+      let s = 0;
+      for (const [k, a] of A) {
+        const b = B.get(k) ?? 0;
+        if (b > 0) s += Math.min(a, b);
+      }
+      return s;
+    };
   
     // ─────────────────────────────────────────────────────────────
     // Resolve canonical for this index (STRICT by param index)
@@ -2461,7 +2478,7 @@ export class SelectionMessageService {
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex)) || 0;
   
       // For Q4 hard floor: 2 (adjust index if Q4 moves)
