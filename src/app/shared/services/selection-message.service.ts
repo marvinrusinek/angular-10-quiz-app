@@ -2175,38 +2175,6 @@ export class SelectionMessageService {
       return s;
     };
   
-    // Selected detector (keeps your stricter behavior and avoids cross-question bleed)
-    const anySelectedStrict = (idxForSvc: number): boolean => {
-      if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
-      try {
-        const selSvc: any =
-          (this as any).selectedOptionService ??
-          (this as any).selectionService ??
-          (this as any).quizService;
-        const ids = selSvc?.getSelectedIdsForQuestion?.(idxForSvc);
-        if (ids instanceof Set) return ids.size > 0;
-        if (Array.isArray(ids)) return ids.length > 0;
-        if (ids != null) return true;
-      } catch {}
-      // snapshot check left to multi block
-      return false;
-    };
-  
-    const selectedCountStrict = (idxForSvc: number): number => {
-      let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (o?.selected ? 1 : 0), 0) : 0;
-      try {
-        const selSvc: any =
-          (this as any).selectedOptionService ??
-          (this as any).selectionService ??
-          (this as any).quizService;
-        const ids = selSvc?.getSelectedIdsForQuestion?.(idxForSvc);
-        if (ids instanceof Set) cnt = Math.max(cnt, ids.size);
-        else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
-        else if (ids != null) cnt = Math.max(cnt, 1);
-      } catch {}
-      return cnt;
-    };
-  
     // ─────────────────────────────────────────────────────────────────────
     // Resolve canonical question/options from service (STRICT by param index)
     // ─────────────────────────────────────────────────────────────────────
@@ -2244,7 +2212,7 @@ export class SelectionMessageService {
       );
   
     // ─────────────────────────────────────────────────────────────────────
-    // (Optional) normalize payload IDs from canonical by text so keys align
+    // (Optional) align payload IDs from canonical by text so keys align
     // ─────────────────────────────────────────────────────────────────────
     try {
       const canonByText = new Map<string, any>();
@@ -2285,7 +2253,8 @@ export class SelectionMessageService {
     // SINGLE-ANSWER (unchanged semantics)
     // ─────────────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
-      const anySelected = anySelectedStrict(resolvedIndex);
+      const anySelected =
+        Array.isArray(options) && options.some((o: any) => !!o?.selected);
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
@@ -2354,75 +2323,17 @@ export class SelectionMessageService {
         }
       } catch {}
   
-      // Payload “correct” bag, **clamped to UI** (used only if canonical is absent and answers empty)
-      const payloadBagRaw = new Map<string, number>();
-      for (const o of (options ?? [])) if (!!(o as any)?.correct) bagAdd(payloadBagRaw, kOf(o));
-      const payloadBag = new Map<string, number>();
-      for (const [k, c] of payloadBagRaw) {
-        const cap = bagGet(uiBag, k);
-        if (cap > 0) bagAdd(payloadBag, k, Math.min(c, cap));
-      }
-  
-      // Selected bag: project union of signals ONTO canonical instances present in UI
+      // Selected bag: **payload-only** (your updated array is authoritative for UI state)
       const selectedBag = new Map<string, number>();
-      const svcSelIds = new Set<string>();  // normalized to 'id:<value>'
-      const svcSelIdx = new Set<number>();
-      try {
-        const selSvc: any =
-          (this as any).selectedOptionService ??
-          (this as any).selectionService ??
-          (this as any).quizService;
-        const raw = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
-        const arr = raw instanceof Set ? Array.from(raw) : (Array.isArray(raw) ? raw : (raw != null ? [raw] : []));
-        for (const a of arr) {
-          if (typeof a === 'object') {
-            const id = (a as any)?.optionId ?? (a as any)?.id ?? (a as any)?.value;
-            if (id != null) svcSelIds.add(`id:${String(id)}`);
-            const ix = Number((a as any)?.index ?? (a as any)?.idx ?? (a as any)?.optionIndex);
-            if (Number.isFinite(ix)) svcSelIdx.add(ix);
-          } else if (typeof a === 'number') {
-            svcSelIdx.add(a);
-            const maybeZero = a - 1;
-            if (maybeZero >= 0) svcSelIdx.add(maybeZero);
-          } else if (a != null) {
-            svcSelIds.add(`id:${String(a)}`);
-          }
-        }
-      } catch {}
-      const payloadSelKeys = new Set<string>();
-      for (const o of (options ?? [])) if (!!(o as any)?.selected) payloadSelKeys.add(kOf(o));
-      const snapSelKeys = new Set<string>();
-      try {
-        const snap = this.getLatestOptionsSnapshot?.();
-        if (Array.isArray(snap) && snap.length) {
-          const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
-          const sigSnap = optionSig(snap as any);
-          if (sigNow && sigSnap && sigNow === sigSnap) {
-            for (const s of snap as any[]) if (!!(s as any)?.selected) {
-              const id = (s as any)?.optionId ?? (s as any)?.id ?? (s as any)?.value;
-              snapSelKeys.add(id != null ? `id:${String(id)}` : `t:${norm((s as any)?.text ?? '')}`);
-            }
-          }
-        }
-      } catch {}
-      for (let i = 0; i < canonicalOpts.length; i++) {
-        const c: any = canonicalOpts[i];
-        const key = kOf(c);
-        if (bagGet(uiBag, key) === 0) continue; // not on screen
-        const candIds = [c?.optionId, c?.id, c?.value].filter(v => v != null).map(v => `id:${String(v)}`);
-        const tKey = `t:${norm(c?.text ?? '')}`;
-        const matched =
-          candIds.some(id => svcSelIds.has(id)) ||
-          svcSelIdx.has(i) || svcSelIdx.has(i + 1) ||
-          snapSelKeys.has(tKey) ||
-          payloadSelKeys.has(key) || payloadSelKeys.has(tKey);
-        if (matched) bagAdd(selectedBag, key);
+      for (const o of (options ?? [])) {
+        if (!!(o as any)?.selected) bagAdd(selectedBag, kOf(o));
       }
   
       // Demand: only what we can PROVE on screen (canonical + answers). Ignore payload for target.
-      const maxProvable = Math.min(uiCapacity, canonicalInUI + bagSum(answerBag));
+      const answersProvable = bagSum(answerBag);
+      const maxProvable = Math.min(uiCapacity, canonicalInUI + answersProvable);
   
-      // Expected total we can actually justify (answers may raise canonical)
+      // Expected total we can actually justify:
       let expectedTotal = hasCanonical ? canonicalInUI : 0;
   
       // Service/Stem can request more, but cap by provable
@@ -2443,12 +2354,11 @@ export class SelectionMessageService {
       }
   
       // If svc/stem are low/zero but answers prove extras, allow them up to maxProvable
-      expectedTotal = Math.max(expectedTotal, Math.min(maxProvable, canonicalInUI + bagSum(answerBag)));
+      expectedTotal = Math.max(expectedTotal, Math.min(maxProvable, canonicalInUI + answersProvable));
   
-      // If canonical absent, fall back to answers; if answers empty too, only then payload (still UI-clamped)
-      if (!hasCanonical) {
-        const fallbackProvable = bagSum(answerBag) || bagSum(payloadBag);
-        expectedTotal = Math.max(expectedTotal, Math.min(uiCapacity, fallbackProvable || 2));
+      // If canonical absent and answers empty too, conservative fallback = 2 (UI-limited)
+      if (!hasCanonical && answersProvable === 0) {
+        expectedTotal = Math.min(uiCapacity, expectedTotal || 2);
       }
   
       // Build the judge bag (what counts as correct): canonical + as-many answers as needed (no payload inflation)
@@ -2467,21 +2377,17 @@ export class SelectionMessageService {
           }
         }
       }
-      // If still no canonical and no answers, allow payload as last resort
-      if (!hasCanonical && bagSum(judgeBag) === 0 && bagSum(payloadBag) > 0) {
-        for (const [k, c] of payloadBag) bagAdd(judgeBag, k, c);
-        expectedTotal = bagSum(judgeBag); // align target to what we actually judge
-      }
   
       // Compute remaining strictly from bags
       const selectedCorrect = bagIntersectCount(selectedBag, judgeBag);
-      const remaining = Math.max(bagSum(judgeBag) - selectedCorrect, 0); // ← target equals provable corrects
+      const target = bagSum(judgeBag); // ← provable target
+      const remaining = Math.max(target - selectedCorrect, 0);
   
       // Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
       const selCount = bagSum(selectedBag);
-      if (remaining > 0 && bagSum(judgeBag) >= 2 && selCount > 0 && selCount < bagSum(judgeBag)) {
+      if (remaining > 0 && target >= 2 && selCount > 0 && selCount < target) {
         localFloor = 1; // “Select 1 more …” while building up picks
       }
       const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
@@ -2506,18 +2412,21 @@ export class SelectionMessageService {
         );
       });
   
-      // Debug (enable once, then disable)
+      // Debug (enable once to validate Q2/Q4, then disable)
       // console.log('[EMIT:GATE]', {
       //   idx: index, resolvedIndex,
       //   canonicalInUI,
-      //   answers: Array.from(answerBag.entries()),
+      //   answersProvable,
+      //   target,
+      //   selectedCorrect,
+      //   remaining,
+      //   displayRemaining,
       //   judge: Array.from(judgeBag.entries()),
-      //   selected: Array.from(selectedBag.entries()),
-      //   expectedTotal: bagSum(judgeBag),
-      //   selectedCorrect, remaining, displayRemaining
+      //   selected: Array.from(selectedBag.entries())
       // });
     }
   }
+  
   
   
   
