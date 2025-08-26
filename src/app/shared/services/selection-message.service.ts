@@ -2403,8 +2403,8 @@ export class SelectionMessageService {
       // If you keep ID stabilization, preserve it (no-throw guard).
       try {
         // Coerce prior snapshot → Option[] (handles null/snapshot/option arrays)
-        const priorSnapAsOpts: Option[] = this.toOptionArray(this.getLatestOptionsSnapshot());
-      
+        const priorSnapAsOpts: Option[] = this.toOptionArray?.(this.getLatestOptionsSnapshot?.()) ?? [];
+  
         this.ensureStableIds?.(
           index,
           (q as any)?.options ?? [],  // canonical
@@ -2412,36 +2412,33 @@ export class SelectionMessageService {
           priorSnapAsOpts             // prior snapshot as Option[]
         );
       } catch {}
-      
+  
+      // ───── Strict canonical matching by a stable key (no index, no randomness) ─────
+      const keyOf = (o: any): number | string =>
+        (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${o.text}` : 'unknown')) as number | string;
   
       const canonicalOpts: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-      // Primary source of truth for "correct" count.
-      totalCorrect = canonicalOpts.filter(o => !!o?.correct).length;
+      // Build canonical set of correct option keys
+      const correctKeys = new Set(
+        canonicalOpts.filter(c => !!c?.correct).map(c => keyOf(c))
+      );
+      const hasCanonical = correctKeys.size > 0;
   
-      // Fallback: if canonical is under-flagged or empty, rely on the passed array
-      if (totalCorrect === 0 && Array.isArray(options)) {
-        totalCorrect = options.filter(o => !!o?.correct).length;
-      }
+      // Current selected keys from the updated payload
+      const selectedKeys = new Set(
+        (options ?? []).filter(o => !!o?.selected).map(o => keyOf(o))
+      );
   
-      // Count HOW MANY CORRECT OPTIONS ARE CURRENTLY SELECTED (not total selected)
-      // Source for selection state = current updated array `options`
-      // Correctness comes from canonical if available, else from `options`.
-      if (Array.isArray(options)) {
-        // Build a quick lookup of canonical correctness by some stable key (prefer id)
-        const byId = new Map<number | string, boolean>();
-        for (const co of canonicalOpts) {
-          const id = (co as any)?.optionId ?? (co as any)?.id ?? co?.text;
-          byId.set(id, !!co?.correct);
-        }
+      // Primary source of truth for counts
+      totalCorrect = hasCanonical
+        ? correctKeys.size
+        : (options ?? []).filter(o => !!o?.correct).length;
   
-        selectedCorrect = options.reduce((acc, o) => {
-          const id = (o as any)?.optionId ?? (o as any)?.id ?? o?.text;
-          // Prefer canonical correctness, fallback to the option’s own flag
-          const isCorrect = byId.has(id) ? !!byId.get(id) : !!o?.correct;
-          return acc + (o?.selected && isCorrect ? 1 : 0);
-        }, 0);
-      }
+      selectedCorrect = hasCanonical
+        ? [...selectedKeys].filter(k => correctKeys.has(k)).length
+        : (options ?? []).filter(o => !!o?.selected && !!o?.correct).length;
+  
     } catch (e) {
       console.warn('[emitFromClick] canonical overlay failed; falling back', e);
       // Very defensive fallback if something above throws:
@@ -2467,7 +2464,7 @@ export class SelectionMessageService {
         if (remaining > 0) {
           // Pluralization
           const plural = remaining === 1 ? '' : 's';
-          // 🔧 This is the critical fix for Q4 (2nd click on Option 2)
+          // 🔧 Critical for Q2/Q4: derived strictly from canonical via stable keys
           this.updateSelectionMessage?.(
             `Select ${remaining} more correct answer${plural} to continue...`,
             { options, index, token: tok, questionType }
@@ -2504,6 +2501,7 @@ export class SelectionMessageService {
       this.setLatestOptionsSnapshot?.(options);
     } catch {}
   }
+  
    
   
   /* ───────────── helpers (reuse yours if you already have them) ───────────── */
