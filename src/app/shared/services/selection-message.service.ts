@@ -1181,25 +1181,11 @@ export class SelectionMessageService {
   
 
   /* ================= helpers ================= */
-  private keyFor(o?: Option): string | null {
-    if (!o) return null;
-    if (o.optionId != null) return `id:${o.optionId}`;
-    return `tx:${this.textKey(o.text)}`;
-  }
-
   private textKey(s: any): string {
     return (typeof s === 'string' ? s : '')
       .trim()
       .toLowerCase()
       .replace(/\s+/g, ' ');
-  }
-
-  private countTotalCorrect(
-    canonMap: Map<string, { correct: boolean }>
-  ): number {
-    let n = 0;
-    for (const v of canonMap.values()) if (v.correct) n++;
-    return n;
   }
 
   // Overlay UI/service selection onto canonical options (correct flags intact)
