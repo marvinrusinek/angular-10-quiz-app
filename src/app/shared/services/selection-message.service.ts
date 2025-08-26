@@ -1112,18 +1112,27 @@ export class SelectionMessageService {
       const demandTarget = Math.min(uiCapacity, Math.max(canonicalInUI, expectedFromSvc, expectedFromStem));
   
       // ─────────────────────────────────────────────────────────
-      // DEMAND FIX (Q4 click #3):
-      // Count selections that are provably correct by either canonical OR answers.
-      // This ensures “Next” when the 3rd correct is picked even if one correct
-      // comes via answers instead of canonical flags after a fresh start.
+      // DEMAND FIX — de-duped union (no double-count on click #2)
+      // Build a demandBag = canonicalBag + answersBag (no duplicates per key),
+      // capped to demandTarget and UI capacity, then intersect with selections.
       // ─────────────────────────────────────────────────────────
-      const selectedFromCanonical = bagIntersectCount(selectedBag, canonicalBag);
-      const selectedFromAnswers  = bagIntersectCount(selectedBag, answerBag);
-      const selectedProvableForDemand = Math.min(
-        demandTarget,
-        selectedFromCanonical + selectedFromAnswers
-      );
-      const demandRemaining = Math.max(demandTarget - selectedProvableForDemand, 0);
+      const demandBag = new Map<string | number, number>(canonicalBag);
+      let needDemand = Math.max(0, demandTarget - bagSum(demandBag));
+      if (needDemand > 0) {
+        for (const [k, cAns] of answerBag) {
+          const already = bagGet(demandBag, k);
+          const capK = Math.max(0, (bagGet(uiBag, k)) - already);
+          if (capK <= 0) continue;
+          const take = Math.min(cAns, capK, needDemand);
+          if (take > 0) {
+            bagAdd(demandBag, k, take);
+            needDemand -= take;
+            if (needDemand <= 0) break;
+          }
+        }
+      }
+      const selectedProvableForDemand = bagIntersectCount(selectedBag, demandBag);
+      const demandRemaining = Math.max(bagSum(demandBag) - selectedProvableForDemand, 0);
   
       // LATCH NEXT only when BOTH provable and demand are satisfied
       if (hasCanonical && remainingProvable === 0 && demandRemaining === 0) {
