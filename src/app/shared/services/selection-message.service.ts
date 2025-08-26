@@ -146,15 +146,21 @@ export class SelectionMessageService {
 
     this.ensureStableIds(
       questionIndex,
-      canonical,                 // canonical options
-      /* current */ this.toOptionArrayWithLookup(options ?? [], canonical),
-      /* prior   */ priorSnapAsOpts
+      canonical,
+      this.toOptionArrayWithLookup(q?.options ?? [], canonical),
+      priorSnapAsOpts
     );
+
+    const base: Option[] = canonical.length
+      ? canonical
+      : this.toOptionArrayWithLookup(uiSnapshot, canonical);
   
     // Overlay selection into canonical (correct flags intact)
-    const overlaid: Option[] = canonical.length
-      ? canonical.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) }))
-      : uiSnapshot.map(o => ({ ...o, selected: selectedKeys.has(keyOf(o)) || !!o?.selected })); // fallback
+    const overlaid: Option[] = base.map((o, idx) => {
+      const id = this.toStableId(o, idx);
+      const selected = selectedKeys.has(id) || !!o.selected;
+      return this.toOption(o, idx, selected);
+    });
   
     // If the data has >1 correct, treat as MultipleAnswer even if declared type is wrong
     const computedIsMulti = overlaid.filter(o => !!o?.correct).length > 1;
