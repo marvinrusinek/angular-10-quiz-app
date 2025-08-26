@@ -49,9 +49,6 @@ export class SelectionMessageService {
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
   public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>(); // fallback store
 
-  private lastSelectTsByIndex = new Map<number, number>();
-  private lastSelectRemainingByIndex = new Map<number, number>();
-
   private observedCorrectIds = new Map<number, Set<string>>();
 
   // Latch to prevent regressions after a multi question is satisfied
