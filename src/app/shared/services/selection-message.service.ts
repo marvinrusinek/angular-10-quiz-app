@@ -1911,6 +1911,40 @@ export class SelectionMessageService {
         (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
 
     // ─────────────────────────────────────────────────────────────
+    // Bag helpers (multiset logic for selection counts)
+    // ─────────────────────────────────────────────────────────────
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void =>
+        bag.set(k, (bag.get(k) ?? 0) + n);
+
+    const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
+
+    const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
+
+    // ─────────────────────────────────────────────────────────────
+    // alias-based matching for option keys (id/optionId/value/text)
+    // ─────────────────────────────────────────────────────────────
+    const aliasKeys = (o: any): Array<string> => {
+        const out: string[] = [];
+        const push = (pfx: string, v: any) => { if (v != null) out.push(`${pfx}:${String(v)}`); };
+        push('oid', o?.optionId);
+        push('id',  o?.id);
+        push('val', o?.value);
+        if (typeof o?.text === 'string') {
+            const t = norm(o.text);
+            if (t) out.push(`t:${t}`);
+            const ts = t.replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+            if (ts) out.push(`ts:${ts}`);
+        }
+        return out;
+    };
+
+    const aliasesMatch = (a: any, b: any): boolean => {
+        const A = new Set(aliasKeys(a));
+        for (const k of aliasKeys(b)) if (A.has(k)) return true;
+        return false;
+    };
+
+    // ─────────────────────────────────────────────────────────────
     // Resolve canonical for this index (STRICT by param index)
     // ─────────────────────────────────────────────────────────────
     let qRef: any = undefined;
@@ -1948,6 +1982,16 @@ export class SelectionMessageService {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (unchanged semantics)
+    // ─────────────────────────────────────────────────────────────
+    if (effType === QuestionType.SingleAnswer) {
+        const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
+        const msg = anySelected ? NEXT_MSG : START_MSG_TXT;
+        this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
+        return;
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // MULTIPLE-ANSWER — PAYLOAD-DRIVEN counting + CANONICAL truth
     // (no latches, no service/snapshot unions; updates every click)
     // ─────────────────────────────────────────────────────────────
@@ -1975,6 +2019,10 @@ export class SelectionMessageService {
         }
         const canonicalInUI = bagSum(canonicalBag);
         const hasCanonical = canonicalInUI > 0;
+
+        // Selected alias set — PAYLOAD ONLY (the critical change)
+        const selectedAlias = new Set<string>();
+        for (const o of payloadSelected) for (const k of aliasKeys(o)) selectedAlias.add(k);
 
         // Count selected-correct strictly from payload vs canonical
         const countSelectedAgainst = (bag: Map<string | number, number>): number => {
@@ -2047,6 +2095,7 @@ export class SelectionMessageService {
         try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
+
 
   
 
