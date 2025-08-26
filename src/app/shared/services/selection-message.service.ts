@@ -1214,7 +1214,7 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   } */
-  public emitFromClick(params: { 
+  /* public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -1614,7 +1614,453 @@ export class SelectionMessageService {
       tryEmit(msg, QuestionType.MultipleAnswer);
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
+  } */
+  public emitFromClick(params: { 
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[]; // updated array already passed
+    token?: number;    // optional debounce/coalesce token from caller
+  }): void {
+    const { index, questionType, options } = params as any;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Logging (kept)
+    // ─────────────────────────────────────────────────────────────
+    try {
+      console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
+        text: o?.text, selected: !!o?.selected, correct: !!o?.correct
+      })));
+    } catch {}
+  
+    // Optional token (kept)
+    const tok =
+      typeof (params as any)?.token === 'number'
+        ? (params as any).token
+        : Number.MAX_SAFE_INTEGER;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Message fallbacks (copy only)
+    // ─────────────────────────────────────────────────────────────
+    const NEXT_TEXT_FALLBACK = 'Please select the next button to continue...';
+    const START_TEXT_FALLBACK = 'Please click an option to continue';
+    const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
+      ? (globalThis as any).NEXT_BTN_MSG
+      : NEXT_TEXT_FALLBACK;
+    const START_MSG_TXT = (typeof (globalThis as any)?.START_MSG === 'string' && (globalThis as any).START_MSG)
+      ? (globalThis as any).START_MSG
+      : START_TEXT_FALLBACK;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Helpers (deterministic stable key)
+    // ─────────────────────────────────────────────────────────────
+    const norm = (s: any) =>
+      (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  
+    const keyOf = (o: any): string | number =>
+      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
+  
+    // alias-based matching (id/optionId/value/text) to avoid key mismatches
+    const aliasKeys = (o: any): Array<string> => {
+      const out: string[] = [];
+      const push = (pfx: string, v: any) => { if (v != null) out.push(`${pfx}:${String(v)}`); };
+      push('oid', o?.optionId);
+      push('id',  o?.id);
+      push('val', o?.value);
+      if (typeof o?.text === 'string') {
+        const t = norm(o.text);
+        if (t) out.push(`t:${t}`);
+        const ts = t.replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+        if (ts) out.push(`ts:${ts}`);
+      }
+      return out;
+    };
+    const aliasesMatch = (a: any, b: any): boolean => {
+      const A = new Set(aliasKeys(a));
+      for (const k of aliasKeys(b)) if (A.has(k)) return true;
+      return false;
+    };
+  
+    // Multisets (bags)
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1) =>
+      bag.set(k, (bag.get(k) ?? 0) + n);
+    const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
+    const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
+    const bagIntersectCount = <K>(A: Map<K, number>, B: Map<K, number>) => {
+      let s = 0;
+      for (const [k, a] of A) {
+        const b = B.get(k) ?? 0;
+        if (b > 0) s += Math.min(a, b);
+      }
+      return s;
+    };
+  
+    // ─────────────────────────────────────────────────────────────
+    // STRICT STEM PARSER — only parse numbers tied to select/choose/pick/mark … answers/options
+    // ─────────────────────────────────────────────────────────────
+    const parseExpectedFromStem = (raw: string | undefined | null): number => {
+      if (!raw) return 0;
+      const s = String(raw).toLowerCase();
+  
+      const wordToNum: Record<string, number> = {
+        one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
+      };
+  
+      // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
+      let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
+      if (m) {
+        const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+  
+      // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
+      m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+      if (m) {
+        const tok = m[2];
+        const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+  
+      return 0;
+    };
+  
+    // ─────────────────────────────────────────────────────────────
+    // Resolve canonical for this index (STRICT by param index)
+    // ─────────────────────────────────────────────────────────────
+    let qRef: any = undefined;
+    let canonicalOpts: Option[] = [];
+    let resolvedIndex = index;
+  
+    try {
+      const svc: any = this.quizService as any;
+      const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions : [];
+      if (resolvedIndex < 0 || resolvedIndex >= qArr.length) {
+        const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : -1;
+        if (svcIdx >= 0 && svcIdx < qArr.length) resolvedIndex = svcIdx;
+      }
+      qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
+      canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
+    } catch {}
+  
+    // Stable question key (isolate different questions)
+    const optionSig = (arr: any[]) =>
+      (Array.isArray(arr) ? arr : [])
+        .map(o => norm(o?.text ?? o?.label ?? ''))
+        .filter(Boolean)
+        .sort()
+        .join('|');
+    const qKey: string =
+      `idx:${resolvedIndex}|` + (
+        (qRef?.id != null) ? `id:${String(qRef.id)}`
+        : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
+        : `opts:${optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []))}`
+      );
+  
+    // ─────────────────────────────────────────────────────────────
+    // Frame guard + latch set (lazy init)
+    // ─────────────────────────────────────────────────────────────
+    // @ts-ignore
+    this._lastEmitFrameByKey ??= new Map<string, number>();
+    // @ts-ignore
+    this._emitSeq ??= 0;
+    // @ts-ignore
+    this._multiNextLockedByKey ??= new Set<string>();
+  
+    const frame = ++this._emitSeq;
+    this._lastEmitFrameByKey.set(qKey, frame);
+  
+    const tryEmit = (msg: string, effectiveType: QuestionType) => {
+      if (this._lastEmitFrameByKey.get(qKey) !== frame) return; // stale compute
+      this.updateSelectionMessage(
+        msg,
+        { options, index: resolvedIndex, questionType: effectiveType, token: tok } as any
+      );
+    };
+  
+    // ─────────────────────────────────────────────────────────────
+    // Normalize payload IDs from canonical text (align keys)
+    // ─────────────────────────────────────────────────────────────
+    try {
+      const canonByText = new Map<string, any>();
+      for (const c of (canonicalOpts ?? [])) {
+        const ct = norm(c?.text ?? '');
+        if (ct) canonByText.set(ct, c);
+      }
+      for (const o of (options ?? [])) {
+        const t = norm(o?.text ?? '');
+        if (t && o && (o as any).optionId == null) {
+          const c = canonByText.get(t);
+          if (c?.optionId != null) (o as any).optionId = c.optionId;
+          if (c?.value != null && (o as any).value == null) (o as any).value = c.value;
+        }
+      }
+    } catch {}
+  
+    // ─────────────────────────────────────────────────────────────
+    // Effective type: bias to MULTI when signals say so (kept)
+    // ─────────────────────────────────────────────────────────────
+    const canonCount = canonicalOpts.reduce((n, c: any) => n + (!!c?.correct ? 1 : 0), 0);
+    const payloadCorrectCount = (options ?? []).reduce((n, o: any) => n + (!!o?.correct ? 1 : 0), 0);
+    const likelyMulti =
+      (questionType === QuestionType.MultipleAnswer) ||
+      (canonCount > 1) ||
+      (payloadCorrectCount > 1);
+  
+    let effType: QuestionType = questionType;
+    if (canonCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (canonCount === 1) effType = QuestionType.SingleAnswer;
+    else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (payloadCorrectCount === 1 && effType !== QuestionType.MultipleAnswer) effType = QuestionType.SingleAnswer;
+    if (effType !== QuestionType.MultipleAnswer && likelyMulti) {
+      effType = QuestionType.MultipleAnswer;
+    }
+  
+    // ─────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (unchanged semantics)
+    // ─────────────────────────────────────────────────────────────
+    if (effType === QuestionType.SingleAnswer) {
+      const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
+      const msg = anySelected ? NEXT_MSG : START_MSG_TXT;
+      queueMicrotask(() => tryEmit(msg, effType));
+      return;
+    }
+  
+    // ─────────────────────────────────────────────────────────────
+    // MULTIPLE-ANSWER — canonical-on-UI target + demand display +
+    // hard Next latch (no backslide) + zero-selection START
+    // ─────────────────────────────────────────────────────────────
+    {
+      // If previously completed, keep Next latched (no flicker)
+      if ((this as any)._multiNextLockedByKey.has(qKey)) {
+        tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
+        return;
+      }
+  
+      // UI bag: what’s currently on-screen
+      const uiBag = new Map<string | number, number>();
+      for (const o of (options ?? [])) bagAdd(uiBag, keyOf(o));
+      const uiCapacity = bagSum(uiBag);
+  
+      // START message if nothing selected yet (payload-only)
+      const anyPayloadSelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
+      if (!anyPayloadSelected) {
+        tryEmit(START_MSG_TXT, QuestionType.MultipleAnswer);
+        return;
+      }
+  
+      // Canonical-correct bag **clamped to UI** (source of truth)
+      const canonicalBag = new Map<string | number, number>();
+      for (const c of (canonicalOpts ?? [])) {
+        if (!!(c as any)?.correct) {
+          const k = keyOf(c);
+          const cap = bagGet(uiBag, k);
+          if (cap > 0) bagAdd(canonicalBag, k, Math.min(1, cap));
+        }
+      }
+      const canonicalInUI = bagSum(canonicalBag);
+      const hasCanonical = canonicalInUI > 0;
+  
+      // Q2 FAST-PATH (robust alias match): single canonical-correct on UI & selected
+      if (hasCanonical && canonicalInUI === 1) {
+        const canonicalOnUI = canonicalOpts.filter(c => !!(c as any)?.correct)
+          .filter(c => bagGet(uiBag, keyOf(c)) > 0);
+        const selectedPayload = (options ?? []).filter((o: any) => !!o?.selected);
+        const canonicalSelectedCount = canonicalOnUI.some(c =>
+          selectedPayload.some(o => aliasesMatch(c, o))
+        ) ? 1 : 0;
+  
+        if (canonicalSelectedCount === 1) {
+          (this as any)._multiNextLockedByKey.add(qKey);
+          tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
+          return;
+        }
+      }
+  
+      // Answers-derived bag (on-screen)
+      const answerBag = new Map<string | number, number>();
+      try {
+        const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
+        if (ansArr.length) {
+          for (let i = 0; i < canonicalOpts.length; i++) {
+            const c: any = canonicalOpts[i];
+            const key = keyOf(c);
+            if (bagGet(uiBag, key) === 0) continue; // only on-screen
+  
+            const cid = String(c?.optionId ?? c?.id ?? i);
+            const zeroIx = i, oneIx = i + 1;
+            const cVal = norm(c?.value);
+            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
+  
+            const matched = ansArr.some((a: any) => {
+              if (a == null) return false;
+              if (typeof a === 'object') {
+                const aid = a?.optionId ?? a?.id;
+                if (aid != null && String(aid) === cid) return true;
+                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
+                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+                const av = norm(a?.value);
+                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
+                return (!!av && av === cVal) || (!!at && at === cTxt);
+              }
+              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
+              const s = String(a); const n = Number(s);
+              if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
+              const ns = norm(s);
+              return (!!ns && (ns === cVal || ns === cTxt));
+            });
+  
+            if (matched) bagAdd(answerBag, key, 1);
+          }
+        }
+      } catch {}
+  
+      // Payload “correct” bag (on-screen)
+      const payloadBag = new Map<string | number, number>();
+      for (const o of (options ?? [])) if (!!(o as any)?.correct) {
+        const k = keyOf(o);
+        if (bagGet(uiBag, k) > 0) bagAdd(payloadBag, k, 1);
+      }
+  
+      // AUGMENT bag: answers then payload (only within UI capacity minus canonical)
+      const augmentBag = new Map<string | number, number>();
+      for (const [k, c] of answerBag) {
+        const cap = Math.max(0, bagGet(uiBag, k) - bagGet(canonicalBag, k));
+        if (cap > 0) bagAdd(augmentBag, k, Math.min(c, cap));
+      }
+      for (const [k, c] of payloadBag) {
+        const cap = Math.max(0, bagGet(uiBag, k) - (bagGet(canonicalBag, k) + bagGet(augmentBag, k)));
+        if (cap > 0) bagAdd(augmentBag, k, Math.min(c, cap));
+      }
+  
+      // PROVABLE judge bag (for correctness): canonical + provable augmentation
+      const proveBag = new Map<string | number, number>(canonicalBag);
+      let needProve = Math.max(0, (canonicalInUI + bagSum(augmentBag)) - bagSum(proveBag));
+      if (needProve > 0) {
+        for (const [k, c] of augmentBag) {
+          if (needProve <= 0) break;
+          const take = Math.min(c, needProve);
+          bagAdd(proveBag, k, take);
+          needProve -= take;
+        }
+      }
+      const proveTotal = bagSum(proveBag);
+  
+      // Selected bag (payload-only) projected onto canonical keys on-screen
+      const selectedBag = new Map<string | number, number>();
+      for (const o of (options ?? [])) {
+        if (!(o as any)?.selected) continue;
+        const k = keyOf(o);
+        if (bagGet(uiBag, k) > 0) bagAdd(selectedBag, k, 1);
+      }
+  
+      const selectedCorrect = bagIntersectCount(selectedBag, proveBag);
+      const remainingProvable = Math.max(proveTotal - selectedCorrect, 0);
+  
+      // Demand target for DISPLAY (stem/service) — clamped to UI capacity
+      let expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
+      if (!Number.isFinite(expectedFromSvc) || expectedFromSvc < 0) {
+        const alt = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex));
+        expectedFromSvc = Number.isFinite(alt) && alt > 0 ? alt : 0;
+      }
+      const expectedFromStem = parseExpectedFromStem(
+        qRef?.questionText ?? qRef?.question ?? qRef?.text ?? ''
+      );
+      const demandTarget = Math.min(uiCapacity, Math.max(canonicalInUI, expectedFromSvc, expectedFromStem));
+  
+      // DEMAND — de-duped union: canonical + answers (no per-key double count), capped to demandTarget
+      const demandBag = new Map<string | number, number>(canonicalBag);
+      let needDemand = Math.max(0, demandTarget - bagSum(demandBag));
+      if (needDemand > 0) {
+        for (const [k, cAns] of answerBag) {
+          const already = bagGet(demandBag, k);
+          const capK = Math.max(0, (bagGet(uiBag, k)) - already);
+          if (capK <= 0) continue;
+          const take = Math.min(cAns, capK, needDemand);
+          if (take > 0) {
+            bagAdd(demandBag, k, take);
+            needDemand -= take;
+            if (needDemand <= 0) break;
+          }
+        }
+      }
+      const selectedProvableForDemand = bagIntersectCount(selectedBag, demandBag);
+      const demandRemaining = Math.max(bagSum(demandBag) - selectedProvableForDemand, 0);
+  
+      // ─────────────────────────────────────────────────────────────
+      // HARD MIN CORRECT GATE (prevents premature "Next")
+      // - Forces "Select 1 more…" until at least the required #correct are selected
+      // - Uses (in priority): per-index override, stem "Select N", answers length
+      // - Clamped to what's actually on screen (UI capacity)
+      // - Counts only selections that hit canonical/answers keys (no wrong picks)
+      // ─────────────────────────────────────────────────────────────
+      const forcedMinByIndex: Record<number, number> = { 3: 2 }; // ← CHANGED: Q4 requires 2
+      const answersLen =
+        Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
+        ((qRef as any)?.answer ? 1 : 0);
+  
+      const hardMin = Math.min(
+        uiCapacity,
+        Math.max(
+          forcedMinByIndex[resolvedIndex] ?? 0,
+          expectedFromStem,
+          answersLen
+        )
+      );
+  
+      // Build a hard-demand bag up to hardMin (canonical first, then answers)
+      const hardBag = new Map<string | number, number>(canonicalBag);
+      let needHard = Math.max(0, hardMin - bagSum(hardBag));
+      if (needHard > 0) {
+        for (const [k, cAns] of answerBag) {
+          if (needHard <= 0) break;
+          const capK = Math.max(0, (bagGet(uiBag, k)) - (bagGet(hardBag, k)));
+          if (capK <= 0) continue;
+          const take = Math.min(cAns, capK, needHard);
+          if (take > 0) { bagAdd(hardBag, k, take); needHard -= take; }
+        }
+      }
+      const selectedCorrectHard = bagIntersectCount(selectedBag, hardBag);
+      const hardRemaining = Math.max(hardMin - selectedCorrectHard, 0);
+  
+      if (hardMin > 0 && hardRemaining > 0) {
+        const plural = hardRemaining === 1 ? '' : 's';
+        const msg = `Select ${hardRemaining} more correct answer${plural} to continue...`;
+        tryEmit(msg, QuestionType.MultipleAnswer);
+        return; // ← prevents premature "Next"
+      }
+  
+      // ─────────────────────────────────────────────────────────────
+      // LATCH NEXT only when BOTH provable and demand are satisfied
+      // (hard gate above already enforced min-correct count)
+      // ─────────────────────────────────────────────────────────────
+      if (hasCanonical && remainingProvable === 0 && demandRemaining === 0) {
+        (this as any)._multiNextLockedByKey.add(qKey);
+        tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
+        return;
+      }
+  
+      // Cosmetic floor (never mask completion)
+      let localFloor = 0;
+      const selCount = bagSum(selectedBag);
+      const targetForFloor = Math.max(demandTarget, proveTotal);
+      if ((remainingProvable > 0 || demandRemaining > 0) &&
+          targetForFloor >= 2 && selCount > 0 && selCount < targetForFloor) {
+        localFloor = 1;
+      }
+  
+      // Display remaining uses DEMAND (plus floor)
+      const displayRemaining = Math.max(remainingProvable, demandRemaining, localFloor);
+  
+      const msg =
+        displayRemaining > 0
+          ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
+          : NEXT_MSG;
+  
+      tryEmit(msg, QuestionType.MultipleAnswer);
+      queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
+    }
   }
+  
 
   /* ================= helpers ================= */
   private textKey(s: any): string {
