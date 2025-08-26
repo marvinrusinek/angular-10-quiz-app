@@ -1817,6 +1817,7 @@ export class SelectionMessageService {
   
     // ─────────────────────────────────────────────────────────────
     // MULTIPLE-ANSWER — UI-anchored canonical + provable augmentation
+    // + ALIAS-ROBUST, UNION-OF-SIGNALS SELECT COUNT (payload + service + snapshot)
     // ─────────────────────────────────────────────────────────────
     {
       // If previously completed, keep Next latched (no flicker)
@@ -1963,35 +1964,86 @@ export class SelectionMessageService {
       }
   
       // ─────────────────────────────────────────────────────────────
-      // ALIAS-ROBUST SELECTED COUNT (replaces raw key intersection)
-      // - Build a Set of alias tokens for every selected payload option
-      // - Count matches per canonical instance (not just per key)
-      // - Use the same counter for prove/demand/hardMin
+      // ALIAS-ROBUST, UNION-OF-SIGNALS SELECTED COUNT
+      //   Build a Set of alias tokens for EVERY selected option from:
+      //   1) current payload
+      //   2) selection service (ids / indexes / objects)
+      //   3) latest snapshot (only if same signature)
+      // This fixes intermittent undercount on Q2 click #4 & Q4 click #3
       // ─────────────────────────────────────────────────────────────
       const selectedAlias = new Set<string>();
+  
+      // (1) payload
       for (const o of (options ?? [])) if ((o as any)?.selected) {
         for (const k of aliasKeys(o)) selectedAlias.add(k);
       }
+  
+      // (2) service
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+  
+        const raw = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
+        const arr = raw instanceof Set ? Array.from(raw) : (Array.isArray(raw) ? raw : (raw != null ? [raw] : []));
+  
+        const pushAliasesFromIndex = (ix: number) => {
+          // accept 0-based and 1-based
+          const i0 = Number(ix);
+          const i1 = i0 - 1;
+          const c0 = canonicalOpts[i0]; if (c0) for (const k of aliasKeys(c0)) selectedAlias.add(k);
+          const c1 = canonicalOpts[i1]; if (i1 >= 0 && c1) for (const k of aliasKeys(c1)) selectedAlias.add(k);
+        };
+  
+        for (const a of arr) {
+          if (typeof a === 'object') {
+            const id = (a as any)?.optionId ?? (a as any)?.id ?? (a as any)?.value;
+            if (id != null) selectedAlias.add(`oid:${String(id)}`) || selectedAlias.add(`id:${String(id)}`) || selectedAlias.add(`val:${String(id)}`);
+            const txt = (a as any)?.text;
+            if (txt) for (const k of aliasKeys({ text: txt })) selectedAlias.add(k);
+            const idxLike = Number((a as any)?.index ?? (a as any)?.idx ?? (a as any)?.optionIndex ?? (a as any)?.ordinal);
+            if (Number.isFinite(idxLike)) pushAliasesFromIndex(idxLike);
+          } else if (typeof a === 'number') {
+            pushAliasesFromIndex(a);
+          } else if (a != null) {
+            // treat as id-ish
+            const s = String(a);
+            selectedAlias.add(`oid:${s}`); selectedAlias.add(`id:${s}`); selectedAlias.add(`val:${s}`);
+          }
+        }
+      } catch {}
+  
+      // (3) snapshot (same signature only)
+      try {
+        const snap = this.getLatestOptionsSnapshot?.();
+        if (Array.isArray(snap) && snap.length) {
+          const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
+          const sigSnap = optionSig(snap as any);
+          if (sigNow && sigSnap && sigNow === sigSnap) {
+            for (const s of snap as any[]) if ((s as any)?.selected) {
+              for (const k of aliasKeys(s)) selectedAlias.add(k);
+            }
+          }
+        }
+      } catch {}
   
       // helper: count selections (by alias) against a bag, per canonical instance on screen
       const countSelectedAgainst = (bag: Map<string | number, number>): number => {
         let hit = 0;
         const remaining = new Map(bag); // copy of needed counts per key
-        // iterate canonical options in UI order so duplicates are handled
         for (const c of (canonicalOpts ?? [])) {
           const k = keyOf(c);
           const need = remaining.get(k) ?? 0;
           if (need <= 0) continue;
-          // must also be present on screen
-          if ((bagGet(uiBag, k) ?? 0) <= 0) continue;
-          // if any alias of this canonical option is selected, consume one
+          if ((bagGet(uiBag, k) ?? 0) <= 0) continue; // must be on screen
           const cAliases = aliasKeys(c);
           let matched = false;
           for (const a of cAliases) { if (selectedAlias.has(a)) { matched = true; break; } }
           if (matched) {
             remaining.set(k, need - 1);
             hit++;
-            if (hit >= bagSum(bag)) break; // early exit: all satisfied
+            if (hit >= bagSum(bag)) break;
           }
         }
         return hit;
@@ -2006,7 +2058,7 @@ export class SelectionMessageService {
       // ─────────────────────────────────────────────────────────────
       // HARD MIN CORRECT GATE (prevents premature "Next")
       // ─────────────────────────────────────────────────────────────
-      const forcedMinByIndex: Record<number, number> = { 3: 2 }; // adjust if Q4 index changes
+      const forcedMinByIndex: Record<number, number> = { 3: 2 }; // Q4=2 minimum correct (adjust if index changes)
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
@@ -2039,6 +2091,7 @@ export class SelectionMessageService {
         const plural = hardRemaining === 1 ? '' : 's';
         const msg = `Select ${hardRemaining} more correct answer${plural} to continue...`;
         tryEmit(msg, QuestionType.MultipleAnswer);
+        try { this.setLatestOptionsSnapshot?.(options); } catch {}
         return; // ← prevents premature "Next"
       }
   
@@ -2049,6 +2102,7 @@ export class SelectionMessageService {
       if (hasCanonical && remainingProvable === 0 && demandRemaining === 0) {
         (this as any)._multiNextLockedByKey.add(qKey);
         tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
+        try { this.setLatestOptionsSnapshot?.(options); } catch {}
         return;
       }
   
@@ -2071,6 +2125,7 @@ export class SelectionMessageService {
   
       tryEmit(msg, QuestionType.MultipleAnswer);
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
+      try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
   
