@@ -855,24 +855,47 @@ export class SelectionMessageService {
       return s;
     };
   
-    // Strict stem parser (kept from your last good version)
+    // ─────────────────────────────────────────────────────────────
+    // ROBUST STEM PARSER — only parse numbers tied to selection verbs + answers/options/choices
+    // Handles HTML, word numbers, parentheses, and “of the following”.
+    // ─────────────────────────────────────────────────────────────
     const parseExpectedFromStem = (raw: string | undefined | null): number => {
       if (!raw) return 0;
-      const s = String(raw).toLowerCase();
+      // strip tags & entities noise
+      let s = String(raw)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;|&emsp;|&ensp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+  
       const wordToNum: Record<string, number> = {
         one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
       };
-      let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
+  
+      // A) select/choose/pick/mark ... <N|word|(N)> ... (answers|options|choices)
+      let m = s.match(/\b(select|choose|pick|mark)\b[^.!?]{0,60}?(?:\b(the)\b[^.!?]{0,20})?(?:(\d{1,2})\b|(one|two|three|four|five|six|seven|eight|nine|ten)|\((\d{1,2})\))[^.!?]{0,40}?\b(best|correct)?\b[^.!?]{0,20}?\b(answers?|options?|choices?)\b/);
       if (m) {
-        const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0);
+        const n = m[3] ? Number(m[3]) : (m[4] ? wordToNum[m[4]] : (m[5] ? Number(m[5]) : 0));
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
-      m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+  
+      // B) (answers|options|choices) : select/choose/pick/mark <N|word>
+      m = s.match(/\b(answers?|options?|choices?)\b[^.!?]{0,20}?:\s*\b(select|choose|pick|mark)\b[^.!?]{0,20}?\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+      if (m) {
+        const tok = m[3];
+        const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+      }
+  
+      // C) select/choose/pick/mark ... of the following ... <N|word>
+      m = s.match(/\b(select|choose|pick|mark)\b[^.!?]{0,60}?\bof the following\b[^.!?]{0,40}?\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
       if (m) {
         const tok = m[2];
         const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
+  
       return 0;
     };
   
@@ -1012,10 +1035,12 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // Answers-derived bag (on-screen) — we compute this BEFORE fast-path
+      // Answers-derived bag (on-screen)
       const answerBag = new Map<string | number, number>();
+      let answersTotalAll = 0; // ← NEW: raw answers count for demand boost
       try {
         const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
+        answersTotalAll = Array.isArray(ansArr) ? ansArr.length : (ansArr ? 1 : 0); // ← counts declared answers
         if (ansArr.length) {
           for (let i = 0; i < canonicalOpts.length; i++) {
             const c: any = canonicalOpts[i];
@@ -1051,10 +1076,7 @@ export class SelectionMessageService {
       } catch {}
   
       // ─────────────────────────────────────────────────────────
-      // SINGLE-ANSWER OVERRIDE FOR EXACTLY-ONE-CORRECT ON UI
-      // If we can PROVE there is exactly one correct option on-screen,
-      // force Single-Answer semantics and latch Next when it’s selected.
-      // This kills the Q2 click-4 wobble when canonical flags are late/absent.
+      // SINGLE-ANSWER OVERRIDE FOR EXACTLY-ONE-CORRECT ON UI (kept)
       // ─────────────────────────────────────────────────────────
       const provablyOneCorrectOnUI =
         (hasCanonical && canonicalInUI === 1) ||
@@ -1072,7 +1094,7 @@ export class SelectionMessageService {
         } else {
           tryEmit(START_MSG_TXT, QuestionType.SingleAnswer);
         }
-        return; // ← short-circuit; rest of multi logic not needed for Q2
+        return; // short-circuit for Q2 stability
       }
   
       // Payload “correct” bag (on-screen)
@@ -1117,7 +1139,7 @@ export class SelectionMessageService {
       const selectedCorrect = bagIntersectCount(selectedBag, proveBag);
       const remainingProvable = Math.max(proveTotal - selectedCorrect, 0);
   
-      // Demand target for DISPLAY (stem/service) — clamped to UI capacity
+      // Demand target for DISPLAY — clamped to UI capacity
       let expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
       if (!Number.isFinite(expectedFromSvc) || expectedFromSvc < 0) {
         const alt = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex));
@@ -1126,7 +1148,19 @@ export class SelectionMessageService {
       const expectedFromStem = parseExpectedFromStem(
         qRef?.questionText ?? qRef?.question ?? qRef?.text ?? ''
       );
-      const demandTarget = Math.min(uiCapacity, Math.max(canonicalInUI, expectedFromSvc, expectedFromStem));
+  
+      // >>> NEW: DEMAND BOOST FROM RAW ANSWERS COUNT (clamped to UI)
+      const expectedFromAnswers = Math.min(uiCapacity, Math.max(0, answersTotalAll | 0));
+  
+      const demandTarget = Math.min(
+        uiCapacity,
+        Math.max(
+          canonicalInUI,
+          expectedFromSvc,
+          expectedFromStem,
+          expectedFromAnswers // ← ensures Q4 target=3 even when flags/service lag
+        )
+      );
   
       // DEMAND — de-duped union: canonical + answers (no per-key double count), capped to demandTarget
       const demandBag = new Map<string | number, number>(canonicalBag);
@@ -1175,8 +1209,6 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
-  
-  
   
   
   
