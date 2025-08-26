@@ -1615,10 +1615,6 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
-  
-  
-  
-  
 
   /* ================= helpers ================= */
   private textKey(s: any): string {
