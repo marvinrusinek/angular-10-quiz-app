@@ -3141,7 +3141,6 @@ export class SelectionMessageService {
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
       } catch {}
-      // snapshot check left to multi block
       return false;
     };
   
@@ -3252,11 +3251,12 @@ export class SelectionMessageService {
     // MULTIPLE-ANSWER — UI-anchored canonical + provable augmentation (bags)
     // ─────────────────────────────────────────────────────────────────────
     {
-      // Build UI bag of current options (how many occurrences of each key are on-screen)
+      // UI bag of on-screen options
       const uiBag = new Map<string | number, number>();
       for (const o of (options ?? [])) bagAdd(uiBag, keyOf(o));
+      const uiCapacity = bagSum(uiBag);
   
-      // Canonical bag of correct keys, **clamped to UI availability**
+      // Canonical bag of correct keys, **clamped to UI**
       const canonicalBagRaw = new Map<string | number, number>();
       for (const c of (canonicalOpts ?? [])) if (!!(c as any)?.correct) bagAdd(canonicalBagRaw, keyOf(c));
       const canonicalBag = new Map<string | number, number>();
@@ -3264,17 +3264,8 @@ export class SelectionMessageService {
         const cap = uiBag.get(k) ?? 0;
         if (cap > 0) bagAdd(canonicalBag, k, Math.min(c, cap));
       }
-      const canonicalInUI = bagSum(canonicalBag); // how many canonical-correct actually visible
+      const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
-  
-      // Payload “correct” bag, **clamped to UI**
-      const payloadBagRaw = new Map<string | number, number>();
-      for (const o of (options ?? [])) if (!!(o as any)?.correct) bagAdd(payloadBagRaw, keyOf(o));
-      const payloadBag = new Map<string | number, number>();
-      for (const [k, c] of payloadBagRaw) {
-        const cap = uiBag.get(k) ?? 0;
-        if (cap > 0) bagAdd(payloadBag, k, Math.min(c, cap));
-      }
   
       // Answers-derived bag, **projected onto UI canonical options**
       const answerBag = new Map<string | number, number>();
@@ -3285,7 +3276,7 @@ export class SelectionMessageService {
             const c: any = canonicalOpts[i];
             const key = keyOf(c);
             const uiCap = uiBag.get(key) ?? 0;
-            if (uiCap === 0) continue; // not on-screen
+            if (uiCap === 0) continue; // not on screen
   
             const cid = String(c?.optionId ?? c?.id ?? i);
             const zeroIx = i, oneIx = i + 1;
@@ -3315,9 +3306,17 @@ export class SelectionMessageService {
         }
       } catch {}
   
-      // Selected bag: project union of signals **onto canonical instances present in UI**
+      // Payload “correct” bag, **clamped to UI** (used only when canonical is absent)
+      const payloadBagRaw = new Map<string | number, number>();
+      for (const o of (options ?? [])) if (!!(o as any)?.correct) bagAdd(payloadBagRaw, keyOf(o));
+      const payloadBag = new Map<string | number, number>();
+      for (const [k, c] of payloadBagRaw) {
+        const cap = uiBag.get(k) ?? 0;
+        if (cap > 0) bagAdd(payloadBag, k, Math.min(c, cap));
+      }
+  
+      // Selected bag: project union of signals ONTO canonical instances present in UI
       const selectedBag = new Map<string | number, number>();
-      // signals from service
       const svcSelIds = new Set<string | number>();
       const svcSelIdx = new Set<number>();
       try {
@@ -3342,12 +3341,8 @@ export class SelectionMessageService {
           }
         }
       } catch {}
-  
-      // from payload
       const payloadSelKeys = new Set<string | number>();
       for (const o of (options ?? [])) if (!!(o as any)?.selected) payloadSelKeys.add(keyOf(o));
-  
-      // from snapshot (same question signature)
       const snapSelKeys = new Set<string | number>();
       try {
         const snap = this.getLatestOptionsSnapshot?.();
@@ -3362,12 +3357,10 @@ export class SelectionMessageService {
           }
         }
       } catch {}
-  
-      // project onto canonical instances actually on-screen
       for (let i = 0; i < canonicalOpts.length; i++) {
         const c: any = canonicalOpts[i];
         const k = keyOf(c);
-        if ((uiBag.get(k) ?? 0) === 0) continue; // not on-screen
+        if ((uiBag.get(k) ?? 0) === 0) continue; // not on screen
         const candIds = [c?.optionId, c?.id, c?.value].filter(v => v != null) as Array<string | number>;
         const tKey = typeof c?.text === 'string' ? `t:${norm(c.text)}` : null;
         const matched =
@@ -3378,7 +3371,7 @@ export class SelectionMessageService {
         if (matched) bagAdd(selectedBag, k);
       }
   
-      // Candidate targets
+      // Candidate demand from service/stem
       let expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
       if (!Number.isFinite(expectedFromSvc) || expectedFromSvc < 0) expectedFromSvc = 0;
   
@@ -3390,49 +3383,47 @@ export class SelectionMessageService {
         if (Number.isFinite(stemN) && stemN > 0) expectedFromStem = stemN;
       } catch {}
   
-      // AUGMENT bag: extra corrects we can justify (answers/payload), within UI capacity
-      const augmentBag = new Map<string | number, number>();
-      // first answers, then payload (only up to remaining capacity)
-      for (const [k, c] of answerBag) {
-        const cap = Math.max(0, (uiBag.get(k) ?? 0) - (canonicalBag.get(k) ?? 0));
-        if (cap > 0) bagAdd(augmentBag, k, Math.min(c, cap));
-      }
-      for (const [k, c] of payloadBag) {
-        const already = (canonicalBag.get(k) ?? 0) + (augmentBag.get(k) ?? 0);
-        const cap = Math.max(0, (uiBag.get(k) ?? 0) - already);
-        if (cap > 0) bagAdd(augmentBag, k, Math.min(c, cap));
-      }
+      // PROVABLE augmentation: ONLY answers contribute to raising the target
+      const maxProvable = Math.min(uiCapacity, canonicalInUI + bagSum(answerBag));
   
-      // Target we can actually achieve: canonicalInUI plus provable augmentation,
-      // but never more than UI capacity and never less than canonicalInUI.
-      const uiCapacity = bagSum(uiBag);
-      const maxProvable = Math.min(uiCapacity, canonicalInUI + bagSum(augmentBag));
-  
-      // If service/stem demand more, only honor it up to what we can prove exists in UI
+      // Expected total we can actually justify:
       let expectedTotal = canonicalInUI;
       const svcStemDemand = Math.max(expectedFromSvc, expectedFromStem);
-      if (svcStemDemand > canonicalInUI) {
-        expectedTotal = Math.min(maxProvable, Math.max(canonicalInUI, svcStemDemand));
-      }
-      // If svc/stem are low/zero but we provably have extras, allow them up to maxProvable
-      expectedTotal = Math.max(expectedTotal, Math.min(maxProvable, canonicalInUI + bagSum(augmentBag)));
+      if (svcStemDemand > canonicalInUI) expectedTotal = Math.min(maxProvable, svcStemDemand);
+      // If svc/stem are low/zero but answers prove extras, allow up to maxProvable
+      expectedTotal = Math.max(expectedTotal, Math.min(maxProvable, canonicalInUI + bagSum(answerBag)));
   
-      // If canonical absent but payload marks some correct, allow those (still UI-clamped)
-      if (!hasCanonical) expectedTotal = Math.max(expectedTotal, bagSum(payloadBag));
+      // If canonical absent, fall back (answers first, then payload as last resort)
+      if (!hasCanonical) {
+        const fallbackProvable = bagSum(answerBag) || bagSum(payloadBag);
+        expectedTotal = Math.max(expectedTotal, Math.min(uiCapacity, fallbackProvable || svcStemDemand || 2));
+      }
   
       // Final safety: never exceed what we can prove is present in UI
-      expectedTotal = Math.min(expectedTotal || 0, maxProvable || 0);
-      if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) expectedTotal = canonicalInUI || 2;
+      expectedTotal = Math.min(expectedTotal || 0, maxProvable || (hasCanonical ? canonicalInUI : uiCapacity));
+      if (!Number.isFinite(expectedTotal) || expectedTotal <= 0) expectedTotal = hasCanonical ? canonicalInUI : 2;
   
-      // Judge bag = canonical + as-many augment keys as needed (but only those we can justify)
+      // Judge bag = canonical + as-many ANSWER keys as needed (no payload inflation)
       const judgeBag = new Map<string | number, number>(canonicalBag);
       let need = Math.max(0, expectedTotal - bagSum(judgeBag));
       if (need > 0) {
-        for (const [k, c] of augmentBag) {
+        for (const [k, c] of answerBag) {
           if (need <= 0) break;
           const take = Math.min(c, need);
           bagAdd(judgeBag, k, take);
           need -= take;
+        }
+      }
+      // If canonical absent and answers empty, allow payload as a final fallback
+      if (!hasCanonical && bagSum(judgeBag) < expectedTotal) {
+        need = Math.max(0, expectedTotal - bagSum(judgeBag));
+        if (need > 0) {
+          for (const [k, c] of payloadBag) {
+            if (need <= 0) break;
+            const take = Math.min(c, need);
+            bagAdd(judgeBag, k, take);
+            need -= take;
+          }
         }
       }
   
@@ -3441,22 +3432,13 @@ export class SelectionMessageService {
       const remaining = Math.max(expectedTotal - selectedCorrect, 0);
   
       // Cosmetic floor (NEVER mask completion)
-      const configuredFloor = Math.max(
-        0,
-        Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0)
-      );
-
+      const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
       const selCount = bagSum(selectedBag);
-
-      // Only apply floor when we still have >0 remaining
       if (remaining > 0 && expectedTotal >= 2 && selCount > 0 && selCount < expectedTotal) {
-        localFloor = 1;
+        localFloor = 1; // “Select 1 more …” while building up picks
       }
-
-      // Final: if remaining == 0, force 0 (Next). Otherwise, allow floor.
-      const displayRemaining =
-        remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
+      const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
   
       // Message
       const msg =
@@ -3482,14 +3464,15 @@ export class SelectionMessageService {
       // console.log('[EMIT:GATE]', {
       //   idx: index, resolvedIndex,
       //   canonicalInUI, expectedFromSvc, expectedFromStem,
-      //   uiCapacity, maxProvable, expectedTotal, selectedCorrect, remaining, displayRemaining,
+      //   maxProvable, expectedTotal, selectedCorrect, remaining, displayRemaining,
       //   canonicalBag: Array.from(canonicalBag.entries()),
-      //   augmentBag: Array.from(augmentBag.entries()),
+      //   answerBag: Array.from(answerBag.entries()),
       //   judgeBag: Array.from(judgeBag.entries()),
       //   selectedBag: Array.from(selectedBag.entries())
       // });
     }
   }
+  
   
   
   
