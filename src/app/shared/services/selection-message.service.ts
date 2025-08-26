@@ -53,10 +53,6 @@ export class SelectionMessageService {
   private lastSelectRemainingByIndex = new Map<number, number>();
 
   private observedCorrectIds = new Map<number, Set<string>>();
-  private hardBlockNextishUntilMet = new Map<number, boolean>();
-
-  // Mutes non-payload writes per question for a short window after a payload write
-  private payloadGuardUntil = new Map<number, number>();
 
   // Latch to prevent regressions after a multi question is satisfied
   private completedByIndex = new Map<number, boolean>();
@@ -65,9 +61,6 @@ export class SelectionMessageService {
   private _lastTokByIndex = new Map<number, number>();
   private _lastTypeByIndex = new Map<number, QuestionType>();
 
-  // At the top of SelectionMessageService (or wherever emitFromClick lives)
-  private maxCorrectByIndex: Map<number, number> = new Map();
-
   // Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
   private _typeLockByIndex = new Map<number, QuestionType>();
 
@@ -75,17 +68,9 @@ export class SelectionMessageService {
   private _singleNextLockedByKey: Set<string> = new Set<string>();
   private _lastTokByKey: Map<string, number> = new Map<string, number>();
   private _maxCorrectByKey: Map<string, number> = new Map<string, number>();
-  private _typeLockByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
   private _lastTypeByKey: Map<string, QuestionType> = new Map<string, QuestionType>();
-  
-  // Cache canonical correct count per question key (sticky)
-  private _canonCountByKey = new Map<string, number>();
 
   private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
-
-  private _runId = 0;                 // increments on detected restart
-  private _lastIndexProgress = -1;    // last seen index to detect restarts
-  private _snapshotRunId = 0;         // tags snapshots to current run
 
   private _emitSeq = 0;
   private _lastEmitFrameByKey = new Map<string, number>();
