@@ -2050,8 +2050,6 @@ export class SelectionMessageService {
             }
             return hit;
         };
-
-
         
         // Target (what we *must* hit)
         // 1) Prefer canonical-on-UI; fallback to stem/service/answers length
