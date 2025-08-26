@@ -1966,7 +1966,7 @@ export class SelectionMessageService {
       canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
     } catch {}
   
-    // Stable question key (kept - but we do NOT latch on it anymore)
+    // Stable question key (kept)
     const optionSig = (arr: any[]) =>
       (Array.isArray(arr) ? arr : [])
         .map(o => norm(o?.text ?? o?.label ?? ''))
@@ -2010,24 +2010,28 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — PAYLOAD-DRIVEN counting + CANONICAL truth
-    // (no latches, no service/snapshot unions; updates every click)
+    // MULTIPLE-ANSWER — canonical-on-UI target + hardMin + latch
     // ─────────────────────────────────────────────────────────────
     {
+      // Latch container (lazy init)
+      // @ts-ignore
+      this._multiNextLockedByKey ??= new Set<string>();
+  
       // UI bag: on-screen keys
       const uiBag = new Map<string | number, number>();
       for (const o of (options ?? [])) bagAdd(uiBag, keyOf(o));
       const uiCapacity = bagSum(uiBag);
   
-      // START message if nothing selected yet (payload-only)
+      // START message if nothing selected yet (payload-only) — also clear latch
       const payloadSelected = (options ?? []).filter((o: any) => !!o?.selected);
       if (payloadSelected.length === 0) {
+        (this as any)._multiNextLockedByKey.delete(qKey);
         this.updateSelectionMessage(START_MSG_TXT, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
         return;
       }
   
-      // Canonical-correct bag **clamped to UI**
-      const canonicalBag = new Map<string | number, number>();
+      // Canonical-correct bag **clamped to UI** (source of truth)
+      let canonicalBag = new Map<string | number, number>();
       for (const c of (canonicalOpts ?? [])) {
         if (!!(c as any)?.correct) {
           const k = keyOf(c);
@@ -2035,14 +2039,24 @@ export class SelectionMessageService {
           if (cap > 0) bagAdd(canonicalBag, k, Math.min(1, cap));
         }
       }
+  
+      // ★ Fallback: if canonical has no flags, fall back to payload “correct” (still UI-clamped)
+      if (bagSum(canonicalBag) === 0) {
+        const fb = new Map<string | number, number>();
+        for (const o of (options ?? [])) if (!!(o as any)?.correct) {
+          const k = keyOf(o); if (bagGet(uiBag, k) > 0) bagAdd(fb, k, 1);
+        }
+        canonicalBag = fb;
+      }
+  
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // Selected alias set — PAYLOAD ONLY (the critical change)
+      // Selected alias set — PAYLOAD ONLY (ensures message changes every click)
       const selectedAlias = new Set<string>();
       for (const o of payloadSelected) for (const k of aliasKeys(o)) selectedAlias.add(k);
   
-      // Count selected-correct strictly from payload vs canonical
+      // Count selected-correct strictly from payload vs canonical (no service/snapshot union)
       const countSelectedAgainst = (bag: Map<string | number, number>): number => {
         let hit = 0;
         const remaining = new Map(bag);
@@ -2065,40 +2079,53 @@ export class SelectionMessageService {
         return hit;
       };
   
-      // Target (what we *must* hit)
-      // 1) Prefer canonical-on-UI; fallback to stem/service/answers length
-      let target = hasCanonical ? canonicalInUI : 0;
+      const canonicalSelected = countSelectedAgainst(canonicalBag);
   
+      // ── Hard minimum for specific questions (Q4 → 2). Adjust index if needed.
+      const forcedMinByIndex: Record<number, number> = { 3: 2 };
+      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex)) || 0;
   
-      // For Q4 hard floor: 2 (adjust index if Q4 moves)
-      const forcedMinByIndex: Record<number, number> = { 3: 2 };
       const hardMin = Math.max(forcedMinByIndex[resolvedIndex] ?? 0, expectedFromStem, expectedFromSvc, answersLen);
   
-      // Final target: never exceed UI capacity; never below canonical-on-UI if present
-      target = Math.min(uiCapacity, Math.max(target, hardMin));
-      if (!Number.isFinite(target) || target <= 0) target = hasCanonical ? canonicalInUI : 1;
+      // Target: max(canonical-on-UI, hardMin) but never exceed UI capacity
+      const target = Math.min(uiCapacity, Math.max(hasCanonical ? canonicalInUI : 0, hardMin, 1));
   
-      // Compute remaining from **payload**-selected-correct
-      const selectedCorrect = countSelectedAgainst(canonicalBag);
-      const remaining = Math.max(target - selectedCorrect, 0);
+      // ★ LATCH: once canonicalSelected ≥ target → Next; ignore further wrong clicks
+      if (canonicalSelected >= target) {
+        (this as any)._multiNextLockedByKey.add(qKey);
+        this.updateSelectionMessage(NEXT_MSG, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+        try { this.setLatestOptionsSnapshot?.(options); } catch {}
+        return;
+      } else {
+        // If user unselects a canonical pick below target, clear the latch
+        (this as any)._multiNextLockedByKey.delete(qKey);
+      }
   
-      // Optional cosmetic floor (don’t mask completion)
-      let localFloor = 0;
-      const selCount = payloadSelected.length;
+      // Compute remaining and optional cosmetic floor (don’t mask completion)
+      const remaining = Math.max(target - canonicalSelected, 0);
+  
+      // cosmetic floor only when still building cleanly (no wrongs)
       const selectedIncorrect = payloadSelected.reduce((n, o: any) => {
-        // consider incorrect if it doesn’t match any canonical key present
-        const a = aliasKeys(o); 
-        const hitCanonical = Array.from(canonicalBag.keys()).some(k => a.includes(typeof k === 'string' ? `id:${String(k).split(':')[1] ?? ''}` : `oid:${String(k)}`) || a.includes(typeof k === 'string' ? k : `oid:${String(k)}`));
-        return n + (hitCanonical ? 0 : 1);
+        const a = aliasKeys(o);
+        // if this selected option matches any canonical key on screen, it's not incorrect
+        const isCorrect = Array.from(canonicalBag.keys()).some(k => {
+          if (typeof k === 'string' && (k.startsWith('t:') || k.startsWith('ts:'))) return a.includes(k);
+          // allow id/oid/val matches
+          const raw = String(k);
+          return a.includes(raw) || a.includes(`id:${raw}`) || a.includes(`oid:${raw}`) || a.includes(`val:${raw}`);
+        });
+        return n + (isCorrect ? 0 : 1);
       }, 0);
-      if (remaining > 0 && target >= 2 && selCount > 0 && selectedIncorrect === 0) {
+  
+      let localFloor = 0;
+      if (remaining > 0 && target >= 2 && payloadSelected.length > 0 && selectedIncorrect === 0) {
         localFloor = 1;
       }
+  
       const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, localFloor);
   
       const msg =
@@ -2106,10 +2133,10 @@ export class SelectionMessageService {
           ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
           : NEXT_MSG;
   
-      // Emit synchronously (no microtask double-send → avoids stale overwrites)
+      // Emit (synchronous; no microtask double-send)
       this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   
-      // Keep snapshot (harmless; not used to count)
+      // Keep snapshot (not used for counting)
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
@@ -2676,4 +2703,3 @@ export class SelectionMessageService {
     return map;
   }
 }
-
