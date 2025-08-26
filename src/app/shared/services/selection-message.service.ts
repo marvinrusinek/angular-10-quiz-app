@@ -855,34 +855,24 @@ export class SelectionMessageService {
       return s;
     };
   
-    // ─────────────────────────────────────────────────────────────
-    // STRICT STEM PARSER — only parse numbers tied to select/choose/pick/mark … answers/options
-    // (prevents false positives from “Question 2 of 10”, years, etc.)
-    // ─────────────────────────────────────────────────────────────
+    // Strict stem parser (kept from your last good version)
     const parseExpectedFromStem = (raw: string | undefined | null): number => {
       if (!raw) return 0;
       const s = String(raw).toLowerCase();
-  
       const wordToNum: Record<string, number> = {
         one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
       };
-  
-      // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
       let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
       if (m) {
         const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0);
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
-  
-      // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
       m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
       if (m) {
         const tok = m[2];
         const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
-  
-      // If we didn’t see those verbs, do NOT infer anything.
       return 0;
     };
   
@@ -1022,23 +1012,7 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // Q2 FAST-PATH (robust alias match): single canonical-correct on UI & selected
-      if (hasCanonical && canonicalInUI === 1) {
-        const canonicalOnUI = canonicalOpts.filter(c => !!(c as any)?.correct)
-          .filter(c => bagGet(uiBag, keyOf(c)) > 0);
-        const selectedPayload = (options ?? []).filter((o: any) => !!o?.selected);
-        const canonicalSelectedCount = canonicalOnUI.some(c =>
-          selectedPayload.some(o => aliasesMatch(c, o))
-        ) ? 1 : 0;
-  
-        if (canonicalSelectedCount === 1) {
-          (this as any)._multiNextLockedByKey.add(qKey);
-          tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
-          return;
-        }
-      }
-  
-      // Answers-derived bag (on-screen)
+      // Answers-derived bag (on-screen) — we compute this BEFORE fast-path
       const answerBag = new Map<string | number, number>();
       try {
         const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
@@ -1075,6 +1049,31 @@ export class SelectionMessageService {
           }
         }
       } catch {}
+  
+      // ─────────────────────────────────────────────────────────
+      // SINGLE-ANSWER OVERRIDE FOR EXACTLY-ONE-CORRECT ON UI
+      // If we can PROVE there is exactly one correct option on-screen,
+      // force Single-Answer semantics and latch Next when it’s selected.
+      // This kills the Q2 click-4 wobble when canonical flags are late/absent.
+      // ─────────────────────────────────────────────────────────
+      const provablyOneCorrectOnUI =
+        (hasCanonical && canonicalInUI === 1) ||
+        (!hasCanonical && bagSum(answerBag) === 1);
+  
+      if (provablyOneCorrectOnUI) {
+        const selectedPayload = (options ?? []).filter((o: any) => !!o?.selected);
+        const isTheOneSelected = hasCanonical
+          ? selectedPayload.some(o => bagGet(canonicalBag, keyOf(o)) > 0)
+          : selectedPayload.some(o => bagGet(answerBag,   keyOf(o)) > 0);
+  
+        if (isTheOneSelected) {
+          (this as any)._multiNextLockedByKey.add(qKey);
+          tryEmit(NEXT_MSG, QuestionType.SingleAnswer);
+        } else {
+          tryEmit(START_MSG_TXT, QuestionType.SingleAnswer);
+        }
+        return; // ← short-circuit; rest of multi logic not needed for Q2
+      }
   
       // Payload “correct” bag (on-screen)
       const payloadBag = new Map<string | number, number>();
@@ -1176,6 +1175,7 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
+  
   
   
   
