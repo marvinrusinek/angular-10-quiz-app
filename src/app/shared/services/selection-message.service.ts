@@ -2342,7 +2342,7 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — PROVABLE BUMP (canonical-on-UI + answers-on-UI + STEM) + HARD LATCH
+    // MULTIPLE-ANSWER — PROVABLE BUMP (canonical + answers + STEM/SVC) + HARD LATCH
     // ─────────────────────────────────────────────────────────────────────
     {
       // 1) UI presence (on-screen)
@@ -2464,7 +2464,8 @@ export class SelectionMessageService {
         if (matched > 0) bagAdd(selectedBag, k, matched);
       }
   
-      // 5) TARGET: canonical-on-UI + answers-on-UI + STEM (provable/clamped)
+      // 5) TARGET: canonical-on-UI + answers-on-UI; 
+      //    allow STEM / SERVICE to raise target, but clamp to UI capacity.
       let stemN = 0;
       try {
         const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
@@ -2474,10 +2475,21 @@ export class SelectionMessageService {
           if (Number.isFinite(n) && n > 0) stemN = n | 0;
         }
       } catch {}
+      let expectedFromSvc = 0;
+      try {
+        const a = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
+        const b = Number((this.quizService as any)?.getExpectedCorrectCount?.(resolvedIndex));
+        expectedFromSvc = Math.max(
+          Number.isFinite(a) ? a : 0,
+          Number.isFinite(b) ? b : 0
+        );
+      } catch {}
+  
       // base provable target
       let target = canonicalInUI + answersOnUI;
-      // allow stem to raise target even if canonical exists, but clamp to UI
-      if (stemN > 0) target = Math.max(target, Math.min(uiCap, stemN));
+      // allow stem/service to raise target (this is the Q4 click #2 fix)
+      const bump = Math.max(stemN, expectedFromSvc);
+      if (bump > target) target = Math.min(uiCap, bump);
       // never exceed UI capacity
       target = Math.min(target, uiCap);
   
@@ -2529,8 +2541,6 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); this._snapshotRunId = this._runId ?? 0; } catch {}
     }
   }
-  
-  
   
   
    
