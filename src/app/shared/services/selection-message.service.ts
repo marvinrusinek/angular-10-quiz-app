@@ -3128,7 +3128,7 @@ export class SelectionMessageService {
       return s;
     };
   
-    // Selected detector (use RESOLVED index to avoid cross-question bleed)
+    // Selected detector (keeps your stricter behavior and avoids cross-question bleed)
     const anySelectedStrict = (idxForSvc: number): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
       try {
@@ -3141,6 +3141,7 @@ export class SelectionMessageService {
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
       } catch {}
+      // snapshot check removed here; we’ll use it inside the multi block for accuracy
       return false;
     };
   
@@ -3262,9 +3263,71 @@ export class SelectionMessageService {
       for (const o of (options ?? [])) if (!!(o as any)?.correct) bagAdd(payloadBag, keyOf(o));
       const payloadTotal = bagSum(payloadBag);
   
-      // Selected multiset (current payload)
+      // ── Selected multiset (derive from canonical using union of signals)
       const selectedBag = new Map<string | number, number>();
-      for (const o of (options ?? [])) if (!!(o as any)?.selected) bagAdd(selectedBag, keyOf(o));
+  
+      // 1) Pull selections from service (IDs or indexes)
+      const svcSelIds = new Set<string | number>();
+      const svcSelIdx = new Set<number>();
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+        const raw = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
+        const arr = raw instanceof Set ? Array.from(raw) : (Array.isArray(raw) ? raw : (raw != null ? [raw] : []));
+        for (const a of arr) {
+          if (typeof a === 'object') {
+            const id = (a as any)?.optionId ?? (a as any)?.id ?? (a as any)?.value;
+            if (id != null) svcSelIds.add(id as any);
+            const ix = Number((a as any)?.index ?? (a as any)?.idx ?? (a as any)?.optionIndex);
+            if (Number.isFinite(ix)) svcSelIdx.add(ix);
+          } else if (typeof a === 'number') {
+            // treat as possible index (0- or 1-based)
+            svcSelIdx.add(a);
+            const maybeZero = a - 1;
+            if (maybeZero >= 0) svcSelIdx.add(maybeZero);
+          } else if (a != null) {
+            svcSelIds.add(a as any);
+          }
+        }
+      } catch {}
+  
+      // 2) From payload (last-click frame)
+      const payloadSelKeys = new Set<string | number>();
+      for (const o of (options ?? [])) if (!!(o as any)?.selected) payloadSelKeys.add(keyOf(o));
+  
+      // 3) From snapshot (same question signature)
+      const snapSelKeys = new Set<string | number>();
+      try {
+        const snap = this.getLatestOptionsSnapshot?.();
+        if (Array.isArray(snap) && snap.length) {
+          const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
+          const sigSnap = optionSig(snap as any);
+          if (sigNow && sigSnap && sigNow === sigSnap) {
+            for (const s of snap as any[]) if (!!(s as any)?.selected) {
+              const k = (s as any)?.id ?? (s as any)?.optionId ?? (s as any)?.value ?? (typeof (s as any)?.text === 'string' ? `t:${norm((s as any).text)}` : 'unknown');
+              snapSelKeys.add(k as any);
+            }
+          }
+        }
+      } catch {}
+  
+      // 4) Project selection onto canonical (counts come from canonical occurrences)
+      for (let i = 0; i < canonicalOpts.length; i++) {
+        const c: any = canonicalOpts[i];
+        const k = keyOf(c);
+        const candIds = [c?.optionId, c?.id, c?.value].filter(v => v != null) as Array<string | number>;
+        const tKey = typeof c?.text === 'string' ? `t:${norm(c.text)}` : null;
+  
+        const matched =
+          candIds.some(id => svcSelIds.has(id)) ||
+          svcSelIdx.has(i) || svcSelIdx.has(i + 1) ||
+          (tKey != null && (snapSelKeys.has(tKey) || payloadSelKeys.has(tKey))) ||
+          payloadSelKeys.has(k);
+  
+        if (matched) bagAdd(selectedBag, k);
+      }
   
       // Count selected-correct using multiset intersection
       const selectedCorrect = hasCanonical
@@ -3298,7 +3361,7 @@ export class SelectionMessageService {
       // Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
-      const selCount = selectedCountStrict(resolvedIndex);
+      const selCount = bagSum(selectedBag); // use bag count here for accuracy
       if (remaining > 0 && expectedTotal >= 2 && selCount > 0 && selCount < expectedTotal) {
         localFloor = 1; // “Select 1 more …” while building up correct picks
       }
@@ -3324,14 +3387,19 @@ export class SelectionMessageService {
         );
       });
   
-      // Debug (optional while validating)
+      // Debug (uncomment if needed)
       // console.log('[EMIT:GATE]', {
       //   idx: index, resolvedIndex, expectedTotal, selectedCorrect, remaining, displayRemaining,
       //   canonicalBag: Array.from(canonicalBag.entries()),
-      //   selectedBag: Array.from(selectedBag.entries())
+      //   selectedBag: Array.from(selectedBag.entries()),
+      //   svcSelIds: Array.from(svcSelIds.values()),
+      //   svcSelIdx: Array.from(svcSelIdx.values()),
+      //   payloadSelKeys: Array.from(payloadSelKeys.values()),
+      //   snapSelKeys: Array.from(snapSelKeys.values())
       // });
     }
   }
+  
   
   
   
