@@ -16,11 +16,10 @@ const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`;
 
-// Narrow snapshot type so we don’t drag full Option objects around
 interface OptionSnapshot {
   id: number | string;
   selected: boolean;
-  correct?: boolean;   // optional; some flows only need selection
+  correct?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
