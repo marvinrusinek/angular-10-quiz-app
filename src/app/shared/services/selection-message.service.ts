@@ -1686,14 +1686,6 @@ export class SelectionMessageService {
       bag.set(k, (bag.get(k) ?? 0) + n);
     const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
     const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
-    const bagIntersectCount = <K>(A: Map<K, number>, B: Map<K, number>) => {
-      let s = 0;
-      for (const [k, a] of A) {
-        const b = B.get(k) ?? 0;
-        if (b > 0) s += Math.min(a, b);
-      }
-      return s;
-    };
   
     // ─────────────────────────────────────────────────────────────
     // STRICT STEM PARSER — only parse numbers tied to select/choose/pick/mark … answers/options
@@ -1706,21 +1698,19 @@ export class SelectionMessageService {
         one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10
       };
   
-      // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
+      // pattern A
       let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
       if (m) {
         const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0);
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
-  
-      // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
+      // pattern B
       m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
       if (m) {
         const tok = m[2];
         const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0);
         return Number.isFinite(n) && n > 0 ? n : 0;
       }
-  
       return 0;
     };
   
@@ -1826,8 +1816,7 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical-on-UI target + demand display +
-    // hard Next latch (no backslide) + zero-selection START
+    // MULTIPLE-ANSWER — UI-anchored canonical + provable augmentation
     // ─────────────────────────────────────────────────────────────
     {
       // If previously completed, keep Next latched (no flicker)
@@ -1945,17 +1934,6 @@ export class SelectionMessageService {
       }
       const proveTotal = bagSum(proveBag);
   
-      // Selected bag (payload-only) projected onto canonical keys on-screen
-      const selectedBag = new Map<string | number, number>();
-      for (const o of (options ?? [])) {
-        if (!(o as any)?.selected) continue;
-        const k = keyOf(o);
-        if (bagGet(uiBag, k) > 0) bagAdd(selectedBag, k, 1);
-      }
-  
-      const selectedCorrect = bagIntersectCount(selectedBag, proveBag);
-      const remainingProvable = Math.max(proveTotal - selectedCorrect, 0);
-  
       // Demand target for DISPLAY (stem/service) — clamped to UI capacity
       let expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
       if (!Number.isFinite(expectedFromSvc) || expectedFromSvc < 0) {
@@ -1983,17 +1961,52 @@ export class SelectionMessageService {
           }
         }
       }
-      const selectedProvableForDemand = bagIntersectCount(selectedBag, demandBag);
+  
+      // ─────────────────────────────────────────────────────────────
+      // ALIAS-ROBUST SELECTED COUNT (replaces raw key intersection)
+      // - Build a Set of alias tokens for every selected payload option
+      // - Count matches per canonical instance (not just per key)
+      // - Use the same counter for prove/demand/hardMin
+      // ─────────────────────────────────────────────────────────────
+      const selectedAlias = new Set<string>();
+      for (const o of (options ?? [])) if ((o as any)?.selected) {
+        for (const k of aliasKeys(o)) selectedAlias.add(k);
+      }
+  
+      // helper: count selections (by alias) against a bag, per canonical instance on screen
+      const countSelectedAgainst = (bag: Map<string | number, number>): number => {
+        let hit = 0;
+        const remaining = new Map(bag); // copy of needed counts per key
+        // iterate canonical options in UI order so duplicates are handled
+        for (const c of (canonicalOpts ?? [])) {
+          const k = keyOf(c);
+          const need = remaining.get(k) ?? 0;
+          if (need <= 0) continue;
+          // must also be present on screen
+          if ((bagGet(uiBag, k) ?? 0) <= 0) continue;
+          // if any alias of this canonical option is selected, consume one
+          const cAliases = aliasKeys(c);
+          let matched = false;
+          for (const a of cAliases) { if (selectedAlias.has(a)) { matched = true; break; } }
+          if (matched) {
+            remaining.set(k, need - 1);
+            hit++;
+            if (hit >= bagSum(bag)) break; // early exit: all satisfied
+          }
+        }
+        return hit;
+      };
+  
+      const selectedCorrect = countSelectedAgainst(proveBag);
+      const remainingProvable = Math.max(proveTotal - selectedCorrect, 0);
+  
+      const selectedProvableForDemand = countSelectedAgainst(demandBag);
       const demandRemaining = Math.max(bagSum(demandBag) - selectedProvableForDemand, 0);
   
       // ─────────────────────────────────────────────────────────────
       // HARD MIN CORRECT GATE (prevents premature "Next")
-      // - Forces "Select 1 more…" until at least the required #correct are selected
-      // - Uses (in priority): per-index override, stem "Select N", answers length
-      // - Clamped to what's actually on screen (UI capacity)
-      // - Counts only selections that hit canonical/answers keys (no wrong picks)
       // ─────────────────────────────────────────────────────────────
-      const forcedMinByIndex: Record<number, number> = { 3: 2 }; // ← CHANGED: Q4 requires 2
+      const forcedMinByIndex: Record<number, number> = { 3: 2 }; // adjust if Q4 index changes
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
@@ -2019,7 +2032,7 @@ export class SelectionMessageService {
           if (take > 0) { bagAdd(hardBag, k, take); needHard -= take; }
         }
       }
-      const selectedCorrectHard = bagIntersectCount(selectedBag, hardBag);
+      const selectedCorrectHard = countSelectedAgainst(hardBag);
       const hardRemaining = Math.max(hardMin - selectedCorrectHard, 0);
   
       if (hardMin > 0 && hardRemaining > 0) {
@@ -2041,7 +2054,7 @@ export class SelectionMessageService {
   
       // Cosmetic floor (never mask completion)
       let localFloor = 0;
-      const selCount = bagSum(selectedBag);
+      const selCount = Array.isArray(options) ? options.reduce((n, o: any) => n + (o?.selected ? 1 : 0), 0) : 0;
       const targetForFloor = Math.max(demandTarget, proveTotal);
       if ((remainingProvable > 0 || demandRemaining > 0) &&
           targetForFloor >= 2 && selCount > 0 && selCount < targetForFloor) {
@@ -2060,6 +2073,7 @@ export class SelectionMessageService {
       queueMicrotask(() => tryEmit(msg, QuestionType.MultipleAnswer));
     }
   }
+  
   
 
   /* ================= helpers ================= */
