@@ -1037,10 +1037,10 @@ export class SelectionMessageService {
   
       // Answers-derived bag (on-screen)
       const answerBag = new Map<string | number, number>();
-      let answersTotalAll = 0; // ← NEW: raw answers count for demand boost
+      let answersTotalAll = 0; // raw answers count (declared), for demand boost
       try {
         const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
-        answersTotalAll = Array.isArray(ansArr) ? ansArr.length : (ansArr ? 1 : 0); // ← counts declared answers
+        answersTotalAll = Array.isArray(ansArr) ? ansArr.length : (ansArr ? 1 : 0);
         if (ansArr.length) {
           for (let i = 0; i < canonicalOpts.length; i++) {
             const c: any = canonicalOpts[i];
@@ -1075,9 +1075,7 @@ export class SelectionMessageService {
         }
       } catch {}
   
-      // ─────────────────────────────────────────────────────────
-      // SINGLE-ANSWER OVERRIDE FOR EXACTLY-ONE-CORRECT ON UI (kept)
-      // ─────────────────────────────────────────────────────────
+      // SINGLE-ANSWER override for exactly-one-correct on UI
       const provablyOneCorrectOnUI =
         (hasCanonical && canonicalInUI === 1) ||
         (!hasCanonical && bagSum(answerBag) === 1);
@@ -1148,9 +1146,7 @@ export class SelectionMessageService {
       const expectedFromStem = parseExpectedFromStem(
         qRef?.questionText ?? qRef?.question ?? qRef?.text ?? ''
       );
-  
-      // >>> NEW: DEMAND BOOST FROM RAW ANSWERS COUNT (clamped to UI)
-      const expectedFromAnswers = Math.min(uiCapacity, Math.max(0, answersTotalAll | 0));
+      const expectedFromAnswers = Math.min(uiCapacity, Math.max(0, (Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length : ((qRef as any)?.answer ? 1 : 0))));
   
       const demandTarget = Math.min(
         uiCapacity,
@@ -1158,7 +1154,7 @@ export class SelectionMessageService {
           canonicalInUI,
           expectedFromSvc,
           expectedFromStem,
-          expectedFromAnswers // ← ensures Q4 target=3 even when flags/service lag
+          expectedFromAnswers
         )
       );
   
@@ -1181,8 +1177,19 @@ export class SelectionMessageService {
       const selectedProvableForDemand = bagIntersectCount(selectedBag, demandBag);
       const demandRemaining = Math.max(bagSum(demandBag) - selectedProvableForDemand, 0);
   
-      // LATCH NEXT only when BOTH provable and demand are satisfied
-      if (hasCanonical && remainingProvable === 0 && demandRemaining === 0) {
+      // >>> HARD MINIMUM: require at least this many payload selections (prevents Q4 click #2 → Next)
+      const payloadSelectedCount = (options ?? []).reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0);
+      const hardDemand = demandTarget; // same target, but enforced by raw selection count
+      const hardDemandRemaining = Math.max(hardDemand - payloadSelectedCount, 0);
+  
+      // LATCH NEXT only when ALL THREE are satisfied:
+      // 1) provable remaining == 0
+      // 2) demand remaining == 0
+      // 3) hard demand (raw selection count) remaining == 0
+      if (hasCanonical &&
+          remainingProvable === 0 &&
+          demandRemaining === 0 &&
+          hardDemandRemaining === 0) {
         (this as any)._multiNextLockedByKey.add(qKey);
         tryEmit(NEXT_MSG, QuestionType.MultipleAnswer);
         return;
@@ -1192,13 +1199,14 @@ export class SelectionMessageService {
       let localFloor = 0;
       const selCount = bagSum(selectedBag);
       const targetForFloor = Math.max(demandTarget, proveTotal);
-      if ((remainingProvable > 0 || demandRemaining > 0) &&
+      if ((remainingProvable > 0 || demandRemaining > 0 || hardDemandRemaining > 0) &&
           targetForFloor >= 2 && selCount > 0 && selCount < targetForFloor) {
         localFloor = 1;
       }
   
-      // Display remaining uses DEMAND so Q4 click #2 → “1 more…”
-      const displayRemaining = Math.max(remainingProvable, demandRemaining, localFloor);
+      // Display remaining uses the max of provable/demand/hardDemand so
+      // Q4 click #2 reliably shows “Select 1 more…”
+      const displayRemaining = Math.max(remainingProvable, demandRemaining, hardDemandRemaining, localFloor);
   
       const msg =
         displayRemaining > 0
