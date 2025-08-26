@@ -1910,6 +1910,27 @@ export class SelectionMessageService {
         (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
 
     // ─────────────────────────────────────────────────────────────
+    // Multisets (bags) helpers with correct types
+    // ─────────────────────────────────────────────────────────────
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n: number = 1): void =>
+        bag.set(k, (bag.get(k) ?? 0) + n);
+
+    const bagGet = <K>(bag: Map<K, number>, k: K): number =>
+        bag.get(k) ?? 0;
+
+    const bagSum = (bag: Map<any, number>): number =>
+        [...bag.values()].reduce((a, b) => a + b, 0);
+
+    const bagIntersectCount = <K>(A: Map<K, number>, B: Map<K, number>): number => {
+        let s = 0;
+        for (const [k, a] of A) {
+            const b = B.get(k) ?? 0;
+            if (b > 0) s += Math.min(a, b);
+        }
+        return s;
+    };
+
+    // ─────────────────────────────────────────────────────────────
     // Resolve canonical for this index (STRICT by param index)
     // ─────────────────────────────────────────────────────────────
     let qRef: any = undefined;
@@ -2074,7 +2095,6 @@ export class SelectionMessageService {
         try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
-
   
   
   
