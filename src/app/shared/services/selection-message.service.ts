@@ -83,6 +83,10 @@ export class SelectionMessageService {
 
   private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
 
+  private _runId = 0;                 // increments on detected restart
+  private _lastIndexProgress = -1;    // last seen index to detect restarts
+  private _snapshotRunId = 0;         // tags snapshots to current run
+
   constructor(
     private quizService: QuizService, 
     private selectedOptionService: SelectedOptionService,
