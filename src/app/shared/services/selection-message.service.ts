@@ -2146,22 +2146,49 @@ export class SelectionMessageService {
         : Number.MAX_SAFE_INTEGER;
   
     // ─────────────────────────────────────────────────────────────────────
-    // Helpers (inlined)
+    // RUN DETECTION & STATE RESET (prelude)  ⟵ prevents cross-run bleed
+    // ─────────────────────────────────────────────────────────────────────
+    // @ts-ignore
+    this._runId ??= 0;
+    // @ts-ignore
+    this._lastIndexProgress ??= -1;
+  
+    let detectedRestart = false;
+    // restart if we wrapped back to index 0, or jumped far back
+    if ((this._lastIndexProgress as number) > 0 && index === 0) detectedRestart = true;
+    if ((this._lastIndexProgress as number) - index >= 2) detectedRestart = true;
+  
+    if (detectedRestart) {
+      this._runId++;
+      // nuke all the sticky maps/sets/locks that could keep old messages
+      try { (this as any)._multiNextLockedByKey?.clear?.(); } catch {}
+      try { (this as any)._singleNextLockedByKey?.clear?.(); } catch {}
+      try { (this as any)._lastTokByKey?.clear?.(); } catch {}
+      try { (this as any)._lastTypeByKey?.clear?.(); } catch {}
+      try { (this as any)._typeLockByKey?.clear?.(); } catch {}
+      try { (this as any)._canonCountByKey?.clear?.(); } catch {}
+      try { (this as any)._maxCorrectByKey?.clear?.(); } catch {}
+      try { (this as any).completedByIndex?.clear?.(); } catch {}
+      try { (this as any).freezeNextishUntil?.clear?.(); } catch {}
+      try { (this as any).suppressPassiveUntil?.clear?.(); } catch {}
+      // clear external snapshot so union-of-selection won't pull stale picks
+      try { this.setLatestOptionsSnapshot?.([]); } catch {}
+      // tag: current run’s snapshot id
+      // @ts-ignore
+      this._snapshotRunId = this._runId;
+    }
+    // @ts-ignore
+    this._lastIndexProgress = index;
+  
+    // ─────────────────────────────────────────────────────────────────────
+    // Helpers
     // ─────────────────────────────────────────────────────────────────────
     const norm = (s: any) =>
       (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-  
-    // Softer normalization: strip non-alphanumerics to survive punctuation/emoji drift
     const softNorm = (s: any) =>
-      (s ?? '')
-        .toString()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, ' ')
-        .trim()
-        .replace(/\s+/g, ' ');
+      (s ?? '').toString().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
   
-    // Stable *string* keys
-    const idKey = (v: any) => (v != null ? `id:${String(v)}` : '');
+    const idKey = (v: any) => (v != null) ? `id:${String(v)}` : '';
     const tKey  = (t: any) => `t:${norm(t)}`;
     const tsKey = (t: any) => `ts:${softNorm(t)}`;
   
@@ -2171,8 +2198,24 @@ export class SelectionMessageService {
       return tKey(o?.text ?? '');
     };
   
+    // Multiset helpers (bags)
+    const bagAdd = (bag: Map<string, number>, k: string, n = 1) =>
+      bag.set(k, (bag.get(k) ?? 0) + n);
+    const bagGet = (bag: Map<string, number>, k: string) =>
+      (bag.get(k) ?? 0);
+    const bagSum = (bag: Map<string, number>) =>
+      [...bag.values()].reduce((a, b) => a + b, 0);
+    const bagIntersectCount = (A: Map<string, number>, B: Map<string, number>) => {
+      let s = 0;
+      for (const [k, a] of A) {
+        const b = B.get(k) ?? 0;
+        if (b > 0) s += Math.min(a, b);
+      }
+      return s;
+    };
+  
     // ─────────────────────────────────────────────────────────────────────
-    // Resolve canonical question/options from service (STRICT by param index)
+    // Resolve canonical from service (STRICT by param index)
     // ─────────────────────────────────────────────────────────────────────
     let qRef: any = undefined;
     let canonicalOpts: Option[] = [];
@@ -2182,7 +2225,6 @@ export class SelectionMessageService {
       const svc: any = this.quizService as any;
       const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions : [];
   
-      // STRICT: trust the emit's index; only fall back if it's invalid
       if (resolvedIndex < 0 || resolvedIndex >= qArr.length) {
         const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : -1;
         if (svcIdx >= 0 && svcIdx < qArr.length) resolvedIndex = svcIdx;
@@ -2192,7 +2234,7 @@ export class SelectionMessageService {
       canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
     } catch {}
   
-    // Build a stable question key (avoid collisions between quizzes)
+    // Build stable question key — now includes runId to isolate restarts
     const optionSig = (arr: any[]) =>
       (Array.isArray(arr) ? arr : [])
         .map(o => norm(o?.text ?? o?.label ?? ''))
@@ -2200,14 +2242,16 @@ export class SelectionMessageService {
         .sort()
         .join('|');
   
+    // @ts-ignore
+    const runId: number = this._runId ?? 0;
     const qKey: string =
-      `idx:${resolvedIndex}|` + (
+      `run:${runId}|idx:${resolvedIndex}|` + (
         (qRef?.id != null) ? `id:${String(qRef.id)}`
         : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
         : `opts:${optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []))}`
       );
   
-    // (Optional) align payload IDs from canonical by text so keys align
+    // Align payload IDs from canonical by text
     try {
       const canonByText = new Map<string, any>();
       for (const c of (canonicalOpts ?? [])) {
@@ -2224,9 +2268,7 @@ export class SelectionMessageService {
       }
     } catch {}
   
-    // ─────────────────────────────────────────────────────────────────────
-    // Effective type: bias to Multi when signals say so (keeps your behavior)
-    // ─────────────────────────────────────────────────────────────────────
+    // Effective type (bias to Multi)
     const canonCount = canonicalOpts.reduce((n, c: any) => n + (!!c?.correct ? 1 : 0), 0);
     const payloadCorrectCount = (options ?? []).reduce((n, o: any) => n + (!!o?.correct ? 1 : 0), 0);
     const likelyMulti =
@@ -2240,66 +2282,55 @@ export class SelectionMessageService {
     else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
     else if (payloadCorrectCount === 1 && effType !== QuestionType.MultipleAnswer) effType = QuestionType.SingleAnswer;
     if (effType !== QuestionType.MultipleAnswer && likelyMulti) {
-      effType = QuestionType.MultipleAnswer; // prevent early "Next" on multi
+      effType = QuestionType.MultipleAnswer;
     }
   
-    // ─────────────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (unchanged semantics)
-    // ─────────────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER
     if (effType === QuestionType.SingleAnswer) {
-      const anySelected =
-        Array.isArray(options) && options.some((o: any) => !!o?.selected);
+      const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
       queueMicrotask(() => {
         this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: effType, token: tok });
       });
+      // stamp snapshot for this run
+      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = runId; } catch {}
       return;
     }
   
     // ─────────────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — canonical-on-screen target + UNION selection + NEXT lock
+    // MULTIPLE-ANSWER — canonical-on-screen + UNION selection + no cross-run bleed
     // ─────────────────────────────────────────────────────────────────────
     {
-      // Lazily init lock container
+      // Lazily init completion lock
       // @ts-ignore
       this._multiNextLockedByKey ??= new Set<string>();
   
-      // 1) Build UI presence set (on-screen instances by key)
-      const uiCountByKey = new Map<string, number>();
-      for (const o of (options ?? [])) {
-        const k = kOf(o);
-        uiCountByKey.set(k, (uiCountByKey.get(k) ?? 0) + 1);
-      }
+      // UI presence (on-screen)
+      const uiBag = new Map<string, number>();
+      for (const o of (options ?? [])) bagAdd(uiBag, kOf(o));
   
-      // 2) Canonical correct list filtered to UI
-      const canonicalList: Array<{ key: string; text: string }> = [];
-      for (const c of (canonicalOpts ?? [])) {
-        if (!(c as any)?.correct) continue;
-        const k = kOf(c);
-        if ((uiCountByKey.get(k) ?? 0) > 0) {
-          canonicalList.push({ key: k, text: (c as any)?.text ?? '' });
-        }
+      // Canonical correct, clamped to UI
+      const canonicalBagRaw = new Map<string, number>();
+      for (const c of (canonicalOpts ?? [])) if (!!(c as any)?.correct) bagAdd(canonicalBagRaw, kOf(c));
+      const canonicalBag = new Map<string, number>();
+      for (const [k, c] of canonicalBagRaw) {
+        const cap = bagGet(uiBag, k);
+        if (cap > 0) bagAdd(canonicalBag, k, Math.min(c, cap));
       }
-      const target = canonicalList.length;              // authoritative, visible, canonical
-      const hasCanonical = target > 0;
+      const canonicalInUI = bagSum(canonicalBag);
+      const hasCanonical = canonicalInUI > 0;
   
-      // 3) Early lock guard: if we already completed this qKey, keep showing Next
+      // Early: keep Next latched for this run if still complete
       if (hasCanonical && (this as any)._multiNextLockedByKey.has(qKey)) {
-        // verify still complete; if user deselected, unlock
+        // verify using union selection (current run only)
         const isComplete = (() => {
-          // union of selection signals (payload + service + snapshot)
-          const selId = new Set<string>();
-          const selTx = new Set<string>();
-          const selTs = new Set<string>();
-  
-          for (const o of (options ?? [])) {
-            if (!(o as any)?.selected) continue;
+          const selId = new Set<string>(), selTx = new Set<string>(), selTs = new Set<string>();
+          for (const o of (options ?? [])) if ((o as any)?.selected) {
             const id = o?.optionId ?? (o as any)?.id ?? (o as any)?.value;
             if (id != null) selId.add(idKey(id));
-            const t = (o as any)?.text ?? '';
-            selTx.add(tKey(t)); selTs.add(tsKey(t));
+            const t = (o as any)?.text ?? ''; selTx.add(tKey(t)); selTs.add(tsKey(t));
           }
           try {
             const selSvc: any =
@@ -2312,20 +2343,20 @@ export class SelectionMessageService {
               if (typeof a === 'object') {
                 const id = (a as any)?.optionId ?? (a as any)?.id ?? (a as any)?.value;
                 if (id != null) selId.add(idKey(id));
+                const txt = (a as any)?.text; if (txt) { selTx.add(tKey(txt)); selTs.add(tsKey(txt)); }
               } else if (a != null) {
                 selId.add(idKey(a));
               }
             }
-            const one = selSvc?.getSelectedOption?.(resolvedIndex);
-            if (one?.text) { selTx.add(tKey(one.text)); selTs.add(tsKey(one.text)); }
           } catch {}
           try {
             const snap = this.getLatestOptionsSnapshot?.();
-            if (Array.isArray(snap) && snap.length) {
+            // @ts-ignore
+            if (this._snapshotRunId === runId && Array.isArray(snap) && snap.length) {
               const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
               const sigSnap = optionSig(snap as any);
               if (sigNow && sigSnap && sigNow === sigSnap) {
-                for (const s of snap as any[]) if (!!(s as any)?.selected) {
+                for (const s of snap as any[]) if ((s as any)?.selected) {
                   const id = (s as any)?.optionId ?? (s as any)?.id ?? (s as any)?.value;
                   if (id != null) selId.add(idKey(id));
                   const t = (s as any)?.text ?? '';
@@ -2334,14 +2365,15 @@ export class SelectionMessageService {
               }
             }
           } catch {}
-  
-          // verify each canonical instance is matched
+          // count against canonical
           let ok = 0;
-          for (const c of canonicalList) {
-            const t = c.text ?? '';
-            if (selId.has(c.key) || selTx.has(tKey(t)) || selTs.has(tsKey(t))) ok++;
+          for (const [k, c] of canonicalBag) {
+            const textFallback = k.startsWith('t:') ? k.slice(2) : '';
+            if (selId.has(k) || selTx.has(`t:${textFallback}`) || selTs.has(`ts:${textFallback}`)) {
+              ok += c;
+            }
           }
-          return ok >= target;
+          return ok >= canonicalInUI;
         })();
   
         if (isComplete) {
@@ -2352,32 +2384,25 @@ export class SelectionMessageService {
           queueMicrotask(() => {
             this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok } as any);
           });
+          try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = runId; } catch {}
           return;
         } else {
-          (this as any)._multiNextLockedByKey.delete(qKey); // user changed selection → unlock
+          (this as any)._multiNextLockedByKey.delete(qKey);
         }
       }
   
-      // 4) Union of selection signals (payload + service + snapshot)
-      const selId = new Set<string>();
-      const selTx = new Set<string>();
-      const selTs = new Set<string>();
-  
-      // payload
-      for (const o of (options ?? [])) {
-        if (!(o as any)?.selected) continue;
+      // UNION selection (payload + service + snapshot from this run only)
+      const selId = new Set<string>(), selTx = new Set<string>(), selTs = new Set<string>();
+      for (const o of (options ?? [])) if ((o as any)?.selected) {
         const id = o?.optionId ?? (o as any)?.id ?? (o as any)?.value;
         if (id != null) selId.add(idKey(id));
-        const t = (o as any)?.text ?? '';
-        selTx.add(tKey(t)); selTs.add(tsKey(t));
+        const t = (o as any)?.text ?? ''; selTx.add(tKey(t)); selTs.add(tsKey(t));
       }
-      // service
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
-  
         const raw = selSvc?.getSelectedIdsForQuestion?.(resolvedIndex);
         const arr = raw instanceof Set ? Array.from(raw) : (Array.isArray(raw) ? raw : (raw != null ? [raw] : []));
         for (const a of arr) {
@@ -2389,17 +2414,15 @@ export class SelectionMessageService {
             selId.add(idKey(a));
           }
         }
-        const one = selSvc?.getSelectedOption?.(resolvedIndex);
-        if (one?.text) { selTx.add(tKey(one.text)); selTs.add(tsKey(one.text)); }
       } catch {}
-      // snapshot (same question signature only)
       try {
         const snap = this.getLatestOptionsSnapshot?.();
-        if (Array.isArray(snap) && snap.length) {
+        // @ts-ignore
+        if (this._snapshotRunId === runId && Array.isArray(snap) && snap.length) {
           const sigNow = optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []));
           const sigSnap = optionSig(snap as any);
           if (sigNow && sigSnap && sigNow === sigSnap) {
-            for (const s of snap as any[]) if (!!(s as any)?.selected) {
+            for (const s of snap as any[]) if ((s as any)?.selected) {
               const id = (s as any)?.optionId ?? (s as any)?.id ?? (s as any)?.value;
               if (id != null) selId.add(idKey(id));
               const t = (s as any)?.text ?? '';
@@ -2409,32 +2432,34 @@ export class SelectionMessageService {
         }
       } catch {}
   
-      // 5) Count selected-correct per canonical instance (id → text → softText)
-      let selectedCorrect = 0;
-      for (const c of canonicalList) {
-        const t = c.text ?? '';
-        if (selId.has(c.key) || selTx.has(tKey(t)) || selTs.has(tsKey(t))) {
-          selectedCorrect++;
+      // Selected bag projected on canonical (on-screen)
+      const selectedBag = new Map<string, number>();
+      for (const [k, cap] of canonicalBag) {
+        // match by id first; else by text/soft text
+        let matched = 0;
+        if (k.startsWith('id:')) {
+          if (selId.has(k)) matched = cap;
+        } else {
+          const raw = k.startsWith('t:') ? k.slice(2) : '';
+          if (selTx.has(`t:${raw}`) || selTs.has(`ts:${raw}`)) matched = cap;
         }
+        if (matched > 0) bagAdd(selectedBag, k, matched);
       }
   
-      // 6) Remaining and display (floor NEVER masks completion)
+      // TARGET: lock to canonical (on-screen)
+      const target = canonicalInUI;
+  
+      // Remaining
+      const selectedCorrect = bagIntersectCount(selectedBag, canonicalBag);
       const remaining = Math.max(target - selectedCorrect, 0);
   
-      const configuredFloor = Math.max(
-        0,
-        Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0)
-      );
-      let localFloor = 0;
-      const selCount =
-        Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
-  
-      if (remaining > 0 && target >= 2 && selCount > 0 && selCount < target) {
-        localFloor = 1;
-      }
+      // Cosmetic floor (never mask completion)
+      const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
+      const selCount = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
+      const localFloor = (remaining > 0 && target >= 2 && selCount > 0 && selCount < target) ? 1 : 0;
       const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
   
-      // 7) Message + completion lock
+      // Message + latch
       const msg =
         displayRemaining > 0
           ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
@@ -2443,7 +2468,7 @@ export class SelectionMessageService {
               : 'Please click the next button to continue.');
   
       if (remaining === 0 && hasCanonical) {
-        (this as any)._multiNextLockedByKey.add(qKey); // latch “Next” for this question
+        (this as any)._multiNextLockedByKey.add(qKey); // latch for THIS RUN only
       }
   
       this.updateSelectionMessage(
@@ -2457,15 +2482,18 @@ export class SelectionMessageService {
         );
       });
   
-      // Debug (enable once to validate Q2/Q4, then disable)
+      // Stamp snapshot to THIS RUN so next union won't import stale picks
+      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = runId; } catch {}
+  
+      // Debug (enable once on a failing run)
       // console.log('[EMIT:GATE]', {
-      //   idx: index, resolvedIndex,
-      //   target, selectedCorrect, remaining, displayRemaining,
-      //   locked: (this as any)._multiNextLockedByKey.has(qKey),
-      //   canonical: canonicalList.map(c => ({ key: c.key, text: c.text })),
+      //   runId, qKey, idx: index, resolvedIndex,
+      //   canonicalInUI: target, selectedCorrect, remaining, displayRemaining,
+      //   nextLocked: (this as any)._multiNextLockedByKey.has(qKey)
       // });
     }
   }
+  
   
   
   
