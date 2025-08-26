@@ -2320,15 +2320,18 @@ export class SelectionMessageService {
     }
   
     // ─────────────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — provable target (canonical-on-UI + answers-on-UI) + frame guard
+    // MULTIPLE-ANSWER — LOCKED TO CANONICAL-ON-UI + NEXT LATCH
     // ─────────────────────────────────────────────────────────────────────
     {
-      // UI presence (on-screen)
+      // Ensure per-run latch exists
+      // @ts-ignore
+      this._multiNextLockedByKey ??= new Set<string>();
+  
+      // 1) UI presence (on-screen)
       const uiBag = new Map<string, number>();
       for (const o of (options ?? [])) bagAdd(uiBag, kOf(o));
-      const uiCap = bagSum(uiBag);
   
-      // Canonical correct, clamped to UI (proof #1)
+      // 2) Canonical correct, clamped to UI (provable only)
       const canonicalBagRaw = new Map<string, number>();
       for (const c of (canonicalOpts ?? [])) if (!!(c as any)?.correct) bagAdd(canonicalBagRaw, kOf(c));
       const canonicalBag = new Map<string, number>();
@@ -2339,52 +2342,27 @@ export class SelectionMessageService {
       const canonicalInUI = bagSum(canonicalBag);
       const hasCanonical = canonicalInUI > 0;
   
-      // Answers on-screen (proof #2)
-      const answersBag = new Map<string, number>();
-      try {
-        const ansArr: any[] = Array.isArray(qRef?.answer) ? qRef.answer : (qRef?.answer != null ? [qRef.answer] : []);
-        if (ansArr.length) {
-          for (let i = 0; i < canonicalOpts.length; i++) {
-            const c: any = canonicalOpts[i];
-            const key = kOf(c);
-            if (bagGet(uiBag, key) === 0) continue; // not on screen
+      // 3) Fast path: if already completed earlier in THIS run, keep Next latched
+      if (hasCanonical && (this as any)._multiNextLockedByKey.has(qKey)) {
+        const msg = (typeof NEXT_BTN_MSG === 'string'
+          ? NEXT_BTN_MSG
+          : 'Please click the next button to continue.');
+        tryEmit(msg);
+        // keep snapshot fresh for union logic in this run
+        try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = this._runId ?? 0; } catch {}
+        return;
+      }
   
-            const cid = String(c?.optionId ?? c?.id ?? i);
-            const zeroIx = i, oneIx = i + 1;
-            const cVal = norm(c?.value);
-            const cTxt = norm(c?.text ?? c?.label ?? c?.title ?? c?.optionText ?? c?.displayText);
-  
-            const matched = ansArr.some((a: any) => {
-              if (a == null) return false;
-              if (typeof a === 'object') {
-                const aid = a?.optionId ?? a?.id;
-                if (aid != null && String(aid) === cid) return true;
-                const n  = Number(a?.index ?? a?.idx ?? a?.ordinal ?? a?.optionIndex ?? a?.optionIdx);
-                if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-                const av = norm(a?.value);
-                const at = norm(a?.text ?? a?.label ?? a?.title ?? a?.optionText ?? a?.displayText);
-                return (!!av && av === cVal) || (!!at && at === cTxt);
-              }
-              if (typeof a === 'number') return (a === zeroIx) || (a === oneIx);
-              const s = String(a); const n = Number(s);
-              if (Number.isFinite(n) && (n === zeroIx || n === oneIx)) return true;
-              const ns = norm(s);
-              return (!!ns && (ns === cVal || ns === cTxt));
-            });
-  
-            if (matched) bagAdd(answersBag, key);
-          }
-        }
-      } catch {}
-      const answersOnUI = bagSum(answersBag);
-  
-      // Selected (union: payload + service + SAME-RUN snapshot)
+      // 4) UNION of selection signals (payload + service + SAME-RUN snapshot) → project onto canonical
       const selId = new Set<string>(), selTx = new Set<string>(), selTs = new Set<string>();
+  
+      // payload
       for (const o of (options ?? [])) if ((o as any)?.selected) {
-        const id = o?.optionId ?? (o as any)?.id ?? (o as any)?.value;
+        const id = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value;
         if (id != null) selId.add(idKey(id));
         const t = (o as any)?.text ?? ''; selTx.add(tKey(t)); selTs.add(tsKey(t));
       }
+      // service
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
@@ -2402,6 +2380,7 @@ export class SelectionMessageService {
           }
         }
       } catch {}
+      // snapshot (SAME RUN + same question signature)
       try {
         const snap = this.getLatestOptionsSnapshot?.();
         // @ts-ignore
@@ -2419,7 +2398,7 @@ export class SelectionMessageService {
         }
       } catch {}
   
-      // Project union selection onto canonical instances on-screen
+      // project onto canonical instances that are on-screen
       const selectedBag = new Map<string, number>();
       for (const [k, cap] of canonicalBag) {
         let matched = 0;
@@ -2432,52 +2411,20 @@ export class SelectionMessageService {
         if (matched > 0) bagAdd(selectedBag, k, matched);
       }
   
-      // ── PROVABLE TARGET:
-      // Start with canonical-on-UI; raise only with answers-on-UI; cap to UI capacity.
-      let target = canonicalInUI;
-      target = Math.max(target, Math.min(uiCap, canonicalInUI + answersOnUI));
+      // 5) TARGET: strictly canonical-on-UI (no bumps from answers/stem/service)
+      const target = canonicalInUI;
   
-      // If stem/service demands more, allow it only up to provable and UI caps
-      let expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex));
-      if (!Number.isFinite(expectedFromSvc) || expectedFromSvc < 0) expectedFromSvc = 0;
-      let expectedFromStem = 0;
-      try {
-        const stemSrc = String(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-        const m = /select\s+(\d+)/i.exec(stemSrc);
-        const stemN = m ? Number(m[1]) : 0;
-        if (Number.isFinite(stemN) && stemN > 0) expectedFromStem = stemN;
-      } catch {}
-      const demand = Math.max(expectedFromSvc, expectedFromStem);
-      target = Math.max(target, Math.min(uiCap, canonicalInUI + answersOnUI, demand));
+      // 6) Remaining
+      const selectedCorrect = bagIntersectCount(selectedBag, canonicalBag);
+      const remaining = Math.max(target - selectedCorrect, 0);
   
-      // Build judge set: canonical + enough answers to meet target (no payload inflation)
-      const judgeBag = new Map<string, number>(canonicalBag);
-      let need = Math.max(0, target - bagSum(judgeBag));
-      if (need > 0) {
-        for (const [k, c] of answersBag) {
-          if (need <= 0) break;
-          const already = bagGet(judgeBag, k);
-          const cap = Math.max(0, bagGet(uiBag, k) - already);
-          if (cap <= 0) continue;
-          const take = Math.min(c, cap, need);
-          if (take > 0) {
-            bagAdd(judgeBag, k, take);
-            need -= take;
-          }
-        }
-      }
-  
-      // Remaining strictly from bags
-      const selectedCorrect = bagIntersectCount(selectedBag, judgeBag);
-      const remaining = Math.max(bagSum(judgeBag) - selectedCorrect, 0);
-  
-      // Cosmetic floor (NEVER mask completion)
+      // 7) Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       const selCount = Array.isArray(options) ? options.reduce((n, o: any) => n + (!!o?.selected ? 1 : 0), 0) : 0;
-      const localFloor = (remaining > 0 && bagSum(judgeBag) >= 2 && selCount > 0 && selCount < bagSum(judgeBag)) ? 1 : 0;
+      const localFloor = (remaining > 0 && target >= 2 && selCount > 0 && selCount < target) ? 1 : 0;
       const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, configuredFloor, localFloor);
   
-      // Message (single-shot with frame guard)
+      // 8) Message + latch
       const msg =
         displayRemaining > 0
           ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
@@ -2485,19 +2432,17 @@ export class SelectionMessageService {
               ? NEXT_BTN_MSG
               : 'Please click the next button to continue.');
   
-      tryEmit(msg); // no extra microtask send — avoids stale overwrite
+      if (remaining === 0 && hasCanonical) {
+        (this as any)._multiNextLockedByKey.add(qKey); // latch Next for this question in this run
+      }
   
-      // Stamp snapshot to THIS RUN so selection union won’t import stale picks
-      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = runId; } catch {}
+      tryEmit(msg);
   
-      // Debug (enable once if needed)
-      // console.log('[EMIT:GATE]', {
-      //   runId, qKey, idx: index, resolvedIndex,
-      //   canonicalInUI, answersOnUI, target: bagSum(judgeBag),
-      //   selectedCorrect, remaining, displayRemaining
-      // });
+      // keep snapshot fresh for union logic in this run
+      try { this.setLatestOptionsSnapshot?.(options); /* @ts-ignore */ this._snapshotRunId = this._runId ?? 0; } catch {}
     }
   }
+  
   
   
   
