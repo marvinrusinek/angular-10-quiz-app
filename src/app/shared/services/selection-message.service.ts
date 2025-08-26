@@ -1913,8 +1913,10 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Bag helpers (multiset logic for selection counts)
     // ─────────────────────────────────────────────────────────────
-    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void =>
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void => {
+        // Ensuring that the function returns void
         bag.set(k, (bag.get(k) ?? 0) + n);
+    };
 
     const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
 
