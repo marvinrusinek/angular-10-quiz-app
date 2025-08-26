@@ -3128,15 +3128,15 @@ export class SelectionMessageService {
       return s;
     };
   
-    // Selected detector (keeps your stricter behavior and avoids cross-question bleed)
-    const anySelectedStrict = (): boolean => {
+    // Selected detector (use RESOLVED index to avoid cross-question bleed)
+    const anySelectedStrict = (idxForSvc: number): boolean => {
       if (Array.isArray(options) && options.some((o: any) => !!o?.selected)) return true;
       try {
         const selSvc: any =
           (this as any).selectedOptionService ??
           (this as any).selectionService ??
           (this as any).quizService;
-        const ids = selSvc?.getSelectedIdsForQuestion?.(index);
+        const ids = selSvc?.getSelectedIdsForQuestion?.(idxForSvc);
         if (ids instanceof Set) return ids.size > 0;
         if (Array.isArray(ids)) return ids.length > 0;
         if (ids != null) return true;
@@ -3144,10 +3144,20 @@ export class SelectionMessageService {
       return false;
     };
   
-    const selectedCountStrict = (): number =>
-      Array.isArray(options)
-        ? options.reduce((n, o: any) => n + (o?.selected ? 1 : 0), 0)
-        : 0;
+    const selectedCountStrict = (idxForSvc: number): number => {
+      let cnt = Array.isArray(options) ? options.reduce((n, o: any) => n + (o?.selected ? 1 : 0), 0) : 0;
+      try {
+        const selSvc: any =
+          (this as any).selectedOptionService ??
+          (this as any).selectionService ??
+          (this as any).quizService;
+        const ids = selSvc?.getSelectedIdsForQuestion?.(idxForSvc);
+        if (ids instanceof Set) cnt = Math.max(cnt, ids.size);
+        else if (Array.isArray(ids)) cnt = Math.max(cnt, ids.length);
+        else if (ids != null) cnt = Math.max(cnt, 1);
+      } catch {}
+      return cnt;
+    };
   
     // ─────────────────────────────────────────────────────────────────────
     // Resolve canonical question/options from service (STRICT by param index)
@@ -3170,7 +3180,7 @@ export class SelectionMessageService {
       canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
     } catch {}
   
-    // Build a stable question key (used by your locks if you keep them)
+    // Build a stable question key (avoid collisions between quizzes)
     const optionSig = (arr: any[]) =>
       (Array.isArray(arr) ? arr : [])
         .map(o => norm(o?.text ?? o?.label ?? ''))
@@ -3179,9 +3189,11 @@ export class SelectionMessageService {
         .join('|');
   
     const qKey: string =
-      (qRef?.id != null) ? `id:${String(qRef.id)}`
-      : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
-      : `opts:${optionSig(options?.length ? options : canonicalOpts)}`;
+      `idx:${resolvedIndex}|` + (
+        (qRef?.id != null) ? `id:${String(qRef.id)}`
+        : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
+        : `opts:${optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []))}`
+      );
   
     // ─────────────────────────────────────────────────────────────────────
     // (Optional) normalize payload IDs from canonical by text so keys align
@@ -3225,7 +3237,7 @@ export class SelectionMessageService {
     // SINGLE-ANSWER (unchanged semantics)
     // ─────────────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
-      const anySelected = anySelectedStrict();
+      const anySelected = anySelectedStrict(resolvedIndex);
       const msg = anySelected
         ? (typeof NEXT_BTN_MSG === 'string' ? NEXT_BTN_MSG : 'Please click the next button to continue.')
         : (typeof START_MSG === 'string' ? START_MSG : 'Please select an option to continue.');
@@ -3286,7 +3298,7 @@ export class SelectionMessageService {
       // Cosmetic floor (NEVER mask completion)
       const configuredFloor = Math.max(0, Number((this.quizService as any)?.getMinDisplayRemaining?.(resolvedIndex, qRef?.id) ?? 0));
       let localFloor = 0;
-      const selCount = selectedCountStrict();
+      const selCount = selectedCountStrict(resolvedIndex);
       if (remaining > 0 && expectedTotal >= 2 && selCount > 0 && selCount < expectedTotal) {
         localFloor = 1; // “Select 1 more …” while building up correct picks
       }
@@ -3320,6 +3332,7 @@ export class SelectionMessageService {
       // });
     }
   }
+  
   
   
    
