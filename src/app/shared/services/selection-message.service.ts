@@ -3170,7 +3170,10 @@ export class SelectionMessageService {
   }
 
   // Map a single snapshot -> Option
-  private mapSnapshotToOption(s: OptionSnapshot): Option {
+  private mapSnapshotToOption(
+    s: OptionSnapshot,
+    lookup?: Map<string | number, Option>
+  ): Option {
     // Keep your minimal fields; merge into Option shape your code expects.
     // If your Option interface has more fields, initialize them safely here.
     return {
