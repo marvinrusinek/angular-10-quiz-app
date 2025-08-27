@@ -2565,8 +2565,9 @@ export class SelectionMessageService {
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
     // Multiset helpers (bags)
-    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void =>
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void => {
       bag.set(k, (bag.get(k) ?? 0) + n);
+    };
     const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
     const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
   
@@ -2694,7 +2695,7 @@ export class SelectionMessageService {
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex)) || 0;
   
       // For Q4 hard floor: 2 (adjust index if Q4 moves)
