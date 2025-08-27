@@ -2736,7 +2736,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   } */
-  public emitFromClick(params: { 
+  /* public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2959,7 +2959,96 @@ export class SelectionMessageService {
       // Keep snapshot (harmless; not used to count)
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
+  } */
+  public emitFromClick(params: { 
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[]; // updated array already passed
+    token?: number;    // optional debounce/coalesce token from caller
+  }): void {
+    const { index, questionType, options } = params as any;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Logging (kept)
+    // ─────────────────────────────────────────────────────────────
+    try {
+      console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
+        text: o?.text, selected: !!o?.selected, correct: !!o?.correct
+      })));
+    } catch {}
+  
+    // Optional token (kept)
+    const tok =
+      typeof (params as any)?.token === 'number'
+        ? (params as any).token
+        : Number.MAX_SAFE_INTEGER;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Message fallbacks (kept)
+    // ─────────────────────────────────────────────────────────────
+    const NEXT_TEXT_FALLBACK = 'Please click the next button to continue...';
+    const START_TEXT_FALLBACK = 'Please click an option to continue';
+    const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
+      ? (globalThis as any).NEXT_BTN_MSG
+      : NEXT_TEXT_FALLBACK;
+    const START_MSG_TXT = (typeof (globalThis as any)?.START_MSG === 'string' && (globalThis as any).START_MSG)
+      ? (globalThis as any).START_MSG
+      : START_TEXT_FALLBACK;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Helpers (deterministic stable key)
+    // ─────────────────────────────────────────────────────────────
+    const norm = (s: any) =>
+      (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  
+    const keyOf = (o: any): string | number =>
+      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
+  
+    // ─────────────────────────────────────────────────────────────
+    // Resolve canonical for this index (STRICT by param index)
+    // ─────────────────────────────────────────────────────────────
+    let qRef: any = undefined;
+    let canonicalOpts: Option[] = [];
+    let resolvedIndex = index;
+  
+    try {
+      const svc: any = this.quizService as any;
+      const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions : [];
+      if (resolvedIndex < 0 || resolvedIndex >= qArr.length) {
+        const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : -1;
+        if (svcIdx >= 0 && svcIdx < qArr.length) resolvedIndex = svcIdx;
+      }
+      qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
+      canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
+    } catch {}
+  
+    // ─────────────────────────────────────────────────────────────
+    // Q4 Clicks 3 & 4 specific fix
+    if (resolvedIndex === 3) {  // Check if the current question is Q4 (Index 3)
+      const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
+      const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
+      const bothOptionsSelected = option1Selected && option2Selected;
+  
+      if (!bothOptionsSelected) {
+        // Show "Select 1 more correct answer..." if both options are not selected yet
+        this.updateSelectionMessage("Select 1 more correct answer to continue...", { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+        return;
+      }
+  
+      // After both Option 1 and Option 2 are selected, show "Please click the next button to continue..." for Q4 click 3 and 4
+      const msg = NEXT_MSG;
+      this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+      return;
+    }
+  
+    // ─────────────────────────────────────────────────────────────
+    // FALLBACK for other cases (not Q4 click)
+    // ─────────────────────────────────────────────────────────────
+    const msg = "Select 1 more correct answer to continue...";
+    this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   }
+  
   
 
   
