@@ -3049,7 +3049,7 @@ export class SelectionMessageService {
     const msg = "Select 1 more correct answer to continue...";
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   } */
-  /* public emitFromClick(params: {  
+  public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
     options: Option[]; // updated array already passed
@@ -3230,94 +3230,7 @@ export class SelectionMessageService {
   
       this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
     }
-  } */
-  public emitFromClick(params: {  
-    index: number;
-    totalQuestions: number;
-    options: Option[]; // updated array already passed
-    token?: number;    // optional debounce/coalesce token from caller
-  }): void {
-    const { index, options } = params; // Removed `questionType` from the destructured params
-  
-    // ─────────────────────────────────────────────────────────────
-    // Get question type from the QuizService (no need to pass it in params)
-    // ─────────────────────────────────────────────────────────────
-    const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Logging (kept)
-    try {
-      console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
-        text: o?.text, selected: !!o?.selected, correct: !!o?.correct
-      })));
-    } catch {}
-  
-    // Optional token (kept)
-    const tok = typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Message fallbacks (kept)
-    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
-    const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
-  
-    // ─────────────────────────────────────────────────────────────
-    // Resolve canonical for this index (STRICT by param index)
-    let qRef: any;
-    try {
-      const svc: any = this.quizService;
-      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-      const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
-      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
-    } catch { qRef = undefined; }
-  
-    const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
-  
-    // ─────────────────────────────────────────────────────────────
-    // Bag functions for counting options
-    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1) =>
-      bag.set(k, (bag.get(k) ?? 0) + n);
-    const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
-    const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
-  
-    // ─────────────────────────────────────────────────────────────
-    // Handle Multiple-Answer Logic
-    if (questionType === QuestionType.MultipleAnswer) {
-      const selectedOptions = options.filter((o: any) => o.selected);
-  
-      // Calculate correct selections
-      const selectedCorrectCount = selectedOptions.filter((o: any) => o.correct).length;
-      const totalCorrectAnswers = canonicalOpts.filter((o: any) => o.correct).length;
-  
-      // Calculate the message based on selections
-      let message = START_MSG;
-  
-      if (selectedCorrectCount === totalCorrectAnswers) {
-        // If all correct options are selected, show the "next" message
-        message = NEXT_MSG;
-      } else if (selectedCorrectCount > 0) {
-        // If some correct options are selected but not all, prompt the user to select more
-        message = `Select ${totalCorrectAnswers - selectedCorrectCount} more correct answer${totalCorrectAnswers - selectedCorrectCount > 1 ? 's' : ''} to continue...`;
-      } else {
-        // If no options are selected, ask to select one
-        message = START_MSG;
-      }
-  
-      // Handle Option 2 click for Q4, or other cases if needed
-      if (index === 3 && selectedCorrectCount === 1 && selectedOptions.some((o: any) => o.text === 'Option 2')) {
-        message = "Select 1 more correct answer to continue..."; // Special message for Q4 click 2
-      }
-  
-      // Update the message
-      this.updateSelectionMessage(message, { options, index, questionType, token: tok });
-      return;
-    }
-  
-    // ─────────────────────────────────────────────────────────────
-    // Handle Single-Answer (unchanged semantics)
-    const msg = "Select 1 more correct answer to continue...";
-    this.updateSelectionMessage(msg, { options, index, questionType, token: tok });
   }
-  
   
   
   
