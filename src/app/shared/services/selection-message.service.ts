@@ -3060,7 +3060,7 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Get question type from the QuizService (no need to pass it in params)
     // ─────────────────────────────────────────────────────────────
-    const questionType = this.quizService.getCurrentQuestionType(index); // Assuming you have this method in your QuizService
+    const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
     
     // ─────────────────────────────────────────────────────────────
     // Logging (kept)
