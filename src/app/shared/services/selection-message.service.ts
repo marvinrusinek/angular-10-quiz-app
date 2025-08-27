@@ -2763,7 +2763,7 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Message fallbacks (kept)
     // ─────────────────────────────────────────────────────────────
-    const NEXT_TEXT_FALLBACK = 'Please select the next button to continue...';
+    const NEXT_TEXT_FALLBACK = 'Please click the next button to continue...';
     const START_TEXT_FALLBACK = 'Please click an option to continue';
     const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
       ? (globalThis as any).NEXT_BTN_MSG
@@ -2919,7 +2919,7 @@ export class SelectionMessageService {
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex)) || 0;
   
       // For Q4 hard floor: 2 (adjust index if Q4 moves)
@@ -2960,6 +2960,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
+  
   
   
   
