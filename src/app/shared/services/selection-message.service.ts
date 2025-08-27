@@ -2519,7 +2519,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   } */
-  public emitFromClick(params: {
+  /* public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2736,7 +2736,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   } */
-  /* public emitFromClick(params: { 
+  public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
