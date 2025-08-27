@@ -3113,21 +3113,23 @@ export class SelectionMessageService {
     } catch {}
 
     // ─────────────────────────────────────────────────────────────
-    // Handle MULTIPLE-ANSWER logic automatically
+    // Handling Multiple-Answer Questions (like Q4)
     // ─────────────────────────────────────────────────────────────
     if (questionType === QuestionType.MultipleAnswer) {
         const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
         const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
         const bothOptionsSelected = option1Selected && option2Selected;
 
+        // If both options are selected (click 2)
         if (bothOptionsSelected) {
-            // If both options are selected, show the "next" message
             this.updateSelectionMessage(NEXT_MSG, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        } else if (option1Selected || option2Selected) {
-            // If one option is selected, show message to select the other option
+        } 
+        // If only one option is selected (click 1)
+        else if (option1Selected || option2Selected) {
             this.updateSelectionMessage("Select 1 more correct answer to continue...", { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        } else {
-            // If no options are selected, show message to start selecting
+        } 
+        // If no options are selected (initial click)
+        else {
             this.updateSelectionMessage(START_MSG_TXT, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
         }
         return; // Done handling multiple-answer question logic here
@@ -3139,6 +3141,9 @@ export class SelectionMessageService {
     const msg = "Select 1 more correct answer to continue...";
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   }
+
+
+
   
   
   
