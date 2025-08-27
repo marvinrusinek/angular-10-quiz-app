@@ -2800,29 +2800,36 @@ export class SelectionMessageService {
     } catch {}
   
     // ─────────────────────────────────────────────────────────────
-    // Track the selections: specifically Option 1 and Option 2 for Q4
+    // Track Option 1 and Option 2 selection for Q4
     const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
     const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
   
-    // If both Option 1 and Option 2 are selected
+    // ─────────────────────────────────────────────────────────────
+    // Q4 Click 3 and 4 logic
+    // Only show "Please click the next button to continue..." once Option 1 and Option 2 are selected
     const bothOptionsSelected = option1Selected && option2Selected;
   
-    // ─────────────────────────────────────────────────────────────
-    // Handle Selection Message Logic (Next Button Message)
-    // ─────────────────────────────────────────────────────────────
     if (bothOptionsSelected) {
-      // If both options are selected, show the "Next" button message on clicks 3 and 4
+      // If both Option 1 and Option 2 are selected, show "Please click the next button to continue..."
       const msg = NEXT_MSG;
       this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
       return;
     }
   
     // ─────────────────────────────────────────────────────────────
-    // Standard logic for when not both options are selected
+    // For click 2: If Option 1 or Option 2 is selected, show "Select 1 more correct answer to continue..."
+    if (!bothOptionsSelected && (option1Selected || option2Selected)) {
+      const msg = "Select 1 more correct answer to continue...";
+      this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+      return;
+    }
+  
     // ─────────────────────────────────────────────────────────────
+    // Default message for when no option is selected (Q4 click 1 or Q2 click 4)
     const msg = START_MSG_TXT;
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   }
+  
   
 
   
