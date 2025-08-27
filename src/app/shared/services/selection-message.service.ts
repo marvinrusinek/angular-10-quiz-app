@@ -3049,98 +3049,62 @@ export class SelectionMessageService {
     const msg = "Select 1 more correct answer to continue...";
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   } */
-  public emitFromClick(params: {  
+  public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[]; // updated array already passed
-    token?: number;    // optional debounce/coalesce token from caller
-}): void {
-    const { index, questionType, options } = params as any;
-
-    // ─────────────────────────────────────────────────────────────
-    // Logging (kept)
-    // ─────────────────────────────────────────────────────────────
+    options: Option[];
+    token?: number;
+  }): void {
+    const { index, options } = params as any;
+  
+    // Optional token
+    const tok = typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
+  
+    // Message fallbacks
+    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
+    const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
+  
+    // Resolve canonical question
+    let qRef: any;
     try {
-        console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
-            text: o?.text, selected: !!o?.selected, correct: !!o?.correct
-        })));
-    } catch {}
-
-    // Optional token (kept)
-    const tok =
-        typeof (params as any)?.token === 'number'
-            ? (params as any).token
-            : Number.MAX_SAFE_INTEGER;
-
-    // ─────────────────────────────────────────────────────────────
-    // Message fallbacks (kept)
-    // ─────────────────────────────────────────────────────────────
-    const NEXT_TEXT_FALLBACK = 'Please click the next button to continue...';
-    const START_TEXT_FALLBACK = 'Please click an option to continue';
-    const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
-        ? (globalThis as any).NEXT_BTN_MSG
-        : NEXT_TEXT_FALLBACK;
-    const START_MSG_TXT = (typeof (globalThis as any)?.START_MSG === 'string' && (globalThis as any).START_MSG)
-        ? (globalThis as any).START_MSG
-        : START_TEXT_FALLBACK;
-
-    // ─────────────────────────────────────────────────────────────
-    // Helpers (deterministic stable key)
-    // ─────────────────────────────────────────────────────────────
-    const norm = (s: any) =>
-        (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-
-    const keyOf = (o: any): string | number =>
-        (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
-
-    // ─────────────────────────────────────────────────────────────
-    // Resolve canonical for this index (STRICT by param index)
-    // ─────────────────────────────────────────────────────────────
-    let qRef: any = undefined;
-    let canonicalOpts: Option[] = [];
-    let resolvedIndex = index;
-
-    try {
-        const svc: any = this.quizService as any;
-        const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions : [];
-        if (resolvedIndex < 0 || resolvedIndex >= qArr.length) {
-            const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : -1;
-            if (svcIdx >= 0 && svcIdx < qArr.length) resolvedIndex = svcIdx;
-        }
-        qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
-        canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
-    } catch {}
-
-    // ─────────────────────────────────────────────────────────────
-    // Handling Multiple-Answer Questions (like Q4)
-    // ─────────────────────────────────────────────────────────────
-    if (questionType === QuestionType.MultipleAnswer) {
-        const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
-        const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
-        const bothOptionsSelected = option1Selected && option2Selected;
-
-        // If both options are selected (click 2)
-        if (bothOptionsSelected) {
-            this.updateSelectionMessage(NEXT_MSG, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        } 
-        // If only one option is selected (click 1)
-        else if (option1Selected || option2Selected) {
-            this.updateSelectionMessage("Select 1 more correct answer to continue...", { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        } 
-        // If no options are selected (initial click)
-        else {
-            this.updateSelectionMessage(START_MSG_TXT, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        }
-        return; // Done handling multiple-answer question logic here
+      const svc: any = this.quizService;
+      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
+      const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
+      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
+    } catch { qRef = undefined; }
+  
+    const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
+  
+    // Determine if multiple-answer
+    const correctCount = canonicalOpts.filter(o => !!o.correct).length;
+    const isMultipleAnswer = correctCount > 1;
+  
+    // No options selected -> START message
+    const selectedOpts = options.filter(o => !!o.selected);
+    if (selectedOpts.length === 0) {
+      this.updateSelectionMessage(START_MSG, { options, index, questionType: isMultipleAnswer ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer, token: tok });
+      return;
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // Default case for other questions
-    // ─────────────────────────────────────────────────────────────
-    const msg = "Select 1 more correct answer to continue...";
-    this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+  
+    if (!isMultipleAnswer) {
+      // Single answer: next message after any selection
+      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.SingleAnswer, token: tok });
+      return;
+    }
+  
+    // Multiple-answer logic
+    // Count selected correct options
+    const selectedCorrect = selectedOpts.filter(o => canonicalOpts.some(c => this.aliasesMatch(c, o) && c.correct)).length;
+    const remaining = Math.max(correctCount - selectedCorrect, 0);
+  
+    const msg = remaining > 0
+      ? `Select ${remaining} more correct answer${remaining === 1 ? '' : 's'} to continue...`
+      : NEXT_MSG;
+  
+    this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
   }
+  
 
 
 
