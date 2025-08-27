@@ -2736,7 +2736,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   } */
-  /* public emitFromClick(params: { 
+  public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -2959,93 +2959,6 @@ export class SelectionMessageService {
       // Keep snapshot (harmless; not used to count)
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
-  } */
-  public emitFromClick(params: { 
-    index: number;
-    totalQuestions: number;
-    questionType: QuestionType;
-    options: Option[]; // updated array already passed
-    token?: number;    // optional debounce/coalesce token from caller
-  }): void {
-    const { index, questionType, options } = params as any;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Logging (kept)
-    // ─────────────────────────────────────────────────────────────
-    try {
-      console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
-        text: o?.text, selected: !!o?.selected, correct: !!o?.correct
-      })));
-    } catch {}
-  
-    // Optional token (kept)
-    const tok =
-      typeof (params as any)?.token === 'number'
-        ? (params as any).token
-        : Number.MAX_SAFE_INTEGER;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Message fallbacks (kept)
-    // ─────────────────────────────────────────────────────────────
-    const NEXT_TEXT_FALLBACK = 'Please click the next button to continue...';
-    const START_TEXT_FALLBACK = 'Please click an option to continue';
-    const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
-      ? (globalThis as any).NEXT_BTN_MSG
-      : NEXT_TEXT_FALLBACK;
-    const START_MSG_TXT = (typeof (globalThis as any)?.START_MSG === 'string' && (globalThis as any).START_MSG)
-      ? (globalThis as any).START_MSG
-      : START_TEXT_FALLBACK;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Helpers (deterministic stable key)
-    // ─────────────────────────────────────────────────────────────
-    const norm = (s: any) =>
-      (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-  
-    const keyOf = (o: any): string | number =>
-      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Resolve canonical for this index (STRICT by param index)
-    // ─────────────────────────────────────────────────────────────
-    let qRef: any = undefined;
-    let canonicalOpts: Option[] = [];
-    let resolvedIndex = index;
-  
-    try {
-      const svc: any = this.quizService as any;
-      const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions : [];
-      if (resolvedIndex < 0 || resolvedIndex >= qArr.length) {
-        const svcIdx = (svc?.currentQuestionIndex != null) ? Number(svc.currentQuestionIndex) : -1;
-        if (svcIdx >= 0 && svcIdx < qArr.length) resolvedIndex = svcIdx;
-      }
-      qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
-      canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
-    } catch {}
-  
-    // ─────────────────────────────────────────────────────────────
-    // Handle Q4 Clicks 3 and 4
-    if (resolvedIndex === 3) { // For Q4 (check index)
-      const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
-      const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
-      const bothOptionsSelected = option1Selected && option2Selected;
-  
-      // Handle message based on selected options for Q4
-      if (bothOptionsSelected) {
-        // If both options are selected, show the next button message
-        this.updateSelectionMessage(NEXT_MSG, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-      } else {
-        // If less than both options are selected, show "Select more answers"
-        this.updateSelectionMessage("Select 1 more correct answer to continue...", { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-      }
-      return;
-    }
-  
-    // ─────────────────────────────────────────────────────────────
-    // Default case for other questions
-    // ─────────────────────────────────────────────────────────────
-    const msg = "Select 1 more correct answer to continue...";
-    this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   }
   
   
