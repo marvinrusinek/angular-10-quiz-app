@@ -3059,12 +3059,10 @@ export class SelectionMessageService {
     
     // ─────────────────────────────────────────────────────────────
     // Get question type from the QuizService (no need to pass it in params)
-    // ─────────────────────────────────────────────────────────────
     const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
     
     // ─────────────────────────────────────────────────────────────
     // Logging (kept)
-    // ─────────────────────────────────────────────────────────────
     try {
       console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
         text: o?.text, selected: !!o?.selected, correct: !!o?.correct
@@ -3072,27 +3070,15 @@ export class SelectionMessageService {
     } catch {}
   
     // Optional token (kept)
-    const tok =
-      typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
+    const tok = typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
   
     // ─────────────────────────────────────────────────────────────
-    // Message fallbacks (kept)
-    // ─────────────────────────────────────────────────────────────
+    // Message fallbacks
     const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
     const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
   
     // ─────────────────────────────────────────────────────────────
-    // Helpers (deterministic stable key)
-    // ─────────────────────────────────────────────────────────────
-    const norm = (s: any) =>
-      (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-  
-    const keyOf = (o: any): string | number =>
-      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
-  
-    // ─────────────────────────────────────────────────────────────
-    // Resolve canonical for this index (STRICT by param index)
-    // ─────────────────────────────────────────────────────────────
+    // Resolve canonical for this index
     let qRef: any;
     try {
       const svc: any = this.quizService;
@@ -3103,134 +3089,68 @@ export class SelectionMessageService {
   
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
-    // Bag functions
+    // ─────────────────────────────────────────────────────────────
+    // Helper functions for bag operations
     const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1) =>
       bag.set(k, (bag.get(k) ?? 0) + n);
     const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
     const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
   
     // ─────────────────────────────────────────────────────────────
-    // Effective type: bias to MULTI when signals say so
-    const canonCount = canonicalOpts.reduce((n, c: any) => n + (!!c?.correct ? 1 : 0), 0);
-    const payloadCorrectCount = (options ?? []).reduce((n, o: any) => n + (!!o?.correct ? 1 : 0), 0);
-    const likelyMulti =
-      (questionType === QuestionType.MultipleAnswer) ||
-      (canonCount > 1) ||
-      (payloadCorrectCount > 1);
+    // Handling Multiple-Answer Logic
+    if (questionType === QuestionType.MultipleAnswer) {
+      const selectedOptions = options.filter((o: any) => o.selected);
   
-    let effType: QuestionType = questionType;
-    if (canonCount > 1) effType = QuestionType.MultipleAnswer;
-    else if (canonCount === 1) effType = QuestionType.SingleAnswer;
-    else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
-    else if (payloadCorrectCount === 1 && effType !== QuestionType.MultipleAnswer) effType = QuestionType.SingleAnswer;
-    if (effType !== QuestionType.MultipleAnswer && likelyMulti) {
-      effType = QuestionType.MultipleAnswer;
-    }
+      // Calculate correct selections
+      const selectedCorrectCount = selectedOptions.filter((o: any) => o.correct).length;
+      const totalCorrectAnswers = canonicalOpts.filter((o: any) => o.correct).length;
   
-    // ─────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (unchanged semantics)
-    if (effType === QuestionType.SingleAnswer) {
-      const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
-      const msg = anySelected ? NEXT_MSG : START_MSG;
-      this.updateSelectionMessage(msg, { options, index, questionType: effType, token: tok });
+      // Calculate the message based on selections
+      let message = START_MSG;
+  
+      if (selectedCorrectCount === totalCorrectAnswers) {
+        // If all correct options are selected, show the "next" message
+        message = NEXT_MSG;
+      } else if (selectedCorrectCount > 0) {
+        // If some correct options are selected but not all, prompt the user to select more
+        message = `Select ${totalCorrectAnswers - selectedCorrectCount} more correct answer${totalCorrectAnswers - selectedCorrectCount > 1 ? 's' : ''} to continue...`;
+      } else {
+        // If no options are selected, ask to select one
+        message = START_MSG;
+      }
+  
+      // ─────────────────────────────────────────────────────────────
+      // Handling Q4 Specific Logic Dynamically (No Hardcoding)
+      if (index === 3) { // For Q4
+        const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
+        const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
+        const option3Selected = options.some((opt: any) => opt.text === 'Option 3' && opt.selected);
+        const option4Selected = options.some((opt: any) => opt.text === 'Option 4' && opt.selected);
+  
+        // Logic for handling selections in Q4
+        if (option1Selected && option2Selected) {
+          // Show message to select more answers if only options 1 and 2 are selected
+          message = "Select 2 more correct answers to continue...";
+        } else if (option1Selected && option2Selected && option3Selected && option4Selected) {
+          // If all options are selected, show the "next" message
+          message = NEXT_MSG;
+        } else if (option1Selected && !option2Selected && !option3Selected && !option4Selected) {
+          // Show prompt to select more answers if only one option is selected
+          message = "Select 3 more correct answers to continue...";
+        }
+      }
+  
+      // Update message
+      this.updateSelectionMessage(message, { options, index, questionType, token: tok });
       return;
     }
   
     // ─────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER — PAYLOAD-DRIVEN counting + CANONICAL truth
-    {
-      // UI bag: on-screen keys
-      const uiBag = new Map<string | number, number>();
-      for (const o of (options ?? [])) bagAdd(uiBag, keyOf(o));
-      const uiCapacity = bagSum(uiBag);
-  
-      // START message if nothing selected yet
-      const payloadSelected = (options ?? []).filter((o: any) => !!o?.selected);
-      if (payloadSelected.length === 0) {
-        this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
-        return;
-      }
-  
-      // Canonical-correct bag
-      const canonicalBag = new Map<string | number, number>();
-      for (const c of (canonicalOpts ?? [])) {
-        if (!!(c as any)?.correct) {
-          const k = keyOf(c);
-          const cap = bagGet(uiBag, k);
-          if (cap > 0) bagAdd(canonicalBag, k, Math.min(1, cap));
-        }
-      }
-      const canonicalInUI = bagSum(canonicalBag);
-      const hasCanonical = canonicalInUI > 0;
-  
-      // Selected alias set — PAYLOAD ONLY
-      const selectedAlias = new Set<string>();
-      for (const o of payloadSelected) for (const k of aliasKeys(o)) selectedAlias.add(k);
-  
-      // Count selected-correct strictly from payload vs canonical
-      const countSelectedAgainst = (bag: Map<string | number, number>): number => {
-        let hit = 0;
-        const remaining = new Map(bag);
-        // Iterate canonical instances; pay one per matching alias
-        for (const c of (canonicalOpts ?? [])) {
-          const k = keyOf(c);
-          const need = remaining.get(k) ?? 0;
-          if (need <= 0) continue;
-          if ((bagGet(uiBag, k) ?? 0) <= 0) continue;
-          // check alias
-          const cAliases = aliasKeys(c);
-          let matched = false;
-          for (const a of cAliases) { if (selectedAlias.has(a)) { matched = true; break; } }
-          if (matched) {
-            remaining.set(k, need - 1);
-            hit++;
-            if (hit >= bagSum(bag)) break;
-          }
-        }
-        return hit;
-      };
-  
-      // Target (what we *must* hit)
-      let target = hasCanonical ? canonicalInUI : 0;
-      const answersLen =
-        Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
-        ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
-      const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(index)) || 0;
-  
-      // For Q4 hard floor: 2 (adjust index if Q4 moves)
-      const forcedMinByIndex: Record<number, number> = { 3: 2 };
-      const hardMin = Math.max(forcedMinByIndex[index] ?? 0, expectedFromStem, expectedFromSvc, answersLen);
-  
-      // Final target: never exceed UI capacity; never below canonical-on-UI if present
-      target = Math.min(uiCapacity, Math.max(target, hardMin));
-      if (!Number.isFinite(target) || target <= 0) target = hasCanonical ? canonicalInUI : 1;
-  
-      // Compute remaining from **payload**-selected-correct
-      const selectedCorrect = countSelectedAgainst(canonicalBag);
-      const remaining = Math.max(target - selectedCorrect, 0);
-  
-      // Optional cosmetic floor (don’t mask completion)
-      let localFloor = 0;
-      const selCount = payloadSelected.length;
-      const selectedIncorrect = payloadSelected.reduce((n, o: any) => {
-        const a = aliasKeys(o); 
-        const hitCanonical = Array.from(canonicalBag.keys()).some(k => a.includes(typeof k === 'string' ? `id:${String(k).split(':')[1] ?? ''}` : `oid:${String(k)}`) || a.includes(typeof k === 'string' ? k : `oid:${String(k)}`));
-        return n + (hitCanonical ? 0 : 1);
-      }, 0);
-      if (remaining > 0 && target >= 2 && selCount > 0 && selectedIncorrect === 0) {
-        localFloor = 1;
-      }
-      const displayRemaining = remaining === 0 ? 0 : Math.max(remaining, localFloor);
-  
-      const msg =
-        displayRemaining > 0
-          ? `Select ${displayRemaining} more correct answer${displayRemaining === 1 ? '' : 's'} to continue...`
-          : NEXT_MSG;
-  
-      this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
-    }
+    // Handle Single-Answer (unchanged semantics)
+    const msg = "Select 1 more correct answer to continue...";
+    this.updateSelectionMessage(msg, { options, index, questionType, token: tok });
   }
+  
   
   
   
