@@ -2736,12 +2736,12 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   } */
-  public emitFromClick(params: {
+  public emitFromClick(params: { 
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[]; // updated array already passed
-    token?: number; // optional debounce/coalesce token from caller
+    token?: number;    // optional debounce/coalesce token from caller
   }): void {
     const { index, questionType, options } = params as any;
   
@@ -2763,7 +2763,7 @@ export class SelectionMessageService {
     // ─────────────────────────────────────────────────────────────
     // Message fallbacks (kept)
     // ─────────────────────────────────────────────────────────────
-    const NEXT_TEXT_FALLBACK = 'Please click the next button to continue...';
+    const NEXT_TEXT_FALLBACK = 'Please select the next button to continue...';
     const START_TEXT_FALLBACK = 'Please click an option to continue';
     const NEXT_MSG = (typeof (globalThis as any)?.NEXT_BTN_MSG === 'string' && (globalThis as any).NEXT_BTN_MSG)
       ? (globalThis as any).NEXT_BTN_MSG
@@ -2781,8 +2781,30 @@ export class SelectionMessageService {
     const keyOf = (o: any): string | number =>
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
-    // Multiset helpers (bags)
-    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1): void =>
+    // alias-based matching (id/optionId/value/text)
+    const aliasKeys = (o: any): Array<string> => {
+      const out: string[] = [];
+      const push = (pfx: string, v: any) => { if (v != null) out.push(`${pfx}:${String(v)}`); };
+      push('oid', o?.optionId);
+      push('id',  o?.id);
+      push('val', o?.value);
+      if (typeof o?.text === 'string') {
+        const t = norm(o.text);
+        if (t) out.push(`t:${t}`);
+        const ts = t.replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+        if (ts) out.push(`ts:${ts}`);
+      }
+      return out;
+    };
+  
+    const aliasesMatch = (a: any, b: any): boolean => {
+      const A = new Set(aliasKeys(a));
+      for (const k of aliasKeys(b)) if (A.has(k)) return true;
+      return false;
+    };
+  
+    // Multisets (bags)
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1) =>
       bag.set(k, (bag.get(k) ?? 0) + n);
     const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
     const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
@@ -2804,20 +2826,6 @@ export class SelectionMessageService {
       qRef = (resolvedIndex >= 0 && resolvedIndex < qArr.length) ? qArr[resolvedIndex] : svc?.currentQuestion;
       canonicalOpts = Array.isArray(qRef?.options) ? (qRef.options as Option[]) : [];
     } catch {}
-  
-    // Stable question key (kept - but we do NOT latch on it anymore)
-    const optionSig = (arr: any[]) =>
-      (Array.isArray(arr) ? arr : [])
-        .map(o => norm(o?.text ?? o?.label ?? ''))
-        .filter(Boolean)
-        .sort()
-        .join('|');
-    const qKey: string =
-      `idx:${resolvedIndex}|` + (
-        (qRef?.id != null) ? `id:${String(qRef.id)}`
-        : (typeof qRef?.questionText === 'string' && qRef.questionText) ? `txt:${norm(qRef.questionText)}`
-        : `opts:${optionSig(canonicalOpts.length ? canonicalOpts : (options ?? []))}`
-      );
   
     // ─────────────────────────────────────────────────────────────
     // Effective type: bias to MULTI when signals say so (kept)
@@ -2911,7 +2919,7 @@ export class SelectionMessageService {
       const answersLen =
         Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
         ((qRef as any)?.answer ? 1 : 0);
-      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const expectedFromStem = parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
       const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(resolvedIndex)) || 0;
   
       // For Q4 hard floor: 2 (adjust index if Q4 moves)
@@ -2952,6 +2960,7 @@ export class SelectionMessageService {
       try { this.setLatestOptionsSnapshot?.(options); } catch {}
     }
   }
+  
   
   
   
