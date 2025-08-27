@@ -3113,9 +3113,9 @@ export class SelectionMessageService {
     } catch {}
 
     // ─────────────────────────────────────────────────────────────
-    // Handle Q4 Clicks 2, 3, 4 with message updates
+    // Handle MULTIPLE-ANSWER logic automatically
     // ─────────────────────────────────────────────────────────────
-    if (resolvedIndex === 3) { // Q4 (check index)
+    if (questionType === QuestionType.MultipleAnswer) {
         const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
         const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
         const bothOptionsSelected = option1Selected && option2Selected;
@@ -3130,7 +3130,7 @@ export class SelectionMessageService {
             // If no options are selected, show message to start selecting
             this.updateSelectionMessage(START_MSG_TXT, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
         }
-        return; // Done handling Q4 logic here
+        return; // Done handling multiple-answer question logic here
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -3139,10 +3139,6 @@ export class SelectionMessageService {
     const msg = "Select 1 more correct answer to continue...";
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   }
-
-
-  
-
   
   
   
