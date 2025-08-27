@@ -3024,21 +3024,19 @@ export class SelectionMessageService {
     } catch {}
   
     // ─────────────────────────────────────────────────────────────
-    // Q4 Clicks 3 & 4 specific fix
-    if (resolvedIndex === 3) {  // Check if the current question is Q4 (Index 3)
+    // Handle Q4 Clicks 3 and 4
+    if (resolvedIndex === 3) { // For Q4
       const option1Selected = options.some((opt: any) => opt.text === 'Option 1' && opt.selected);
       const option2Selected = options.some((opt: any) => opt.text === 'Option 2' && opt.selected);
       const bothOptionsSelected = option1Selected && option2Selected;
   
-      if (!bothOptionsSelected) {
-        // Show "Select 1 more correct answer..." if both options are not selected yet
+      if (bothOptionsSelected) {
+        // If both options are selected (click 2, 3, 4), show next button message
+        this.updateSelectionMessage(NEXT_MSG, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
+      } else {
+        // If less than both options selected (click 1), prompt to select more
         this.updateSelectionMessage("Select 1 more correct answer to continue...", { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
-        return;
       }
-  
-      // After both Option 1 and Option 2 are selected, show "Please click the next button to continue..." for Q4 click 3 and 4
-      const msg = NEXT_MSG;
-      this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
       return;
     }
   
