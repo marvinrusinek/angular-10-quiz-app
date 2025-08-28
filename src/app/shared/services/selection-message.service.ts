@@ -3541,9 +3541,15 @@ export class SelectionMessageService {
   }
 
 
-  private stableKey(o: Option, idx?: number): string {
-    const raw = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value ?? (o as any)?.text ?? (idx != null ? `#${idx}` : undefined);
-    return String(raw);
+  private stableKey(o: Option | CanonicalOption, idx?: number): string {
+    // Check if it's a CanonicalOption (with optionId as string | number)
+    const raw = (o as CanonicalOption)?.optionId ??  // CanonicalOption's optionId
+                (o as Option)?.id ??               // Option's id
+                (o as Option)?.value ??            // Fallback to value in Option
+                (o as Option)?.text ??             // Fallback to text in Option
+                (idx != null ? `#${idx}` : undefined);  // Fallback to index if all else fails
+  
+    return String(raw);  // ensure raw is returned as a string
   }
 
   // Type guard to check if item is of type CanonicalOption
@@ -3553,18 +3559,18 @@ export class SelectionMessageService {
 
   normalizeMap<T extends Option | CanonicalOption>(arr: T[]): Map<string, T> {
     const map = new Map<string, T>();
-
+  
     arr.forEach((o, i) => {
-      // Apply the stableKey function based on the type
+      // If it's a CanonicalOption, handle it as such
       if (this.isCanonicalOption(o)) {
-        // If it's a CanonicalOption, treat it as such
-        map.set(this.stableKey(o, i), o);
+        // CanonicalOption should be handled separately
+        map.set(this.stableKey(o, i), o);  // Works because 'o' is recognized as CanonicalOption
       } else {
-        // If it's an Option, treat it as an Option
-        map.set(this.stableKey(o, i), o);
+        // Option should be handled separately
+        map.set(this.stableKey(o, i), o);  // Works because 'o' is recognized as Option
       }
     });
-
+  
     return map;
   }
 
