@@ -3495,8 +3495,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOptions: this.canonicalOptions
       });
 
-    // Set or display the message (e.g., update the message displayed to the user)
-    this.selectionMessage = message;
+      // Set or display the message (e.g., update the message displayed to the user)
+      this.selectionMessage = message;
     }, 100);  // delay by 100ms to allow the state to settle
   }
   
