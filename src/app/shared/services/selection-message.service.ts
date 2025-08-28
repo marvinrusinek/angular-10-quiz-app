@@ -3606,13 +3606,15 @@ export class SelectionMessageService {
   }
 
   // ---------- Count selected-correct using reconciler ----------
-  private countSelectedCorrect(index: number, payload: Option[]): number {
-    const canonical = this.getCanonicalOptions(index);
-    const recon     = this.buildReconciler(index, payload);
+  private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
+    // If no canonical options, return 0 (no correct options)
+    if (!canonicalOptions) return 0;
+  
+    const recon = this.buildReconciler(canonicalOptions, payload);
   
     // canonical correct set (by canonicalKey)
     const canonCorrect = new Set<string>();
-    canonical.forEach((c, pos) => {
+    canonicalOptions.forEach((c, pos) => {
       const id = this.idKey(c);
       const nt = this.normText((c as any)?.text ?? (c as any)?.value);
       const cKey = id ?? (nt ?? `pos:${pos}`);
@@ -3638,6 +3640,7 @@ export class SelectionMessageService {
   
     return count;
   }
+  
 
   pluralize(n: number, word: string): string {
     return n === 1 ? word : `${word}s`;
