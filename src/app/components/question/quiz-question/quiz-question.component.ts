@@ -42,6 +42,12 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
+export interface CanonicalOption {
+  optionId: string | number;  // Can be either string or number
+  text: string;
+  correct: boolean;  // Whether the option is correct or not
+}
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -258,6 +264,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _hiddenAt: number | null = null;
   private _elapsedAtHide: number | null = null;
   private _pendingPassiveRaf: number | null = null;
+
+  canonicalOptions: CanonicalOption[] = [];
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3470,6 +3478,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // After the option is selected, call computeSelectionMessage
+    this.canonicalOptions = question.options.filter(option => option.correct);
     const message = this.selectionMessageService.computeSelectionMessage({
       index: this.currentQuestionIndex,
       questionType: this.currentQuestion.type,
