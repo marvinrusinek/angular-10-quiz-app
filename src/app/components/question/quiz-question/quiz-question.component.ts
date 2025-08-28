@@ -3471,10 +3471,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // After the option is selected, call computeSelectionMessage
     const message = this.selectionMessageService.computeSelectionMessage({
-      index, // Question index
-      questionType: this.currentQuestionType, // Type of question (e.g., SingleAnswer, MultipleAnswer)
-      options: this.currentOptions, // List of options for the current question
-      canonicalOptions: this.canonicalOptions, // The correct options
+      index: this.currentQuestionIndex,
+      questionType: this.currentQuestion.type,
+      options: this.currentOptions,
+      canonicalOptions: this.canonicalOptions
     });
 
     // Set or display the message (e.g., update the message displayed to the user)
