@@ -3248,28 +3248,34 @@ export class SelectionMessageService {
       ? (globalThis as any).START_MSG
       : 'Please click an option to continue';
   
-    const question = this.quizService.currentQuestion.getValue();
-    const canonicalOptions: Option[] = Array.isArray(question?.options) ? question!.options : [];
-    const questionType = question?.type ?? QuestionType.SingleAnswer;
+    // 1) Canonical by *index* (avoid currentQuestion drift)
+    const canonicalOptions: Option[] =
+      this.quizService?.getCanonicalOptions?.(index) ??
+      (Array.isArray(this.quizService?.questions?.[index]?.options)
+        ? this.quizService.questions[index].options
+        : []);
   
-    // Nothing selected → always show START for clarity
+    const qt = this.quizService?.questions?.[index]?.type
+      ?? this.quizService?.currentQuestion?.getValue()?.type
+      ?? QuestionType.SingleAnswer;
+  
+    // Nothing selected → START
     if (!options?.some(o => !!o?.selected)) {
-      this.updateSelectionMessage(START_MSG, { options, index, questionType, token: tok });
+      this.updateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
       return;
     }
   
-    // Compute totals from canonical (authoritative) with safe fallbacks
-    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions, options);
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    const totalCorrect = this.countTotalCorrect_strict(qt, canonicalOptions, options);
+    const selectedCorrect = this.countSelectedCorrect_strict(canonicalOptions, options);
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
     if (remaining > 0) {
       this.updateSelectionMessage(
         `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-        { options, index, questionType, token: tok }
+        { options, index, questionType: qt, token: tok }
       );
     } else {
-      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: tok });
+      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: qt, token: tok });
     }
   }
 
