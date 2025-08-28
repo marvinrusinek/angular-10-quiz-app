@@ -3594,38 +3594,35 @@ export class SelectionMessageService {
 
   // ---------- Count selected-correct using reconciler ----------
   private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
-    if (!canonicalOptions) return 0;  // If no canonical options, return 0
+    if (!canonicalOptions) return 0; // No canonical options, return 0
   
-    const recon = this.buildReconciler(canonicalOptions, payload);  // Reconcile payload selections with canonical options
+    // Reconcile payload (user selection) with canonical options
+    const recon = this.buildReconciler(canonicalOptions, payload);
   
-    const canonCorrect = new Set<string>();  // Set of correct canonical option keys
+    const canonCorrect = new Set<string>();
     canonicalOptions.forEach((c) => {
-      const cKey = this.stableKey(c, 0);  // Stable key for canonical option
-      if (c?.correct) canonCorrect.add(cKey);  // If correct, add to the set
+      const cKey = this.stableKey(c, 0);  // Use stable key for canonical option
+      if (c?.correct) canonCorrect.add(cKey);  // Add correct canonical option keys to the set
     });
   
     let count = 0;
     const seenCanonKeys = new Set<string>();
   
-    // Iterate through selected options and match with correct canonical options
+    // Check selected options and match them with correct canonical options
     payload.forEach((p) => {
       if (!p?.selected) return;  // Skip unselected options
   
-      const pKey = this.stableKey(p, 0);  // Stable key for selected option
-      const canonKey = recon.get(pKey);  // Find matching canonical key
+      const pKey = this.stableKey(p, 0);  // Use stable key for selected option
+      const canonKey = recon.get(pKey);  // Get matching canonical key
   
       if (!canonKey || seenCanonKeys.has(canonKey)) return;  // Skip if no match or already counted
       seenCanonKeys.add(canonKey);
   
-      if (canonCorrect.has(canonKey)) count++;  // Increment count if correct option is selected
+      if (canonCorrect.has(canonKey)) count++;  // Increment count if selected option matches a correct canonical option
     });
   
     return count;
   }
-  
-  
-  
-  
   
   
   
@@ -3643,7 +3640,7 @@ export class SelectionMessageService {
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
   
-    // Calculate total correct answers (from canonical options)
+    // Calculate total correct answers (canonical correct options)
     const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
   
     // Calculate selected correct answers (from user selections)
@@ -3656,7 +3653,6 @@ export class SelectionMessageService {
     console.log(`Selected Correct: ${selectedCorrect}`);  // Debug log
     console.log(`Remaining Correct: ${remaining}`);  // Debug log
   
-    // Show message based on remaining correct answers
     if (remaining > 0) {
       const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
@@ -3665,13 +3661,7 @@ export class SelectionMessageService {
     return 'Please click the next button to continue...';  // If all correct answers are selected
   }
   
-  
-    
-  
-  
-  
-  
-  
+
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
