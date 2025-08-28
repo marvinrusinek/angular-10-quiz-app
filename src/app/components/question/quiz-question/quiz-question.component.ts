@@ -3478,7 +3478,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // After the option is selected, call computeSelectionMessage
-    this.canonicalOptions = question.options.filter(option => option.correct);
+    this.canonicalOptions = this.currentQuestion.options
+      .filter(option => option.correct)  // Filter only correct options
+      .map(option => ({
+        optionId: option.optionId ?? option.id,  // Ensure `optionId` is always present
+        text: option.text,
+        correct: option.correct ?? false,  // Default to false if not explicitly set
+        value: option.value
+      }));
+
     const message = this.selectionMessageService.computeSelectionMessage({
       index: this.currentQuestionIndex,
       questionType: this.currentQuestion.type,
