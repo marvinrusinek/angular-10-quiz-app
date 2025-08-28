@@ -3250,7 +3250,7 @@ export class SelectionMessageService {
   
     // 1) Canonical by *index* (avoid currentQuestion drift)
     const canonicalOptions: Option[] =
-      this.quizService?.getCanonicalOptions?.(index) ??
+      this.getCanonicalOptions?.(index) ??
       (Array.isArray(this.quizService?.questions?.[index]?.options)
         ? this.quizService.questions[index].options
         : []);
@@ -3280,6 +3280,64 @@ export class SelectionMessageService {
   }
 
   /* ================= helpers ================= */
+  private countTotalCorrect_strict(
+    questionType: QuestionType,
+    canonical: Option[] | null,
+    payload: Option[]
+  ): number {
+    // Single-answer is always 1 (prevents “Select 2 more…” on single)
+    if (questionType === QuestionType.SingleAnswer) return 1;
+  
+    const { byId, byText, hasCanonical } = this.buildCanonicalIndex(canonical);
+  
+    if (hasCanonical) {
+      // Sum canonical only
+      let total = 0;
+      byId.forEach(v => { if (v) total++; });
+      if (total > 0) return total;
+      // If canonical exists but (edge-case) produced 0, treat as 0 and let UI require 0 remaining (will resolve via selectedCorrect strictly).
+      return 0;
+    }
+  
+    // No canonical at all → fall back to payload correctness
+    return payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+  }
+
+  private countSelectedCorrect_strict(canonical: Option[] | null, payload: Option[]): number {
+    const { byId, byText, hasCanonical } = this.buildCanonicalIndex(canonical);
+  
+    // Only current selection
+    const selectedNow = payload.filter(o => !!o?.selected);
+    const seen = new Set<string>();
+    let correctCount = 0;
+  
+    selectedNow.forEach((o, i) => {
+      const key = this.stableKey(o, i);
+      if (seen.has(key)) return;
+      seen.add(key);
+  
+      let isCorrect = false;
+  
+      if (hasCanonical) {
+        // Try id first
+        if (byId.has(key)) {
+          isCorrect = !!byId.get(key);
+        } else {
+          // Fallback to normalized text match (helps when ids differ)
+          const nt = this.normText(o.text ?? o.value);
+          if (nt && byText.has(nt)) isCorrect = !!byText.get(nt);
+        }
+      } else {
+        // No canonical → payload correctness
+        isCorrect = !!o.correct;
+      }
+  
+      if (isCorrect) correctCount++;
+    });
+  
+    return correctCount;
+  }
+
   /**
    * Returns the canonical options for a question index.
    * This keeps correctness authoritative and avoids relying
@@ -3307,6 +3365,25 @@ export class SelectionMessageService {
       console.warn('[⚠️ getCanonicalOptions] failed', err);
       return [];
     }
+  }
+
+  private normText(s: unknown): string | null {
+    if (typeof s !== 'string') return null;
+    return s.trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+  
+  private buildCanonicalIndex(canonical: Option[] | null) {
+    const byId = new Map<string, boolean>();
+    const byText = new Map<string, boolean>();
+  
+    if (Array.isArray(canonical) && canonical.length) {
+      canonical.forEach((o, i) => {
+        byId.set(this.stableKey(o, i), !!o.correct);
+        const nt = this.normText(o.text ?? o.value);
+        if (nt) byText.set(nt, !!o.correct);
+      });
+    }
+    return { byId, byText, hasCanonical: byId.size > 0 || byText.size > 0 };
   }
 
 
@@ -3391,14 +3468,14 @@ export class SelectionMessageService {
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
 
-    const totalCorrect = countTotalCorrect(questionType, canonicalOptions, options);
-    const selectedCorrect = countSelectedCorrect(canonicalOptions, options);
+    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions, options);
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
 
     // Remaining cannot be negative
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
 
     if (remaining > 0) {
-      const unit = pluralize(remaining, 'correct answer');
+      const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
     }
 
