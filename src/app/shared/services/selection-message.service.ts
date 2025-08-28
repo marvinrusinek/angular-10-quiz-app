@@ -24,7 +24,12 @@ interface OptionSnapshot {
   correct?: boolean;
 }
 
-type CanonicalOption = Pick<Option, 'optionId' | 'id' | 'value' | 'text' | 'correct'>;
+interface CanonicalOption {
+  optionId: string | number;  // Ensure we have a stable key for matching
+  text: string;
+  correct: boolean;
+  value?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
@@ -3383,20 +3388,25 @@ export class SelectionMessageService {
    * This keeps correctness authoritative and avoids relying
    * on the live payload options (which may have stale flags).
    */
-  private getCanonicalOptions(index: number): Option[] {
-    if (this.canonicalCache.has(index)) return this.canonicalCache.get(index)!;
+   private getCanonicalOptions(index: number): CanonicalOption[] {
     try {
       const svc: any = this.quizService as any;
       const arr: QuizQuestion[] = Array.isArray(svc.questions) ? svc.questions : [];
       const q = (index >= 0 && index < arr.length) ? arr[index] : svc.currentQuestion?.getValue?.();
       const opts = Array.isArray(q?.options) ? q.options.slice() : [];
-      this.canonicalCache.set(index, opts);
-      return opts;
+      
+      // Ensure the options are canonical and return them
+      return opts.map(option => ({
+        optionId: option.optionId,
+        text: option.text,
+        correct: option.correct ?? false,  // Ensure 'correct' exists
+        value: option.value,
+      }));
     } catch {
-      this.canonicalCache.set(index, []);
       return [];
     }
   }
+  
 
   /**
    * Build a reconciliation map from current payload row → canonical row.
@@ -3442,9 +3452,12 @@ export class SelectionMessageService {
 
   // Count how many selected payload options align to canonical "correct"
   private countSelectedCorrect_reconciled(index: number, payload: Option[]): number {
+    // Get the canonical options for the current question (index)
     const canonical = this.getCanonicalOptions(index);
-    const recon = this.buildReconciler(index, payload);
-
+  
+    // Pass canonicalOptions (not index) to buildReconciler
+    const recon = this.buildReconciler(canonical, payload);  // Pass canonical options here, not index
+  
     // canonical correct set (by canonicalKey)
     const canonCorrect = new Set<string>();
     canonical.forEach((c, pos) => {
@@ -3453,23 +3466,23 @@ export class SelectionMessageService {
       const key = id ?? (text ?? `pos:${pos}`);
       if (c?.correct) canonCorrect.add(key);
     });
-
+  
     let count = 0;
     const seen = new Set<string>();
-
+  
     payload.forEach((p, pos) => {
       if (!p?.selected) return;
       const id = this.idKey(p);
       const text = this.normText((p as any)?.text ?? (p as any)?.value);
       const pKey = id ?? (text ?? `p:${pos}`);
-
+  
       const canonKey = recon.get(pKey);
       if (!canonKey || seen.has(canonKey)) return;
       seen.add(canonKey);
-
+  
       if (canonCorrect.has(canonKey)) count++;
     });
-
+  
     return count;
   }
 
