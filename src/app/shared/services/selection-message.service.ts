@@ -71,6 +71,15 @@ export class SelectionMessageService {
 
   private lastEmit = { index: -1, token: -1, msg: '' };
 
+  private correctCountOverrides: Record<number, number> = {
+    // e.g., Q2 (index 1) requires 2 correct answers:
+    1: 2
+  };
+
+  // cache per index so we don't rebuild every click
+  private canonicalCache = new Map<number, Option[]>();
+  private reconCache = new Map<number, Map<string, string>>(); // payloadKey -> canonicalKey
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -3250,147 +3259,28 @@ export class SelectionMessageService {
       ? (globalThis as any).START_MSG
       : 'Please click an option to continue';
   
-    // ---- tiny, local helpers (no external dependencies) ----
-    const idKey = (o: any): string | null =>
-      o?.optionId != null ? String(o.optionId)
-      : o?.id       != null ? String(o.id)
-      : null;
-  
-    const normText = (s: unknown): string | null => {
-      if (typeof s !== 'string') return null;
-      const t = s.trim().replace(/\s+/g, ' ').toLowerCase();
-      return t.length ? t : null;
-    };
-  
-    const getCanonicalOptions = (idx: number): Option[] => {
-      try {
-        const svc: any = this.quizService as any;
-        const arr: QuizQuestion[] = Array.isArray(svc.questions) ? svc.questions : [];
-        const q = (idx >= 0 && idx < arr.length) ? arr[idx] : svc.currentQuestion?.getValue?.();
-        return Array.isArray(q?.options) ? q!.options : [];
-      } catch { return []; }
-    };
-  
-    const coalescedEmit = (msg: string, ctx: any) => {
-      const next = (msg ?? '').trim();
-      if (!next) return;
-  
-      // lazy-init of lastEmit cache
-      (this as any).__sm_lastEmit ??= { index: -1, token: -1, msg: '' };
-      const last = (this as any).__sm_lastEmit;
-  
-      if (last.index === ctx.index && last.token === ctx.token && last.msg === next) return;
-      (this as any).__sm_lastEmit = { index: ctx.index, token: ctx.token, msg: next };
-  
-      this.selectionMessageSubject.next(next);
-    };
-  
-    // ---- derive question type from canonical question by index (no currentQuestion drift) ----
-    const svcAny: any = this.quizService as any;
-    const qType: QuestionType =
-      svcAny?.questions?.[index]?.type ??
-      svcAny?.currentQuestion?.getValue?.()?.type ??
+    const svc: any = this.quizService as any;
+    const qt: QuestionType =
+      svc?.questions?.[index]?.type ??
+      svc?.currentQuestion?.getValue?.()?.type ??
       QuestionType.SingleAnswer;
   
     // 0 selected → START
     if (!options?.some(o => !!o?.selected)) {
-      coalescedEmit(START_MSG, { index, token: tok, options, questionType: qType });
+      this.coalescedUpdateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
       return;
     }
   
-    // ---- canonical correctness index (ID-first, unique-text fallback) ----
-    const canonical = getCanonicalOptions(index);
+    const totalCorrect    = this.totalCorrectFor(index, qt, options);
+    const selectedCorrect = this.countSelectedCorrect_reconciled(index, options);
+    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
   
-    // Build canonical maps
-    const canonIdToCorrect = new Map<string, boolean>();
-    const canonTextCounts  = new Map<string, number>();
-    const canonTextCorrect = new Map<string, boolean>();
-    for (const o of canonical) {
-      const id = idKey(o);
-      if (id) canonIdToCorrect.set(id, !!o?.correct);
-      const nt = normText((o as any)?.text ?? (o as any)?.value);
-      if (nt) {
-        canonTextCounts.set(nt, (canonTextCounts.get(nt) ?? 0) + 1);
-        canonTextCorrect.set(nt, !!o?.correct);
-      }
-    }
-    const hasCanonical = canonIdToCorrect.size > 0 || canonTextCounts.size > 0;
+    const msg = remaining > 0
+      ? `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`
+      : NEXT_MSG;
   
-    // Total-correct:
-    // - Single => 1
-    // - Else: sum canonical; if sum==0 (under-flagged), fall back to payload TOTAL ONLY
-    let totalCorrect: number;
-    if (qType === QuestionType.SingleAnswer) {
-      totalCorrect = 1;
-    } else if (hasCanonical) {
-      let sum = 0; canonIdToCorrect.forEach(v => { if (v) sum++; });
-      if (sum === 0) {
-        sum = options.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0); // total only
-      }
-      totalCorrect = sum;
-    } else {
-      totalCorrect = options.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
-    }
-  
-    // Selected-correct (strict):
-    // - If canonical exists → ID match; if no ID, only unique text match in both canonical & payload
-    // - Never use payload.correct per-option when canonical exists
-    const payloadTextCounts = new Map<string, number>();
-    for (const o of options) {
-      const nt = normText((o as any)?.text ?? (o as any)?.value);
-      if (nt) payloadTextCounts.set(nt, (payloadTextCounts.get(nt) ?? 0) + 1);
-    }
-  
-    const selected = options.filter(o => !!o?.selected);
-    const seen = new Set<string>();
-    let selectedCorrect = 0;
-  
-    for (const o of selected) {
-      const pid = idKey(o);
-      if (pid) {
-        if (seen.has('id:' + pid)) continue;
-        seen.add('id:' + pid);
-  
-        let isCorrect = false;
-        if (hasCanonical) {
-          if (canonIdToCorrect.has(pid)) isCorrect = !!canonIdToCorrect.get(pid);
-        } else {
-          isCorrect = !!o?.correct;
-        }
-        if (isCorrect) selectedCorrect++;
-        continue;
-      }
-  
-      const nt = normText((o as any)?.text ?? (o as any)?.value);
-      if (!nt) continue;
-      if (seen.has('t:' + nt)) continue;
-      seen.add('t:' + nt);
-  
-      let isCorrect = false;
-      if (hasCanonical) {
-        if ((canonTextCounts.get(nt) === 1) && (payloadTextCounts.get(nt) === 1)) {
-          isCorrect = !!canonTextCorrect.get(nt);
-        }
-      } else {
-        isCorrect = !!o?.correct;
-      }
-      if (isCorrect) selectedCorrect++;
-    }
-  
-    // Remaining cannot go negative
-    const remaining = Math.max(0, (totalCorrect || 0) - selectedCorrect);
-  
-    // Emit banner
-    if (remaining > 0) {
-      coalescedEmit(
-        `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-        { index, token: tok, options, questionType: qType }
-      );
-    } else {
-      coalescedEmit(NEXT_MSG, { index, token: tok, options, questionType: qType });
-    }
+    this.coalescedUpdateSelectionMessage(msg, { options, index, questionType: qt, token: tok });
   }
-  
   
   
 
@@ -3498,26 +3388,172 @@ export class SelectionMessageService {
    * on the live payload options (which may have stale flags).
    */
    private getCanonicalOptions(index: number): Option[] {
+    if (this.canonicalCache.has(index)) return this.canonicalCache.get(index)!;
+  
     try {
       const svc: any = this.quizService as any;
       const qArr: QuizQuestion[] = Array.isArray(svc.questions) ? svc.questions : [];
       const q = (index >= 0 && index < qArr.length) ? qArr[index] : svc.currentQuestion?.getValue?.();
-      return Array.isArray(q?.options) ? q.options : [];
+      const opts = Array.isArray(q?.options) ? q.options.slice() : [];
+      this.canonicalCache.set(index, opts);
+      return opts;
     } catch {
+      this.canonicalCache.set(index, []);
       return [];
     }
   }
 
-  private idKey(o: Option | undefined | null): string | null {
-    if (!o) return null;
-    if ((o as any).optionId != null) return String((o as any).optionId);
-    if ((o as any).id       != null) return String((o as any).id);
-    return null;
+  /**
+   * Build a reconciliation map from current payload row → canonical row.
+   * Key is preferentially ID; falls back to normalized text; then to safe position.
+   * Returns: Map<payloadKey, canonicalKey>
+   */
+  private buildReconciler(index: number, payload: Option[]): Map<string, string> {
+    if (this.reconCache.has(index)) return this.reconCache.get(index)!;
+
+    const canonical = this.getCanonicalOptions(index);
+
+    // 1) Build canonical indexes
+    const canonIdSet = new Set<string>();
+    const canonTextCounts = new Map<string, number>();
+    const canonTextToKey  = new Map<string, string>();
+
+    const canonKeys: string[] = []; // final canonical key per position
+    canonical.forEach((c, pos) => {
+      const id = this.idKey(c);
+      const text = this.normText((c as any)?.text ?? (c as any)?.value);
+      const key = id ?? (text ?? `pos:${pos}`);
+      canonKeys.push(key);
+      if (id) canonIdSet.add(id);
+      if (text) {
+        canonTextCounts.set(text, (canonTextCounts.get(text) ?? 0) + 1);
+        canonTextToKey.set(text, key);
+      }
+    });
+
+    // 2) Count payload texts for uniqueness
+    const payloadTextCounts = new Map<string, number>();
+    payload.forEach(p => {
+      const t = this.normText((p as any)?.text ?? (p as any)?.value);
+      if (t) payloadTextCounts.set(t, (payloadTextCounts.get(t) ?? 0) + 1);
+    });
+
+    // 3) Try ID match → unique-text match
+    const mapping = new Map<string, string>(); // payloadKey -> canonicalKey
+    const usedCanon = new Set<string>();
+
+    const payloadKeys: string[] = [];
+    payload.forEach((p, pos) => {
+      const id = this.idKey(p);
+      const text = this.normText((p as any)?.text ?? (p as any)?.value);
+      const pKey = id ?? (text ?? `p:${pos}`);
+      payloadKeys.push(pKey);
+
+      // a) ID match
+      if (id && canonIdSet.has(id)) {
+        mapping.set(pKey, id);
+        usedCanon.add(id);
+        return;
+      }
+
+      // b) Unique text on both sides
+      if (text && (payloadTextCounts.get(text) === 1) && (canonTextCounts.get(text) === 1)) {
+        const ck = canonTextToKey.get(text)!;
+        if (!usedCanon.has(ck)) {
+          mapping.set(pKey, ck);
+          usedCanon.add(ck);
+          return;
+        }
+      }
+    });
+
+    // 4) Positional fallback (safe only if lengths match AND all payload texts are unique)
+    const lengthsEqual = payload.length === canonical.length;
+    const allPayloadTextsUnique = (() => {
+      for (const [, cnt] of payloadTextCounts) if (cnt > 1) return false;
+      return true;
+    })();
+
+    if (lengthsEqual && allPayloadTextsUnique) {
+      for (let i = 0; i < payload.length; i++) {
+        const p = payload[i];
+        const pText = this.normText((p as any)?.text ?? (p as any)?.value);
+        const pKey = this.idKey(p) ?? (pText ?? `p:${i}`);
+        if (!mapping.has(pKey)) {
+          const cKey = canonKeys[i];
+          if (!usedCanon.has(cKey)) {
+            mapping.set(pKey, cKey);
+            usedCanon.add(cKey);
+          }
+        }
+      }
+    }
+
+    this.reconCache.set(index, mapping);
+    return mapping;
+  }
+
+  // Count how many selected payload options align to canonical "correct"
+  private countSelectedCorrect_reconciled(index: number, payload: Option[]): number {
+    const canonical = this.getCanonicalOptions(index);
+    const recon = this.buildReconciler(index, payload);
+
+    // canonical correct set (by canonicalKey)
+    const canonCorrect = new Set<string>();
+    canonical.forEach((c, pos) => {
+      const id = this.idKey(c);
+      const text = this.normText((c as any)?.text ?? (c as any)?.value);
+      const key = id ?? (text ?? `pos:${pos}`);
+      if (c?.correct) canonCorrect.add(key);
+    });
+
+    let count = 0;
+    const seen = new Set<string>();
+
+    payload.forEach((p, pos) => {
+      if (!p?.selected) return;
+      const id = this.idKey(p);
+      const text = this.normText((p as any)?.text ?? (p as any)?.value);
+      const pKey = id ?? (text ?? `p:${pos}`);
+
+      const canonKey = recon.get(pKey);
+      if (!canonKey || seen.has(canonKey)) return;
+      seen.add(canonKey);
+
+      if (canonCorrect.has(canonKey)) count++;
+    });
+
+    return count;
+  }
+
+  // Total correct with override → canonical → payload-total fallback
+  private totalCorrectFor(index: number, questionType: QuestionType, payload: Option[]): number {
+    if (questionType === QuestionType.SingleAnswer) return 1;
+
+    if (this.correctCountOverrides[index] != null) {
+      return this.correctCountOverrides[index];
+    }
+
+    const canonical = this.getCanonicalOptions(index);
+    let total = 0;
+    canonical.forEach(c => { if (c?.correct) total++; });
+    if (total > 0) return total;
+
+    // Under-flagged canonical → use payload only for TOTAL
+    const overlay = payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+    return overlay > 0 ? overlay : 0;
   }
 
   private normText(s: unknown): string | null {
     if (typeof s !== 'string') return null;
-    return s.trim().replace(/\s+/g, ' ').toLowerCase();
+    const t = s.trim().replace(/\s+/g, ' ').toLowerCase();
+    return t.length ? t : null;
+  }
+
+  private idKey(o: any): string | null {
+    if (o?.optionId != null) return String(o.optionId);
+    if (o?.id       != null) return String(o.id);
+    return null;
   }
   
   private buildCanonicalIndex(canonical: Option[] | null) {
