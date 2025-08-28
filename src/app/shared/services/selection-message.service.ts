@@ -3573,17 +3573,16 @@ export class SelectionMessageService {
 
   // ---------- Count selected-correct using reconciler ----------
   private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
-    // If no canonical options, return 0 (no correct options)
-    if (!canonicalOptions) return 0;
+    if (!canonicalOptions) return 0;  // If no canonical options, return 0 (no correct options)
   
     const recon = this.buildReconciler(canonicalOptions, payload);
   
-    // canonical correct set (by canonicalKey)
+    // Create a set for the canonical correct options
     const canonCorrect = new Set<string>();
     canonicalOptions.forEach((c, pos) => {
       const id = this.idKey(c);
-      const nt = this.normText((c as any)?.text ?? (c as any)?.value);
-      const cKey = id ?? (nt ?? `pos:${pos}`);
+      const text = this.normText((c as any)?.text ?? (c as any)?.value);
+      const cKey = id ?? (text ?? `pos:${pos}`);
       if (c?.correct) canonCorrect.add(cKey);
     });
   
@@ -3591,20 +3590,20 @@ export class SelectionMessageService {
     const seenCanonKeys = new Set<string>();
   
     payload.forEach((p, pos) => {
-      if (!p?.selected) return;
+      if (!p?.selected) return;  // Skip unselected options
   
       const pid = this.idKey(p);
       const pnt = this.normText((p as any)?.text ?? (p as any)?.value);
       const pKey = pid ?? (pnt ?? `p:${pos}`);
   
-      const cKey = recon.get(pKey);
-      if (!cKey || seenCanonKeys.has(cKey)) return; // no mapping or dup
-      seenCanonKeys.add(cKey);
+      const canonKey = recon.get(pKey);
+      if (!canonKey || seenCanonKeys.has(canonKey)) return;  // No matching canonical key or already counted
+      seenCanonKeys.add(canonKey);
   
-      if (canonCorrect.has(cKey)) count++;
+      if (canonCorrect.has(canonKey)) count++;  // Increment count if the selected option matches a correct canonical option
     });
   
-    return count;
+    return count;  // Return how many selected options match the correct canonical options
   }
   
 
@@ -3621,9 +3620,9 @@ export class SelectionMessageService {
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
   
-    // Ensure canonicalOptions is properly passed or fallback to empty array
+    // Get the total correct answers and selected correct answers
     const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);  // Pass canonicalOptions here
   
     // Remaining cannot be negative
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
