@@ -3478,24 +3478,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // After the option is selected, call computeSelectionMessage
-    this.canonicalOptions = this.currentQuestion.options
-      .filter(option => option.correct)  // Filter only correct options
-      .map(option => ({
-        optionId: option.optionId,
-        text: option.text,
-        correct: option.correct ?? false,  // default to false if not explicitly set
-        value: option.value
-      }));
+    setTimeout(() => {
+      this.canonicalOptions = this.currentQuestion.options
+        .filter(option => option.correct)  // Filter only correct options
+        .map(option => ({
+          optionId: option.optionId,
+          text: option.text,
+          correct: option.correct ?? false,  // default to false if not explicitly set
+          value: option.value
+        }));
 
-    const message = this.selectionMessageService.computeSelectionMessage({
-      index: this.currentQuestionIndex,
-      questionType: this.currentQuestion.type,
-      options: this.currentOptions,
-      canonicalOptions: this.canonicalOptions
-    });
+      const message = this.selectionMessageService.computeSelectionMessage({
+        index: this.currentQuestionIndex,
+        questionType: this.currentQuestion.type,
+        options: this.currentOptions,
+        canonicalOptions: this.canonicalOptions
+      });
 
     // Set or display the message (e.g., update the message displayed to the user)
     this.selectionMessage = message;
+    }, 100);  // delay by 100ms to allow the state to settle
   }
   
 
