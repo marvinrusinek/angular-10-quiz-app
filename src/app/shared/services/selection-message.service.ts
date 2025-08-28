@@ -69,6 +69,8 @@ export class SelectionMessageService {
   private _emitSeq = 0;
   private _lastEmitFrameByKey = new Map<string, number>();
 
+  private lastEmit = { index: -1, token: -1, msg: '' };
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -3248,38 +3250,59 @@ export class SelectionMessageService {
       ? (globalThis as any).START_MSG
       : 'Please click an option to continue';
   
-    // 1) Canonical by *index* (avoid currentQuestion drift)
-    const canonicalOptions: Option[] =
-      this.getCanonicalOptions?.(index) ??
-      (Array.isArray(this.quizService?.questions?.[index]?.options)
-        ? this.quizService.questions[index].options
-        : []);
-  
     const qt = this.quizService?.questions?.[index]?.type
       ?? this.quizService?.currentQuestion?.getValue()?.type
       ?? QuestionType.SingleAnswer;
   
-    // Nothing selected → START
+    // 0 selected → START
     if (!options?.some(o => !!o?.selected)) {
-      this.updateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
+      this.coalescedUpdateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
       return;
     }
   
-    const totalCorrect = this.countTotalCorrect_strict(qt, canonicalOptions, options);
+    // Canonical by index
+    const canonicalOptions = this.getCanonicalOptions(index);
+  
+    // Strict counts
+    const totalCorrect    = this.countTotalCorrect_strict(qt, canonicalOptions, options);
     const selectedCorrect = this.countSelectedCorrect_strict(canonicalOptions, options);
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
   
     if (remaining > 0) {
-      this.updateSelectionMessage(
+      this.coalescedUpdateSelectionMessage(
         `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
         { options, index, questionType: qt, token: tok }
       );
     } else {
-      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: qt, token: tok });
+      this.coalescedUpdateSelectionMessage(NEXT_MSG, { options, index, questionType: qt, token: tok });
     }
   }
+  
 
   /* ================= helpers ================= */
+  private coalescedUpdateSelectionMessage(
+    msg: string,
+    ctx: { index: number; token: number; questionType: QuestionType; options: Option[] }
+  ): void {
+    const next = (msg ?? '').trim();
+    if (!next) return;
+  
+    // Emit once per (index, token) and only if the message changed
+    if (
+      this.lastEmit.index === ctx.index &&
+      this.lastEmit.token === ctx.token &&
+      this.lastEmit.msg === next
+    ) {
+      return; // already emitted this tick
+    }
+  
+    this.lastEmit = { index: ctx.index, token: ctx.token, msg: next };
+  
+    // IMPORTANT: this only updates the global banner message.
+    // Do NOT touch any per-option feedback maps here.
+    this.selectionMessageSubject.next(next);
+  }
+
   private countTotalCorrect_strict(
     questionType: QuestionType,
     canonical: Option[] | null,
