@@ -3262,6 +3262,9 @@ export class SelectionMessageService {
       svc?.currentQuestion?.getValue?.()?.type ??
       QuestionType.SingleAnswer;
   
+    // Get the canonical options
+    const canonicalOptions = this.getCanonicalOptions(index);
+  
     // 0 selected → START
     if (!options?.some(o => !!o?.selected)) {
       this.coalescedUpdateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
@@ -3270,7 +3273,7 @@ export class SelectionMessageService {
   
     // Strict math
     const totalCorrect    = this.totalCorrectFor(index, qt, options);
-    const selectedCorrect = this.countSelectedCorrect(index, options);
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);  // Pass canonicalOptions here
     const remaining       = Math.max(0, totalCorrect - selectedCorrect);
   
     const msg = remaining > 0
@@ -3279,6 +3282,7 @@ export class SelectionMessageService {
   
     this.coalescedUpdateSelectionMessage(msg, { options, index, questionType: qt, token: tok });
   }
+  
   
   
 
@@ -3399,92 +3403,41 @@ export class SelectionMessageService {
    * Key is preferentially ID; falls back to normalized text; then to safe position.
    * Returns: Map<payloadKey, canonicalKey>
    */
-   private buildReconciler(index: number, payload: Option[]): Map<string, string> {
-    if (this.reconCache.has(index)) return this.reconCache.get(index)!;
-  
-    const canonical = this.getCanonicalOptions(index);
-  
-    // Canonical indexes
-    const canonIdSet       = new Set<string>();
-    const canonTextCounts  = new Map<string, number>();
-    const canonTextToKey   = new Map<string, string>();
+  // Update to buildReconciler so it works with canonicalOptions instead of an index.
+  private buildReconciler(canonicalOptions: CanonicalOption[] | null, payload: Option[]): Map<string, string> {
+    if (!canonicalOptions) return new Map();
+
+    const recon = new Map<string, string>(); // Payload key -> canonical key
+
+    // Build canonical keys
+    const canonIdSet = new Set<string>();
+    const canonTextToKey = new Map<string, string>();
     const canonKeysByPos: string[] = [];
-  
-    canonical.forEach((c, pos) => {
+
+    canonicalOptions.forEach((c, pos) => {
       const id = this.idKey(c);
-      const nt = this.normText((c as any)?.text ?? (c as any)?.value);
-      const key = id ?? (nt ?? `pos:${pos}`);
+      const text = this.normText((c as any)?.text ?? (c as any)?.value);
+      const key = id ?? (text ?? `pos:${pos}`);
       canonKeysByPos.push(key);
+
       if (id) canonIdSet.add(id);
-      if (nt) {
-        canonTextCounts.set(nt, (canonTextCounts.get(nt) ?? 0) + 1);
-        canonTextToKey.set(nt, key);
-      }
+      if (text) canonTextToKey.set(text, key);
     });
-  
-    // Payload text counts (for uniqueness checks)
-    const payloadTextCounts = new Map<string, number>();
-    payload.forEach(p => {
-      const nt = this.normText((p as any)?.text ?? (p as any)?.value);
-      if (nt) payloadTextCounts.set(nt, (payloadTextCounts.get(nt) ?? 0) + 1);
-    });
-  
-    const mapping   = new Map<string, string>(); // payloadKey -> canonicalKey
-    const usedCanon = new Set<string>();
-  
-    // 1) ID matches
+
+    // Build payload mappings
     payload.forEach((p, pos) => {
-      const id = this.idKey(p);
-      const nt = this.normText((p as any)?.text ?? (p as any)?.value);
-      const pKey = id ?? (nt ?? `p:${pos}`);
-      if (id && canonIdSet.has(id) && !mapping.has(pKey) && !usedCanon.has(id)) {
-        mapping.set(pKey, id);
-        usedCanon.add(id);
+      const pid = this.idKey(p);
+      const text = this.normText((p as any)?.text ?? (p as any)?.value);
+      const pKey = pid ?? (text ?? `p:${pos}`);
+
+      if (pid && canonIdSet.has(pid)) {
+        recon.set(pKey, pid); // Direct ID match
+      } else if (text && canonTextToKey.has(text)) {
+        recon.set(pKey, canonTextToKey.get(text)!); // Text match (unique)
       }
     });
-  
-    // 2) Unique text matches (only if unique in BOTH canonical and payload)
-    payload.forEach((p, pos) => {
-      const id = this.idKey(p);
-      if (id) return; // already matched by ID
-      const nt = this.normText((p as any)?.text ?? (p as any)?.value);
-      const pKey = nt ?? `p:${pos}`;
-      if (!nt || mapping.has(pKey)) return;
-  
-      if ((payloadTextCounts.get(nt) === 1) && (canonTextCounts.get(nt) === 1)) {
-        const cKey = canonTextToKey.get(nt)!;
-        if (!usedCanon.has(cKey)) {
-          mapping.set(pKey, cKey);
-          usedCanon.add(cKey);
-        }
-      }
-    });
-  
-    // 3) Positional fallback ONLY if arrays same length AND all payload texts are unique
-    const lengthsEqual = payload.length === canonical.length;
-    const allPayloadTextsUnique = (() => {
-      for (const [, cnt] of payloadTextCounts) if (cnt > 1) return false;
-      return true;
-    })();
-  
-    if (lengthsEqual && allPayloadTextsUnique) {
-      for (let i = 0; i < payload.length; i++) {
-        const p = payload[i];
-        const id = this.idKey(p);
-        const nt = this.normText((p as any)?.text ?? (p as any)?.value);
-        const pKey = id ?? (nt ?? `p:${i}`);
-        if (!mapping.has(pKey)) {
-          const cKey = canonKeysByPos[i];
-          if (!usedCanon.has(cKey)) {
-            mapping.set(pKey, cKey);
-            usedCanon.add(cKey);
-          }
-        }
-      }
-    }
-  
-    this.reconCache.set(index, mapping);
-    return mapping;
+
+    return recon;
   }
 
   // Count how many selected payload options align to canonical "correct"
