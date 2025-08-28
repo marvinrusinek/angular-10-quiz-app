@@ -3546,9 +3546,25 @@ export class SelectionMessageService {
     return String(raw);
   }
 
+  // Type guard to check if item is of type CanonicalOption
+  isCanonicalOption(item: Option | CanonicalOption): item is CanonicalOption {
+    return (item as CanonicalOption).optionId !== undefined;  // this check assumes 'optionId' exists only in CanonicalOption
+  }
+
   normalizeMap<T extends Option | CanonicalOption>(arr: T[]): Map<string, T> {
     const map = new Map<string, T>();
-    arr.forEach((o, i) => map.set(this.stableKey(o, i), o));
+
+    arr.forEach((o, i) => {
+      // Apply the stableKey function based on the type
+      if (this.isCanonicalOption(o)) {
+        // If it's a CanonicalOption, treat it as such
+        map.set(this.stableKey(o, i), o);
+      } else {
+        // If it's an Option, treat it as an Option
+        map.set(this.stableKey(o, i), o);
+      }
+    });
+
     return map;
   }
 
