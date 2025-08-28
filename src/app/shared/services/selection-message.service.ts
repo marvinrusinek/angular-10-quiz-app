@@ -3289,7 +3289,7 @@ export class SelectionMessageService {
 
   normalizeMap<T extends Option | CanonicalOption>(arr: T[]): Map<string, T> {
     const map = new Map<string, T>();
-    arr.forEach((o, i) => map.set(stableKey(o, i), o));
+    arr.forEach((o, i) => map.set(this.stableKey(o, i), o));
     return map;
   }
 
@@ -3317,7 +3317,7 @@ export class SelectionMessageService {
     payload: Option[]
   ): number {
     // Build maps by stable key
-    const canonMap = Array.isArray(canonical) && canonical.length ? normalizeMap(canonical) : null;
+    const canonMap = Array.isArray(canonical) && canonical.length ? this.normalizeMap(canonical) : null;
 
     // Only count *currently selected* options (no union with previous)
     const selectedNow = payload.filter(o => !!o?.selected);
@@ -3327,7 +3327,7 @@ export class SelectionMessageService {
     let correctCount = 0;
 
     selectedNow.forEach((o, i) => {
-      const key = stableKey(o, i);
+      const key = this.stableKey(o, i);
       if (seen.has(key)) return;
       seen.add(key);
 
