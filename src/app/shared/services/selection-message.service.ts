@@ -3285,19 +3285,14 @@ export class SelectionMessageService {
     const next = (msg ?? '').trim();
     if (!next) return;
   
-    // Emit once per (index, token) and only if the message changed
     if (
       this.lastEmit.index === ctx.index &&
       this.lastEmit.token === ctx.token &&
       this.lastEmit.msg === next
     ) {
-      return; // already emitted this tick
+      return;
     }
-  
     this.lastEmit = { index: ctx.index, token: ctx.token, msg: next };
-  
-    // IMPORTANT: this only updates the global banner message.
-    // Do NOT touch any per-option feedback maps here.
     this.selectionMessageSubject.next(next);
   }
 
@@ -3306,65 +3301,76 @@ export class SelectionMessageService {
     canonical: Option[] | null,
     payload: Option[]
   ): number {
-    // Single-answer: always 1
     if (questionType === QuestionType.SingleAnswer) return 1;
   
     const { byId, hasCanonical } = this.buildCanonicalIndex(canonical);
   
     if (hasCanonical) {
-      // Sum canonical flags; if zero (under-flagged), fall back to payload for TOTAL ONLY
       let total = 0;
       byId.forEach(v => { if (v) total++; });
       if (total > 0) return total;
   
+      // Under-flagged canonical → use payload for TOTAL only
       const overlay = payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
       return overlay > 0 ? overlay : 0;
     }
   
-    // No canonical → payload
+    // No canonical at all → payload
     return payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
   }
 
-  private countSelectedCorrect_strict(canonical: Option[] | null, payload: Option[]): number {
+  private countSelectedCorrect_strict(
+    canonical: Option[] | null,
+    payload: Option[]
+  ): number {
     const { byId, textCounts, textToCorrect, hasCanonical } = this.buildCanonicalIndex(canonical);
   
-    // Build payload text counts for uniqueness check
+    // payload text counts for uniqueness check
     const payloadTextCounts = new Map<string, number>();
     payload.forEach(o => {
-      const nt = this.normText(o.text ?? o.value);
+      const nt = this.normText(o?.text ?? (o as any)?.value);
       if (nt) payloadTextCounts.set(nt, (payloadTextCounts.get(nt) ?? 0) + 1);
     });
   
     const selectedNow = payload.filter(o => !!o?.selected);
-    const seen = new Set<string>();
+    const seen = new Set<string>(); // de-dupe by *id if present*, else by object reference fallback
     let correctCount = 0;
   
-    selectedNow.forEach((o, i) => {
-      const key = this.stableKey(o, i);
-      if (seen.has(key)) return;
-      seen.add(key);
+    for (const o of selectedNow) {
+      // Prefer ID path
+      const id = this.idKey(o);
+      if (id) {
+        if (seen.has(`id:${id}`)) continue;
+        seen.add(`id:${id}`);
   
-      let isCorrect = false;
-  
-      if (hasCanonical) {
-        // 1) Exact ID/key match
-        if (byId.has(key)) {
-          isCorrect = !!byId.get(key);
+        let isCorrect = false;
+        if (hasCanonical) {
+          if (byId.has(id)) isCorrect = !!byId.get(id);
+          // If canonical exists but no id in canonical, do NOT treat as correct
         } else {
-          // 2) Unique text fallback ONLY if unique in canonical AND unique in payload
-          const nt = this.normText(o.text ?? o.value);
-          if (nt && (textCounts.get(nt) === 1) && (payloadTextCounts.get(nt) === 1)) {
-            isCorrect = !!textToCorrect.get(nt);
-          }
+          isCorrect = !!o?.correct; // no canonical case
         }
-        // IMPORTANT: do NOT fall back to payload.correct when canonical exists
-      } else {
-        // No canonical → payload correctness
-        isCorrect = !!o.correct;
+        if (isCorrect) correctCount++;
+        continue;
       }
   
+      // No ID → try text fallback ONLY if unique both sides
+      const nt = this.normText(o?.text ?? (o as any)?.value);
+      if (!nt) continue;
+      if (seen.has(`t:${nt}`)) continue;
+      seen.add(`t:${nt}`);
+  
+      let isCorrect = false;
+      if (hasCanonical) {
+        if ((textCounts.get(nt) === 1) && (payloadTextCounts.get(nt) === 1)) {
+          isCorrect = !!textToCorrect.get(nt);
+        }
+        // else: ambiguous → treat as incorrect
+      } else {
+        isCorrect = !!o?.correct;
+      }
       if (isCorrect) correctCount++;
-    });
+    }
   
     return correctCount;
   }
@@ -3374,28 +3380,22 @@ export class SelectionMessageService {
    * This keeps correctness authoritative and avoids relying
    * on the live payload options (which may have stale flags).
    */
-  private getCanonicalOptions(index: number): Option[] {
+   private getCanonicalOptions(index: number): Option[] {
     try {
-      // Prefer the indexed questions array if present
       const svc: any = this.quizService as any;
-      const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
-      const fromArray = (index >= 0 && index < qArr.length) ? qArr[index] : undefined;
-
-      if (fromArray && Array.isArray(fromArray.options)) {
-        return fromArray.options;
-      }
-
-      // Fallback to the currentQuestion BehaviorSubject
-      const current = svc.currentQuestion?.getValue?.();
-      if (current && Array.isArray(current.options)) {
-        return current.options;
-      }
-
-      return [];
-    } catch (err) {
-      console.warn('[⚠️ getCanonicalOptions] failed', err);
+      const qArr: QuizQuestion[] = Array.isArray(svc.questions) ? svc.questions : [];
+      const q = (index >= 0 && index < qArr.length) ? qArr[index] : svc.currentQuestion?.getValue?.();
+      return Array.isArray(q?.options) ? q.options : [];
+    } catch {
       return [];
     }
+  }
+
+  private idKey(o: Option | undefined | null): string | null {
+    if (!o) return null;
+    if ((o as any).optionId != null) return String((o as any).optionId);
+    if ((o as any).id       != null) return String((o as any).id);
+    return null;
   }
 
   private normText(s: unknown): string | null {
@@ -3405,21 +3405,26 @@ export class SelectionMessageService {
   
   private buildCanonicalIndex(canonical: Option[] | null) {
     const byId = new Map<string, boolean>();
-    const textCounts = new Map<string, number>(); // for uniqueness checks
+    const textCounts = new Map<string, number>();
     const textToCorrect = new Map<string, boolean>();
   
-    if (Array.isArray(canonical) && canonical.length) {
-      canonical.forEach((o, i) => {
-        byId.set(this.stableKey(o, i), !!o.correct);
-        const nt = this.normText(o.text ?? o.value);
+    if (Array.isArray(canonical)) {
+      canonical.forEach(o => {
+        const id = this.idKey(o);
+        if (id) byId.set(id, !!o?.correct);
+        const nt = this.normText(o?.text ?? (o as any)?.value);
         if (nt) {
           textCounts.set(nt, (textCounts.get(nt) ?? 0) + 1);
-          // record correctness; if duplicates exist we’ll ignore non-unique later
-          textToCorrect.set(nt, !!o.correct);
+          textToCorrect.set(nt, !!o?.correct);
         }
       });
     }
-    return { byId, textCounts, textToCorrect, hasCanonical: byId.size > 0 || textCounts.size > 0 };
+    return {
+      byId,
+      textCounts,       // for uniqueness test
+      textToCorrect,    // nt -> correct?
+      hasCanonical: byId.size > 0 || textCounts.size > 0
+    };
   }
 
 
