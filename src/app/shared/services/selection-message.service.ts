@@ -3305,7 +3305,7 @@ export class SelectionMessageService {
     }
   
     // Compute remaining correct answers using helper
-    let remaining = computeRemainingCorrectAnswers(canonicalOptions, payloadOptions);
+    let remaining = this.computeRemainingCorrectAnswers(canonicalOptions, payloadOptions);
   
     // Optional Q4 adjustment (index 3)
     if (index === 3 && remaining > 0) {
