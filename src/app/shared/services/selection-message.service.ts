@@ -3540,16 +3540,15 @@ export class SelectionMessageService {
     };
   }
 
-
   private stableKey(o: Option | CanonicalOption, idx?: number): string {
-    // Check if it's a CanonicalOption (with optionId as string | number)
-    const raw = (o as CanonicalOption)?.optionId ??  // CanonicalOption's optionId
-                (o as Option)?.id ??               // Option's id
-                (o as Option)?.value ??            // Fallback to value in Option
-                (o as Option)?.text ??             // Fallback to text in Option
-                (idx != null ? `#${idx}` : undefined);  // Fallback to index if all else fails
+    // Handle CanonicalOption with optionId (which is string | number)
+    const raw = (o as CanonicalOption)?.optionId ??  // Use optionId for CanonicalOption
+                (o as Option)?.optionId ??          // Use optionId for Option
+                (o as Option)?.value ??            // Fallback to value in Option if no optionId
+                (o as Option)?.text ??             // Fallback to text in Option if no value
+                (idx != null ? `#${idx}` : undefined);  // Fallback to index if no other property exists
   
-    return String(raw);  // ensure raw is returned as a string
+    return String(raw);  // Ensure the value is returned as a string
   }
 
   // Type guard to check if item is of type CanonicalOption
