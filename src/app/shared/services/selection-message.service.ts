@@ -3311,21 +3311,14 @@ export class SelectionMessageService {
   
 
   /* ================= helpers ================= */
-  /**
-   * Computes the number of remaining correct answers to select for a multi-answer question.
-   * - canonicalOptions: the correct options defined for the question
-   * - payloadOptions: the current on-screen options with `selected` flags
-   */
-   computeRemainingCorrectAnswers(
-    canonicalOptions: Option[],
-    payloadOptions: Option[]
-  ): number {
+  // Compute remaining correct answers for multi-answer questions
+  computeRemainingCorrectAnswers(canonicalOptions: Option[], payloadOptions: Option[]): number {
     if (!Array.isArray(canonicalOptions) || canonicalOptions.length === 0) return 0;
     if (!Array.isArray(payloadOptions) || payloadOptions.length === 0) {
       return canonicalOptions.filter(o => o.correct).length;
     }
   
-    // Collect canonical correct option keys (using only properties that exist on Option)
+    // Collect canonical correct option keys
     const canonicalKeys = canonicalOptions
       .filter(o => o.correct)
       .map(o => o.optionId ?? o.value ?? o.text)
