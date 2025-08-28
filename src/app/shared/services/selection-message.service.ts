@@ -3308,28 +3308,35 @@ export class SelectionMessageService {
     canonical: Option[] | null,
     payload: Option[]
   ): number {
-    // Single-answer is always 1 (prevents “Select 2 more…” on single)
+    // Single-answer: always 1
     if (questionType === QuestionType.SingleAnswer) return 1;
   
-    const { byId, byText, hasCanonical } = this.buildCanonicalIndex(canonical);
+    const { byId, hasCanonical } = this.buildCanonicalIndex(canonical);
   
     if (hasCanonical) {
-      // Sum canonical only
+      // Sum canonical flags; if zero (under-flagged), fall back to payload for TOTAL ONLY
       let total = 0;
       byId.forEach(v => { if (v) total++; });
       if (total > 0) return total;
-      // If canonical exists but (edge-case) produced 0, treat as 0 and let UI require 0 remaining (will resolve via selectedCorrect strictly).
-      return 0;
+  
+      const overlay = payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+      return overlay > 0 ? overlay : 0;
     }
   
-    // No canonical at all → fall back to payload correctness
+    // No canonical → payload
     return payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
   }
 
   private countSelectedCorrect_strict(canonical: Option[] | null, payload: Option[]): number {
-    const { byId, byText, hasCanonical } = this.buildCanonicalIndex(canonical);
+    const { byId, textCounts, textToCorrect, hasCanonical } = this.buildCanonicalIndex(canonical);
   
-    // Only current selection
+    // Build payload text counts for uniqueness check
+    const payloadTextCounts = new Map<string, number>();
+    payload.forEach(o => {
+      const nt = this.normText(o.text ?? o.value);
+      if (nt) payloadTextCounts.set(nt, (payloadTextCounts.get(nt) ?? 0) + 1);
+    });
+  
     const selectedNow = payload.filter(o => !!o?.selected);
     const seen = new Set<string>();
     let correctCount = 0;
@@ -3342,14 +3349,17 @@ export class SelectionMessageService {
       let isCorrect = false;
   
       if (hasCanonical) {
-        // Try id first
+        // 1) Exact ID/key match
         if (byId.has(key)) {
           isCorrect = !!byId.get(key);
         } else {
-          // Fallback to normalized text match (helps when ids differ)
+          // 2) Unique text fallback ONLY if unique in canonical AND unique in payload
           const nt = this.normText(o.text ?? o.value);
-          if (nt && byText.has(nt)) isCorrect = !!byText.get(nt);
+          if (nt && (textCounts.get(nt) === 1) && (payloadTextCounts.get(nt) === 1)) {
+            isCorrect = !!textToCorrect.get(nt);
+          }
         }
+        // IMPORTANT: do NOT fall back to payload.correct when canonical exists
       } else {
         // No canonical → payload correctness
         isCorrect = !!o.correct;
@@ -3397,29 +3407,26 @@ export class SelectionMessageService {
   
   private buildCanonicalIndex(canonical: Option[] | null) {
     const byId = new Map<string, boolean>();
-    const byText = new Map<string, boolean>();
+    const textCounts = new Map<string, number>(); // for uniqueness checks
+    const textToCorrect = new Map<string, boolean>();
   
     if (Array.isArray(canonical) && canonical.length) {
       canonical.forEach((o, i) => {
         byId.set(this.stableKey(o, i), !!o.correct);
         const nt = this.normText(o.text ?? o.value);
-        if (nt) byText.set(nt, !!o.correct);
+        if (nt) {
+          textCounts.set(nt, (textCounts.get(nt) ?? 0) + 1);
+          // record correctness; if duplicates exist we’ll ignore non-unique later
+          textToCorrect.set(nt, !!o.correct);
+        }
       });
     }
-    return { byId, byText, hasCanonical: byId.size > 0 || byText.size > 0 };
+    return { byId, textCounts, textToCorrect, hasCanonical: byId.size > 0 || textCounts.size > 0 };
   }
 
 
-  stableKey(o: Option | CanonicalOption, idx?: number): string {
-    // Prefer explicit ids; fall back to value/text; last resort: passed index
-    const raw =
-      (o as any)?.optionId ??
-      (o as any)?.id ??
-      (o as any)?.value ??
-      (o as any)?.text ??
-      (idx != null ? `#${idx}` : undefined);
-
-    // Normalize to string to avoid 1 vs "1" mismatches
+  private stableKey(o: Option, idx?: number): string {
+    const raw = (o as any)?.optionId ?? (o as any)?.id ?? (o as any)?.value ?? (o as any)?.text ?? (idx != null ? `#${idx}` : undefined);
     return String(raw);
   }
 
