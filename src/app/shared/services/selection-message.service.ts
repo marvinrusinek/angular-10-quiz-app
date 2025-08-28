@@ -3596,9 +3596,10 @@ export class SelectionMessageService {
   private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
     if (!canonicalOptions) return 0;  // If no canonical options, return 0
   
-    const recon = this.buildReconciler(canonicalOptions, payload);  // Reconcile selections with canonical options
+    const recon = this.buildReconciler(canonicalOptions, payload);  // Reconcile payload selections with canonical options
   
-    const canonCorrect = new Set<string>();  // Track correct canonical option keys
+    // Set to track correct canonical option keys
+    const canonCorrect = new Set<string>();
     canonicalOptions.forEach((c) => {
       const cKey = this.stableKey(c, 0);  // Stable key for canonical option
       if (c?.correct) canonCorrect.add(cKey);  // Add to set if it's a correct option
@@ -3623,6 +3624,7 @@ export class SelectionMessageService {
     return count;
   }
   
+  
 
   pluralize(n: number, word: string): string {
     return n === 1 ? word : `${word}s`;
@@ -3637,10 +3639,10 @@ export class SelectionMessageService {
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
   
-    // Calculate the total correct answers in the canonical options
+    // Calculate total correct answers (correct options in canonical data)
     const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
   
-    // Calculate the number of selected correct answers
+    // Calculate how many correct answers the user has selected
     const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
   
     // Calculate remaining correct answers
@@ -3650,6 +3652,7 @@ export class SelectionMessageService {
     console.log(`Selected Correct: ${selectedCorrect}`);  // Debug log
     console.log(`Remaining Correct: ${remaining}`);  // Debug log
   
+    // Show the message based on remaining correct answers
     if (remaining > 0) {
       const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
@@ -3657,6 +3660,7 @@ export class SelectionMessageService {
   
     return 'Please click the next button to continue...';  // If all correct answers are selected
   }
+  
   
   
   
