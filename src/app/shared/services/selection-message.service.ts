@@ -3250,30 +3250,147 @@ export class SelectionMessageService {
       ? (globalThis as any).START_MSG
       : 'Please click an option to continue';
   
-    const qt = this.quizService?.questions?.[index]?.type
-      ?? this.quizService?.currentQuestion?.getValue()?.type
-      ?? QuestionType.SingleAnswer;
+    // ---- tiny, local helpers (no external dependencies) ----
+    const idKey = (o: any): string | null =>
+      o?.optionId != null ? String(o.optionId)
+      : o?.id       != null ? String(o.id)
+      : null;
   
+    const normText = (s: unknown): string | null => {
+      if (typeof s !== 'string') return null;
+      const t = s.trim().replace(/\s+/g, ' ').toLowerCase();
+      return t.length ? t : null;
+    };
+  
+    const getCanonicalOptions = (idx: number): Option[] => {
+      try {
+        const svc: any = this.quizService as any;
+        const arr: QuizQuestion[] = Array.isArray(svc.questions) ? svc.questions : [];
+        const q = (idx >= 0 && idx < arr.length) ? arr[idx] : svc.currentQuestion?.getValue?.();
+        return Array.isArray(q?.options) ? q!.options : [];
+      } catch { return []; }
+    };
+  
+    const coalescedEmit = (msg: string, ctx: any) => {
+      const next = (msg ?? '').trim();
+      if (!next) return;
+  
+      // lazy-init of lastEmit cache
+      (this as any).__sm_lastEmit ??= { index: -1, token: -1, msg: '' };
+      const last = (this as any).__sm_lastEmit;
+  
+      if (last.index === ctx.index && last.token === ctx.token && last.msg === next) return;
+      (this as any).__sm_lastEmit = { index: ctx.index, token: ctx.token, msg: next };
+  
+      this.selectionMessageSubject.next(next);
+    };
+  
+    // ---- derive question type from canonical question by index (no currentQuestion drift) ----
+    const svcAny: any = this.quizService as any;
+    const qType: QuestionType =
+      svcAny?.questions?.[index]?.type ??
+      svcAny?.currentQuestion?.getValue?.()?.type ??
+      QuestionType.SingleAnswer;
+  
+    // 0 selected → START
     if (!options?.some(o => !!o?.selected)) {
-      this.coalescedUpdateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
+      coalescedEmit(START_MSG, { index, token: tok, options, questionType: qType });
       return;
     }
   
-    const canonicalOptions = this.getCanonicalOptions(index);
+    // ---- canonical correctness index (ID-first, unique-text fallback) ----
+    const canonical = getCanonicalOptions(index);
   
-    const totalCorrect    = this.countTotalCorrect_strict(qt, canonicalOptions, options);
-    const selectedCorrect = this.countSelectedCorrect_strict(canonicalOptions, options);
-    const remaining       = Math.max(0, totalCorrect - selectedCorrect);
+    // Build canonical maps
+    const canonIdToCorrect = new Map<string, boolean>();
+    const canonTextCounts  = new Map<string, number>();
+    const canonTextCorrect = new Map<string, boolean>();
+    for (const o of canonical) {
+      const id = idKey(o);
+      if (id) canonIdToCorrect.set(id, !!o?.correct);
+      const nt = normText((o as any)?.text ?? (o as any)?.value);
+      if (nt) {
+        canonTextCounts.set(nt, (canonTextCounts.get(nt) ?? 0) + 1);
+        canonTextCorrect.set(nt, !!o?.correct);
+      }
+    }
+    const hasCanonical = canonIdToCorrect.size > 0 || canonTextCounts.size > 0;
   
+    // Total-correct:
+    // - Single => 1
+    // - Else: sum canonical; if sum==0 (under-flagged), fall back to payload TOTAL ONLY
+    let totalCorrect: number;
+    if (qType === QuestionType.SingleAnswer) {
+      totalCorrect = 1;
+    } else if (hasCanonical) {
+      let sum = 0; canonIdToCorrect.forEach(v => { if (v) sum++; });
+      if (sum === 0) {
+        sum = options.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0); // total only
+      }
+      totalCorrect = sum;
+    } else {
+      totalCorrect = options.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+    }
+  
+    // Selected-correct (strict):
+    // - If canonical exists → ID match; if no ID, only unique text match in both canonical & payload
+    // - Never use payload.correct per-option when canonical exists
+    const payloadTextCounts = new Map<string, number>();
+    for (const o of options) {
+      const nt = normText((o as any)?.text ?? (o as any)?.value);
+      if (nt) payloadTextCounts.set(nt, (payloadTextCounts.get(nt) ?? 0) + 1);
+    }
+  
+    const selected = options.filter(o => !!o?.selected);
+    const seen = new Set<string>();
+    let selectedCorrect = 0;
+  
+    for (const o of selected) {
+      const pid = idKey(o);
+      if (pid) {
+        if (seen.has('id:' + pid)) continue;
+        seen.add('id:' + pid);
+  
+        let isCorrect = false;
+        if (hasCanonical) {
+          if (canonIdToCorrect.has(pid)) isCorrect = !!canonIdToCorrect.get(pid);
+        } else {
+          isCorrect = !!o?.correct;
+        }
+        if (isCorrect) selectedCorrect++;
+        continue;
+      }
+  
+      const nt = normText((o as any)?.text ?? (o as any)?.value);
+      if (!nt) continue;
+      if (seen.has('t:' + nt)) continue;
+      seen.add('t:' + nt);
+  
+      let isCorrect = false;
+      if (hasCanonical) {
+        if ((canonTextCounts.get(nt) === 1) && (payloadTextCounts.get(nt) === 1)) {
+          isCorrect = !!canonTextCorrect.get(nt);
+        }
+      } else {
+        isCorrect = !!o?.correct;
+      }
+      if (isCorrect) selectedCorrect++;
+    }
+  
+    // Remaining cannot go negative
+    const remaining = Math.max(0, (totalCorrect || 0) - selectedCorrect);
+  
+    // Emit banner
     if (remaining > 0) {
-      this.coalescedUpdateSelectionMessage(
+      coalescedEmit(
         `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-        { options, index, questionType: qt, token: tok }
+        { index, token: tok, options, questionType: qType }
       );
     } else {
-      this.coalescedUpdateSelectionMessage(NEXT_MSG, { options, index, questionType: qt, token: tok });
+      coalescedEmit(NEXT_MSG, { index, token: tok, options, questionType: qType });
     }
   }
+  
   
   
 
