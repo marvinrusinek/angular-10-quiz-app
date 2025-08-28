@@ -3280,6 +3280,36 @@ export class SelectionMessageService {
   }
 
   /* ================= helpers ================= */
+  /**
+   * Returns the canonical options for a question index.
+   * This keeps correctness authoritative and avoids relying
+   * on the live payload options (which may have stale flags).
+   */
+  private getCanonicalOptions(index: number): Option[] {
+    try {
+      // Prefer the indexed questions array if present
+      const svc: any = this.quizService as any;
+      const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
+      const fromArray = (index >= 0 && index < qArr.length) ? qArr[index] : undefined;
+
+      if (fromArray && Array.isArray(fromArray.options)) {
+        return fromArray.options;
+      }
+
+      // Fallback to the currentQuestion BehaviorSubject
+      const current = svc.currentQuestion?.getValue?.();
+      if (current && Array.isArray(current.options)) {
+        return current.options;
+      }
+
+      return [];
+    } catch (err) {
+      console.warn('[⚠️ getCanonicalOptions] failed', err);
+      return [];
+    }
+  }
+
+
   stableKey(o: Option | CanonicalOption, idx?: number): string {
     // Prefer explicit ids; fall back to value/text; last resort: passed index
     const raw =
