@@ -3597,14 +3597,14 @@ export class SelectionMessageService {
   private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
     if (!canonicalOptions) return 0;  // If no canonical options, return 0
   
-    const recon = this.buildReconciler(canonicalOptions, payload);  // Reconciles the payload with canonical options
+    const recon = this.buildReconciler(canonicalOptions, payload);  // Map payload selections to canonical options
   
     const canonCorrect = new Set<string>();  // Set to track correct canonical keys
     canonicalOptions.forEach((c, pos) => {
       const id = this.idKey(c);
       const text = this.normText((c as any)?.text ?? (c as any)?.value);
       const cKey = id ?? (text ?? `pos:${pos}`);
-      if (c?.correct) canonCorrect.add(cKey);  // If the option is correct, add its key to the set
+      if (c?.correct) canonCorrect.add(cKey);  // If the canonical option is correct, add it to the set
     });
   
     let count = 0;
@@ -3618,10 +3618,10 @@ export class SelectionMessageService {
       const pKey = pid ?? (pnt ?? `p:${pos}`);
   
       const canonKey = recon.get(pKey);
-      if (!canonKey || seenCanonKeys.has(canonKey)) return;  // No matching canonical key or already counted
+      if (!canonKey || seenCanonKeys.has(canonKey)) return;  // No match or already counted
       seenCanonKeys.add(canonKey);
   
-      if (canonCorrect.has(canonKey)) count++;  // Count if this option matches a correct canonical option
+      if (canonCorrect.has(canonKey)) count++;  // Count if selected option matches a correct canonical option
     });
   
     return count;
@@ -3633,31 +3633,33 @@ export class SelectionMessageService {
 
   // Compute the gating message *purely* from canonical correctness + current selection.
   computeSelectionMessage(params: {
-    index: number;
+    index: number; 
     questionType: QuestionType;
-    options: Option[];
+    options: Option[]; 
     canonicalOptions?: CanonicalOption[] | null;
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
   
+    // Get total correct answers from canonical data
     const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
+  
+    // Get selected correct answers
     const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
   
-    console.log(`Total Correct: ${totalCorrect}`);
-    console.log(`Selected Correct: ${selectedCorrect}`);
-  
+    // Calculate remaining correct answers
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    console.log(`Remaining Correct: ${remaining}`);
+    console.log(`Total Correct: ${totalCorrect}`);  // Debug log
+    console.log(`Selected Correct: ${selectedCorrect}`);  // Debug log
+    console.log(`Remaining Correct: ${remaining}`);  // Debug log
   
     if (remaining > 0) {
       const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
     }
   
-    return 'Please click the next button to continue...';
+    return 'Please click the next button to continue...';  // If all correct answers are selected
   }
-  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
