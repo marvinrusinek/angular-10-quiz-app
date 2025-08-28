@@ -3640,10 +3640,10 @@ export class SelectionMessageService {
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
   
-    // Calculate total correct answers (canonical correct options)
+    // Total correct answers in canonical options (correctly marked answers)
     const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
   
-    // Calculate selected correct answers (from user selections)
+    // How many correct answers the user has selected
     const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
   
     // Calculate remaining correct answers
@@ -3653,13 +3653,16 @@ export class SelectionMessageService {
     console.log(`Selected Correct: ${selectedCorrect}`);  // Debug log
     console.log(`Remaining Correct: ${remaining}`);  // Debug log
   
+    // If there are remaining correct answers, guide the user
     if (remaining > 0) {
       const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
     }
   
-    return 'Please click the next button to continue...';  // If all correct answers are selected
+    // If all correct answers are selected, allow user to proceed
+    return 'Please click the next button to continue...';
   }
+  
   
 
 
