@@ -3254,16 +3254,13 @@ export class SelectionMessageService {
       ?? this.quizService?.currentQuestion?.getValue()?.type
       ?? QuestionType.SingleAnswer;
   
-    // 0 selected → START
     if (!options?.some(o => !!o?.selected)) {
       this.coalescedUpdateSelectionMessage(START_MSG, { options, index, questionType: qt, token: tok });
       return;
     }
   
-    // Canonical by index
     const canonicalOptions = this.getCanonicalOptions(index);
   
-    // Strict counts
     const totalCorrect    = this.countTotalCorrect_strict(qt, canonicalOptions, options);
     const selectedCorrect = this.countSelectedCorrect_strict(canonicalOptions, options);
     const remaining       = Math.max(0, totalCorrect - selectedCorrect);
@@ -3277,6 +3274,7 @@ export class SelectionMessageService {
       this.coalescedUpdateSelectionMessage(NEXT_MSG, { options, index, questionType: qt, token: tok });
     }
   }
+  
   
 
   /* ================= helpers ================= */
