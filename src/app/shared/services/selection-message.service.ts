@@ -3645,27 +3645,29 @@ export class SelectionMessageService {
 
   // Compute the gating message *purely* from canonical correctness + current selection.
   computeSelectionMessage(params: {
-    index: number;                              // current question index (not used in math but kept for logs)
+    index: number;  // current question index (not used in math but kept for logs)
     questionType: QuestionType;
-    options: Option[];                          // live UI array on this tick
-    canonicalOptions?: CanonicalOption[] | null;// authoritative source if you have it
+    options: Option[];  // live UI array on this tick
+    canonicalOptions?: CanonicalOption[] | null;  // authoritative source if you have it
   }): string {
     const { questionType, options, canonicalOptions = null } = params;
-
-    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions, options);
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
-
+  
+    // Ensure canonicalOptions is properly passed or fallback to empty array
+    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
+  
     // Remaining cannot be negative
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
-
+  
     if (remaining > 0) {
       const unit = this.pluralize(remaining, 'correct answer');
       return `Select ${remaining} more ${unit} to continue...`;
     }
-
+  
     // All required correct answers have been chosen
     return 'Please click the next button to continue...';
   }
+  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
