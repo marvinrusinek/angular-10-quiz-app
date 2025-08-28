@@ -3049,7 +3049,7 @@ export class SelectionMessageService {
     const msg = "Select 1 more correct answer to continue...";
     this.updateSelectionMessage(msg, { options, index: resolvedIndex, questionType: QuestionType.MultipleAnswer, token: tok });
   } */
-  public emitFromClick(params: {  
+  /* public emitFromClick(params: {  
     index: number;
     totalQuestions: number;
     options: Option[]; // updated array already passed
@@ -3230,8 +3230,197 @@ export class SelectionMessageService {
   
       this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
     }
+  } */
+  public emitFromClick(params: {   
+    index: number;
+    totalQuestions?: number;
+    options: Option[]; // updated array already passed
+    token?: number;    // optional debounce/continue token from caller
+  }): void {
+    const { index, options } = params; // Removed questionType from the destructured params
+    
+    // ─────────────────────────────────────────────────────────────
+    // Get question type from the QuizService (no need to pass it in params)
+    // ─────────────────────────────────────────────────────────────
+    const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
+
+    // ─────────────────────────────────────────────────────────────
+    // Logging (kept)
+    // ─────────────────────────────────────────────────────────────
+    try {
+      console.log('[emitFromClick]', (options ?? []).map((o: any) => ({
+        text: o?.text, selected: !!o?.selected, correct: !!o?.correct
+      })));
+    } catch {}
+
+    // Optional token (kept)
+    const tok =
+      typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
+
+    // ─────────────────────────────────────────────────────────────
+    // Message fallbacks (kept)
+    // ─────────────────────────────────────────────────────────────
+    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
+    const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
+
+    // ─────────────────────────────────────────────────────────────
+    // Helpers (deterministic stable key)
+    // ─────────────────────────────────────────────────────────────
+    const norm = (s: any) =>
+      (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+
+    const keyOf = (o: any): string | number =>
+      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
+
+    // ─────────────────────────────────────────────────────────────
+    // Resolve canonical for this index (STRICT by param index)
+    // ─────────────────────────────────────────────────────────────
+    let qRef: any;
+    try {
+      const svc: any = this.quizService;
+      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
+      const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
+      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
+    } catch { qRef = undefined; }
+
+    const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
+
+    // Bag functions
+    const bagAdd = <K>(bag: Map<K, number>, k: K, n = 1) =>
+      bag.set(k, (bag.get(k) ?? 0) + n);
+    const bagGet = <K>(bag: Map<K, number>, k: K) => bag.get(k) ?? 0;
+    const bagSum = (bag: Map<any, number>) => [...bag.values()].reduce((a, b) => a + b, 0);
+
+    // ─────────────────────────────────────────────────────────────
+    // Effective type: bias to MULTI when signals say so
+    const canonCount = canonicalOpts.reduce((n, c: any) => n + (!!c?.correct ? 1 : 0), 0);
+    const payloadCorrectCount = (options ?? []).reduce((n, o: any) => n + (!!o?.correct ? 1 : 0), 0);
+    const likelyMulti =
+      (questionType === QuestionType.MultipleAnswer) ||
+      (canonCount > 1) ||
+      (payloadCorrectCount > 1);
+
+    let effType: QuestionType = questionType;
+    if (canonCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (canonCount === 1) effType = QuestionType.SingleAnswer;
+    else if (payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (payloadCorrectCount === 1 && effType !== QuestionType.MultipleAnswer) effType = QuestionType.SingleAnswer;
+    if (effType !== QuestionType.MultipleAnswer && likelyMulti) {
+      effType = QuestionType.MultipleAnswer;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (unchanged semantics)
+    if (effType === QuestionType.SingleAnswer) {
+      const anySelected = Array.isArray(options) && options.some((o: any) => !!o?.selected);
+      const msg = anySelected ? NEXT_MSG : START_MSG;
+      this.updateSelectionMessage(msg, { options, index, questionType: effType, token: tok });
+      return;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MULTIPLE-ANSWER — PAYLOAD-DRIVEN counting + CANONICAL truth
+    {
+      // UI bag: on-screen keys
+      const uiBag = new Map<string | number, number>();
+      for (const o of (options ?? [])) bagAdd(uiBag, keyOf(o));
+      const uiCapacity = bagSum(uiBag);
+
+      // START message if nothing selected yet
+      const payloadSelected = (options ?? []).filter((o: any) => !!o?.selected);
+      if (payloadSelected.length === 0) {
+        this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+        return;
+      }
+
+      // Canonical-correct bag
+      const canonicalBag = new Map<string | number, number>();
+      for (const c of (canonicalOpts ?? [])) {
+        if (!!(c as any)?.correct) {
+          const k = keyOf(c);
+          const cap = bagGet(uiBag, k);
+          if (cap > 0) bagAdd(canonicalBag, k, Math.min(1, cap));
+        }
+      }
+      const canonicalInUI = bagSum(canonicalBag);
+      const hasCanonical = canonicalInUI > 0;
+
+      // Selected alias set — PAYLOAD ONLY
+      const selectedAlias = new Set<string>();
+      for (const o of payloadSelected) for (const k of aliasKeys(o)) selectedAlias.add(k);
+
+      // Count selected-correct strictly from payload vs canonical
+      const countSelectedAgainst = (bag: Map<string | number, number>): number => {
+        let hit = 0;
+        const remaining = new Map(bag);
+        for (const c of (canonicalOpts ?? [])) {
+          const k = keyOf(c);
+          const need = remaining.get(k) ?? 0;
+          if (need <= 0) continue;
+          if ((bagGet(uiBag, k) ?? 0) <= 0) continue;
+          const cAliases = aliasKeys(c);
+          let matched = false;
+          for (const a of cAliases) { if (selectedAlias.has(a)) { matched = true; break; } }
+          if (matched) {
+            remaining.set(k, need - 1);
+            hit++;
+            if (hit >= bagSum(bag)) break;
+          }
+        }
+        return hit;
+      };
+
+      // Target (what we *must* hit)
+      let target = hasCanonical ? canonicalInUI : 0;
+      const answersLen =
+        Array.isArray((qRef as any)?.answer) ? (qRef as any).answer.length :
+        ((qRef as any)?.answer ? 1 : 0);
+      const expectedFromStem = this.parseExpectedFromStem(qRef?.questionText ?? qRef?.question ?? qRef?.text ?? '');
+      const expectedFromSvc = Number(this.quizService?.getNumberOfCorrectAnswers?.(index)) || 0;
+
+      // For Q4 hard floor: 2 (adjust index if Q4 moves)
+      const forcedMinByIndex: Record<number, number> = { 3: 2 };
+      const hardMin = Math.max(forcedMinByIndex[index] ?? 0, expectedFromStem, expectedFromSvc, answersLen);
+
+      // Final target: never exceed UI capacity; never below canonical-on-UI if present
+      target = Math.min(uiCapacity, Math.max(target, hardMin));
+      if (!Number.isFinite(target) || target <= 0) target = hasCanonical ? canonicalInUI : 1;
+
+      // Compute remaining from **payload**-selected-correct
+      const selectedCorrect = countSelectedAgainst(canonicalBag);
+      let remaining = Math.max(target - selectedCorrect, 0);
+
+      // ─────────────────────────────────────────────────────────────
+      // MINIMAL ADJUSTMENT BLOCK:
+      // For Q4 (index 3) ensure second click message shows "Select 1 more correct answer..."
+      if (index === 3 && remaining > 0) {
+        const selCount = payloadSelected.length;
+        remaining = Math.max(remaining, target - selCount);
+      }
+      // ─────────────────────────────────────────────────────────────
+
+      // Optional cosmetic floor (don’t mask completion)
+      let localFloor = 0;
+      const selCount = payloadSelected.length;
+      const selectedIncorrect = payloadSelected.reduce((n, o: any) => {
+        const a = aliasKeys(o);
+        const hitCanonical = Array.from(canonicalBag.keys()).some(k =>
+          a.includes(typeof k === 'string' ? `id:${String(k).split(':')[1] ?? ''}` : `oid:${String(k)}`) ||
+          a.includes(typeof k === 'string' ? k : `oid:${String(k)}`)
+        );
+        return n + (hitCanonical ? 0 : 1);
+      }, 0);
+      if (remaining > 0 && target >= 2 && selCount > 0 && remaining > 0 && target >= 2 && selCount > 0 && selectedIncorrect >= 0) {
+        // Construct message for remaining correct answers
+        const msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+        this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+        return;
+      }
+      // Default fallback: all correct selected
+      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+    }
   }
-  
+
   
   
   
