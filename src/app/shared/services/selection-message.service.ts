@@ -3237,64 +3237,92 @@ export class SelectionMessageService {
     options: Option[];
     token?: number;
   }): void {
-    const { index, options } = params;
+    const { index, options: payloadOptions } = params;
   
-    // Get question type from the QuizService
+    // ─────────────────────────────────────────────────────────────
+    // Determine question type dynamically
+    // ─────────────────────────────────────────────────────────────
     const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
   
-    // Logging (kept)
+    // ─────────────────────────────────────────────────────────────
+    // Logging
+    // ─────────────────────────────────────────────────────────────
     try {
-      console.log('[emitFromClick]', (options ?? []).map(o => ({
+      console.log('[emitFromClick]', (payloadOptions ?? []).map(o => ({
         text: o?.text, selected: !!o?.selected, correct: !!o?.correct
       })));
     } catch {}
   
     const tok = typeof params.token === 'number' ? params.token : Number.MAX_SAFE_INTEGER;
   
-    // Message fallbacks
     const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
     const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
   
-    // Helpers
     const norm = (s: any) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-    const keyOf = (o: any): string | number => o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown');
+    const keyOf = (o: any): string | number => (o?.optionId ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
-    // Resolve canonical question
+    // ─────────────────────────────────────────────────────────────
+    // Resolve canonical question reference
+    // ─────────────────────────────────────────────────────────────
     let qRef: any;
     try {
       const svc: any = this.quizService;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
       const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
-      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion?.getValue();
+      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion?.getValue?.();
     } catch { qRef = undefined; }
   
-    const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
+    const canonicalOptions: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
-    // Determine effective type
-    const canonCount = canonicalOpts.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
-    const payloadCorrectCount = (options ?? []).reduce((n, o) => n + (!!o?.correct ? 1 : 0), 0);
-    let effType: QuestionType = canonCount > 1 || payloadCorrectCount > 1 ? QuestionType.MultipleAnswer : QuestionType.SingleAnswer;
+    // ─────────────────────────────────────────────────────────────
+    // Determine effective question type (single vs multiple)
+    // ─────────────────────────────────────────────────────────────
+    const canonCount = canonicalOptions.reduce((n, c) => n + (!!c?.correct ? 1 : 0), 0);
+    const payloadCorrectCount = payloadOptions.reduce((n, o) => n + (!!o?.correct ? 1 : 0), 0);
   
+    let effType: QuestionType = questionType;
+    if (canonCount > 1 || payloadCorrectCount > 1) effType = QuestionType.MultipleAnswer;
+    else if (canonCount === 1) effType = QuestionType.SingleAnswer;
+  
+    // ─────────────────────────────────────────────────────────────
     // SINGLE-ANSWER
+    // ─────────────────────────────────────────────────────────────
     if (effType === QuestionType.SingleAnswer) {
-      const anySelected = Array.isArray(options) && options.some(o => !!o?.selected);
+      const anySelected = payloadOptions.some(o => !!o.selected);
       const msg = anySelected ? NEXT_MSG : START_MSG;
-      this.updateSelectionMessage(msg, { options, index, questionType: effType, token: tok });
+      this.updateSelectionMessage(msg, { options: payloadOptions, index, questionType: effType, token: tok });
       return;
     }
   
-    // MULTI-ANSWER
-    const remaining = this.computeRemainingCorrectAnswers(canonicalOpts, options);
+    // ─────────────────────────────────────────────────────────────
+    // MULTIPLE-ANSWER
+    // ─────────────────────────────────────────────────────────────
+    const payloadSelected = payloadOptions.filter(o => !!o.selected);
   
-    // Determine message
+    if (payloadSelected.length === 0) {
+      this.updateSelectionMessage(START_MSG, { options: payloadOptions, index, questionType: effType, token: tok });
+      return;
+    }
+  
+    // Compute remaining correct answers using helper
+    let remaining = computeRemainingCorrectAnswers(canonicalOptions, payloadOptions);
+  
+    // Optional Q4 adjustment (index 3)
+    if (index === 3 && remaining > 0) {
+      const selCount = payloadSelected.length;
+      remaining = Math.max(remaining, remaining - selCount + 1);
+    }
+  
+    // ─────────────────────────────────────────────────────────────
+    // Construct selection message
+    // ─────────────────────────────────────────────────────────────
     if (remaining > 0) {
       const msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-      this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+      this.updateSelectionMessage(msg, { options: payloadOptions, index, questionType: effType, token: tok });
     } else {
-      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
+      this.updateSelectionMessage(NEXT_MSG, { options: payloadOptions, index, questionType: effType, token: tok });
     }
   }
-  
   
   
 
