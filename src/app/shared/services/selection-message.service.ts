@@ -24,6 +24,8 @@ interface OptionSnapshot {
   correct?: boolean;
 }
 
+type CanonicalOption = Pick<Option, 'optionId' | 'id' | 'value' | 'text' | 'correct'>;
+
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
@@ -3238,27 +3240,28 @@ export class SelectionMessageService {
   }): void {
     const { index, options, token } = params;
     const tok = typeof token === 'number' ? token : Number.MAX_SAFE_INTEGER;
-    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string' ? globalThis.NEXT_BTN_MSG : 'Please click the next button to continue...';
-    const START_MSG = typeof globalThis.START_MSG === 'string' ? globalThis.START_MSG : 'Please click an option to continue';
+  
+    const NEXT_MSG  = typeof (globalThis as any).NEXT_BTN_MSG === 'string'
+      ? (globalThis as any).NEXT_BTN_MSG
+      : 'Please click the next button to continue...';
+    const START_MSG = typeof (globalThis as any).START_MSG === 'string'
+      ? (globalThis as any).START_MSG
+      : 'Please click an option to continue';
   
     const question = this.quizService.currentQuestion.getValue();
-    const canonicalOptions: Option[] = Array.isArray(question?.options) ? question.options : [];
+    const canonicalOptions: Option[] = Array.isArray(question?.options) ? question!.options : [];
     const questionType = question?.type ?? QuestionType.SingleAnswer;
   
-    // SINGLE-ANSWER
-    if (questionType === QuestionType.SingleAnswer) {
-      const anySelected = options.some(o => !!o.selected);
-      this.updateSelectionMessage(anySelected ? NEXT_MSG : START_MSG, { options, index, questionType, token: tok });
-      return;
-    }
-  
-    // MULTI-ANSWER
-    if (options.every(o => !o.selected)) {
+    // Nothing selected → always show START for clarity
+    if (!options?.some(o => !!o?.selected)) {
       this.updateSelectionMessage(START_MSG, { options, index, questionType, token: tok });
       return;
     }
   
-    const remaining = this.computeRemainingCorrectAnswers(canonicalOptions, options, index);
+    // Compute totals from canonical (authoritative) with safe fallbacks
+    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions, options);
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
     if (remaining > 0) {
       this.updateSelectionMessage(
@@ -3269,10 +3272,104 @@ export class SelectionMessageService {
       this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: tok });
     }
   }
-  
-  
 
   /* ================= helpers ================= */
+  stableKey(o: Option | CanonicalOption, idx?: number): string {
+    // Prefer explicit ids; fall back to value/text; last resort: passed index
+    const raw =
+      (o as any)?.optionId ??
+      (o as any)?.id ??
+      (o as any)?.value ??
+      (o as any)?.text ??
+      (idx != null ? `#${idx}` : undefined);
+
+    // Normalize to string to avoid 1 vs "1" mismatches
+    return String(raw);
+  }
+
+  normalizeMap<T extends Option | CanonicalOption>(arr: T[]): Map<string, T> {
+    const map = new Map<string, T>();
+    arr.forEach((o, i) => map.set(stableKey(o, i), o));
+    return map;
+  }
+
+  countTotalCorrect(
+    questionType: QuestionType,
+    canonical: CanonicalOption[] | null,
+    payload: Option[]
+  ): number {
+    // Single-answer is *always* 1, regardless of any wrong flags you have floating around.
+    if (questionType === QuestionType.SingleAnswer) return 1;
+
+    // Prefer canonical correctness flags if provided
+    if (Array.isArray(canonical) && canonical.length) {
+      const total = canonical.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+      if (total > 0) return total;
+    }
+
+    // Overlay guard: if canonical under-flags, fall back to payload correctness (if present)
+    const overlay = payload.reduce((acc, o) => acc + (o?.correct ? 1 : 0), 0);
+    return overlay > 0 ? overlay : 0; // if 0, we’ll still compute remaining safely
+  }
+
+  countSelectedCorrect(
+    canonical: CanonicalOption[] | null,
+    payload: Option[]
+  ): number {
+    // Build maps by stable key
+    const canonMap = Array.isArray(canonical) && canonical.length ? normalizeMap(canonical) : null;
+
+    // Only count *currently selected* options (no union with previous)
+    const selectedNow = payload.filter(o => !!o?.selected);
+
+    // Distinct by stable key (user can toggle same option rapidly)
+    const seen = new Set<string>();
+    let correctCount = 0;
+
+    selectedNow.forEach((o, i) => {
+      const key = stableKey(o, i);
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      // Source of truth for correctness: canonical → else payload
+      const isCorrect = canonMap
+        ? !!canonMap.get(key)?.correct
+        : !!o.correct;
+
+      if (isCorrect) correctCount++;
+    });
+
+    return correctCount;
+  }
+
+  pluralize(n: number, word: string): string {
+    return n === 1 ? word : `${word}s`;
+  }
+
+  // Compute the gating message *purely* from canonical correctness + current selection.
+  computeSelectionMessage(params: {
+    index: number;                              // current question index (not used in math but kept for logs)
+    questionType: QuestionType;
+    options: Option[];                          // live UI array on this tick
+    canonicalOptions?: CanonicalOption[] | null;// authoritative source if you have it
+  }): string {
+    const { questionType, options, canonicalOptions = null } = params;
+
+    const totalCorrect = countTotalCorrect(questionType, canonicalOptions, options);
+    const selectedCorrect = countSelectedCorrect(canonicalOptions, options);
+
+    // Remaining cannot be negative
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+
+    if (remaining > 0) {
+      const unit = pluralize(remaining, 'correct answer');
+      return `Select ${remaining} more ${unit} to continue...`;
+    }
+
+    // All required correct answers have been chosen
+    return 'Please click the next button to continue...';
+  }
+
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
     canonicalOptions: Option[],
