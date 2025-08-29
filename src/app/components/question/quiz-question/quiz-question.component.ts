@@ -3281,13 +3281,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
       this.initializeCanonicalOptions();
 
-      // 2️⃣ Filter only the correct options for message computation
-      const correctOptions: CanonicalOption[] = canonicalOpts
+      // Build canonicalOptions (only correct answers)
+      const canonicalOptions: CanonicalOption[] = this.currentOptions
       .filter(o => o.correct)
-      .map((o, idx) => ({
-        optionId: Number(o.optionId ?? this.selectionMessageService.stableKey(o, idx)),
+      .map((o, i) => ({
+        optionId: Number(o.optionId ?? this.selectionMessageService.stableKey(o, i)),
         text: o.text,
-        correct: o.correct ?? false,
+        correct: true,
         value: o.value
       }));
       
@@ -3297,9 +3297,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.emitFromClick({
           index: i0,
           totalQuestions: this.totalQuestions,
-          questionType: this.currentQuestion?.type,
+          questionType: this.currentQuestion?.type ?? 'SingleAnswer',
           options: canonicalOpts,
-          canonicalOptions: correctOptions,
+          canonicalOptions,
           onMessageChange: (msg: string) => {
             this.selectionMessage = msg;  // updates the message shown
           },
