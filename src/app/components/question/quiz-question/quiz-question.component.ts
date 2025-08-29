@@ -3498,23 +3498,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private initializeCanonicalOptions() {
     if (!this.currentQuestion) return;
   
-    this.canonicalOptions = this.currentQuestion.options
-      .filter(option => option.correct)
-      .map((option, idx) => ({
-        optionId: option.optionId ?? this.selectionMessageService.stableKey(option, idx),
-        text: option.text,
-        correct: option.correct ?? false,
-        value: option.value
-      }));
-  
-    // Also initialize currentOptions for selection tracking
     this.currentOptions = this.currentQuestion.options.map((option, idx) => ({
-      optionId: Number(option.optionId ?? this.selectionMessageService.stableKey(option, idx)),
+      optionId: this.selectionMessageService.stableKey(option, idx),
       text: option.text,
       correct: option.correct ?? false,
       value: option.value,
       selected: false
-    }));    
+    }));
+    
+    this.canonicalOptions = this.currentQuestion.options
+      .filter(option => option.correct)
+      .map((option, idx) => ({
+        optionId: this.selectionMessageService.stableKey(option, idx),
+        text: option.text,
+        correct: option.correct ?? false,
+        value: option.value
+      }));  
   }
   
 
