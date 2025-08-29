@@ -447,6 +447,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     );
 
+    this.initializeCanonicalOptions();
+
     this.quizNavigationService.explanationReset$.subscribe(() => {
       console.log('[QQC] 🔁 explanationReset$ received');
       this.resetExplanation();
@@ -3476,31 +3478,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
-
-    // After the option is selected, call computeSelectionMessage
-    setTimeout(() => {
-      this.canonicalOptions = this.currentQuestion.options
-        .filter(option => option.correct)  // only correct options
-        .map((option, idx) => ({
-          optionId: option.optionId ?? this.selectionMessageService.stableKey(option, idx),
-          text: option.text,
-          correct: option.correct ?? false,
-          value: option.value
-        }));
-
-      const message = this.selectionMessageService.computeSelectionMessage({
-        index: this.currentQuestionIndex,
-        questionType: this.currentQuestion.type,
-        options: this.currentOptions,
-        canonicalOptions: this.canonicalOptions
-      });
-
-      // Set/display the message (update the message displayed to the user)
-      this.selectionMessage = message;
-    }, 100);  // delay by 100ms to allow the state to settle
   }
   
-
   private resetDedupeFor(index: number): void {
     // New question → forget previous option index so first click isn't swallowed
     if (index !== this.lastLoggedQuestionIndex) {
@@ -3508,6 +3487,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.lastLoggedIndex = -1;
     }
   }
+
+  private initializeCanonicalOptions() {
+    if (!this.currentQuestion) return;
+  
+    this.canonicalOptions = this.currentQuestion.options
+      .filter(option => option.correct)
+      .map((option, idx) => ({
+        optionId: option.optionId ?? this.selectionMessageService.stableKey(option, idx),
+        text: option.text,
+        correct: option.correct ?? false,
+        value: option.value
+      }));
+  
+    // Also initialize currentOptions for selection tracking
+    this.currentOptions = this.currentQuestion.options.map((option, idx) => ({
+      optionId: Number(option.optionId ?? this.selectionMessageService.stableKey(option, idx)),
+      text: option.text,
+      correct: option.correct ?? false,
+      value: option.value,
+      selected: false
+    }));    
+  }
+  
 
   private handleCoreSelection(ev: {
     option: SelectedOption;
