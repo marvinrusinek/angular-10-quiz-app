@@ -3641,20 +3641,23 @@ export class SelectionMessageService {
   }
 
   // Compute the gating message *purely* from canonical correctness + current selection.
-  computeSelectionMessage(params: {
+  public computeSelectionMessage(params: {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    canonicalOptions: CanonicalOption[];
+    canonicalOptions?: CanonicalOption[]; // optional now
   }): string {
     const { questionType, options, canonicalOptions } = params;
   
-    // Count total correct options
-    const totalCorrect = canonicalOptions.length;
+    // Defensive: if no canonical options, default to empty array
+    const canonOpts = canonicalOptions ?? [];
   
-    // Count currently selected correct options
+    // Count total correct options
+    const totalCorrect = canonOpts.length;
+  
+    // Count number of correct options currently selected
     const selectedCorrect = options.filter(
-      o => o.selected && canonicalOptions.some(c => this.stableKey(c) === this.stableKey(o))
+      o => o.selected && canonOpts.some(c => this.stableKey(c) === this.stableKey(o))
     ).length;
   
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
@@ -3664,7 +3667,6 @@ export class SelectionMessageService {
       return `Select ${remaining} more correct ${unit} to continue...`;
     }
   
-    // All correct answers selected
     return 'Please click the next button to continue...';
   }
   
