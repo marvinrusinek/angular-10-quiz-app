@@ -3513,9 +3513,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         text: option.text,
         correct: option.correct ?? false,
         value: option.value
-      }));  
+      }));
   }
-  
 
   private handleCoreSelection(ev: {
     option: SelectedOption;
