@@ -3300,6 +3300,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           correct: true,
           value: o.value
         }));
+
+      // Snapshot options for the service (so it can track selected state)
+      const snapshot: Option[] = this.currentOptions.map(o => ({ ...o }));
+
+      // Emit selection message immediately
+      this.selectionMessageService.setOptionsSnapshot(snapshot);
       
       queueMicrotask(() => {
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
@@ -3308,8 +3314,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           index: i0,
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type ?? 'SingleAnswer',
-          options: this.currentOptions,  // pass the live options with selection
-          canonicalOptions,              // only correct answers
+          options: snapshot,
+          canonicalOptions,  // only correct answers
           onMessageChange: (msg: string) => this.selectionMessage = msg,
           token: tok as any
         } as any);
