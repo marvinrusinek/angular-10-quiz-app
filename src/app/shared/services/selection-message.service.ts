@@ -3685,32 +3685,29 @@ export class SelectionMessageService {
     if (!canonicalOptions || canonicalOptions.length === 0) return '';
   
     const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    let selectedCorrect = 0;
+    const isMulti = questionType === QuestionType.MultipleAnswer;
   
-    if (questionType === QuestionType.SingleAnswer) {
-      // Single-answer: simply check if the selected option is correct
-      selectedCorrect = options.some(o => o.selected && o.correct) ? 1 : 0;
-    } else {
-      // Multi-answer: use your existing reconciliation logic
-      selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    // 🔹 Special handling for single-answer questions
+    if (!isMulti) {
+      const hasSelectedCorrect = selectedCorrect > 0;
+      return hasSelectedCorrect
+        ? 'Please click the next button to continue...'
+        : 'Select 1 correct option to continue...';
     }
   
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
-    const isMulti = questionType === QuestionType.MultipleAnswer;
-    const isAllCorrect = isMulti ? remaining === 0 : selectedCorrect > 0;
+    const isAllCorrect = remaining === 0;
   
     if (!isAllCorrect) {
-      if (isMulti) {
-        const optWord = remaining > 1 ? 'options' : 'option';
-        return `Select ${remaining} more correct ${optWord} to continue...`;
-      } else {
-        return 'Select 1 correct option to continue...';
-      }
+      const optWord = remaining > 1 ? 'options' : 'option';
+      return `Select ${remaining} more correct ${optWord} to continue...`;
     }
   
     return 'Please click the next button to continue...';
   }
+  
   
 
   
