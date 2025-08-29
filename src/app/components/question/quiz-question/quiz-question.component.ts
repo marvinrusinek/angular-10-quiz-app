@@ -3298,8 +3298,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           index: i0,
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type ?? 'SingleAnswer',
-          options: this.currentOptions, // ✅ pass the live options with selection
-          canonicalOptions,             // ✅ only correct answers
+          options: this.currentOptions,  // pass the live options with selection
+          canonicalOptions,              // only correct answers
           onMessageChange: (msg: string) => {
             this.selectionMessage = msg; // updates the message shown
           },
