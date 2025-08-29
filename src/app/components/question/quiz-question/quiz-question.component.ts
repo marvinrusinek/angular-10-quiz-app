@@ -3283,13 +3283,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Build canonicalOptions (only correct answers)
       const canonicalOptions: CanonicalOption[] = this.currentOptions
-      .filter(o => o.correct)
-      .map((o, i) => ({
-        optionId: Number(o.optionId ?? this.selectionMessageService.stableKey(o, i)),
-        text: o.text,
-        correct: true,
-        value: o.value
-      }));
+        .filter(o => o.correct)
+        .map((o, i) => ({
+          optionId: Number(o.optionId ?? this.selectionMessageService.stableKey(o, i)),
+          text: o.text,
+          correct: true,
+          value: o.value
+        }));
       
       queueMicrotask(() => {
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
@@ -3298,10 +3298,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           index: i0,
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type ?? 'SingleAnswer',
-          options: canonicalOpts,
-          canonicalOptions,
+          options: this.currentOptions, // ✅ pass the live options with selection
+          canonicalOptions,             // ✅ only correct answers
           onMessageChange: (msg: string) => {
-            this.selectionMessage = msg;  // updates the message shown
+            this.selectionMessage = msg; // updates the message shown
           },
           token: tok as any
         } as any);
