@@ -3647,42 +3647,51 @@ export class SelectionMessageService {
   public computeSelectionMessage(params: {
     index: number;
     questionType: QuestionType;
-    options: Option[];
-    canonicalOptions?: CanonicalOption[]; // optional now
+    options: Option[];           // currentOptions with selection state
+    canonicalOptions: CanonicalOption[]; // only correct options
   }): string {
-    const { options, canonicalOptions = [] } = params; // default to empty array
+    const { questionType, options, canonicalOptions } = params;
+  
+    if (!options || !canonicalOptions) return '';
   
     const selectedOptions = options.filter(o => o.selected);
-  
-    const correctSelected = selectedOptions.filter(o =>
-      canonicalOptions.some(c => c.optionId === o.optionId)
-    );
-  
     const totalCorrect = canonicalOptions.length;
-    const remaining = totalCorrect - correctSelected.length;
   
-    // Multi-answer logic
-    if (params.questionType === QuestionType.MultipleAnswer) {
-      if (remaining > 1) {
-        return `Select ${remaining} more correct answers to continue...`;
-      } else if (remaining === 1) {
-        return `Select 1 more correct answer to continue...`;
-      } else {
-        return `Please click the next button to continue...`;
+    // Single-answer question
+    if (questionType === QuestionType.SingleAnswer) {
+      if (selectedOptions.length === 0) {
+        return 'Please select an option to continue...';
       }
+      const correctSelected = selectedOptions.some(o =>
+        canonicalOptions.some(c => Number(c.optionId) === Number(o.optionId))
+      );
+      return correctSelected
+        ? 'Please click the next button to continue...'
+        : `Select 1 correct answer to continue...`;
     }
   
-    // Single-answer logic
-    if (params.questionType === QuestionType.SingleAnswer) {
-      const selected = selectedOptions[0];
-      if (!selected) return `Select an answer to continue...`;
-      return `Please click the next button to continue...`;
+    // Multiple-answer question
+    if (questionType === QuestionType.MultipleAnswer) {
+      if (selectedOptions.length === 0) {
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+  
+      // Count how many correct options are selected
+      const correctSelectedCount = selectedOptions.filter(o =>
+        canonicalOptions.some(c => Number(c.optionId) === Number(o.optionId))
+      ).length;
+  
+      if (correctSelectedCount === totalCorrect) {
+        return 'Please click the next button to continue...';
+      }
+  
+      const remaining = totalCorrect - correctSelectedCount;
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
   
+    // Fallback
     return '';
-  }  
-  
-
+  }
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
