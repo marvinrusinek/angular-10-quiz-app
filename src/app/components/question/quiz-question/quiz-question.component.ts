@@ -3212,6 +3212,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this._clickGate) return;
     this._clickGate = true;
 
+    let canonicalOpts: Option[] = [];
+
     try {
         // ───────────────────────────────────────────────
         // Helper: generate stable string ID for each option
@@ -3254,7 +3256,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } catch {}
 
         // Overlay onto canonical options
-        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? [])
+        canonicalOpts = (q?.options ?? this.currentQuestion?.options ?? [])
             .map(o => {
                 const stableId = getStableId(o);
                 return {
