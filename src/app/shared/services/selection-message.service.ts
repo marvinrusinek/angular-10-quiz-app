@@ -3292,7 +3292,7 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
     canonicalOptions: CanonicalOption[];
-    onMessageChange: (msg: string) => void;
+    onMessageChange?: (msg: string) => void; // optional now
   }): void {
     const message = this.computeSelectionMessage({
       index: params.index,
@@ -3300,12 +3300,12 @@ export class SelectionMessageService {
       options: params.options,
       canonicalOptions: params.canonicalOptions
     });
-
-    params.onMessageChange(message);
+  
+    // Only call if defined
+    if (typeof params.onMessageChange === 'function') {
+      params.onMessageChange(message);
+    }
   }
-  
-  
-  
 
   /* ================= helpers ================= */
   private coalescedUpdateSelectionMessage(
