@@ -3659,42 +3659,36 @@ export class SelectionMessageService {
 
     if (!canonicalOptions || canonicalOptions.length === 0) return '';
 
-    // Count total correct options in canonical set
     const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
 
-    // Count how many correct options the user has selected
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
-
-    // Remaining correct options (only used for multi-answer)
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
-
-    // Determine if this is multi-answer or single-answer
-    const isMulti = params.questionType === QuestionType.MultipleAnswer;
-
-    // Determine if the user has selected all correct answers
-    let isAllCorrect: boolean;
-    if (isMulti) {
-        // Multi-answer: all correct must be selected
-        isAllCorrect = remaining === 0;
+    // ───────────────────────────────
+    // Single-answer vs Multi-answer handling
+    // ───────────────────────────────
+    let selectedCorrect: number;
+    if (params.questionType === QuestionType.SingleAnswer) {
+        // Single-answer: count 1 if the correct option is selected
+        selectedCorrect = options.some(o => o.selected && o.correct) ? 1 : 0;
     } else {
-        // Single-answer: isAllCorrect if any selected option is correct
-        isAllCorrect = options.some(o => o.selected && o.correct);
+        // Multi-answer: use existing reconciliation logic
+        selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
     }
+
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+    const isMulti = params.questionType === QuestionType.MultipleAnswer;
+    const isAllCorrect = isMulti ? remaining === 0 : selectedCorrect > 0;
 
     if (!isAllCorrect) {
         if (isMulti) {
-            // Multi-answer: show remaining count
             const optWord = remaining > 1 ? 'options' : 'option';
             return `Select ${remaining} more correct ${optWord} to continue...`;
         } else {
-            // Single-answer: always 1 correct to select
             return 'Select 1 correct option to continue...';
         }
     }
 
-    // All correct selected -> allow Next button
     return 'Please click the next button to continue...';
   }
+
   
 
   // Compute remaining correct answers for multi-answer questions
