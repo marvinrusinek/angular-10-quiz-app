@@ -3273,14 +3273,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Decide “answered” ONCE here (don’t override later)
       const allCorrect = isMultiSelect ? (remaining === 0) : true;
   
-      // ⭐ added: monotonic token to coalesce message emits
+      // added: monotonic token to coalesce message emits
       // (lazy-init a class field if it doesn't exist)
       // @ts-ignore
-      this._msgTok ??= 0;                 // ⭐ added
+      this._msgTok ??= 0;
       // @ts-ignore
-      const tok: number = ++this._msgTok; // ⭐ added
+      const tok: number = ++this._msgTok;
   
-      // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
+      // Snapshot UPDATED canonical array for message service and EMIT from this same array
       this.initializeCanonicalOptions();
 
       if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
