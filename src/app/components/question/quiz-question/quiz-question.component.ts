@@ -447,8 +447,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     );
 
-    this.initializeCanonicalOptions();
-
     this.quizNavigationService.explanationReset$.subscribe(() => {
       console.log('[QQC] 🔁 explanationReset$ received');
       this.resetExplanation();
@@ -3281,6 +3279,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const tok: number = ++this._msgTok; // ⭐ added
   
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
+      this.initializeCanonicalOptions();
+
+      // 2️⃣ Filter only the correct options for message computation
+      const correctOptions: CanonicalOption[] = canonicalOpts
+      .filter(o => o.correct)
+      .map((o, idx) => ({
+        optionId: Number(o.optionId ?? this.selectionMessageService.stableKey(o, idx)),
+        text: o.text,
+        correct: o.correct ?? false,
+        value: o.value
+      }));
+      
       queueMicrotask(() => {
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
       
@@ -3289,7 +3299,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type,
           options: canonicalOpts,
-          canonicalOptions: this.canonicalOptions,
+          canonicalOptions: correctOptions,
           onMessageChange: (msg: string) => {
             this.selectionMessage = msg;  // updates the message shown
           },
