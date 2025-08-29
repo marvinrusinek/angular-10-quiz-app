@@ -3397,6 +3397,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
 
     this.selectionMessage = message;
+
+    // Also persist snapshot for service
+    this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   }
 
   
