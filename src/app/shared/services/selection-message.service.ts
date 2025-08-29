@@ -3652,31 +3652,29 @@ export class SelectionMessageService {
   public computeSelectionMessage(params: {
     index: number;
     questionType: QuestionType;
-    options?: Option[];
+    options: Option[];
+    canonicalOptions: CanonicalOption[] | null;
   }): string {
-    const canonicalOpts = this.optionsSnapshotSubject.getValue(); // use snapshot here
+    const { options, canonicalOptions } = params;
+  
+    if (!canonicalOptions || canonicalOptions.length === 0) return '';
+  
+    const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
+  
     const isMulti = params.questionType === QuestionType.MultipleAnswer;
-
-    if (!canonicalOpts.length) return '';
-
-    const correctOpts = canonicalOpts.filter(o => !!o.correct);
-    const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
-
-    if (isMulti) {
-      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
-      if (remaining > 0) {
-        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-      }
-      return 'Please click the next button to continue...';
-    } else {
-      // single answer
-      const selected = canonicalOpts.find(o => o.selected);
-      if (!selected || !selected.correct) {
-        return `Select 1 correct option to continue...`;
-      }
-      return 'Please click the next button to continue...';
+    const isAllCorrect = isMulti ? remaining === 0 : selectedCorrect > 0;
+  
+    if (!isAllCorrect) {
+      // pluralize
+      const optWord = remaining > 1 ? 'options' : 'option';
+      return `Select ${remaining} more correct ${optWord} to continue...`;
     }
+  
+    return 'Please click the next button to continue...';
   }
+  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
