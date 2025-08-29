@@ -3647,51 +3647,44 @@ export class SelectionMessageService {
   public computeSelectionMessage(params: {
     index: number;
     questionType: QuestionType;
-    options: Option[];           // currentOptions with selection state
-    canonicalOptions: CanonicalOption[]; // only correct options
+    options: Option[];
+    canonicalOptions: CanonicalOption[];
   }): string {
     const { questionType, options, canonicalOptions } = params;
   
-    if (!options || !canonicalOptions) return '';
+    if (!options?.length || !canonicalOptions?.length) return '';
   
+    // Get selected options
     const selectedOptions = options.filter(o => o.selected);
+  
+    // Get selected correct options
+    const selectedCorrect = selectedOptions.filter(sel =>
+      canonicalOptions.some(c => c.optionId === sel.optionId)
+    );
+  
     const totalCorrect = canonicalOptions.length;
+    const numCorrectSelected = selectedCorrect.length;
   
-    // Single-answer question
+    // Determine message based on question type
     if (questionType === QuestionType.SingleAnswer) {
-      if (selectedOptions.length === 0) {
-        return 'Please select an option to continue...';
-      }
-      const correctSelected = selectedOptions.some(o =>
-        canonicalOptions.some(c => Number(c.optionId) === Number(o.optionId))
-      );
-      return correctSelected
+      // Single answer
+      if (!selectedOptions.length) return 'Please select an option to continue...';
+      const selected = selectedOptions[0];
+      return selected.correct
         ? 'Please click the next button to continue...'
-        : `Select 1 correct answer to continue...`;
-    }
-  
-    // Multiple-answer question
-    if (questionType === QuestionType.MultipleAnswer) {
-      if (selectedOptions.length === 0) {
-        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        : 'Incorrect. Try again.';
+    } else {
+      // Multiple answer
+      if (numCorrectSelected === 0) return 'Select 1 or more correct answers to continue...';
+      if (numCorrectSelected < totalCorrect) {
+        const remaining = totalCorrect - numCorrectSelected;
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-  
-      // Count how many correct options are selected
-      const correctSelectedCount = selectedOptions.filter(o =>
-        canonicalOptions.some(c => Number(c.optionId) === Number(o.optionId))
-      ).length;
-  
-      if (correctSelectedCount === totalCorrect) {
-        return 'Please click the next button to continue...';
-      }
-  
-      const remaining = totalCorrect - correctSelectedCount;
-      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      // All correct selected
+      return 'Please click the next button to continue...';
     }
-  
-    // Fallback
-    return '';
   }
+  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
