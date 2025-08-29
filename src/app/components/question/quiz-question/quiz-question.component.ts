@@ -3480,11 +3480,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // After the option is selected, call computeSelectionMessage
     setTimeout(() => {
       this.canonicalOptions = this.currentQuestion.options
-        .filter(option => option.correct)  // filter only correct options
-        .map(option => ({
-          optionId: o.optionId ?? this.selectionMessageService.stableKey(o),
+        .filter(option => option.correct)  // only correct options
+        .map((option, idx) => ({
+          optionId: option.optionId ?? this.selectionMessageService.stableKey(option, idx),
           text: option.text,
-          correct: option.correct ?? false,  // default to false if not explicitly set
+          correct: option.correct ?? false,
           value: option.value
         }));
 
