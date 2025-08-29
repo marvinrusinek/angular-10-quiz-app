@@ -3478,6 +3478,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
+
+    this.selectionMessage = this.selectionMessageService.computeSelectionMessage({
+      index: this.currentQuestionIndex,
+      questionType: this.currentQuestion.type,
+      options: this.currentOptions,
+      canonicalOptions: this.canonicalOptions
+    });
   }
   
   private resetDedupeFor(index: number): void {
