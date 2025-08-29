@@ -3562,12 +3562,11 @@ export class SelectionMessageService {
     };
   }
 
-  public stableKey(o: Option | CanonicalOption, idx: number): number {
-    if ('optionId' in o && typeof o.optionId === 'number') return o.optionId;
-    if ('optionId' in o && typeof o.optionId === 'string') return idx;  // fallback to index if optionId is string
-    if ('value' in o && typeof o.value === 'number') return o.value;
-    return idx;  // fallback to index
-  }  
+  public stableKey(o: Option | CanonicalOption, fallback?: string | number): string {
+    return o.optionId !== undefined
+        ? String(o.optionId)
+        : `${String(o.value ?? fallback ?? '').trim().toLowerCase()}|${String(o.text ?? fallback ?? '').trim().toLowerCase()}`;
+  }
 
   // Type guard to check if item is of type CanonicalOption
   isCanonicalOption(item: Option | CanonicalOption): item is CanonicalOption {
