@@ -3217,6 +3217,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ───────────────────────────────────────────────
     let canonicalOpts: Option[] = [];
 
+    // Helper to generate stable string ID for each option
+    const getStableId = (o: Option) =>
+    o.optionId !== undefined ? String(o.optionId) : `${String(o.value ?? '').trim().toLowerCase()}|${String(o.text ?? '').trim().toLowerCase()}`;
+
+    // Build fresh selected-id set starting from the current click
+    const uiSelectedIds = new Set<string>();
+    if (evtOpt) uiSelectedIds.add(getStableId(evtOpt));
+
+    // Merge selections from SelectedOptionService
+    try {
+      const stored: Option[] | Set<any> | undefined = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+      if (stored instanceof Set) {
+        stored.forEach(id => uiSelectedIds.add(String(id)));
+      } else if (Array.isArray(stored)) {
+        stored.forEach(o => uiSelectedIds.add(getStableId(o)));
+      }
+    } catch {}
+
     try {
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const isSingle = !isMultiSelect;
