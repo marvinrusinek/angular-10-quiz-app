@@ -3549,16 +3549,12 @@ export class SelectionMessageService {
     };
   }
 
-  public stableKey(o: Option | CanonicalOption, idx?: number): string {
-    // Handle CanonicalOption with optionId (which is string | number)
-    const raw = (o as CanonicalOption)?.optionId ??  // Use optionId for CanonicalOption
-                (o as Option)?.optionId ??          // Use optionId for Option
-                (o as Option)?.value ??            // Fallback to value in Option if no optionId
-                (o as Option)?.text ??             // Fallback to text in Option if no value
-                (idx != null ? `#${idx}` : undefined);  // Fallback to index if no other property exists
-  
-    return String(raw);  // Ensure the value is returned as a string
-  }
+  public stableKey(o: Option | CanonicalOption, idx: number): number {
+    if ('optionId' in o && typeof o.optionId === 'number') return o.optionId;
+    if ('optionId' in o && typeof o.optionId === 'string') return idx;  // fallback to index if optionId is string
+    if ('value' in o && typeof o.value === 'number') return o.value;
+    return idx;  // fallback to index
+  }  
 
   // Type guard to check if item is of type CanonicalOption
   isCanonicalOption(item: Option | CanonicalOption): item is CanonicalOption {
