@@ -266,6 +266,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _pendingPassiveRaf: number | null = null;
 
   canonicalOptions: CanonicalOption[] = [];
+  private _msgTok = 0;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3252,8 +3253,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
+        let canonicalOpts: Option[] = [];
+
         // Overlay onto canonical options
-        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? [])
+        canonicalOpts = (q?.options ?? this.currentQuestion?.options ?? [])
           .map(o => {
               const stableId = getStableId(o);
               return {
@@ -3390,7 +3393,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         index: this.currentQuestionIndex,
         questionType: this.currentQuestion.type,
         options: this.currentOptions,
-        canonicalOptions: canonicalOpts // <--- now visible here
+        canonicalOptions: canonicalOpts as CanonicalOption[] // <--- now visible here
     });
 
     this.selectionMessage = message;
