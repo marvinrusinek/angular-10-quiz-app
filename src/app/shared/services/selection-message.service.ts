@@ -3292,9 +3292,16 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
     canonicalOptions: CanonicalOption[];
+    onMessageChange: (msg: string) => void;
   }): void {
-    const message = this.computeSelectionMessage(params);
-    this.selectionMessageSubject.next(message);
+    const message = this.computeSelectionMessage({
+      index: params.index,
+      questionType: params.questionType,
+      options: params.options,
+      canonicalOptions: params.canonicalOptions
+    });
+
+    params.onMessageChange(message);
   }
   
   
@@ -3641,29 +3648,37 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    canonicalOptions?: CanonicalOption[]; // optional now
+    canonicalOptions: CanonicalOption[];
   }): string {
-    const { questionType, options, canonicalOptions } = params;
-  
-    // Defensive: if no canonical options, default to empty array
-    const canonOpts = canonicalOptions ?? [];
-  
-    // Count total correct options
-    const totalCorrect = canonOpts.length;
-  
-    // Count number of correct options currently selected
-    const selectedCorrect = options.filter(
-      o => o.selected && canonOpts.some(c => this.stableKey(c) === this.stableKey(o))
-    ).length;
-  
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
-  
-    if (remaining > 0) {
-      const unit = remaining > 1 ? 'answers' : 'answer';
-      return `Select ${remaining} more correct ${unit} to continue...`;
+    const { options, canonicalOptions } = params;
+
+    const selectedOptions = options.filter(o => o.selected);
+    const correctSelected = selectedOptions.filter(o =>
+      canonicalOptions.some(c => c.optionId === o.optionId)
+    );
+
+    const totalCorrect = canonicalOptions.length;
+    const remaining = totalCorrect - correctSelected.length;
+
+    // Multi-answer logic
+    if (params.questionType === QuestionType.MultipleAnswer) {
+      if (remaining > 1) {
+        return `Select ${remaining} more correct answers to continue...`;
+      } else if (remaining === 1) {
+        return `Select 1 more correct answer to continue...`;
+      } else {
+        return `Please click the next button to continue...`;
+      }
     }
-  
-    return 'Please click the next button to continue...';
+
+    // Single-answer logic
+    if (params.questionType === QuestionType.SingleAnswer) {
+      const selected = selectedOptions[0];
+      if (!selected) return `Select an answer to continue...`;
+      return `Please click the next button to continue...`;
+    }
+
+    return '';
   }
   
 
