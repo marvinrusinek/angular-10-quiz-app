@@ -3654,40 +3654,39 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
     canonicalOptions: CanonicalOption[] | null;
-}): string {
-    const { options, canonicalOptions } = params;
-
+  }): string {
+    const { options, canonicalOptions, questionType } = params;
+  
     if (!canonicalOptions || canonicalOptions.length === 0) return '';
-
+  
     const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
-
-    // ───────────────────────────────
-    // Single-answer vs Multi-answer handling
-    // ───────────────────────────────
-    let selectedCorrect: number;
-    if (params.questionType === QuestionType.SingleAnswer) {
-        // Single-answer: count 1 if the correct option is selected
-        selectedCorrect = options.some(o => o.selected && o.correct) ? 1 : 0;
+  
+    let selectedCorrect = 0;
+  
+    if (questionType === QuestionType.SingleAnswer) {
+      // Single-answer: simply check if the selected option is correct
+      selectedCorrect = options.some(o => o.selected && o.correct) ? 1 : 0;
     } else {
-        // Multi-answer: use existing reconciliation logic
-        selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+      // Multi-answer: use your existing reconciliation logic
+      selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
     }
-
+  
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
-    const isMulti = params.questionType === QuestionType.MultipleAnswer;
+    const isMulti = questionType === QuestionType.MultipleAnswer;
     const isAllCorrect = isMulti ? remaining === 0 : selectedCorrect > 0;
-
+  
     if (!isAllCorrect) {
-        if (isMulti) {
-            const optWord = remaining > 1 ? 'options' : 'option';
-            return `Select ${remaining} more correct ${optWord} to continue...`;
-        } else {
-            return 'Select 1 correct option to continue...';
-        }
+      if (isMulti) {
+        const optWord = remaining > 1 ? 'options' : 'option';
+        return `Select ${remaining} more correct ${optWord} to continue...`;
+      } else {
+        return 'Select 1 correct option to continue...';
+      }
     }
-
+  
     return 'Please click the next button to continue...';
   }
+  
 
   
 
