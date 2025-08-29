@@ -78,6 +78,8 @@ export class SelectionMessageService {
 
   private correctCountOverrides: Record<number, number> = { 1: 2 };
 
+  private _canonicalSnapshot: Option[] = [];
+
   // Cache canonical snapshot and a reconciler per index (payloadKey -> canonicalKey)
   private canonicalCache = new Map<number, Option[]>();
   private reconCache     = new Map<number, Map<string, string>>();
@@ -715,6 +717,7 @@ export class SelectionMessageService {
 
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
+  // Persist canonical options snapshot
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
     const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
     this.optionsSnapshotSubject.next(safe);
