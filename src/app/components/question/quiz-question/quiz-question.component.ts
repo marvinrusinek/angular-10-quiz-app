@@ -3480,7 +3480,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // After the option is selected, call computeSelectionMessage
     setTimeout(() => {
       this.canonicalOptions = this.currentQuestion.options
-        .filter(option => option.correct)  // Filter only correct options
+        .filter(option => option.correct)  // filter only correct options
         .map(option => ({
           optionId: option.optionId,
           text: option.text,
@@ -3495,7 +3495,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOptions: this.canonicalOptions
       });
 
-      // Set or display the message (e.g., update the message displayed to the user)
+      // Set/display the message (update the message displayed to the user)
       this.selectionMessage = message;
     }, 100);  // delay by 100ms to allow the state to settle
   }
