@@ -3294,23 +3294,48 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    onMessageChange?: (msg: string) => void; // optional now
+    onMessageChange?: (msg: string) => void; // optional callback
   }): void {
+    const { options, questionType, index, onMessageChange } = params;
+  
     // Update canonical snapshot from the latest options
-    this.setOptionsSnapshot(params.options);
-
+    this.setOptionsSnapshot(options);
+  
+    // Get latest snapshot and convert to CanonicalOption[]
+    const canonicalOptions: CanonicalOption[] = (this.optionsSnapshotSubject.getValue() ?? []).map(o => ({
+      optionId: (o.optionId ?? o.value ?? o.text)?.toString(), // ensure string
+      text: o.text ?? '',
+      value: (o.value ?? '').toString(),  // coerce number to string
+      correct: !!o.correct
+    }));    
+  
+    options.forEach(opt => {
+      // Find the canonical option matching this one
+      const canon = canonicalOptions.find(c =>
+        (c.optionId ?? c.value ?? c.text) === (opt.optionId ?? opt.value ?? opt.text)
+      );
+  
+      if (canon) {
+        // Copy the correct flag from canonical to the option
+        opt.correct = !!canon.correct;
+      }
+    });
+  
     // Compute message based on snapshot
     const message = this.computeSelectionMessage({
-      index: params.index,
-      questionType: params.questionType,
-      options: params.options // optional, not strictly needed
+      index,
+      questionType,
+      options,
+      canonicalOptions
     });
-
+  
     // Only call callback if defined
-    if (typeof params.onMessageChange === 'function') {
-      params.onMessageChange(message);
+    if (typeof onMessageChange === 'function') {
+      onMessageChange(message);
     }
   }
+  
+  
 
 
   /* ================= helpers ================= */
