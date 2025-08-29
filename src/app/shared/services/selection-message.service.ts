@@ -3294,21 +3294,24 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    canonicalOptions: CanonicalOption[];
     onMessageChange?: (msg: string) => void; // optional now
   }): void {
+    // Update canonical snapshot from the latest options
+    this.setOptionsSnapshot(params.options);
+
+    // Compute message based on snapshot
     const message = this.computeSelectionMessage({
       index: params.index,
       questionType: params.questionType,
-      options: params.options,
-      canonicalOptions: params.canonicalOptions
+      options: params.options // optional, not strictly needed
     });
-  
-    // Only call if defined
+
+    // Only call callback if defined
     if (typeof params.onMessageChange === 'function') {
       params.onMessageChange(message);
     }
   }
+
 
   /* ================= helpers ================= */
   private coalescedUpdateSelectionMessage(
@@ -3650,43 +3653,31 @@ export class SelectionMessageService {
   public computeSelectionMessage(params: {
     index: number;
     questionType: QuestionType;
-    options: Option[];
-    canonicalOptions: CanonicalOption[];
+    options?: Option[];
   }): string {
-    const { questionType, options, canonicalOptions } = params;
-  
-    if (!options?.length || !canonicalOptions?.length) return '';
-  
-    // Selected options
-    const selectedOptions = options.filter(o => o.selected);
-  
-    // Selected correct options
-    const selectedCorrect = selectedOptions.filter(sel =>
-      canonicalOptions.some(c => c.optionId === sel.optionId)
-    );
-  
-    const totalCorrect = canonicalOptions.length;
-    const numCorrectSelected = selectedCorrect.length;
-  
-    if (questionType === QuestionType.SingleAnswer) {
-      if (!selectedOptions.length) return 'Please select an option to continue...';
-      
-      const selected = selectedOptions[0];
-      // Correct selection
-      if (selected.correct) return 'Please click the next button to continue...';
-      // Incorrect selection
-      return 'Select 1 correct answer to continue...';
-    } else {
-      // MultipleAnswer
-      if (numCorrectSelected === 0) return 'Select 1 or more correct answers to continue...';
-      if (numCorrectSelected < totalCorrect) {
-        const remaining = totalCorrect - numCorrectSelected;
+    const canonicalOpts = this.optionsSnapshotSubject.getValue(); // use snapshot here
+    const isMulti = params.questionType === QuestionType.MultipleAnswer;
+
+    if (!canonicalOpts.length) return '';
+
+    const correctOpts = canonicalOpts.filter(o => !!o.correct);
+    const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
+
+    if (isMulti) {
+      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
+      if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      }
+      return 'Please click the next button to continue...';
+    } else {
+      // single answer
+      const selected = canonicalOpts.find(o => o.selected);
+      if (!selected || !selected.correct) {
+        return `Select 1 correct option to continue...`;
       }
       return 'Please click the next button to continue...';
     }
   }
-  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
