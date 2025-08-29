@@ -3283,17 +3283,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
       queueMicrotask(() => {
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+      
         this.selectionMessageService.emitFromClick({
           index: i0,
           totalQuestions: this.totalQuestions,
           questionType: this.currentQuestion?.type,
           options: canonicalOpts,
-          // pass the token so the service can drop stale emits
-          // (harmless if the service ignores it)
-          // ⭐ added:
+          canonicalOptions: this.canonicalOptions,
+          onMessageChange: (msg: string) => {
+            this.selectionMessage = msg;  // updates the message shown
+          },
           token: tok as any
         } as any);
       });
+      
   
       // Delay setting state flags just slightly to let message render first
       // End the freeze and then set flags on the next microtask (kept intention)
