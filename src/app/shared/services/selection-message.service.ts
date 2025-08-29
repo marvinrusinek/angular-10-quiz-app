@@ -3654,10 +3654,10 @@ export class SelectionMessageService {
   
     if (!options?.length || !canonicalOptions?.length) return '';
   
-    // Get selected options
+    // Selected options
     const selectedOptions = options.filter(o => o.selected);
   
-    // Get selected correct options
+    // Selected correct options
     const selectedCorrect = selectedOptions.filter(sel =>
       canonicalOptions.some(c => c.optionId === sel.optionId)
     );
@@ -3665,22 +3665,21 @@ export class SelectionMessageService {
     const totalCorrect = canonicalOptions.length;
     const numCorrectSelected = selectedCorrect.length;
   
-    // Determine message based on question type
     if (questionType === QuestionType.SingleAnswer) {
-      // Single answer
       if (!selectedOptions.length) return 'Please select an option to continue...';
+      
       const selected = selectedOptions[0];
-      return selected.correct
-        ? 'Please click the next button to continue...'
-        : 'Incorrect. Try again.';
+      // Correct selection
+      if (selected.correct) return 'Please click the next button to continue...';
+      // Incorrect selection
+      return 'Select 1 correct answer to continue...';
     } else {
-      // Multiple answer
+      // MultipleAnswer
       if (numCorrectSelected === 0) return 'Select 1 or more correct answers to continue...';
       if (numCorrectSelected < totalCorrect) {
         const remaining = totalCorrect - numCorrectSelected;
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-      // All correct selected
       return 'Please click the next button to continue...';
     }
   }
