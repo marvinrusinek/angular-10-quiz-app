@@ -3285,10 +3285,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
         // Toggle selection for multi-answer questions
-        this.currentOptions[event.index].selected = !this.currentOptions[event.index].selected;
+        this.currentOptions[evtIdx].selected = !this.currentOptions[evtIdx].selected;
       } else {
         // Single answer: select only the clicked option
-        this.currentOptions.forEach((o, idx) => o.selected = idx === event.index);
+        this.currentOptions.forEach((o, idx) => o.selected = idx === evtIdx);
       }
 
       // Build canonicalOptions (only correct answers)
