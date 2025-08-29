@@ -3540,7 +3540,7 @@ export class SelectionMessageService {
     };
   }
 
-  private stableKey(o: Option | CanonicalOption, idx?: number): string {
+  public stableKey(o: Option | CanonicalOption, idx?: number): string {
     // Handle CanonicalOption with optionId (which is string | number)
     const raw = (o as CanonicalOption)?.optionId ??  // Use optionId for CanonicalOption
                 (o as Option)?.optionId ??          // Use optionId for Option
@@ -3636,33 +3636,28 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    canonicalOptions?: CanonicalOption[] | null;
+    canonicalOptions: CanonicalOption[];
   }): string {
-    const { questionType, options, canonicalOptions = null } = params;
+    const { questionType, options, canonicalOptions } = params;
   
-    // Total correct answers in canonical options (correctly marked answers)
-    const totalCorrect = this.countTotalCorrect(questionType, canonicalOptions ?? [], options);
+    // Count total correct options
+    const totalCorrect = canonicalOptions.length;
   
-    // How many correct answers the user has selected
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions ?? [], options);
+    // Count currently selected correct options
+    const selectedCorrect = options.filter(
+      o => o.selected && canonicalOptions.some(c => this.stableKey(c) === this.stableKey(o))
+    ).length;
   
-    // Calculate remaining correct answers
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    console.log(`Total Correct: ${totalCorrect}`);  // Debug log
-    console.log(`Selected Correct: ${selectedCorrect}`);  // Debug log
-    console.log(`Remaining Correct: ${remaining}`);  // Debug log
-  
-    // If there are remaining correct answers, guide the user
     if (remaining > 0) {
-      const unit = this.pluralize(remaining, 'correct answer');
-      return `Select ${remaining} more ${unit} to continue...`;
+      const unit = remaining > 1 ? 'answers' : 'answer';
+      return `Select ${remaining} more correct ${unit} to continue...`;
     }
   
-    // If all correct answers are selected, allow user to proceed
+    // All correct answers selected
     return 'Please click the next button to continue...';
   }
-  
   
 
 

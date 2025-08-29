@@ -3482,7 +3482,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.canonicalOptions = this.currentQuestion.options
         .filter(option => option.correct)  // filter only correct options
         .map(option => ({
-          optionId: option.optionId,
+          optionId: o.optionId ?? this.selectionMessageService.stableKey(o),
           text: option.text,
           correct: option.correct ?? false,  // default to false if not explicitly set
           value: option.value
