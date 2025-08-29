@@ -3648,18 +3648,19 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    canonicalOptions: CanonicalOption[];
+    canonicalOptions?: CanonicalOption[]; // optional now
   }): string {
-    const { options, canonicalOptions } = params;
-
+    const { options, canonicalOptions = [] } = params; // default to empty array
+  
     const selectedOptions = options.filter(o => o.selected);
+  
     const correctSelected = selectedOptions.filter(o =>
       canonicalOptions.some(c => c.optionId === o.optionId)
     );
-
+  
     const totalCorrect = canonicalOptions.length;
     const remaining = totalCorrect - correctSelected.length;
-
+  
     // Multi-answer logic
     if (params.questionType === QuestionType.MultipleAnswer) {
       if (remaining > 1) {
@@ -3670,16 +3671,16 @@ export class SelectionMessageService {
         return `Please click the next button to continue...`;
       }
     }
-
+  
     // Single-answer logic
     if (params.questionType === QuestionType.SingleAnswer) {
       const selected = selectedOptions[0];
       if (!selected) return `Select an answer to continue...`;
       return `Please click the next button to continue...`;
     }
-
+  
     return '';
-  }
+  }  
   
 
 
