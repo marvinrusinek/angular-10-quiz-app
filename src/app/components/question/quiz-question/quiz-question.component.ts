@@ -3212,32 +3212,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this._clickGate) return;
     this._clickGate = true;
 
-    // ───────────────────────────────────────────────
-    // Move canonicalOpts declaration here (scoped for entire method)
-    // ───────────────────────────────────────────────
-    let canonicalOpts: Option[] = [];
-
-    // Helper to generate stable string ID for each option
-    const getStableId = (o: Option) =>
-    o.optionId !== undefined ? String(o.optionId) : `${String(o.value ?? '').trim().toLowerCase()}|${String(o.text ?? '').trim().toLowerCase()}`;
-
-    // Build fresh selected-id set starting from the current click
-    const uiSelectedIds = new Set<string>();
-    if (evtOpt) uiSelectedIds.add(getStableId(evtOpt));
-
-    // Merge selections from SelectedOptionService
     try {
-      const stored: Option[] | Set<any> | undefined = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-      if (stored instanceof Set) {
-        stored.forEach(id => uiSelectedIds.add(String(id)));
-      } else if (Array.isArray(stored)) {
-        stored.forEach(o => uiSelectedIds.add(getStableId(o)));
-      }
-    } catch {}
-
-    try {
-        const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-        const isSingle = !isMultiSelect;
+        // ───────────────────────────────────────────────
+        // Helper: generate stable string ID for each option
+        // ───────────────────────────────────────────────
+        const getStableId = (o: Option) =>
+            o.optionId !== undefined
+                ? String(o.optionId)
+                : `${String(o.value ?? '').trim().toLowerCase()}|${String(o.text ?? '').trim().toLowerCase()}`;
 
         // ───────────────────────────────────────────────
         // 1) Build UPDATED UI array
@@ -3252,38 +3234,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
 
-        // Persist selection immediately (authoritative)
+        // Persist selection immediately
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
-        // 2) Overlay onto CANONICAL options (robust)
+        // 2) Overlay onto CANONICAL options
         // ───────────────────────────────────────────────
-        const getStableId = (o: any) =>
-            (o?.optionId ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`);
+        const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
+        const isSingle = !isMultiSelect;
 
-        // Build selected-id set from UI + authoritative service
-        const uiSelectedIds = new Set<string | number>();
-        for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
+        // Build selected-id set from UI + service
+        const uiSelectedIds = new Set<string>();
+        optionsNow.forEach(o => { if (o?.selected) uiSelectedIds.add(getStableId(o)); });
 
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-            if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(id));
+            if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(String(id)));
             else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
-        let canonicalOpts: Option[] = [];
-
         // Overlay onto canonical options
-        canonicalOpts = (q?.options ?? this.currentQuestion?.options ?? [])
-          .map(o => {
-              const stableId = getStableId(o);
-              return {
-                  ...o,
-                  optionId: o.optionId ?? 0,             // number only
-                  selected: uiSelectedIds.has(stableId)  // overlay selection
-              };
-          });
-
+        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? [])
+            .map(o => {
+                const stableId = getStableId(o);
+                return {
+                    ...o,
+                    optionId: o.optionId ?? 0, // ensure numeric
+                    selected: uiSelectedIds.has(stableId)
+                };
+            });
 
         // Compute remaining correct answers
         const correct = canonicalOpts.filter(o => !!o?.correct);
@@ -3311,7 +3290,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             } as any);
         });
 
-        // Update state flags after microtask to allow message render
+        // Update state flags
         queueMicrotask(() => {
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
@@ -3349,36 +3328,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // Resolve formatted explanation asynchronously
-        const runPinnedResolve = async (timeoutMs: number) => {
-            const prevFixed = this.fixedQuestionIndex;
-            const prevCur = this.currentQuestionIndex;
-            try {
-                this.fixedQuestionIndex = i0;
-                this.currentQuestionIndex = i0;
-                return await this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs });
-            } finally {
-                this.fixedQuestionIndex = prevFixed;
-                this.currentQuestionIndex = prevCur;
-            }
-        };
-
         if (!this._formattedByIndex?.has?.(i0)) {
             requestAnimationFrame(() => {
-                void runPinnedResolve(6000).then(formatted => {
-                    const clean = (formatted ?? '').trim() ?? '';
-                    if (!clean) return;
-                    const active = this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ?? 0;
-                    if (active !== i0) return;
-                    if (this.explanationOwnerIdx !== i0) return;
-
-                    this.ngZone.run(() => {
-                        this.setExplanationFor(i0, clean);
-                        this.explanationToDisplay = clean;
-                        this.explanationToDisplayChange?.emit(clean);
-                        this.cdRef.markForCheck?.();
-                        this.cdRef.detectChanges?.();
-                    });
-                }).catch(err => console.warn('[format-on-click]', err));
+                void (async () => {
+                    const prevFixed = this.fixedQuestionIndex;
+                    const prevCur = this.currentQuestionIndex;
+                    try {
+                        this.fixedQuestionIndex = i0;
+                        this.currentQuestionIndex = i0;
+                        const formatted = await this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 });
+                        const clean = (formatted ?? '').trim();
+                        if (!clean) return;
+                        const active = this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ?? 0;
+                        if (active !== i0 || this.explanationOwnerIdx !== i0) return;
+                        this.ngZone.run(() => {
+                            this.setExplanationFor(i0, clean);
+                            this.explanationToDisplay = clean;
+                            this.explanationToDisplayChange?.emit(clean);
+                            this.cdRef.markForCheck?.();
+                            this.cdRef.detectChanges?.();
+                        });
+                    } finally {
+                        this.fixedQuestionIndex = prevFixed;
+                        this.currentQuestionIndex = prevCur;
+                    }
+                })().catch(err => console.warn('[format-on-click]', err));
             });
         }
 
@@ -3406,19 +3380,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         queueMicrotask(() => { this._clickGate = false; });
     }
 
+    // ───────────────────────────────────────────────
     // Final sync: compute message for current state
+    // ───────────────────────────────────────────────
     const message = this.selectionMessageService.computeSelectionMessage({
         index: this.currentQuestionIndex,
         questionType: this.currentQuestion.type,
         options: this.currentOptions,
-        canonicalOptions: canonicalOpts as CanonicalOption[] // <--- now visible here
+        canonicalOptions: canonicalOpts as CanonicalOption[]
     });
 
     this.selectionMessage = message;
 
-    // Also persist snapshot for service
+    // Persist snapshot for service
     this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   }
+
 
   
   private resetDedupeFor(index: number): void {
