@@ -3246,7 +3246,7 @@ export class SelectionMessageService {
       this.updateSelectionMessage(msg, { options, index, questionType: QuestionType.MultipleAnswer, token: tok });
     }
   } */
-  public emitFromClick(params: {
+  /* public emitFromClick(params: {
     index: number;
     options: Option[];
     token?: number;
@@ -3286,6 +3286,15 @@ export class SelectionMessageService {
       : NEXT_MSG;
   
     this.coalescedUpdateSelectionMessage(msg, { options, index, questionType: qt, token: tok });
+  } */
+  public emitFromClick(params: {
+    index: number;
+    questionType: QuestionType;
+    options: Option[];
+    canonicalOptions: CanonicalOption[];
+  }): void {
+    const message = this.computeSelectionMessage(params);
+    this.selectionMessageSubject.next(message);
   }
   
   
