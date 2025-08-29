@@ -3197,6 +3197,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
       );
     }
+
+    if (!this.currentQuestion || !this.currentOptions) return;
   
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q  = this.questions?.[i0];
@@ -3281,6 +3283,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 👉 Snapshot UPDATED canonical array for message service and EMIT from this same array
       this.initializeCanonicalOptions();
 
+      if (this.currentQuestion.type === QuestionType.MultipleAnswer) {
+        // Toggle selection for multi-answer questions
+        this.currentOptions[event.index].selected = !this.currentOptions[event.index].selected;
+      } else {
+        // Single answer: select only the clicked option
+        this.currentOptions.forEach((o, idx) => o.selected = idx === event.index);
+      }
+
       // Build canonicalOptions (only correct answers)
       const canonicalOptions: CanonicalOption[] = this.currentOptions
         .filter(o => o.correct)
@@ -3300,9 +3310,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           questionType: this.currentQuestion?.type ?? 'SingleAnswer',
           options: this.currentOptions,  // pass the live options with selection
           canonicalOptions,              // only correct answers
-          onMessageChange: (msg: string) => {
-            this.selectionMessage = msg; // updates the message shown
-          },
+          onMessageChange: (msg: string) => this.selectionMessage = msg,
           token: tok as any
         } as any);
       });
