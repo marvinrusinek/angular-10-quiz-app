@@ -3685,28 +3685,27 @@ export class SelectionMessageService {
     if (!canonicalOptions || canonicalOptions.length === 0) return '';
   
     const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
-    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    const isMulti = questionType === QuestionType.MultipleAnswer;
-  
-    // 🔹 Special handling for single-answer questions
-    if (!isMulti) {
-      const hasSelectedCorrect = selectedCorrect > 0;
+    // 🔹 Single-answer special handling
+    if (questionType === QuestionType.SingleAnswer) {
+      const hasSelectedCorrect = options.some(o => o.selected && !!o.correct);
       return hasSelectedCorrect
         ? 'Please click the next button to continue...'
         : 'Select 1 correct option to continue...';
     }
   
-    const isAllCorrect = remaining === 0;
+    // Multi-answer logic
+    const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    if (!isAllCorrect) {
+    if (remaining > 0) {
       const optWord = remaining > 1 ? 'options' : 'option';
       return `Select ${remaining} more correct ${optWord} to continue...`;
     }
   
     return 'Please click the next button to continue...';
   }
+  
   
   
 
