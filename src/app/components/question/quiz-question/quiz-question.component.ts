@@ -3212,17 +3212,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (this._clickGate) return;
     this._clickGate = true;
 
-    let canonicalOpts: Option[] = [];
-
     try {
-        // ───────────────────────────────────────────────
-        // Helper: generate stable string ID for each option
-        // ───────────────────────────────────────────────
-        const getStableId = (o: Option) =>
-            o.optionId !== undefined
-                ? String(o.optionId)
-                : `${String(o.value ?? '').trim().toLowerCase()}|${String(o.text ?? '').trim().toLowerCase()}`;
-
         // ───────────────────────────────────────────────
         // 1) Build UPDATED UI array
         // ───────────────────────────────────────────────
@@ -3236,41 +3226,50 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (this.optionsToDisplay as Option[])[evtIdx].selected = selected;
         }
 
-        // Persist selection immediately
+        // Persist selection immediately (authoritative)
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
         // 2) Overlay onto CANONICAL options
         // ───────────────────────────────────────────────
-        const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-        const isSingle = !isMultiSelect;
+        const getStableId = (o: any) =>
+            o?.optionId ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`;
 
-        // Build selected-id set from UI + service
-        const uiSelectedIds = new Set<string>();
-        optionsNow.forEach(o => { if (o?.selected) uiSelectedIds.add(getStableId(o)); });
+        const uiSelectedIds = new Set<string | number>();
+        for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
 
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-            if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(String(id)));
+            if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(id));
             else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
-        // Overlay onto canonical options
-        canonicalOpts = (q?.options ?? this.currentQuestion?.options ?? [])
-            .map(o => {
-                const stableId = getStableId(o);
-                return {
-                    ...o,
-                    optionId: o.optionId ?? 0, // ensure numeric
-                    selected: uiSelectedIds.has(stableId)
-                };
-            });
+        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map(o => {
+            const stableId = getStableId(o);
+            return {
+                ...o,
+                optionId: o.optionId ?? 0,
+                selected: uiSelectedIds.has(stableId)
+            };
+        });
 
-        // Compute remaining correct answers
-        const correct = canonicalOpts.filter(o => !!o?.correct);
-        const selectedCorrect = correct.filter(o => !!o?.selected).length;
-        const remaining = Math.max(0, correct.length - selectedCorrect);
-        const allCorrect = isMultiSelect ? remaining === 0 : true;
+        // ───────────────────────────────────────────────
+        // 3) Compute remaining correct answers and allCorrect
+        // ───────────────────────────────────────────────
+        const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
+        const correctOpts = canonicalOpts.filter(o => !!o?.correct);
+        const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
+
+        let allCorrect: boolean;
+        let remainingCorrect: number;
+
+        if (isMultiSelect) {
+            allCorrect = selectedCorrectCount === correctOpts.length;
+            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+        } else {
+            allCorrect = selectedCorrectCount === 1;
+            remainingCorrect = allCorrect ? 0 : 1;
+        }
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
@@ -3281,6 +3280,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Emit selection message asynchronously
         queueMicrotask(() => {
+            let msg = '';
+            if (allCorrect) {
+                msg = 'Please click the next button to continue...';
+            } else if (!isMultiSelect && remainingCorrect === 1) {
+                msg = 'Select 1 correct option to continue...';
+            } else if (isMultiSelect && remainingCorrect > 0) {
+                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+            }
+
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
@@ -3290,9 +3298,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 onMessageChange: (msg: string) => this.selectionMessage = msg,
                 token: tok as any
             } as any);
+
+            this.selectionMessage = msg; // immediate update for UI
         });
 
-        // Update state flags
+        // Update state flags after microtask to allow message render
         queueMicrotask(() => {
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
@@ -3300,7 +3310,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 3) Update explanation UI + seed text
+        // 4) Update explanation UI
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
@@ -3329,42 +3339,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.cdRef.detectChanges?.();
         });
 
-        // Resolve formatted explanation asynchronously
-        if (!this._formattedByIndex?.has?.(i0)) {
-            requestAnimationFrame(() => {
-                void (async () => {
-                    const prevFixed = this.fixedQuestionIndex;
-                    const prevCur = this.currentQuestionIndex;
-                    try {
-                        this.fixedQuestionIndex = i0;
-                        this.currentQuestionIndex = i0;
-                        const formatted = await this.resolveFormatted(i0, { useCache: true, setCache: true, timeoutMs: 6000 });
-                        const clean = (formatted ?? '').trim();
-                        if (!clean) return;
-                        const active = this.normalizeIndex?.(this.fixedQuestionIndex ?? this.currentQuestionIndex ?? 0) ?? 0;
-                        if (active !== i0 || this.explanationOwnerIdx !== i0) return;
-                        this.ngZone.run(() => {
-                            this.setExplanationFor(i0, clean);
-                            this.explanationToDisplay = clean;
-                            this.explanationToDisplayChange?.emit(clean);
-                            this.cdRef.markForCheck?.();
-                            this.cdRef.detectChanges?.();
-                        });
-                    } finally {
-                        this.fixedQuestionIndex = prevFixed;
-                        this.currentQuestionIndex = prevCur;
-                    }
-                })().catch(err => console.warn('[format-on-click]', err));
-            });
-        }
-
-        // Persist selection and bookkeeping
-        try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
-        this.selectedIndices.clear();
-        this.selectedIndices.add(evtIdx);
-
         // ───────────────────────────────────────────────
-        // 4) Defer heavy work & feedback after painting first
+        // 5) Post-click tasks
         // ───────────────────────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3378,25 +3354,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             })().catch(err => console.error('[postClickTasks]', err));
         });
 
+        // Persist selection indices
+        try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+        this.selectedIndices.clear();
+        this.selectedIndices.add(evtIdx);
+
     } finally {
         queueMicrotask(() => { this._clickGate = false; });
     }
-
-    // ───────────────────────────────────────────────
-    // Final sync: compute message for current state
-    // ───────────────────────────────────────────────
-    const message = this.selectionMessageService.computeSelectionMessage({
-        index: this.currentQuestionIndex,
-        questionType: this.currentQuestion.type,
-        options: this.currentOptions,
-        canonicalOptions: canonicalOpts as CanonicalOption[]
-    });
-
-    this.selectionMessage = message;
-
-    // Persist snapshot for service
-    this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   }
+
 
 
   
