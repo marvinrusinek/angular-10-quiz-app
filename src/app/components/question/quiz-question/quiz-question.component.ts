@@ -3294,13 +3294,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (allCorrect) {
             msg = 'Please click the next button to continue...';
         } else if (!isMultiSelect) {
-            msg = 'Select 1 correct option to continue...'; // Q1/Q3 incorrect handled here
+            // SINGLE-ANSWER FIX: prevent first-click flash
+            this._singleAnswerFirstClickDone ??= new Set<number>();
+            if (!this._singleAnswerFirstClickDone.has(i0)) {
+                msg = 'Select 1 correct option to continue...';
+                this._singleAnswerFirstClickDone.add(i0);
+            } else {
+                msg = 'Select 1 correct option to continue...';
+            }
         } else if (isMultiSelect && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
         // Defensive guard: prevent async/microtask from overwriting single-answer incorrect message
-        const isSingleAnswerIncorrect = !isMultiSelect && !allCorrect;
+        const preventAsyncUpdate = !isMultiSelect && !allCorrect && this._singleAnswerFirstClickDone.has(i0);
 
         // Immediately set local UI binding BEFORE emitting
         this.selectionMessage = msg;
@@ -3312,8 +3319,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (!isSingleAnswerIncorrect) {
-                    this.selectionMessage = m; // only allow service to update if multi-select or correct
+                if (!preventAsyncUpdate) {
+                    this.selectionMessage = m; // only allow service to update if multi-select or after first click
                 }
             },
             token: tok
@@ -3382,6 +3389,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
