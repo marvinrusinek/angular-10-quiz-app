@@ -3299,7 +3299,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Defensive guard: prevent any async/microtask from overwriting single-answer message
+        // Defensive guard: prevent async/microtask from overwriting single-answer message
         const isSingleAnswerGuard = !isMultiSelect && !allCorrect;
 
         this.selectionMessageService.emitFromClick({
@@ -3380,6 +3380,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
  
 
 
