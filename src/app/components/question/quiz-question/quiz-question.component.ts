@@ -3274,10 +3274,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                          selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            // SINGLE-ANSWER FIX: strictly compute from the actual click
+            // SINGLE-ANSWER FIX
             const clickedIsCorrect = evtOpt ? !!evtOpt.correct : false;
-            allCorrect = clickedIsCorrect; // ONLY current click counts
-            remainingCorrect = clickedIsCorrect ? 0 : 1; // ensures Q1/Q3 incorrect shows correct message
+            allCorrect = clickedIsCorrect;
+            remainingCorrect = clickedIsCorrect ? 0 : 1; 
         }
 
         // Monotonic token to coalesce messages
@@ -3288,37 +3288,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
-        // 4) Compute and emit selection message IMMEDIATELY
+        // 4) Compute and emit selection message
         // ───────────────────────────────────────────────
         let msg = '';
         if (allCorrect) {
             msg = 'Please click the next button to continue...';
         } else if (!isMultiSelect) {
-            msg = 'Select 1 correct option to continue...'; // Q1/Q3 incorrect handled here
+            // SINGLE-ANSWER INCORRECT: bypass service to avoid flashing
+            msg = 'Select 1 correct option to continue...';
+            this.selectionMessage = msg;
         } else if (isMultiSelect && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+
+            // Emit via service (multi-answer only)
+            this.selectionMessageService.emitFromClick({
+                index: i0,
+                totalQuestions: this.totalQuestions,
+                questionType: q?.type ?? QuestionType.SingleAnswer,
+                options: optionsNow,
+                canonicalOptions: canonicalOpts,
+                onMessageChange: (m: string) => this.selectionMessage = m,
+                token: tok
+            });
         }
 
-        // Defensive guard: prevent any async/microtask from overwriting single-answer message
-        const isSingleAnswerGuard = !isMultiSelect && !allCorrect;
-
-        this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: optionsNow,
-            canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                if (!isSingleAnswerGuard) this.selectionMessage = m;
-            },
-            token: tok
-        });
-
-        // Immediately set local UI binding
-        this.selectionMessage = msg;
-
         // ───────────────────────────────────────────────
-        // 4b) Multi-answer tweak: disable Next until all correct selected
+        // 4b) Next button state
         // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
@@ -3380,9 +3375,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-  
+ 
 
 
 
