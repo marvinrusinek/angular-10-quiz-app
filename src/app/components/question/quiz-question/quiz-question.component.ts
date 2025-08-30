@@ -3186,9 +3186,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // ───────────────────────────────────────────────
+    // ───────────────────────────────
     // 0) Abort pending passive RAF
-    // ───────────────────────────────────────────────
+    // ───────────────────────────────
     if (this._pendingPassiveRaf != null) {
         cancelAnimationFrame(this._pendingPassiveRaf);
         this._pendingPassiveRaf = null;
@@ -3205,7 +3205,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
-
     const evtIdx = event.index;
     const evtOpt = event.option;
 
@@ -3213,9 +3212,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this._clickGate = true;
 
     try {
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
         // 1) Build UPDATED UI array
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
         const optionsNow: Option[] = Array.isArray(this.optionsToDisplay)
             ? this.optionsToDisplay.map(o => ({ ...o }))
             : (this.currentQuestion?.options ?? []).map(o => ({ ...o }));
@@ -3229,9 +3228,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Persist selection immediately (authoritative)
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
         // 2) Overlay onto CANONICAL options using stableKey
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
         const getStableId = (o: Option, idx?: number) =>
             this.selectionMessageService.stableKey(o, idx);
 
@@ -3245,9 +3244,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             };
         });
 
-        // ───────────────────────────────────────────────
-        // 3) Compute remaining correct answers and allCorrect
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
+        // 3) Compute selected set, remaining correct answers, and allCorrect
+        // ───────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
 
@@ -3271,13 +3270,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (isMultiSelect) {
             allCorrect = selectedCorrectCount === correctOpts.length &&
-                         selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
+                         selOptsSet.size === correctOpts.length; // no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            // SINGLE-ANSWER FIX: strictly compute from the actual click
+            // SINGLE-ANSWER: only current click counts
             const clickedIsCorrect = evtOpt ? !!evtOpt.correct : false;
-            allCorrect = clickedIsCorrect; // ONLY current click counts
-            remainingCorrect = clickedIsCorrect ? 0 : 1; // ensures Q1/Q3 incorrect shows correct message
+            allCorrect = clickedIsCorrect;
+            remainingCorrect = clickedIsCorrect ? 0 : 1;
+        }
+
+        // ───────────────────────────────
+        // 3b) EARLY SINGLE-ANSWER GUARD
+        // Prevent explanation flashing and initial message
+        // ───────────────────────────────
+        const hasSelectedAny = selOptsSet.size > 0;
+        if (!isMultiSelect && !hasSelectedAny) {
+            this.explanationTextService.setShouldDisplayExplanation(false);
+            this.selectionMessage = 'Please select an option to continue...';
+            return;
         }
 
         // Monotonic token to coalesce messages
@@ -3287,57 +3297,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Snapshot canonical once for the service
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // ───────────────────────────────────────────────
-        // 4) Compute and emit selection message IMMEDIATELY
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
+        // 4) Compute and emit selection message
+        // ───────────────────────────────
         let msg = '';
         if (allCorrect) {
             msg = 'Please click the next button to continue...';
-        } else if (!isMultiSelect) {
-            // SINGLE-ANSWER FIX: prevent first-click flash
-            this._singleAnswerFirstClickDone ??= new Set<number>();
-            if (!this._singleAnswerFirstClickDone.has(i0)) {
-                msg = 'Select 1 correct option to continue...';
-                this._singleAnswerFirstClickDone.add(i0);
-            } else {
-                msg = 'Select 1 correct option to continue...';
-            }
         } else if (isMultiSelect && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        } else if (!isMultiSelect && !allCorrect) {
+            msg = 'Select 1 correct option to continue...';
         }
 
-        // Defensive guard: prevent async/microtask from overwriting single-answer incorrect message
-        const preventAsyncUpdate = !isMultiSelect && !allCorrect && this._singleAnswerFirstClickDone.has(i0);
-
-        // Immediately set local UI binding BEFORE emitting
         this.selectionMessage = msg;
-
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                if (!preventAsyncUpdate) {
-                    this.selectionMessage = m; // only allow service to update if multi-select or after first click
-                }
-            },
+            onMessageChange: (m: string) => { this.selectionMessage = m; },
             token: tok
         });
 
-        // ───────────────────────────────────────────────
-        // 4b) Multi-answer tweak: disable Next until all correct selected
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
+        // 4b) Next button & answered state
+        // ───────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // ───────────────────────────────────────────────
-        // 5) Update explanation UI (DELAYED to prevent Q1/Q3 flicker)
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
+        // 5) Update explanation UI
+        // ───────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
 
@@ -3348,28 +3342,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 this.displayExplanation = true;
                 this.showExplanationChange?.emit(true);
 
-                if (cached?.trim()) {
-                    this.setExplanationFor(i0, cached);
-                    this.explanationToDisplay = cached;
-                    this.explanationToDisplayChange?.emit(cached);
-                } else if (rawTrue) {
-                    this.setExplanationFor(i0, rawTrue);
-                    this.explanationToDisplay = rawTrue;
-                    this.explanationToDisplayChange?.emit(rawTrue);
-                } else {
-                    this.setExplanationFor(i0, '');
-                    this.explanationToDisplay = '<span class="muted">Formatting…</span>';
-                    this.explanationToDisplayChange?.emit(this.explanationToDisplay);
-                }
+                const textToSet = cached?.trim() || rawTrue || '<span class="muted">Formatting…</span>';
+                this.setExplanationFor(i0, textToSet);
+                this.explanationToDisplay = textToSet;
+                this.explanationToDisplayChange?.emit(textToSet);
 
                 this.cdRef.markForCheck?.();
                 this.cdRef.detectChanges?.();
             });
         });
 
-        // ───────────────────────────────────────────────
-        // 6) Post-click tasks
-        // ───────────────────────────────────────────────
+        // ───────────────────────────────
+        // 6) Post-click tasks: feedback & internal updates
+        // ───────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             (async () => {
@@ -3390,6 +3375,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
