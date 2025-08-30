@@ -777,100 +777,57 @@ export class SelectionMessageService {
 
   public emitFromClick(params: {
     index: number;
-    totalQuestions?: number;
-    options: Option[];
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];          // UI copy with latest selected flags
+    canonicalOptions: Option[]; // authoritative canonical snapshot
+    onMessageChange?: (msg: string) => void;
     token?: number;
-  }): void {
-    const { index, options } = params;
-    const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
+}): void {
+    const { index, totalQuestions, questionType, options, canonicalOptions, onMessageChange, token } = params;
 
-    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string'
-      ? globalThis.NEXT_BTN_MSG
-      : 'Please click the next button to continue...';
-    const START_MSG = typeof globalThis.START_MSG === 'string'
-      ? globalThis.START_MSG
-      : 'Please click an option to continue';
+    // ───────────────────────────────────────────────
+    // 1) Compute selected & correct counts deterministically
+    // ───────────────────────────────────────────────
+    const isMultiSelect = questionType === QuestionType.MultipleAnswer;
 
-    const norm = (s: any) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+    const correctOpts = canonicalOptions.filter(o => !!o.correct);
+    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
 
-    const keyOf = (o: Option): string => {
-      if (!o) return 'unknown';
-      if (o.optionId != null) return `id:${o.optionId}`;
-      if ((o as any).id != null) return `id:${(o as any).id}`;
-      if (o.value != null) return `val:${o.value}`;
-      if (typeof o.text === 'string') return `txt:${norm(o.text)}`;
-      return 'unknown';
-    };
+    let allCorrect: boolean;
+    let remainingCorrect: number;
 
-    // ──────────────────────────────────────────────
-    // Resolve canonical question
-    // ──────────────────────────────────────────────
-    let qRef: any;
-    try {
-      const svc: any = this.quizService;
-      const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-      const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
-      qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
-    } catch { qRef = undefined; }
-
-    const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
-
-    // ──────────────────────────────────────────────
-    // SINGLE-ANSWER (messages reversed)
-    // ──────────────────────────────────────────────
-    if (questionType === QuestionType.SingleAnswer) {
-      const selected = options.find(o => !!o.selected);
-      if (!selected) {
-        this.updateSelectionMessage(START_MSG, { options, index, questionType, token: params.token });
-        return;
-      }
-
-      const canon = canonicalOpts.find(c => keyOf(c) === keyOf(selected));
-      if (!canon || !canon.correct) {
-        // ❌ Incorrect → Select 1 correct answer
-        this.updateSelectionMessage(`Select 1 correct answer to continue...`, { options, index, questionType, token: params.token });
-      } else {
-        // ✅ Correct → Next message
-        this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: params.token });
-      }
-
-      // Clear any previous cache for single-answer question
-      this.selectedCorrectCountCache.delete(index);
-      return;
+    if (isMultiSelect) {
+        allCorrect = selectedCorrectCount === correctOpts.length;
+        remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+    } else {
+        allCorrect = selectedCorrectCount === 1;
+        remainingCorrect = allCorrect ? 0 : 1;
     }
 
-    // ──────────────────────────────────────────────
-    // MULTI-ANSWER with per-question correct count cache
-    // ──────────────────────────────────────────────
-    const canonCorrectKeys = new Set<string>(canonicalOpts.filter(c => !!c.correct).map(keyOf));
-
-    // Initialize cache if needed
-    if (!this.selectedCorrectCountCache.has(index)) {
-      this.selectedCorrectCountCache.set(index, 0);
+    // ───────────────────────────────────────────────
+    // 2) Determine message
+    // ───────────────────────────────────────────────
+    let msg = '';
+    if (allCorrect) {
+        msg = 'Please click the next button to continue...';
+    } else if (!isMultiSelect && remainingCorrect === 1) {
+        msg = 'Select 1 correct option to continue...';
+    } else if (isMultiSelect && remainingCorrect > 0) {
+        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
     }
 
-    // Count correct selections from payload
-    const currentSelectedCorrectCount = options
-      .filter(o => !!o.selected)
-      .filter(o => canonCorrectKeys.has(keyOf(o)))
-      .length;
+    // ───────────────────────────────────────────────
+    // 3) Emit message immediately for UI
+    // ───────────────────────────────────────────────
+    if (onMessageChange) onMessageChange(msg);
 
-    // Update cache
-    this.selectedCorrectCountCache.set(index, currentSelectedCorrectCount);
-
-    const remaining = Math.max(canonCorrectKeys.size - currentSelectedCorrectCount, 0);
-
-    if (remaining > 0) {
-      this.updateSelectionMessage(
-        `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-        { options, index, questionType: QuestionType.MultipleAnswer, token: params.token }
-      );
-      return;
+    // Optional: persist message in service for other subscribers
+    if (this.selectionMessageSubject) {
+      this.selectionMessageSubject.next(msg);
     }
-
-    // All correct selected → Next
-    this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
   }
+
 
   
   /* ================= helpers ================= */

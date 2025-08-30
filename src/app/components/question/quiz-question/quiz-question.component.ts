@@ -3254,60 +3254,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 3) Compute remaining correct answers and allCorrect
+        // 3) Compute remaining correct answers and message
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
         const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
 
-        let allCorrect: boolean;
-        let remainingCorrect: number;
+        const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+        const allCorrect = remainingCorrect === 0;
 
-        if (isMultiSelect) {
-            allCorrect = selectedCorrectCount === correctOpts.length;
-            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-        } else {
-            allCorrect = selectedCorrectCount === 1;
-            remainingCorrect = allCorrect ? 0 : 1;
+        // Build message string based on selection
+        let msg = '';
+        if (allCorrect) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMultiSelect && remainingCorrect === 1) {
+            msg = 'Select 1 correct option to continue...';
+        } else if (isMultiSelect && remainingCorrect > 0) {
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Monotonic token to coalesce messages
-        this._msgTok ??= 0;
-        const tok: number = ++this._msgTok;
+        // Emit message via BehaviorSubject (Option 1)
+        this.selectionMessageSubject.next(msg);
 
-        // Snapshot canonical once for the service
+        // Optional: immediate component update
+        this.selectionMessage = msg;
+
+        // Persist canonical snapshot for reference
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-
-        // Emit selection message asynchronously
-        queueMicrotask(() => {
-            let msg = '';
-            if (allCorrect) {
-                msg = 'Please click the next button to continue...';
-            } else if (!isMultiSelect && remainingCorrect === 1) {
-                msg = 'Select 1 correct option to continue...';
-            } else if (isMultiSelect && remainingCorrect > 0) {
-                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-            }
-
-            this.selectionMessageService.emitFromClick({
-                index: i0,
-                totalQuestions: this.totalQuestions,
-                questionType: q?.type ?? 'SingleAnswer',
-                options: optionsNow,
-                canonicalOptions: canonicalOpts,
-                onMessageChange: (msg: string) => this.selectionMessage = msg,
-                token: tok as any
-            } as any);
-
-            this.selectionMessage = msg; // immediate update for UI
-        });
-
-        // Update state flags after microtask to allow message render
-        queueMicrotask(() => {
-            this.quizStateService.setAnswered(allCorrect);
-            this.quizStateService.setAnswerSelected(allCorrect);
-            this.nextButtonStateService.setNextButtonState(allCorrect);
-        });
 
         // ───────────────────────────────────────────────
         // 4) Update explanation UI
@@ -3359,11 +3332,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.clear();
         this.selectedIndices.add(evtIdx);
 
+        // ───────────────────────────────────────────────
+        // 6) Update next button & quiz state asynchronously
+        // ───────────────────────────────────────────────
+        queueMicrotask(() => {
+            this.quizStateService.setAnswered(allCorrect);
+            this.quizStateService.setAnswerSelected(allCorrect);
+            this.nextButtonStateService.setNextButtonState(allCorrect);
+        });
+
     } finally {
         queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
 
 
   
