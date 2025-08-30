@@ -708,7 +708,7 @@ export class SelectionMessageService {
     const safe = Array.isArray(opts) ? opts.map(o => ({ ...o })) : [];
     this.optionsSnapshot = safe;  // persist internally
     this.optionsSnapshotSubject.next(safe);  // still emit for any subscribers
-}
+  }
 
   public getOptionsSnapshot(): Option[] {
     return this.optionsSnapshot.map(o => ({ ...o }));
