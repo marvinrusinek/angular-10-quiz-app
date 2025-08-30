@@ -3254,40 +3254,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 3) Compute remaining correct answers and allCorrect (FIXED)
-        // Use optionsNow (current question) for correct count
+        // 3) Compute remaining correct answers and allCorrect
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-        const correctOpts = optionsNow.filter(o => !!o?.correct); // <-- ONLY current question
-        const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
 
-        let allCorrect: boolean;
-        let remainingCorrect: number;
+        // 🔹 FIX: Use immediate optionsNow for message computation
+        const correctOptsNow = optionsNow.filter(o => !!o.correct);
+        const selectedCorrectCountNow = correctOptsNow.filter(o => !!o.selected).length;
 
-        if (isMultiSelect) {
-            allCorrect = selectedCorrectCount === correctOpts.length;
-            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-        } else {
-            allCorrect = selectedCorrectCount === 1;
-            remainingCorrect = allCorrect ? 0 : 1;
-        }
+        const remainingCorrectNow = Math.max(0, correctOptsNow.length - selectedCorrectCountNow);
+        const allCorrectNow = remainingCorrectNow === 0;
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok: number = ++this._msgTok;
 
-        // Snapshot canonical once for the service
+        // Snapshot canonical once for the service (for persistence only)
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // Emit selection message asynchronously
         queueMicrotask(() => {
             let msg = '';
-            if (allCorrect) {
+            if (allCorrectNow) {
                 msg = 'Please click the next button to continue...';
-            } else if (!isMultiSelect && remainingCorrect === 1) {
+            } else if (!isMultiSelect && remainingCorrectNow === 1) {
                 msg = 'Select 1 correct option to continue...';
-            } else if (isMultiSelect && remainingCorrect > 0) {
-                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+            } else if (isMultiSelect && remainingCorrectNow > 0) {
+                msg = `Select ${remainingCorrectNow} more correct answer${remainingCorrectNow > 1 ? 's' : ''} to continue...`;
             }
 
             this.selectionMessageService.emitFromClick({
@@ -3305,9 +3298,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Update state flags after microtask to allow message render
         queueMicrotask(() => {
-            this.quizStateService.setAnswered(allCorrect);
-            this.quizStateService.setAnswerSelected(allCorrect);
-            this.nextButtonStateService.setNextButtonState(allCorrect);
+            this.quizStateService.setAnswered(allCorrectNow);
+            this.quizStateService.setAnswerSelected(allCorrectNow);
+            this.nextButtonStateService.setNextButtonState(allCorrectNow);
         });
 
         // ───────────────────────────────────────────────
@@ -3318,7 +3311,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         this.ngZone.run(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
-            this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
+            this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrectNow });
             this.displayExplanation = true;
             this.showExplanationChange?.emit(true);
 
@@ -3363,7 +3356,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
         queueMicrotask(() => { this._clickGate = false; });
     }
-}
+  }
+
 
 
 
