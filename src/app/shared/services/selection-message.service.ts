@@ -773,111 +773,126 @@ export class SelectionMessageService {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
   
-  public emitFromClick(params: {   
+  public emitFromClick(params: {
     index: number;
     totalQuestions?: number;
     options: Option[]; // updated array already passed
     token?: number;    // optional debounce/continue token from caller
   }): void {
     const { index, options } = params;
-    
-    const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
   
-    const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string'
-      ? globalThis.NEXT_BTN_MSG
-      : 'Please click the next button to continue...';
-    const START_MSG = typeof globalThis.START_MSG === 'string'
-      ? globalThis.START_MSG
-      : 'Please click an option to continue';
+    // ─────────────────────────────────────────────────────────────
+    // Get current question type
+    // ─────────────────────────────────────────────────────────────
+    const questionType =
+      this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
   
+    // ─────────────────────────────────────────────────────────────
+    // Message fallbacks
+    // ─────────────────────────────────────────────────────────────
+    const NEXT_MSG =
+      typeof globalThis.NEXT_BTN_MSG === 'string'
+        ? globalThis.NEXT_BTN_MSG
+        : 'Please click the next button to continue...';
+    const START_MSG =
+      typeof globalThis.START_MSG === 'string'
+        ? globalThis.START_MSG
+        : 'Please click an option to continue';
+  
+    // ─────────────────────────────────────────────────────────────
+    // Normalize / key helpers
+    // ─────────────────────────────────────────────────────────────
     const norm = (s: any) =>
       (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
   
     const keyOf = (o: any): string | number =>
       (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
+    // ─────────────────────────────────────────────────────────────
     // Resolve canonical options for this question
+    // ─────────────────────────────────────────────────────────────
     let qRef: any;
     try {
       const svc: any = this.quizService;
       const qArr = Array.isArray(svc?.questions) ? svc.questions : [];
-      const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
+      const resolvedIndex = index >= 0 && index < qArr.length ? index : svc?.currentQuestionIndex ?? 0;
       qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
-    } catch { qRef = undefined; }
-  
+    } catch {
+      qRef = undefined;
+    }
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
     // ─────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER (unchanged)
+    // SINGLE-ANSWER logic (kept intact)
     // ─────────────────────────────────────────────────────────────
     if (questionType === QuestionType.SingleAnswer) {
       const selected = options.find(o => !!o.selected);
       if (!selected) {
         this.updateSelectionMessage(START_MSG, { options, index, questionType, token: params.token });
+        console.log(`[SingleAnswer][${index}] No option selected -> START_MSG`);
         return;
       }
   
       const canon = canonicalOpts.find(c => keyOf(c) === keyOf(selected));
       if (!canon || !canon.correct) {
         this.updateSelectionMessage('Select 1 correct option to continue...', { options, index, questionType, token: params.token });
+        console.log(`[SingleAnswer][${index}] Selected wrong option -> ask for 1 correct`);
         return;
       }
   
-      // Correct option selected
       this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: params.token });
+      console.log(`[SingleAnswer][${index}] Correct option selected -> NEXT_MSG`);
       return;
     }
   
     // ─────────────────────────────────────────────────────────────
-    // MULTI-ANSWER: refactored to fix Q2/Q4
+    // MULTI-ANSWER: fully refactored to fix Q2/Q4
     // ─────────────────────────────────────────────────────────────
     {
       const payloadSelected = (options ?? []).filter(o => !!o.selected);
   
+      // START message if nothing selected yet
       if (payloadSelected.length === 0) {
         this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
+        console.log(`[MultiAnswer][${index}] No option selected -> START_MSG`);
         return;
       }
   
-      // Canonical correct keys
-      const canonCorrect = new Set(canonicalOpts.filter(c => !!c.correct).map(c => keyOf(c)));
-      const selectedCorrectCount = payloadSelected.filter(o => canonCorrect.has(keyOf(o))).length;
-      const totalCorrect = canonCorrect.size;
+      // 1️⃣ Build canonical map for current question (stable keys)
+      const canonicalMap: Map<string | number, Option> = new Map();
+      canonicalOpts.forEach(o => {
+        const k = o.optionId ?? o.id ?? o.value ?? `t:${norm(o.text)}`;
+        canonicalMap.set(k, o);
+      });
   
-      let remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
+      // 2️⃣ Count correct selections from payload for current question
+      let selectedCorrectCount = 0;
+      payloadSelected.forEach(o => {
+        const k = o.optionId ?? o.id ?? o.value ?? `t:${norm(o.text)}`;
+        const canon = canonicalMap.get(k);
+        if (canon?.correct) selectedCorrectCount++;
+      });
   
-      // ──────────────
-      // Q2 special case: show NEXT_MSG when all correct selected
-      // ──────────────
-      if (index === 1 && remaining === 0) { // Q2 index = 1
-        this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
-        return;
-      }
+      // 3️⃣ Determine total correct and remaining
+      const totalCorrect = Array.from(canonicalMap.values()).filter(o => o.correct).length;
+      const remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
   
-      // ──────────────
-      // Q4 special floor: prevent flipping messages
-      // ──────────────
-      if (index === 3) { // Q4 index = 3
-        remaining = Math.max(Math.min(totalCorrect - selectedCorrectCount, totalCorrect), 1);
-      }
+      // 4️⃣ Update selection message
+      const message =
+        remaining > 0
+          ? `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`
+          : NEXT_MSG;
   
-      // ──────────────
-      // Display message
-      // ──────────────
-      if (remaining > 0) {
-        this.updateSelectionMessage(
-          `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-          { options, index, questionType: QuestionType.MultipleAnswer, token: params.token }
-        );
-      } else {
-        this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
-      }
+      this.updateSelectionMessage(message, {
+        options,
+        index,
+        questionType: QuestionType.MultipleAnswer,
+        token: params.token,
+      });
+  
+      console.log(`[MultiAnswer][${index}] Selected correct: ${selectedCorrectCount} / ${totalCorrect} -> message: "${message}"`);
     }
   }
-  
-  
-  
-
   
   
   
