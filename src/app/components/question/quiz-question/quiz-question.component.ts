@@ -3186,7 +3186,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────── 
     // 0) Abort pending passive RAF
     // ───────────────────────────────────────────────
     if (this._pendingPassiveRaf != null) {
@@ -3230,18 +3230,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
-        // 2) Overlay onto CANONICAL options using stableKey
+        // 2) Overlay onto CANONICAL options using stableKey with safeguard
         // ───────────────────────────────────────────────
         const getStableId = (o: Option, idx?: number) =>
             this.selectionMessageService.stableKey(o, idx);
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o, idx);
+            const selSet = this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [];
+
+            let isSelected = false;
+
+            if (Array.isArray(selSet) && selSet.length) {
+                // Authoritative selected options are always respected
+                isSelected = selSet.some(sel => this.selectionMessageService.stableKey(sel) === stableId);
+            } else if (q?.type !== QuestionType.MultipleAnswer && evtOpt) {
+                // Fallback for single-answer: mark clicked option as selected
+                isSelected = evtOpt === o || evtIdx === idx;
+            }
+
             return {
                 ...o,
                 optionId: Number(o.optionId ?? stableId),
-                selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
-                    .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
+                selected: isSelected
             };
         });
 
@@ -3311,14 +3322,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // 4b) Multi-answer tweak: disable Next until all correct selected
         // ───────────────────────────────────────────────
         queueMicrotask(() => {
-            if (isMultiSelect) {
-                // Only enable Next if all correct selected
-                this.nextButtonStateService.setNextButtonState(allCorrect);
-            } else {
-                // Single-answer: standard logic
-                this.nextButtonStateService.setNextButtonState(allCorrect);
-            }
-
+            this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
@@ -3377,6 +3381,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
   
   private resetDedupeFor(index: number): void {
