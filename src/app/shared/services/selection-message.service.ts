@@ -781,6 +781,7 @@ export class SelectionMessageService {
   }): void {
     const { index, options } = params;
   
+    // Determine question type safely
     const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
   
     const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string'
@@ -789,14 +790,16 @@ export class SelectionMessageService {
     const START_MSG = typeof globalThis.START_MSG === 'string'
       ? globalThis.START_MSG
       : 'Please click an option to continue';
-    const INCORRECT_SINGLE_MSG = 'Select 1 correct answer to continue...';
   
+    // Helper to normalize strings
     const norm = (s: any) =>
       (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
   
-    const keyOf = (o: any): string | number =>
-      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
+    // Stable key for any option
+    const stableKey = (o: any): string | number =>
+      (o?.optionId ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
+    // Resolve canonical options for this question
     let qRef: any;
     try {
       const svc: any = this.quizService;
@@ -807,87 +810,50 @@ export class SelectionMessageService {
   
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
-    // ─────────────────────────────────────────────────────────────
-    // SINGLE-ANSWER
-    // ─────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (messages reversed)
     if (questionType === QuestionType.SingleAnswer) {
       const selected = options.find(o => !!o.selected);
-  
       if (!selected) {
+        // No option selected yet
         this.updateSelectionMessage(START_MSG, { options, index, questionType, token: params.token });
         return;
       }
   
-      const canon = canonicalOpts.find(c => keyOf(c) === keyOf(selected));
+      const canon = canonicalOpts.find(c => stableKey(c) === stableKey(selected));
+      const isCorrect = !!canon?.correct;
   
-      if (!canon || !canon.correct) {
-        // Wrong selection → show "Select 1 correct answer"
-        this.updateSelectionMessage(INCORRECT_SINGLE_MSG, { options, index, questionType, token: params.token });
-        return;
-      }
-  
-      // Correct selection → allow Next
-      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: params.token });
+      // Correct answer → NEXT_MSG, Incorrect → "Select 1 correct answer..."
+      this.updateSelectionMessage(isCorrect ? NEXT_MSG : 'Select 1 correct answer to continue...', 
+        { options, index, questionType, token: params.token });
       return;
     }
   
-    // ─────────────────────────────────────────────────────────────
-    // MULTI-ANSWER
-    // ─────────────────────────────────────────────────────────────
+    // MULTI-ANSWER (stable keys, correct remaining calculation)
     {
       const payloadSelected = (options ?? []).filter(o => !!o.selected);
-  
       if (payloadSelected.length === 0) {
         this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
         return;
       }
   
-      // Get canonical set of correct keys
-      const canonCorrect = new Set(canonicalOpts.filter(c => !!c.correct).map(c => keyOf(c)));
-  
-      // --- TRACK PREVIOUSLY SELECTED CORRECT OPTIONS FROM QUESTION STATE ---
-      const previouslySelectedCorrectKeys = new Set<string | number>(
-        (qRef?.selectedCorrectKeys ?? []) // persist in your quiz state for this question
-          .filter((k: any) => canonCorrect.has(k))
-      );
-  
-      // Merge with current payload
-      for (const o of payloadSelected) {
-        const k = keyOf(o);
-        if (canonCorrect.has(k)) previouslySelectedCorrectKeys.add(k);
-      }
-  
-      // Save back into question state for future clicks
-      if (qRef) {
-        qRef.selectedCorrectKeys = Array.from(previouslySelectedCorrectKeys);
-      }
-  
-      const remaining = Math.max(canonCorrect.size - previouslySelectedCorrectKeys.size, 0);
+      // Canonical correct keys
+      const canonCorrect = new Set(canonicalOpts.filter(c => !!c.correct).map(c => stableKey(c)));
+      // Count correct selected in payload
+      const selectedCorrectCount = payloadSelected.filter(o => canonCorrect.has(stableKey(o))).length;
+      const totalCorrect = canonCorrect.size;
+      const remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
   
       if (remaining > 0) {
-        this.updateSelectionMessage(
-          `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
-          { options, index, questionType: QuestionType.MultipleAnswer, token: params.token }
-        );
+        // Show remaining correct answers
+        this.updateSelectionMessage(`Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
+          { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
         return;
       }
   
-      // All correct selected → allow Next
+      // All correct selected → NEXT_MSG
       this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
     }
   }
-  
-  
-
-  
-  
-
-
-
-  
-  
-  
-  
   
 
   /* ================= helpers ================= */
