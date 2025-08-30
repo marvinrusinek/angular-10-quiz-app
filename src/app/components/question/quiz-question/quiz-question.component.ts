@@ -3230,12 +3230,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
-        // 2) Overlay onto CANONICAL options
+        // 2) Overlay onto CANONICAL options using stableKey
         // ───────────────────────────────────────────────
-        const getStableId = (o: any) =>
-            o?.optionId ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`;
+        const getStableId = (o: Option, idx?: number) =>
+            this.selectionMessageService.stableKey(o, idx);
 
-        // Build canonical options, including all previous selections
         const uiSelectedIds = new Set<string | number>();
         for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
 
@@ -3246,23 +3245,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } catch {}
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
-            const stableId = getStableId(o);
+            const stableId = getStableId(o, idx);
             return {
                 ...o,
-                optionId: o.optionId ?? idx,
+                optionId: Number(o.optionId ?? stableId),
                 selected: uiSelectedIds.has(stableId)
             };
         });
-
-        // Persist canonical snapshot for message calculation
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
         // 3) Compute remaining correct answers and allCorrect
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-        const correctOpts = canonicalOpts.filter(o => !!o.correct);
-        const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+        const correctOpts = canonicalOpts.filter(o => !!o?.correct);
+        const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
 
         let allCorrect: boolean;
         let remainingCorrect: number;
@@ -3278,6 +3274,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok: number = ++this._msgTok;
+
+        // Snapshot canonical once for the service
+        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
         // 4) Emit selection message asynchronously
@@ -3298,9 +3297,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 questionType: q?.type ?? 'SingleAnswer',
                 options: optionsNow,
                 canonicalOptions: canonicalOpts,
-                onMessageChange: (msg: string) => this.selectionMessage = msg,
-                token: tok as any
-            } as any);
+                onMessageChange: (m: string) => this.selectionMessage = m,
+                token: tok
+            });
 
             this.selectionMessage = msg; // immediate update for UI
         });
