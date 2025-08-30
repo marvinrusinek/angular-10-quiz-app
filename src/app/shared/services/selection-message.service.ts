@@ -1312,7 +1312,7 @@ export class SelectionMessageService {
   }
 
   // Returns a stable key for an option, to uniquely identify it across UI / canonical options.
-   public stableKey(opt: Option, idx?: number): string {
+  public stableKey(opt: Option, idx?: number): string {
     if (!opt) return `unknown-${idx ?? '0'}`;
     return opt.optionId != null
       ? String(opt.optionId)
