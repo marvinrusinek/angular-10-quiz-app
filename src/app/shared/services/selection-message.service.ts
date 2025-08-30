@@ -3294,44 +3294,35 @@ export class SelectionMessageService {
     index: number;
     questionType: QuestionType;
     options: Option[];
-    onMessageChange?: (msg: string) => void; // optional callback
+    onMessageChange?: (msg: string) => void;
   }): void {
-    const { options, questionType, index, onMessageChange } = params;
-  
-    // Update canonical snapshot from the latest options
-    this.setOptionsSnapshot(options);
-  
-    // Get latest snapshot and convert to CanonicalOption[]
+    // Update canonical snapshot from latest options
+    this.setOptionsSnapshot(params.options);
+
     const canonicalOptions: CanonicalOption[] = (this.optionsSnapshotSubject.getValue() ?? []).map(o => ({
-      optionId: (o.optionId ?? o.value ?? o.text)?.toString(), // ensure string
-      text: o.text ?? '',
-      value: (o.value ?? '').toString(),  // coerce number to string
+      optionId: o.optionId ?? o.value ?? o.text,
+      text: o.text,
+      value: o.value ? String(o.value) : undefined, // ensure string
       correct: !!o.correct
-    }));    
-  
-    options.forEach(opt => {
-      // Find the canonical option matching this one
-      const canon = canonicalOptions.find(c =>
-        (c.optionId ?? c.value ?? c.text) === (opt.optionId ?? opt.value ?? opt.text)
-      );
-  
-      if (canon) {
-        // Copy the correct flag from canonical to the option
-        opt.correct = !!canon.correct;
-      }
+    }));
+
+    // Sync correct flags from canonical to current options
+    params.options.forEach(opt => {
+      const canon = canonicalOptions.find(c => c.optionId === (opt.optionId ?? opt.value ?? opt.text));
+      if (canon) opt.correct = canon.correct;
     });
-  
-    // Compute message based on snapshot
+
+    // Compute selection message
     const message = this.computeSelectionMessage({
-      index,
-      questionType,
-      options,
+      index: params.index,
+      questionType: params.questionType,
+      options: params.options,
       canonicalOptions
     });
-  
-    // Only call callback if defined
-    if (typeof onMessageChange === 'function') {
-      onMessageChange(message);
+
+    // Notify caller if callback provided
+    if (typeof params.onMessageChange === 'function') {
+      params.onMessageChange(message);
     }
   }
   
