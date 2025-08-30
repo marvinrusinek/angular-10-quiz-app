@@ -67,6 +67,8 @@ export class SelectionMessageService {
   private _emitSeq = 0;
   private _lastEmitFrameByKey = new Map<string, number>();
 
+  private selectedCorrectCountCache = new Map<number, number>();
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -781,17 +783,16 @@ export class SelectionMessageService {
   }): void {
     const { index, options } = params;
     const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
-  
+
     const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string'
       ? globalThis.NEXT_BTN_MSG
       : 'Please click the next button to continue...';
     const START_MSG = typeof globalThis.START_MSG === 'string'
       ? globalThis.START_MSG
       : 'Please click an option to continue';
-  
+
     const norm = (s: any) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-  
-    // Helper: unique stable key for an option
+
     const keyOf = (o: Option): string => {
       if (!o) return 'unknown';
       if (o.optionId != null) return `id:${o.optionId}`;
@@ -800,7 +801,7 @@ export class SelectionMessageService {
       if (typeof o.text === 'string') return `txt:${norm(o.text)}`;
       return 'unknown';
     };
-  
+
     // ──────────────────────────────────────────────
     // Resolve canonical question
     // ──────────────────────────────────────────────
@@ -811,11 +812,11 @@ export class SelectionMessageService {
       const resolvedIndex = (index >= 0 && index < qArr.length) ? index : (svc?.currentQuestionIndex ?? 0);
       qRef = qArr[resolvedIndex] ?? svc?.currentQuestion;
     } catch { qRef = undefined; }
-  
+
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
-  
+
     // ──────────────────────────────────────────────
-    // SINGLE-ANSWER (correct/incorrect messages reversed)
+    // SINGLE-ANSWER (messages reversed)
     // ──────────────────────────────────────────────
     if (questionType === QuestionType.SingleAnswer) {
       const selected = options.find(o => !!o.selected);
@@ -823,30 +824,42 @@ export class SelectionMessageService {
         this.updateSelectionMessage(START_MSG, { options, index, questionType, token: params.token });
         return;
       }
-  
-      const selectedKey = keyOf(selected);
-      const canon = canonicalOpts.find(c => keyOf(c) === selectedKey);
-  
+
+      const canon = canonicalOpts.find(c => keyOf(c) === keyOf(selected));
       if (!canon || !canon.correct) {
-        // ❌ Incorrect → Select 1 correct answer to continue...
+        // ❌ Incorrect → Select 1 correct answer
         this.updateSelectionMessage(`Select 1 correct answer to continue...`, { options, index, questionType, token: params.token });
       } else {
         // ✅ Correct → Next message
         this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: params.token });
       }
+
+      // Clear any previous cache for single-answer question
+      this.selectedCorrectCountCache.delete(index);
       return;
     }
-  
+
     // ──────────────────────────────────────────────
-    // MULTI-ANSWER (stable count with canonical keys)
+    // MULTI-ANSWER with per-question correct count cache
     // ──────────────────────────────────────────────
     const canonCorrectKeys = new Set<string>(canonicalOpts.filter(c => !!c.correct).map(keyOf));
-    const selectedKeys = new Set<string>(options.filter(o => !!o.selected).map(keyOf));
-  
-    // Count correct selected
-    const selectedCorrectCount = [...selectedKeys].filter(k => canonCorrectKeys.has(k)).length;
-    const remaining = Math.max(canonCorrectKeys.size - selectedCorrectCount, 0);
-  
+
+    // Initialize cache if needed
+    if (!this.selectedCorrectCountCache.has(index)) {
+      this.selectedCorrectCountCache.set(index, 0);
+    }
+
+    // Count correct selections from payload
+    const currentSelectedCorrectCount = options
+      .filter(o => !!o.selected)
+      .filter(o => canonCorrectKeys.has(keyOf(o)))
+      .length;
+
+    // Update cache
+    this.selectedCorrectCountCache.set(index, currentSelectedCorrectCount);
+
+    const remaining = Math.max(canonCorrectKeys.size - currentSelectedCorrectCount, 0);
+
     if (remaining > 0) {
       this.updateSelectionMessage(
         `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
@@ -854,10 +867,11 @@ export class SelectionMessageService {
       );
       return;
     }
-  
+
     // All correct selected → Next
     this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
   }
+
   
   
   
