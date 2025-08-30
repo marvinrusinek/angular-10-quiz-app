@@ -3235,6 +3235,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const getStableId = (o: any) =>
             o?.optionId ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`;
 
+        // Build canonical options, including all previous selections
         const uiSelectedIds = new Set<string | number>();
         for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
 
@@ -3244,37 +3245,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
-        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map(o => {
+        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o);
             return {
                 ...o,
-                optionId: o.optionId ?? 0,
+                optionId: o.optionId ?? idx,
                 selected: uiSelectedIds.has(stableId)
             };
         });
+
+        // Persist canonical snapshot for message calculation
+        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
         // 3) Compute remaining correct answers and allCorrect
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-        const correctOpts = canonicalOpts.filter(o => !!o?.correct);
-
-        // ✅ FIX: Count selected correct options from authoritative canonicalOpts
+        const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
-        const remainingCorrect = isMultiSelect
-            ? Math.max(0, correctOpts.length - selectedCorrectCount)
-            : correctOpts.length - selectedCorrectCount;
 
-        const allCorrect = remainingCorrect === 0;
+        let allCorrect: boolean;
+        let remainingCorrect: number;
+
+        if (isMultiSelect) {
+            allCorrect = selectedCorrectCount === correctOpts.length;
+            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+        } else {
+            allCorrect = selectedCorrectCount === 1;
+            remainingCorrect = allCorrect ? 0 : 1;
+        }
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok: number = ++this._msgTok;
 
-        // Snapshot canonical once for the service
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-
-        // Emit selection message asynchronously
+        // ───────────────────────────────────────────────
+        // 4) Emit selection message asynchronously
+        // ───────────────────────────────────────────────
         queueMicrotask(() => {
             let msg = '';
             if (allCorrect) {
@@ -3306,7 +3313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 4) Update explanation UI
+        // 5) Update explanation UI
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
@@ -3336,7 +3343,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 5) Post-click tasks
+        // 6) Post-click tasks
         // ───────────────────────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3356,9 +3363,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
 
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+        queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
