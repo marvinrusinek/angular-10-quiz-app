@@ -3230,54 +3230,57 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
-        // 2) Overlay onto CANONICAL options using stableKey
+        // 2) Overlay onto CANONICAL options
         // ───────────────────────────────────────────────
-        const stableKey = (o: Option, idx: number) =>
+        const getStableId = (o: any) =>
             o?.optionId ?? `${String(o?.value ?? '').trim().toLowerCase()}|${String(o?.text ?? '').trim().toLowerCase()}`;
 
-        // Build authoritative selected set
         const uiSelectedIds = new Set<string | number>();
-        for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(stableKey(o, 0));
+        for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
 
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
             if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(id));
-            else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(stableKey(so, 0)));
+            else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
-            const id = stableKey(o, idx);
+            const stableId = getStableId(o);
             return {
                 ...o,
-                optionId: o.optionId ?? 0,
-                selected: uiSelectedIds.has(id)
+                optionId: o.optionId ?? idx,
+                selected: uiSelectedIds.has(stableId)
             };
         });
-
-        // Save canonical for service snapshot
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
         // 3) Compute remaining correct answers and allCorrect
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
+
+        // Collect canonical correct options
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
+
+        // Count how many correct options are selected
         const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
 
-        let allCorrect: boolean;
+        // Calculate how many remaining correct selections are needed
         let remainingCorrect: number;
-
         if (isMultiSelect) {
-            allCorrect = selectedCorrectCount === correctOpts.length;
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            allCorrect = selectedCorrectCount === 1;
-            remainingCorrect = allCorrect ? 0 : 1;
+            remainingCorrect = selectedCorrectCount === 1 ? 0 : 1;
         }
+
+        // Determine if all required correct answers have been selected
+        const allCorrect = remainingCorrect === 0;
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok: number = ++this._msgTok;
+
+        // Snapshot canonical once for the service
+        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
         // 4) Emit selection message asynchronously
@@ -3292,7 +3295,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
             }
 
-            // Emit through service for subscribers
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
@@ -3306,9 +3308,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectionMessage = msg; // immediate UI update
         });
 
-        // ───────────────────────────────────────────────
-        // 5) Update state flags after microtask to allow message render
-        // ───────────────────────────────────────────────
+        // Update state flags after microtask to allow message render
         queueMicrotask(() => {
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
@@ -3316,7 +3316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 6) Update explanation UI
+        // 5) Update explanation UI
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
@@ -3346,7 +3346,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 7) Post-click tasks
+        // 6) Post-click tasks
         // ───────────────────────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3366,9 +3366,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
 
     } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
