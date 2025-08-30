@@ -3636,38 +3636,31 @@ export class SelectionMessageService {
 
   // ---------- Count selected-correct using reconciler ----------
   private countSelectedCorrect(canonicalOptions: CanonicalOption[] | null, payload: Option[]): number {
-    if (!canonicalOptions) return 0; // No canonical options, return 0
-  
-    // Reconcile payload (user selection) with canonical options
-    const recon = this.buildReconciler(canonicalOptions, payload);
-  
+    if (!canonicalOptions) return 0;
+
     const canonCorrect = new Set<string>();
-    canonicalOptions.forEach((c) => {
-      const cKey = this.stableKey(c, 0);  // Use stable key for canonical option
-      if (c?.correct) canonCorrect.add(cKey);  // Add correct canonical option keys to the set
+    canonicalOptions.forEach(c => {
+      if (c.correct) canonCorrect.add(String(c.optionId));
     });
-  
+
     let count = 0;
     const seenCanonKeys = new Set<string>();
-  
-    // Check selected options and match them with correct canonical options
-    payload.forEach((p) => {
-      if (!p?.selected) return;  // Skip unselected options
-  
-      const pKey = this.stableKey(p, 0);  // Use stable key for selected option
-      const canonKey = recon.get(pKey);  // Get matching canonical key
-  
-      if (!canonKey || seenCanonKeys.has(canonKey)) return;  // Skip if no match or already counted
-      seenCanonKeys.add(canonKey);
-  
-      if (canonCorrect.has(canonKey)) count++;  // Increment count if selected option matches a correct canonical option
+
+    payload.forEach(p => {
+      if (!p.selected) return;
+    
+      const pKey = p.optionId ?? p.value ?? p.text;
+      if (!pKey) return;
+    
+      const keyStr = String(pKey);
+    
+      if (!canonCorrect.has(keyStr) || seenCanonKeys.has(keyStr)) return;
+      seenCanonKeys.add(keyStr);
+      count++;
     });
-  
+
     return count;
   }
-  
-  
-  
 
   pluralize(n: number, word: string): string {
     return n === 1 ? word : `${word}s`;
