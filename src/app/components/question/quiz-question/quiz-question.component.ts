@@ -3180,7 +3180,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  
   public override async onOptionClicked(event: { 
     option: SelectedOption | null;
     index: number;
@@ -3275,10 +3274,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                          selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            // SINGLE-ANSWER FIX: strictly compute from current click
+            // SINGLE-ANSWER FIX: strictly compute from the actual click
             const clickedIsCorrect = evtOpt ? !!evtOpt.correct : false;
             allCorrect = clickedIsCorrect; // ONLY current click counts
-            remainingCorrect = clickedIsCorrect ? 0 : 1;
+            remainingCorrect = clickedIsCorrect ? 0 : 1; // ensures Q1/Q3 incorrect shows correct message
         }
 
         // Monotonic token to coalesce messages
@@ -3295,7 +3294,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (allCorrect) {
             msg = 'Please click the next button to continue...';
         } else if (!isMultiSelect) {
-            msg = 'Select 1 correct option to continue...';
+            msg = 'Select 1 correct option to continue...'; // Q1/Q3 incorrect handled here
         } else if (isMultiSelect && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
@@ -3378,6 +3377,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  
 
 
 
