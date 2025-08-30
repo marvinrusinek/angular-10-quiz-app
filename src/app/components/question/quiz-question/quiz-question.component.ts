@@ -3275,10 +3275,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                          selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            // SINGLE-ANSWER FIX: ensure Q1/Q3 incorrect selection shows correct message
-            const selectedOptionId = evtOpt ? getStableId(evtOpt) : null;
-            allCorrect = selectedOptionId != null && correctOpts.some(o => getStableId(o) === selectedOptionId);
-            remainingCorrect = allCorrect ? 0 : 1;
+            // SINGLE-ANSWER FIX: strictly compute from current click
+            const clickedIsCorrect = evtOpt ? !!evtOpt.correct : false;
+            allCorrect = clickedIsCorrect; // ONLY current click counts
+            remainingCorrect = clickedIsCorrect ? 0 : 1;
         }
 
         // Monotonic token to coalesce messages
@@ -3377,6 +3377,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
