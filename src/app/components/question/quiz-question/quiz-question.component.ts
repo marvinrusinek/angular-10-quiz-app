@@ -3236,14 +3236,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectionMessageService.stableKey(o, idx);
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
-          const stableId = getStableId(o, idx);
-          return {
-            ...o,
-            optionId: Number(o.optionId ?? stableId),
-            selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
-            .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
-          };
-        });  
+            const stableId = getStableId(o, idx);
+            return {
+                ...o,
+                optionId: Number(o.optionId ?? stableId),
+                selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+                    .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
+            };
+        });
 
         // ───────────────────────────────────────────────
         // 3) Compute remaining correct answers and allCorrect
@@ -3287,7 +3287,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             let msg = '';
             if (allCorrect) {
                 msg = 'Please click the next button to continue...';
-            } else if (!isMultiSelect && remainingCorrect === 1) {
+            } else if (!isMultiSelect) {
+                // Single-answer question, selected wrong option
                 msg = 'Select 1 correct option to continue...';
             } else if (isMultiSelect && remainingCorrect > 0) {
                 msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
@@ -3306,11 +3307,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectionMessage = msg; // immediate update for UI
         });
 
-        // Update state flags after microtask to allow message render
+        // ───────────────────────────────────────────────
+        // 4b) Multi-answer tweak: disable Next until all correct selected
+        // ───────────────────────────────────────────────
         queueMicrotask(() => {
+            if (isMultiSelect) {
+                // Only enable Next if all correct selected
+                this.nextButtonStateService.setNextButtonState(allCorrect);
+            } else {
+                // Single-answer: standard logic
+                this.nextButtonStateService.setNextButtonState(allCorrect);
+            }
+
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
-            this.nextButtonStateService.setNextButtonState(allCorrect);
         });
 
         // ───────────────────────────────────────────────
