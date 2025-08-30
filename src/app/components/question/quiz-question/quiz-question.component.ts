@@ -3237,11 +3237,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o, idx);
+            const selSet = this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [];
+
+            // ───────────────────────────────────────────────
+            // SAFEGUARD: Single-answer question cannot mark wrong option as correct
+            // ───────────────────────────────────────────────
+            let isSelected = false;
+            if (isMultiSelect) {
+                isSelected = selSet.some(sel => this.selectionMessageService.stableKey(sel) === stableId);
+            } else {
+                // Single-answer: only mark as selected if this is the clicked option
+                isSelected = evtOpt ? (evtOpt === o || evtIdx === idx) : false;
+            }
+
             return {
                 ...o,
                 optionId: Number(o.optionId ?? stableId),
-                selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
-                    .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
+                selected: isSelected
             };
         });
 
@@ -3288,8 +3300,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (allCorrect) {
                 msg = 'Please click the next button to continue...';
             } else if (!isMultiSelect) {
-                // Single-answer question, selected wrong option
-                msg = 'Select 1 correct option to continue...';
+                // Single-answer question: check if clicked option is correct
+                const selectedOption = optionsNow[evtIdx];
+                const isCorrect = selectedOption?.correct === true;
+                msg = isCorrect
+                    ? 'Please click the next button to continue...'
+                    : 'Select 1 correct option to continue...';
             } else if (isMultiSelect && remainingCorrect > 0) {
                 msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
             }
@@ -3311,14 +3327,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // 4b) Multi-answer tweak: disable Next until all correct selected
         // ───────────────────────────────────────────────
         queueMicrotask(() => {
-            if (isMultiSelect) {
-                // Only enable Next if all correct selected
-                this.nextButtonStateService.setNextButtonState(allCorrect);
-            } else {
-                // Single-answer: standard logic
-                this.nextButtonStateService.setNextButtonState(allCorrect);
-            }
-
+            this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
@@ -3377,6 +3386,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
   
   private resetDedupeFor(index: number): void {
