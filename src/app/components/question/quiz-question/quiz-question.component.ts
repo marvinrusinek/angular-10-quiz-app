@@ -3299,8 +3299,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Defensive guard: prevent async/microtask from overwriting single-answer message
-        const isSingleAnswerGuard = !isMultiSelect && !allCorrect;
+        // Defensive guard: prevent async/microtask from overwriting single-answer incorrect message
+        const isSingleAnswerIncorrect = !isMultiSelect && !allCorrect;
+
+        // Immediately set local UI binding BEFORE emitting
+        this.selectionMessage = msg;
 
         this.selectionMessageService.emitFromClick({
             index: i0,
@@ -3309,13 +3312,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (!isSingleAnswerGuard) this.selectionMessage = m;
+                if (!isSingleAnswerIncorrect) {
+                    this.selectionMessage = m; // only allow service to update if multi-select or correct
+                }
             },
             token: tok
         });
-
-        // Immediately set local UI binding
-        this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
         // 4b) Multi-answer tweak: disable Next until all correct selected
@@ -3380,6 +3382,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
  
 
