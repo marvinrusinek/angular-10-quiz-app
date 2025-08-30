@@ -3186,7 +3186,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // ─────────────────────────────────────────────── 
+    // ───────────────────────────────────────────────
     // 0) Abort pending passive RAF
     // ───────────────────────────────────────────────
     if (this._pendingPassiveRaf != null) {
@@ -3230,29 +3230,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // ───────────────────────────────────────────────
-        // 2) Overlay onto CANONICAL options using stableKey with safeguard
+        // 2) Overlay onto CANONICAL options using stableKey
         // ───────────────────────────────────────────────
         const getStableId = (o: Option, idx?: number) =>
             this.selectionMessageService.stableKey(o, idx);
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o, idx);
-            const selSet = this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [];
-
-            let isSelected = false;
-
-            if (Array.isArray(selSet) && selSet.length) {
-                // Authoritative selected options are always respected
-                isSelected = selSet.some(sel => this.selectionMessageService.stableKey(sel) === stableId);
-            } else if (q?.type !== QuestionType.MultipleAnswer && evtOpt) {
-                // Fallback for single-answer: mark clicked option as selected
-                isSelected = evtOpt === o || evtIdx === idx;
-            }
-
             return {
                 ...o,
                 optionId: Number(o.optionId ?? stableId),
-                selected: isSelected
+                selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+                    .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
             };
         });
 
@@ -3267,7 +3256,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
             if (rawSel instanceof Set) rawSel.forEach((id: any) => selOptsSet.add(id));
-            else if (Array.isArray(rawSel)) rawSel.forEach((o: Option) => selOptsSet.add(getStableId(o)));
+            else if (Array.isArray(rawSel)) rawSel.forEach((o: Option) => {
+                // ───────── Safeguard: only add valid option objects ─────────
+                if (o && (o.optionId != null || o.text != null)) selOptsSet.add(getStableId(o));
+            });
         } catch {}
 
         // Count correct selected options
@@ -3299,12 +3291,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (allCorrect) {
                 msg = 'Please click the next button to continue...';
             } else if (!isMultiSelect) {
-                // Single-answer question, selected wrong option
                 msg = 'Select 1 correct option to continue...';
             } else if (isMultiSelect && remainingCorrect > 0) {
                 msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
             }
 
+            // ───────────────────────────────────────────────
+            // Emit via service and immediate UI
+            // ───────────────────────────────────────────────
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
@@ -3315,7 +3309,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 token: tok
             });
 
-            this.selectionMessage = msg; // immediate update for UI
+            this.selectionMessage = msg;
         });
 
         // ───────────────────────────────────────────────
@@ -3381,6 +3375,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
   
