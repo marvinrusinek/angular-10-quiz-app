@@ -3336,33 +3336,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 5) Update explanation UI
+        // 5) Update explanation UI (DELAYED to prevent Q1/Q3 flicker)
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
 
-        this.ngZone.run(() => {
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
-            this.displayExplanation = true;
-            this.showExplanationChange?.emit(true);
+        queueMicrotask(() => {
+            this.ngZone.run(() => {
+                this.explanationTextService.setShouldDisplayExplanation(true);
+                this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
+                this.displayExplanation = true;
+                this.showExplanationChange?.emit(true);
 
-            if (cached?.trim()) {
-                this.setExplanationFor(i0, cached);
-                this.explanationToDisplay = cached;
-                this.explanationToDisplayChange?.emit(cached);
-            } else if (rawTrue) {
-                this.setExplanationFor(i0, rawTrue);
-                this.explanationToDisplay = rawTrue;
-                this.explanationToDisplayChange?.emit(rawTrue);
-            } else {
-                this.setExplanationFor(i0, '');
-                this.explanationToDisplay = '<span class="muted">Formatting…</span>';
-                this.explanationToDisplayChange?.emit(this.explanationToDisplay);
-            }
+                if (cached?.trim()) {
+                    this.setExplanationFor(i0, cached);
+                    this.explanationToDisplay = cached;
+                    this.explanationToDisplayChange?.emit(cached);
+                } else if (rawTrue) {
+                    this.setExplanationFor(i0, rawTrue);
+                    this.explanationToDisplay = rawTrue;
+                    this.explanationToDisplayChange?.emit(rawTrue);
+                } else {
+                    this.setExplanationFor(i0, '');
+                    this.explanationToDisplay = '<span class="muted">Formatting…</span>';
+                    this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+                }
 
-            this.cdRef.markForCheck?.();
-            this.cdRef.detectChanges?.();
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+            });
         });
 
         // ───────────────────────────────────────────────
@@ -3384,11 +3386,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
         this.selectedIndices.clear();
         this.selectedIndices.add(evtIdx);
-
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
