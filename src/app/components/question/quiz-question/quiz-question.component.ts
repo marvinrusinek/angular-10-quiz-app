@@ -3299,14 +3299,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Emit via service (UI updates through callback)
+        // Defensive guard: prevent any async/microtask from overwriting single-answer message
+        const isSingleAnswerGuard = !isMultiSelect && !allCorrect;
+
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => this.selectionMessage = m,
+            onMessageChange: (m: string) => {
+                if (!isSingleAnswerGuard) this.selectionMessage = m;
+            },
             token: tok
         });
 
@@ -3376,6 +3380,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
   
 
