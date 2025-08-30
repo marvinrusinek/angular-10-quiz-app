@@ -3244,11 +3244,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
         } catch {}
 
-        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
+        const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map(o => {
             const stableId = getStableId(o);
             return {
                 ...o,
-                optionId: o.optionId ?? idx,
+                optionId: o.optionId ?? 0,
                 selected: uiSelectedIds.has(stableId)
             };
         });
@@ -3257,22 +3257,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // 3) Compute remaining correct answers and allCorrect
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
-
-        // Collect canonical correct options
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
 
-        // Count how many correct options are selected
-        const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
+        // ✅ FIX: Count selected correct options from authoritative canonicalOpts
+        const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+        const remainingCorrect = isMultiSelect
+            ? Math.max(0, correctOpts.length - selectedCorrectCount)
+            : correctOpts.length - selectedCorrectCount;
 
-        // Calculate how many remaining correct selections are needed
-        let remainingCorrect: number;
-        if (isMultiSelect) {
-            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-        } else {
-            remainingCorrect = selectedCorrectCount === 1 ? 0 : 1;
-        }
-
-        // Determine if all required correct answers have been selected
         const allCorrect = remainingCorrect === 0;
 
         // Monotonic token to coalesce messages
@@ -3282,9 +3274,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Snapshot canonical once for the service
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // ───────────────────────────────────────────────
-        // 4) Emit selection message asynchronously
-        // ───────────────────────────────────────────────
+        // Emit selection message asynchronously
         queueMicrotask(() => {
             let msg = '';
             if (allCorrect) {
@@ -3301,11 +3291,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 questionType: q?.type ?? 'SingleAnswer',
                 options: optionsNow,
                 canonicalOptions: canonicalOpts,
-                onMessageChange: (m: string) => this.selectionMessage = m,
-                token: tok
+                onMessageChange: (msg: string) => this.selectionMessage = msg,
+                token: tok as any
             } as any);
 
-            this.selectionMessage = msg; // immediate UI update
+            this.selectionMessage = msg; // immediate update for UI
         });
 
         // Update state flags after microtask to allow message render
@@ -3316,7 +3306,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 5) Update explanation UI
+        // 4) Update explanation UI
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
@@ -3346,7 +3336,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 6) Post-click tasks
+        // 5) Post-click tasks
         // ───────────────────────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3369,6 +3359,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
