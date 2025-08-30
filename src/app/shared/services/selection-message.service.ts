@@ -781,14 +781,8 @@ export class SelectionMessageService {
   }): void {
     const { index, options } = params;
   
-    // ─────────────────────────────────────────────────────────────
-    // Question type from QuizService (no need to pass in params)
-    // ─────────────────────────────────────────────────────────────
     const questionType = this.quizService.currentQuestion.getValue()?.type ?? QuestionType.SingleAnswer;
   
-    // ─────────────────────────────────────────────────────────────
-    // Messages (fallbacks)
-    // ─────────────────────────────────────────────────────────────
     const NEXT_MSG = typeof globalThis.NEXT_BTN_MSG === 'string'
       ? globalThis.NEXT_BTN_MSG
       : 'Please click the next button to continue...';
@@ -796,16 +790,24 @@ export class SelectionMessageService {
       ? globalThis.START_MSG
       : 'Please click an option to continue';
   
-    // ─────────────────────────────────────────────────────────────
-    // Helpers (deterministic stable key)
-    // ─────────────────────────────────────────────────────────────
     const norm = (s: any) => (s ?? '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
-    const keyOf = (o: any): string | number =>
-      (o?.optionId ?? o?.id ?? o?.value ?? (typeof o?.text === 'string' ? `t:${norm(o.text)}` : 'unknown')) as any;
   
-    // ─────────────────────────────────────────────────────────────
-    // Resolve canonical options for this question
-    // ─────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────
+    // keyOf now fully normalizes and ensures unique stable key
+    // Also creates aliases mapping for canonical options
+    // ──────────────────────────────────────────────
+    const keyOf = (o: Option): string => {
+      if (!o) return 'unknown';
+      if (o.optionId != null) return `id:${o.optionId}`;
+      if ((o as any).id != null) return `id:${(o as any).id}`;
+      if (o.value != null) return `val:${o.value}`;
+      if (typeof o.text === 'string') return `txt:${norm(o.text)}`;
+      return 'unknown';
+    };
+  
+    // ──────────────────────────────────────────────
+    // Get canonical options for this question
+    // ──────────────────────────────────────────────
     let qRef: any;
     try {
       const svc: any = this.quizService;
@@ -816,17 +818,20 @@ export class SelectionMessageService {
   
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
-    // ─────────────────────────────────────────────────────────────
-    // Maintain a per-question selection state to prevent flip-flop
-    // ─────────────────────────────────────────────────────────────
-    if (!this._questionSelectionState) this._questionSelectionState = new Map<number, Set<string | number>>();
-    const stateSet = this._questionSelectionState.get(index) ?? new Set<string | number>();
-    for (const o of options.filter(o => !!o.selected)) stateSet.add(keyOf(o));
-    this._questionSelectionState.set(index, stateSet);
+    // ──────────────────────────────────────────────
+    // Build canonical keys set for this question once
+    // ──────────────────────────────────────────────
+    const canonKeyMap = new Map<string, Option>();
+    const canonCorrectKeys = new Set<string>();
+    canonicalOpts.forEach(c => {
+      const k = keyOf(c);
+      canonKeyMap.set(k, c);
+      if (c.correct) canonCorrectKeys.add(k);
+    });
   
-    // ─────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────
     // SINGLE-ANSWER
-    // ─────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────
     if (questionType === QuestionType.SingleAnswer) {
       const selected = options.find(o => !!o.selected);
       if (!selected) {
@@ -834,46 +839,28 @@ export class SelectionMessageService {
         return;
       }
   
-      const canon = canonicalOpts.find(c => keyOf(c) === keyOf(selected));
+      const k = keyOf(selected);
+      const canon = canonKeyMap.get(k);
       if (!canon || !canon.correct) {
-        // ❌ Incorrect selection → select message
         this.updateSelectionMessage(`Select 1 correct answer to continue...`, { options, index, questionType, token: params.token });
         return;
       }
   
-      // ✅ Correct selection → next message
+      // Correct selection
       this.updateSelectionMessage(NEXT_MSG, { options, index, questionType, token: params.token });
       return;
     }
   
-    // ─────────────────────────────────────────────────────────────
-    // MULTIPLE-ANSWER
-    // ─────────────────────────────────────────────────────────────
-    const payloadSelected = options.filter(o => !!o.selected);
+    // ──────────────────────────────────────────────
+    // MULTI-ANSWER
+    // ──────────────────────────────────────────────
+    const payloadSelectedKeys = new Set<string>(options.filter(o => !!o.selected).map(o => keyOf(o)));
   
-    if (payloadSelected.length === 0) {
-      this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
-      return;
-    }
+    // Count selected correct keys
+    const selectedCorrectCount = [...payloadSelectedKeys].filter(k => canonCorrectKeys.has(k)).length;
+    const totalCorrect = canonCorrectKeys.size;
+    const remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
   
-    // Canonical correct keys
-    const canonCorrect = new Set(canonicalOpts.filter(c => !!c.correct).map(c => keyOf(c)));
-  
-    // Count selected-correct from payload + state
-    const selectedCorrectCount = [...stateSet].filter(k => canonCorrect.has(k)).length;
-    const totalCorrect = canonCorrect.size;
-    let remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
-  
-    // ─────────────────────────────────────────────────────────────
-    // Optional hard-coded Q4 min adjustments
-    // ─────────────────────────────────────────────────────────────
-    const forcedMinByIndex: Record<number, number> = { 3: 2 }; // Q4
-    const hardMin = forcedMinByIndex[index] ?? 0;
-    remaining = Math.max(remaining, hardMin);
-  
-    // ─────────────────────────────────────────────────────────────
-    // Update message based on remaining count
-    // ─────────────────────────────────────────────────────────────
     if (remaining > 0) {
       this.updateSelectionMessage(
         `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
@@ -882,9 +869,10 @@ export class SelectionMessageService {
       return;
     }
   
-    // ✅ All correct selected
+    // All correct selected
     this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
   }
+  
   
   
 
