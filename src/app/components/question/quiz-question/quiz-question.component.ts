@@ -3235,21 +3235,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const getStableId = (o: Option, idx?: number) =>
             this.selectionMessageService.stableKey(o, idx);
 
-        const uiSelectedIds = new Set<string | number>();
-        for (const o of optionsNow) if (o?.selected) uiSelectedIds.add(getStableId(o));
-
-        try {
-            const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-            if (rawSel instanceof Set) rawSel.forEach((id: any) => uiSelectedIds.add(id));
-            else if (Array.isArray(rawSel)) rawSel.forEach((so: any) => uiSelectedIds.add(getStableId(so)));
-        } catch {}
-
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o, idx);
             return {
                 ...o,
                 optionId: Number(o.optionId ?? stableId),
-                selected: uiSelectedIds.has(stableId)
+                selected: this.selectedOptionService
+                    .selectedOptionsMap?.get(i0)?.has(stableId) ?? false
             };
         });
 
@@ -3259,11 +3251,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
 
-        // Authoritative selected options
+        // Authoritative selected options set (AFTER persisting)
         const selOptsSet = new Set<string | number>();
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-            if (rawSel instanceof Set) rawSel.forEach(id => selOptsSet.add(id));
+            if (rawSel instanceof Set) rawSel.forEach((id: any) => selOptsSet.add(id));
             else if (Array.isArray(rawSel)) rawSel.forEach((o: Option) => selOptsSet.add(getStableId(o)));
         } catch {}
 
