@@ -3294,7 +3294,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
-                questionType: q?.type ?? 'SingleAnswer',
+                questionType: q?.type ?? QuestionType.SingleAnswer,
                 options: optionsNow,
                 canonicalOptions: canonicalOpts,
                 onMessageChange: (m: string) => this.selectionMessage = m,
@@ -3365,12 +3365,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-
-
-
-
 
   
   private resetDedupeFor(index: number): void {
