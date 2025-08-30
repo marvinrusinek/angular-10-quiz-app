@@ -3236,14 +3236,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.selectionMessageService.stableKey(o, idx);
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
-            const stableId = getStableId(o, idx);
-            return {
-                ...o,
-                optionId: Number(o.optionId ?? stableId),
-                selected: this.selectedOptionService
-                    .selectedOptionsMap?.get(i0)?.has(stableId) ?? false
-            };
-        });
+          const stableId = getStableId(o, idx);
+          return {
+            ...o,
+            optionId: Number(o.optionId ?? stableId),
+            selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+            .some(sel => this.selectionMessageService.stableKey(sel) === stableId)
+          };
+        });  
 
         // ───────────────────────────────────────────────
         // 3) Compute remaining correct answers and allCorrect
