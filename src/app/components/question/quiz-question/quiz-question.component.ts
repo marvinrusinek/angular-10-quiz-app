@@ -3258,7 +3258,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
-        const selectedCorrectCount = correctOpts.filter(o => !!o?.selected).length;
+
+        // Authoritative selected options
+        const selOptsSet = new Set<string | number>();
+        try {
+            const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
+            if (rawSel instanceof Set) rawSel.forEach(id => selOptsSet.add(id));
+            else if (Array.isArray(rawSel)) rawSel.forEach((o: Option) => selOptsSet.add(getStableId(o)));
+        } catch {}
+
+        // Count correct selected options
+        const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
 
         let allCorrect: boolean;
         let remainingCorrect: number;
@@ -3362,7 +3372,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedIndices.add(evtIdx);
 
     } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { this._clickGate = false; });
     }
   }
 
