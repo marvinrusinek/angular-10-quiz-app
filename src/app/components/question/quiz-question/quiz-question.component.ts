@@ -3180,7 +3180,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  public override async onOptionClicked(event: {
+  
+  public override async onOptionClicked(event: { 
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3274,7 +3275,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                          selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            allCorrect = selectedCorrectCount === 1;
+            // SINGLE-ANSWER FIX: ensure Q1/Q3 incorrect selection shows correct message
+            const selectedOptionId = evtOpt ? getStableId(evtOpt) : null;
+            allCorrect = selectedOptionId != null && correctOpts.some(o => getStableId(o) === selectedOptionId);
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
