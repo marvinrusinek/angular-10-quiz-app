@@ -3251,7 +3251,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const isMultiSelect = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o?.correct);
 
-        // Authoritative selected options set (AFTER persisting)
         const selOptsSet = new Set<string | number>();
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
@@ -3265,7 +3264,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             });
         } catch {}
 
-        // Count correct selected options strictly
         const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
 
         let allCorrect: boolean;
@@ -3288,31 +3286,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // ───────────────────────────────────────────────
-        // 4) Emit selection message asynchronously
+        // 4) Compute and emit selection message IMMEDIATELY
         // ───────────────────────────────────────────────
-        queueMicrotask(() => {
-            let msg = '';
-            if (allCorrect) {
-                msg = 'Please click the next button to continue...';
-            } else if (!isMultiSelect) {
-                msg = 'Select 1 correct option to continue...';
-            } else if (isMultiSelect && remainingCorrect > 0) {
-                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-            }
+        let msg = '';
+        if (allCorrect) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMultiSelect) {
+            msg = 'Select 1 correct option to continue...';
+        } else if (isMultiSelect && remainingCorrect > 0) {
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        }
 
-            // Emit via service and immediate UI
-            this.selectionMessageService.emitFromClick({
-                index: i0,
-                totalQuestions: this.totalQuestions,
-                questionType: q?.type ?? QuestionType.SingleAnswer,
-                options: optionsNow,
-                canonicalOptions: canonicalOpts,
-                onMessageChange: (m: string) => this.selectionMessage = m,
-                token: tok
-            });
-
-            this.selectionMessage = msg;
+        // Emit via service (UI updates through callback)
+        this.selectionMessageService.emitFromClick({
+            index: i0,
+            totalQuestions: this.totalQuestions,
+            questionType: q?.type ?? QuestionType.SingleAnswer,
+            options: optionsNow,
+            canonicalOptions: canonicalOpts,
+            onMessageChange: (m: string) => this.selectionMessage = m,
+            token: tok
         });
+
+        // Immediately set local UI binding
+        this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
         // 4b) Multi-answer tweak: disable Next until all correct selected
@@ -3377,6 +3374,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
