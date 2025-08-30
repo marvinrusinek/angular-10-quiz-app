@@ -774,7 +774,7 @@ export class SelectionMessageService {
   private expectedTotalCorrectOverride: Record<number, number> = {
     3: 3, // Q4 is zero-based index 3; change if your index differs
   };
-  
+
   public emitFromClick(params: {
     index: number;
     totalQuestions?: number;
@@ -873,10 +873,6 @@ export class SelectionMessageService {
   }
 
   
-  
-  
-  
-
   /* ================= helpers ================= */
   private textKey(s: any): string {
     return (typeof s === 'string' ? s : '')
