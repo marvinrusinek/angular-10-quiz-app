@@ -3674,35 +3674,43 @@ export class SelectionMessageService {
     canonicalOptions: CanonicalOption[] | null;
   }): string {
     const { options, canonicalOptions, questionType } = params;
-  
+
     if (!canonicalOptions || canonicalOptions.length === 0) return '';
-  
+
+    // Total number of correct options
     const totalCorrect = canonicalOptions.filter(o => !!o.correct).length;
-  
-    // 🔹 Single-answer special handling
-    if (questionType === QuestionType.SingleAnswer) {
-      const hasSelectedCorrect = options.some(o => o.selected && !!o.correct);
-      return hasSelectedCorrect
-        ? 'Please click the next button to continue...'
-        : 'Select 1 correct option to continue...';
-    }
-  
-    // Multi-answer logic
+
+    // Number of correct options selected
     const selectedCorrect = this.countSelectedCorrect(canonicalOptions, options);
+
+    const isMulti = questionType === QuestionType.MultipleAnswer;
+
+    // Determine remaining correct options
     const remaining = Math.max(0, totalCorrect - selectedCorrect);
-  
-    if (remaining > 0) {
+
+    if (!isMulti) {
+      // SINGLE-ANSWER SPECIAL HANDLING
+      const selectedOption = options.find(o => o.selected);
+      if (!selectedOption) {
+        return `Select 1 correct option to continue...`; // no selection yet
+      }
+      const canon = canonicalOptions.find(c => c.optionId === (selectedOption.optionId ?? selectedOption.value ?? selectedOption.text));
+      if (!canon || !canon.correct) {
+        return `Select 1 correct option to continue...`; // selected incorrect
+      }
+      return `Please click the next button to continue...`; // selected correct
+    }
+
+    // MULTIPLE-ANSWER HANDLING
+    const isAllCorrect = remaining === 0;
+
+    if (!isAllCorrect) {
       const optWord = remaining > 1 ? 'options' : 'option';
       return `Select ${remaining} more correct ${optWord} to continue...`;
     }
-  
+
     return 'Please click the next button to continue...';
   }
-  
-  
-  
-
-  
 
   // Compute remaining correct answers for multi-answer questions
   private computeRemainingCorrectAnswers(
