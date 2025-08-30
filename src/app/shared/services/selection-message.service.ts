@@ -62,6 +62,8 @@ export class SelectionMessageService {
   // Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
   private _typeLockByIndex = new Map<number, QuestionType>();
 
+  private optionsSnapshot: Option[] = [];
+
   private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
 
   private _emitSeq = 0;
@@ -703,8 +705,13 @@ export class SelectionMessageService {
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
-    const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
-    this.optionsSnapshotSubject.next(safe);
+    const safe = Array.isArray(opts) ? opts.map(o => ({ ...o })) : [];
+    this.optionsSnapshot = safe;  // persist internally
+    this.optionsSnapshotSubject.next(safe);  // still emit for any subscribers
+}
+
+  public getOptionsSnapshot(): Option[] {
+    return this.optionsSnapshot.map(o => ({ ...o }));
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
