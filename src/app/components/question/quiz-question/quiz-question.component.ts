@@ -3255,21 +3255,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const selOptsSet = new Set<string | number>();
         try {
             const rawSel: any = this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-            if (rawSel instanceof Set) rawSel.forEach((id: any) => selOptsSet.add(id));
+            if (rawSel instanceof Set) rawSel.forEach((id: any) => {
+                if (canonicalOpts.some(co => getStableId(co) === id)) selOptsSet.add(id);
+            });
             else if (Array.isArray(rawSel)) rawSel.forEach((o: Option) => {
-                // ───────── Safeguard: only add valid option objects ─────────
-                if (o && (o.optionId != null || o.text != null)) selOptsSet.add(getStableId(o));
+                if (o && canonicalOpts.some(co => getStableId(co) === getStableId(o))) {
+                    selOptsSet.add(getStableId(o));
+                }
             });
         } catch {}
 
-        // Count correct selected options
+        // Count correct selected options strictly
         const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
 
         let allCorrect: boolean;
         let remainingCorrect: number;
 
         if (isMultiSelect) {
-            allCorrect = selectedCorrectCount === correctOpts.length;
+            allCorrect = selectedCorrectCount === correctOpts.length &&
+                         selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
             allCorrect = selectedCorrectCount === 1;
@@ -3296,9 +3300,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
             }
 
-            // ───────────────────────────────────────────────
             // Emit via service and immediate UI
-            // ───────────────────────────────────────────────
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
@@ -3375,6 +3377,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
