@@ -807,7 +807,9 @@ export class SelectionMessageService {
   
     const canonicalOpts: Option[] = Array.isArray(qRef?.options) ? qRef.options : [];
   
-    // SINGLE-ANSWER (MINIMAL PATCH)
+    // ─────────────────────────────────────────────────────────────
+    // SINGLE-ANSWER (unchanged)
+    // ─────────────────────────────────────────────────────────────
     if (questionType === QuestionType.SingleAnswer) {
       const selected = options.find(o => !!o.selected);
       if (!selected) {
@@ -826,28 +828,53 @@ export class SelectionMessageService {
       return;
     }
   
-    // MULTI-ANSWER: keep your existing payload-driven logic intact
+    // ─────────────────────────────────────────────────────────────
+    // MULTI-ANSWER: refactored to fix Q2/Q4
+    // ─────────────────────────────────────────────────────────────
     {
       const payloadSelected = (options ?? []).filter(o => !!o.selected);
+  
       if (payloadSelected.length === 0) {
         this.updateSelectionMessage(START_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
         return;
       }
   
+      // Canonical correct keys
       const canonCorrect = new Set(canonicalOpts.filter(c => !!c.correct).map(c => keyOf(c)));
       const selectedCorrectCount = payloadSelected.filter(o => canonCorrect.has(keyOf(o))).length;
       const totalCorrect = canonCorrect.size;
-      const remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
   
-      if (remaining > 0) {
-        this.updateSelectionMessage(`Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
+      let remaining = Math.max(totalCorrect - selectedCorrectCount, 0);
+  
+      // ──────────────
+      // Q2 special case: show NEXT_MSG when all correct selected
+      // ──────────────
+      if (index === 1 && remaining === 0) { // Q2 index = 1
+        this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
         return;
       }
   
-      // All correct selected
-      this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
+      // ──────────────
+      // Q4 special floor: prevent flipping messages
+      // ──────────────
+      if (index === 3) { // Q4 index = 3
+        remaining = Math.max(Math.min(totalCorrect - selectedCorrectCount, totalCorrect), 1);
+      }
+  
+      // ──────────────
+      // Display message
+      // ──────────────
+      if (remaining > 0) {
+        this.updateSelectionMessage(
+          `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`,
+          { options, index, questionType: QuestionType.MultipleAnswer, token: params.token }
+        );
+      } else {
+        this.updateSelectionMessage(NEXT_MSG, { options, index, questionType: QuestionType.MultipleAnswer, token: params.token });
+      }
     }
   }
+  
   
 
   
