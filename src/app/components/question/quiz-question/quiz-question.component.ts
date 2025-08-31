@@ -3187,8 +3187,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  // Declare at the top of your class
-private _ignoreEmitUntilNextClick = false;
+  private _ignoreEmitUntilNextClick = false;
 
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
@@ -3272,7 +3271,7 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message (bulletproof first-click and multi-click)
+        // 4) Compute selection message
         let msg = '';
         if (isMulti) {
             msg = allCorrect
@@ -3287,11 +3286,13 @@ public override async onOptionClicked(event: {
                 : 'Select a correct option to continue...';
         }
 
-        // Suppress flashes by ignoring any async emits until next click
-        if (!this._ignoreEmitUntilNextClick) {
-            this.selectionMessage = msg;
-            this._ignoreEmitUntilNextClick = true;
-        }
+        // ───────────────────────────────────────────────
+        // 5) Immediately set selection message (synchronous, prevents flashes)
+        // ───────────────────────────────────────────────
+        this.selectionMessage = msg;
+
+        // Suppress async emits until next click
+        this._ignoreEmitUntilNextClick = true;
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
@@ -3304,19 +3305,20 @@ public override async onOptionClicked(event: {
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
+                // Only allow future messages after next click
                 if (!this._ignoreEmitUntilNextClick) this.selectionMessage = m;
             },
             token: tok
         });
 
-        // 5) Update Next button & quiz state
+        // 6) Update Next button & quiz state
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // 6) Update explanation display (simplified)
+        // 7) Update explanation display (simplified)
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3331,7 +3333,7 @@ public override async onOptionClicked(event: {
             this.cdRef.detectChanges?.();
         });
 
-        // 7) Post-click tasks
+        // 8) Post-click tasks
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3340,7 +3342,7 @@ public override async onOptionClicked(event: {
             if (evtOpt) this.markBindingSelected(evtOpt);
             this.refreshFeedbackFor(evtOpt ?? undefined);
 
-            // Allow future emits after click finishes
+            // Allow next async updates after click finishes
             this._ignoreEmitUntilNextClick = false;
         });
 
@@ -3348,6 +3350,7 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
