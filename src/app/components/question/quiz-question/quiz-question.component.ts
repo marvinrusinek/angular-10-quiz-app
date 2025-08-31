@@ -3187,23 +3187,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
+  // Add these declarations in your class if not already:
+private _firstClickGuard = new Set<number>();
+private _ignoreEmitUntilNextClick = false;
+private _pendingRAF: number | null = null;
+private _clickGate = false;
+private _msgTok?: number;
+
+public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // ───────────────────────────────────────────────
     // 0) Cancel pending RAF
-    // ───────────────────────────────────────────────
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
         this._pendingRAF = null;
     }
 
-    // ───────────────────────────────────────────────
-    // 0.5) Wait if interaction is not ready yet
-    // ───────────────────────────────────────────────
+    // Wait if interaction is not ready yet
     if (!this.quizStateService.isInteractionReady()) {
         await firstValueFrom(
             this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
@@ -3227,31 +3230,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return; // exit early, prevents flash
     }
 
-    // ───────────────────────────────────────────────
-    // FIRST-CLICK GUARD
-    // ───────────────────────────────────────────────
-    if (!this._firstClickGuard.has(i0)) {
-        this._firstClickGuard.add(i0);
-
-        // If first click is incorrect on single-answer question
-        if (q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
-            this.selectionMessage = 'Select a correct option to continue...';
-            this.nextButtonStateService.setNextButtonState(false);
-            this.quizStateService.setAnswered(false);
-            this.quizStateService.setAnswerSelected(false);
-            return; // block async overwrites on first incorrect click
-        }
-
-        // For multiple-answer questions, first click logic handled below normally
-    }
-
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
         // ───────────────────────────────────────────────
-        // 1) Update local UI selection immediately
+        // FIRST-CLICK GUARD & ignore async emits if needed
         // ───────────────────────────────────────────────
+        if (!this._firstClickGuard.has(i0)) {
+            this._firstClickGuard.add(i0);
+
+            if (q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
+                // Immediately set message and block async emits
+                this.selectionMessage = 'Select a correct option to continue...';
+                this.nextButtonStateService.setNextButtonState(false);
+                this.quizStateService.setAnswered(false);
+                this.quizStateService.setAnswerSelected(false);
+
+                // Block any async emitFromClick update until next click
+                this._ignoreEmitUntilNextClick = true;
+            }
+        }
+
+        // 1) Update local UI selection immediately
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
 
@@ -3263,9 +3264,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Persist selection
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
-        // ───────────────────────────────────────────────
         // 2) Compute canonical options & stable keys
-        // ───────────────────────────────────────────────
         const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
         const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
             ...o,
@@ -3275,9 +3274,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // ───────────────────────────────────────────────
         // 3) Compute remaining correct / allCorrect
-        // ───────────────────────────────────────────────
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
@@ -3297,9 +3294,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // ───────────────────────────────────────────────
         // 4) Compute selection message
-        // ───────────────────────────────────────────────
         let msg = '';
         if (allCorrect) msg = 'Please click the next button to continue...';
         else if (!isMulti) msg = 'Select a correct option to continue...';
@@ -3320,22 +3315,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => this.selectionMessage = m,
+            onMessageChange: (m: string) => {
+                // ignore async emit if flagged
+                if (!this._ignoreEmitUntilNextClick) {
+                    this.selectionMessage = m;
+                }
+            },
             token: tok
         });
 
-        // ───────────────────────────────────────────────
+        // reset _ignoreEmitUntilNextClick after first click fully processed
+        if (this._ignoreEmitUntilNextClick) {
+            setTimeout(() => { this._ignoreEmitUntilNextClick = false; }, 0);
+        }
+
         // 5) Update Next button & quiz state
-        // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // ───────────────────────────────────────────────
         // 6) Update explanation display (simplified)
-        // ───────────────────────────────────────────────
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3350,9 +3351,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.cdRef.detectChanges?.();
         });
 
-        // ───────────────────────────────────────────────
         // 7) Post-click tasks
-        // ───────────────────────────────────────────────
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3366,11 +3365,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-
-
-
 
 
 
