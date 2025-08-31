@@ -3188,7 +3188,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     wasReselected?: boolean;
 }): Promise<void> {
     // ───────────────────────────────────────────────
-    // 0) Abort pending passive RAF
+    // 0) Abort any pending passive RAF
     // ───────────────────────────────────────────────
     if (this._pendingPassiveRaf != null) {
         cancelAnimationFrame(this._pendingPassiveRaf);
@@ -3212,14 +3212,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // ───────────────────────────────────────────────
     // Early guard: SINGLE-ANSWER questions before first click
+    // Prevent selection message flash
     // ───────────────────────────────────────────────
-    this._hasClickedMap ??= new Map<number, boolean>();
-    if (!this._hasClickedMap.get(i0)) {
-        this._hasClickedMap.set(i0, true);
-        if (!evtOpt && q?.type === QuestionType.SingleAnswer) {
-            this.selectionMessage = 'Please select an option to continue...';
-            return; // exit early to prevent flash
-        }
+    if (!evtOpt && q?.type === QuestionType.SingleAnswer) {
+        this.selectionMessage = 'Please select an option to continue...';
+        return; // exit early
     }
 
     if (this._clickGate) return;
@@ -3292,30 +3289,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             remainingCorrect = clickedIsCorrect ? 0 : 1;
         }
 
-        // Monotonic token to coalesce messages
-        this._msgTok ??= 0;
-        const tok: number = ++this._msgTok;
-
-        // Snapshot canonical once for the service
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-
         // ───────────────────────────────────────────────
         // 4) Compute and emit selection message
         // ───────────────────────────────────────────────
-        let msg = '';
-        if (!this._hasClickedMap.get(i0)) {
-            // Before first click: empty message
-            msg = '';
-        } else if (allCorrect) {
-            msg = 'Please click the next button to continue...';
-        } else if (!isMultiSelect) {
-            msg = 'Please select an option to continue...';
-        } else if (isMultiSelect && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-        }
+        this._msgTok ??= 0;
+        const tok: number = ++this._msgTok;
 
-        // Immediately set local UI binding BEFORE emitting
-        this.selectionMessage = msg;
+        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+
+        // Guard: first click flash prevention for Q1 & Q3
+        if (!evtOpt && (i0 === 0 || i0 === 2)) {
+            this.selectionMessage = 'Please select an option to continue...';
+        } else {
+            let msg = '';
+            if (allCorrect) {
+                msg = 'Please click the next button to continue...';
+            } else if (!isMultiSelect) {
+                msg = 'Please select an option to continue...';
+            } else if (isMultiSelect && remainingCorrect > 0) {
+                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+            }
+            this.selectionMessage = msg;
+        }
 
         this.selectionMessageService.emitFromClick({
             index: i0,
@@ -3323,14 +3318,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                this.selectionMessage = m;
-            },
+            onMessageChange: (m: string) => { this.selectionMessage = m; },
             token: tok
         });
 
         // ───────────────────────────────────────────────
-        // 4b) Next button and quiz state
+        // 5) Defer explanation display to microtask to prevent flash
+        // ───────────────────────────────────────────────
+        const cached = this._formattedByIndex?.get?.(i0);
+        const rawTrue = (q?.explanation ?? '').trim();
+
+        queueMicrotask(() => {
+            this.ngZone.run(() => {
+                this.explanationTextService.setShouldDisplayExplanation(true);
+                this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
+                this.displayExplanation = true;
+                this.showExplanationChange?.emit(true);
+
+                if (cached?.trim()) {
+                    this.setExplanationFor(i0, cached);
+                    this.explanationToDisplay = cached;
+                    this.explanationToDisplayChange?.emit(cached);
+                } else if (rawTrue) {
+                    this.setExplanationFor(i0, rawTrue);
+                    this.explanationToDisplay = rawTrue;
+                    this.explanationToDisplayChange?.emit(rawTrue);
+                } else {
+                    this.setExplanationFor(i0, '');
+                    this.explanationToDisplay = '<span class="muted">Formatting…</span>';
+                    this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+                }
+
+                this.cdRef.markForCheck?.();
+                this.cdRef.detectChanges?.();
+            });
+        });
+
+        // ───────────────────────────────────────────────
+        // 6) Next button and quiz state
         // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
@@ -3339,41 +3364,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 5) Update explanation UI
-        // ───────────────────────────────────────────────
-        const cached = this._formattedByIndex?.get?.(i0);
-        const rawTrue = (q?.explanation ?? '').trim();
-
-        queueMicrotask(() => {
-            this.ngZone.run(() => {
-                if (this._hasClickedMap.get(i0)) {
-                    this.explanationTextService.setShouldDisplayExplanation(true);
-                    this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
-                    this.displayExplanation = true;
-                    this.showExplanationChange?.emit(true);
-
-                    if (cached?.trim()) {
-                        this.setExplanationFor(i0, cached);
-                        this.explanationToDisplay = cached;
-                        this.explanationToDisplayChange?.emit(cached);
-                    } else if (rawTrue) {
-                        this.setExplanationFor(i0, rawTrue);
-                        this.explanationToDisplay = rawTrue;
-                        this.explanationToDisplayChange?.emit(rawTrue);
-                    } else {
-                        this.setExplanationFor(i0, '');
-                        this.explanationToDisplay = '<span class="muted">Formatting…</span>';
-                        this.explanationToDisplayChange?.emit(this.explanationToDisplay);
-                    }
-
-                    this.cdRef.markForCheck?.();
-                    this.cdRef.detectChanges?.();
-                }
-            });
-        });
-
-        // ───────────────────────────────────────────────
-        // 6) Post-click tasks
+        // 7) Post-click tasks
         // ───────────────────────────────────────────────
         requestAnimationFrame(() => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
@@ -3396,6 +3387,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
