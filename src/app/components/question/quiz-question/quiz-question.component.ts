@@ -3180,7 +3180,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  public override async onOptionClicked(event: { 
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3201,7 +3201,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
     }
 
-    // Guard against missing question/options
     if (!this.currentQuestion || !this.currentOptions) return;
 
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
@@ -3209,6 +3208,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const evtIdx = event.index;
     const evtOpt = event.option;
+
+    // ───────────────────────────────────────────────
+    // Early guard: SINGLE-ANSWER questions before first click
+    // ───────────────────────────────────────────────
+    if (!evtOpt && q?.type === QuestionType.SingleAnswer) {
+        this.selectionMessage = 'Please select an option to continue...';
+        return; // exit early to prevent flash
+    }
 
     if (this._clickGate) return;
     this._clickGate = true;
@@ -3233,8 +3240,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         // 2) Overlay onto CANONICAL options using stableKey
         // ───────────────────────────────────────────────
-        const getStableId = (o: Option, idx?: number) =>
-            this.selectionMessageService.stableKey(o, idx);
+        const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
 
         const canonicalOpts: Option[] = (q?.options ?? this.currentQuestion?.options ?? []).map((o, idx) => {
             const stableId = getStableId(o, idx);
@@ -3275,7 +3281,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                          selOptsSet.size === correctOpts.length; // ensure no extra wrong selected
             remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
         } else {
-            // SINGLE-ANSWER SAFE: compute strictly from the click
+            // SINGLE-ANSWER: only current click matters
             const clickedIsCorrect = evtOpt ? !!evtOpt.correct : false;
             allCorrect = clickedIsCorrect;
             remainingCorrect = clickedIsCorrect ? 0 : 1;
@@ -3295,19 +3301,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (allCorrect) {
             msg = 'Please click the next button to continue...';
         } else if (!isMultiSelect) {
-            // SINGLE-ANSWER: first-click guard
-            this._singleAnswerFirstClickDone ??= new Set<number>();
-            if (!this._singleAnswerFirstClickDone.has(i0)) {
-                msg = 'Please select an option to continue...'; // initial message
-                this._singleAnswerFirstClickDone.add(i0);
-            } else {
-                msg = 'Select 1 correct option to continue...';
-            }
+            msg = 'Please select an option to continue...';
         } else if (isMultiSelect && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
-
-        const preventAsyncUpdate = !isMultiSelect && !allCorrect && this._singleAnswerFirstClickDone.has(i0);
 
         // Immediately set local UI binding BEFORE emitting
         this.selectionMessage = msg;
@@ -3319,15 +3316,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (!preventAsyncUpdate) {
-                    this.selectionMessage = m;
-                }
+                this.selectionMessage = m;
             },
             token: tok
         });
 
         // ───────────────────────────────────────────────
-        // 4b) Multi-answer tweak: disable Next until all correct selected
+        // 4b) Next button and quiz state
         // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
@@ -3336,16 +3331,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // ───────────────────────────────────────────────
-        // 5) Update explanation UI (DELAYED to prevent Q1/Q3 flicker)
+        // 5) Update explanation UI
         // ───────────────────────────────────────────────
         const cached = this._formattedByIndex?.get?.(i0);
         const rawTrue = (q?.explanation ?? '').trim();
 
-        // Only display explanation AFTER first click (prevents flash)
         queueMicrotask(() => {
             this.ngZone.run(() => {
-                if (!this._singleAnswerFirstClickDone.has(i0) && !isMultiSelect) return;
-
                 this.explanationTextService.setShouldDisplayExplanation(true);
                 this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
                 this.displayExplanation = true;
@@ -3393,6 +3385,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
