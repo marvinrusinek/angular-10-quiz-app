@@ -264,10 +264,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _hiddenAt: number | null = null;
   private _elapsedAtHide: number | null = null;
   private _pendingPassiveRaf: number | null = null;
-
+  private _pendingRAF: number | null = null;
   canonicalOptions: CanonicalOption[] = [];
   private _msgTok = 0;
   private _hasClickedMap = new Map<number, boolean>();
+  
+  // Prevent flashing selection messages for first clicks
+  private _firstClickGuard: Record<number, boolean> = {};
+  private _ignoreEmitUntilNextClick: boolean = false;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3181,11 +3185,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   } */
-  
-  private _pendingRAF: number | null = null;
 
   // Simplified onOptionClicked guard-first
-public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3211,15 +3213,27 @@ public override async onOptionClicked(event: {
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    if (!evtOpt) return; // exit early if no valid option clicked
+    // ───────────────────────────────────────────────
+    // EARLY GUARD: no option selected
+    // ───────────────────────────────────────────────
+    if (!evtOpt) {
+        this.selectionMessage = q?.type === QuestionType.SingleAnswer
+            ? 'Please select an option to continue...'
+            : 'Please start the quiz by selecting an option.';
+        return; // exit early, prevents flash
+    }
 
+    // ───────────────────────────────────────────────
+    // Click gating to avoid re-entrancy
+    // ───────────────────────────────────────────────
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
         // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o }))
+        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
+
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
@@ -3258,30 +3272,42 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message (fixed: no flashing on first click)
+        // ───────────────────────────────────────────────
+        // 4) Compute selection message with first-click guard
+        // ───────────────────────────────────────────────
+        const firstClick = !this._firstClickGuard[i0];
         let msg = '';
-        if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti) msg = !evtOpt.correct ? 'Select a correct answer to continue...' : 'Please click the next button to continue...';
-        else if (isMulti && remainingCorrect > 0) {
+
+        if (allCorrect) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMulti) {
+            msg = firstClick && !evtOpt.correct
+                ? 'Select a correct answer to continue...'
+                : 'Please select an option to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Immediately set local UI
         this.selectionMessage = msg;
+
+        // mark first click done
+        this._firstClickGuard[i0] = true;
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok = ++this._msgTok;
 
-        this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: optionsNow,
-            canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => this.selectionMessage = m,
-            token: tok
-        });
+        if (!this._ignoreEmitUntilNextClick) {
+            this.selectionMessageService.emitFromClick({
+                index: i0,
+                totalQuestions: this.totalQuestions,
+                questionType: q?.type ?? QuestionType.SingleAnswer,
+                options: optionsNow,
+                canonicalOptions: canonicalOpts,
+                onMessageChange: (m: string) => this.selectionMessage = m,
+                token: tok
+            });
+        }
 
         // 5) Update Next button & quiz state
         queueMicrotask(() => {
@@ -3290,7 +3316,7 @@ public override async onOptionClicked(event: {
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // 6) Update explanation display (simplified)
+        // 6) Update explanation display
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3316,21 +3342,11 @@ public override async onOptionClicked(event: {
         });
 
     } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { this._clickGate = false; });
     }
   }
 
 
-
-
-
-
-
-
-
-
-
- 
 
 
 
