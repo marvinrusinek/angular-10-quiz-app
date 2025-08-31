@@ -3278,6 +3278,7 @@ public override async onOptionClicked(event: {
         // Immediately set local UI
         this.selectionMessage = msg;
 
+        // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok = ++this._msgTok;
 
