@@ -270,8 +270,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _hasClickedMap = new Map<number, boolean>();
   
   // Prevent flashing selection messages for first clicks
-  private _firstClickGuard: Set<number> = new Set();
-  private _ignoreEmitUntilNextClick: boolean = false;
+  private _firstClickGuard = new Set<number>();
+  private _ignoreEmitUntilNextClick = new Set<number>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3187,26 +3187,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  // Add these declarations in your class if not already:
-private _firstClickGuard = new Set<number>();
-private _ignoreEmitUntilNextClick = false;
-private _pendingRAF: number | null = null;
-private _clickGate = false;
-private _msgTok?: number;
-
-public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // 0) Cancel pending RAF
+    // Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
         this._pendingRAF = null;
     }
 
-    // Wait if interaction is not ready yet
+    // Wait for interaction ready
     if (!this.quizStateService.isInteractionReady()) {
         await firstValueFrom(
             this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
@@ -3220,51 +3213,26 @@ public override async onOptionClicked(event: {
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    // ───────────────────────────────────────────────
-    // EARLY GUARD: first click for SINGLE-ANSWER or no option selected
-    // ───────────────────────────────────────────────
     if (!evtOpt) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
-        return; // exit early, prevents flash
+        return;
     }
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
-        // ───────────────────────────────────────────────
-        // FIRST-CLICK GUARD & ignore async emits if needed
-        // ───────────────────────────────────────────────
-        if (!this._firstClickGuard.has(i0)) {
-            this._firstClickGuard.add(i0);
-
-            if (q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
-                // Immediately set message and block async emits
-                this.selectionMessage = 'Select a correct option to continue...';
-                this.nextButtonStateService.setNextButtonState(false);
-                this.quizStateService.setAnswered(false);
-                this.quizStateService.setAnswerSelected(false);
-
-                // Block any async emitFromClick update until next click
-                this._ignoreEmitUntilNextClick = true;
-            }
-        }
-
-        // 1) Update local UI selection immediately
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
         }
 
-        // Persist selection
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
-        // 2) Compute canonical options & stable keys
         const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
         const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
             ...o,
@@ -3274,7 +3242,6 @@ public override async onOptionClicked(event: {
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // 3) Compute remaining correct / allCorrect
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
@@ -3294,18 +3261,30 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message
-        let msg = '';
-        if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti) msg = 'Select a correct option to continue...';
-        else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        // ──────────────
+        // FIRST-CLICK FIX
+        // ──────────────
+        if (!this._firstClickGuard.has(i0)) {
+            this._firstClickGuard.add(i0);
+
+            if (!allCorrect && !isMulti) {
+                // Block any async emit from overwriting the message
+                this._ignoreEmitUntilNextClick.add(i0);
+                this.selectionMessage = 'Select a correct option to continue...';
+                this.nextButtonStateService.setNextButtonState(false);
+                this.quizStateService.setAnswered(false);
+                this.quizStateService.setAnswerSelected(false);
+            }
         }
 
-        // Immediately set local UI
+        // Compute selection message normally for multi-answer and correct selections
+        let msg = '';
+        if (allCorrect) msg = 'Please click the next button to continue...';
+        else if (!isMulti) msg = allCorrect ? 'Please click the next button to continue...' : 'Select a correct option to continue...';
+        else if (isMulti && remainingCorrect > 0) msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+
         this.selectionMessage = msg;
 
-        // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok = ++this._msgTok;
 
@@ -3316,27 +3295,26 @@ public override async onOptionClicked(event: {
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                // ignore async emit if flagged
-                if (!this._ignoreEmitUntilNextClick) {
+                if (!this._ignoreEmitUntilNextClick.has(i0)) {
                     this.selectionMessage = m;
                 }
             },
             token: tok
         });
 
-        // reset _ignoreEmitUntilNextClick after first click fully processed
-        if (this._ignoreEmitUntilNextClick) {
-            setTimeout(() => { this._ignoreEmitUntilNextClick = false; }, 0);
+        // Remove ignore after next click
+        if (this._ignoreEmitUntilNextClick.has(i0) && allCorrect) {
+            this._ignoreEmitUntilNextClick.delete(i0);
         }
 
-        // 5) Update Next button & quiz state
+        // Update Next button & quiz state
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // 6) Update explanation display (simplified)
+        // Explanation display
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3351,7 +3329,7 @@ public override async onOptionClicked(event: {
             this.cdRef.detectChanges?.();
         });
 
-        // 7) Post-click tasks
+        // Post-click tasks
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3365,6 +3343,7 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
