@@ -3211,25 +3211,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // Initialize per-question click map
-    // ───────────────────────────────────────────────
-    this._hasClickedMap ??= new Map<number, boolean>();
-
-    // ───────────────────────────────────────────────
     // Early guard: SINGLE-ANSWER questions before first click
     // ───────────────────────────────────────────────
-    if (!this._hasClickedMap.get(i0) && q?.type === QuestionType.SingleAnswer) {
-        this.selectionMessage = 'Please select an option to continue...';
-        return; // exit early to prevent flash
+    this._hasClickedMap ??= new Map<number, boolean>();
+    if (!this._hasClickedMap.get(i0)) {
+        this._hasClickedMap.set(i0, true);
+        if (!evtOpt && q?.type === QuestionType.SingleAnswer) {
+            this.selectionMessage = 'Please select an option to continue...';
+            return; // exit early to prevent flash
+        }
     }
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
-        // Mark that the user has clicked for this question
-        this._hasClickedMap.set(i0, true);
-
         // ───────────────────────────────────────────────
         // 1) Build UPDATED UI array
         // ───────────────────────────────────────────────
@@ -3308,7 +3304,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         let msg = '';
         if (!this._hasClickedMap.get(i0)) {
-            // Early guard: no selection message before first click
+            // Before first click: empty message
             msg = '';
         } else if (allCorrect) {
             msg = 'Please click the next button to continue...';
@@ -3350,27 +3346,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         queueMicrotask(() => {
             this.ngZone.run(() => {
-                this.explanationTextService.setShouldDisplayExplanation(true);
-                this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
-                this.displayExplanation = true;
-                this.showExplanationChange?.emit(true);
+                if (this._hasClickedMap.get(i0)) {
+                    this.explanationTextService.setShouldDisplayExplanation(true);
+                    this.quizStateService.setDisplayState({ mode: 'explanation', answered: allCorrect });
+                    this.displayExplanation = true;
+                    this.showExplanationChange?.emit(true);
 
-                if (cached?.trim()) {
-                    this.setExplanationFor(i0, cached);
-                    this.explanationToDisplay = cached;
-                    this.explanationToDisplayChange?.emit(cached);
-                } else if (rawTrue) {
-                    this.setExplanationFor(i0, rawTrue);
-                    this.explanationToDisplay = rawTrue;
-                    this.explanationToDisplayChange?.emit(rawTrue);
-                } else {
-                    this.setExplanationFor(i0, '');
-                    this.explanationToDisplay = '<span class="muted">Formatting…</span>';
-                    this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+                    if (cached?.trim()) {
+                        this.setExplanationFor(i0, cached);
+                        this.explanationToDisplay = cached;
+                        this.explanationToDisplayChange?.emit(cached);
+                    } else if (rawTrue) {
+                        this.setExplanationFor(i0, rawTrue);
+                        this.explanationToDisplay = rawTrue;
+                        this.explanationToDisplayChange?.emit(rawTrue);
+                    } else {
+                        this.setExplanationFor(i0, '');
+                        this.explanationToDisplay = '<span class="muted">Formatting…</span>';
+                        this.explanationToDisplayChange?.emit(this.explanationToDisplay);
+                    }
+
+                    this.cdRef.markForCheck?.();
+                    this.cdRef.detectChanges?.();
                 }
-
-                this.cdRef.markForCheck?.();
-                this.cdRef.detectChanges?.();
             });
         });
 
@@ -3398,6 +3396,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
