@@ -3192,7 +3192,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-}): Promise<void> {
+  }): Promise<void> {
     // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
@@ -3273,7 +3273,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // ───────────────────────────────────────────────
-        // 4) Compute selection message with first-click guard
+        // 4) Compute selection message with guards
         // ───────────────────────────────────────────────
         const firstClick = !this._firstClickGuard[i0];
         let msg = '';
@@ -3288,16 +3288,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
+        // set message immediately to prevent flash
         this.selectionMessage = msg;
 
-        // mark first click done
+        // mark first click done for this question
         this._firstClickGuard[i0] = true;
+
+        // block early emission until next click cycle
+        this._ignoreEmitUntilNextClick = true;
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok = ++this._msgTok;
 
-        if (!this._ignoreEmitUntilNextClick) {
+        // emit only after guard lifted
+        setTimeout(() => {
+            this._ignoreEmitUntilNextClick = false;
             this.selectionMessageService.emitFromClick({
                 index: i0,
                 totalQuestions: this.totalQuestions,
@@ -3307,7 +3313,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 onMessageChange: (m: string) => this.selectionMessage = m,
                 token: tok
             });
-        }
+        }, 0);
 
         // 5) Update Next button & quiz state
         queueMicrotask(() => {
@@ -3345,7 +3351,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
 
 
 
