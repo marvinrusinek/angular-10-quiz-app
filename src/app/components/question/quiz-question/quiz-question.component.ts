@@ -3182,9 +3182,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   } */
   
-private _pendingRAF: number | null = null;
+  private _pendingRAF: number | null = null;
 
-// Simplified onOptionClicked guard-first
+  // Simplified onOptionClicked guard-first
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3211,24 +3211,15 @@ public override async onOptionClicked(event: {
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    // ───────────────────────────────────────────────
-    // EARLY GUARD: first click for SINGLE-ANSWER or no option selected
-    // ───────────────────────────────────────────────
-    if (!evtOpt) {
-        this.selectionMessage = q?.type === QuestionType.SingleAnswer
-            ? 'Please select an option to continue...'
-            : 'Please start the quiz by selecting an option.';
-        return; // exit early, prevents flash
-    }
+    if (!evtOpt) return; // exit early if no valid option clicked
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
         // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
+        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o }))
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
@@ -3267,10 +3258,10 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message
+        // 4) Compute selection message (fixed: no flashing on first click)
         let msg = '';
         if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti) msg = 'Please select an option to continue...';
+        else if (!isMulti) msg = !evtOpt.correct ? 'Select a correct answer to continue...' : 'Please click the next button to continue...';
         else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
@@ -3325,9 +3316,10 @@ public override async onOptionClicked(event: {
         });
 
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+        queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
