@@ -267,6 +267,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   canonicalOptions: CanonicalOption[] = [];
   private _msgTok = 0;
+  private _hasClickedMap = new Map<number, boolean>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3210,9 +3211,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
+    // Initialize per-question click map
+    // ───────────────────────────────────────────────
+    this._hasClickedMap ??= new Map<number, boolean>();
+
+    // ───────────────────────────────────────────────
     // Early guard: SINGLE-ANSWER questions before first click
     // ───────────────────────────────────────────────
-    if (!evtOpt && q?.type === QuestionType.SingleAnswer) {
+    if (!this._hasClickedMap.get(i0) && q?.type === QuestionType.SingleAnswer) {
         this.selectionMessage = 'Please select an option to continue...';
         return; // exit early to prevent flash
     }
@@ -3221,6 +3227,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this._clickGate = true;
 
     try {
+        // Mark that the user has clicked for this question
+        this._hasClickedMap.set(i0, true);
+
         // ───────────────────────────────────────────────
         // 1) Build UPDATED UI array
         // ───────────────────────────────────────────────
@@ -3298,7 +3307,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // 4) Compute and emit selection message
         // ───────────────────────────────────────────────
         let msg = '';
-        if (allCorrect) {
+        if (!this._hasClickedMap.get(i0)) {
+            // Early guard: no selection message before first click
+            msg = '';
+        } else if (allCorrect) {
             msg = 'Please click the next button to continue...';
         } else if (!isMultiSelect) {
             msg = 'Please select an option to continue...';
@@ -3381,11 +3393,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { if (evtOpt) this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
         this.selectedIndices.clear();
         this.selectedIndices.add(evtIdx);
+
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
 
 
 
