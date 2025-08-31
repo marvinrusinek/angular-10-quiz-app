@@ -3187,12 +3187,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
+  // Declare at the top of your class
+private _ignoreEmitUntilNextClick = false;
+
+public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {
+}): Promise<void> {
     // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
@@ -3214,7 +3217,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected
+    // EARLY GUARD: first click for SINGLE-ANSWER or no option selected
     // ───────────────────────────────────────────────
     if (!evtOpt) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
@@ -3223,9 +3226,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return; // exit early, prevents flash
     }
 
-    // ───────────────────────────────────────────────
-    // Click gating to avoid re-entrancy
-    // ───────────────────────────────────────────────
     if (this._clickGate) return;
     this._clickGate = true;
 
@@ -3272,48 +3272,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // ───────────────────────────────────────────────
-        // 4) Compute selection message with guards
-        // ───────────────────────────────────────────────
-        const firstClick = !this._firstClickGuard[i0];
+        // 4) Compute selection message (bulletproof first-click and multi-click)
         let msg = '';
-
-        if (allCorrect) {
-            msg = 'Please click the next button to continue...';
-        } else if (!isMulti) {
-            msg = firstClick && !evtOpt.correct
-                ? 'Select a correct answer to continue...'
-                : 'Please select an option to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        if (isMulti) {
+            msg = allCorrect
+                ? 'Please click the next button to continue...'
+                : remainingCorrect > 0
+                    ? `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`
+                    : '';
+        } else {
+            // SINGLE-ANSWER: always show correct message on first incorrect click
+            msg = allCorrect
+                ? 'Please click the next button to continue...'
+                : 'Select a correct option to continue...';
         }
 
-        // set message immediately to prevent flash
-        this.selectionMessage = msg;
-
-        // mark first click done for this question
-        this._firstClickGuard[i0] = true;
-
-        // block early emission until next click cycle
-        this._ignoreEmitUntilNextClick = true;
+        // Suppress flashes by ignoring any async emits until next click
+        if (!this._ignoreEmitUntilNextClick) {
+            this.selectionMessage = msg;
+            this._ignoreEmitUntilNextClick = true;
+        }
 
         // Monotonic token to coalesce messages
         this._msgTok ??= 0;
         const tok = ++this._msgTok;
 
-        // emit only after guard lifted
-        setTimeout(() => {
-            this._ignoreEmitUntilNextClick = false;
-            this.selectionMessageService.emitFromClick({
-                index: i0,
-                totalQuestions: this.totalQuestions,
-                questionType: q?.type ?? QuestionType.SingleAnswer,
-                options: optionsNow,
-                canonicalOptions: canonicalOpts,
-                onMessageChange: (m: string) => this.selectionMessage = m,
-                token: tok
-            });
-        }, 0);
+        this.selectionMessageService.emitFromClick({
+            index: i0,
+            totalQuestions: this.totalQuestions,
+            questionType: q?.type ?? QuestionType.SingleAnswer,
+            options: optionsNow,
+            canonicalOptions: canonicalOpts,
+            onMessageChange: (m: string) => {
+                if (!this._ignoreEmitUntilNextClick) this.selectionMessage = m;
+            },
+            token: tok
+        });
 
         // 5) Update Next button & quiz state
         queueMicrotask(() => {
@@ -3322,7 +3316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // 6) Update explanation display
+        // 6) Update explanation display (simplified)
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3345,12 +3339,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.handleCoreSelection(event);
             if (evtOpt) this.markBindingSelected(evtOpt);
             this.refreshFeedbackFor(evtOpt ?? undefined);
+
+            // Allow future emits after click finishes
+            this._ignoreEmitUntilNextClick = false;
         });
 
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
