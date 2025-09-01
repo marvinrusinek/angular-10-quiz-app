@@ -3278,27 +3278,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // ───────────────────────────────────────────────
-        // 4) Compute selection message (first-click guarded)
+        // 4) Compute selection message
         // ───────────────────────────────────────────────
         let msg = '';
 
-        // Single-answer incorrect selection
         if (!isMulti && !evtOpt.correct) {
+            // Single-answer incorrect
             msg = 'Select a correct option to continue...';
-        } 
-        // All correct selected
-        else if (allCorrect) {
+        } else if (allCorrect) {
+            // All correct selected
             msg = 'Please click the next button to continue...';
-        } 
-        // Multi-answer incomplete
-        else if (isMulti && remainingCorrect > 0) {
+        } else if (isMulti && remainingCorrect > 0) {
+            // Multi-answer incomplete
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // First-click guard: prevent flashing for first clicks
+        // First-click guard to prevent flashing
         if (!this._firstClickGuard.has(i0)) {
             this._firstClickGuard.add(i0);
-            // Do not overwrite msg; keep the correct message
         }
 
         // Immediately set local UI
@@ -3319,10 +3316,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             onMessageChange: (m: string) => this.selectionMessage = m,
             token: tok
         });
+
+        // ───────────────────────────────────────────────
+        // 5) Update Next button & quiz state
+        // ───────────────────────────────────────────────
+        queueMicrotask(() => {
+            this.nextButtonStateService.setNextButtonState(allCorrect);
+            this.quizStateService.setAnswered(allCorrect);
+            this.quizStateService.setAnswerSelected(allCorrect);
+        });
+
+        // ───────────────────────────────────────────────
+        // 6) Update explanation display (simplified)
+        // ───────────────────────────────────────────────
+        this._pendingRAF = requestAnimationFrame(() => {
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.displayExplanation = true;
+            this.showExplanationChange?.emit(true);
+            const cached = this._formattedByIndex?.get?.(i0);
+            const rawTrue = (q?.explanation ?? '').trim();
+            const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+            this.setExplanationFor(i0, txt);
+            this.explanationToDisplay = txt;
+            this.explanationToDisplayChange?.emit(txt);
+            this.cdRef.markForCheck?.();
+            this.cdRef.detectChanges?.();
+        });
+
+        // ───────────────────────────────────────────────
+        // 7) Post-click tasks
+        // ───────────────────────────────────────────────
+        requestAnimationFrame(async () => {
+            try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+            this.feedbackText = await this.generateFeedbackText(q);
+            await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+            this.handleCoreSelection(event);
+            if (evtOpt) this.markBindingSelected(evtOpt);
+            this.refreshFeedbackFor(evtOpt ?? undefined);
+        });
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
