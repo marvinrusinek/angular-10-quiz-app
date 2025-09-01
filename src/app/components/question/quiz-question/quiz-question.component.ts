@@ -3192,6 +3192,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Simplified onOptionClicked guard-first
   // ────────────── Declare first-click incorrect guard ──────────────
+private _firstClickIncorrectGuard = new Set<number>();
+
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3232,13 +3234,18 @@ public override async onOptionClicked(event: {
     this._clickGate = true;
 
     try {
-        // ───────────────────────────────────────────────
-        // FLASH-PROOF: First incorrect click guard (single-answer)
-        // ───────────────────────────────────────────────
         const isSingle = q?.type === QuestionType.SingleAnswer;
+
+        // ───────────────────────────────────────────────
+        // FLASH-PROOF: First incorrect click guard
+        // ───────────────────────────────────────────────
         if (isSingle && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0)) {
             this._firstClickIncorrectGuard.add(i0);
-            // Exit early to prevent transient flashing
+
+            // SET MESSAGE IMMEDIATELY to prevent flash
+            this.selectionMessage = 'Select a correct option to continue...';
+
+            // Do not continue with further processing
             return;
         }
 
@@ -3355,9 +3362,10 @@ public override async onOptionClicked(event: {
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
