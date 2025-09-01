@@ -3192,9 +3192,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  private _firstClickIncorrectGuard = new Set<number>();
-
-public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3223,13 +3221,17 @@ public override async onOptionClicked(event: {
     // ───────────────────────────────────────────────
     // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
     // ───────────────────────────────────────────────
-    if (evtOpt && q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
-        if (!this._firstClickIncorrectGuard.has(i0)) {
-            this._firstClickIncorrectGuard.add(i0);
-            this.selectionMessage = 'Select a correct option to continue...';
-            // EXIT EARLY: prevent explanation/feedback/RAF from firing
-            return;
-        }
+    const isFirstIncorrectSingle =
+        evtOpt &&
+        q?.type === QuestionType.SingleAnswer &&
+        !evtOpt.correct &&
+        !this._firstClickIncorrectGuard.has(i0);
+
+    if (isFirstIncorrectSingle) {
+        this._firstClickIncorrectGuard.add(i0);
+        // ONLY set selection message, block ALL downstream updates
+        this.selectionMessage = 'Select a correct option to continue...';
+        return; // ✅ exit EARLY: NO RAF, queueMicrotask, feedback, explanation, next button
     }
 
     // ───────────────────────────────────────────────
@@ -3351,6 +3353,7 @@ public override async onOptionClicked(event: {
         queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
