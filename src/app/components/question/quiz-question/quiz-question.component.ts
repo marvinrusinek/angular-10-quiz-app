@@ -3191,19 +3191,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
+  private _firstClickProcessed = new Set<number>();
+
+public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // 0) Cancel any pending RAF to prevent stale updates
+    // 0) Cancel any pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
         this._pendingRAF = null;
     }
 
-    // Wait if interaction is not ready yet
+    // Wait if interaction not ready
     if (!this.quizStateService.isInteractionReady()) {
         await firstValueFrom(
             this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
@@ -3218,20 +3220,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected
+    // FIRST-CLICK GUARD
     // ───────────────────────────────────────────────
     if (!evtOpt) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
-        return; // exit early prevents flash
+        return;
+    }
+
+    // Only process first click once per question to prevent flash
+    if (!this._firstClickProcessed.has(i0)) {
+        this._firstClickProcessed.add(i0);
+
+        // Immediately set the correct initial message for single-answer incorrect
+        if (q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
+            this.selectionMessage = 'Select a correct option to continue...';
+        }
+        // For multiple-answer, dynamic message is computed later
     }
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
-        // 1) Update local UI selection immediately
+        // 1) Update local UI selection
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
         optionsNow[evtIdx].selected = event.checked ?? true;
@@ -3242,7 +3255,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Persist selection safely
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
-        // 2) Compute canonical options & stable keys
+        // 2) Canonical options & stable keys
         const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
         const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
             ...o,
@@ -3252,7 +3265,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // 3) Compute remaining correct / allCorrect
+        // 3) Remaining correct / allCorrect
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
@@ -3274,52 +3287,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // 4) Compute selection message
         let msg = '';
-        if (allCorrect) {
-            msg = 'Please click the next button to continue...';
-        } else if (!isMulti && !evtOpt?.correct) {
-            // Single-answer incorrect -> **always show this** until correct is clicked
-            msg = 'Select a correct option to continue...';
-        } else if (!isMulti && evtOpt?.correct) {
-            msg = 'Please click the next button to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
+        if (allCorrect) msg = 'Please click the next button to continue...';
+        else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
+        else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
+        else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // ───────────────────────────────────────────────
-        // Flash-proof: always set local message first
-        // ───────────────────────────────────────────────
+        // Set message immediately for flash-proofing
         this.selectionMessage = msg;
 
-        // Mark this question as having been interacted with for flash-proofing
-        this._ignoreEmitUntilNextClick.add(i0);
-
-        // Monotonic token to coalesce messages
+        // Emit safely
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
-
-        // Emit safely to SelectionMessageService
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                if (this._ignoreEmitUntilNextClick.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
+            onMessageChange: (m: string) => { this.selectionMessage = m; },
             token: tok
         });
 
-        // 5) Update Next button & quiz state
+        // 5) Next button & quiz state
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // 6) Update explanation display & highlighting
+        // 6) Explanation & highlighting
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3337,7 +3335,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.cdRef.detectChanges?.();
         });
 
-        // 7) Post-click tasks: feedback, core selection, marking, refresh
+        // 7) Post-click tasks
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3347,10 +3345,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
-      // Release gate in microtask to avoid flashing
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
   
 
