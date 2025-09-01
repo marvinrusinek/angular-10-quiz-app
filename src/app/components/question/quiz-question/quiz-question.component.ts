@@ -3192,6 +3192,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
+  private _firstClickIncorrectGuard = new Set<number>();
+
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3211,31 +3213,27 @@ public override async onOptionClicked(event: {
         );
     }
 
-    if (!this.currentQuestion || !this.currentOptions) return;
-
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    // ───────────────────────────────────────────────
-    // FLASH-PROOF FIRST INCORRECT CLICK (single/multi-answer)
-    // ───────────────────────────────────────────────
-    if (evtOpt && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0)) {
-        // FIRST incorrect click: block everything else
-        this._firstClickIncorrectGuard.add(i0);
+    if (!q || !this.currentOptions) return;
 
-        // Set flash-proof selection message
-        this.selectionMessage = q?.type === QuestionType.SingleAnswer
-            ? 'Select a correct option to continue...'
-            : 'Select a correct option to continue...';
-
-        // EXIT EARLY: no RAF, no message emit, no explanation update
-        return;
+    // ───────────────────────────────────────────────
+    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // ───────────────────────────────────────────────
+    if (evtOpt && q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
+        if (!this._firstClickIncorrectGuard.has(i0)) {
+            this._firstClickIncorrectGuard.add(i0);
+            this.selectionMessage = 'Select a correct option to continue...';
+            // EXIT EARLY: prevent explanation/feedback/RAF from firing
+            return;
+        }
     }
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected (only if truly null/undefined)
+    // EARLY GUARD: option truly null/undefined
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
@@ -3298,7 +3296,6 @@ public override async onOptionClicked(event: {
         else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
-
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
@@ -3306,7 +3303,6 @@ public override async onOptionClicked(event: {
         // ───────────────────────────────────────────────
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
-
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3352,9 +3348,17 @@ public override async onOptionClicked(event: {
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+        queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
+
+
+
+  
+
+
+
 
 
 
