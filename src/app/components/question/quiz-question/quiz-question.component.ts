@@ -3192,12 +3192,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-public override async onOptionClicked(event: {
-    option: SelectedOption | null;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
-}): Promise<void> {
+  public override async onOptionClicked(event: {
+      option: SelectedOption | null;
+      index: number;
+      checked: boolean;
+      wasReselected?: boolean;
+  }): Promise<void> {
     // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
