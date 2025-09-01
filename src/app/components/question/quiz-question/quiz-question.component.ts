@@ -273,6 +273,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _firstClickGuard = new Set<number>();
   private _ignoreEmitUntilNextClick = new Set<number>();
 
+  // Flash-proof first-click guard
+  // Tracks question indices for which the first incorrect click occurred
+  private _firstClickIncorrectGuard: Set<number> = new Set<number>();
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -3187,7 +3191,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
+  // ────────────── Declare first-click incorrect guard ──────────────
+public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3214,13 +3219,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: first click with no option selected
+    // EARLY GUARD: no option selected
     // ───────────────────────────────────────────────
     if (!evtOpt) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
-        return; // exit early, prevents flash
+        return;
     }
 
     if (this._clickGate) return;
@@ -3228,8 +3233,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
         // ───────────────────────────────────────────────
-        // 1) Update local UI selection immediately
+        // FLASH-PROOF: First incorrect click guard (single-answer)
         // ───────────────────────────────────────────────
+        const isSingle = q?.type === QuestionType.SingleAnswer;
+        if (isSingle && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0)) {
+            this._firstClickIncorrectGuard.add(i0);
+            // Exit early to prevent transient flashing
+            return;
+        }
+
+        // 1) Update local UI selection immediately
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
 
@@ -3241,9 +3254,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Persist selection
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
-        // ───────────────────────────────────────────────
         // 2) Compute canonical options & stable keys
-        // ───────────────────────────────────────────────
         const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
         const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
             ...o,
@@ -3253,9 +3264,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // ───────────────────────────────────────────────
         // 3) Compute remaining correct / allCorrect
-        // ───────────────────────────────────────────────
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
@@ -3275,33 +3284,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // ───────────────────────────────────────────────
-        // 4) Compute flash-proof selection message
-        // ───────────────────────────────────────────────
-        // Initialize first-click guard map if not exists
-        this._firstClickGuard ??= new Set<number>();
-
+        // 4) Compute selection message
         let msg = '';
-        if (allCorrect) {
-            msg = 'Please click the next button to continue...';
-        } else if (!isMulti) {
-            // Single-answer incorrect: always show correct guidance without flashing
-            msg = 'Select a correct option to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
+        if (allCorrect) msg = 'Please click the next button to continue...';
+        else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
+        else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
+        else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
         // ───────────────────────────────────────────────
-        // Flash-proof: only emit after first click
+        // Flash-proof: set local message first and block emit for first click
         // ───────────────────────────────────────────────
         this.selectionMessage = msg;
-        if (!this._firstClickGuard.has(i0)) {
-            this._firstClickGuard.add(i0);
+        if (!this._ignoreEmitUntilNextClick.has(i0)) {
+            this._ignoreEmitUntilNextClick.add(i0);
         }
 
-        this._msgTok ??= 0;
-        const tok = ++this._msgTok;
+        // Monotonic token to coalesce messages
+        this._msgTok = (this._msgTok ?? 0) + 1;
+        const tok = this._msgTok;
 
+        // Only allow selectionMessageService emit after first click
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3309,26 +3313,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                // Ignore message changes until after first click
-                if (this._firstClickGuard.has(i0)) {
+                if (this._ignoreEmitUntilNextClick.has(i0)) {
                     this.selectionMessage = m;
                 }
             },
             token: tok
         });
 
-        // ───────────────────────────────────────────────
         // 5) Update Next button & quiz state
-        // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
-        // ───────────────────────────────────────────────
         // 6) Update explanation display & highlighting
-        // ───────────────────────────────────────────────
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3346,9 +3345,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.cdRef.detectChanges?.();
         });
 
-        // ───────────────────────────────────────────────
         // 7) Post-click tasks: feedback, core selection, marking, refresh
-        // ───────────────────────────────────────────────
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3358,10 +3355,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+        queueMicrotask(() => { this._clickGate = false; });
     }
   }
-  
+
 
 
 
