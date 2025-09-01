@@ -3191,16 +3191,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  // ────────────── Declare first-click incorrect guard ──────────────
-private _firstClickIncorrectGuard = new Set<number>();
-
-public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // 0) Cancel pending RAF
+    // 0) Cancel any pending RAF to prevent stale updates
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
         this._pendingRAF = null;
@@ -3227,38 +3224,22 @@ public override async onOptionClicked(event: {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
-        return;
+        return; // exit early prevents flash
     }
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
-        const isSingle = q?.type === QuestionType.SingleAnswer;
-
-        // ───────────────────────────────────────────────
-        // FLASH-PROOF: First incorrect click guard
-        // ───────────────────────────────────────────────
-        if (isSingle && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0)) {
-            this._firstClickIncorrectGuard.add(i0);
-
-            // SET MESSAGE IMMEDIATELY to prevent flash
-            this.selectionMessage = 'Select a correct option to continue...';
-
-            // Do not continue with further processing
-            return;
-        }
-
         // 1) Update local UI selection immediately
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
         }
 
-        // Persist selection
+        // Persist selection safely
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
         // 2) Compute canonical options & stable keys
@@ -3293,26 +3274,30 @@ public override async onOptionClicked(event: {
 
         // 4) Compute selection message
         let msg = '';
-        if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
-        else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
-        else if (isMulti && remainingCorrect > 0) {
+        if (allCorrect) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMulti && !evtOpt?.correct) {
+            // Single-answer incorrect -> **always show this** until correct is clicked
+            msg = 'Select a correct option to continue...';
+        } else if (!isMulti && evtOpt?.correct) {
+            msg = 'Please click the next button to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
         // ───────────────────────────────────────────────
-        // Flash-proof: set local message first and block emit for first click
+        // Flash-proof: always set local message first
         // ───────────────────────────────────────────────
         this.selectionMessage = msg;
-        if (!this._ignoreEmitUntilNextClick.has(i0)) {
-            this._ignoreEmitUntilNextClick.add(i0);
-        }
+
+        // Mark this question as having been interacted with for flash-proofing
+        this._ignoreEmitUntilNextClick.add(i0);
 
         // Monotonic token to coalesce messages
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
-        // Only allow selectionMessageService emit after first click
+        // Emit safely to SelectionMessageService
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3362,9 +3347,14 @@ public override async onOptionClicked(event: {
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
+      // Release gate in microtask to avoid flashing
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
+  
+
+
 
 
 
