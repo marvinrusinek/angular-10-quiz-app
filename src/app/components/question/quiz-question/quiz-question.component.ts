@@ -275,7 +275,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Flash-proof first-click guard
   // Tracks question indices for which the first incorrect click occurred
-  private _firstClickIncorrectGuard: Set<number> = new Set<number>();
+  private _firstClickIncorrectGuard = new Set<number>();
+  private _firstClickIncorrectLocked = new Set<number>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3191,9 +3192,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  // Class-level guard for first incorrect clicks
-private _firstClickIncorrectGuard = new Set<number>();
-
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3221,9 +3219,22 @@ public override async onOptionClicked(event: {
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected
+    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
     // ───────────────────────────────────────────────
-    if (!evtOpt) {
+    if (evtOpt && q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
+        if (!this._firstClickIncorrectGuard.has(i0)) {
+            // FIRST incorrect click: block any flash
+            this._firstClickIncorrectGuard.add(i0);
+            this._firstClickIncorrectLocked.add(i0); // lock async updates
+            this.selectionMessage = 'Select a correct option to continue...';
+            return; // exit early, nothing else updates message yet
+        }
+    }
+
+    // ───────────────────────────────────────────────
+    // EARLY GUARD: no option selected (only if truly null/undefined)
+    // ───────────────────────────────────────────────
+    if (evtOpt == null) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
@@ -3273,21 +3284,17 @@ public override async onOptionClicked(event: {
         } else {
             allCorrect = !!evtOpt?.correct;
             remainingCorrect = allCorrect ? 0 : 1;
+
+            // unlock first-click guard after correct selection
+            if (allCorrect && this._firstClickIncorrectLocked.has(i0)) {
+                this._firstClickIncorrectLocked.delete(i0);
+            }
         }
 
         // ───────────────────────────────────────────────
-        // Flash-proof first-click guard for single-answer incorrect
+        // Continue normal message logic
         // ───────────────────────────────────────────────
         let msg = '';
-        if (!isMulti && !evtOpt?.correct && !this._firstClickIncorrectGuard.has(i0)) {
-            // FIRST incorrect click: block any flash
-            this._firstClickIncorrectGuard.add(i0);
-            msg = 'Select a correct option to continue...';
-            this.selectionMessage = msg;
-            return; // exit early, nothing else updates message yet
-        }
-
-        // Continue normal message logic
         if (allCorrect) msg = 'Please click the next button to continue...';
         else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
         else if (isMulti && remainingCorrect > 0) {
@@ -3310,8 +3317,8 @@ public override async onOptionClicked(event: {
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                // prevent message flash for first-click incorrect
-                if (!this._firstClickIncorrectGuard.has(i0)) {
+                // ONLY update if not locked
+                if (!this._firstClickIncorrectLocked.has(i0)) {
                     this.selectionMessage = m;
                 }
             },
@@ -3356,9 +3363,6 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-
 
 
 
