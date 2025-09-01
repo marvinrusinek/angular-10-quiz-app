@@ -3189,7 +3189,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Simplified onOptionClicked guard-first
   private _pendingRAF: number | null = null; // Cancelable RAF token
 private _clickGate = false;
-private _ignoreEmitUntilNextClick = new Set<number>(); // used to prevent flashing first-click
+private _ignoreEmitUntilNextClick = new Set<number>(); // prevent flashing first-click
 private _msgTok?: number;
 
 public override async onOptionClicked(event: {
@@ -3198,7 +3198,7 @@ public override async onOptionClicked(event: {
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
-    // 0) Cancel pending RAF for explanation
+    // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
         this._pendingRAF = null;
@@ -3217,6 +3217,16 @@ public override async onOptionClicked(event: {
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
+
+    // ───────────────────────────────────────────────
+    // EARLY GUARD: first click with no option selected
+    // ───────────────────────────────────────────────
+    if (!evtOpt) {
+        this.selectionMessage = q?.type === QuestionType.SingleAnswer
+            ? 'Please select an option to continue...'
+            : 'Please start the quiz by selecting an option.';
+        return; // exit early, prevents flash
+    }
 
     if (this._clickGate) return;
     this._clickGate = true;
@@ -3264,7 +3274,7 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message (flash-proof)
+        // 4) Compute selection message
         let msg = '';
         if (allCorrect) msg = 'Please click the next button to continue...';
         else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
@@ -3273,17 +3283,19 @@ public override async onOptionClicked(event: {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Avoid flashing first-click for this question
+        // ───────────────────────────────────────────────
+        // Flash-proof: set local message first and block emit for first click
+        // ───────────────────────────────────────────────
+        this.selectionMessage = msg;
         if (!this._ignoreEmitUntilNextClick.has(i0)) {
             this._ignoreEmitUntilNextClick.add(i0);
         }
-
-        this.selectionMessage = msg;
 
         // Monotonic token to coalesce messages
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
+        // Only allow selectionMessageService emit after first click
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3291,7 +3303,7 @@ public override async onOptionClicked(event: {
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (!this._ignoreEmitUntilNextClick.has(i0)) {
+                if (this._ignoreEmitUntilNextClick.has(i0)) {
                     this.selectionMessage = m;
                 }
             },
@@ -3336,7 +3348,6 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
 
 
 
