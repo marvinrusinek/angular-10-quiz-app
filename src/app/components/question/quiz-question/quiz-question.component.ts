@@ -3192,9 +3192,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  // Class-level guards for first incorrect clicks
-private _firstClickIncorrectGuard = new Set<number>();
-
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
