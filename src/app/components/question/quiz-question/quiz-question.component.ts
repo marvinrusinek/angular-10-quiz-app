@@ -3191,6 +3191,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
+  // Class-level guard for first incorrect clicks
+private _firstClickIncorrectGuard = new Set<number>();
+
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3218,35 +3221,19 @@ public override async onOptionClicked(event: {
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: first click with no option selected
+    // EARLY GUARD: no option selected
     // ───────────────────────────────────────────────
     if (!evtOpt) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
             ? 'Please select an option to continue...'
             : 'Please start the quiz by selecting an option.';
-        return; // exit early, prevents flash
+        return;
     }
 
     if (this._clickGate) return;
     this._clickGate = true;
 
     try {
-        // ───────────────────────────────────────────────
-        // FIRST-CLICK INCORRECT GUARD
-        // ───────────────────────────────────────────────
-        const isSingle = q?.type === QuestionType.SingleAnswer;
-        const firstClickIncorrect = isSingle && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0);
-
-        if (firstClickIncorrect) {
-            this._firstClickIncorrectGuard.add(i0);
-
-            // Immediately set the correct message for first incorrect single-answer click
-            this.selectionMessage = 'Select a correct option to continue...';
-
-            // **Prevent any asynchronous UI updates that would flash**
-            return;
-        }
-
         // 1) Update local UI selection immediately
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
@@ -3288,18 +3275,31 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message
+        // ───────────────────────────────────────────────
+        // Flash-proof first-click guard for single-answer incorrect
+        // ───────────────────────────────────────────────
         let msg = '';
+        if (!isMulti && !evtOpt?.correct && !this._firstClickIncorrectGuard.has(i0)) {
+            // FIRST incorrect click: block any flash
+            this._firstClickIncorrectGuard.add(i0);
+            msg = 'Select a correct option to continue...';
+            this.selectionMessage = msg;
+            return; // exit early, nothing else updates message yet
+        }
+
+        // Continue normal message logic
         if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
         else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
         else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
+        // Set local selection message
         this.selectionMessage = msg;
 
-        // Monotonic token to coalesce messages
+        // ───────────────────────────────────────────────
+        // Emit selection message
+        // ───────────────────────────────────────────────
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
@@ -3309,7 +3309,12 @@ public override async onOptionClicked(event: {
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => { this.selectionMessage = m; },
+            onMessageChange: (m: string) => {
+                // prevent message flash for first-click incorrect
+                if (!this._firstClickIncorrectGuard.has(i0)) {
+                    this.selectionMessage = m;
+                }
+            },
             token: tok
         });
 
@@ -3338,7 +3343,7 @@ public override async onOptionClicked(event: {
             this.cdRef.detectChanges?.();
         });
 
-        // 7) Post-click tasks
+        // 7) Post-click tasks: feedback, core selection, marking, refresh
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3351,6 +3356,8 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
+
 
 
 
