@@ -3191,8 +3191,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  private _firstClickProcessed = new Set<number>();
-
 public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
@@ -3234,16 +3232,19 @@ public override async onOptionClicked(event: {
 
     try {
         // ───────────────────────────────────────────────
-        // FIRST-CLICK FLASH-PROOF GUARD
+        // FIRST-CLICK INCORRECT GUARD
         // ───────────────────────────────────────────────
-        const isFirstClick = !this._firstClickProcessed.has(i0);
-        if (isFirstClick) {
-            this._firstClickProcessed.add(i0);
+        const isSingle = q?.type === QuestionType.SingleAnswer;
+        const firstClickIncorrect = isSingle && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0);
 
-            // Immediately set the correct single-answer incorrect message
-            if (q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
-                this.selectionMessage = 'Select a correct option to continue...';
-            }
+        if (firstClickIncorrect) {
+            this._firstClickIncorrectGuard.add(i0);
+
+            // Immediately set the correct message for first incorrect single-answer click
+            this.selectionMessage = 'Select a correct option to continue...';
+
+            // **Prevent any asynchronous UI updates that would flash**
+            return;
         }
 
         // 1) Update local UI selection immediately
@@ -3296,14 +3297,12 @@ public override async onOptionClicked(event: {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Immediately set the message for flash-proofing
         this.selectionMessage = msg;
 
         // Monotonic token to coalesce messages
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
-        // Emit only after first click
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3352,6 +3351,7 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
 
 
