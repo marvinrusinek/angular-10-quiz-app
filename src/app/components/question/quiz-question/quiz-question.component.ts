@@ -3192,12 +3192,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
-      option: SelectedOption | null;
-      index: number;
-      checked: boolean;
-      wasReselected?: boolean;
-  }): Promise<void> {
+  // Class-level guards for first incorrect clicks
+private _firstClickIncorrectGuard = new Set<number>();
+
+public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+}): Promise<void> {
     // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
@@ -3219,16 +3222,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // FLASH-PROOF FIRST INCORRECT CLICK (single/multi-answer)
     // ───────────────────────────────────────────────
-    if (evtOpt && q?.type === QuestionType.SingleAnswer && !evtOpt.correct) {
-        if (!this._firstClickIncorrectGuard.has(i0)) {
-            // FIRST incorrect click: block any flash
-            this._firstClickIncorrectGuard.add(i0);
-            this._firstClickIncorrectLocked.add(i0); // lock async updates
-            this.selectionMessage = 'Select a correct option to continue...';
-            return; // exit early, nothing else updates message yet
-        }
+    if (evtOpt && !evtOpt.correct && !this._firstClickIncorrectGuard.has(i0)) {
+        // FIRST incorrect click: block everything else
+        this._firstClickIncorrectGuard.add(i0);
+
+        // Set flash-proof selection message
+        this.selectionMessage = q?.type === QuestionType.SingleAnswer
+            ? 'Select a correct option to continue...'
+            : 'Select a correct option to continue...';
+
+        // EXIT EARLY: no RAF, no message emit, no explanation update
+        return;
     }
 
     // ───────────────────────────────────────────────
@@ -3284,11 +3290,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } else {
             allCorrect = !!evtOpt?.correct;
             remainingCorrect = allCorrect ? 0 : 1;
-
-            // unlock first-click guard after correct selection
-            if (allCorrect && this._firstClickIncorrectLocked.has(i0)) {
-                this._firstClickIncorrectLocked.delete(i0);
-            }
         }
 
         // ───────────────────────────────────────────────
@@ -3301,7 +3302,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Set local selection message
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
@@ -3316,12 +3316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                // ONLY update if not locked
-                if (!this._firstClickIncorrectLocked.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
+            onMessageChange: (m: string) => { this.selectionMessage = m; },
             token: tok
         });
 
@@ -3363,13 +3358,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-
-  
-
-
-
 
 
 
