@@ -3192,12 +3192,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  public override async onOptionClicked(event: {
+private _skipNextAsyncUpdates = false;
+private _suppressCombinedTextUpdates = false;
+
+public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
 }): Promise<void> {
+    // Reset skip flag at the start of each click
+    this._skipNextAsyncUpdates = false;
+
     // 0) Cancel pending RAF
     if (this._pendingRAF != null) {
         cancelAnimationFrame(this._pendingRAF);
@@ -3211,31 +3217,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
     }
 
+    if (!this.currentQuestion || !this.currentOptions) return;
+
     const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    if (!q || !this.currentOptions) return;
-
     // ───────────────────────────────────────────────
     // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
     // ───────────────────────────────────────────────
-    const isFirstIncorrectSingle =
+    if (
         evtOpt &&
         q?.type === QuestionType.SingleAnswer &&
         !evtOpt.correct &&
-        !this._firstClickIncorrectGuard.has(i0);
-
-    if (isFirstIncorrectSingle) {
+        !this._firstClickIncorrectGuard.has(i0)
+    ) {
+        // FIRST incorrect click: block any flash
         this._firstClickIncorrectGuard.add(i0);
-        // ONLY set selection message, block ALL downstream updates
         this.selectionMessage = 'Select a correct option to continue...';
-        return; // ✅ exit EARLY: NO RAF, queueMicrotask, feedback, explanation, next button
+
+        // Suppress all async updates for this click
+        this._skipNextAsyncUpdates = true;
+
+        return; // exit early, nothing else updates message yet
     }
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: option truly null/undefined
+    // EARLY GUARD: no option selected (only if truly null/undefined)
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
@@ -3298,6 +3307,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
+
+        // Set local selection message
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
@@ -3305,18 +3316,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
+
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
             canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => { this.selectionMessage = m; },
+            onMessageChange: (m: string) => {
+                // prevent message flash for first-click incorrect
+                if (!this._firstClickIncorrectGuard.has(i0)) {
+                    this.selectionMessage = m;
+                }
+            },
             token: tok
         });
 
         // 5) Update Next button & quiz state
         queueMicrotask(() => {
+            if (this._skipNextAsyncUpdates) return;
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
@@ -3324,6 +3342,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // 6) Update explanation display & highlighting
         this._pendingRAF = requestAnimationFrame(() => {
+            if (this._skipNextAsyncUpdates) return;
+
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
             this.showExplanationChange?.emit(true);
@@ -3342,6 +3362,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // 7) Post-click tasks: feedback, core selection, marking, refresh
         requestAnimationFrame(async () => {
+            if (this._skipNextAsyncUpdates) return;
+
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
             await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
@@ -3350,9 +3372,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
     } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
+
 
 
 
