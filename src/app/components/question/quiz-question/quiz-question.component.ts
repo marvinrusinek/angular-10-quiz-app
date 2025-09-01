@@ -3187,12 +3187,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
 
   // Simplified onOptionClicked guard-first
-  private _pendingRAF: number | null = null; // Cancelable RAF token
-private _clickGate = false;
-private _ignoreEmitUntilNextClick = new Set<number>(); // prevent flashing first-click
-private _msgTok?: number;
-
-public override async onOptionClicked(event: {
+  public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3232,7 +3227,9 @@ public override async onOptionClicked(event: {
     this._clickGate = true;
 
     try {
+        // ───────────────────────────────────────────────
         // 1) Update local UI selection immediately
+        // ───────────────────────────────────────────────
         const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
 
@@ -3244,7 +3241,9 @@ public override async onOptionClicked(event: {
         // Persist selection
         try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
 
+        // ───────────────────────────────────────────────
         // 2) Compute canonical options & stable keys
+        // ───────────────────────────────────────────────
         const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
         const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
             ...o,
@@ -3254,7 +3253,9 @@ public override async onOptionClicked(event: {
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
+        // ───────────────────────────────────────────────
         // 3) Compute remaining correct / allCorrect
+        // ───────────────────────────────────────────────
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
@@ -3274,28 +3275,33 @@ public override async onOptionClicked(event: {
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // 4) Compute selection message
+        // ───────────────────────────────────────────────
+        // 4) Compute flash-proof selection message
+        // ───────────────────────────────────────────────
+        // Initialize first-click guard map if not exists
+        this._firstClickGuard ??= new Set<number>();
+
         let msg = '';
-        if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti && !evtOpt?.correct) msg = 'Select a correct option to continue...';
-        else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
-        else if (isMulti && remainingCorrect > 0) {
+        if (allCorrect) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMulti) {
+            // Single-answer incorrect: always show correct guidance without flashing
+            msg = 'Select a correct option to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
         // ───────────────────────────────────────────────
-        // Flash-proof: set local message first and block emit for first click
+        // Flash-proof: only emit after first click
         // ───────────────────────────────────────────────
         this.selectionMessage = msg;
-        if (!this._ignoreEmitUntilNextClick.has(i0)) {
-            this._ignoreEmitUntilNextClick.add(i0);
+        if (!this._firstClickGuard.has(i0)) {
+            this._firstClickGuard.add(i0);
         }
 
-        // Monotonic token to coalesce messages
-        this._msgTok = (this._msgTok ?? 0) + 1;
-        const tok = this._msgTok;
+        this._msgTok ??= 0;
+        const tok = ++this._msgTok;
 
-        // Only allow selectionMessageService emit after first click
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
@@ -3303,21 +3309,26 @@ public override async onOptionClicked(event: {
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (this._ignoreEmitUntilNextClick.has(i0)) {
+                // Ignore message changes until after first click
+                if (this._firstClickGuard.has(i0)) {
                     this.selectionMessage = m;
                 }
             },
             token: tok
         });
 
+        // ───────────────────────────────────────────────
         // 5) Update Next button & quiz state
+        // ───────────────────────────────────────────────
         queueMicrotask(() => {
             this.nextButtonStateService.setNextButtonState(allCorrect);
             this.quizStateService.setAnswered(allCorrect);
             this.quizStateService.setAnswerSelected(allCorrect);
         });
 
+        // ───────────────────────────────────────────────
         // 6) Update explanation display & highlighting
+        // ───────────────────────────────────────────────
         this._pendingRAF = requestAnimationFrame(() => {
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.displayExplanation = true;
@@ -3335,7 +3346,9 @@ public override async onOptionClicked(event: {
             this.cdRef.detectChanges?.();
         });
 
+        // ───────────────────────────────────────────────
         // 7) Post-click tasks: feedback, core selection, marking, refresh
+        // ───────────────────────────────────────────────
         requestAnimationFrame(async () => {
             try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
             this.feedbackText = await this.generateFeedbackText(q);
@@ -3348,9 +3361,7 @@ public override async onOptionClicked(event: {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-
+  
 
 
 
