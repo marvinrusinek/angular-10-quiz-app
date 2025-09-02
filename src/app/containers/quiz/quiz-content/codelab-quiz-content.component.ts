@@ -119,6 +119,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private _showExplanation = false;
 
+  // Holds the latest flash-proof selection message from QuizQuestionComponent
+  private latestSelectionMessage$ = new BehaviorSubject<string>('');
+
+
   @Input()
   set showExplanation(value: boolean) {
     this._showExplanation = value;
@@ -939,4 +943,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.showLocalExplanation = true;
     this.cdRef.markForCheck();
   }
+
+  
 }
