@@ -944,5 +944,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.cdRef.markForCheck();
   }
 
-  
+  // Called from the child component via (selectionMessageChange)
+  public updateSelectionMessage(msg: string): void {
+    this.latestSelectionMessage$.next(msg);
+  }
 }
