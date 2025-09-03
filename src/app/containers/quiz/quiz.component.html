@@ -24,11 +24,12 @@
           [explanation]="qa.explanation"
           [displayState$]="displayState$"
           [shouldRenderOptions]="shouldRenderOptions"
+          [questionToDisplay$]="questionToDisplay$"
+          [explanationToDisplay]="explanationToDisplay"
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
           (optionClicked)="onQuizOptionSelected($event)"
-          [questionToDisplay$]="questionToDisplay$"
-          [explanationToDisplay]="explanationToDisplay"
+          (selectionMessageChange)="selectionMessage = $event"
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
