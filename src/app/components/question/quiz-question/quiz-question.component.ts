@@ -3356,9 +3356,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.setExplanationFor(i0, txt);
               this.explanationToDisplay = txt;
               this.explanationToDisplayChange?.emit(txt);
+
+              // Compute selected keys for current question
+              const selectedKeys: Set<string | number> = new Set(
+                (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o =>
+                  this.selectionMessageService.stableKey(o)
+                )
+              );
   
               // Update option highlighting/feedback
-              this.updateOptionHighlighting(i0, canonicalOpts);
+              this.updateOptionHighlighting(i0, canonicalOpts, selectedKeys);
   
               this.cdRef.markForCheck?.();
               this.cdRef.detectChanges?.();
@@ -3389,44 +3396,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateOptionHighlighting(
     clickedIndex: number,
     canonicalOptions: Option[],
-    selectedKeys: Set<string | number>
-  ): void {
+    selectedKeys: Set<string | number> = new Set()
+): void {
     if (!this.optionsToDisplay) return;
-  
+
     // Loop through displayed options
     this.optionsToDisplay.forEach((opt, idx) => {
-      const stableId = this.selectionMessageService.stableKey(opt, idx);
-  
-      // Determine if this option is selected
-      const isSelected = selectedKeys.has(stableId);
-  
-      // ───────────────────────────────────────────────
-      // Apply highlighting
-      // ───────────────────────────────────────────────
-      if (opt.correct) {
-        // Correct options: always highlight if selected or question answered
-        opt.styleClass = isSelected ? 'highlight-correct' : '';
-        opt.showIcon = isSelected;
-      } else {
-        // Incorrect options: highlight only if selected (single-answer flash-proof handled in onOptionClicked)
-        if (isSelected) {
-          opt.styleClass = 'highlight-incorrect';
-          opt.showIcon = true;
+        const stableId = this.selectionMessageService.stableKey(opt, idx);
+
+        // Determine if this option is selected
+        const isSelected = selectedKeys.has(stableId);
+
+        // ───────────────────────────────────────────────
+        // Apply highlighting
+        // ───────────────────────────────────────────────
+        if (opt.correct) {
+            // Correct options: highlight if selected
+            opt.styleClass = isSelected ? 'highlight-correct' : '';
+            opt.showIcon = isSelected;
         } else {
-          // Reset
-          opt.styleClass = '';
-          opt.showIcon = false;
+            // Incorrect options: highlight only if selected (single-answer flash-proof handled in onOptionClicked)
+            if (isSelected) {
+                opt.styleClass = 'highlight-incorrect';
+                opt.showIcon = true;
+            } else {
+                // Reset
+                opt.styleClass = '';
+                opt.showIcon = false;
+            }
         }
-      }
-  
-      // ───────────────────────────────────────────────
-      // Feedback text visibility (if using feedback property)
-      // ───────────────────────────────────────────────
-      // opt.showFeedback = this.isLastSelectedOption(opt); // Optional: only if your template uses showFeedback
-  
-      this.cdRef.markForCheck?.();
+
+        // Optional: feedback text visibility (if using feedback property)
+        // opt.showFeedback = this.isLastSelectedOption(opt);
+
+        this.cdRef.markForCheck?.();
     });
   }
+
   
 
 
