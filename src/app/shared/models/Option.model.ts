@@ -11,6 +11,7 @@ export interface Option {
   highlight?: boolean;
   showIcon?: boolean;
   feedback?: string;
+  showFeedback?: boolean;
   styleClass?: string;
 }
 type Options = Option[];
