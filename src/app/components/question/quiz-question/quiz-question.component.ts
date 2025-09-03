@@ -3422,23 +3422,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
 
-  // Checks if the option is the last selected option (single or multi)
-  private isLastSelectedOption(opt: Option): boolean {
-    if (!this.selectedOptionService.selectedOptionsMap) return false;
-
-    const currentIndex = this.currentQuestionIndex ?? 0;
-    const selectedOptions = this.selectedOptionService.selectedOptionsMap.get(currentIndex) ?? [];
-
-    if (selectedOptions.length === 0) return false;
-
-    const lastSelected = selectedOptions[selectedOptions.length - 1];
-    const stableId = this.selectionMessageService.stableKey(opt);
-    const lastId = this.selectionMessageService.stableKey(lastSelected);
-
-    return stableId === lastId;
-  }
-
-
   private handleCoreSelection(ev: {
     option: SelectedOption;
     index: number;
