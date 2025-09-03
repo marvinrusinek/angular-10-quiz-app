@@ -3193,198 +3193,194 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Simplified onOptionClicked guard-first
   private _skipNextAsyncUpdates = false;
-  private _suppressCombinedTextUpdates = false;
 
   public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-}): Promise<void> {
-    // Reset skip flag at the start of each click
-    this._skipNextAsyncUpdates = false;
-
-    // 0) Cancel pending RAF
-    if (this._pendingRAF != null) {
-        cancelAnimationFrame(this._pendingRAF);
-        this._pendingRAF = null;
-    }
-
-    // Wait if interaction is not ready yet
-    if (!this.quizStateService.isInteractionReady()) {
-        await firstValueFrom(
-            this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-        );
-    }
-
-    if (!this.currentQuestion || !this.currentOptions) return;
-
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
-    const q = this.questions?.[i0];
-    const evtIdx = event.index;
-    const evtOpt = event.option;
-
-    // ───────────────────────────────────────────────
-    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
-    // ───────────────────────────────────────────────
-    if (
-        evtOpt &&
-        q?.type === QuestionType.SingleAnswer &&
-        !evtOpt.correct &&
-        !this._firstClickIncorrectGuard.has(i0)
-    ) {
-        // FIRST incorrect click: block any flash
-        this._firstClickIncorrectGuard.add(i0);
-        this.selectionMessage = 'Select a correct option to continue...';
-        this._skipNextAsyncUpdates = true; // prevent any async updates
-        return; // exit early, nothing else updates message yet
-    }
-
-    // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected (only if truly null/undefined)
-    // ───────────────────────────────────────────────
-    if (evtOpt == null) {
-        this.selectionMessage = q?.type === QuestionType.SingleAnswer
-            ? 'Please select an option to continue...'
-            : 'Please start the quiz by selecting an option.';
-        return;
-    }
-
-    if (this._clickGate) return;
-    this._clickGate = true;
-
-    try {
-        // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
-            ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-        optionsNow[evtIdx].selected = event.checked ?? true;
-        if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
-        }
-
-        // Persist selection
-        try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
-
-        // 2) Compute canonical options & stable keys
-        const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
-        const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
-            ...o,
-            optionId: Number(o.optionId ?? getStableId(o, idx)),
-            selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
-                .some(sel => getStableId(sel) === getStableId(o))
-        }));
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-
-        // 3) Compute remaining correct / allCorrect
-        const isMulti = q?.type === QuestionType.MultipleAnswer;
-        const correctOpts = canonicalOpts.filter(o => !!o.correct);
-        const selOptsSet = new Set(
-            (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
-        );
-        const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
-
-        let allCorrect = false;
-        let remainingCorrect = 0;
-
-        if (isMulti) {
-            allCorrect = selectedCorrectCount === correctOpts.length &&
-                         selOptsSet.size === correctOpts.length;
-            remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-        } else {
-            allCorrect = !!evtOpt?.correct;
-            remainingCorrect = allCorrect ? 0 : 1;
-        }
-
-        // ───────────────────────────────────────────────
-        // Continue normal message logic with last-question check
-        // ───────────────────────────────────────────────
-        let msg = '';
-        const isLastQuestion = (i0 + 1) === this.totalQuestions;
-
-        if (allCorrect) {
-            msg = isLastQuestion
-                ? 'Please click the Show Results button.'
-                : 'Please click the next button to continue...';
-        } else if (!isMulti && evtOpt?.correct) {
-            msg = isLastQuestion
-                ? 'Please click the Show Results button.'
-                : 'Please click the next button to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-        }
-
-        // Override message if first incorrect single-answer click already handled
-        if (q?.type === QuestionType.SingleAnswer && !evtOpt?.correct && this._firstClickIncorrectGuard.has(i0)) {
-            msg = 'Select a correct option to continue...';
-        }
-
-        // Set local selection message
-        this.selectionMessage = msg;
-
-        // ───────────────────────────────────────────────
-        // Emit selection message
-        // ───────────────────────────────────────────────
-        this._msgTok = (this._msgTok ?? 0) + 1;
-        const tok = this._msgTok;
-
-        this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: optionsNow,
-            canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                // prevent message flash for first-click incorrect
-                if (!this._firstClickIncorrectGuard.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
-            token: tok
-        });
-
-        // 5) Update Next button & quiz state
-        queueMicrotask(() => {
-            if (this._skipNextAsyncUpdates) return;
-            this.nextButtonStateService.setNextButtonState(allCorrect);
-            this.quizStateService.setAnswered(allCorrect);
-            this.quizStateService.setAnswerSelected(allCorrect);
-        });
-
-        // 6) Update explanation display & highlighting
-        this._pendingRAF = requestAnimationFrame(() => {
-            if (this._skipNextAsyncUpdates) return;
-
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            this.displayExplanation = true;
-            this.showExplanationChange?.emit(true);
-
-            const cached = this._formattedByIndex?.get?.(i0);
-            const rawTrue = (q?.explanation ?? '').trim();
-            const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
-
-            this.setExplanationFor(i0, txt);
-            this.explanationToDisplay = txt;
-            this.explanationToDisplayChange?.emit(txt);
-
-            this.cdRef.markForCheck?.();
-            this.cdRef.detectChanges?.();
-        });
-
-        // 7) Post-click tasks: feedback, core selection, marking, refresh
-        requestAnimationFrame(async () => {
-            if (this._skipNextAsyncUpdates) return;
-
-            try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
-            this.feedbackText = await this.generateFeedbackText(q);
-            await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
-            this.handleCoreSelection(event);
-            if (evtOpt) this.markBindingSelected(evtOpt);
-            this.refreshFeedbackFor(evtOpt ?? undefined);
-        });
-    } finally {
-      queueMicrotask(() => { this._clickGate = false; });
-    }
+  }): Promise<void> {
+      // Reset skip flag at the start of each click
+      this._skipNextAsyncUpdates = false;
+  
+      // 0) Cancel pending RAF
+      if (this._pendingRAF != null) {
+          cancelAnimationFrame(this._pendingRAF);
+          this._pendingRAF = null;
+      }
+  
+      // Wait if interaction is not ready yet
+      if (!this.quizStateService.isInteractionReady()) {
+          await firstValueFrom(
+              this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+          );
+      }
+  
+      if (!this.currentQuestion || !this.currentOptions) return;
+  
+      const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+      const q = this.questions?.[i0];
+      const evtIdx = event.index;
+      const evtOpt = event.option;
+  
+      // ───────────────────────────────────────────────
+      // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+      // ───────────────────────────────────────────────
+      if (
+          evtOpt &&
+          q?.type === QuestionType.SingleAnswer &&
+          !evtOpt.correct &&
+          !this._firstClickIncorrectGuard.has(i0)
+      ) {
+          // FIRST incorrect click: block any flash
+          this._firstClickIncorrectGuard.add(i0);
+          this.selectionMessage = 'Select a correct option to continue...';
+          this._skipNextAsyncUpdates = true; // prevent any async updates
+          return; // exit early, nothing else updates message yet
+      }
+  
+      // ───────────────────────────────────────────────
+      // EARLY GUARD: no option selected (only if truly null/undefined)
+      // ───────────────────────────────────────────────
+      if (evtOpt == null) {
+          this.selectionMessage = q?.type === QuestionType.SingleAnswer
+              ? 'Please select an option to continue...'
+              : 'Please start the quiz by selecting an option.';
+          return;
+      }
+  
+      if (this._clickGate) return;
+      this._clickGate = true;
+  
+      try {
+          // 1) Update local UI selection immediately
+          const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
+              ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
+          optionsNow[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+              (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          }
+  
+          // Persist selection
+          try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+  
+          // 2) Compute canonical options & stable keys
+          const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
+          const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
+              ...o,
+              optionId: Number(o.optionId ?? getStableId(o, idx)),
+              selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+                  .some(sel => getStableId(sel) === getStableId(o))
+          }));
+          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+  
+          // 3) Compute remaining correct / allCorrect
+          const isMulti = q?.type === QuestionType.MultipleAnswer;
+          const correctOpts = canonicalOpts.filter(o => !!o.correct);
+          const selOptsSet = new Set(
+              (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
+          );
+          const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
+  
+          let allCorrect = false;
+          let remainingCorrect = 0;
+  
+          if (isMulti) {
+              allCorrect = selectedCorrectCount === correctOpts.length &&
+                           selOptsSet.size === correctOpts.length;
+              remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+          } else {
+              allCorrect = !!evtOpt?.correct;
+              remainingCorrect = allCorrect ? 0 : 1;
+          }
+  
+          // ───────────────────────────────────────────────
+          // Continue normal message logic, including last-question Show Results
+          // ───────────────────────────────────────────────
+          let msg = '';
+          const lastQuestion = i0 === (this.totalQuestions - 1);
+          if (allCorrect) {
+              msg = lastQuestion
+                  ? 'Please click the Show Results button.'
+                  : 'Please click the next button to continue...';
+          } else if (!isMulti && evtOpt?.correct) {
+              msg = lastQuestion
+                  ? 'Please click the Show Results button.'
+                  : 'Please click the next button to continue...';
+          } else if (!isMulti && !evtOpt?.correct) {
+              msg = 'Select a correct option to continue...';
+          } else if (isMulti && remainingCorrect > 0) {
+              msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+          }
+  
+          // Set local selection message
+          this.selectionMessage = msg;
+  
+          // ───────────────────────────────────────────────
+          // Emit selection message
+          // ───────────────────────────────────────────────
+          this._msgTok = (this._msgTok ?? 0) + 1;
+          const tok = this._msgTok;
+  
+          this.selectionMessageService.emitFromClick({
+              index: i0,
+              totalQuestions: this.totalQuestions,
+              questionType: q?.type ?? QuestionType.SingleAnswer,
+              options: optionsNow,
+              canonicalOptions: canonicalOpts,
+              onMessageChange: (m: string) => {
+                  // prevent message flash for first-click incorrect
+                  if (!this._firstClickIncorrectGuard.has(i0)) {
+                      this.selectionMessage = m;
+                  }
+              },
+              token: tok
+          });
+  
+          // 5) Update Next button & quiz state
+          queueMicrotask(() => {
+              if (this._skipNextAsyncUpdates) return;
+              this.nextButtonStateService.setNextButtonState(allCorrect);
+              this.quizStateService.setAnswered(allCorrect);
+              this.quizStateService.setAnswerSelected(allCorrect);
+          });
+  
+          // 6) Update explanation display & highlighting
+          this._pendingRAF = requestAnimationFrame(() => {
+              if (this._skipNextAsyncUpdates) return;
+  
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              this.displayExplanation = true;
+              this.showExplanationChange?.emit(true);
+  
+              const cached = this._formattedByIndex?.get?.(i0);
+              const rawTrue = (q?.explanation ?? '').trim();
+              const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+  
+              this.setExplanationFor(i0, txt);
+              this.explanationToDisplay = txt;
+              this.explanationToDisplayChange?.emit(txt);
+  
+              this.cdRef.markForCheck?.();
+              this.cdRef.detectChanges?.();
+          });
+  
+          // 7) Post-click tasks: feedback, core selection, marking, refresh
+          requestAnimationFrame(async () => {
+              if (this._skipNextAsyncUpdates) return;
+  
+              try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+              this.feedbackText = await this.generateFeedbackText(q);
+              await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+              this.handleCoreSelection(event);
+              if (evtOpt) this.markBindingSelected(evtOpt);
+              this.refreshFeedbackFor(evtOpt ?? undefined);
+          });
+      } finally {
+        queueMicrotask(() => { this._clickGate = false; });
+      }
   }
+  
 
 
 
