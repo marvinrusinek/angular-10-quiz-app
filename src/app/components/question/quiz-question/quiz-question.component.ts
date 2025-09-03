@@ -3199,26 +3199,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {
-      // Reset skip flag at the start of each click
-      this._skipNextAsyncUpdates = false;
-  
-      // 0) Cancel pending RAF
-      if (this._pendingRAF != null) {
-          cancelAnimationFrame(this._pendingRAF);
-          this._pendingRAF = null;
-      }
-  
-      // Wait if interaction is not ready yet
-      if (!this.quizStateService.isInteractionReady()) {
-          await firstValueFrom(
-              this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
-          );
-      }
-  
-      if (!this.currentQuestion || !this.currentOptions) return;
-  
-      const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+}): Promise<void> {
+    // Reset skip flag at the start of each click
+    this._skipNextAsyncUpdates = false;
+
+    // ───────────────────────────────────────────────
+    // 0) Cancel pending RAF
+    // ───────────────────────────────────────────────
+    if (this._pendingRAF != null) {
+        cancelAnimationFrame(this._pendingRAF);
+        this._pendingRAF = null;
+    }
+
+    // Wait if interaction is not ready yet
+    if (!this.quizStateService.isInteractionReady()) {
+        await firstValueFrom(
+            this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+        );
+    }
+
+    if (!this.currentQuestion || !this.currentOptions) return;
+
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? 0;
+
       const q = this.questions?.[i0];
       const evtIdx = event.index;
       const evtOpt = event.option;
@@ -3234,8 +3237,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ) {
           // FIRST incorrect click: block any flash
           this._firstClickIncorrectGuard.add(i0);
+  
+          // Show proper selection message for first incorrect click
           this.selectionMessage = 'Select a correct option to continue...';
-          this._skipNextAsyncUpdates = true; // prevent any async updates
+          this._skipNextAsyncUpdates = true; // prevent async updates
           return; // exit early, nothing else updates message yet
       }
   
@@ -3249,11 +3254,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           return;
       }
   
+      // Prevent rapid multiple clicks
       if (this._clickGate) return;
       this._clickGate = true;
   
       try {
+          // ───────────────────────────────────────────────
           // 1) Update local UI selection immediately
+          // ───────────────────────────────────────────────
           const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
               ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
           optionsNow[evtIdx].selected = event.checked ?? true;
@@ -3264,7 +3272,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Persist selection
           try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
   
+          // ───────────────────────────────────────────────
           // 2) Compute canonical options & stable keys
+          // ───────────────────────────────────────────────
           const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
           const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
               ...o,
@@ -3274,7 +3284,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }));
           this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
+          // ───────────────────────────────────────────────
           // 3) Compute remaining correct / allCorrect
+          // ───────────────────────────────────────────────
           const isMulti = q?.type === QuestionType.MultipleAnswer;
           const correctOpts = canonicalOpts.filter(o => !!o.correct);
           const selOptsSet = new Set(
@@ -3295,16 +3307,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
   
           // ───────────────────────────────────────────────
-          // Continue normal message logic, including last-question Show Results
+          // 4) Determine proper selection message
           // ───────────────────────────────────────────────
           let msg = '';
-          const lastQuestion = i0 === (this.totalQuestions - 1);
           if (allCorrect) {
-              msg = lastQuestion
+              // Last question in quiz? Show "Show Results" button
+              msg = (i0 + 1 === this.totalQuestions)
                   ? 'Please click the Show Results button.'
                   : 'Please click the next button to continue...';
           } else if (!isMulti && evtOpt?.correct) {
-              msg = lastQuestion
+              msg = (i0 + 1 === this.totalQuestions)
                   ? 'Please click the Show Results button.'
                   : 'Please click the next button to continue...';
           } else if (!isMulti && !evtOpt?.correct) {
@@ -3313,15 +3325,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
           }
   
-          // Set local selection message
           this.selectionMessage = msg;
   
-          // ───────────────────────────────────────────────
-          // Emit selection message
-          // ───────────────────────────────────────────────
+          // Emit selection message to parent/component that listens
           this._msgTok = (this._msgTok ?? 0) + 1;
           const tok = this._msgTok;
-  
           this.selectionMessageService.emitFromClick({
               index: i0,
               totalQuestions: this.totalQuestions,
@@ -3329,7 +3337,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               options: optionsNow,
               canonicalOptions: canonicalOpts,
               onMessageChange: (m: string) => {
-                  // prevent message flash for first-click incorrect
+                  // prevent flash for first-click incorrect
                   if (!this._firstClickIncorrectGuard.has(i0)) {
                       this.selectionMessage = m;
                   }
@@ -3337,7 +3345,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               token: tok
           });
   
+          // ───────────────────────────────────────────────
           // 5) Update Next button & quiz state
+          // ───────────────────────────────────────────────
           queueMicrotask(() => {
               if (this._skipNextAsyncUpdates) return;
               this.nextButtonStateService.setNextButtonState(allCorrect);
@@ -3345,7 +3355,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.quizStateService.setAnswerSelected(allCorrect);
           });
   
+          // ───────────────────────────────────────────────
           // 6) Update explanation display & highlighting
+          // ───────────────────────────────────────────────
           this._pendingRAF = requestAnimationFrame(() => {
               if (this._skipNextAsyncUpdates) return;
   
@@ -3365,21 +3377,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.cdRef.detectChanges?.();
           });
   
+          // ───────────────────────────────────────────────
           // 7) Post-click tasks: feedback, core selection, marking, refresh
+          // ───────────────────────────────────────────────
           requestAnimationFrame(async () => {
               if (this._skipNextAsyncUpdates) return;
   
               try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+  
               this.feedbackText = await this.generateFeedbackText(q);
               await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
               this.handleCoreSelection(event);
               if (evtOpt) this.markBindingSelected(evtOpt);
               this.refreshFeedbackFor(evtOpt ?? undefined);
           });
+  
       } finally {
-        queueMicrotask(() => { this._clickGate = false; });
+          // Release click gate
+          queueMicrotask(() => { this._clickGate = false; });
       }
   }
+  
   
 
 
