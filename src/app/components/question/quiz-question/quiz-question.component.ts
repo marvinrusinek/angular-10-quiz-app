@@ -3382,11 +3382,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (evtOpt) this.markBindingSelected(evtOpt);
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
-
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
 
   
   
