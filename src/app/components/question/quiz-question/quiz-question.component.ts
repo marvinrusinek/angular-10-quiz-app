@@ -3393,46 +3393,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-
-
-  
-
-
-
-
-
-
-
-  
-  private resetDedupeFor(index: number): void {
-    // New question → forget previous option index so first click isn't swallowed
-    if (index !== this.lastLoggedQuestionIndex) {
-      this.lastLoggedQuestionIndex = index;
-      this.lastLoggedIndex = -1;
-    }
-  }
-
-  private initializeCanonicalOptions() {
-    if (!this.currentQuestion) return;
-  
-    this.canonicalOptions = this.currentQuestion.options
-      .filter(opt => opt.correct)
-      .map((opt, idx) => ({
-        optionId: Number(opt.optionId ?? this.selectionMessageService.stableKey(opt, idx)),
-        text: opt.text,
-        correct: opt.correct ?? false,
-        value: opt.value
-      }));
-  
-    this.currentOptions = this.currentQuestion.options.map((opt, idx) => ({
-      optionId: Number(opt.optionId ?? this.selectionMessageService.stableKey(opt, idx)),
-      text: opt.text,
-      correct: opt.correct ?? false,
-      value: opt.value,
-      selected: false
-    }));
-  }  
-
   private handleCoreSelection(ev: {
     option: SelectedOption;
     index: number;
