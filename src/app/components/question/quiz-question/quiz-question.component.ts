@@ -3223,22 +3223,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
-    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
-    // ───────────────────────────────────────────────
-    if (
-        evtOpt &&
-        q?.type === QuestionType.SingleAnswer &&
-        !evtOpt.correct &&
-        !this._firstClickIncorrectGuard.has(i0)
-    ) {
-        // FIRST incorrect click: block any flash
-        this._firstClickIncorrectGuard.add(i0);
-        this.selectionMessage = 'Select a correct option to continue...';
-        this._skipNextAsyncUpdates = true; // prevent any async updates
-        return; // exit early, nothing else updates message yet
-    }
-
-    // ───────────────────────────────────────────────
     // EARLY GUARD: no option selected
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
@@ -3253,9 +3237,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
         // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
+        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o }))
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-       
+
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
@@ -3274,17 +3258,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }));
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
-        // 3) Compute selected keys for highlighting/feedback
-        const selectedKeys: Set<string | number> = new Set(
-            (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o =>
-                this.selectionMessageService.stableKey(o)
-            )
-        );
-
-        // 4) Compute remaining correct / allCorrect
+        // 3) Compute remaining correct / allCorrect
         const isMulti = q?.type === QuestionType.MultipleAnswer;
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
-        const selOptsSet = selectedKeys;
+        const selOptsSet = new Set(
+            (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
+        );
         const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
 
         let allCorrect = false;
@@ -3303,12 +3282,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine selection message
         // ───────────────────────────────────────────────
         let msg = '';
-        if (allCorrect) {
-            // Special case: last question
+
+        if (!allCorrect && q?.type === QuestionType.SingleAnswer) {
+            // Single-answer incorrect clicks: always show same message until correct
+            msg = 'Select a correct answer to continue...';
+        } else if (allCorrect) {
+            // All correct selected
             if (i0 === this.totalQuestions - 1) msg = 'Please click the Show Results button.';
             else msg = 'Please click the next button to continue...';
-        } else if (!isMulti && evtOpt?.correct) {
-            msg = 'Please click the next button to continue...';
         } else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
@@ -3362,8 +3343,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.explanationToDisplay = txt;
             this.explanationToDisplayChange?.emit(txt);
 
-            // Update option highlighting/feedback with computed selectedKeys
-            this.updateOptionHighlighting(i0, canonicalOpts, selectedKeys);
+            // Update highlighting / feedback icons
+            this.updateOptionHighlighting(i0, canonicalOpts, selOptsSet);
 
             this.cdRef.markForCheck?.();
             this.cdRef.detectChanges?.();
@@ -3382,57 +3363,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             if (evtOpt) this.markBindingSelected(evtOpt);
             this.refreshFeedbackFor(evtOpt ?? undefined);
         });
+
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+        queueMicrotask(() => { this._clickGate = false; });
     }
   }
-
-
-  
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(
     clickedIndex: number,
     canonicalOptions: Option[],
-    selectedKeys: Set<string | number> = new Set()
-): void {
-    if (!this.optionsToDisplay) return;
+    selectedKeys: Set<string | number>
+  ): void {
+      if (!this.optionsToDisplay) return;
 
-    // Loop through displayed options
-    this.optionsToDisplay.forEach((opt, idx) => {
-        const stableId = this.selectionMessageService.stableKey(opt, idx);
+      this.optionsToDisplay.forEach((opt, idx) => {
+          const stableId = this.selectionMessageService.stableKey(opt, idx);
 
-        // Determine if this option is selected
-        const isSelected = selectedKeys.has(stableId);
+          const isSelected = selectedKeys.has(stableId);
 
-        // ───────────────────────────────────────────────
-        // Apply highlighting
-        // ───────────────────────────────────────────────
-        if (opt.correct) {
-            // Correct options: highlight if selected
-            opt.styleClass = isSelected ? 'highlight-correct' : '';
-            opt.showIcon = isSelected;
-        } else {
-            // Incorrect options: highlight only if selected (single-answer flash-proof handled in onOptionClicked)
-            if (isSelected) {
-                opt.styleClass = 'highlight-incorrect';
-                opt.showIcon = true;
-            } else {
-                // Reset
-                opt.styleClass = '';
-                opt.showIcon = false;
-            }
-        }
+          // ───────────────────────────────────────────────
+          // Apply highlighting
+          // ───────────────────────────────────────────────
+          if (opt.correct) {
+              opt.styleClass = isSelected ? 'highlight-correct' : '';
+              opt.showIcon = isSelected;
+          } else {
+              opt.styleClass = isSelected ? 'highlight-incorrect' : '';
+              opt.showIcon = isSelected;
+          }
 
-        // Optional: feedback text visibility (if using feedback property)
-        // opt.showFeedback = this.isLastSelectedOption(opt);
+          // Optional: show feedback if your template uses it
+          // opt.showFeedback = this.isLastSelectedOption(opt);
 
-        this.cdRef.markForCheck?.();
-    });
+          this.cdRef.markForCheck?.();
+      });
   }
-
-  
 
 
   private handleCoreSelection(ev: {
