@@ -3382,75 +3382,96 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           queueMicrotask(() => { this._clickGate = false; });
       }
   } */
-  public async onOptionClicked(event: { index: number; option: Option }): Promise<void> {
-    if (!this.currentQuestion || !this.currentOptions) return;
-  
-    const questionIndex = this.currentQuestionIndex ?? 0;
-    const clickedOption = event.option;
-    const clickedIndex = event.index;
-  
+  public async onOptionClicked(clickedOption: Option, questionIndex: number): Promise<void> {
     // ───────────────────────────────────────────────
-    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // Prevent double-click during processing
     // ───────────────────────────────────────────────
-    // For single-answer, deselect previously selected option
-    if (this.currentQuestion.type === QuestionType.SingleAnswer) {
-      const prevSelected = this.currentOptions.find(o => o.selected && o !== clickedOption);
-      if (prevSelected) prevSelected.selected = false;
+    if (this.isProcessingClick) return;
+    this.isProcessingClick = true;
+  
+    try {
+      // ───────────────────────────────────────────────
+      // Immediately mark clicked option as selected
+      // Ensures SelectionMessageService sees the correct state
+      // ───────────────────────────────────────────────
+      clickedOption.selected = true;
+  
+      // ───────────────────────────────────────────────
+      // Build stable key set for selected options
+      // Include previously selected options from SelectedOptionService
+      // ───────────────────────────────────────────────
+      const selectedKeys = new Set<string | number>();
+      // Add clicked option
+      selectedKeys.add(this.selectionMessageService.stableKey(clickedOption, questionIndex));
+  
+      // Merge in any previously selected options
+      const prevSelected = this.selectedOptionService?.selectedOptionsMap?.get(questionIndex);
+      if (prevSelected instanceof Set) {
+        prevSelected.forEach((id) => selectedKeys.add(id));
+      } else if (Array.isArray(prevSelected)) {
+        prevSelected.forEach((opt) =>
+          selectedKeys.add(this.selectionMessageService.stableKey(opt, questionIndex))
+        );
+      }
+  
+      // ───────────────────────────────────────────────
+      // Update option highlighting & feedback icons
+      // Works for single- and multiple-answer questions
+      // ───────────────────────────────────────────────
+      this.updateOptionHighlighting(questionIndex, this.currentOptions, selectedKeys);
+  
+      // ───────────────────────────────────────────────
+      // Update the selected options map in SelectedOptionService
+      // Keeps canonical state in sync
+      // ───────────────────────────────────────────────
+      this.selectedOptionService?.updateSelectedOptions(questionIndex, clickedOption, selectedKeys);
+  
+      // ───────────────────────────────────────────────
+      // Compute selection message
+      // Handles multi, single, last question (SHOW_RESULTS) correctly
+      // ───────────────────────────────────────────────
+      const selectionMessage = this.selectionMessageService.computeFinalMessage({
+        index: questionIndex,
+        total: this.totalQuestions,
+        qType: this.currentQuestion.type,
+        opts: this.currentOptions,
+      });
+  
+      // Emit to template / observable
+      this.selectionMessage$.next(selectionMessage);
+  
+      // ───────────────────────────────────────────────
+      // Update explanation text AFTER selection & highlighting
+      // Uses async/await & microtask to prevent flicker
+      // ───────────────────────────────────────────────
+      await this.updateExplanationText(questionIndex);
+  
+      // ───────────────────────────────────────────────
+      // Mark question as answered if single-answer or all correct selected
+      // ───────────────────────────────────────────────
+      if (this.currentQuestion.type === QuestionType.SingleAnswer ||
+          this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex)) {
+        this.markQuestionAsAnswered(questionIndex);
+      }
+  
+      // ───────────────────────────────────────────────
+      // Emit answer selected event for external listeners (QuizComponent)
+      // ───────────────────────────────────────────────
+      this.answerSelected.emit({
+        questionIndex,
+        selectedOption: clickedOption,
+        selectionMessage,
+      });
+  
+      // ───────────────────────────────────────────────
+      // Use requestAnimationFrame to ensure DOM updates
+      // ───────────────────────────────────────────────
+      requestAnimationFrame(() => this.cdRef.markForCheck?.());
+    } finally {
+      this.isProcessingClick = false;
     }
-  
-    // Mark the clicked option as selected
-    clickedOption.selected = true;
-  
-    // ───────────────────────────────────────────────
-    // Compute currently selected keys for highlighting & feedback
-    // ───────────────────────────────────────────────
-    const selectedKeys = new Set(
-      this.currentOptions
-        .filter(o => o.selected)
-        .map(o => o.optionId ?? o.value ?? o.text)
-        .filter(k => k != null)
-    );
-  
-    // ───────────────────────────────────────────────
-    // Update option highlighting and feedback icons
-    // ───────────────────────────────────────────────
-    this.updateOptionHighlighting(clickedIndex, this.currentOptions, selectedKeys);
-  
-    // ───────────────────────────────────────────────
-    // Update explanation text after selection
-    // ───────────────────────────────────────────────
-    await this.updateExplanationText(questionIndex);
-  
-    // ───────────────────────────────────────────────
-    // Compute selection message using existing service
-    // ───────────────────────────────────────────────
-    const message = this.selectionMessageService.computeFinalMessage({
-      currentQuestion: this.currentQuestion,
-      selectedKeys,
-      currentQuestionIndex: questionIndex,
-      totalQuestions: this.totalQuestions
-    });
-  
-    // Emit selection message to parent
-    this.selectionMessageChange.emit(message);
-  
-    // ───────────────────────────────────────────────
-    // Mark question as answered
-    // ───────────────────────────────────────────────
-    this.markQuestionAsAnswered(questionIndex);
-  
-    // ───────────────────────────────────────────────
-    // Emit event to notify quiz that an answer was selected
-    // ───────────────────────────────────────────────
-    this.answerSelected.emit({
-      index: questionIndex,
-      option: clickedOption,
-      selectedKeys
-    });
-  
-    // Optional: run change detection for Angular to update UI immediately
-    this.cdRef.markForCheck?.();
   }
+  
   
   
   // Updates the highlighting and feedback icons for options after a click
