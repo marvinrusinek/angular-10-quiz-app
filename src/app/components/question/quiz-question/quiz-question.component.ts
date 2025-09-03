@@ -3235,34 +3235,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     ) {
         // FIRST incorrect click: block any flash
         this._firstClickIncorrectGuard.add(i0);
-
-        // Immediately set selection message
         this.selectionMessage = 'Select a correct option to continue...';
-
-        // Prevent async updates from overwriting
-        this._skipNextAsyncUpdates = true;
-
-        // Emit selection message for QuizComponent to consume
-        this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: this.optionsToDisplay ?? q?.options ?? [],
-            canonicalOptions: q?.options ?? [],
-            onMessageChange: (m: string) => {
-                // Do not overwrite the first-click incorrect message
-                if (!this._firstClickIncorrectGuard.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
-            token: (this._msgTok = (this._msgTok ?? 0) + 1)
-        });
-
-        return; // exit early
+        this._skipNextAsyncUpdates = true; // prevent any async updates
+        return; // exit early, nothing else updates message yet
     }
 
     // ───────────────────────────────────────────────
-    // EARLY GUARD: no option selected
+    // EARLY GUARD: no option selected (only if truly null/undefined)
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
         this.selectionMessage = q?.type === QuestionType.SingleAnswer
@@ -3317,13 +3296,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // ───────────────────────────────────────────────
-        // Continue normal message logic
+        // Continue normal message logic with last-question check
         // ───────────────────────────────────────────────
         let msg = '';
-        if (allCorrect) msg = 'Please click the next button to continue...';
-        else if (!isMulti && evtOpt?.correct) msg = 'Please click the next button to continue...';
-        else if (isMulti && remainingCorrect > 0) {
+        const isLastQuestion = (i0 + 1) === this.totalQuestions;
+
+        if (allCorrect) {
+            msg = isLastQuestion
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...';
+        } else if (!isMulti && evtOpt?.correct) {
+            msg = isLastQuestion
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        }
+
+        // Override message if first incorrect single-answer click already handled
+        if (q?.type === QuestionType.SingleAnswer && !evtOpt?.correct && this._firstClickIncorrectGuard.has(i0)) {
+            msg = 'Select a correct option to continue...';
         }
 
         // Set local selection message
@@ -3342,6 +3334,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
+                // prevent message flash for first-click incorrect
                 if (!this._firstClickIncorrectGuard.has(i0)) {
                     this.selectionMessage = m;
                 }
@@ -3392,6 +3385,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
+
 
   private handleCoreSelection(ev: {
     option: SelectedOption;
