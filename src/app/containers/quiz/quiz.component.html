@@ -28,8 +28,7 @@
           [explanationToDisplay]="explanationToDisplay"
           (answer)="selectedAnswer($event)"
           (optionSelected)="onOptionSelected($event)"
-          (optionClicked)="onQuizOptionSelected($event)"
-          (selectionMessageChange)="selectionMessage = $event"
+          (selectionMessageChange)="onSelectionMessageChange($event)"
         ></codelab-quiz-question>
       </ng-container>
     </mat-card-content>
