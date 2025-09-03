@@ -174,7 +174,7 @@ export class SelectionMessageService {
   }
 
   // Centralized, deterministic message builder
-  private computeFinalMessage(args: {
+  public computeFinalMessage(args: {
     index: number;
     total: number;
     qType: QuestionType;
