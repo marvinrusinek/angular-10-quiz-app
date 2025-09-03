@@ -3387,46 +3387,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateOptionHighlighting(
     clickedIndex: number,
     canonicalOptions: Option[],
-    selectedKeys: Set<string | number>
+    selectedKeys?: Set<string | number> // make optional
   ): void {
     if (!this.optionsToDisplay) return;
-
-    // Loop through displayed options
+  
+    // If selectedKeys is undefined, create an empty Set
+    const keys = selectedKeys ?? new Set<string | number>();
+  
     this.optionsToDisplay.forEach((opt, idx) => {
       const stableId = this.selectionMessageService.stableKey(opt, idx);
-
-      // Determine if this option is selected
-      const isSelected = selectedKeys.has(stableId);
-
-      // ───────────────────────────────────────────────
+  
+      // Use the safe Set
+      const isSelected = keys.has(stableId);
+  
       // Apply highlighting
-      // ───────────────────────────────────────────────
       if (opt.correct) {
-        // Correct options: always highlight if selected or question answered
+        // Correct options: highlight if selected or question answered
         opt.styleClass = isSelected ? 'highlight-correct' : '';
         opt.showIcon = isSelected;
       } else {
-        // Incorrect options: highlight only if selected (single-answer flash-proof handled in onOptionClicked)
+        // Incorrect options: highlight only if selected
         if (isSelected) {
           opt.styleClass = 'highlight-incorrect';
           opt.showIcon = true;
         } else {
-          // Reset
           opt.styleClass = '';
           opt.showIcon = false;
         }
       }
 
-      // ───────────────────────────────────────────────
-      // Feedback text visibility
-      // ───────────────────────────────────────────────
-      // Show feedback only under the last selected option
-      opt.showFeedback = this.isLastSelectedOption(opt);
-
-      // Optionally, force Angular to check
+      // Force Angular to check for changes
       this.cdRef.markForCheck?.();
     });
   }
+
 
   // Checks if the option is the last selected option (single or multi)
   private isLastSelectedOption(opt: Option): boolean {
