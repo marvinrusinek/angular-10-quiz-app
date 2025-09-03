@@ -511,7 +511,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
-      if (!questions?.length) {
+      if (!questiononOs?.length) {
         console.error('[❌ QuizComponent] No quiz questions returned.');
         return;
       }
