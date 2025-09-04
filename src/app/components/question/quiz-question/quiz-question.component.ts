@@ -2743,23 +2743,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine selection message (Q6 special case)
         // ───────────────────────────────────────────────
         let msg = '';
+        const isLastQuestion = i0 === this.totalQuestions - 1;
 
-        // Last question special case: force Show Results
-        if (i0 === this.totalQuestions - 1 && allCorrect) {
+        if (allCorrect) {
+          if (isLastQuestion) {
             msg = 'Please click the Show Results button.';
-        } else {
-            if (allCorrect) {
-                msg = 'Please click the next button to continue...';
-            } else if (!isMulti && !evtOpt?.correct) {
-                msg = 'Select a correct answer to continue...';
-            } else if (isMulti && remainingCorrect > 0) {
-                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-            } else if (!isMulti && evtOpt?.correct) {
-                msg = 'Please click the next button to continue...';
-            }
+          } else {
+            msg = 'Please click the next button to continue...';
+          }
+        } else if (!isMulti && !evtOpt?.correct) {
+          // Single-answer incorrect click
+          msg = 'Select a correct answer to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
+          msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        } else if (!isMulti && evtOpt?.correct) {
+          msg = 'Please click the next button to continue...';
         }
 
-        // Force selectionMessage immediately
+        // Force immediate assignment
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
