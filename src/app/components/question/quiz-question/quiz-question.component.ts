@@ -2727,7 +2727,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine selection message
         // ───────────────────────────────────────────────
         let msg = '';
-        const isLastQuestion = (i0 === (this.totalQuestions - 1));
+
+        // Use the actual questions array length to determine last question
+        const actualTotalQuestions = this.questions?.length ?? this.totalQuestions;
+        const isLastQuestion = i0 === (actualTotalQuestions - 1);
 
         if (!isMulti) {
             if (evtOpt?.correct) {
