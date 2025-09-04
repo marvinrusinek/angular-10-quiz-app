@@ -2643,7 +2643,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {
+}): Promise<void> {
     // Reset skip flag at the start of each click
     this._skipNextAsyncUpdates = false;
 
@@ -2668,6 +2668,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
+    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // ───────────────────────────────────────────────
+    if (
+        evtOpt &&
+        q?.type === QuestionType.SingleAnswer &&
+        !evtOpt.correct &&
+        !this._firstClickIncorrectGuard.has(i0)
+    ) {
+        // FIRST incorrect click: block any flash
+        this._firstClickIncorrectGuard.add(i0);
+        this.selectionMessage = 'Select a correct answer to continue...';
+        this._skipNextAsyncUpdates = true; // prevent any async updates
+        return; // exit early, nothing else updates message yet
+    }
+
+    // ───────────────────────────────────────────────
     // EARLY GUARD: no option selected
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
@@ -2682,9 +2698,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
         // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o }))
+        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-
+       
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
@@ -2724,33 +2740,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
         // ───────────────────────────────────────────────
-        // Determine selection message
+        // Determine selection message (Q6 special case)
         // ───────────────────────────────────────────────
         let msg = '';
-
-        // Use the actual questions array length to determine last question
-        const actualTotalQuestions = this.questions?.length ?? this.totalQuestions;
-        const isLastQuestion = i0 === (actualTotalQuestions - 1);
-
-        if (!isMulti) {
-            if (evtOpt?.correct) {
-                // Single-answer correct click
-                msg = isLastQuestion
-                    ? 'Please click the Show Results button.'
-                    : 'Please click the next button to continue...';
+        if (allCorrect) {
+            // Last question (Q6)
+            if (i0 === this.totalQuestions - 1) {
+                msg = 'Please click the Show Results button.';
             } else {
-                // Single-answer incorrect click
-                msg = 'Select a correct answer to continue...';
+                msg = 'Please click the next button to continue...';
             }
-        } else {
-            // Multiple-answer logic
-            if (allCorrect) {
-                msg = isLastQuestion
-                    ? 'Please click the Show Results button.'
-                    : 'Please click the next button to continue...';
-            } else if (remainingCorrect > 0) {
-                msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-            }
+        } else if (!isMulti && evtOpt?.correct) {
+            msg = 'Please click the next button to continue...';
+        } else if (!isMulti && !evtOpt?.correct) {
+            msg = 'Select a correct answer to continue...'; // FIRST / SECOND / THIRD incorrect clicks
+        } else if (isMulti && remainingCorrect > 0) {
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
         this.selectionMessage = msg;
@@ -2761,17 +2766,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
         this.selectionMessageService.emitFromClick({
-          index: i0,
-          totalQuestions: this.totalQuestions,
-          questionType: q?.type ?? QuestionType.SingleAnswer,
-          options: optionsNow,
-          canonicalOptions: canonicalOpts,
-          onMessageChange: (m: string) => {
-            if (!this._firstClickIncorrectGuard.has(i0)) {
-              this.selectionMessage = m;
-            }
-          },
-          token: tok
+            index: i0,
+            totalQuestions: this.totalQuestions,
+            questionType: q?.type ?? QuestionType.SingleAnswer,
+            options: optionsNow,
+            canonicalOptions: canonicalOpts,
+            onMessageChange: (m: string) => {
+                if (!this._firstClickIncorrectGuard.has(i0)) {
+                    this.selectionMessage = m;
+                }
+            },
+            token: tok
         });
 
         // ───────────────────────────────────────────────
@@ -2802,7 +2807,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.explanationToDisplay = txt;
             this.explanationToDisplayChange?.emit(txt);
 
-            // Update highlighting / feedback icons
+            // Update option highlighting/feedback
             this.updateOptionHighlighting(i0, canonicalOpts, selOptsSet);
 
             this.cdRef.markForCheck?.();
@@ -2827,6 +2832,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         queueMicrotask(() => { this._clickGate = false; });
     }
   }
+
   
   
   // Updates the highlighting and feedback icons for options after a click
