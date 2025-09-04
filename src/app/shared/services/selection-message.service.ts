@@ -30,6 +30,7 @@ export class SelectionMessageService {
   public selectionMessage$: Observable<string> =
     this.selectionMessageSubject.pipe(distinctUntilChanged());
 
+  public optionsSnapshot: Option[] = [];
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
@@ -53,9 +54,7 @@ export class SelectionMessageService {
   private observedCorrectIds = new Map<number, Set<string>>();
 
   // Latch to prevent regressions after a multi question is satisfied
-  private completedByIndex = new Map<number, boolean>();
-
-  private optionsSnapshot: Option[] = [];
+  public completedByIndex = new Map<number, boolean>();
 
   constructor(
     private quizService: QuizService,
