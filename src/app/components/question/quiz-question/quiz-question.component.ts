@@ -2727,16 +2727,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine selection message
         // ───────────────────────────────────────────────
         let msg = '';
+        const isLastQuestion = i0 === this.totalQuestions - 1;
 
-        if (!allCorrect && q?.type === QuestionType.SingleAnswer) {
-            // Single-answer incorrect clicks: always show same message until correct
-            msg = 'Select a correct answer to continue...';
-        } else if (allCorrect) {
-            // All correct selected
-            if (i0 === this.totalQuestions - 1) msg = 'Please click the Show Results button.';
-            else msg = 'Please click the next button to continue...';
+        if (allCorrect) {
+          if (isLastQuestion) {
+            msg = 'Please click the Show Results button.'; // Special handling for last question
+          } else {
+            msg = 'Please click the next button to continue...';
+          }
+        } else if (!isMulti && evtOpt?.correct) {
+          msg = 'Please click the next button to continue...';
         } else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+          msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        } else if (!isMulti && !evtOpt?.correct) {
+          // Single-answer incorrect click
+          msg = 'Select a correct answer to continue...';
         }
 
         this.selectionMessage = msg;
