@@ -2731,7 +2731,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (allCorrect) {
           if (isLastQuestion) {
-            msg = 'Please click the Show Results button.'; // Special handling for last question
+            msg = 'Please click the Show Results button.';  // special handling for last question
           } else {
             msg = 'Please click the next button to continue...';
           }
@@ -2752,17 +2752,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
         this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: optionsNow,
-            canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-                if (!this._firstClickIncorrectGuard.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
-            token: tok
+          index: i0,
+          totalQuestions: this.totalQuestions,
+          questionType: q?.type ?? QuestionType.SingleAnswer,
+          options: optionsNow,
+          canonicalOptions: canonicalOpts,
+          onMessageChange: (m: string) => {
+            if (!this._firstClickIncorrectGuard.has(i0)) {
+              this.selectionMessage = m;
+            }
+          },
+          token: tok
         });
 
         // ───────────────────────────────────────────────
