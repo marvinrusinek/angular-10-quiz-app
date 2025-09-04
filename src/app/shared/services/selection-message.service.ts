@@ -36,10 +36,10 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
 
-  private idMapByIndex = new Map<number, Map<string, string | number>>(); // key -> canonicalId
+  private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
 
   // Per-question remaining tracker and short enforcement window
-  lastRemainingByIndex = new Map<number, number>();
+  lastRemainingByIndex = new Map<number, number>(); 
   private enforceUntilByIndex = new Map<number, number>();
 
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
@@ -48,28 +48,14 @@ export class SelectionMessageService {
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
-  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>(); // fallback store
+  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
 
   private observedCorrectIds = new Map<number, Set<string>>();
 
   // Latch to prevent regressions after a multi question is satisfied
   private completedByIndex = new Map<number, boolean>();
 
-  // Coalesce per index and protect SingleAnswer decisions
-  private _lastTokByIndex = new Map<number, number>();
-  private _lastTypeByIndex = new Map<number, QuestionType>();
-
-  // Type lock: if a question is SingleAnswer, block later MultipleAnswer emits for same index
-  private _typeLockByIndex = new Map<number, QuestionType>();
-
   private optionsSnapshot: Option[] = [];
-
-  private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
-
-  private _emitSeq = 0;
-  private _lastEmitFrameByKey = new Map<string, number>();
-
-  private selectedCorrectCountCache = new Map<number, number>();
 
   constructor(
     private quizService: QuizService,
@@ -78,7 +64,7 @@ export class SelectionMessageService {
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
-    return this.selectionMessageSubject.getValue(); // get the current message value
+    return this.selectionMessageSubject.getValue();  // get the current message value
   }
 
   // Message determination function
