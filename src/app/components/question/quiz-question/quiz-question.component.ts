@@ -2745,21 +2745,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine if this is the last question
         const isLastQuestion = i0 === this.totalQuestions - 1;
 
-        // Determine selection message
         let msg = '';
         if (allCorrect) {
             msg = isLastQuestion
-                ? 'Please click the Show Results button.'
+                ? 'Please click the Show Results button.' // ✅ Q6 fix
                 : 'Please click the next button to continue...';
         } else if (!isMulti && !evtOpt?.correct) {
-            msg = 'Select a correct answer to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+            msg = 'Select a correct answer to continue...'; // Single-answer incorrect click
         } else if (!isMulti && evtOpt?.correct) {
             msg = 'Please click the next button to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         }
 
-        // Immediately set it locally
+        // Immediately set local selectionMessage
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
@@ -2774,9 +2773,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
-                if (!this._firstClickIncorrectGuard.has(i0)) {
-                    this.selectionMessage = m;
-                }
+              // Do NOT override last question message
+              if (!isLastQuestion) {
+                  this.selectionMessage = m;
+              }
             },
             token: tok
         });
