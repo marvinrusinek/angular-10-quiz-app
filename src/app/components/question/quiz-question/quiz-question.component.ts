@@ -2742,25 +2742,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         // Determine selection message (Q6 special case)
         // ───────────────────────────────────────────────
+        // Determine if this is the last question
         const isLastQuestion = i0 === this.totalQuestions - 1;
-        let msg = '';
 
+        // Determine selection message
+        let msg = '';
         if (allCorrect) {
-          msg = isLastQuestion
-              ? 'Please click the Show Results button.'
-              : 'Please click the next button to continue...';
+            msg = isLastQuestion
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...';
         } else if (!isMulti && !evtOpt?.correct) {
-          // Single-answer incorrect click
-          msg = 'Select a correct answer to continue...';
+            msg = 'Select a correct answer to continue...';
         } else if (isMulti && remainingCorrect > 0) {
-          msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         } else if (!isMulti && evtOpt?.correct) {
-          msg = 'Please click the next button to continue...';
+            msg = 'Please click the next button to continue...';
         }
 
-        // Assign immediately
+        // Immediately set it locally
         this.selectionMessage = msg;
-        
+
         // ───────────────────────────────────────────────
         // Emit selection message
         // ───────────────────────────────────────────────
