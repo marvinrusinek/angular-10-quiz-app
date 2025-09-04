@@ -819,7 +819,7 @@ export class SelectionMessageService {
     if (allCorrect) {
         msg = 'Please click the next button to continue...';
     } else if (!isMultiSelect && remainingCorrect === 1) {
-        msg = 'Select 1 correct option to continue...';
+        msg = 'Select the correct answer to continue...';
     } else if (isMultiSelect && remainingCorrect > 0) {
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
     }
