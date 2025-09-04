@@ -2742,15 +2742,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         // Determine selection message (Q6 special case)
         // ───────────────────────────────────────────────
-        let msg = '';
         const isLastQuestion = i0 === this.totalQuestions - 1;
+        let msg = '';
 
         if (allCorrect) {
-          if (isLastQuestion) {
-            msg = 'Please click the Show Results button.';
-          } else {
-            msg = 'Please click the next button to continue...';
-          }
+          msg = isLastQuestion
+              ? 'Please click the Show Results button.'
+              : 'Please click the next button to continue...';
         } else if (!isMulti && !evtOpt?.correct) {
           // Single-answer incorrect click
           msg = 'Select a correct answer to continue...';
@@ -2760,9 +2758,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           msg = 'Please click the next button to continue...';
         }
 
-        // Force immediate assignment
+        // Assign immediately
         this.selectionMessage = msg;
-
+        
         // ───────────────────────────────────────────────
         // Emit selection message
         // ───────────────────────────────────────────────
