@@ -32,6 +32,7 @@ export class SelectionMessageService {
 
   public optionsSnapshot: Option[] = [];
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
+  private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
   private freezeNextishUntil = new Map<number, number>();
