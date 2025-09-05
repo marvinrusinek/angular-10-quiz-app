@@ -770,12 +770,12 @@ export class SelectionMessageService {
   };
 
   public emitFromClick(params: {
-    index: number;
-    totalQuestions: number;
-    questionType: QuestionType;
-    options: Option[]; // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
-    onMessageChange?: (msg: string) => void;
+    index: number,
+    totalQuestions: number,
+    questionType: QuestionType,
+    options: Option[], // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[], // authoritative canonical snapshot
+    onMessageChange?: (msg: string) => void,
     token?: number;
   }): void {
     const {
