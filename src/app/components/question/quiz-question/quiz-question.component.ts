@@ -2794,6 +2794,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           optionId: o.optionId ?? `${o.text}-${idx}`,
           text: o.text,
           correct: o.correct ?? false,  // make sure correct is boolean
+          value: o.value ?? null,       // provide defaults for required fields
+          answer: o.answer ?? null,
+          active: o.active ?? false,
+          highlight: o.highlight ?? false,
+          feedback: o.feedback ?? '',
           showFeedback: o.showFeedback ?? false,
           styleClass: o.styleClass ?? '',
           selected: false,
