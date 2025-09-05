@@ -766,15 +766,15 @@ export class SelectionMessageService {
   // TEMP: if you know Q4 must have 3 correct, set here to prove data vs logic.
   // Remove after you fix canonical data.
   private expectedTotalCorrectOverride: Record<number, number> = {
-    3: 3, // Q4 is zero-based index 3; change if your index differs
+    3: 3,  // Q4 is zero-based index 3; change if your index differs
   };
 
   public emitFromClick(params: {
     index: number,
     totalQuestions: number,
     questionType: QuestionType,
-    options: Option[], // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[], // authoritative canonical snapshot
+    options: Option[],  // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[],  // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void,
     token?: number;
   }): void {
