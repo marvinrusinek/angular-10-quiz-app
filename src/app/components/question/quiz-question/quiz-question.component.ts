@@ -9,6 +9,7 @@ import { MatRadioButton } from '@angular/material/radio';
 
 import { QuestionType } from '../../../shared/models/question-type.enum';
 import { Utils } from '../../../shared/utils/utils';
+import { CanonicalOption } from '../../../shared/models/CanonicalOption.model';
 import { FormattedExplanation } from '../../../shared/models/FormattedExplanation.model';
 import { FeedbackProps } from '../../../shared/models/FeedbackProps.model';
 import { Option } from '../../../shared/models/Option.model';
@@ -41,12 +42,6 @@ import { UserPreferenceService } from '../../../shared/services/user-preference.
 import { BaseQuestionComponent } from '../../../components/question/base/base-question.component';
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
-
-export interface CanonicalOption {
-  optionId: string | number;  // Can be either string or number
-  text: string;
-  correct: boolean;  // Whether the option is correct or not
-}
 
 @Component({
   selector: 'codelab-quiz-question',
@@ -2798,9 +2793,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.canonicalOptions = (q.options ?? []).map((o, idx): CanonicalOption => ({
           optionId: o.optionId ?? `${o.text}-${idx}`,
           text: o.text,
-          correct: o.correct ?? false, // make sure correct is boolean
-          highlight: o.highlight ?? false,
-          feedback: o.feedback ?? '',
+          correct: o.correct ?? false,  // make sure correct is boolean
           showFeedback: o.showFeedback ?? false,
           styleClass: o.styleClass ?? '',
           selected: false,
