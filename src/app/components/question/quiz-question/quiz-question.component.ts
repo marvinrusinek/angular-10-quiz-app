@@ -2837,10 +2837,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             let msg = '';
             if (remaining > 0) {
               msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-              this.nextButtonStateService.setEnabled(false);
+              this.nextButtonStateService.setNextButtonState(false);
             } else {
               msg = 'Please click the next button to continue...';
-              this.nextButtonStateService.setEnabled(true);
+              this.nextButtonStateService.setNextButtonState(true);
             }
     
             // Emit message for multiple-answer
