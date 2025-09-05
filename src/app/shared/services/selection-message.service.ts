@@ -772,7 +772,7 @@ export class SelectionMessageService {
     totalQuestions: number;
     questionType: QuestionType;
     options: Option[];          // UI copy with latest selected flags
-    canonicalOptions: Option[]; // authoritative canonical snapshot
+    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
 }): void {

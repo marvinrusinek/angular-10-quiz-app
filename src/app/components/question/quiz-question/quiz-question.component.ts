@@ -2795,9 +2795,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Ensure canonicalOptions instance member exists
       if (!this.canonicalOptions) {
-        this.canonicalOptions = (q.options ?? []).map((o, idx) => ({
-          ...o,
+        this.canonicalOptions = (q.options ?? []).map((o, idx): CanonicalOption => ({
           optionId: o.optionId ?? `${o.text}-${idx}`,
+          text: o.text,
+          correct: o.correct ?? false, // make sure correct is boolean
+          answer: o.answer ?? null,
+          active: o.active ?? false,
+          highlight: o.highlight ?? false,
+          feedback: o.feedback ?? '',
+          showFeedback: o.showFeedback ?? false,
+          styleClass: o.styleClass ?? '',
           selected: false,
           showIcon: false
         }));
@@ -2819,7 +2826,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update canonicalOptions to reflect selection
       this.canonicalOptions = this.canonicalOptions.map((o, idx) => ({
         ...o,
-        selected: getStableId(o, idx) === getStableId(event.option, idx)
+        selected: getStableId(o as Option, idx) === getStableId(event.option, idx)
       }));
   
       // Determine Next button state
