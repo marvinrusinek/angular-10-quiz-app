@@ -2840,7 +2840,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-}): Promise<void> {
+  }): Promise<void> {
     if (!event.option) return;
 
     const evtOpt = event.option;
@@ -2858,13 +2858,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Fetch canonical options
     // ───────────────────────────────────────────────
     const getStableId = (o: Option, idx?: number) =>
-        this.selectionMessageService.stableKey(o, idx);
+      this.selectionMessageService.stableKey(o, idx);
 
     const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
-        ...o,
-        optionId: Number(o.optionId ?? getStableId(o, idx)),
-        selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
-            .some(sel => getStableId(sel) === getStableId(o))
+      ...o,
+      optionId: Number(o.optionId ?? getStableId(o, idx)),
+      selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+        .some(sel => getStableId(sel) === getStableId(o))
     }));
 
     this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
