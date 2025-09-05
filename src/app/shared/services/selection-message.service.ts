@@ -4,6 +4,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 
 import { aliasKeys } from '../utils/alias-utils';
 import { QuestionType } from '../../shared/models/question-type.enum';
+import { CanonicalOption } from '../../shared/models/CanonicalOption.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
@@ -38,10 +39,10 @@ export class SelectionMessageService {
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
 
-  private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
+  private idMapByIndex = new Map<number, Map<string, string | number>>(); // key -> canonicalId
 
   // Per-question remaining tracker and short enforcement window
-  lastRemainingByIndex = new Map<number, number>(); 
+  lastRemainingByIndex = new Map<number, number>();
   private enforceUntilByIndex = new Map<number, number>();
 
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
@@ -50,7 +51,7 @@ export class SelectionMessageService {
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
-  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
+  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>(); // fallback store
 
   private observedCorrectIds = new Map<number, Set<string>>();
 
@@ -64,7 +65,7 @@ export class SelectionMessageService {
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
-    return this.selectionMessageSubject.getValue();  // get the current message value
+    return this.selectionMessageSubject.getValue(); // get the current message value
   }
 
   // Message determination function
@@ -691,13 +692,13 @@ export class SelectionMessageService {
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
-    const safe = Array.isArray(opts) ? opts.map(o => ({ ...o })) : [];
-    this.optionsSnapshot = safe;  // persist internally
-    this.optionsSnapshotSubject.next(safe);  // still emit for any subscribers
+    const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
+    this.optionsSnapshot = safe; // persist internally
+    this.optionsSnapshotSubject.next(safe); // still emit for any subscribers
   }
 
   public getOptionsSnapshot(): Option[] {
-    return this.optionsSnapshot.map(o => ({ ...o }));
+    return this.optionsSnapshot.map((o) => ({ ...o }));
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
@@ -772,30 +773,38 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];          // UI copy with latest selected flags
+    options: Option[]; // UI copy with latest selected flags
     canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
-}): void {
-    const { index, totalQuestions, questionType, options, canonicalOptions, onMessageChange, token } = params;
+  }): void {
+    const {
+      index,
+      totalQuestions,
+      questionType,
+      options,
+      canonicalOptions,
+      onMessageChange,
+      token,
+    } = params;
 
     // ───────────────────────────────────────────────
     // 1) Compute selected & correct counts deterministically
     // ───────────────────────────────────────────────
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
 
-    const correctOpts = canonicalOptions.filter(o => !!o.correct);
-    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+    const correctOpts = canonicalOptions.filter((o) => !!o.correct);
+    const selectedCorrectCount = correctOpts.filter((o) => !!o.selected).length;
 
     let allCorrect: boolean;
     let remainingCorrect: number;
 
     if (isMultiSelect) {
-        allCorrect = selectedCorrectCount === correctOpts.length;
-        remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+      allCorrect = selectedCorrectCount === correctOpts.length;
+      remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
     } else {
-        allCorrect = selectedCorrectCount === 1;
-        remainingCorrect = allCorrect ? 0 : 1;
+      allCorrect = selectedCorrectCount === 1;
+      remainingCorrect = allCorrect ? 0 : 1;
     }
 
     // ───────────────────────────────────────────────
@@ -803,11 +812,13 @@ export class SelectionMessageService {
     // ───────────────────────────────────────────────
     let msg = '';
     if (allCorrect) {
-        msg = 'Please click the next button to continue...';
+      msg = 'Please click the next button to continue...';
     } else if (!isMultiSelect && remainingCorrect === 1) {
-        msg = 'Select the correct answer to continue...';
+      msg = 'Select the correct answer to continue...';
     } else if (isMultiSelect && remainingCorrect > 0) {
-        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      msg = `Select ${remainingCorrect} more correct answer${
+        remainingCorrect > 1 ? 's' : ''
+      } to continue...`;
     }
 
     // ───────────────────────────────────────────────
@@ -821,8 +832,6 @@ export class SelectionMessageService {
     }
   }
 
-
-  
   /* ================= helpers ================= */
   private textKey(s: any): string {
     return (typeof s === 'string' ? s : '')
@@ -1302,7 +1311,11 @@ export class SelectionMessageService {
     if (!opt) return `unknown-${idx ?? '0'}`;
     return opt.optionId != null
       ? String(opt.optionId)
-      : `${String(opt.value ?? '').trim().toLowerCase()}|${String(opt.text ?? '').trim().toLowerCase()}`;
+      : `${String(opt.value ?? '')
+          .trim()
+          .toLowerCase()}|${String(opt.text ?? '')
+          .trim()
+          .toLowerCase()}`;
   }
 
   // Use the same stable-id logic everywhere
@@ -1393,24 +1406,37 @@ export class SelectionMessageService {
   parseExpectedFromStem(raw: string | undefined | null): number {
     if (!raw) return 0;
     const s = String(raw).toLowerCase();
-    
+
     const wordToNum: Record<string, number> = {
-      one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10
+      one: 1,
+      two: 2,
+      three: 3,
+      four: 4,
+      five: 5,
+      six: 6,
+      seven: 7,
+      eight: 8,
+      nine: 9,
+      ten: 10,
     };
 
     // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
-    let m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/);
-    if (m) { 
-      const n = m[2] ? Number(m[2]) : (m[3] ? wordToNum[m[3]] : 0); 
-      return Number.isFinite(n) && n > 0 ? n : 0; 
+    let m = s.match(
+      /\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/
+    );
+    if (m) {
+      const n = m[2] ? Number(m[2]) : m[3] ? wordToNum[m[3]] : 0;
+      return Number.isFinite(n) && n > 0 ? n : 0;
     }
 
     // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
-    m = s.match(/\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
-    if (m) { 
-      const tok = m[2]; 
-      const n = /^\d/.test(tok) ? Number(tok) : (wordToNum[tok] ?? 0); 
-      return Number.isFinite(n) && n > 0 ? n : 0; 
+    m = s.match(
+      /\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/
+    );
+    if (m) {
+      const tok = m[2];
+      const n = /^\d/.test(tok) ? Number(tok) : wordToNum[tok] ?? 0;
+      return Number.isFinite(n) && n > 0 ? n : 0;
     }
 
     // If no match found, return 0 (no expected number)
