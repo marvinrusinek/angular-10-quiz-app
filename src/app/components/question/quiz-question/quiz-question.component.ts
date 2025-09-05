@@ -2639,7 +2639,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Called when a user clicks an option row
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2777,7 +2777,106 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this._clickInProgress = false;
           }
       });
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+  }): Promise<void> {
+    if (!event.option) return;
+  
+    if (this._clickInProgress) return;
+    this._clickInProgress = true;
+  
+    try {
+      const i0 = this.currentQuestionIndex ?? 0;
+      const q = await firstValueFrom(this.quizService.getQuestionByIndex(i0));
+      if (!q || !this.optionsToDisplay) return;
+  
+      // Ensure canonicalOptions instance member exists
+      if (!this.canonicalOptions) {
+        this.canonicalOptions = (q.options ?? []).map((o, idx) => ({
+          ...o,
+          optionId: o.optionId ?? `${o.text}-${idx}`,
+          selected: false,
+          showIcon: false
+        }));
+      }
+  
+      const getStableId = (o: Option, idx?: number) =>
+        o.optionId != null ? o.optionId : `${o.text}-${idx}`;
+  
+      // Reset selection for single-answer questions, preserve previous icons
+      this.optionsToDisplay = this.optionsToDisplay.map((o, idx) => ({
+        ...o,
+        selected: getStableId(o, idx) === getStableId(event.option, idx),
+        showIcon: o.showIcon // keep previous icon
+      }));
+  
+      // Update SelectedOptionService
+      this.selectedOptionService.setSelectedOption(event.option, i0);
+  
+      // Update canonicalOptions to reflect selection
+      this.canonicalOptions = this.canonicalOptions.map((o, idx) => ({
+        ...o,
+        selected: getStableId(o, idx) === getStableId(event.option, idx)
+      }));
+  
+      // Determine Next button state
+      const allCorrect = event.option.correct ?? false;
+      const nextEnabled = this.optionsToDisplay.some(o => o.selected);
+      this.nextButtonStateService.setNextButtonState(nextEnabled);
+      this.quizStateService.setAnswered(nextEnabled);
+      this.quizStateService.setAnswerSelected(nextEnabled);
+  
+      // Determine selection message
+      let msg = '';
+      if (allCorrect) {
+        msg = i0 === this.totalQuestions - 1
+          ? 'Please click the Show Results button.'
+          : 'Please click the next button to continue...';
+      } else {
+        msg = 'Select a correct answer to continue...';
+      }
+      this.selectionMessage = msg;
+  
+      // Emit to SelectionMessageService
+      this.selectionMessageService.emitFromClick({
+        index: i0,
+        totalQuestions: this.totalQuestions,
+        questionType: q.type ?? QuestionType.SingleAnswer,
+        options: this.optionsToDisplay,
+        canonicalOptions: this.canonicalOptions
+      });
+  
+      // Update icons using requestAnimationFrame to prevent flicker
+      requestAnimationFrame(() => {
+        this.optionsToDisplay = this.optionsToDisplay.map((o, idx) => ({
+          ...o,
+          showIcon: o.selected || (!!o.correct && allCorrect)
+        }));
+  
+        this.cdRef.markForCheck?.();
+        this.cdRef.detectChanges?.();
+      });
+  
+      // Update explanation text
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      const explanationText = this._formattedByIndex?.get(i0) ?? (q.explanation ?? '').trim();
+      this.explanationToDisplay = explanationText;
+      this.explanationToDisplayChange?.emit(explanationText);
+      this.showExplanationChange?.emit(true);
+  
+    } catch (err) {
+      console.error('[onOptionClicked][SingleAnswer] Error:', err);
+    } finally {
+      this._clickInProgress = false;
+    }
   }
+  
+  
+
+
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(
