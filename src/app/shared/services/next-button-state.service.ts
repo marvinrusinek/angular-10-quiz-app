@@ -27,6 +27,9 @@ export class NextButtonStateService {
   private isEnabled = false;
   private initialized = false;
 
+  // Flag to allow manual override
+  private manualOverride: boolean | null = null;
+
   constructor(
     private quizStateService: QuizStateService,
     // private selectedOptionService: SelectedOptionService,
@@ -88,8 +91,9 @@ export class NextButtonStateService {
 
   public updateAndSyncNextButtonState(isEnabled: boolean): void {
     this.ngZone.run(() => {
-      this.isEnabled = isEnabled;
-      this.isButtonEnabledSubject.next(isEnabled);
+      const effective = this.manualOverride !== null ? this.manualOverride : isEnabled;
+      this.isEnabled = effective;
+      this.isButtonEnabledSubject.next(effective);
       this.nextButtonStyle = {
         opacity: isEnabled ? '1' : '0.5',
         cursor: isEnabled ? 'pointer' : 'not-allowed',
@@ -100,6 +104,7 @@ export class NextButtonStateService {
 
   public setNextButtonState(enabled: boolean): void {
     this.isEnabled = enabled;
+    this.manualOverride = enabled;
     this.isButtonEnabledSubject.next(enabled);
   }
 
