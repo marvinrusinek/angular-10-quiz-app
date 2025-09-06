@@ -2004,7 +2004,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
 
-  public shouldShowIcon(option: Option): boolean {
+  /* public shouldShowIcon(option: Option): boolean {
     // Grab the array of selected IDs for this question (or [] if none)
     const arr: number[] =
       this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] 
@@ -2019,7 +2019,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return arr.includes(option.optionId)
       || !!option?.showIcon
       || !!this.showFeedbackForOption?.[option.optionId];
+  } */
+  public shouldShowIcon(option: Option): boolean {
+    // Grab selected options for this question
+    const selectedArr = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
+    const selectedIds = selectedArr.map(o => o.optionId);
+  
+    // If this option is in the selected set, show the icon
+    if (selectedIds.includes(option.optionId)) {
+      return true;
+    }
+  
+    // Otherwise fall back to local flags
+    return !!option?.showIcon || !!this.showFeedbackForOption?.[option.optionId];
   }
+  
 
   public shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
