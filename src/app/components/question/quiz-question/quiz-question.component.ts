@@ -3182,7 +3182,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedKeys = new Set(currentSelected.map(o => o.optionId));  // derive selectedKeys from map
 
     // Mutate existing array in place
-    /* this.optionsToDisplay?.forEach(opt => {
+    this.optionsToDisplay?.forEach(opt => {
       opt.selected = selectedKeys.has(opt.optionId!);
       opt.showIcon = opt.selected;
 
@@ -3190,16 +3190,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         optId: opt.optionId,
         selectedKeys: Array.from(selectedKeys)
       });
-    }); */
-    // ---- Sync icon state for all selected options ----
-    this.optionsToDisplay?.forEach(opt => {
-      if (selectedKeys.has(opt.optionId!)) {
-        opt.selected = true;
-        opt.showIcon = true;  // keep icon visible for every selected option
-      } else {
-        opt.selected = false;
-        opt.showIcon = false;
-      }
     });
 
     const optionSnapshot: Option[] = (q.options ?? []).map((o, idx) => {
