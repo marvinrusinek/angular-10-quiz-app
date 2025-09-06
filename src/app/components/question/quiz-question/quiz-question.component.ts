@@ -2797,7 +2797,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const current = selMap.get(i0) ?? [];
     const clickedKey = keyOf(evtOpt, event.index);
   
-    let newKeys: string[];
+    let newKeys: number[];
   
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => keyOf(o) === clickedKey);
@@ -2812,7 +2812,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         optionId: Number(keyOf(o, idx)),
         questionIndex: i0  // 👈 ensure it matches SelectedOption type
       } as SelectedOption))
-      .filter(o => newKeys.includes(String(o.optionId)));
+      .filter(o => newKeys.includes(o.optionId));
   
       selMap.set(i0, newSelected);
     } else {
@@ -2835,7 +2835,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isSel = selectedKeys.has(k);
       return {
         ...o,
-        optionId: k,             // 👈 normalized string ID
+        optionId: k,             // normalized string ID
         selected: isSel,
         showIcon: isSel,
         correct: !!o.correct,
