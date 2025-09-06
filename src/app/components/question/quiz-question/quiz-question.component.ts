@@ -2932,7 +2932,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         return;
     }
 
-    const getStableId = (o: Option, idx?: number) => o.optionId ?? `${o.text}-${idx}`;
+    const getStableId = (o: Option | CanonicalOption, idx?: number): string | number =>
+    o.optionId ?? `${o.text}-${idx}`;
 
     // Clone current options to safely work with them
     const optionsNow: Option[] = this.optionsToDisplay.map((o, idx) => ({
@@ -3057,8 +3058,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Compute correctness
         const correctOpts = canonicalOpts.filter(o => o.correct);
-        const selectedKeys: (string | number)[] = newSelected.map(sel => getStableId(sel));
+        const selectedKeys = new Set(newSelected.map(sel => getStableId(sel)));
         const selectedCorrectCount = correctOpts.filter(o => selectedKeys.has(getStableId(o))).length;
+
 
         const allCorrect = selectedCorrectCount === correctOpts.length && selectedKeys.size === correctOpts.length;
         const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
