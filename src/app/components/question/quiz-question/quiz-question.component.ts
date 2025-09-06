@@ -3183,8 +3183,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // Mutate existing array in place
     this.optionsToDisplay?.forEach(opt => {
-      opt.selected = selectedKeys.has(opt.optionId!);
-      opt.showIcon = opt.selected;
+      const isSel = selectedKeys.has(opt.optionId!);
+      opt.selected = isSel;
+      opt.showIcon = isSel;
 
       console.log('[ICON SYNC]', {
         optId: opt.optionId,
