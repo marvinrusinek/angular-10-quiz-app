@@ -3121,18 +3121,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  // Mark the binding and repaint highlight
-  private markBindingSelected(opt: Option): void {
-    // Update every binding so state is consistent
-    this.optionBindings.forEach((b) => {
-      const isThis = b.option.optionId === opt.optionId;
-      b.isSelected = isThis;
-      b.showFeedback = isThis;  // feedback only for the clicked one
-      this.updateOptionBinding(b);
-      b.directiveInstance?.updateHighlight();
-    });
-  }  
-
   // Keep feedback only for the clicked row
   private refreshFeedbackFor(opt: Option): void {
     if (!this.sharedOptionComponent) {
