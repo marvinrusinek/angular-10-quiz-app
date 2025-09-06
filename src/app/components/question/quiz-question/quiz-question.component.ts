@@ -2788,41 +2788,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const q = await firstValueFrom(this.quizService.getQuestionByIndex(i0));
     if (!q) { this._clickInProgress = false; return; }
   
-    // ----- KEY HELPER -----
+    // ---- Key helper ----
     const keyOf = (o: Partial<Option>, idx?: number) =>
-      o.optionId ?? (o as any).value ?? o.text ?? `${o.text}-${idx}`;
+      o?.optionId ?? (o as any)?.value ?? o?.text ?? `${o?.text}-${idx}`;
   
-    // ----- UPDATE SERVICE STATE -----
+    // ---- Update service map ----
     const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
-    const currentSelected = selMap.get(i0) ?? [];
+    const current = selMap.get(i0) ?? [];
     const clickedKey = keyOf(evtOpt, event.index);
   
     if (q.type === QuestionType.MultipleAnswer) {
-      const already = currentSelected.some(o => keyOf(o) === clickedKey);
+      const already = current.some(o => keyOf(o) === clickedKey);
       selMap.set(i0, already
-        ? currentSelected.filter(o => keyOf(o) !== clickedKey)
-        : [...currentSelected, evtOpt]
+        ? current.filter(o => keyOf(o) !== clickedKey)
+        : [...current, evtOpt]
       );
     } else {
-      selMap.set(i0, [evtOpt]); // single answer
+      selMap.set(i0, [evtOpt]); // single = replace
     }
     this.selectedOptionService.selectedOptionsMap = selMap;
   
-    // ----- REBUILD SNAPSHOT -----
+    // ---- Build canonical snapshot ----
     const selectedKeys = new Set((selMap.get(i0) ?? []).map(o => keyOf(o)));
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
       const isSel = selectedKeys.has(k);
-      return {
-        ...o,
-        optionId: k,
-        selected: isSel,
-        showIcon: isSel
-      };
+      return { ...o, optionId: k, selected: isSel, showIcon: isSel };
     });
-    this.optionsToDisplay = canonicalOpts; // UI now matches canonical
+    this.optionsToDisplay = canonicalOpts; // icons persist
   
-    // ----- CORRECTNESS + MESSAGE -----
+    // ---- Correctness ----
     const correctKeys = new Set(canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx)));
     const selectedCorrect = [...selectedKeys].filter(k => correctKeys.has(k)).length;
     const isMulti = q.type === QuestionType.MultipleAnswer;
@@ -2833,6 +2828,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const remaining = isMulti ? Math.max(0, correctKeys.size - selectedCorrect) : 0;
   
+    // ---- Message ----
     let msg = '';
     if (allCorrect) {
       msg = i0 === this.totalQuestions - 1
@@ -2845,7 +2841,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
     this.selectionMessage = msg;
   
-    // ----- EMIT MESSAGE -----
     this._msgTok = (this._msgTok ?? 0) + 1;
     this.selectionMessageService.emitFromClick({
       index: i0,
@@ -2857,23 +2852,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       token: this._msgTok
     });
   
-    // ----- NEXT BUTTON STATE -----
+    // ---- Next button ----
     queueMicrotask(() => {
-      const enableNext = isMulti ? allCorrect : selectedKeys.size > 0;
-      this.nextButtonStateService.setNextButtonState(enableNext);
-      this.quizStateService.setAnswerSelected(selectedKeys.size > 0); // mark selection
-      this.quizStateService.setAnswered(allCorrect); // only true if correct
+      // Enable Next once the user has selected *something*.
+      const hasSelection = selectedKeys.size > 0;
+    
+      this.nextButtonStateService.setNextButtonState(hasSelection);
+    
+      // Mark interaction: true once something is picked.
+      this.quizStateService.setAnswerSelected(hasSelection);
+    
+      // Mark correctness separately (only true if fully correct).
+      this.quizStateService.setAnswered(allCorrect);
     });
   
-    // ----- EXPLANATION + HIGHLIGHT -----
+    // ---- Explanation + highlight ----
     requestAnimationFrame(() => {
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.displayExplanation = true;
       this.showExplanationChange?.emit(true);
   
       const cached = this._formattedByIndex?.get(i0);
-      const rawTrue = (q.explanation ?? '').trim();
-      const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+      const raw = (q.explanation ?? '').trim();
+      const txt = cached?.trim() ?? raw ?? '<span class="muted">Formatting…</span>';
   
       this.setExplanationFor(i0, txt);
       this.explanationToDisplay = txt;
@@ -2885,9 +2886,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.cdRef.detectChanges?.();
     });
   
-    // ----- CLEANUP -----
-    requestAnimationFrame(() => { this.optionSelected.emit(evtOpt); this._clickInProgress = false; });
+    // ---- Cleanup ----
+    requestAnimationFrame(() => {
+      this.optionSelected.emit(evtOpt);
+      this._clickInProgress = false;
+    });
   }
+  
   
   
   /* public override async onOptionClicked(event: {
