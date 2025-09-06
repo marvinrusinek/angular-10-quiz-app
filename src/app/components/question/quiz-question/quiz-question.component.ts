@@ -2854,15 +2854,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ---- Next button ----
     queueMicrotask(() => {
-      // Enable Next once the user has selected *something*.
       const hasSelection = selectedKeys.size > 0;
     
+      // Hybrid: enable immediately on any selection
       this.nextButtonStateService.setNextButtonState(hasSelection);
     
-      // Mark interaction: true once something is picked.
+      // Mark interaction: true once something is picked
       this.quizStateService.setAnswerSelected(hasSelection);
     
-      // Mark correctness separately (only true if fully correct).
+      // Keep correctness separate (allCorrect still matters for scoring/results)
       this.quizStateService.setAnswered(allCorrect);
     });
   
