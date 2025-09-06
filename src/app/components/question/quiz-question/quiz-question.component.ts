@@ -2792,24 +2792,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const keyOf = (o: Partial<Option>, idx?: number) =>
       String(o?.optionId ?? (o as any)?.value ?? o?.text ?? `${o?.text}-${idx}`);
   
-    // ---- Update service map ----
+    // ---- Update service map (rebuild from canonical each time) ----
     const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
     const current = selMap.get(i0) ?? [];
     const clickedKey = keyOf(evtOpt, event.index);
   
+    let newKeys: string[];
+  
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => keyOf(o) === clickedKey);
-      selMap.set(i0, already
-        ? current.filter(o => keyOf(o) !== clickedKey)
-        : [...current, { ...evtOpt, optionId: clickedKey }]
-      );
+      newKeys = already
+        ? current.map(o => keyOf(o)).filter(k => k !== clickedKey)
+        : [...current.map(o => keyOf(o)), clickedKey];
+  
+      // Rebuild selected array from canonical options
+      const newSelected = (q.options ?? [])
+        .map((o, idx) => ({ ...o, optionId: keyOf(o, idx) }))
+        .filter(o => newKeys.includes(String(o.optionId)));
+  
+      selMap.set(i0, newSelected);
     } else {
+      newKeys = [clickedKey];
       selMap.set(i0, [{ ...evtOpt, optionId: clickedKey }]); // single = replace
     }
+  
     this.selectedOptionService.selectedOptionsMap = selMap;
   
     // ---- Build canonical snapshot ----
-    const selectedKeys = new Set((selMap.get(i0) ?? []).map((o, idx) => keyOf(o, idx)));
+    const selectedKeys = new Set(newKeys);
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
       const isSel = selectedKeys.has(k);
@@ -2826,7 +2836,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.optionsToDisplay = canonicalOpts;  // icons persist
   
     // ---- Correctness ----
-    const correctKeys = new Set(canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx)));
+    const correctKeys = new Set(
+      canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx))
+    );
     const selectedCorrect = [...selectedKeys].filter(k => correctKeys.has(k)).length;
     const isMulti = q.type === QuestionType.MultipleAnswer;
   
@@ -2904,6 +2916,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this._clickInProgress = false;
     });
   }
+  
   
   
   /* public override async onOptionClicked(event: {
