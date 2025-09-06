@@ -3170,7 +3170,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   
     // ---- Build Option[] snapshot for UI ----
-    const selectedKeys = new Set(newSelected.map(o => o.optionId));
+    // ---- Build Option[] snapshot for UI from service map ----
+    const currentSelected = selMap.get(i0) ?? [];
+    const selectedKeys = new Set(currentSelected.map(o => o.optionId));
+
+    this.optionsToDisplay?.forEach(opt => {
+      opt.selected = selectedKeys.has(opt.optionId!);
+      opt.showIcon = opt.selected;
+
+      console.log('[ICON SYNC]', {
+        optId: opt.optionId,
+        selectedKeys: Array.from(selectedKeys)
+      });        
+    });
+
     const optionSnapshot: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
       const isSel = selectedKeys.has(k);
