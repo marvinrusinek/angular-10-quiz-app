@@ -3058,7 +3058,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Compute correctness
         const correctOpts = canonicalOpts.filter(o => o.correct);
-        const selectedKeys = new Set(newSelected.map(sel => getStableId(sel)));
+        const selectedKeys: Set<string | number> = new Set(
+          newSelected.map(sel => getStableId(sel))
+        );      
         const selectedCorrectCount = correctOpts.filter(o => selectedKeys.has(getStableId(o))).length;
 
 
