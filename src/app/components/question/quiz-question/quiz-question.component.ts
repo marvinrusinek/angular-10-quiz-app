@@ -2773,7 +2773,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
       });
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2924,6 +2924,171 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationToDisplayChange?.emit(txt);
   
       this.updateOptionHighlighting(i0, canonicalOpts, selectedKeys);
+  
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+    });
+  
+    // ---- Cleanup ----
+    requestAnimationFrame(() => {
+      this.optionSelected.emit(evtOpt);
+  
+      // Keep optionBindings in sync with selected state
+      this.markBindingSelected(evtOpt, selectedKeys);
+  
+      this._clickInProgress = false;
+    });
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    if (!event.option) return;
+    if (this._clickInProgress) return;
+    this._clickInProgress = true;
+  
+    const evtOpt = event.option;
+    const i0 = this.currentQuestionIndex ?? 0;
+    const q = await firstValueFrom(this.quizService.getQuestionByIndex(i0));
+    if (!q) { this._clickInProgress = false; return; }
+  
+    // ---- Key helper (normalize everything to number) ----
+    const keyOf = (o: { optionId?: string | number; text?: string; value?: any }, idx?: number): number => {
+      return Number(o?.optionId ?? (o as any)?.value ?? idx);
+    };
+  
+    // ---- Update service map (rebuild from canonical each time) ----
+    const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
+    const current = selMap.get(i0) ?? [];
+    const clickedKey = keyOf(evtOpt, event.index);
+  
+    let newKeys: number[];
+  
+    if (q.type === QuestionType.MultipleAnswer) {
+      const already = current.some(o => o.optionId === clickedKey);
+      newKeys = already
+        ? current.map(o => o.optionId).filter(k => k !== clickedKey)
+        : [...current.map(o => o.optionId), clickedKey];
+  
+      // Rebuild selected array from canonical options
+      const newSelected: SelectedOption[] = (q.options ?? [])
+        .map((o, idx) => ({
+          ...o,
+          optionId: keyOf(o, idx),
+          questionIndex: i0
+        } as SelectedOption))
+        .filter(o => newKeys.includes(o.optionId));
+  
+      selMap.set(i0, newSelected);
+    } else {
+      newKeys = [clickedKey];
+      selMap.set(i0, [{ ...evtOpt, optionId: clickedKey, questionIndex: i0 }]);
+    }
+  
+    this.selectedOptionService.selectedOptionsMap = selMap;
+    console.log('[QQC] selectedOptionsMap',
+      Array.from(selMap.entries()).map(([idx, opts]) => ({
+        q: idx,
+        ids: opts.map(o => o.optionId)
+      }))
+    );
+  
+    // ---- Build both Option[] and CanonicalOption[] snapshots ----
+    const selectedKeys = new Set(newKeys);
+  
+    const optionSnapshot: Option[] = (q.options ?? []).map((o, idx) => {
+      const k = keyOf(o, idx);
+      const isSel = selectedKeys.has(k);
+      return {
+        ...o,
+        optionId: k,
+        selected: isSel,
+        showIcon: isSel
+      };
+    });
+  
+    const canonicalOpts: CanonicalOption[] = optionSnapshot.map(o => ({
+      ...o,
+      optionId: o.optionId,
+      text: o.text ?? '',
+      correct: !!o.correct,
+      selected: o.selected,
+      showIcon: o.showIcon,
+      feedback: o.feedback ?? '',
+      styleClass: o.styleClass ?? ''
+    }));
+  
+    this.optionsToDisplay = optionSnapshot;  // icons persist
+  
+    // ---- Correctness ----
+    const correctKeys = new Set(
+      canonicalOpts.filter(o => o.correct).map(o => o.optionId)
+    );
+    const selectedCorrect = [...selectedKeys].filter(k => correctKeys.has(k)).length;
+    const isMulti = q.type === QuestionType.MultipleAnswer;
+  
+    const allCorrect = isMulti
+      ? selectedCorrect === correctKeys.size && selectedKeys.size === correctKeys.size
+      : !!evtOpt.correct;
+  
+    const remaining = isMulti ? Math.max(0, correctKeys.size - selectedCorrect) : 0;
+  
+    // ---- Message ----
+    let msg = '';
+    if (allCorrect) {
+      msg = i0 === this.totalQuestions - 1
+        ? 'Please click the Show Results button.'
+        : 'Please click the next button to continue...';
+    } else if (!isMulti && !evtOpt.correct) {
+      msg = 'Select a correct answer to continue...';
+    } else if (isMulti && remaining > 0) {
+      msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+    this.selectionMessage = msg;
+  
+    // ---- Emit selection message ----
+    this._msgTok = (this._msgTok ?? 0) + 1;
+    this.selectionMessageService.emitFromClick({
+      index: i0,
+      totalQuestions: this.totalQuestions,
+      questionType: q.type,
+      options: optionSnapshot,         // Option[]
+      canonicalOptions: canonicalOpts, // CanonicalOption[]
+      onMessageChange: m => (this.selectionMessage = m),
+      token: this._msgTok
+    });
+  
+    // ---- Next button ----
+    queueMicrotask(() => {
+      const hasSelection = selectedKeys.size > 0;
+  
+      // Hybrid: enable immediately on any selection
+      this.nextButtonStateService.setNextButtonState(hasSelection);
+  
+      // Mark interaction: true once something is picked
+      this.quizStateService.setAnswerSelected(hasSelection);
+  
+      // Keep correctness separate (allCorrect still matters for scoring/results)
+      this.quizStateService.setAnswered(allCorrect);
+    });
+  
+    // ---- Explanation + highlight ----
+    requestAnimationFrame(() => {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+  
+      const cached = this._formattedByIndex?.get(i0);
+      const raw = (q.explanation ?? '').trim();
+      const txt = cached?.trim() ?? raw ?? '<span class="muted">Formatting…</span>';
+  
+      this.setExplanationFor(i0, txt);
+      this.explanationToDisplay = txt;
+      this.explanationToDisplayChange?.emit(txt);
+  
+      this.updateOptionHighlighting(i0, optionSnapshot, selectedKeys);
   
       this.cdRef.markForCheck?.();
       this.cdRef.detectChanges?.();
