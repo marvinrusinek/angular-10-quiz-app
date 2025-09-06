@@ -3128,17 +3128,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Mark the binding and repaint highlight
   private markBindingSelected(opt: Option, selectedKeys: Set<string | number>): void {
     this.optionBindings.forEach((b) => {
-      const isThis = selectedKeys.has(b.option.optionId);
+      const isSel = selectedKeys.has(b.option.optionId);
   
-      // For multi-answer: keep multiple selected icons
-      // For single-answer: only the clicked one will be in selectedKeys anyway
-      b.isSelected = isThis;
-      b.showFeedback = b.option.optionId === opt.optionId; // feedback only for the most recent click
+      // Sync both binding flags AND the option object flags
+      b.isSelected = isSel;
+      b.option.selected = isSel;
+      b.option.showIcon = isSel;
+  
+      // Feedback: only on the last clicked option
+      b.showFeedback = b.option.optionId === opt.optionId;
   
       this.updateOptionBinding(b);
       b.directiveInstance?.updateHighlight();
     });
-  }  
+  
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
+  }
 
   // Keep feedback only for the clicked row
   private refreshFeedbackFor(opt: Option): void {
