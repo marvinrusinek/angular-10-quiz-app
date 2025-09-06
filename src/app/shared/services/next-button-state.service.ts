@@ -119,4 +119,9 @@ export class NextButtonStateService {
   reset(): void {
     this.setNextButtonState(false);
   }
+
+  // Reset to let stream control again
+  public clearManualOverride(): void {
+    this.manualOverride = null;
+  }
 }
