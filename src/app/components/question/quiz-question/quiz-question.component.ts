@@ -2825,6 +2825,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
     this.optionsToDisplay = canonicalOpts;  // icons persist
   
+    // ---- 🔑 Sync optionBindings for template ----
+    this.optionBindings = this.optionsToDisplay.map((opt, idx) =>
+      this.getOptionBindings(opt, idx, opt.selected)
+    );
+  
     // ---- Correctness ----
     const correctKeys = new Set(canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx)));
     const selectedCorrect = [...selectedKeys].filter(k => correctKeys.has(k)).length;
@@ -2863,13 +2868,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ---- Next button ----
     queueMicrotask(() => {
       const hasSelection = selectedKeys.size > 0;
-    
+  
       // Hybrid: enable immediately on any selection
       this.nextButtonStateService.setNextButtonState(hasSelection);
-    
+  
       // Mark interaction: true once something is picked
       this.quizStateService.setAnswerSelected(hasSelection);
-    
+  
       // Keep correctness separate (allCorrect still matters for scoring/results)
       this.quizStateService.setAnswered(allCorrect);
     });
@@ -2900,8 +2905,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this._clickInProgress = false;
     });
   }
-  
-  
   
   /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
@@ -3120,16 +3123,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Mark the binding and repaint highlight
   private markBindingSelected(opt: Option): void {
-    const b = this.optionBindings.find(
-      (x) => x.option.optionId === opt.optionId
-    );
-    if (!b) return;
-
-    b.isSelected = true;
-    b.showFeedback = true;
-    this.updateOptionBinding(b);
-    b.directiveInstance?.updateHighlight();
-  }
+    // Update every binding so state is consistent
+    this.optionBindings.forEach((b) => {
+      const isThis = b.option.optionId === opt.optionId;
+      b.isSelected = isThis;
+      b.showFeedback = isThis;  // feedback only for the clicked one
+      this.updateOptionBinding(b);
+      b.directiveInstance?.updateHighlight();
+    });
+  }  
 
   // Keep feedback only for the clicked row
   private refreshFeedbackFor(opt: Option): void {
