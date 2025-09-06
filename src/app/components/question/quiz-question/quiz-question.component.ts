@@ -2968,24 +2968,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => o.optionId === clickedKey);
-      newKeys = already
-        ? current.map(o => o.optionId).filter(k => k !== clickedKey)
-        : [...current.map(o => o.optionId), clickedKey];
-  
-      // Rebuild selected array from canonical options
-      const newSelected: SelectedOption[] = (q.options ?? [])
-        .map((o, idx) => ({
-          ...o,
-          optionId: keyOf(o, idx),
-          questionIndex: i0
-        } as SelectedOption))
-        .filter(o => newKeys.includes(o.optionId));
-  
+      let newSelected: SelectedOption[];
+    
+      if (already) {
+        // remove clicked
+        newSelected = current.filter(o => o.optionId !== clickedKey);
+      } else {
+        // add clicked
+        newSelected = [...current, { ...evtOpt, optionId: clickedKey, questionIndex: i0 }];
+      }
+    
       selMap.set(i0, newSelected);
+      newKeys = newSelected.map(o => o.optionId);
     } else {
       newKeys = [clickedKey];
       selMap.set(i0, [{ ...evtOpt, optionId: clickedKey, questionIndex: i0 }]);
-    }
+    }    
   
     this.selectedOptionService.selectedOptionsMap = selMap;
     console.log('[QQC] selectedOptionsMap',
