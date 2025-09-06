@@ -3130,39 +3130,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => o.optionId === clickedKey);
-    
-      let newSelected: SelectedOption[];
-      if (already) {
-        // remove this one
-        newSelected = current.filter(o => o.optionId !== clickedKey);
-      } else {
-        // add this one, preserving previous selections
-        newSelected = [
-          ...current,
-          {
-            optionId: clickedKey,
-            text: evtOpt.text,
-            correct: evtOpt.correct,
-            feedback: evtOpt.feedback,
-            styleClass: evtOpt.styleClass,
-            questionIndex: i0
-          } as SelectedOption
-        ];
-      }
-    
-      selMap.set(i0, newSelected);
+      newSelected = already
+        ? current.filter(o => o.optionId !== clickedKey)
+        : [...current, { ...evtOpt, optionId: clickedKey, questionIndex: i0 }];
     } else {
-      // single answer replaces
-      selMap.set(i0, [{
-        optionId: clickedKey,
-        text: evtOpt.text,
-        correct: evtOpt.correct,
-        feedback: evtOpt.feedback,
-        styleClass: evtOpt.styleClass,
-        questionIndex: i0
-      } as SelectedOption]);
-    }    
-  
+      newSelected = [{ ...evtOpt, optionId: clickedKey, questionIndex: i0 }];
+    }
     selMap.set(i0, newSelected);
     this.selectedOptionService.selectedOptionsMap = selMap;
   
@@ -3176,7 +3149,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ---- Build Option[] snapshot for UI ----
     // ---- Build Option[] snapshot for UI from service map ----
     const currentSelected = selMap.get(i0) ?? [];
-    const selectedKeys = new Set(currentSelected.map(o => o.optionId));
+    const selectedKeys = new Set(currentSelected.map(o => o.optionId));  // derive selectedKeys from map
 
     this.optionsToDisplay?.forEach(opt => {
       opt.selected = selectedKeys.has(opt.optionId!);
