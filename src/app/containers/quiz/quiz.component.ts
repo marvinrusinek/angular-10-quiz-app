@@ -511,7 +511,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     try {
       const questions = await this.quizService.fetchQuizQuestions(quizId);
-      if (!questiononOs?.length) {
+      if (!questions?.length) {
         console.error('[❌ QuizComponent] No quiz questions returned.');
         return;
       }
@@ -4368,11 +4368,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Grab the exact question raw text
     const question = this.questionsArray[qIdx];
     if (!question) {
-      console.warn(`[⚠️] No question found for index ${index}`);
+      console.warn(`[⚠️] No question found for index ${qIdx}`);
       this.explanationToDisplay = '<span class="muted">No explanation available</span>';
       return;
     }
-    
+
     const raw = (question.explanation || 'No explanation available').trim();
 
     // Get the formatted explanation text string (unwrap the Observable)
