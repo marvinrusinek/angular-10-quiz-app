@@ -2889,12 +2889,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ---- Explanation + highlight ----
     requestAnimationFrame(() => {
-      console.log('[QQC explanation firing]', { 
-        raw: q.explanation, 
-        cached, 
-        txt, 
-        i0 
-      });
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.displayExplanation = true;
       this.showExplanationChange?.emit(true);
@@ -2902,6 +2896,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const cached = this._formattedByIndex?.get(i0);
       const raw = (q.explanation ?? '').trim();
       const txt = cached?.trim() ?? raw ?? '<span class="muted">Formatting…</span>';
+
+      console.log('[QQC explanation firing]', { 
+        raw: q.explanation, 
+        cached, 
+        txt, 
+        i0 
+      });
   
       this.setExplanationFor(i0, txt);
       this.explanationToDisplay = txt;
