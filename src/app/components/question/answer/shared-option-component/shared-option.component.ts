@@ -2004,52 +2004,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
 
-  /* public shouldShowIcon(option: Option): boolean {
-    // Grab the array of selected IDs for this question (or [] if none)
-    const arr: number[] =
-      this.selectedOptionService.selectedOptionIndices[this.currentQuestionIndex] 
-      || [];
-  
-    // If my optionId is in that array, show the icon
-    if (arr.includes(option.optionId)) {
-      return true;
-    }
-  
-    // Otherwise fall back to other flags
-    return arr.includes(option.optionId)
-      || !!option?.showIcon
-      || !!this.showFeedbackForOption?.[option.optionId];
-  } */
-  /* public shouldShowIcon(option: Option): boolean {
-    const selectedArr = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
-    const selectedIds = selectedArr.map(o => o.optionId);
-  
-    console.log('[ICON CHECK]', {
-      currentQuestion: this.currentQuestionIndex,
-      opt: option.optionId,
-      selectedIds
-    });
-  
-    if (selectedIds.includes(option.optionId)) {
-      return true;
-    }
-  
-    return !!option?.showIcon || !!this.showFeedbackForOption?.[option.optionId];
-  } */
-  /* public shouldShowIcon(option: Option): boolean {
-    return !!option.selected || !!option.showIcon;
-  } */
   public shouldShowIcon(option: Option): boolean {
     const selected = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
     return selected.some(sel => sel.optionId === option.optionId) || !!option.showIcon;
   }
-  
-  
-  
-  
-  
-  
-  
 
   public shouldShowFeedback(index: number): boolean {
     const optionId = this.optionBindings?.[index]?.option?.optionId;
