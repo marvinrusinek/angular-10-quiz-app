@@ -3130,14 +3130,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => o.optionId === clickedKey);
-      newSelected = already
-        ? current.filter(o => o.optionId !== clickedKey)
-        : [...current, { ...evtOpt, optionId: clickedKey, questionIndex: i0 }];
+    
+      if (already) {
+        // remove clicked one
+        newSelected = current.filter(o => o.optionId !== clickedKey);
+      } else {
+        // add clicked one from canonical
+        const base = q.options?.[event.index];
+        newSelected = [
+          ...current,
+          {
+            optionId: clickedKey,   // stable numeric id
+            text: base?.text ?? evtOpt.text,
+            correct: base?.correct ?? evtOpt.correct,
+            feedback: base?.feedback ?? evtOpt.feedback,
+            styleClass: base?.styleClass ?? evtOpt.styleClass,
+            questionIndex: i0
+          } as SelectedOption
+        ];
+      }
     } else {
-      newSelected = [{ ...evtOpt, optionId: clickedKey, questionIndex: i0 }];
-    }
+      // Single-answer just replaces
+      newSelected = [{
+        optionId: clickedKey,
+        text: evtOpt.text,
+        correct: evtOpt.correct,
+        feedback: evtOpt.feedback,
+        styleClass: evtOpt.styleClass,
+        questionIndex: i0
+      } as SelectedOption];
+    }    
+    
     selMap.set(i0, newSelected);
     this.selectedOptionService.selectedOptionsMap = selMap;
+
+    console.log('[MAP CHECK]', {
+      q: i0,
+      selectedIds: (selMap.get(i0) ?? []).map(o => o.optionId)
+    });
   
     console.log('[QQC] selectedOptionsMap',
       Array.from(selMap.entries()).map(([idx, opts]) => ({
@@ -3151,6 +3181,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const currentSelected = selMap.get(i0) ?? [];
     const selectedKeys = new Set(currentSelected.map(o => o.optionId));  // derive selectedKeys from map
 
+    // Mutate existing array in place
     this.optionsToDisplay?.forEach(opt => {
       opt.selected = selectedKeys.has(opt.optionId!);
       opt.showIcon = opt.selected;
@@ -3158,7 +3189,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[ICON SYNC]', {
         optId: opt.optionId,
         selectedKeys: Array.from(selectedKeys)
-      });        
+      });
     });
 
     const optionSnapshot: Option[] = (q.options ?? []).map((o, idx) => {
@@ -3171,7 +3202,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         showIcon: isSel
       };
     });
-    this.optionsToDisplay = optionSnapshot;
   
     // ---- Build CanonicalOption[] snapshot for message service ----
     const canonicalOpts: CanonicalOption[] = optionSnapshot.map(o => ({
