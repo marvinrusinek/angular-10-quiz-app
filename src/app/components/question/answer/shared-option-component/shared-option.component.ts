@@ -2021,18 +2021,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       || !!this.showFeedbackForOption?.[option.optionId];
   } */
   public shouldShowIcon(option: Option): boolean {
-    // Grab selected options for this question
     const selectedArr = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
     const selectedIds = selectedArr.map(o => o.optionId);
   
-    // If this option is in the selected set, show the icon
+    console.log('[ICON CHECK]', {
+      currentQuestion: this.currentQuestionIndex,
+      opt: option.optionId,
+      selectedIds
+    });
+  
     if (selectedIds.includes(option.optionId)) {
       return true;
     }
   
-    // Otherwise fall back to local flags
     return !!option?.showIcon || !!this.showFeedbackForOption?.[option.optionId];
   }
+  
   
 
   public shouldShowFeedback(index: number): boolean {
