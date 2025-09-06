@@ -2834,6 +2834,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       };
     });
     this.optionsToDisplay = canonicalOpts;  // icons persist
+
   
     // ---- Correctness ----
     const correctKeys = new Set(
