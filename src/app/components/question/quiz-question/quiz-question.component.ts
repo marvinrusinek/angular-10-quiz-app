@@ -2788,9 +2788,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const q = await firstValueFrom(this.quizService.getQuestionByIndex(i0));
     if (!q) { this._clickInProgress = false; return; }
   
-    // ---- Key helper ----
+    // ---- Key helper (normalize everything to string) ----
     const keyOf = (o: Partial<Option>, idx?: number) =>
-      o?.optionId ?? (o as any)?.value ?? o?.text ?? `${o?.text}-${idx}`;
+      String(o?.optionId ?? (o as any)?.value ?? o?.text ?? `${o?.text}-${idx}`);
   
     // ---- Update service map ----
     const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
@@ -2801,21 +2801,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const already = current.some(o => keyOf(o) === clickedKey);
       selMap.set(i0, already
         ? current.filter(o => keyOf(o) !== clickedKey)
-        : [...current, evtOpt]
+        : [...current, { ...evtOpt, optionId: clickedKey }]
       );
     } else {
-      selMap.set(i0, [evtOpt]); // single = replace
+      selMap.set(i0, [{ ...evtOpt, optionId: clickedKey }]); // single = replace
     }
     this.selectedOptionService.selectedOptionsMap = selMap;
   
     // ---- Build canonical snapshot ----
-    const selectedKeys = new Set((selMap.get(i0) ?? []).map(o => keyOf(o)));
+    const selectedKeys = new Set((selMap.get(i0) ?? []).map((o, idx) => keyOf(o, idx)));
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
       const isSel = selectedKeys.has(k);
       return {
         ...o,
-        optionId: k,
+        optionId: k,             // 👈 normalized string ID
         selected: isSel,
         showIcon: isSel,
         correct: !!o.correct,
@@ -2824,11 +2824,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       };
     });
     this.optionsToDisplay = canonicalOpts;  // icons persist
-  
-    // ---- 🔑 Sync optionBindings for template ----
-    this.optionBindings = this.optionsToDisplay.map((opt, idx) =>
-      this.getOptionBindings(opt, idx, opt.selected)
-    );
   
     // ---- Correctness ----
     const correctKeys = new Set(canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx)));
@@ -2902,13 +2897,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ---- Cleanup ----
     requestAnimationFrame(() => {
       this.optionSelected.emit(evtOpt);
-
+  
       // Keep optionBindings in sync with selected state
       this.markBindingSelected(evtOpt, selectedKeys);
-
+  
       this._clickInProgress = false;
     });
   }
+  
   
   /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
