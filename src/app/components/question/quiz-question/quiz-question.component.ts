@@ -2902,6 +2902,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ---- Cleanup ----
     requestAnimationFrame(() => {
       this.optionSelected.emit(evtOpt);
+
+      // Keep optionBindings in sync with selected state
+      this.markBindingSelected(evtOpt, selectedKeys);
+
       this._clickInProgress = false;
     });
   }
@@ -3120,6 +3124,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Final UI updates
     this.cdRef.detectChanges();
   }
+
+  // Mark the binding and repaint highlight
+  private markBindingSelected(opt: Option, selectedKeys: Set<string | number>): void {
+    this.optionBindings.forEach((b) => {
+      const isThis = selectedKeys.has(b.option.optionId);
+  
+      // For multi-answer: keep multiple selected icons
+      // For single-answer: only the clicked one will be in selectedKeys anyway
+      b.isSelected = isThis;
+      b.showFeedback = b.option.optionId === opt.optionId; // feedback only for the most recent click
+  
+      this.updateOptionBinding(b);
+      b.directiveInstance?.updateHighlight();
+    });
+  }  
 
   // Keep feedback only for the clicked row
   private refreshFeedbackFor(opt: Option): void {
