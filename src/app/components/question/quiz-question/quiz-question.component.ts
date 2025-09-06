@@ -3130,11 +3130,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (q.type === QuestionType.MultipleAnswer) {
       const already = current.some(o => o.optionId === clickedKey);
+    
+      let newSelected: SelectedOption[];
       if (already) {
-        // remove clicked
+        // remove this one
         newSelected = current.filter(o => o.optionId !== clickedKey);
       } else {
-        // add clicked (rebuild clean with numeric ID)
+        // add this one, preserving previous selections
         newSelected = [
           ...current,
           {
@@ -3147,17 +3149,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           } as SelectedOption
         ];
       }
+    
+      selMap.set(i0, newSelected);
     } else {
-      // single-answer = replace
-      newSelected = [{
+      // single answer replaces
+      selMap.set(i0, [{
         optionId: clickedKey,
         text: evtOpt.text,
         correct: evtOpt.correct,
         feedback: evtOpt.feedback,
         styleClass: evtOpt.styleClass,
         questionIndex: i0
-      } as SelectedOption];
-    }
+      } as SelectedOption]);
+    }    
   
     selMap.set(i0, newSelected);
     this.selectedOptionService.selectedOptionsMap = selMap;
