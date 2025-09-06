@@ -2836,7 +2836,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const isSel = selectedKeys.has(k);
       return {
         ...o,
-        optionId: k,        // 👈 always a number
+        optionId: k,        // always a number
         selected: isSel,
         showIcon: isSel,
         correct: !!o.correct,
@@ -2873,13 +2873,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
     this.selectionMessage = msg;
+
+    const optionSnapshot: Option[] = canonicalOpts.map(o => ({
+      optionId: o.optionId as number,  // force back to number
+      text: o.text,
+      correct: o.correct,
+      selected: o.selected,
+      showIcon: o.showIcon,
+      feedback: o.feedback,
+      styleClass: o.styleClass
+    }));
   
     this._msgTok = (this._msgTok ?? 0) + 1;
     this.selectionMessageService.emitFromClick({
       index: i0,
       totalQuestions: this.totalQuestions,
       questionType: q.type,
-      options: canonicalOpts,
+      options: optionSnapshot,
       canonicalOptions: canonicalOpts,
       onMessageChange: m => (this.selectionMessage = m),
       token: this._msgTok
