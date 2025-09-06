@@ -95,17 +95,16 @@ export class NextButtonStateService {
       this.isEnabled = effective;
       this.isButtonEnabledSubject.next(effective);
       this.nextButtonStyle = {
-        opacity: isEnabled ? '1' : '0.5',
-        cursor: isEnabled ? 'pointer' : 'not-allowed',
-        'pointer-events': 'auto'  // keep always enabled
+        opacity: effective ? '1' : '0.5',
+        cursor: effective ? 'pointer' : 'not-allowed',
+        'pointer-events': 'auto'
       };
     });
   }
 
   public setNextButtonState(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.manualOverride = enabled;
-    this.isButtonEnabledSubject.next(enabled);
+    this.manualOverride = enabled;  // store override
+    this.updateAndSyncNextButtonState(enabled);  // reuse consistent logic
   }
 
   public getNextButtonState(): Observable<boolean> {
