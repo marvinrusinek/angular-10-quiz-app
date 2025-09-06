@@ -2789,8 +2789,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     if (!q) { this._clickInProgress = false; return; }
   
     // ---- Key helper (normalize everything to string) ----
-    const keyOf = (o: Partial<Option>, idx?: number) =>
-      Number(o?.optionId ?? (o as any)?.value ?? idx);
+    const keyOf = (o: { optionId?: string | number; text?: string; value?: any }, idx?: number): number => {
+      return Number(o?.optionId ?? (o as any)?.value ?? idx);
+    };    
   
     // ---- Update service map (rebuild from canonical each time) ----
     const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
