@@ -2933,7 +2933,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     const getStableId = (o: Option | CanonicalOption, idx?: number): string | number =>
-    o.optionId ?? `${o.text}-${idx}`;
+        o.optionId ?? `${o.text}-${idx}`;
 
     // Clone current options to safely work with them
     const optionsNow: Option[] = this.optionsToDisplay.map((o, idx) => ({
@@ -2956,17 +2956,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Determine correctness based on persisted selection
         const selectedMap = this.selectedOptionService.selectedOptionsMap ?? new Map();
         const selectedKeys: Set<string | number> = new Set(
-          (selectedMap.get(i0) ?? []).map(o => getStableId(o)) as (string | number)[]
+            (selectedMap.get(i0) ?? []).map(o => getStableId(o)) as (string | number)[]
         );
         const allCorrect = (evtOpt.correct ?? false) || 
             optionsNow.some(o => o.correct && selectedKeys.has(getStableId(o)));
 
-        // Update Next button and quiz state
-        queueMicrotask(() => {
-            this.nextButtonStateService.setNextButtonState(allCorrect);
-            this.quizStateService.setAnswered(allCorrect);
-            this.quizStateService.setAnswerSelected(allCorrect);
-        });
+        // Update Next button and quiz state (immediate for UI sync)
+        this.nextButtonStateService.setNextButtonState(allCorrect);
+        this.quizStateService.setAnswered(allCorrect);
+        this.quizStateService.setAnswerSelected(allCorrect);
 
         // Determine selection message
         const msg = allCorrect
@@ -2978,14 +2976,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Build canonical options for single-answer
         const canonicalOpts: CanonicalOption[] = optionsNow.map((o, idx) => ({
-          ...o,
-          correct: o.correct ?? false,
-          selected: o.selected,
-          showIcon: o.showIcon ?? false,
-          feedback: o.feedback ?? '',
-          styleClass: o.styleClass ?? '',
-          optionId: o.optionId ?? idx, // numeric fallback
-          text: o.text
+            ...o,
+            correct: o.correct ?? false,
+            selected: o.selected,
+            showIcon: o.showIcon ?? false,
+            feedback: o.feedback ?? '',
+            styleClass: o.styleClass ?? '',
+            optionId: o.optionId ?? idx, // numeric fallback
+            text: o.text
         }));
 
         // Emit selection message once
@@ -3001,10 +2999,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // Highlight options
-
-        // const selectedKeys = newSelected.map(o => o.optionId ?? 0); // number
-        const selectedKeySet: Set<string | number> = selectedKeys;
-
+        const selectedKeySet: Set<string | number> = new Set(selectedKeys);
         requestAnimationFrame(() => {
             this.updateOptionHighlighting(i0, canonicalOpts as Option[], selectedKeySet);
         });
@@ -3023,46 +3018,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selectedMap.set(i0, newSelected);
         this.selectedOptionService.selectedOptionsMap = selectedMap;
 
-        // Build canonical options
+        // Build canonical options (source of truth for UI)
         const canonicalOpts: CanonicalOption[] = optionsNow.map((o, idx) => {
-          const isSelected = newSelected.some(sel => getStableId(sel) === getStableId(o, idx));
-          return {
-              ...o,
-              optionId: o.optionId ?? getStableId(o, idx), // number|string
-              selected: isSelected,
-              showIcon: isSelected,
-              correct: o.correct ?? false,
-              feedback: o.feedback ?? '',
-              styleClass: o.styleClass ?? '',
-              text: o.text
-          } as CanonicalOption;
+            const isSelected = newSelected.some(sel => getStableId(sel) === getStableId(o, idx));
+            return {
+                ...o,
+                optionId: o.optionId ?? getStableId(o, idx), // number|string
+                selected: isSelected,
+                showIcon: isSelected,
+                correct: o.correct ?? false,
+                feedback: o.feedback ?? '',
+                styleClass: o.styleClass ?? '',
+                text: o.text
+            } as CanonicalOption;
         });
 
-        // --- Build snapshot options for OptionService/Highlighting ---
-        const snapshotOpts: Option[] = optionsNow.map((o, idx) => {
-          const isSelected = newSelected.some(sel => getStableId(sel) === getStableId(o, idx));
-          return {
-              ...o,
-              optionId: o.optionId ?? idx,  // strictly number
-              selected: isSelected,
-              showIcon: isSelected,
-              correct: o.correct ?? false,
-              feedback: o.feedback ?? '',
-              styleClass: o.styleClass ?? '',
-              text: o.text
-          };
-        });
-      
+        // Snapshot options for Highlighting
+        const snapshotOpts: Option[] = canonicalOpts.map(o => ({
+            ...o,
+            optionId: typeof o.optionId === 'number' ? o.optionId : 0 // force number for highlighting
+        }));
+
+        // Update selection service for messages/highlighting
         this.selectionMessageService.setOptionsSnapshot(snapshotOpts);
-      
 
         // Compute correctness
         const correctOpts = canonicalOpts.filter(o => o.correct);
         const selectedKeys: Set<string | number> = new Set(
-          newSelected.map(sel => getStableId(sel))
+            newSelected.map(sel => getStableId(sel))
         );      
         const selectedCorrectCount = correctOpts.filter(o => selectedKeys.has(getStableId(o))).length;
-
 
         const allCorrect = selectedCorrectCount === correctOpts.length && selectedKeys.size === correctOpts.length;
         const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
@@ -3075,30 +3060,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             : `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
         this.selectionMessage = msg;
 
-        // Emit once
+        // Emit selection message once
         this._msgTok = (this._msgTok ?? 0) + 1;
         this.selectionMessageService.emitFromClick({
             index: i0,
             totalQuestions: this.totalQuestions,
             questionType: QuestionType.MultipleAnswer,
-            options: this.optionsToDisplay,
+            options: canonicalOpts,
             canonicalOptions: canonicalOpts,
             onMessageChange: m => (this.selectionMessage = m),
             token: this._msgTok
         });
 
         // Update Next button and quiz state
-        queueMicrotask(() => {
-            this.nextButtonStateService.setNextButtonState(allCorrect);
-            this.quizStateService.setAnswered(allCorrect);
-            this.quizStateService.setAnswerSelected(allCorrect);
-        });
+        this.nextButtonStateService.setNextButtonState(allCorrect);
+        this.quizStateService.setAnswered(allCorrect);
+        this.quizStateService.setAnswerSelected(allCorrect);
 
         // Highlight options
         const selectedKeySet: Set<string | number> = new Set(selectedKeys);
         requestAnimationFrame(() => {
             this.updateOptionHighlighting(i0, snapshotOpts, selectedKeySet);
         });
+
+        // Update template-bound options
+        this.optionsToDisplay = canonicalOpts;
     }
 
     // --- EXPLANATION TEXT ---
@@ -3124,8 +3110,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { this.optionSelected.emit(evtOpt); }
         finally { this._clickInProgress = false; }
     });
-}
-
+  }
 
 
 
