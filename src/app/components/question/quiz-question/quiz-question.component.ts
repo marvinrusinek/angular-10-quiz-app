@@ -2830,20 +2830,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ---- Build canonical snapshot ----
     const selectedKeys = new Set(newKeys);
-    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
-      const k = keyOf(o, idx);
+    const canonicalOpts: CanonicalOption[] = (q.options ?? []).map((o, idx) => {
+      const k = Number(keyOf(o, idx)); // force number
       const isSel = selectedKeys.has(k);
       return {
         ...o,
-        optionId: k,             // normalized string ID
+        optionId: k,        // 👈 always a number
         selected: isSel,
         showIcon: isSel,
         correct: !!o.correct,
         feedback: o.feedback ?? '',
-        styleClass: o.styleClass ?? ''
-      };
+        styleClass: o.styleClass ?? '',
+        text: o.text ?? ''
+      } as CanonicalOption;
     });
-    this.optionsToDisplay = canonicalOpts;  // icons persist
+    this.optionsToDisplay = canonicalOpts as Option[];  // icons persist
 
   
     // ---- Correctness ----
