@@ -2790,7 +2790,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // ---- Key helper (normalize everything to string) ----
     const keyOf = (o: Partial<Option>, idx?: number) =>
-      String(o?.optionId ?? (o as any)?.value ?? o?.text ?? `${o?.text}-${idx}`);
+      Number(o?.optionId ?? (o as any)?.value ?? idx);
   
     // ---- Update service map (rebuild from canonical each time) ----
     const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
@@ -2806,9 +2806,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         : [...current.map(o => keyOf(o)), clickedKey];
   
       // Rebuild selected array from canonical options
-      const newSelected = (q.options ?? [])
-        .map((o, idx) => ({ ...o, optionId: keyOf(o, idx) }))
-        .filter(o => newKeys.includes(String(o.optionId)));
+      const newSelected: SelectedOption[] = (q.options ?? [])
+      .map((o, idx) => ({
+        ...o,
+        optionId: Number(keyOf(o, idx)),
+        questionIndex: i0  // 👈 ensure it matches SelectedOption type
+      } as SelectedOption))
+      .filter(o => newKeys.includes(String(o.optionId)));
   
       selMap.set(i0, newSelected);
     } else {
