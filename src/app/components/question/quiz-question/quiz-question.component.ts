@@ -2813,9 +2813,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
       const isSel = selectedKeys.has(k);
-      return { ...o, optionId: k, selected: isSel, showIcon: isSel };
+      return {
+        ...o,
+        optionId: k,
+        selected: isSel,
+        showIcon: isSel,
+        correct: !!o.correct,
+        feedback: o.feedback ?? '',
+        styleClass: o.styleClass ?? ''
+      };
     });
-    this.optionsToDisplay = canonicalOpts; // icons persist
+    this.optionsToDisplay = canonicalOpts;  // icons persist
   
     // ---- Correctness ----
     const correctKeys = new Set(canonicalOpts.filter(o => o.correct).map((o, idx) => keyOf(o, idx)));
