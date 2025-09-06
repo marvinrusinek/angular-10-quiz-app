@@ -2004,7 +2004,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   }
 
-  public shouldShowIcon(option: Option): boolean {
+  /* public shouldShowIcon(option: Option): boolean {
     const selected = this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
     const selectedIds = selected.map(sel => sel.optionId);
   
@@ -2015,10 +2015,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   
     return selectedIds.includes(option.optionId) || !!option.showIcon;
-  }
+  } */
   /* public shouldShowIcon(option: Option): boolean {
     return !!option.selected || !!option.showIcon;
   } */
+  public shouldShowIcon(option: Option): boolean {
+    // Keep this super simple for rendering. We already set showIcon in QQC.
+    return !!option.showIcon;
+  }
   
   
 
