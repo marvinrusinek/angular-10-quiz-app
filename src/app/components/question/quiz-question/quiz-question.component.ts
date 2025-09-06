@@ -2817,6 +2817,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     this.selectedOptionService.selectedOptionsMap = selMap;
+    console.log('[QQC] selectedOptionsMap', 
+      Array.from(selMap.entries()).map(([idx, opts]) => ({
+        q: idx,
+        ids: opts.map(o => o.optionId)
+      }))
+    );
   
     // ---- Build canonical snapshot ----
     const selectedKeys = new Set(newKeys);
