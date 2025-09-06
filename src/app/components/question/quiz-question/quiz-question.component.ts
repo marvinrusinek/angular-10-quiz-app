@@ -2954,8 +2954,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Determine correctness based on persisted selection
         const selectedMap = this.selectedOptionService.selectedOptionsMap ?? new Map();
-        const selectedKeys = new Set(
-            (selectedMap.get(i0) ?? []).map(o => getStableId(o))
+        const selectedKeys: Set<string | number> = new Set(
+          (selectedMap.get(i0) ?? []).map(o => getStableId(o)) as (string | number)[]
         );
         const allCorrect = (evtOpt.correct ?? false) || 
             optionsNow.some(o => o.correct && selectedKeys.has(getStableId(o)));
@@ -2977,14 +2977,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Build canonical options for single-answer
         const canonicalOpts: CanonicalOption[] = optionsNow.map((o, idx) => ({
-            ...o,
-            correct: o.correct ?? false,
-            selected: o.selected,
-            showIcon: o.showIcon ?? false,
-            feedback: o.feedback ?? '',
-            styleClass: o.styleClass ?? '',
-            optionId: o.optionId ?? getStableId(o, idx),
-            text: o.text
+          ...o,
+          correct: o.correct ?? false,
+          selected: o.selected,
+          showIcon: o.showIcon ?? false,
+          feedback: o.feedback ?? '',
+          styleClass: o.styleClass ?? '',
+          optionId: o.optionId ?? idx, // numeric fallback
+          text: o.text
         }));
 
         // Emit selection message once
@@ -3000,9 +3000,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // Highlight options
-        const selectedKeySet = new Set(selectedKeys);
+
+        // const selectedKeys = newSelected.map(o => o.optionId ?? 0); // number
+        const selectedKeySet: Set<string | number> = selectedKeys;
+
         requestAnimationFrame(() => {
-            this.updateOptionHighlighting(i0, canonicalOpts, selectedKeySet);
+            this.updateOptionHighlighting(i0, canonicalOpts as Option[], selectedKeySet);
         });
     }
 
@@ -3020,11 +3023,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectedOptionService.selectedOptionsMap = selectedMap;
 
         // Build canonical options
-        const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
+        const canonicalOpts: CanonicalOption[] = optionsNow.map((o, idx) => {
           const isSelected = newSelected.some(sel => getStableId(sel) === getStableId(o, idx));
           return {
               ...o,
-              optionId: o.optionId ?? idx,  // numeric only
+              optionId: o.optionId ?? getStableId(o, idx), // number|string
+              selected: isSelected,
+              showIcon: isSelected,
+              correct: o.correct ?? false,
+              feedback: o.feedback ?? '',
+              styleClass: o.styleClass ?? '',
+              text: o.text
+          } as CanonicalOption;
+        });
+
+        // --- Build snapshot options for OptionService/Highlighting ---
+        const snapshotOpts: Option[] = optionsNow.map((o, idx) => {
+          const isSelected = newSelected.some(sel => getStableId(sel) === getStableId(o, idx));
+          return {
+              ...o,
+              optionId: o.optionId ?? idx,  // strictly number
               selected: isSelected,
               showIcon: isSelected,
               correct: o.correct ?? false,
@@ -3034,12 +3052,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           };
         });
       
-        this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+        this.selectionMessageService.setOptionsSnapshot(snapshotOpts);
       
 
         // Compute correctness
         const correctOpts = canonicalOpts.filter(o => o.correct);
-        const selectedKeys = new Set(newSelected.map(o => getStableId(o)));
+        const selectedKeys: (string | number)[] = newSelected.map(sel => getStableId(sel));
         const selectedCorrectCount = correctOpts.filter(o => selectedKeys.has(getStableId(o))).length;
 
         const allCorrect = selectedCorrectCount === correctOpts.length && selectedKeys.size === correctOpts.length;
@@ -3073,9 +3091,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
 
         // Highlight options
-        const selectedKeySet = new Set(selectedKeys);
+        const selectedKeySet: Set<string | number> = new Set(selectedKeys);
         requestAnimationFrame(() => {
-            this.updateOptionHighlighting(i0, canonicalOpts, selectedKeySet);
+            this.updateOptionHighlighting(i0, snapshotOpts, selectedKeySet);
         });
     }
 
