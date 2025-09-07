@@ -207,39 +207,48 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
 
-    // ───────── BEFORE ANY PICK ─────────
-    if (!anySelected) {
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const correctOpts = (opts ?? []).filter(o => !!o.correct);
       const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
       const remaining = Math.max(0, correctOpts.length - selectedCorrect);
 
+      // 🔹 Before any pick → tell user how many to find
+      if (!anySelected) {
+        return `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
+      }
+
+      // 🔹 After some picks
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
+
+      // 🔹 All required correct picked → Next or Show Results
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // ───────── SINGLE-ANSWER ─────────
+    if (!anySelected) {
+      // Q1 → START_MSG, others → CONTINUE_MSG
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+
     const picked = opts.find(o => o.selected);
 
     if (picked && !picked.correct) {
-      // Lock to incorrect message until correct is chosen
+      // 🔒 Lock to incorrect message (no flip to Next)
       return 'Select a correct answer to continue...';
     }
 
     if (picked && picked.correct) {
-      // Correct → Next/Results
+      // Correct → Next or Show Results
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
-    // Default (shouldn’t normally reach here)
+    // Fallback safety
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
   // Build message on click (correct wording and logic)
