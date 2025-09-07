@@ -729,8 +729,7 @@ export class SelectionMessageService {
     let msg = '';
 
     if (!selectedCount) {
-      // Defensive: no picks yet → leave to computeFinalMessage (START/CONTINUE)
-      msg = '';
+      return;
     } else if (isMultiSelect) {
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
 
