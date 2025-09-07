@@ -160,7 +160,7 @@ export class SelectionMessageService {
     });
   }
 
-  // Centralized, deterministic message builder
+  // Centralized, deterministic message resolver (public entry point)
   public computeFinalMessage(args: {
     index: number;
     total: number;
@@ -168,15 +168,15 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-  
+
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some((o) => !!o?.selected);
-  
+
     // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-  
+
     // ───────── AFTER A PICK ─────────
     let computedMsg = '';
     this.emitFromClick({
@@ -184,16 +184,16 @@ export class SelectionMessageService {
       totalQuestions: total,
       questionType: qType,
       options: opts,
-      canonicalOptions: opts as CanonicalOption[],
+      canonicalOptions: opts as CanonicalOption[], // align types
       onMessageChange: (m: string) => (computedMsg = m),
       token: -1
     });
-  
-    // Safety: if emitFromClick didn’t set anything, fall back
+
+    // Safety fallback: if emitFromClick didn’t set anything
     if (!computedMsg) {
       computedMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-  
+
     return computedMsg;
   }
 
