@@ -227,26 +227,23 @@ export class SelectionMessageService {
     // ───────── SINGLE-ANSWER ─────────
     const picked = opts.find(o => o.selected);
   
-    // Respect incorrect lock
-    if (this._singleAnswerIncorrectLock.has(index) && !picked?.correct) {
-      return 'Select a correct answer to continue...';
-    }
-  
-    // Respect correct lock
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Fresh evaluation if no lock yet
     if (picked?.correct) {
+      // Correct → lock correct, clear incorrect
       this._singleAnswerCorrectLock.add(index);
       this._singleAnswerIncorrectLock.delete(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    } else {
+    }
+  
+    // Incorrect → if correct not locked yet, stay incorrect
+    if (!this._singleAnswerCorrectLock.has(index)) {
       this._singleAnswerIncorrectLock.add(index);
       return 'Select a correct answer to continue...';
     }
+  
+    // If correct lock exists, never downgrade
+    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -389,61 +386,29 @@ export class SelectionMessageService {
   }
 
   // Emit a selection message based on canonical + UI state
-  public computeFinalMessage(args: {
+  public emitFromClick(params: {
     index: number;
-    total: number;
-    qType: QuestionType;
-    opts: Option[];
-  }): string {
-    const { index, total, qType, opts } = args;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];              // UI snapshot
+    canonicalOptions: CanonicalOption[]; // authoritative snapshot
+    onMessageChange?: (msg: string) => void;
+    token?: number;
+  }): void {
+    const { index, totalQuestions, questionType, options, onMessageChange } = params;
   
-    const isLast = total > 0 && index === total - 1;
-    const anySelected = (opts ?? []).some((o) => !!o?.selected);
+    // Delegate actual decision to computeFinalMessage
+    const msg = this.computeFinalMessage({
+      index,
+      total: totalQuestions,
+      qType: questionType,
+      opts: options
+    });
   
-    // ───────── BEFORE ANY PICK ─────────
-    if (!anySelected) {
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
-    // ───────── MULTI-ANSWER ─────────
-    if (qType === QuestionType.MultipleAnswer) {
-      const correctOpts = opts.filter(o => !!o.correct);
-      const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
-      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-  
-      if (this._multiAnswerLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      } else if (remainingCorrect > 0) {
-        return buildRemainingMsg(remainingCorrect);
-      } else {
-        this._multiAnswerLock.add(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-    }
-  
-    // ───────── SINGLE-ANSWER ─────────
-    const picked = opts.find(o => o.selected);
-  
-    // If previously locked as incorrect → always stay on incorrect until correct chosen
-    if (this._singleAnswerIncorrectLock.has(index) && !picked?.correct) {
-      return 'Select a correct answer to continue...';
-    }
-  
-    // If previously locked as correct → always stay on Next/Results
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Fresh evaluation
-    if (picked?.correct) {
-      this._singleAnswerCorrectLock.add(index);
-      this._singleAnswerIncorrectLock.delete(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    } else {
-      this._singleAnswerIncorrectLock.add(index);
-      return 'Select a correct answer to continue...';
-    }
-  }  
+    // Push to UI
+    if (onMessageChange) onMessageChange(msg);
+    this.selectionMessageSubject?.next(msg);
+  }
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
