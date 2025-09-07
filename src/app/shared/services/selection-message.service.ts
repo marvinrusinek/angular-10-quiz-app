@@ -206,44 +206,41 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
   
+    // Canonical total correct
+    const totalCorrect = (opts ?? []).filter(o => !!o.correct).length;
+    const selectedCorrect = (opts ?? []).filter(o => !!o.correct && !!o.selected).length;
+  
     // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
+      if (qType === QuestionType.MultipleAnswer) {
+        // Multi → show required count right away
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+      // Single → START/CONTINUE
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER ─────────
+    // ───────── MULTI ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      const correctOpts = opts.filter(o => !!o.correct);
-      const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
-      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
+      const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-  
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // ───────── SINGLE-ANSWER ─────────
+    // ───────── SINGLE ─────────
     const picked = opts.find(o => o.selected);
-  
-    if (picked?.correct) {
-      // Correct → lock correct, clear incorrect
-      this._singleAnswerCorrectLock.add(index);
-      this._singleAnswerIncorrectLock.delete(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Incorrect → if correct not locked yet, stay incorrect
-    if (!this._singleAnswerCorrectLock.has(index)) {
-      this._singleAnswerIncorrectLock.add(index);
+    if (picked && !picked.correct) {
       return 'Select a correct answer to continue...';
     }
+    if (picked && picked.correct) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
   
-    // If correct lock exists, never downgrade
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
-  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -390,14 +387,20 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];              // UI snapshot
-    canonicalOptions: CanonicalOption[]; // authoritative snapshot
+    options: Option[];              // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
-    const { index, totalQuestions, questionType, options, onMessageChange } = params;
+    const {
+      index,
+      totalQuestions,
+      questionType,
+      options,
+      onMessageChange,
+    } = params;
   
-    // Delegate actual decision to computeFinalMessage
+    // Delegate to computeFinalMessage for consistency
     const msg = this.computeFinalMessage({
       index,
       total: totalQuestions,
@@ -405,10 +408,9 @@ export class SelectionMessageService {
       opts: options
     });
   
-    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }
+  }  
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
