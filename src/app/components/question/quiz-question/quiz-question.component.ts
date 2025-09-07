@@ -2839,10 +2839,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
     if (!this.optionsToDisplay) return;
 
-    this.optionsToDisplay.forEach((opt, idx) => {
+    for (let idx = 0; idx < this.optionsToDisplay.length; idx++) {
+      const opt = this.optionsToDisplay[idx];
       const stableId = this.selectionMessageService.stableKey(opt, idx);
       const isSelected = selectedKeys.has(stableId);
-
+    
       // Apply highlighting
       if (opt.correct) {
         opt.styleClass = isSelected ? 'highlight-correct' : '';
@@ -2850,10 +2851,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } else {
         opt.styleClass = isSelected ? 'highlight-incorrect' : '';
         opt.showIcon = isSelected;
-      }
-
-      this.cdRef.markForCheck();
-    });
+      }  
+    }
+    this.cdRef.markForCheck();
   }
 
   private handleCoreSelection(ev: {
