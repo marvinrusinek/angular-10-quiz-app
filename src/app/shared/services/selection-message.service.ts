@@ -283,7 +283,7 @@ export class SelectionMessageService {
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // ✅ Correct pick → lock and never downgrade again
+        // Correct pick → lock and never downgrade again
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
@@ -307,17 +307,25 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
+      const selectedAny = (opts ?? []).some(o => o.selected);
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      if (!anySelected) {
+      // Pre-selection → always "Select N correct answers..."
+      if (!selectedAny) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
+      // If we’ve already locked completion, never downgrade
+      if (this._multiAnswerCompletionLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // Still missing some correct picks
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // ✅ Lock once all correct answers are picked
+      // Lock once all correct answers are picked
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -325,6 +333,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
