@@ -3102,7 +3102,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this._clickInProgress = false;
     });
   } */
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -3182,15 +3182,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedKeys = new Set(currentSelected.map(o => o.optionId));  // derive selectedKeys from map
 
     // Mutate existing array in place
-    this.optionsToDisplay?.forEach(opt => {
-      opt.selected = selectedKeys.has(opt.optionId!);
-      opt.showIcon = opt.selected;
+    // this.optionsToDisplay?.forEach(opt => {
+    //  opt.selected = selectedKeys.has(opt.optionId!);
+    //  opt.showIcon = opt.selected;
 
-      console.log('[ICON SYNC]', {
-        optId: opt.optionId,
-        selectedKeys: Array.from(selectedKeys)
+    //  console.log('[ICON SYNC]', {
+    //    optId: opt.optionId,
+    //    selectedKeys: Array.from(selectedKeys)
+    //  });
+    //});
+    if (this.optionsToDisplay) {
+      this.optionsToDisplay.forEach((opt, idx) => {
+        const isSel = selectedKeys.has(opt.optionId!);
+        opt.selected = isSel;
+        opt.showIcon = isSel;
+        console.log('[ICON SYNC]', {
+          optId: opt.optionId,
+          selected: isSel,
+          selectedKeys: Array.from(selectedKeys)
+        });
       });
-    });
+    }
 
     const optionSnapshot: Option[] = (q.options ?? []).map((o, idx) => {
       const k = keyOf(o, idx);
@@ -3232,7 +3244,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       index: i0,
       totalQuestions: this.totalQuestions,
       questionType: q.type,
-      options: optionSnapshot,
+      options: this.optionsToDisplay,  // optionSnapshot,
       canonicalOptions: canonicalOpts,
       onMessageChange: m => (this.selectionMessage = m),
       token: this._msgTok
@@ -3272,7 +3284,365 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.markBindingSelected(evtOpt, selectedKeys);
       this._clickInProgress = false;
     });
+  } */
+  /* public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    if (!event.option) return;
+    if (this._clickInProgress) return;
+    this._clickInProgress = true;
+  
+    const evtOpt = event.option;
+    const i0 = this.currentQuestionIndex ?? 0;
+    const q = await firstValueFrom(this.quizService.getQuestionByIndex(i0));
+    if (!q) { this._clickInProgress = false; return; }
+  
+    // ---- Key helper (stable numeric IDs only) ----
+    const keyOf = (o: Partial<Option>): number => Number(o?.optionId);
+  
+    // ---- Update service map ----
+    const selMap = this.selectedOptionService.selectedOptionsMap ?? new Map<number, SelectedOption[]>();
+    const current = selMap.get(i0) ?? [];
+    const clickedKey = keyOf(evtOpt);
+  
+    let newSelected: SelectedOption[] = [];
+  
+    if (q.type === QuestionType.MultipleAnswer) {
+      const already = current.some(o => o.optionId === clickedKey);
+  
+      if (already) {
+        // remove clicked one
+        newSelected = current.filter(o => o.optionId !== clickedKey);
+      } else {
+        // add clicked one from canonical
+        const base = q.options?.find(o => Number(o.optionId) === clickedKey);
+        newSelected = [
+          ...current,
+          {
+            optionId: clickedKey,
+            text: base?.text ?? evtOpt.text,
+            correct: base?.correct ?? evtOpt.correct,
+            feedback: base?.feedback ?? evtOpt.feedback,
+            styleClass: base?.styleClass ?? evtOpt.styleClass,
+            questionIndex: i0
+          } as SelectedOption
+        ];
+      }
+    } else {
+      // Single-answer just replaces
+      newSelected = [{
+        optionId: clickedKey,
+        text: evtOpt.text,
+        correct: evtOpt.correct,
+        feedback: evtOpt.feedback,
+        styleClass: evtOpt.styleClass,
+        questionIndex: i0
+      } as SelectedOption];
+    }
+  
+    selMap.set(i0, newSelected);
+    this.selectedOptionService.selectedOptionsMap = selMap;
+  
+    console.log('[MAP CHECK]', {
+      q: i0,
+      selectedIds: (selMap.get(i0) ?? []).map(o => o.optionId)
+    });
+  
+    // ---- Derive selectedKeys ----
+    const currentSelected = selMap.get(i0) ?? [];
+    const selectedKeys = new Set(currentSelected.map(o => o.optionId));
+  
+    // ---- Mutate existing array in place ----
+    this.optionsToDisplay?.forEach(opt => {
+      const isSel = selectedKeys.has(opt.optionId!);
+      opt.selected = isSel;
+      opt.showIcon = isSel;
+      console.log('[ICON SYNC]', {
+        optId: opt.optionId,
+        selected: isSel,
+        selectedKeys: Array.from(selectedKeys)
+      });
+    });
+  
+    // ---- Correctness ----
+    const correctKeys = new Set((q.options ?? [])
+      .filter(o => o.correct)
+      .map(o => Number(o.optionId)));
+    const selectedCorrect = [...selectedKeys].filter(k => correctKeys.has(k)).length;
+    const isMulti = q.type === QuestionType.MultipleAnswer;
+  
+    const allCorrect = isMulti
+      ? selectedCorrect === correctKeys.size && selectedKeys.size === correctKeys.size
+      : !!evtOpt.correct;
+  
+    const remainingCorrect = isMulti ? Math.max(0, correctKeys.size - selectedCorrect) : 0;
+
+    // ───────────────────────────────────────────────
+    // Determine selection message
+    // ───────────────────────────────────────────────
+    let msg = '';
+
+    if (!allCorrect && q?.type === QuestionType.SingleAnswer) {
+      // Single-answer incorrect clicks: always show same message until correct
+      msg = 'Select a correct answer to continue...';
+    } else if (allCorrect) {
+      // All correct selected
+      if (i0 === this.totalQuestions - 1) msg = 'Please click the Show Results button.';
+      else msg = 'Please click the next button to continue...';
+    } else if (isMulti && remainingCorrect > 0) {
+      msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+    }
+
+    this.selectionMessage = msg;
+  
+    // ---- Message ----
+    this._msgTok = (this._msgTok ?? 0) + 1;
+    this.selectionMessageService.emitFromClick({
+      index: i0,
+      totalQuestions: this.totalQuestions,
+      questionType: q.type,
+      options: this.optionsToDisplay, // 👈 keep same array
+      canonicalOptions: this.optionsToDisplay as CanonicalOption[], // cast for service
+      onMessageChange: m => (this.selectionMessage = m),
+      token: this._msgTok
+    });
+  
+    // ---- Next button ----
+    queueMicrotask(() => {
+      const hasSelection = selectedKeys.size > 0;
+      this.nextButtonStateService.setNextButtonState(hasSelection);
+      this.quizStateService.setAnswerSelected(hasSelection);
+      this.quizStateService.setAnswered(allCorrect);
+    });
+  
+    // ---- Explanation + highlight ----
+    requestAnimationFrame(() => {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+  
+      const cached = this._formattedByIndex?.get(i0);
+      const raw = (q.explanation ?? '').trim();
+      const txt = cached?.trim() ?? raw ?? '<span class="muted">Formatting…</span>';
+  
+      this.setExplanationFor(i0, txt);
+      this.explanationToDisplay = txt;
+      this.explanationToDisplayChange?.emit(txt);
+  
+      this.updateOptionHighlighting(i0, this.optionsToDisplay!, selectedKeys);
+  
+      this.cdRef.markForCheck?.();
+      this.cdRef.detectChanges?.();
+    });
+  
+    // ---- Cleanup ----
+    requestAnimationFrame(() => {
+      this.optionSelected.emit(evtOpt);
+      this.markBindingSelected(evtOpt, selectedKeys);
+      this._clickInProgress = false;
+    });
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+}): Promise<void> {
+    // Reset skip flag at the start of each click
+    this._skipNextAsyncUpdates = false;
+
+    // 0) Cancel pending RAF
+    if (this._pendingRAF != null) {
+        cancelAnimationFrame(this._pendingRAF);
+        this._pendingRAF = null;
+    }
+
+    // Wait if interaction is not ready yet
+    if (!this.quizStateService.isInteractionReady()) {
+        await firstValueFrom(
+            this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+        );
+    }
+
+    if (!this.currentQuestion || !this.currentOptions) return;
+
+    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const q = this.questions?.[i0];
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+
+    // ───────────────────────────────────────────────
+    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // ───────────────────────────────────────────────
+    if (
+        evtOpt &&
+        q?.type === QuestionType.SingleAnswer &&
+        !evtOpt.correct &&
+        !this._firstClickIncorrectGuard.has(i0)
+    ) {
+        // FIRST incorrect click: block any flash
+        this._firstClickIncorrectGuard.add(i0);
+        this.selectionMessage = 'Select a correct option to continue...';
+        this._skipNextAsyncUpdates = true; // prevent any async updates
+        return; // exit early, nothing else updates message yet
+    }
+
+    // ───────────────────────────────────────────────
+    // EARLY GUARD: no option selected
+    // ───────────────────────────────────────────────
+    if (evtOpt == null) {
+      this.selectionMessage = q?.type === QuestionType.SingleAnswer
+          ? 'Please select an option to continue...'
+          : 'Please start the quiz by selecting an option.';
+      return;
   }
+
+  if (this._clickGate) return;
+  this._clickGate = true;
+
+  try {
+      // 1) Update local UI selection immediately
+      const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
+          ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
+     
+          optionsNow[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+              (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          }
+  
+          // Persist selection
+          try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+  
+          // 2) Compute canonical options & stable keys
+          const getStableId = (o: Option, idx?: number) => this.selectionMessageService.stableKey(o, idx);
+          const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
+              ...o,
+              optionId: Number(o.optionId ?? getStableId(o, idx)),
+              selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+                  .some(sel => getStableId(sel) === getStableId(o))
+          }));
+          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+  
+          // 3) Compute remaining correct / allCorrect
+          const isMulti = q?.type === QuestionType.MultipleAnswer;
+          const correctOpts = canonicalOpts.filter(o => !!o.correct);
+          const selOptsSet = new Set(
+              (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
+          );
+          const selectedCorrectCount = correctOpts.filter(o => selOptsSet.has(getStableId(o))).length;
+  
+          let allCorrect = false;
+          let remainingCorrect = 0;
+  
+          if (isMulti) {
+              allCorrect = selectedCorrectCount === correctOpts.length &&
+                           selOptsSet.size === correctOpts.length;
+              remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+          } else {
+              allCorrect = !!evtOpt?.correct;
+              remainingCorrect = allCorrect ? 0 : 1;
+          }
+  
+          // ───────────────────────────────────────────────
+          // Determine selection message
+          // ───────────────────────────────────────────────
+          let msg = '';
+          if (allCorrect) {
+              // Special case: last question
+              if (i0 === this.totalQuestions - 1) msg = 'Please click the Show Results button.';
+              else msg = 'Please click the next button to continue...';
+          } else if (!isMulti && evtOpt?.correct) {
+              msg = 'Please click the next button to continue...';
+          } else if (isMulti && remainingCorrect > 0) {
+              msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+          }
+  
+          this.selectionMessage = msg;
+  
+          // ───────────────────────────────────────────────
+          // Emit selection message
+          // ───────────────────────────────────────────────
+          this._msgTok = (this._msgTok ?? 0) + 1;
+          const tok = this._msgTok;
+          this.selectionMessageService.emitFromClick({
+              index: i0,
+              totalQuestions: this.totalQuestions,
+              questionType: q?.type ?? QuestionType.SingleAnswer,
+              options: optionsNow,
+              canonicalOptions: canonicalOpts,
+              onMessageChange: (m: string) => {
+                  if (!this._firstClickIncorrectGuard.has(i0)) {
+                      this.selectionMessage = m;
+                  }
+              },
+              token: tok
+          });
+  
+          // ───────────────────────────────────────────────
+          // Update Next button & quiz state
+          // ───────────────────────────────────────────────
+          queueMicrotask(() => {
+              if (this._skipNextAsyncUpdates) return;
+              this.nextButtonStateService.setNextButtonState(allCorrect);
+              this.quizStateService.setAnswered(allCorrect);
+              this.quizStateService.setAnswerSelected(allCorrect);
+          });
+  
+          // ───────────────────────────────────────────────
+          // Update explanation & highlighting
+          // ───────────────────────────────────────────────
+          this._pendingRAF = requestAnimationFrame(() => {
+              if (this._skipNextAsyncUpdates) return;
+  
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              this.displayExplanation = true;
+              this.showExplanationChange?.emit(true);
+  
+              const cached = this._formattedByIndex?.get?.(i0);
+              const rawTrue = (q?.explanation ?? '').trim();
+              const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+  
+              this.setExplanationFor(i0, txt);
+              this.explanationToDisplay = txt;
+              this.explanationToDisplayChange?.emit(txt);
+
+              // Compute selected keys for current question
+              const selectedKeys: Set<string | number> = new Set(
+                (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o =>
+                  this.selectionMessageService.stableKey(o)
+                )
+              );
+  
+              // Update option highlighting/feedback
+              this.updateOptionHighlighting(i0, canonicalOpts, selectedKeys);
+  
+              this.cdRef.markForCheck?.();
+              this.cdRef.detectChanges?.();
+          });
+  
+          // ───────────────────────────────────────────────
+          // Post-click tasks: feedback, core selection, marking, refresh
+          // ───────────────────────────────────────────────
+          requestAnimationFrame(async () => {
+              if (this._skipNextAsyncUpdates) return;
+  
+              try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+              this.feedbackText = await this.generateFeedbackText(q);
+              await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+              this.handleCoreSelection(event);
+              if (evtOpt) this.markBindingSelected(evtOpt);
+              this.refreshFeedbackFor(evtOpt ?? undefined);
+          });
+  
+      } finally {
+          queueMicrotask(() => { this._clickGate = false; });
+      }
+  }
+  
+  
   
   
   
