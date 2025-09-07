@@ -274,39 +274,45 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-
+  
     const isLast = total > 0 && index === total - 1;
+    const isMulti = qType === QuestionType.MultipleAnswer;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-
-    // ───────── BEFORE ANY PICK ─────────
+  
+    // Defensive: no selections yet
     if (!anySelected) {
-      if (qType === QuestionType.MultipleAnswer) {
-        const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
-        return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
+      if (isMulti) {
+        // Pre-selection message for multi
+        const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
-    // ───────── AFTER A PICK ─────────
-    let computedMsg = '';
-    this.emitFromClick({
-      index,
-      totalQuestions: total,
-      questionType: qType,
-      options: opts,
-      canonicalOptions: opts as CanonicalOption[],
-      onMessageChange: (m: string) => (computedMsg = m),
-      token: -1
-    });
-
-    // Safety: if emitFromClick didn’t set anything, fall back
-    if (!computedMsg) {
-      computedMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+  
+    if (isMulti) {
+      const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
+      const selectedCorrect = (opts ?? []).filter(o => o.correct && o.selected).length;
+      const remaining = Math.max(0, totalCorrect - selectedCorrect);
+  
+      if (remaining > 0) {
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      }
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
-    return computedMsg;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    const picked = (opts ?? []).find(o => !!o.selected);
+  
+    if (picked?.correct) {
+      // Correct pick clears any incorrect lock
+      this._singleAnswerIncorrectLock.delete(index);
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    } else {
+      // Incorrect → stay locked until correct chosen
+      this._singleAnswerIncorrectLock.add(index);
+      return 'Select a correct answer to continue...';
+    }
   }
-
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
