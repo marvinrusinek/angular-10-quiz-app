@@ -76,7 +76,7 @@ export class SelectionMessageService {
   ): string {
     // Use the latest UI snapshot only to know what's selected…
     const uiSnapshot = this.getLatestOptionsSnapshot();
-
+  
     // Compute correctness from canonical question options (authoritative)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions)
@@ -88,13 +88,13 @@ export class SelectionMessageService {
         : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined) ??
       null;
-
+  
     // Resolve declared type (may be stale)
     const declaredType: QuestionType | undefined =
       q?.type ??
       this.quizService.currentQuestion?.getValue()?.type ??
       this.quizService.currentQuestion.value.type;
-
+  
     // Stable key: prefer explicit ids; fall back to value|text (no index cross-pollution)
     const keyOf = (o: any): string | number => {
       if (!o) return '__nil';
@@ -104,59 +104,49 @@ export class SelectionMessageService {
       const txt = (o.text ?? o.label ?? '').toString().trim().toLowerCase();
       return `${val}|${txt}`;
     };
-
+  
     // Build selected key set from UI snapshot…
     const selectedKeys = new Set<string | number>();
     for (let i = 0; i < uiSnapshot.length; i++) {
       const o = uiSnapshot[i];
       if (o?.selected) selectedKeys.add(keyOf(o));
     }
+  
     // …and union with SelectedOptionService (ids or objects)
     const rawSel = this.selectedOptionService?.selectedOptionsMap?.get(questionIndex);
-    if (rawSel) {
-      if (rawSel instanceof Set) {
-        for (const sel of rawSel) {
-          // sel might be a SelectedOption, so normalize to its optionId
-          const id = (sel as any)?.optionId ?? sel;
-          selectedKeys.add(id);
-        }
-      } else if (Array.isArray(rawSel)) {
-        for (const so of rawSel) {
-          selectedKeys.add(keyOf(so));
-        }
-      }
-    }
-
+    const extraKeys = this.collectSelectedKeys(rawSel, keyOf);
+    extraKeys.forEach(k => selectedKeys.add(k));
+  
     // Ensure canonical and UI snapshot share the same optionId space, enriching snapshot with canonical fields like text
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-
+  
     const priorSnapAsOpts: Option[] =
       this.getLatestOptionsSnapshotAsOptions(canonical);
-
+  
     this.ensureStableIds(
       questionIndex,
       canonical,
       this.toOptionArrayWithLookup(q?.options ?? [], canonical),
       priorSnapAsOpts
     );
-
+  
     const base: Option[] = canonical.length
       ? canonical
       : this.toOptionArrayWithLookup(uiSnapshot, canonical);
-
+  
     // Overlay selection into canonical (correct flags intact)
     const overlaid: Option[] = base.map((o, idx) => {
       const id = this.toStableId(o, idx);
       const selected = selectedKeys.has(id) || !!o.selected;
       return this.toOption(o, idx, selected);
     });
-
+  
     // If the data has >1 correct, treat as MultipleAnswer even if declared type is wrong
     const computedIsMulti = overlaid.filter((o) => !!o?.correct).length > 1;
     const qType: QuestionType = computedIsMulti
       ? QuestionType.MultipleAnswer
       : declaredType ?? QuestionType.SingleAnswer;
-
+  
     return this.computeFinalMessage({
       index: questionIndex,
       total: totalQuestions,
