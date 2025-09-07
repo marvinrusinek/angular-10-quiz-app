@@ -426,21 +426,47 @@ export class SelectionMessageService {
       totalQuestions,
       questionType,
       options,
+      canonicalOptions,
       onMessageChange,
     } = params;
   
-    // Ask computeFinalMessage for the "official" message
-    let msg = this.computeFinalMessage({
-      index,
-      total: totalQuestions,
-      qType: questionType,
-      opts: options
-    });
+    const isMultiSelect = questionType === QuestionType.MultipleAnswer;
   
-    // Guard: prevent flip-flop for single-answer incorrect picks
-    if (questionType === QuestionType.SingleAnswer) {
-      const picked = options.find(o => o.selected);
-      if (picked && !picked.correct) {
+    // How many are correct in canonical set
+    const correctOpts = canonicalOptions.filter(o => !!o.correct);
+  
+    // Count how many correct answers have been selected so far
+    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+  
+    // Count how many total selections are currently made
+    const selectedCount = (options ?? []).filter(o => !!o.selected).length;
+  
+    let msg = '';
+  
+    if (!selectedCount) {
+      // Defensive: no picks yet, don’t override START/CONTINUE
+      return;
+    }
+  
+    if (isMultiSelect) {
+      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+  
+      if (remainingCorrect > 0) {
+        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+    } else {
+      // ───────── SINGLE-ANSWER ─────────
+      const picked = canonicalOptions.find(o => o.selected);
+  
+      if (picked?.correct) {
+        // ✅ Correct answer clears the lock and allows Next/Results
+        this._singleAnswerIncorrectLock.delete(index);
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      } else {
+        // ❌ Incorrect answer → lock persists until a correct choice
+        this._singleAnswerIncorrectLock.add(index);
         msg = 'Select a correct answer to continue...';
       }
     }
@@ -448,7 +474,7 @@ export class SelectionMessageService {
     // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }  
+  }
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
