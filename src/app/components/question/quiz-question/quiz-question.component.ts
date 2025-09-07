@@ -3593,22 +3593,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
-        if (q?.type === QuestionType.SingleAnswer && !evtOpt?.correct) {
-          // Always force incorrect singles to show this message
-          this.selectionMessage = 'Select a correct answer to continue...';
-
+        if (!this._singleIncorrectLock.has(i0)) {
           this.selectionMessageService.emitFromClick({
-              index: i0,
-              totalQuestions: this.totalQuestions,
-              questionType: q?.type ?? QuestionType.SingleAnswer,
-              options: optionsNow,
-              canonicalOptions: canonicalOpts,
-              onMessageChange: (m: string) => {
+            index: i0,
+            totalQuestions: this.totalQuestions,
+            questionType: q?.type ?? QuestionType.SingleAnswer,
+            options: optionsNow,
+            canonicalOptions: canonicalOpts,
+            onMessageChange: (m: string) => {
+              // Double guard
+              if (!this._singleIncorrectLock.has(i0)) {
                 this.selectionMessage = m;
-              },
-              token: tok
+              }
+            },
+            token: tok
           });
         }
+        
         // ───────────────────────────────────────────────
         // Update Next button & quiz state
         // ───────────────────────────────────────────────
