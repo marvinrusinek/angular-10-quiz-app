@@ -2841,31 +2841,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     canonicalOptions: Option[],
     selectedKeys: Set<string | number>
   ): void {
-      if (!this.optionsToDisplay) return;
+    if (!this.optionsToDisplay) return;
 
-      this.optionsToDisplay.forEach((opt, idx) => {
-          const stableId = this.selectionMessageService.stableKey(opt, idx);
+    this.optionsToDisplay.forEach((opt, idx) => {
+      const stableId = this.selectionMessageService.stableKey(opt, idx);
+      const isSelected = selectedKeys.has(stableId);
 
-          const isSelected = selectedKeys.has(stableId);
+      // Apply highlighting
+      if (opt.correct) {
+        opt.styleClass = isSelected ? 'highlight-correct' : '';
+        opt.showIcon = isSelected;
+      } else {
+        opt.styleClass = isSelected ? 'highlight-incorrect' : '';
+        opt.showIcon = isSelected;
+      }
 
-          // ───────────────────────────────────────────────
-          // Apply highlighting
-          // ───────────────────────────────────────────────
-          if (opt.correct) {
-              opt.styleClass = isSelected ? 'highlight-correct' : '';
-              opt.showIcon = isSelected;
-          } else {
-              opt.styleClass = isSelected ? 'highlight-incorrect' : '';
-              opt.showIcon = isSelected;
-          }
-
-          // Optional: show feedback if your template uses it
-          // opt.showFeedback = this.isLastSelectedOption(opt);
-
-          this.cdRef.markForCheck?.();
-      });
+      this.cdRef.markForCheck?.();
+    });
   }
-
 
   private handleCoreSelection(ev: {
     option: SelectedOption;
