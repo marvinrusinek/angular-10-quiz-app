@@ -267,7 +267,7 @@ export class SelectionMessageService {
     // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   } */
-  // Centralized, deterministic selection message resolver
+  // Central, deterministic message builder with lock enforcement
   public computeFinalMessage(args: {
     index: number;
     total: number;
@@ -275,60 +275,56 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-
-    // -------------------- PRE-SELECTION --------------------
-    if (!anySelected) {
-      const totalCorrect = (opts ?? []).filter(o => !!o.correct).length;
-      if (qType === QuestionType.MultipleAnswer && totalCorrect > 1) {
-        // Before any picks in multi-answer → "Select N correct answers…"
-        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      }
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-
-    // -------------------- MULTI-ANSWER --------------------
-    if (qType === QuestionType.MultipleAnswer) {
-      const correctOpts = (opts ?? []).filter(o => !!o.correct);
-      const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
-
-      // Lock once all correct have been chosen
-      if (this._multiAnswerCompletionLock.has(index)) {
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      const picked = (opts ?? []).find(o => !!o.selected);
+  
+      if (picked?.correct) {
+        // ✅ Correct pick → lock and never downgrade again
+        this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
-      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
+  
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        // Already marked as incorrect → enforce this message
+        return 'Select a correct answer to continue...';
+      }
+  
+      if (picked && !picked.correct) {
+        // First incorrect pick → lock
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+  
+      // No pick yet
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
+      const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
+      const remaining = Math.max(0, totalCorrect - selectedCorrect);
+  
+      if (!anySelected) {
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+  
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-
-      // All correct picked → lock for this question
+  
+      // ✅ Lock once all correct answers are picked
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
-    // -------------------- SINGLE-ANSWER --------------------
-    const picked = (opts ?? []).find(o => !!o.selected);
-
-    if (picked?.correct) {
-      // Correct → always lock to Next/Results, never downgrade
-      this._singleAnswerIncorrectLock.delete(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-
-    // Incorrect single-answer pick
-    if (!this._singleAnswerIncorrectLock.has(index)) {
-      // First incorrect → lock message until a correct is picked
-      this._singleAnswerIncorrectLock.add(index);
-      return 'Select a correct answer to continue...';
-    }
-
-    // Already locked on incorrect → persist message
-    return 'Select a correct answer to continue...';
+  
+    // Default fallback
+    return NEXT_BTN_MSG;
   }
-
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
