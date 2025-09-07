@@ -59,7 +59,11 @@ export class SelectionMessageService {
 
   // Track which questions have been "locked" once correct is chosen
   private _singleAnswerCorrectLock = new Set<number>();
-  private _singleAnswerIncorrectLock = new Set<number>();
+  // Track first incorrect pick on single-answer until a correct is chosen
+  private _singleAnswerIncorrectLock: Set<number> = new Set<number>();
+  // Track when a multi-answer question has been fully satisfied (all correct picked)
+  private _multiAnswerCompletionLock: Set<number> = new Set<number>();
+
   private _multiAnswerLock = new Set<number>();
 
   // Track first incorrect clicks on single-answer questions
