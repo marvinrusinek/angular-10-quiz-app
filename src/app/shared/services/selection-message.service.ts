@@ -121,8 +121,7 @@ export class SelectionMessageService {
         rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
     } catch {}
 
-    // Ensure canonical and UI snapshot share the same optionId space
-    // Use canonical to enrich snapshot → options (for fields like text)
+    // Ensure canonical and UI snapshot share the same optionId space, enriching snapshot with canonical fields like text
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
 
     const priorSnapAsOpts: Option[] =
