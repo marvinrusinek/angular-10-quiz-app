@@ -435,53 +435,69 @@ export class SelectionMessageService {
     } = params;
   
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-    const isLast = index === totalQuestions - 1;
   
+    // How many are correct in canonical set
     const correctOpts = canonicalOptions.filter(o => !!o.correct);
+  
+    // Count how many correct answers have been selected so far
     const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+  
+    // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
+  
+    const isLast = index === totalQuestions - 1;
   
     let msg = '';
   
-    // ───────── MULTI-ANSWER ─────────
-    if (isMultiSelect) {
-      if (!selectedCount) {
-        // Before any pick → show how many are required
-        msg = `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
-      } else if (this._multiAnswerCompletionLock.has(index)) {
+    // ───────── SINGLE-ANSWER INCORRECT LOCK ─────────
+    if (!isMultiSelect && this._singleAnswerIncorrectLock.has(index)) {
+      const picked = canonicalOptions.find(o => o.selected);
+      if (picked?.correct) {
+        // ✅ Unlock once a correct is picked
+        this._singleAnswerIncorrectLock.delete(index);
         msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        const remaining = Math.max(0, correctOpts.length - selectedCorrectCount);
-        if (remaining > 0) {
-          msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-        } else {
-          this._multiAnswerCompletionLock.add(index);
-          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
+        // 🔒 Stay locked regardless of “click-off” or 0 selections
+        msg = 'Select a correct answer to continue...';
+      }
+  
+      if (onMessageChange) onMessageChange(msg);
+      this.selectionMessageSubject?.next(msg);
+      return; // ⬅️ Critical: don’t fall through to START/CONTINUE/Next
+    }
+  
+    // ───────── EARLY GUARD (no selections yet) ─────────
+    if (!selectedCount) {
+      if (isMultiSelect) {
+        const remainingCorrect = correctOpts.length;
+        msg = `Select ${remainingCorrect} correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        msg = index === 0 ? START_MSG : CONTINUE_MSG;
+      }
+      if (onMessageChange) onMessageChange(msg);
+      this.selectionMessageSubject?.next(msg);
+      return;
+    }
+  
+    if (isMultiSelect) {
+      // ───────── MULTI-ANSWER ─────────
+      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+  
+      if (remainingCorrect > 0) {
+        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     } else {
       // ───────── SINGLE-ANSWER ─────────
       const picked = canonicalOptions.find(o => o.selected);
   
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        if (picked?.correct) {
-          // unlock once a correct is picked
-          this._singleAnswerIncorrectLock.delete(index);
-          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        } else {
-          // 🔒 stay locked to incorrect message
-          msg = 'Select a correct answer to continue...';
-        }
-      } else {
-        if (!selectedCount) {
-          msg = index === 0 ? START_MSG : CONTINUE_MSG;
-        } else if (picked && !picked.correct) {
-          // first incorrect click → set lock
-          this._singleAnswerIncorrectLock.add(index);
-          msg = 'Select a correct answer to continue...';
-        } else if (picked?.correct) {
-          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
+      if (picked && !picked.correct) {
+        // First incorrect → set lock
+        this._singleAnswerIncorrectLock.add(index);
+        msg = 'Select a correct answer to continue...';
+      } else if (picked?.correct) {
+        msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     }
   
