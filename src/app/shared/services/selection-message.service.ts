@@ -210,63 +210,56 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
+
+    // ───────── ENFORCE LOCKS FIRST ─────────
+    if (this._multiAnswerCompletionLock.has(index)) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+    if (this._singleAnswerCorrectLock.has(index)) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+    if (this._singleAnswerIncorrectLock.has(index)) {
+      return 'Select a correct answer to continue...';
+    }
 
     // ───────── PRE-SELECTION ─────────
     if (!anySelected) {
       if (qType === QuestionType.MultipleAnswer) {
-        // Multi-answer → show total correct upfront
         const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
+        // Always show N correct upfront
         return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
       }
-      // Single-answer → show START/CONTINUE
+      // Single-answer: show start/continue
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
-      const selectedCorrect = (opts ?? []).filter(o => !!o?.correct && !!o?.selected).length;
+      const selectedCorrect = (opts ?? []).filter(o => o.correct && o.selected).length;
       const remaining = Math.max(0, correctCount - selectedCorrect);
-
-      // Already locked → enforce permanently
-      if (this._multiAnswerCompletionLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
 
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
 
-      // All required correct answers selected → lock it
+      // Lock once all correct are chosen
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // ───────── SINGLE-ANSWER ─────────
-    const lastPick = (opts ?? []).find(o => !!o?.selected);
-
-    // If already locked correct → enforce permanently
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-
-    // If already locked incorrect → enforce until corrected
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      return 'Select a correct answer to continue...';
-    }
+    const lastPick = (opts ?? []).find(o => o.selected);
 
     if (lastPick?.correct) {
-      // Correct → lock correct permanently
       this._singleAnswerCorrectLock.add(index);
       this._singleAnswerIncorrectLock.delete(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     if (lastPick && !lastPick.correct) {
-      // Incorrect → lock incorrect permanently until corrected
       this._singleAnswerIncorrectLock.add(index);
       return 'Select a correct answer to continue...';
     }
@@ -274,6 +267,7 @@ export class SelectionMessageService {
     // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
 
