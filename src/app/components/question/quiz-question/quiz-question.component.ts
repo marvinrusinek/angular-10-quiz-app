@@ -3592,7 +3592,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             totalQuestions: this.totalQuestions,
             questionType: q?.type ?? QuestionType.SingleAnswer,
             options: optionsNow,
-            canonicalOptions: canonicalOpts,
+            canonicalOptions: canonicalOpts as CanonicalOption[],
             onMessageChange: (m: string) => {
               // Double guard
               if (!this._singleIncorrectLock.has(i0)) {
