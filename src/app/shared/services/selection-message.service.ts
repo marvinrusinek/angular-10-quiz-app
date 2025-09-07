@@ -280,25 +280,28 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // If already locked correct → never downgrade
-      if (this._singleAnswerCorrectLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // ✅ Correct always overrides incorrect
-        this._singleAnswerIncorrectLock.delete(index); // clear incorrect if it was set
-        this._singleAnswerCorrectLock.add(index);      // lock correct
+        // ✅ Correct pick always overrides incorrect
+        this._singleAnswerIncorrectLock.delete(index);
+        this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
+      if (this._singleAnswerCorrectLock.has(index)) {
+        // Correct lock persists
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        // Incorrect lock persists until a correct pick happens
+        return 'Select a correct answer to continue...';
+      }
+  
       if (picked && !picked.correct) {
-        // 🚫 First incorrect pick → lock if no correct yet
-        if (!this._singleAnswerCorrectLock.has(index)) {
-          this._singleAnswerIncorrectLock.add(index);
-        }
+        // 🚫 First incorrect → set lock
+        this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
   
@@ -313,16 +316,14 @@ export class SelectionMessageService {
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
       if (!anySelected) {
-        // Pre-selection → show how many need to be picked
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
       if (remaining > 0) {
-        // Still missing some correct picks
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // All correct picked → lock so it never downgrades
+      // Lock once all correct answers are picked
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -330,9 +331,6 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
-  
-  
-  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
