@@ -243,6 +243,15 @@ export class SelectionMessageService {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
+    if (!isMulti) {
+      const lastPick = (opts ?? []).find(o => !!o?.selected);
+      if (lastPick && !lastPick.correct) {
+        // Force incorrect single-answer message
+        return 'Select a correct answer to continue...';
+      }
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+
     // Single-answer → immediately Next/Results
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
