@@ -1372,4 +1372,27 @@ export class SelectionMessageService {
     // If no match found, return 0 (no expected number)
     return 0;
   }
+
+  // Helper: normalize rawSel into a Set of keys
+  private collectSelectedKeys(
+    rawSel: Set<any> | any[] | undefined,
+    keyOf: (o: any) => string | number
+  ): Set<string | number> {
+    const keys = new Set<string | number>();
+    if (!rawSel) return keys;
+
+    if (rawSel instanceof Set) {
+      for (const sel of rawSel) {
+        // sel might be a SelectedOption, so normalize to its optionId
+        const id = (sel as any)?.optionId ?? sel;
+        keys.add(id);
+      }
+    } else if (Array.isArray(rawSel)) {
+      for (const so of rawSel) {
+        keys.add(keyOf(so));
+      }
+    }
+
+    return keys;
+  }
 }
