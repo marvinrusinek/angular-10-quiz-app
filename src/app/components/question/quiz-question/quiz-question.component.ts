@@ -2659,7 +2659,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     if (!this.currentQuestion || !this.currentOptions) return;
 
-    const i0 = this.normalizeIndex?.(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
@@ -2804,7 +2804,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.displayExplanation = true;
         this.showExplanationChange?.emit(true);
 
-        const cached = this._formattedByIndex?.get?.(i0);
+        const cached = this._formattedByIndex.get(i0);
         const rawTrue = (q?.explanation ?? '').trim();
         const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
 
