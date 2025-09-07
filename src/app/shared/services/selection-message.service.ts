@@ -624,20 +624,6 @@ export class SelectionMessageService {
     return undefined;
   }
 
-  // Key that survives reorder/clone/missing ids (NO index fallback)
-  private keyOf(o: any): string {
-    if (!o) return '__nil';
-    const id = o.optionId ?? o.id;
-    if (id != null) return `id:${String(id)}`;
-    const v = String(o.value ?? '')
-      .trim()
-      .toLowerCase();
-    const t = String(o.text ?? o.label ?? '')
-      .trim()
-      .toLowerCase();
-    return `vt:${v}|${t}`;
-  }
-
   public registerClick(
     index: number,
     optionId: number | string,
@@ -652,11 +638,6 @@ export class SelectionMessageService {
     }
     if (wasCorrect && selectedNow) set.add(key);
     if (!selectedNow) set.delete(key);
-  }
-
-  // Clear when navigating to a different question
-  public clearObservedFor(index: number): void {
-    this.observedCorrectIds.delete(index);
   }
 
   // Read side used elsewhere in your code
@@ -776,19 +757,6 @@ export class SelectionMessageService {
       feedback: typeof o?.feedback === 'string' ? o.feedback : '',
       styleClass: typeof o?.styleClass === 'string' ? o.styleClass : '',
     } as Option;
-  }
-
-  // Coerce (Option[] | OptionSnapshot[]) -> Option[]
-  private toOptionArray(
-    input: Option[] | OptionSnapshot[] | null | undefined
-  ): Option[] {
-    if (!input || !Array.isArray(input) || input.length === 0) return [];
-    if (this.isOptionArray(input)) return input as Option[];
-    if (this.isSnapshotArray(input))
-      return (input as OptionSnapshot[]).map((s) =>
-        this.mapSnapshotToOption(s)
-      );
-    return [];
   }
 
   private optionToSnapshot(o: Option, idx?: number): OptionSnapshot {
