@@ -3560,16 +3560,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Determine selection message
         let msg = '';
-        if (allCorrect) {
+        if (isMulti) {
+          if (allCorrect) {
             msg = isLastQuestion
-                ? 'Please click the Show Results button.'
-                : 'Please click the next button to continue...';
-        } else if (!isMulti && !evtOpt?.correct) {
-            msg = 'Select a correct answer to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
+              ? 'Please click the Show Results button.'
+              : 'Please click the next button to continue...';
+          } else {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
-        } else if (!isMulti && evtOpt?.correct) {
-            msg = 'Please click the next button to continue...';
+          }
+        } else {
+          // Single-answer: ALWAYS show "Select..." if clicked option is incorrect
+          if (evtOpt?.correct) {
+            msg = isLastQuestion
+              ? 'Please click the Show Results button.'
+              : 'Please click the next button to continue...';
+          } else {
+            msg = 'Select a correct answer to continue...';
+          }
         }
 
         // Immediately set it locally
@@ -3581,7 +3588,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
 
-        if (!(q?.type === QuestionType.SingleAnswer && !evtOpt?.correct)) {
+        if (q?.type === QuestionType.SingleAnswer && !evtOpt?.correct) {
+          // Always force incorrect singles to show this message
+          this.selectionMessage = 'Select a correct answer to continue...';
+
           this.selectionMessageService.emitFromClick({
               index: i0,
               totalQuestions: this.totalQuestions,
@@ -3589,12 +3599,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               options: optionsNow,
               canonicalOptions: canonicalOpts,
               onMessageChange: (m: string) => {
-                // If we flagged "suppress once", ignore this emission only for this click.
-                  if (suppressMessageFromServiceOnce) return;
-                  // Otherwise, if guard is cleared (or was never set), allow update.
-                  if (!this._firstClickIncorrectGuard.has(i0)) {
-                      this.selectionMessage = m;
-                  }
+                this.selectionMessage = m;
               },
               token: tok
           });
