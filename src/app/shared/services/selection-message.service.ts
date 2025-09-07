@@ -209,42 +209,58 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-  
+
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-  
+
     // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
+      if (qType === QuestionType.MultipleAnswer) {
+        // Multi-answer → show how many correct answers are expected
+        const correctOpts = opts.filter(o => !!o.correct);
+        const remaining = correctOpts.length;
+        return buildRemainingMsg(remaining);  // e.g., "Select 2 correct answers to continue..."
+      }
+      // Single-answer → START/CONTINUE
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-  
-    // ───────── MULTI-ANSWER ─────────
-    if (qType === QuestionType.MultipleAnswer) {
+
+    // ───────── AFTER A PICK ─────────
+    const isMulti = qType === QuestionType.MultipleAnswer;
+
+    if (isMulti) {
+      // How many correct picks remain
       const correctOpts = opts.filter(o => !!o.correct);
-      const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
-      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
-  
+      const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+      const remaining = Math.max(0, correctOpts.length - selectedCorrectCount);
+
+      // HARD GATE: never show Next/Results while any correct answers are still missing
       if (remaining > 0) {
         return buildRemainingMsg(remaining);
       }
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+      // All required correct answers picked
+      if (isLast) return SHOW_RESULTS_MSG;
+      return NEXT_BTN_MSG;
     }
-  
+
     // ───────── SINGLE-ANSWER ─────────
-    const picked = opts.find(o => !!o?.selected);
-  
-    // Respect the incorrect lock
-    if (this._singleAnswerIncorrectLock.has(index)) {
+    const picked = opts.find(o => !!o.selected);
+
+    if (picked && !picked.correct) {
+      // Force incorrect single-answer message
       return 'Select a correct answer to continue...';
     }
-  
+
+    // Correct pick → lock to Next/Results, never downgrade
     if (picked?.correct) {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-  
-    // Default: incorrect single-answer
-    return 'Select a correct answer to continue...';
+
+    // Fallback (defensive, shouldn’t normally hit)
+    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
