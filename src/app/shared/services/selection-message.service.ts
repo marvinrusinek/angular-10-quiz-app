@@ -190,7 +190,7 @@ export class SelectionMessageService {
       : [];
     const totalCorrect = canonical.filter((o) => !!o?.correct).length;
   
-    // Expected-correct override (prefer explicit store; fall back to content if available)
+    // expected-correct override
     const expectedFromContent =
       typeof (q as any)?.expectedCorrect === 'number' &&
       (q as any).expectedCorrect > 0
@@ -202,19 +202,19 @@ export class SelectionMessageService {
     const expectedOverride =
       this.getExpectedCorrectCount(index) ?? expectedFromContent;
   
-    // UPDATED isMulti to also honor override (>1 implies multi even if canonical/declared are wrong)
+    // isMulti updated
     const isMulti =
       totalCorrect > 1 ||
       qType === QuestionType.MultipleAnswer ||
       (expectedOverride ?? 0) > 1;
   
-    // Count selected CORRECT picks (not just total selections)
+    // Count selected CORRECT picks
     const selectedCorrect = (opts ?? []).reduce(
       (n, o) => n + (!!o?.correct && !!o?.selected ? 1 : 0),
       0
     );
   
-    // If we have an override, use it as the authoritative remaining; else use canonical
+    // authoritative remaining
     const overrideRemaining =
       expectedOverride != null
         ? Math.max(0, expectedOverride - selectedCorrect)
@@ -223,34 +223,35 @@ export class SelectionMessageService {
     const enforcedRemaining =
       expectedOverride != null ? (overrideRemaining as number) : remaining;
   
-    // BEFORE ANY PICK:
-    // Always show START/CONTINUE until the first selection
+    // BEFORE ANY PICK
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
     if (isMulti) {
-      // HARD GATE: never show Next/Results while any enforced remaining > 0
       if (enforcedRemaining > 0) {
         return buildRemainingMsg(enforcedRemaining);
       }
-      // LAST QUESTION OVERRIDE
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      // ✅ If last question AND all correct, show results
+      const allCorrect =
+        selectedCorrect === totalCorrect && (opts ?? []).filter(o => o.selected).length === totalCorrect;
+      return isLast && allCorrect ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
+    // Single-answer
     if (!isMulti) {
       const lastPick = (opts ?? []).find(o => !!o?.selected);
       if (lastPick && !lastPick.correct) {
-        // Force incorrect single-answer message
         return 'Select a correct answer to continue...';
       }
-      // LAST QUESTION OVERRIDE
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      // ✅ If last question AND correct answer, show results
+      return isLast && lastPick?.correct ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
