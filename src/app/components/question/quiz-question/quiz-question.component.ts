@@ -2813,7 +2813,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplayChange.emit(txt);
 
         // Update option highlighting/feedback
-        this.updateOptionHighlighting(i0, canonicalOpts, selOptsSet);
+        this.updateOptionHighlighting(selOptsSet);
 
         this.cdRef.markForCheck();
         this.cdRef.detectChanges();
@@ -2836,11 +2836,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   // Updates the highlighting and feedback icons for options after a click
-  private updateOptionHighlighting(
-    clickedIndex: number,
-    canonicalOptions: Option[],
-    selectedKeys: Set<string | number>
-  ): void {
+  private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
     if (!this.optionsToDisplay) return;
 
     this.optionsToDisplay.forEach((opt, idx) => {
@@ -2856,7 +2852,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         opt.showIcon = isSelected;
       }
 
-      this.cdRef.markForCheck?.();
+      this.cdRef.markForCheck();
     });
   }
 
