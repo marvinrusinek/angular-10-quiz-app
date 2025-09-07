@@ -156,7 +156,7 @@ export class SelectionMessageService {
       index: questionIndex,
       total: totalQuestions,
       qType,
-      opts: overlaid,
+      opts: overlaid
     });
   }
 
@@ -167,6 +167,7 @@ export class SelectionMessageService {
     qType: QuestionType;
     opts: Option[];
   }): string {
+    console.log("MY COMPUTE FINAL MESSAGE");
     const { index, total, qType, opts } = args;
   
     const isLast = total > 0 && index === total - 1;
@@ -784,7 +785,7 @@ export class SelectionMessageService {
     index: number,
     totalQuestions: number,
     questionType: QuestionType,
-    options: Option[],  // UI copy with latest selected flags
+    options: Option[],              // UI copy with latest selected flags
     canonicalOptions: CanonicalOption[],  // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void,
     token?: number;
@@ -798,50 +799,57 @@ export class SelectionMessageService {
       onMessageChange,
       token,
     } = params;
-
-    // ───────────────────────────────────────────────
-    // 1) Compute selected & correct counts deterministically
-    // ───────────────────────────────────────────────
+  
+    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-
+  
+    // ───────────────────────────────────────────────
+    // 1) Compute correctness deterministically
+    // ───────────────────────────────────────────────
     const correctOpts = canonicalOptions.filter((o) => !!o.correct);
     const selectedCorrectCount = correctOpts.filter((o) => !!o.selected).length;
-
+    const totalCorrect = correctOpts.length;
+  
     let allCorrect: boolean;
     let remainingCorrect: number;
-
+  
     if (isMultiSelect) {
-      allCorrect = selectedCorrectCount === correctOpts.length;
-      remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+      allCorrect = selectedCorrectCount === totalCorrect &&
+                   options.filter(o => o.selected).length === totalCorrect;
+      remainingCorrect = Math.max(0, totalCorrect - selectedCorrectCount);
     } else {
       allCorrect = selectedCorrectCount === 1;
       remainingCorrect = allCorrect ? 0 : 1;
     }
-
+  
     // ───────────────────────────────────────────────
     // 2) Determine message
     // ───────────────────────────────────────────────
     let msg = '';
     if (allCorrect) {
-      msg = 'Please click the next button to continue...';
+      // ✅ Correct path depends on last question
+      msg = isLast
+        ? SHOW_RESULTS_MSG
+        : NEXT_BTN_MSG;
     } else if (!isMultiSelect && remainingCorrect === 1) {
-      msg = 'Select the correct answer to continue...';
+      msg = 'Select a correct answer to continue...';
     } else if (isMultiSelect && remainingCorrect > 0) {
-      msg = `Select ${remainingCorrect} more correct answer${
-        remainingCorrect > 1 ? 's' : ''
-      } to continue...`;
+      msg = buildRemainingMsg(remainingCorrect);
+    } else {
+      // Fallback: continue/start copy
+      msg = index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
+  
     // ───────────────────────────────────────────────
     // 3) Emit message immediately for UI
     // ───────────────────────────────────────────────
     if (onMessageChange) onMessageChange(msg);
-
-    // Optional: persist message in service for other subscribers
+  
     if (this.selectionMessageSubject) {
       this.selectionMessageSubject.next(msg);
     }
   }
+  
 
   /* ================= helpers ================= */
   private textKey(s: any): string {
