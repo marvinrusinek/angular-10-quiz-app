@@ -3645,7 +3645,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           if (evtOpt) this.markBindingSelected(evtOpt);
           this.refreshFeedbackFor(evtOpt ?? undefined);
         });
-
     } finally {
       queueMicrotask(() => { this._clickGate = false; });
     }
@@ -3716,25 +3715,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Mark the binding and repaint highlight
-  private markBindingSelected(opt: Option, selectedKeys: Set<string | number>): void {
-    this.optionBindings.forEach((b) => {
-      const isSel = selectedKeys.has(b.option.optionId);
+  private markBindingSelected(opt: Option): void {
+    // Rebuild selectedKeys from the service map for current question
+    const currentSelected =
+      this.selectedOptionService.selectedOptionsMap.get(this.currentQuestionIndex) ?? [];
+    const selectedKeys = new Set(currentSelected.map(o => o.optionId));
   
-      // Sync both binding flags AND the option object flags
-      b.isSelected = isSel;
-      b.option.selected = isSel;
-      b.option.showIcon = isSel;
+    const b = this.optionBindings.find(x => x.option.optionId === opt.optionId);
+    if (!b) return;
   
-      // Feedback: only on the last clicked option
-      b.showFeedback = b.option.optionId === opt.optionId;
+    // Update binding based on whether this option is still selected
+    b.isSelected = selectedKeys.has(opt.optionId!);
+    b.showFeedback = true;
   
-      this.updateOptionBinding(b);
-      b.directiveInstance?.updateHighlight();
-    });
-  
-    this.cdRef.markForCheck();
-    this.cdRef.detectChanges();
-  }
+    this.updateOptionBinding(b);
+    b.directiveInstance?.updateHighlight();
+  }  
 
   // Keep feedback only for the clicked row
   private refreshFeedbackFor(opt: Option): void {
