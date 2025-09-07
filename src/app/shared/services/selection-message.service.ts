@@ -719,12 +719,13 @@ export class SelectionMessageService {
     3: 3,  // Q4 is zero-based index 3; change if your index differs
   };
 
+  // Emit a selection message based on canonical + UI state
   public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];
-    canonicalOptions: CanonicalOption[];
+    options: Option[];  // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[];  // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
@@ -736,40 +737,50 @@ export class SelectionMessageService {
       canonicalOptions,
       onMessageChange,
     } = params;
-  
+
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-  
+
+    // How many are correct in canonical set
     const correctOpts = canonicalOptions.filter((o) => !!o.correct);
+
+    // Count how many correct answers have been selected so far
     const selectedCorrectCount = correctOpts.filter((o) => !!o.selected).length;
+
+    // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
-  
+
     let msg = '';
-  
+
     if (!selectedCount) {
-      // Defensive: no picks yet, don't override computeFinalMessage's START/CONTINUE
+      // Defensive: no picks yet → leave to computeFinalMessage (START/CONTINUE)
       msg = '';
     } else if (isMultiSelect) {
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-  
+
       if (remainingCorrect > 0) {
+        // Still missing correct picks → show "Select N more…"
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
+        // All required correct answers found
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     } else {
-      // single-answer
-      msg = correctOpts.some(o => o.selected)
-        ? (index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
-        : 'Select a correct answer to continue...';
+      // ───────── SINGLE-ANSWER ─────────
+      if (correctOpts.some(o => o.selected)) {
+        // Correct pick made
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      } else {
+        // Incorrect pick
+        msg = 'Select a correct answer to continue...';
+      }
     }
-  
+
+    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }
-  
-  
+  }  
 
-  /* ================= helpers ================= */
+  /* ================= Helpers ================= */
   private textKey(s: any): string {
     return (typeof s === 'string' ? s : '')
       .trim()
