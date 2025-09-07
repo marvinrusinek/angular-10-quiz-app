@@ -268,6 +268,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Tracks question indices for which the first incorrect click occurred
   private _firstClickIncorrectGuard = new Set<number>();
   private _skipNextAsyncUpdates = false;
+  private _singleIncorrectLock = new Set<number>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -3528,7 +3529,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
 
         // 3) Compute remaining correct / allCorrect
+        const isSingle = q?.type === QuestionType.SingleAnswer;
         const isMulti = q?.type === QuestionType.MultipleAnswer;
+
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
             (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
@@ -3555,11 +3558,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         // Determine selection message (Q6 special case)
         // ───────────────────────────────────────────────
-        // Determine if this is the last question
-        const isLastQuestion = i0 === this.totalQuestions - 1;
-
         // Determine selection message
         let msg = '';
+        const isLastQuestion = i0 === this.totalQuestions - 1;
+        
         if (isMulti) {
           if (allCorrect) {
             msg = isLastQuestion
@@ -3568,14 +3570,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           } else {
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
           }
-        } else {
-          // Single-answer: ALWAYS show "Select..." if clicked option is incorrect
+        } else if (isSingle) {
           if (evtOpt?.correct) {
             msg = isLastQuestion
               ? 'Please click the Show Results button.'
               : 'Please click the next button to continue...';
+            // Unlock if correct
+            this._singleIncorrectLock.delete(i0);
           } else {
             msg = 'Select a correct answer to continue...';
+            // Lock until a correct pick is made
+            this._singleIncorrectLock.add(i0);
           }
         }
 
