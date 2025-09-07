@@ -353,52 +353,61 @@ export class SelectionMessageService {
       canonicalOptions,
       onMessageChange,
     } = params;
-  
+
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-  
+
+    // How many are correct in canonical set
     const correctOpts = canonicalOptions.filter(o => !!o.correct);
+
+    // Count how many correct answers have been selected so far
     const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+
+    // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
-  
+
     let msg = '';
-  
+
     if (!selectedCount) {
       // Defensive: no picks yet, don’t override START/CONTINUE
       return;
     }
-  
+
     if (isMultiSelect) {
       // ───────── MULTI-ANSWER ─────────
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-  
+
       if (this._multiAnswerLock.has(index)) {
+        // Once locked → never downgrade again
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else if (remainingCorrect > 0) {
+        // Still missing correct picks → show "Select N more…"
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
-        this._multiAnswerLock.add(index); // lock once all correct are chosen
+        // All correct answers found → lock it to Next/Results
+        this._multiAnswerLock.add(index);
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     } else {
       // ───────── SINGLE-ANSWER ─────────
-      const anyCorrectPicked = canonicalOptions.some(o => o.correct && o.selected);
-  
+      const picked = canonicalOptions.find(o => o.selected);
+
       if (this._singleAnswerLock.has(index)) {
-        // Once locked → never downgrade
+        // Already locked on a correct answer
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      } else if (anyCorrectPicked) {
-        // First correct pick → lock
+      } else if (picked?.correct) {
+        // Correct pick made → lock immediately
         this._singleAnswerLock.add(index);
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        // Only incorrect selected
+        // Incorrect pick (no lock yet)
         msg = 'Select a correct answer to continue...';
       }
     }
-  
+
+    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }  
+  }
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
