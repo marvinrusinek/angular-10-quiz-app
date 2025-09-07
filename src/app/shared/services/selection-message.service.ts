@@ -169,17 +169,30 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
   
-    // Delegate directly to the same logic used in emitFromClick
+    const isLast = total > 0 && index === total - 1;
+    const anySelected = (opts ?? []).some((o) => !!o?.selected);
+  
+    // ───────── BEFORE ANY PICK ─────────
+    if (!anySelected) {
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    // ───────── AFTER A PICK ─────────
     let computedMsg = '';
     this.emitFromClick({
       index,
       totalQuestions: total,
       questionType: qType,
       options: opts,
-      canonicalOptions: opts as CanonicalOption[],  // safe: both share shape here
+      canonicalOptions: opts as CanonicalOption[],
       onMessageChange: (m: string) => (computedMsg = m),
-      token: -1  // token irrelevant for compute
+      token: -1
     });
+  
+    // Safety: if emitFromClick didn’t set anything, fall back
+    if (!computedMsg) {
+      computedMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
   
     return computedMsg;
   }
@@ -707,12 +720,12 @@ export class SelectionMessageService {
   };
 
   public emitFromClick(params: {
-    index: number,
-    totalQuestions: number,
-    questionType: QuestionType,
-    options: Option[],              // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[],  // authoritative canonical snapshot
-    onMessageChange?: (msg: string) => void,
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];
+    canonicalOptions: CanonicalOption[];
+    onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
     const {
@@ -722,58 +735,38 @@ export class SelectionMessageService {
       options,
       canonicalOptions,
       onMessageChange,
-      token,
     } = params;
   
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
   
-    // ───────────────────────────────────────────────
-    // 1) Compute correctness deterministically
-    // ───────────────────────────────────────────────
     const correctOpts = canonicalOptions.filter((o) => !!o.correct);
     const selectedCorrectCount = correctOpts.filter((o) => !!o.selected).length;
-    const totalCorrect = correctOpts.length;
+    const selectedCount = (options ?? []).filter(o => !!o.selected).length;
   
-    let allCorrect: boolean;
-    let remainingCorrect: number;
-  
-    if (isMultiSelect) {
-      allCorrect = selectedCorrectCount === totalCorrect &&
-                   options.filter(o => o.selected).length === totalCorrect;
-      remainingCorrect = Math.max(0, totalCorrect - selectedCorrectCount);
-    } else {
-      allCorrect = selectedCorrectCount === 1;
-      remainingCorrect = allCorrect ? 0 : 1;
-    }
-  
-    // ───────────────────────────────────────────────
-    // 2) Determine message
-    // ───────────────────────────────────────────────
     let msg = '';
-    if (allCorrect) {
-      // ✅ Correct path depends on last question
-      msg = isLast
-        ? SHOW_RESULTS_MSG
-        : NEXT_BTN_MSG;
-    } else if (!isMultiSelect && remainingCorrect === 1) {
-      msg = 'Select a correct answer to continue...';
-    } else if (isMultiSelect && remainingCorrect > 0) {
-      msg = buildRemainingMsg(remainingCorrect);
+  
+    if (!selectedCount) {
+      // Defensive: no picks yet, don't override computeFinalMessage's START/CONTINUE
+      msg = '';
+    } else if (isMultiSelect) {
+      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+  
+      if (remainingCorrect > 0) {
+        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
     } else {
-      // Fallback: continue/start copy
-      msg = index === 0 ? START_MSG : CONTINUE_MSG;
+      // single-answer
+      msg = correctOpts.some(o => o.selected)
+        ? (index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG)
+        : 'Select a correct answer to continue...';
     }
   
-    // ───────────────────────────────────────────────
-    // 3) Emit message immediately for UI
-    // ───────────────────────────────────────────────
     if (onMessageChange) onMessageChange(msg);
-  
-    if (this.selectionMessageSubject) {
-      this.selectionMessageSubject.next(msg);
-    }
+    this.selectionMessageSubject?.next(msg);
   }
+  
   
 
   /* ================= helpers ================= */
