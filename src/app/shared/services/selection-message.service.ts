@@ -345,7 +345,7 @@ export class SelectionMessageService {
 
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // Lock has priority
+      // Lock has priority (check correct before incorrect)
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
@@ -356,12 +356,12 @@ export class SelectionMessageService {
       const picked = (opts ?? []).find(o => !!o.selected);
 
       if (picked?.correct) {
-        // First correct → lock
+        // First correct → lock permanently to Next/Results
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
       if (picked && !picked.correct) {
-        // First incorrect → lock
+        // First incorrect → lock permanently to incorrect message
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
@@ -382,7 +382,6 @@ export class SelectionMessageService {
       }
 
       if (!anySelected) {
-        // Explicit pre-selection message
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
 
@@ -398,6 +397,7 @@ export class SelectionMessageService {
     // Fallback
     return NEXT_BTN_MSG;
   }
+
 
   
 
