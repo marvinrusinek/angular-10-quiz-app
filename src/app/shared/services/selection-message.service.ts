@@ -190,7 +190,7 @@ export class SelectionMessageService {
       : [];
     const totalCorrect = canonical.filter((o) => !!o?.correct).length;
   
-    // NEW: expected-correct override (prefer explicit store; fall back to content if available)
+    // Expected-correct override (prefer explicit store; fall back to content if available)
     const expectedFromContent =
       typeof (q as any)?.expectedCorrect === 'number' &&
       (q as any).expectedCorrect > 0
@@ -224,8 +224,7 @@ export class SelectionMessageService {
       expectedOverride != null ? (overrideRemaining as number) : remaining;
   
     // BEFORE ANY PICK:
-    // Always show START/CONTINUE until the first selection,
-    // even for multi-answer questions.
+    // Always show START/CONTINUE until the first selection
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
@@ -235,6 +234,7 @@ export class SelectionMessageService {
       if (enforcedRemaining > 0) {
         return buildRemainingMsg(enforcedRemaining);
       }
+      // LAST QUESTION OVERRIDE
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
@@ -244,12 +244,13 @@ export class SelectionMessageService {
         // Force incorrect single-answer message
         return 'Select a correct answer to continue...';
       }
+      // LAST QUESTION OVERRIDE
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // Fallback: Single-answer → immediately Next/Results
+    // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }  
+  }
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
