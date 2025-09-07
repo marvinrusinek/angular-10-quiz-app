@@ -340,8 +340,8 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];  // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[];  // authoritative canonical snapshot
+    options: Option[];              // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
@@ -353,59 +353,52 @@ export class SelectionMessageService {
       canonicalOptions,
       onMessageChange,
     } = params;
-
+  
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-
-    // How many are correct in canonical set
+  
     const correctOpts = canonicalOptions.filter(o => !!o.correct);
-
-    // Count how many correct answers have been selected so far
     const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
-
-    // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
-
+  
     let msg = '';
-
+  
     if (!selectedCount) {
       // Defensive: no picks yet, don’t override START/CONTINUE
       return;
     }
-
+  
     if (isMultiSelect) {
       // ───────── MULTI-ANSWER ─────────
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-
+  
       if (this._multiAnswerLock.has(index)) {
-        // Already locked → always Next/Results
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else if (remainingCorrect > 0) {
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
-        // All required correct answers found → lock
-        this._multiAnswerLock.add(index);
+        this._multiAnswerLock.add(index); // lock once all correct are chosen
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     } else {
       // ───────── SINGLE-ANSWER ─────────
-      const picked = canonicalOptions.find(o => o.selected);
-
+      const anyCorrectPicked = canonicalOptions.some(o => o.correct && o.selected);
+  
       if (this._singleAnswerLock.has(index)) {
         // Once locked → never downgrade
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      } else if (picked?.correct) {
+      } else if (anyCorrectPicked) {
         // First correct pick → lock
         this._singleAnswerLock.add(index);
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
+        // Only incorrect selected
         msg = 'Select a correct answer to continue...';
       }
     }
-
-    // Push to UI
+  
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }
+  }  
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
