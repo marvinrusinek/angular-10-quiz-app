@@ -893,83 +893,8 @@ export class SelectionMessageService {
     return q?.type ?? QuestionType.SingleAnswer;
   }
 
-  // Authoritative remaining counter: uses canonical correctness and union of selected IDs
-  // NOW also enforces an expected-correct override (e.g., Q4 must have 2 selected before Next)
-  // Authoritative remaining counter: uses canonical correctness and union of selected IDs
-  // UPDATED: if an expected override exists, enforce it by correct selections.
-  private remainingFromCanonical(
-    index: number,
-    uiOpts?: Option[] | null
-  ): number {
-    const svc: any = this.quizService as any;
-    const arr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
-    const q: QuizQuestion | undefined =
-      (index >= 0 && index < arr.length ? arr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-
-    const canonical: Option[] = Array.isArray(q?.options)
-      ? (q!.options as Option[])
-      : [];
-    if (!canonical.length) return 0;
-
-    // Build union of selected IDs (UI + snapshot + SelectedOptionService)
-    const selectedIds = new Set<number | string>();
-
-    if (Array.isArray(uiOpts)) {
-      for (let i = 0; i < uiOpts.length; i++) {
-        const o = uiOpts[i];
-        if (o?.selected) selectedIds.add(this.getOptionId(o, i));
-      }
-    }
-
-    const snap = this.getLatestOptionsSnapshot();
-    for (let i = 0; i < snap.length; i++) {
-      const o = snap[i];
-      if (o?.selected) selectedIds.add(this.getOptionId(o, i));
-    }
-
-    try {
-      const rawSel: any =
-        this.selectedOptionService?.selectedOptionsMap?.get?.(index);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) =>
-          selectedIds.add(this.getOptionId(so, idx))
-        );
-      }
-    } catch {}
-
-    // Count correct & selected-correct from canonical flags
-    let totalCorrect = 0;
-    let selectedCorrect = 0;
-    for (let i = 0; i < canonical.length; i++) {
-      const c = canonical[i];
-      if (!c?.correct) continue;
-      totalCorrect++;
-      const id = this.getOptionId(c, i);
-      if (selectedIds.has(id)) selectedCorrect++;
-    }
-
-    // Canonical remaining
-    const canonicalRemaining = Math.max(0, totalCorrect - selectedCorrect);
-
-    // If an override exists for this question, **use it** (by correct selections)
-    const expected = this.getExpectedCorrectCount(index);
-    if (typeof expected === 'number' && expected > 0) {
-      const overrideRemaining = Math.max(0, expected - selectedCorrect);
-      return overrideRemaining; // override is authoritative for this question
-    }
-
-    return canonicalRemaining;
-  }
-
   // Ensure every canonical option has a stable optionId.
   // Also stamp matching ids onto any UI list passed in.
-  // Ensure every canonical option has a stable optionId.
-  // Also stamp matching ids onto any UI list(s) passed in.
   // More tolerant keying (value|text|label|title|optionText|displayText) + index fallback.
   private ensureStableIds(
     index: number,
@@ -1052,11 +977,11 @@ export class SelectionMessageService {
   }
 
   public getExpectedCorrectCount(index: number): number | undefined {
-    // 1) exact index match (what you have today)
+    // Exact index match
     const fromIndex = this.expectedCorrectByIndex.get(index);
     if (typeof fromIndex === 'number' && fromIndex > 0) return fromIndex;
 
-    // 2) resolve the question object and try an id-based override
+    // Resolve the question object and try an id-based override
     try {
       const svc: any = this.quizService as any;
       const arr = Array.isArray(svc.questions)
@@ -1076,11 +1001,6 @@ export class SelectionMessageService {
     }
 
     return undefined;
-  }
-
-  // Optional helper to clear when changing question
-  public clearStickyFor(index: number): void {
-    this.stickyCorrectIdsByIndex.delete(index);
   }
 
   // Key that survives reorder/clone/missing ids (NO index fallback)
@@ -1113,23 +1033,9 @@ export class SelectionMessageService {
     if (!selectedNow) set.delete(key);
   }
 
-  private getPickedCorrectCount(index: number): number {
-    return this.observedCorrectIds.get(index)?.size ?? 0;
-  }
-
   // Clear when navigating to a different question
   public clearObservedFor(index: number): void {
     this.observedCorrectIds.delete(index);
-  }
-
-  // Optional: shallow→minimal projector used by setter
-  private projectToSnapshot(o: any): OptionSnapshot {
-    return {
-      id: this.toStableId(o),
-      selected: !!o?.selected,
-      // keep correctness if present (canonical overlay may still read it)
-      correct: typeof o?.correct === 'boolean' ? o.correct : undefined,
-    };
   }
 
   // Read side used elsewhere in your code
@@ -1156,35 +1062,11 @@ export class SelectionMessageService {
     return [];
   }
 
-  // Write side used by emitFromClick()
-  public setLatestOptionsSnapshot(options: Option[] | null | undefined): void {
-    try {
-      if (!Array.isArray(options) || options.length === 0) {
-        // Clear when no options; callers relying on nullability will handle this
-        this.latestOptionsSnapshot = null;
-        return;
-      }
-
-      // Project to minimal, normalized snapshots
-      const snap = options.map((o) => this.projectToSnapshot(o));
-
-      // Freeze to avoid accidental mutation downstream
-      // (Object.freeze on the array + each element)
-      for (const s of snap) Object.freeze(s);
-      this.latestOptionsSnapshot = Object.freeze(snap);
-    } catch (e) {
-      console.warn('[setLatestOptionsSnapshot] failed; clearing snapshot', e);
-      this.latestOptionsSnapshot = null;
-    }
-  }
-
   // Map a single snapshot -> Option
   private mapSnapshotToOption(
     s: OptionSnapshot,
     lookup?: Map<string | number, Option>
   ): Option {
-    // Keep your minimal fields; merge into Option shape your code expects.
-    // If your Option interface has more fields, initialize them safely here.
     return {
       optionId: s.id as any,
       selected: !!s.selected,
@@ -1197,19 +1079,6 @@ export class SelectionMessageService {
       feedback: '',
       styleClass: '',
     } as unknown as Option;
-  }
-
-  // Coerce (Option[] | OptionSnapshot[]) -> Option[]
-  private toOptionArray(
-    input: Option[] | OptionSnapshot[] | null | undefined
-  ): Option[] {
-    if (!input || !Array.isArray(input) || input.length === 0) return [];
-    if (this.isOptionArray(input)) return input as Option[];
-    if (this.isSnapshotArray(input))
-      return (input as OptionSnapshot[]).map((s) =>
-        this.mapSnapshotToOption(s)
-      );
-    return [];
   }
 
   // Type guards
@@ -1239,22 +1108,22 @@ export class SelectionMessageService {
 
   // Use the same stable-id logic everywhere
   private toStableId(o: any, idx?: number): number | string {
-    // 1) Prefer true stable ids if present
+    // Prefer true stable ids if present
     if (o?.optionId != null) return o.optionId as number | string;
     if (o?.id != null) return o.id as number | string;
     if (o?.value != null) return o.value as number | string;
 
-    // 2) Derive from text if available (stable across renders)
+    // Derive from text if available (stable across renders)
     if (typeof o?.text === 'string' && o.text.trim().length) {
       return `t:${o.text}`; // prefix to avoid clashing with numeric ids
     }
 
-    // 3) Fall back to index if provided
+    // Fall back to index if provided
     if (typeof idx === 'number') {
       return `i:${idx}`;
     }
 
-    // 4) Last-resort constant (still deterministic) – better than Math.random()
+    // Last-resort constant (still deterministic) – better than Math.random()
     return 'unknown';
   }
 
@@ -1269,36 +1138,49 @@ export class SelectionMessageService {
       typeof selectedOverride === 'boolean' ? selectedOverride : !!o?.selected;
 
     return {
-      // required/expected fields
+      // Required/expected fields
       optionId: optionId as any,
       text: typeof o?.text === 'string' ? o.text : '',
       correct: !!o?.correct,
       value: (o?.value ?? optionId) as any,
       selected,
 
-      // keep common optional flags consistent
+      // Keep common optional flags consistent
       active: !!o?.active,
       highlight: typeof o?.highlight === 'boolean' ? o.highlight : selected,
       showIcon: typeof o?.showIcon === 'boolean' ? o.showIcon : selected,
 
-      // passthrough optionals with safe defaults
+      // Passthrough optionals with safe defaults
       answer: o?.answer,
       feedback: typeof o?.feedback === 'string' ? o.feedback : '',
       styleClass: typeof o?.styleClass === 'string' ? o.styleClass : '',
     } as Option;
   }
 
+  // Coerce (Option[] | OptionSnapshot[]) -> Option[]
+  private toOptionArray(
+    input: Option[] | OptionSnapshot[] | null | undefined
+  ): Option[] {
+    if (!input || !Array.isArray(input) || input.length === 0) return [];
+    if (this.isOptionArray(input)) return input as Option[];
+    if (this.isSnapshotArray(input))
+      return (input as OptionSnapshot[]).map((s) =>
+        this.mapSnapshotToOption(s)
+      );
+    return [];
+  }
+
   private optionToSnapshot(o: Option, idx?: number): OptionSnapshot {
     return {
       id: this.toStableId(o, idx),
       selected: !!o.selected,
-      correct: typeof o.correct === 'boolean' ? o.correct : undefined,
+      correct: typeof o.correct === 'boolean' ? o.correct : undefined
     };
   }
 
   public getLatestOptionsSnapshotAsOptions(lookupFrom?: Option[]): Option[] {
-    const snaps = this.getLatestOptionsSnapshot(); // OptionSnapshot[]
-    return this.toOptionArrayWithLookup(snaps, lookupFrom); // Option[]
+    const snaps = this.getLatestOptionsSnapshot();  // OptionSnapshot[]
+    return this.toOptionArrayWithLookup(snaps, lookupFrom);  // Option[]
   }
 
   private toOptionArrayWithLookup(
@@ -1319,47 +1201,6 @@ export class SelectionMessageService {
     const map = new Map<string | number, Option>();
     sources.forEach((o, idx) => map.set(this.toStableId(o, idx), o));
     return map;
-  }
-
-  // Parse the number expected from the stem text (e.g., "Select 2 answers")
-  parseExpectedFromStem(raw: string | undefined | null): number {
-    if (!raw) return 0;
-    const s = String(raw).toLowerCase();
-
-    const wordToNum: Record<string, number> = {
-      one: 1,
-      two: 2,
-      three: 3,
-      four: 4,
-      five: 5,
-      six: 6,
-      seven: 7,
-      eight: 8,
-      nine: 9,
-      ten: 10,
-    };
-
-    // pattern A: select|choose|pick|mark <N> (correct)? answer(s)|option(s)
-    let m = s.match(
-      /\b(select|choose|pick|mark)\s+(?:the\s+)?(?:(\d{1,2})\s+|(one|two|three|four|five|six|seven|eight|nine|ten)\s+)?(?:best\s+|correct\s+)?(answers?|options?)\b/
-    );
-    if (m) {
-      const n = m[2] ? Number(m[2]) : m[3] ? wordToNum[m[3]] : 0;
-      return Number.isFinite(n) && n > 0 ? n : 0;
-    }
-
-    // pattern B: select|choose|pick|mark (?:the)? (?:best|correct)? <N>
-    m = s.match(
-      /\b(select|choose|pick|mark)\s+(?:the\s+)?(?:best\s+|correct\s+)?(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/
-    );
-    if (m) {
-      const tok = m[2];
-      const n = /^\d/.test(tok) ? Number(tok) : wordToNum[tok] ?? 0;
-      return Number.isFinite(n) && n > 0 ? n : 0;
-    }
-
-    // If no match found, return 0 (no expected number)
-    return 0;
   }
 
   // Helper: normalize rawSel into a Set of keys
