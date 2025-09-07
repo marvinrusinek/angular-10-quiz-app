@@ -170,14 +170,9 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
   
     const isLast = total > 0 && index === total - 1;
-  
-    // Any selection signal (for start/continue copy)
     const anySelected = (opts ?? []).some((o) => !!o?.selected);
   
-    // Authoritative remaining from canonical correctness and union of selections
-    const remaining = this.remainingFromCanonical(index, opts);
-  
-    // Decide multi from DATA first; fall back to declared type
+    // Pull canonical question
     const svc: any = this.quizService as any;
     const arr = Array.isArray(svc.questions)
       ? (svc.questions as QuizQuestion[])
@@ -185,9 +180,7 @@ export class SelectionMessageService {
     const q: QuizQuestion | undefined =
       (index >= 0 && index < arr.length ? arr[index] : undefined) ??
       (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options)
-      ? (q!.options as Option[])
-      : [];
+    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
     const totalCorrect = canonical.filter((o) => !!o?.correct).length;
   
     // expected-correct override
@@ -198,59 +191,71 @@ export class SelectionMessageService {
         : Array.isArray((q as any)?.answer)
         ? (q as any).answer.length
         : undefined;
+    const expectedOverride = this.getExpectedCorrectCount(index) ?? expectedFromContent;
   
-    const expectedOverride =
-      this.getExpectedCorrectCount(index) ?? expectedFromContent;
-  
-    // isMulti updated
     const isMulti =
       totalCorrect > 1 ||
       qType === QuestionType.MultipleAnswer ||
       (expectedOverride ?? 0) > 1;
   
-    // Count selected CORRECT picks
+    // Count correct selections
     const selectedCorrect = (opts ?? []).reduce(
       (n, o) => n + (!!o?.correct && !!o?.selected ? 1 : 0),
       0
     );
-  
-    // authoritative remaining
-    const overrideRemaining =
-      expectedOverride != null
-        ? Math.max(0, expectedOverride - selectedCorrect)
-        : undefined;
-  
-    const enforcedRemaining =
-      expectedOverride != null ? (overrideRemaining as number) : remaining;
   
     // BEFORE ANY PICK
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
+    // ───────── MULTI ─────────
     if (isMulti) {
+      const enforcedRemaining =
+        expectedOverride != null
+          ? Math.max(0, expectedOverride - selectedCorrect)
+          : this.remainingFromCanonical(index, opts);
+  
       if (enforcedRemaining > 0) {
         return buildRemainingMsg(enforcedRemaining);
       }
-      // ✅ If last question AND all correct, show results
+  
+      // ✅ LAST QUESTION WITH ALL CORRECT
       const allCorrect =
-        selectedCorrect === totalCorrect && (opts ?? []).filter(o => o.selected).length === totalCorrect;
-      return isLast && allCorrect ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Single-answer
-    if (!isMulti) {
-      const lastPick = (opts ?? []).find(o => !!o?.selected);
-      if (lastPick && !lastPick.correct) {
-        return 'Select a correct answer to continue...';
+        selectedCorrect === totalCorrect &&
+        (opts ?? []).filter((o) => o.selected).length === totalCorrect;
+      if (isLast && allCorrect) {
+        return SHOW_RESULTS_MSG;
       }
-      // ✅ If last question AND correct answer, show results
-      return isLast && lastPick?.correct ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      return NEXT_BTN_MSG;
     }
   
-    // Fallback
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    // ───────── SINGLE ─────────
+    const lastPick = (opts ?? []).find((o) => !!o?.selected);
+    if (lastPick && !lastPick.correct) {
+      return 'Select a correct answer to continue...';
+    }
+  
+    // ✅ LAST QUESTION AND CORRECT PICK
+    if (isLast && lastPick?.correct) {
+      return SHOW_RESULTS_MSG;
+    }
+
+    console.log('[MSG DEBUG]', {
+      index,
+      total,
+      isLast,
+      qType,
+      opts: (opts ?? []).map(o => ({
+        id: o.optionId,
+        sel: o.selected,
+        correct: o.correct
+      }))
+    });    
+  
+    return NEXT_BTN_MSG;
   }
+  
   
 
   // Build message on click (correct wording and logic)
