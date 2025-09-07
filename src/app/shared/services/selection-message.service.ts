@@ -69,9 +69,6 @@ export class SelectionMessageService {
   // Track first incorrect clicks on single-answer questions
   private _firstClickIncorrectGuard: Set<number> = new Set<number>();
 
-  // Track when a multi-answer question has been fully satisfied
-  private _multiAnswerCompletionLock: Set<number> = new Set<number>();
-
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
