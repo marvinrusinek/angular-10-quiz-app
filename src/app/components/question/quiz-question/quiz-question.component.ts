@@ -3580,23 +3580,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // ───────────────────────────────────────────────
         this._msgTok = (this._msgTok ?? 0) + 1;
         const tok = this._msgTok;
-        this.selectionMessageService.emitFromClick({
-            index: i0,
-            totalQuestions: this.totalQuestions,
-            questionType: q?.type ?? QuestionType.SingleAnswer,
-            options: optionsNow,
-            canonicalOptions: canonicalOpts,
-            onMessageChange: (m: string) => {
-              // If we flagged "suppress once", ignore this emission only for this click.
-                if (suppressMessageFromServiceOnce) return;
-                // Otherwise, if guard is cleared (or was never set), allow update.
-                if (!this._firstClickIncorrectGuard.has(i0)) {
-                    this.selectionMessage = m;
-                }
-            },
-            token: tok
-        });
 
+        if (!(q?.type === QuestionType.SingleAnswer && !evtOpt?.correct)) {
+          this.selectionMessageService.emitFromClick({
+              index: i0,
+              totalQuestions: this.totalQuestions,
+              questionType: q?.type ?? QuestionType.SingleAnswer,
+              options: optionsNow,
+              canonicalOptions: canonicalOpts,
+              onMessageChange: (m: string) => {
+                // If we flagged "suppress once", ignore this emission only for this click.
+                  if (suppressMessageFromServiceOnce) return;
+                  // Otherwise, if guard is cleared (or was never set), allow update.
+                  if (!this._firstClickIncorrectGuard.has(i0)) {
+                      this.selectionMessage = m;
+                  }
+              },
+              token: tok
+          });
+        }
         // ───────────────────────────────────────────────
         // Update Next button & quiz state
         // ───────────────────────────────────────────────
