@@ -209,67 +209,42 @@ export class SelectionMessageService {
     opts: Option[];
   }): string {
     const { index, total, qType, opts } = args;
-
+  
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-
-    // ───────── MULTI-ANSWER ─────────
-    if (qType === QuestionType.MultipleAnswer) {
-      const correctOpts = (opts ?? []).filter(o => !!o.correct);
-      const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
-      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
-
-      // If locked (once all correct were picked), always show final message
-      if (this._multiAnswerCompletionLock?.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-
-      if (!anySelected) {
-        return `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
-      }
-
-      if (remaining > 0) {
-        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-      }
-
-      // All correct → lock and show next/results
-      this._multiAnswerCompletionLock.add(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-
-    // ───────── SINGLE-ANSWER ─────────
-    // If locked due to incorrect pick, hold message until correct chosen
-    if (this._firstClickIncorrectGuard?.has(index)) {
-      const picked = opts.find(o => o.selected);
-
-      if (!picked || (picked && !picked.correct)) {
-        return 'Select a correct answer to continue...'; // 🔒 locked
-      }
-      if (picked.correct) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-    }
-
+  
+    // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
-    const picked = opts.find(o => o.selected);
-
-    if (picked && !picked.correct) {
-      this._firstClickIncorrectGuard.add(index); // lock it
-      return 'Select a correct answer to continue...';
-    }
-
-    if (picked && picked.correct) {
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const correctOpts = opts.filter(o => !!o.correct);
+      const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
+      const remaining = Math.max(0, correctOpts.length - selectedCorrect);
+  
+      if (remaining > 0) {
+        return buildRemainingMsg(remaining);
+      }
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    const picked = opts.find(o => !!o?.selected);
+  
+    // Respect the incorrect lock
+    if (this._singleAnswerIncorrectLock.has(index)) {
+      return 'Select a correct answer to continue...';
+    }
+  
+    if (picked?.correct) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+  
+    // Default: incorrect single-answer
+    return 'Select a correct answer to continue...';
   }
-
-
-
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
