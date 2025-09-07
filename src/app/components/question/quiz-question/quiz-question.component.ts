@@ -3571,16 +3571,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
           }
         } else if (isSingle) {
-          if (evtOpt?.correct) {
+          if (!evtOpt?.correct) {
+            // 🔒 Force this message for ALL incorrect singles
+            msg = 'Select a correct answer to continue...';
+            this._singleIncorrectLock.add(i0);
+          } else {
             msg = isLastQuestion
               ? 'Please click the Show Results button.'
               : 'Please click the next button to continue...';
-            // Unlock if correct
             this._singleIncorrectLock.delete(i0);
-          } else {
-            msg = 'Select a correct answer to continue...';
-            // Lock until a correct pick is made
-            this._singleIncorrectLock.add(i0);
           }
         }
 
@@ -3609,7 +3608,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             token: tok
           });
         }
-        
+
         // ───────────────────────────────────────────────
         // Update Next button & quiz state
         // ───────────────────────────────────────────────
