@@ -33,13 +33,13 @@ export class SelectionMessageService {
 
   public optionsSnapshot: Option[] = [];
   private optionsSnapshotSubject = new BehaviorSubject<Option[]>([]);
-  private latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
+  latestOptionsSnapshot: ReadonlyArray<OptionSnapshot> | null = null;
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
   private freezeNextishUntil = new Map<number, number>();
   private suppressPassiveUntil = new Map<number, number>();
 
-  private idMapByIndex = new Map<number, Map<string, string | number>>(); // key -> canonicalId
+  private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
 
   // Per-question remaining tracker and short enforcement window
   lastRemainingByIndex = new Map<number, number>();
@@ -51,7 +51,7 @@ export class SelectionMessageService {
 
   // Tracks selected-correct option ids per question (survives wrong clicks)
   public stickyCorrectIdsByIndex = new Map<number, Set<number | string>>();
-  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>(); // fallback store
+  public stickyAnySelectedKeysByIndex = new Map<number, Set<string>>();  // fallback store
 
   private observedCorrectIds = new Map<number, Set<string>>();
 
@@ -183,7 +183,7 @@ export class SelectionMessageService {
       totalQuestions: total,
       questionType: qType,
       options: opts,
-      canonicalOptions: opts as CanonicalOption[], // align types
+      canonicalOptions: opts as CanonicalOption[],  // align types
       onMessageChange: (m: string) => (computedMsg = m),
       token: -1
     });
@@ -222,37 +222,15 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
-  async setSelectionMessage(isAnswered: boolean): Promise<void> {
+  public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
-
-      const qType = this.getQuestionTypeForIndex(i0);
-      const isLast = i0 === total - 1;
-
-      const overlaid = this.getCanonicalOverlay(i0);
-      this.setOptionsSnapshot(overlaid);
-
-      const forced = this.multiGateMessage(i0, qType, overlaid);
-      if (forced) {
-        const cur = this.selectionMessageSubject.getValue();
-        if (cur !== forced) this.selectionMessageSubject.next(forced);
-        return;
-      }
-
-      const finalMsg =
-        qType === QuestionType.MultipleAnswer
-          ? isLast
-            ? SHOW_RESULTS_MSG
-            : NEXT_BTN_MSG
-          : isAnswered
-          ? isLast
-            ? SHOW_RESULTS_MSG
-            : NEXT_BTN_MSG
-          : i0 === 0
-          ? START_MSG
-          : CONTINUE_MSG;
+  
+      // Delegate to central resolver
+      const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+  
       if (this.selectionMessageSubject.getValue() !== finalMsg) {
         this.selectionMessageSubject.next(finalMsg);
       }
