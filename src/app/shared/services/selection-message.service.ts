@@ -214,14 +214,14 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
 
-    // ───────── BEFORE ANY PICK ─────────
+    // ───────── PRE-SELECTION ─────────
     if (!anySelected) {
       if (qType === QuestionType.MultipleAnswer) {
-        // Pre-selection for multi → tell user how many to pick
+        // Multi-answer → show total correct upfront
         const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
         return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
       }
-      // Single-answer defaults to START/CONTINUE
+      // Single-answer → show START/CONTINUE
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
@@ -231,7 +231,7 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => !!o?.correct && !!o?.selected).length;
       const remaining = Math.max(0, correctCount - selectedCorrect);
 
-      // If this question is already locked as "complete", never downgrade
+      // Already locked → enforce permanently
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
@@ -248,15 +248,25 @@ export class SelectionMessageService {
     // ───────── SINGLE-ANSWER ─────────
     const lastPick = (opts ?? []).find(o => !!o?.selected);
 
-    if (lastPick?.correct || this._singleAnswerCorrectLock.has(index)) {
-      // Lock once a correct pick is made → never downgrade later
+    // If already locked correct → enforce permanently
+    if (this._singleAnswerCorrectLock.has(index)) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+
+    // If already locked incorrect → enforce until corrected
+    if (this._singleAnswerIncorrectLock.has(index)) {
+      return 'Select a correct answer to continue...';
+    }
+
+    if (lastPick?.correct) {
+      // Correct → lock correct permanently
       this._singleAnswerCorrectLock.add(index);
       this._singleAnswerIncorrectLock.delete(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     if (lastPick && !lastPick.correct) {
-      // Lock incorrect until a correct pick replaces it
+      // Incorrect → lock incorrect permanently until corrected
       this._singleAnswerIncorrectLock.add(index);
       return 'Select a correct answer to continue...';
     }
@@ -264,6 +274,7 @@ export class SelectionMessageService {
     // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
 
