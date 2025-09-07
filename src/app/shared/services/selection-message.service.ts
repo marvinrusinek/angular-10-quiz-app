@@ -436,17 +436,11 @@ export class SelectionMessageService {
   
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
   
-    // How many are correct in canonical set
     const correctOpts = canonicalOptions.filter(o => !!o.correct);
-  
-    // Count how many correct answers have been selected so far
     const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
-  
-    // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
   
     const isLast = index === totalQuestions - 1;
-  
     let msg = '';
   
     // ───────── SINGLE-ANSWER INCORRECT LOCK ─────────
@@ -457,13 +451,12 @@ export class SelectionMessageService {
         this._singleAnswerIncorrectLock.delete(index);
         msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        // 🔒 Stay locked regardless of “click-off” or 0 selections
+        // 🔒 Stay locked regardless of click-off or empty selections
         msg = 'Select a correct answer to continue...';
       }
-  
       if (onMessageChange) onMessageChange(msg);
       this.selectionMessageSubject?.next(msg);
-      return; // ⬅️ Critical: don’t fall through to START/CONTINUE/Next
+      return; // ⬅️ Important: lock always wins
     }
   
     // ───────── EARLY GUARD (no selections yet) ─────────
@@ -501,7 +494,6 @@ export class SelectionMessageService {
       }
     }
   
-    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
   }
