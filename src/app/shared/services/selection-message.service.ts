@@ -112,14 +112,20 @@ export class SelectionMessageService {
       if (o?.selected) selectedKeys.add(keyOf(o));
     }
     // …and union with SelectedOptionService (ids or objects)
-    try {
-      const rawSel: any =
-        this.selectedOptionService?.selectedOptionsMap?.get?.(questionIndex);
-      if (rawSel instanceof Set)
-        rawSel.forEach((id: any) => selectedKeys.add(id));
-      else if (Array.isArray(rawSel))
-        rawSel.forEach((so: any) => selectedKeys.add(keyOf(so)));
-    } catch {}
+    const rawSel = this.selectedOptionService?.selectedOptionsMap?.get(questionIndex);
+    if (rawSel) {
+      if (rawSel instanceof Set) {
+        for (const sel of rawSel) {
+          // sel might be a SelectedOption, so normalize to its optionId
+          const id = (sel as any)?.optionId ?? sel;
+          selectedKeys.add(id);
+        }
+      } else if (Array.isArray(rawSel)) {
+        for (const so of rawSel) {
+          selectedKeys.add(keyOf(so));
+        }
+      }
+    }
 
     // Ensure canonical and UI snapshot share the same optionId space, enriching snapshot with canonical fields like text
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
