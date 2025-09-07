@@ -336,8 +336,8 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];  // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[];  // authoritative canonical snapshot
+    options: Option[];              // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
     onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
@@ -349,47 +349,50 @@ export class SelectionMessageService {
       canonicalOptions,
       onMessageChange,
     } = params;
-
+  
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
-
+  
     // How many are correct in canonical set
-    const correctOpts = canonicalOptions.filter((o) => !!o.correct);
-
+    const correctOpts = canonicalOptions.filter(o => !!o.correct);
+  
     // Count how many correct answers have been selected so far
-    const selectedCorrectCount = correctOpts.filter((o) => !!o.selected).length;
-
+    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+  
     // Count how many total selections are currently made
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
-
+  
     let msg = '';
-
+  
     if (!selectedCount) {
+      // Defensive: no picks yet, don’t override START/CONTINUE
       return;
-    } else if (isMultiSelect) {
+    }
+  
+    if (isMultiSelect) {
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-
+  
       if (remainingCorrect > 0) {
-        // Still missing correct picks → show "Select N more…"
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
-        // All required correct answers found
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     } else {
       // ───────── SINGLE-ANSWER ─────────
-      if (correctOpts.some(o => o.selected)) {
-        // Correct pick made
+      const picked = canonicalOptions.find(o => o.selected);
+  
+      if (picked?.correct) {
+        // Once a correct pick is made → lock to Next/Results, never downgrade
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
         // Incorrect pick
         msg = 'Select a correct answer to continue...';
       }
     }
-
+  
     // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
-  }  
+  }
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
