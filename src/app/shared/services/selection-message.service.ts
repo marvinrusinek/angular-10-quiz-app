@@ -435,43 +435,57 @@ export class SelectionMessageService {
     } = params;
   
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
+    const isLast = index === totalQuestions - 1;
   
-    // Defensive: no picks yet → do not override START/CONTINUE
+    const correctOpts = canonicalOptions.filter(o => !!o.correct);
+    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
-    if (!selectedCount) return;
   
     let msg = '';
   
+    // ───────── MULTI-ANSWER ─────────
     if (isMultiSelect) {
-      const correctOpts = canonicalOptions.filter(o => !!o.correct);
-      const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
-      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
-  
-      // If this index was marked “complete”, never backslide
-      if (this._multiAnswerCompletionLock.has(index)) {
-        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      } else if (remainingCorrect > 0) {
-        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      if (!selectedCount) {
+        // Before any pick → show how many are required
+        msg = `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
+      } else if (this._multiAnswerCompletionLock.has(index)) {
+        msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        // All correct found → lock completion
-        this._multiAnswerCompletionLock.add(index);
-        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        const remaining = Math.max(0, correctOpts.length - selectedCorrectCount);
+        if (remaining > 0) {
+          msg = `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+        } else {
+          this._multiAnswerCompletionLock.add(index);
+          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
       }
     } else {
       // ───────── SINGLE-ANSWER ─────────
       const picked = canonicalOptions.find(o => o.selected);
   
-      if (picked?.correct) {
-        // Clear the incorrect lock and allow Next/Results
-        this._singleAnswerIncorrectLock.delete(index);
-        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        if (picked?.correct) {
+          // unlock once a correct is picked
+          this._singleAnswerIncorrectLock.delete(index);
+          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        } else {
+          // 🔒 stay locked to incorrect message
+          msg = 'Select a correct answer to continue...';
+        }
       } else {
-        // Incorrect → set/keep lock and hold the message
-        this._singleAnswerIncorrectLock.add(index);
-        msg = 'Select a correct answer to continue...';
+        if (!selectedCount) {
+          msg = index === 0 ? START_MSG : CONTINUE_MSG;
+        } else if (picked && !picked.correct) {
+          // first incorrect click → set lock
+          this._singleAnswerIncorrectLock.add(index);
+          msg = 'Select a correct answer to continue...';
+        } else if (picked?.correct) {
+          msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
       }
     }
   
+    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
   }
