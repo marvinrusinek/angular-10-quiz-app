@@ -400,14 +400,23 @@ export class SelectionMessageService {
       onMessageChange,
     } = params;
   
-    // Delegate to computeFinalMessage for consistency
-    const msg = this.computeFinalMessage({
+    // Ask computeFinalMessage for the "official" message
+    let msg = this.computeFinalMessage({
       index,
       total: totalQuestions,
       qType: questionType,
       opts: options
     });
   
+    // Guard: prevent flip-flop for single-answer incorrect picks
+    if (questionType === QuestionType.SingleAnswer) {
+      const picked = options.find(o => o.selected);
+      if (picked && !picked.correct) {
+        msg = 'Select a correct answer to continue...';
+      }
+    }
+  
+    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
   }  
