@@ -3450,7 +3450,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     index: number;
     checked: boolean;
     wasReselected?: boolean;
-  }): Promise<void> {
+}): Promise<void> {
     // Reset skip flag at the start of each click
     this._skipNextAsyncUpdates = false;
 
@@ -3475,6 +3475,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
 
     // ───────────────────────────────────────────────
+    // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
+    // ───────────────────────────────────────────────
+    let suppressMessageFromServiceOnce = false;
+
+    if (
+      evtOpt &&
+      q?.type === QuestionType.SingleAnswer &&
+      !evtOpt.correct &&
+      !this._firstClickIncorrectGuard.has(i0)
+    ) {
+      this._firstClickIncorrectGuard.add(i0);
+      this.selectionMessage = 'Select a correct answer to continue...';
+      suppressMessageFromServiceOnce = true; // only this click
+      // NOTE: no return here
+    }
+
+    // ───────────────────────────────────────────────
     // EARLY GUARD: no option selected
     // ───────────────────────────────────────────────
     if (evtOpt == null) {
@@ -3489,9 +3506,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
         // 1) Update local UI selection immediately
-        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o }))
+        const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
             ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-
+       
         optionsNow[evtIdx].selected = event.checked ?? true;
         if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
@@ -3530,22 +3547,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             remainingCorrect = allCorrect ? 0 : 1;
         }
 
-        // ───────────────────────────────────────────────
-        // Determine selection message
-        // ───────────────────────────────────────────────
-        let msg = '';
-
-        if (!allCorrect && q?.type === QuestionType.SingleAnswer) {
-            // Single-answer incorrect clicks: always show same message until correct
-            msg = 'Select a correct answer to continue...';
-        } else if (allCorrect) {
-            // All correct selected
-            if (i0 === this.totalQuestions - 1) msg = 'Please click the Show Results button.';
-            else msg = 'Please click the next button to continue...';
-        } else if (isMulti && remainingCorrect > 0) {
-            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        // If user picked the correct option on single-answer, allow future message updates.
+        if (q?.type === QuestionType.SingleAnswer && evtOpt?.correct) {
+          this._firstClickIncorrectGuard.delete(i0);
         }
 
+        // ───────────────────────────────────────────────
+        // Determine selection message (Q6 special case)
+        // ───────────────────────────────────────────────
+        // Determine if this is the last question
+        const isLastQuestion = i0 === this.totalQuestions - 1;
+
+        // Determine selection message
+        let msg = '';
+        if (allCorrect) {
+            msg = isLastQuestion
+                ? 'Please click the Show Results button.'
+                : 'Please click the next button to continue...';
+        } else if (!isMulti && !evtOpt?.correct) {
+            msg = 'Select a correct answer to continue...';
+        } else if (isMulti && remainingCorrect > 0) {
+            msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        } else if (!isMulti && evtOpt?.correct) {
+            msg = 'Please click the next button to continue...';
+        }
+
+        // Immediately set it locally
         this.selectionMessage = msg;
 
         // ───────────────────────────────────────────────
@@ -3560,6 +3587,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             options: optionsNow,
             canonicalOptions: canonicalOpts,
             onMessageChange: (m: string) => {
+              // If we flagged "suppress once", ignore this emission only for this click.
+                if (suppressMessageFromServiceOnce) return;
+                // Otherwise, if guard is cleared (or was never set), allow update.
                 if (!this._firstClickIncorrectGuard.has(i0)) {
                     this.selectionMessage = m;
                 }
@@ -3595,7 +3625,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.explanationToDisplay = txt;
             this.explanationToDisplayChange?.emit(txt);
 
-            // Update highlighting / feedback icons
+            // Update option highlighting/feedback
             this.updateOptionHighlighting(i0, canonicalOpts, selOptsSet);
 
             this.cdRef.markForCheck?.();
@@ -3619,7 +3649,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
         queueMicrotask(() => { this._clickGate = false; });
     }
-  }  
+  }
+
   
   
   
