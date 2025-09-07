@@ -223,13 +223,13 @@ export class SelectionMessageService {
       const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
       const remaining = Math.max(0, correctOpts.length - selectedCorrect);
 
-      // Pre-selection → tell user how many to find
       if (!anySelected) {
+        // Pre-selection → instruct how many answers are required
         return `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
       }
 
-      // If we’ve previously completed this question, never backslide
       if (this._multiAnswerCompletionLock.has(index)) {
+        // Once completed, never downgrade
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
@@ -237,7 +237,7 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
 
-      // All correct → mark complete (only compute; emitFromClick also sets the lock)
+      // All correct → mark lock
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -245,22 +245,24 @@ export class SelectionMessageService {
     // ───────── SINGLE-ANSWER ─────────
     const picked = (opts ?? []).find(o => !!o.selected);
 
-    // If we ever showed “incorrect” for this index, hold that message until a correct is chosen
+    // 🔒 If lock is set → force message to stay until correct is picked
     if (this._singleAnswerIncorrectLock.has(index)) {
       if (picked?.correct) {
+        // Unlock once correct chosen
+        this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
+      // Always hold "incorrect" while locked
       return 'Select a correct answer to continue...';
     }
 
-    // Before any pick → START/CONTINUE
     if (!anySelected) {
+      // Before any pick
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
-    // After a pick (no lock yet): decide by correctness
     if (picked && !picked.correct) {
-      // Set the lock so subsequent recomputes don’t flip back
+      // First incorrect → set lock
       this._singleAnswerIncorrectLock.add(index);
       return 'Select a correct answer to continue...';
     }
@@ -269,11 +271,9 @@ export class SelectionMessageService {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
-    // Defensive fallback (shouldn’t hit)
+    // Defensive fallback
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
-
-
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
