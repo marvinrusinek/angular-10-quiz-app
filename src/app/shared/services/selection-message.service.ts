@@ -276,28 +276,29 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // 🔒 Check locks first to avoid "click-off" downgrades
+      // If already locked correct → never downgrade
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        return 'Select a correct answer to continue...';
       }
   
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // ✅ First correct pick → lock
-        this._singleAnswerCorrectLock.add(index);
+        // ✅ Correct always overrides incorrect
+        this._singleAnswerIncorrectLock.delete(index); // clear incorrect if it was set
+        this._singleAnswerCorrectLock.add(index);      // lock correct
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (picked && !picked.correct) {
-        // 🚫 First incorrect pick → lock
-        this._singleAnswerIncorrectLock.add(index);
+        // 🚫 First incorrect pick → lock if no correct yet
+        if (!this._singleAnswerCorrectLock.has(index)) {
+          this._singleAnswerIncorrectLock.add(index);
+        }
         return 'Select a correct answer to continue...';
       }
   
@@ -309,22 +310,19 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-      const selectedAny = (opts ?? []).some(o => o.selected);
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      if (!selectedAny) {
+      if (!anySelected) {
+        // Pre-selection → show how many need to be picked
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      if (this._multiAnswerCompletionLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
       if (remaining > 0) {
+        // Still missing some correct picks
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // Lock once all correct answers are picked
+      // All correct picked → lock so it never downgrades
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -332,6 +330,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
 
