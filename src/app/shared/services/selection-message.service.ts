@@ -276,25 +276,27 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
-    const anySelected = (opts ?? []).some(o => !!o?.selected);
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
+      // 🔒 Check locks first to avoid "click-off" downgrades
+      if (this._singleAnswerCorrectLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // Correct pick → lock and never downgrade again
+        // ✅ First correct pick → lock
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        // Already marked as incorrect → enforce this message
-        return 'Select a correct answer to continue...';
-      }
-  
       if (picked && !picked.correct) {
-        // First incorrect pick → lock
+        // 🚫 First incorrect pick → lock
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
@@ -310,17 +312,14 @@ export class SelectionMessageService {
       const selectedAny = (opts ?? []).some(o => o.selected);
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      // Pre-selection → always "Select N correct answers..."
       if (!selectedAny) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // If we’ve already locked completion, never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // Still missing some correct picks
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
@@ -333,6 +332,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
 
   // Build message on click (correct wording and logic)
