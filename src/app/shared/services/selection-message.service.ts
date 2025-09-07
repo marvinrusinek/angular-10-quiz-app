@@ -212,7 +212,7 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
 
     const isLast = total > 0 && index === total - 1;
-    const anySelected = (opts ?? []).some((o) => !!o?.selected);
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
 
     // ───────── LOCKED STATES (always win) ─────────
     if (this._singleAnswerIncorrectLock.has(index)) {
@@ -225,16 +225,18 @@ export class SelectionMessageService {
     // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
       if (qType === QuestionType.MultipleAnswer) {
-        const correctCount = (opts ?? []).filter((o) => !!o.correct).length;
+        // Always show the total correct count, never CONTINUE_MSG
+        const correctCount = (opts ?? []).filter(o => !!o.correct).length;
         return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
       }
+      // Single-answer
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      const correctCount = (opts ?? []).filter((o) => !!o.correct).length;
-      const selectedCorrect = (opts ?? []).filter((o) => !!o.correct && !!o.selected).length;
+      const correctCount = (opts ?? []).filter(o => !!o.correct).length;
+      const selectedCorrect = (opts ?? []).filter(o => !!o.correct && !!o.selected).length;
 
       const remaining = Math.max(0, correctCount - selectedCorrect);
 
@@ -242,16 +244,15 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
 
-      // All correct → lock it so no later recompute flips it back
+      // All correct → lock
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // ───────── SINGLE-ANSWER ─────────
-    const lastPick = (opts ?? []).find((o) => !!o?.selected);
+    const lastPick = (opts ?? []).find(o => !!o?.selected);
 
     if (lastPick?.correct) {
-      // Correct → lock so it never downgrades
       this._singleAnswerIncorrectLock.delete(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
