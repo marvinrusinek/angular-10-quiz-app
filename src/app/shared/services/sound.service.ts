@@ -31,20 +31,9 @@ export class SoundService {
   playOnceForOption(option: SelectedOption): void {
     const qIndex = option.questionIndex ?? -1;
     const optId = option.optionId;
-
-    console.log('[📢 ENTER playOnceForOption]', { qIndex, optId, option });
-
     const key = `${qIndex}-${optId}`;
     const alreadyPlayed = this.playedSoundOptions.has(key);
     
-    console.log('[🧪 SOUND CHECK]', {
-      qIndex,
-      optId,
-      alreadyPlayed,
-      playedMap: Array.from(this.playedMap.entries()),
-      playedSoundOptions: Array.from(this.playedSoundOptions)
-    });
-
     if (alreadyPlayed) {
       console.log(`[⏸️ Sound already played for Q${qIndex}, Option ${optId}]`);
       return;
@@ -61,25 +50,6 @@ export class SoundService {
     this.playedSoundOptions.add(key);
   }
 
-  /* play(soundName: string): void {
-    // Ensure audio context is active
-    this.resumeAudioContextIfSuspended();  // ensure context is active
-
-    const sound = this.sounds[soundName];
-    if (!sound) {
-      console.warn(`[❌ Sound "${soundName}" not found. Sounds may not be initialized yet.]`);
-      return;
-    }
-    console.log(`[🔊 Playing "${soundName}"]`);
-  
-    try {
-      console.log(`[🔊 Playing "${soundName}"]`);
-      sound.stop();  // ensure it's reset
-      sound.play();
-    } catch (error) {
-      console.error(`[❌ Error playing sound "${soundName}"]:`, error);
-    }
-  } */
   play(soundName: string): void {
     this.resumeAudioContextIfSuspended();  // ensure audio context is active
   
@@ -88,8 +58,6 @@ export class SoundService {
       console.warn(`[❌ Sound "${soundName}" not found. Sounds may not be initialized yet.]`);
       return;
     }
-  
-    console.log(`[🔊 Attempting to play "${soundName}"]`);
   
     try {
       sound.stop();  // stop any current playback
@@ -112,10 +80,6 @@ export class SoundService {
   }
 
   public reset(): void {
-    console.log('[🔁 SoundService] Resetting...');
-    console.log('[🛠️ reset() called in SoundService]');  // TOP-LEVEL LOG
-    console.log('[🧼 playedSoundOptions before clear]', Array.from(this.playedSoundOptions));
-
     this.playedSoundOptions.clear();
   
     // Stop and unload all existing Howl instances FIRST
@@ -138,7 +102,6 @@ export class SoundService {
     // Small delay to ensure audio context is ready
     setTimeout(() => {
       this.initializeSounds();  // recreate fresh Howl instances
-      console.log('[🔁 SoundService] Reset complete - sounds reinitialized');
     }, 100);
   }
 
@@ -161,7 +124,6 @@ export class SoundService {
   // Method to ensure sounds are ready after restart
   ensureSoundsReady(): void {
     if (!this.sounds['correct'] || !this.sounds['incorrect']) {
-      console.log('[🔁 Reinitializing sounds - they may have been cleared]');
       this.initializeSounds();
     }
   }
@@ -171,6 +133,5 @@ export class SoundService {
       key.startsWith(`${questionIndex}-`)
     );
     keysToDelete.forEach(key => this.playedSoundOptions.delete(key));
-    console.log(`[🔁 Cleared sound flags for Q${questionIndex}]`, keysToDelete);
   }  
 }
