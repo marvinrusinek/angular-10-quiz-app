@@ -342,69 +342,63 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-  
+
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
+      // Lock has priority
+      if (this._singleAnswerCorrectLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+
       const picked = (opts ?? []).find(o => !!o.selected);
-      const state = this._singleAnswerState.get(index); // 'incorrect' | 'correct' | undefined
-  
-      // If a correct pick exists now → correct always wins (override incorrect if set)
+
       if (picked?.correct) {
-        this._singleAnswerState.set(index, 'correct');
+        // First correct → lock
+        this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // If we’ve already locked CORRECT earlier, never downgrade on recompute/click-off
-      if (state === 'correct') {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // First incorrect pick → set persistent incorrect state
       if (picked && !picked.correct) {
-        if (state !== 'incorrect') this._singleAnswerState.set(index, 'incorrect');
+        // First incorrect → lock
+        this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-  
-      // If we previously saw an incorrect pick, persist the message across click-offs/recomputes
-      if (state === 'incorrect') {
-        return 'Select a correct answer to continue...';
-      }
-  
+
       // No pick yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-  
+
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-      const selectedAny = (opts ?? []).some(o => o.selected);
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
-  
-      // Pre-selection → always "Select N correct answers..."
-      if (!selectedAny) {
-        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      }
-  
-      // If we’ve already locked completion, never downgrade
+
+      // Lock has priority
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // Still missing some correct picks
+
+      if (!anySelected) {
+        // Explicit pre-selection message
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-  
-      // All correct picked → lock so it never downgrades
+
+      // All correct picked → lock
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-  
-    // Default fallback
+
+    // Fallback
     return NEXT_BTN_MSG;
   }
-  
+
   
 
   // Build message on click (correct wording and logic)
