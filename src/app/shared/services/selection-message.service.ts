@@ -62,6 +62,12 @@ export class SelectionMessageService {
   private _singleAnswerIncorrectLock = new Set<number>();
   private _multiAnswerLock = new Set<number>();
 
+  // Track first incorrect clicks on single-answer questions
+  private _firstClickIncorrectGuard: Set<number> = new Set<number>();
+
+  // Track when a multi-answer question has been fully satisfied
+  private _multiAnswerCompletionLock: Set<number> = new Set<number>();
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -213,41 +219,55 @@ export class SelectionMessageService {
       const selectedCorrect = correctOpts.filter(o => !!o.selected).length;
       const remaining = Math.max(0, correctOpts.length - selectedCorrect);
 
-      // 🔹 Before any pick → tell user how many to find
+      // If locked (once all correct were picked), always show final message
+      if (this._multiAnswerCompletionLock?.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+
       if (!anySelected) {
         return `Select ${correctOpts.length} correct answer${correctOpts.length > 1 ? 's' : ''} to continue...`;
       }
 
-      // 🔹 After some picks
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
 
-      // 🔹 All required correct picked → Next or Show Results
+      // All correct → lock and show next/results
+      this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // ───────── SINGLE-ANSWER ─────────
+    // If locked due to incorrect pick, hold message until correct chosen
+    if (this._firstClickIncorrectGuard?.has(index)) {
+      const picked = opts.find(o => o.selected);
+
+      if (!picked || (picked && !picked.correct)) {
+        return 'Select a correct answer to continue...'; // 🔒 locked
+      }
+      if (picked.correct) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+    }
+
     if (!anySelected) {
-      // Q1 → START_MSG, others → CONTINUE_MSG
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
     const picked = opts.find(o => o.selected);
 
     if (picked && !picked.correct) {
-      // 🔒 Lock to incorrect message (no flip to Next)
+      this._firstClickIncorrectGuard.add(index); // lock it
       return 'Select a correct answer to continue...';
     }
 
     if (picked && picked.correct) {
-      // Correct → Next or Show Results
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
-    // Fallback safety
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
+
 
 
 
