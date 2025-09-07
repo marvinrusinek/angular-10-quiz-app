@@ -167,97 +167,22 @@ export class SelectionMessageService {
     qType: QuestionType;
     opts: Option[];
   }): string {
-    console.log("MY COMPUTE FINAL MESSAGE");
     const { index, total, qType, opts } = args;
   
-    const isLast = total > 0 && index === total - 1;
-    const anySelected = (opts ?? []).some((o) => !!o?.selected);
-  
-    // Pull canonical question
-    const svc: any = this.quizService as any;
-    const arr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
-    const q: QuizQuestion | undefined =
-      (index >= 0 && index < arr.length ? arr[index] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-    const canonical: Option[] = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
-    const totalCorrect = canonical.filter((o) => !!o?.correct).length;
-  
-    // expected-correct override
-    const expectedFromContent =
-      typeof (q as any)?.expectedCorrect === 'number' &&
-      (q as any).expectedCorrect > 0
-        ? (q as any).expectedCorrect
-        : Array.isArray((q as any)?.answer)
-        ? (q as any).answer.length
-        : undefined;
-    const expectedOverride = this.getExpectedCorrectCount(index) ?? expectedFromContent;
-  
-    const isMulti =
-      totalCorrect > 1 ||
-      qType === QuestionType.MultipleAnswer ||
-      (expectedOverride ?? 0) > 1;
-  
-    // Count correct selections
-    const selectedCorrect = (opts ?? []).reduce(
-      (n, o) => n + (!!o?.correct && !!o?.selected ? 1 : 0),
-      0
-    );
-  
-    // BEFORE ANY PICK
-    if (!anySelected) {
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
-    // ───────── MULTI ─────────
-    if (isMulti) {
-      const enforcedRemaining =
-        expectedOverride != null
-          ? Math.max(0, expectedOverride - selectedCorrect)
-          : this.remainingFromCanonical(index, opts);
-  
-      if (enforcedRemaining > 0) {
-        return buildRemainingMsg(enforcedRemaining);
-      }
-  
-      // ✅ LAST QUESTION WITH ALL CORRECT
-      const allCorrect =
-        selectedCorrect === totalCorrect &&
-        (opts ?? []).filter((o) => o.selected).length === totalCorrect;
-      if (isLast && allCorrect) {
-        return SHOW_RESULTS_MSG;
-      }
-      return NEXT_BTN_MSG;
-    }
-  
-    // ───────── SINGLE ─────────
-    const lastPick = (opts ?? []).find((o) => !!o?.selected);
-    if (lastPick && !lastPick.correct) {
-      return 'Select a correct answer to continue...';
-    }
-  
-    // ✅ LAST QUESTION AND CORRECT PICK
-    if (isLast && lastPick?.correct) {
-      return SHOW_RESULTS_MSG;
-    }
-
-    console.log('[MSG DEBUG]', {
+    // Delegate directly to the same logic used in emitFromClick
+    let computedMsg = '';
+    this.emitFromClick({
       index,
-      total,
-      isLast,
-      qType,
-      opts: (opts ?? []).map(o => ({
-        id: o.optionId,
-        sel: o.selected,
-        correct: o.correct
-      }))
-    });    
+      totalQuestions: total,
+      questionType: qType,
+      options: opts,
+      canonicalOptions: opts as CanonicalOption[],  // safe: both share shape here
+      onMessageChange: (m: string) => (computedMsg = m),
+      token: -1  // token irrelevant for compute
+    });
   
-    return NEXT_BTN_MSG;
+    return computedMsg;
   }
-  
-  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
