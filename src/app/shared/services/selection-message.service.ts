@@ -342,61 +342,64 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-
+  
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // Lock has priority (check correct before incorrect)
+      const picked = (opts ?? []).find(o => !!o.selected);
+  
+      // 1. If correct picked → lock and clear incorrect lock
+      if (picked?.correct) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index); // clear stale incorrect
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // 2. If already correct lock, never downgrade
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        return 'Select a correct answer to continue...';
-      }
-
-      const picked = (opts ?? []).find(o => !!o.selected);
-
-      if (picked?.correct) {
-        // First correct → lock permanently to Next/Results
-        this._singleAnswerCorrectLock.add(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
+  
+      // 3. If incorrect picked first → lock permanently
       if (picked && !picked.correct) {
-        // First incorrect → lock permanently to incorrect message
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-
-      // No pick yet
+  
+      // 4. If already incorrect lock → enforce it
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      // 5. No pick yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
+  
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
-
-      // Lock has priority
+  
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
+  
       if (!anySelected) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-
+  
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-
-      // All correct picked → lock
+  
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
+  
     // Fallback
     return NEXT_BTN_MSG;
   }
+  
 
 
   
