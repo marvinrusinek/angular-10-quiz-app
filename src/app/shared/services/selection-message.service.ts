@@ -216,18 +216,15 @@ export class SelectionMessageService {
 
     // ───────── LOCKED STATES (always win) ─────────
     if (this._singleAnswerIncorrectLock.has(index)) {
-      // Sticky incorrect message → never overwritten until reset
       return 'Select a correct answer to continue...';
     }
     if (this._multiAnswerCompletionLock.has(index)) {
-      // Sticky completion message for multi-answer
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     // ───────── BEFORE ANY PICK ─────────
     if (!anySelected) {
       if (qType === QuestionType.MultipleAnswer) {
-        // For multi, show "Select N correct answers..." instead of generic CONTINUE_MSG
         const correctCount = (opts ?? []).filter((o) => !!o.correct).length;
         return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
       }
@@ -253,14 +250,15 @@ export class SelectionMessageService {
     // ───────── SINGLE-ANSWER ─────────
     const lastPick = (opts ?? []).find((o) => !!o?.selected);
 
-    if (lastPick && !lastPick.correct) {
-      // First incorrect → lock it so no later recompute flips it back
-      this._singleAnswerIncorrectLock.add(index);
-      return 'Select a correct answer to continue...';
+    if (lastPick?.correct) {
+      // Correct → lock so it never downgrades
+      this._singleAnswerIncorrectLock.delete(index);
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
-    if (lastPick?.correct) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    if (lastPick && !lastPick.correct) {
+      this._singleAnswerIncorrectLock.add(index);
+      return 'Select a correct answer to continue...';
     }
 
     // Fallback
