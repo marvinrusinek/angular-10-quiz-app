@@ -603,50 +603,27 @@ export class SelectionMessageService {
     const forced = this.multiGateMessage(i0, qType, overlaid);
     const msg = forced ?? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
 
-    this.updateSelectionMessage(msg, {
+    /* this.updateSelectionMessage(msg, {
       options: overlaid,
       index: i0,
       token,
-      questionType: qType,
-    });
+      questionType: qType
+    }); */
   }
 
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
     const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
-    this.optionsSnapshot = safe; // persist internally
-    this.optionsSnapshotSubject.next(safe); // still emit for any subscribers
-  }
-
-  public getOptionsSnapshot(): Option[] {
-    return this.optionsSnapshot.map((o) => ({ ...o }));
+    this.optionsSnapshot = safe;  // persist internally
+    this.optionsSnapshotSubject.next(safe);  // still emit for any subscribers
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
-    this.setOptionsSnapshot(options); // keep existing snapshot
+    this.setOptionsSnapshot(options);  // keep existing snapshot
   }
 
   // HELPERS
-
-  // Prefer explicit ids; otherwise derive a stable key from content (never the index)
-  // Prefer canonical/registered id; never fall back to UI index
-  private getOptionId(opt: any, _idx: number): number | string {
-    if (!opt) return '__nil';
-    if (opt.optionId != null) return opt.optionId;
-    if (opt.id != null) return opt.id;
-
-    const key = this.keyOf(opt);
-    // Try to resolve via registry (if present for current question)
-    const i0 = this.quizService?.currentQuestionIndex ?? 0;
-    const map = this.idMapByIndex.get(i0);
-    const mapped = map?.get(key);
-    if (mapped != null) return mapped;
-
-    // Last resort: use the key itself (content-based, stable)
-    return key;
-  }
-
   // Reserve a write slot for this question; returns the token to attach to the write.
   public beginWrite(index: number, freezeMs = 600): number {
     const token = ++this.writeSeq;
@@ -666,7 +643,7 @@ export class SelectionMessageService {
   ): void {
     if (typeof token === 'number') {
       const latest = this.latestByIndex.get(index);
-      if (latest != null && token !== latest) return; // stale; ignore
+      if (latest != null && token !== latest) return;  // stale; ignore
     }
     if (opts?.clearTokenWindow) this.freezeNextishUntil.delete(index);
   }
@@ -683,13 +660,6 @@ export class SelectionMessageService {
     // Only frozen if the token matches the latest one and still inside the freeze window
     return token === latest && stillFrozen;
   }
-
-  // Authoritative: call only from the option click with the updated array
-  // TEMP: if you know Q4 must have 3 correct, set here to prove data vs logic.
-  // Remove after you fix canonical data.
-  private expectedTotalCorrectOverride: Record<number, number> = {
-    3: 3,  // Q4 is zero-based index 3; change if your index differs
-  };
 
   // Emit a selection message based on canonical + UI state
   public emitFromClick(params: {
@@ -752,13 +722,6 @@ export class SelectionMessageService {
   }  
 
   /* ================= Helpers ================= */
-  private textKey(s: any): string {
-    return (typeof s === 'string' ? s : '')
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, ' ');
-  }
-
   // Overlay UI/service selection onto canonical options (correct flags intact)
   private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
     const svc: any = this.quizService as any;
@@ -811,14 +774,14 @@ export class SelectionMessageService {
       ? canonical.map((o, idx) => {
           const id = this.toStableId(o, idx);
           const sel = selectedIds.has(id);
-          return this.toOption(o, idx, sel); // ← always an Option
+          return this.toOption(o, idx, sel);  // always an Option
         })
-      : source.map((o, idx) => this.toOption(o, idx)); // ← always an Option
+      : source.map((o, idx) => this.toOption(o, idx));  // always an Option
 
-    return result; // Option[]
+    return result;  // Option[]
   }
 
-  // Gate: if multi & remaining>0, return the forced "Select N more..." message; else null
+  // Gate: if multi & remaining > 0, return the forced "Select N more..." message; else null
   // UPDATED: honor expected-correct override and count only SELECTED-CORRECT
   private multiGateMessage(
     i0: number,
@@ -879,18 +842,6 @@ export class SelectionMessageService {
     const remaining = Math.max(0, totalForThisQ - selectedCorrect);
     if (remaining > 0) return buildRemainingMsg(remaining);
     return null;
-  }
-
-  private getQuestionTypeForIndex(index: number): QuestionType {
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
-    const q =
-      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-      svc.currentQuestion ??
-      null;
-    return q?.type ?? QuestionType.SingleAnswer;
   }
 
   // Ensure every canonical option has a stable optionId.
@@ -1224,5 +1175,17 @@ export class SelectionMessageService {
     }
 
     return keys;
+  }
+
+  private getQuestionTypeForIndex(index: number): QuestionType {
+    const svc: any = this.quizService as any;
+    const qArr = Array.isArray(svc.questions)
+      ? (svc.questions as QuizQuestion[])
+      : [];
+    const q =
+      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
+      svc.currentQuestion ??
+      null;
+    return q?.type ?? QuestionType.SingleAnswer;
   }
 }
