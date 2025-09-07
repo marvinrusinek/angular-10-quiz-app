@@ -57,8 +57,9 @@ export class SelectionMessageService {
   // Latch to prevent regressions after a multi question is satisfied
   public completedByIndex = new Map<number, boolean>();
 
-  // Track which multi-answer questions have been "locked in"
+  // Track which questions have been "locked" once correct is chosen
   private _multiAnswerLock = new Set<number>();
+  private _singleAnswerLock = new Set<number>();
 
   constructor(
     private quizService: QuizService,
@@ -375,14 +376,13 @@ export class SelectionMessageService {
       // ───────── MULTI-ANSWER ─────────
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
 
-      // If already locked, always stick to Next/Results
       if (this._multiAnswerLock.has(index)) {
+        // Already locked → always Next/Results
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else if (remainingCorrect > 0) {
-        // Still missing correct picks → show "Select N more…"
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
-        // All required correct answers found → lock this question
+        // All required correct answers found → lock
         this._multiAnswerLock.add(index);
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
@@ -390,11 +390,14 @@ export class SelectionMessageService {
       // ───────── SINGLE-ANSWER ─────────
       const picked = canonicalOptions.find(o => o.selected);
 
-      if (picked?.correct) {
-        // Once a correct pick is made → lock to Next/Results, never downgrade
+      if (this._singleAnswerLock.has(index)) {
+        // Once locked → never downgrade
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      } else if (picked?.correct) {
+        // First correct pick → lock
+        this._singleAnswerLock.add(index);
         msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        // Incorrect pick
         msg = 'Select a correct answer to continue...';
       }
     }
