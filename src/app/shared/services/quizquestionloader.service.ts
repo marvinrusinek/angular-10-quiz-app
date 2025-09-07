@@ -667,7 +667,6 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.selectionMessageService.setSelectionMessage(false);
   
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
@@ -690,6 +689,9 @@ export class QuizQuestionLoaderService {
     // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
+  
+    // Now recompute baseline message after everything has been cleared
+    this.selectionMessageService.setSelectionMessage(false);
   }
 
   private resetQuestionDisplayState(): void {
