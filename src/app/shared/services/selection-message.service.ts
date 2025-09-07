@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 
-import { aliasKeys } from '../utils/alias-utils';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { CanonicalOption } from '../../shared/models/CanonicalOption.model';
 import { Option } from '../../shared/models/Option.model';
