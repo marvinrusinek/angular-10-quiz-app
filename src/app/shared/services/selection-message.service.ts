@@ -203,7 +203,7 @@ export class SelectionMessageService {
     return computedMsg;
   } */
   // Centralized, deterministic message builder
-  public computeFinalMessage(args: {
+  /* public computeFinalMessage(args: {
     index: number;
     total: number;
     qType: QuestionType;
@@ -266,8 +266,46 @@ export class SelectionMessageService {
 
     // Fallback
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }
+  } */
+  public computeFinalMessage(args: {
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
 
+    const isLast = total > 0 && index === total - 1;
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
+
+    // ───────── BEFORE ANY PICK ─────────
+    if (!anySelected) {
+      if (qType === QuestionType.MultipleAnswer) {
+        const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
+        return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
+      }
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+
+    // ───────── AFTER A PICK ─────────
+    let computedMsg = '';
+    this.emitFromClick({
+      index,
+      totalQuestions: total,
+      questionType: qType,
+      options: opts,
+      canonicalOptions: opts as CanonicalOption[],
+      onMessageChange: (m: string) => (computedMsg = m),
+      token: -1
+    });
+
+    // Safety: if emitFromClick didn’t set anything, fall back
+    if (!computedMsg) {
+      computedMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+
+    return computedMsg;
+  }
 
 
   // Build message on click (correct wording and logic)
@@ -411,7 +449,7 @@ export class SelectionMessageService {
   }
 
   // Emit a selection message based on canonical + UI state
-  public emitFromClick(params: {
+  /* public emitFromClick(params: {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
@@ -493,6 +531,71 @@ export class SelectionMessageService {
       }
     }
   
+    if (onMessageChange) onMessageChange(msg);
+    this.selectionMessageSubject?.next(msg);
+  } */
+  public emitFromClick(params: {
+    index: number;
+    totalQuestions: number;
+    questionType: QuestionType;
+    options: Option[];              // UI copy with latest selected flags
+    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
+    onMessageChange?: (msg: string) => void;
+    token?: number;
+  }): void {
+    const {
+      index,
+      totalQuestions,
+      questionType,
+      options,
+      canonicalOptions,
+      onMessageChange,
+    } = params;
+  
+    const isMultiSelect = questionType === QuestionType.MultipleAnswer;
+  
+    // How many are correct in canonical set
+    const correctOpts = canonicalOptions.filter(o => !!o.correct);
+  
+    // Count how many correct answers have been selected so far
+    const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
+  
+    // Count how many total selections are currently made
+    const selectedCount = (options ?? []).filter(o => !!o.selected).length;
+  
+    // ───────── GUARD: PRE-SELECTION ─────────
+    if (!selectedCount) {
+      // Pre-selection state is always handled by computeFinalMessage,
+      // so do not emit anything here (prevents flashing).
+      return;
+    }
+  
+    let msg = '';
+  
+    if (isMultiSelect) {
+      const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
+  
+      if (remainingCorrect > 0) {
+        // Still missing correct picks → show "Select N more…"
+        msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        // All required correct answers found
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+    } else {
+      // ───────── SINGLE-ANSWER ─────────
+      const picked = canonicalOptions.find(o => o.selected);
+  
+      if (picked?.correct) {
+        // Once a correct pick is made → lock to Next/Results, never downgrade
+        msg = index === totalQuestions - 1 ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      } else {
+        // Incorrect pick
+        msg = 'Select a correct answer to continue...';
+      }
+    }
+  
+    // Push to UI
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
   }
