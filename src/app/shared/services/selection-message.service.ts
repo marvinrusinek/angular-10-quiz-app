@@ -571,6 +571,7 @@ export class SelectionMessageService {
       opts: options
     });
   
+    // Emit
     if (onMessageChange) onMessageChange(msg);
     this.selectionMessageSubject?.next(msg);
   }
