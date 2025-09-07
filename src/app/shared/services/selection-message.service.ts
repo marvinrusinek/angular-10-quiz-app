@@ -417,8 +417,8 @@ export class SelectionMessageService {
     index: number;
     totalQuestions: number;
     questionType: QuestionType;
-    options: Option[];               // UI copy with latest selected flags
-    canonicalOptions: CanonicalOption[]; // authoritative canonical snapshot
+    options: Option[];
+    canonicalOptions: CanonicalOption[];
     onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
@@ -432,12 +432,12 @@ export class SelectionMessageService {
     } = params;
   
     const isMultiSelect = questionType === QuestionType.MultipleAnswer;
+    const isLast = index === totalQuestions - 1;
   
     const correctOpts = canonicalOptions.filter(o => !!o.correct);
     const selectedCorrectCount = correctOpts.filter(o => !!o.selected).length;
     const selectedCount = (options ?? []).filter(o => !!o.selected).length;
   
-    const isLast = index === totalQuestions - 1;
     let msg = '';
   
     // ───────── SINGLE-ANSWER INCORRECT LOCK ─────────
@@ -448,19 +448,19 @@ export class SelectionMessageService {
         this._singleAnswerIncorrectLock.delete(index);
         msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       } else {
-        // 🔒 Stay locked regardless of click-off or empty selections
+        // 🔒 Stay locked regardless of further clicks or side-clicks
         msg = 'Select a correct answer to continue...';
       }
       if (onMessageChange) onMessageChange(msg);
       this.selectionMessageSubject?.next(msg);
-      return; // ⬅️ Important: lock always wins
+      return; // lock always wins
     }
   
-    // ───────── EARLY GUARD (no selections yet) ─────────
+    // ───────── BEFORE ANY PICK ─────────
     if (!selectedCount) {
       if (isMultiSelect) {
-        const remainingCorrect = correctOpts.length;
-        msg = `Select ${remainingCorrect} correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
+        const totalCorrect = correctOpts.length;
+        msg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       } else {
         msg = index === 0 ? START_MSG : CONTINUE_MSG;
       }
@@ -469,25 +469,29 @@ export class SelectionMessageService {
       return;
     }
   
+    // ───────── MULTI-ANSWER ─────────
     if (isMultiSelect) {
-      // ───────── MULTI-ANSWER ─────────
       const remainingCorrect = Math.max(0, correctOpts.length - selectedCorrectCount);
   
       if (remainingCorrect > 0) {
         msg = `Select ${remainingCorrect} more correct answer${remainingCorrect > 1 ? 's' : ''} to continue...`;
       } else {
+        // Once all correct are picked, lock it
+        if (!this._multiAnswerCompletionLock.has(index)) {
+          this._multiAnswerCompletionLock.add(index);
+        }
         msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    } else {
-      // ───────── SINGLE-ANSWER ─────────
+    }
+    // ───────── SINGLE-ANSWER ─────────
+    else {
       const picked = canonicalOptions.find(o => o.selected);
-  
-      if (picked && !picked.correct) {
-        // First incorrect → set lock
+      if (picked?.correct) {
+        msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      } else {
+        // First incorrect → set lock and stay on it
         this._singleAnswerIncorrectLock.add(index);
         msg = 'Select a correct answer to continue...';
-      } else if (picked?.correct) {
-        msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
     }
   
