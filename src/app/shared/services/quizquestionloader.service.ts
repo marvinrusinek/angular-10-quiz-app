@@ -692,6 +692,7 @@ export class QuizQuestionLoaderService {
   
     // Now recompute baseline message after everything has been cleared
     this.selectionMessageService.setSelectionMessage(false);
+    this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
   }
 
   private resetQuestionDisplayState(): void {
