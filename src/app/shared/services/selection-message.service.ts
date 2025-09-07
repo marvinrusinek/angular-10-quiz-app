@@ -211,7 +211,6 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
-    const anySelected = (opts ?? []).some(o => !!o?.selected);
 
     // ───────── ENFORCE LOCKS FIRST ─────────
     if (this._multiAnswerCompletionLock.has(index)) {
@@ -225,13 +224,13 @@ export class SelectionMessageService {
     }
 
     // ───────── PRE-SELECTION ─────────
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
     if (!anySelected) {
       if (qType === QuestionType.MultipleAnswer) {
+        // Always show total number of correct upfront
         const correctCount = (opts ?? []).filter(o => !!o?.correct).length;
-        // Always show N correct upfront
         return `Select ${correctCount} correct answer${correctCount > 1 ? 's' : ''} to continue...`;
       }
-      // Single-answer: show start/continue
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
 
@@ -254,21 +253,21 @@ export class SelectionMessageService {
     const lastPick = (opts ?? []).find(o => o.selected);
 
     if (lastPick?.correct) {
+      // Lock correct state → never downgrade
       this._singleAnswerCorrectLock.add(index);
       this._singleAnswerIncorrectLock.delete(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
 
     if (lastPick && !lastPick.correct) {
+      // Lock incorrect → never upgrade unless another pick is correct
       this._singleAnswerIncorrectLock.add(index);
       return 'Select a correct answer to continue...';
     }
 
-    // Fallback
+    // Fallback (shouldn’t normally hit)
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
-
-
 
 
 
