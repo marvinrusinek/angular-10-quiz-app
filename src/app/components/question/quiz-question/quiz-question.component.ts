@@ -3475,9 +3475,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtIdx = event.index;
     const evtOpt = event.option;
 
-    // ───────────────────────────────────────────────
+
     // FLASH-PROOF FIRST INCORRECT CLICK (single-answer)
-    // ───────────────────────────────────────────────
     let suppressMessageFromServiceOnce = false;
 
     if (
@@ -3592,7 +3591,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           options: optionsNow,
           canonicalOptions: canonicalOpts as CanonicalOption[],
           onMessageChange: (m: string) => {
-            // Double guard
+            if (suppressMessageFromServiceOnce) return;
             if (!this._singleIncorrectLock.has(i0)) {
               this.selectionMessage = m;
             }
@@ -3623,13 +3622,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         this.setExplanationFor(i0, txt);
         this.explanationToDisplay = txt;
-        this.explanationToDisplayChange?.emit(txt);
+        this.explanationToDisplayChange.emit(txt);
 
         // Update option highlighting/feedback
         this.updateOptionHighlighting(i0, canonicalOpts, selOptsSet);
 
-        this.cdRef.markForCheck?.();
-        this.cdRef.detectChanges?.();
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       });
 
       // Post-click tasks: feedback, core selection, marking, refresh
