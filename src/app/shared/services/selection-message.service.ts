@@ -348,28 +348,29 @@ export class SelectionMessageService {
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
-      if (picked?.correct) {
-        // ✅ Correct pick → clear incorrect lock, set correct lock
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      if (picked && !picked.correct) {
-        // First incorrect pick → set incorrect lock
-        this._singleAnswerIncorrectLock.add(index);
-        return 'Select a correct answer to continue...';
-      }
-  
-      // Check locks if no fresh pick
+      // 🔒 If a correct lock was set earlier → always show Next/Results
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
+  
+      // 🔒 If an incorrect lock was set earlier → always show incorrect msg
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
   
-      // No pick yet
+      // First time seeing a correct pick → lock it
+      if (picked?.correct) {
+        this._singleAnswerCorrectLock.add(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // First time seeing an incorrect pick → lock it
+      if (picked && !picked.correct) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+  
+      // No picks yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -379,7 +380,13 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
+      // 🔒 If completion lock is set → don’t downgrade after blur
+      if (this._multiAnswerCompletionLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
       if (!anySelected) {
+        // Pre-selection: show total required correct answers
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -387,6 +394,7 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
+      // ✅ All correct picked → lock
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
@@ -394,6 +402,8 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
+  
   
   
   
