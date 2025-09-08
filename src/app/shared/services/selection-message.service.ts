@@ -344,22 +344,28 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
   
+    // ───────── LOCK PRIORITY ─────────
+    if (this._singleAnswerCorrectLock.has(index)) {
+      // Once correct is chosen → always show Next/Results
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+    if (this._singleAnswerIncorrectLock.has(index)) {
+      // Incorrect lock → always show incorrect prompt
+      return 'Select a correct answer to continue...';
+    }
+  
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // ✅ Correct pick always wins, lock permanently
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // clear any incorrect lock
+        this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (picked && !picked.correct) {
-        // First incorrect pick → lock
-        if (!this._singleAnswerIncorrectLock.has(index)) {
-          this._singleAnswerIncorrectLock.add(index);
-        }
+        this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
   
@@ -374,7 +380,6 @@ export class SelectionMessageService {
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
       if (!anySelected) {
-        // Pre-selection → stable message
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -382,14 +387,13 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // ✅ Lock once all correct answers are picked
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
