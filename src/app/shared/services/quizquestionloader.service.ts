@@ -667,6 +667,15 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
+
+    // Reset selection message baseline
+    this.selectionMessageService.setSelectionMessage(false);
+
+    // Clear all lock sets (single + multi)
+    this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
+    this.selectionMessageService['_singleAnswerCorrectLock'].clear();
+    this.selectionMessageService['_multiAnswerInProgressLock'].clear();
+    this.selectionMessageService['_multiAnswerCompletionLock'].clear();
   
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
@@ -689,15 +698,6 @@ export class QuizQuestionLoaderService {
     // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
-  
-    // Now recompute baseline message after everything has been cleared
-    this.selectionMessageService.setSelectionMessage(false);
-
-    // Clear all selection locks to reset state for the new question
-    this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
-    this.selectionMessageService['_singleAnswerCorrectLock'].clear();
-    this.selectionMessageService['_multiAnswerInProgressLock'].clear();
-    this.selectionMessageService['_multiAnswerCompletionLock'].clear();
   }
 
   private resetQuestionDisplayState(): void {
