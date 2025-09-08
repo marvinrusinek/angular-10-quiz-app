@@ -348,23 +348,26 @@ export class SelectionMessageService {
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
-      // ✅ Correct lock → never downgrade again
+      // ✅ If correct already locked, never downgrade
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🔒 Incorrect lock → always show incorrect message
+      // 🔒 If incorrect already locked, enforce until correct is picked
       if (this._singleAnswerIncorrectLock.has(index)) {
+        if (picked?.correct) {
+          this._singleAnswerCorrectLock.add(index);
+          this._singleAnswerIncorrectLock.delete(index);
+          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
         return 'Select a correct answer to continue...';
       }
   
-      // First correct pick → lock and stay at Next/Results
+      // First pick cases
       if (picked?.correct) {
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // First incorrect pick → lock and stay incorrect
       if (picked && !picked.correct) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
@@ -380,28 +383,32 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      // ✅ Already completed → lock to Next/Results
+      // ✅ If locked completed, never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
+      // 🟢 Pre-selection: always show "Select N correct answers..."
       if (!anySelected) {
-        // Pre-selection: tell user how many they need to pick
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
+      // Still missing some → show "Select N more…"
       if (remaining > 0) {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // ✅ Lock once all correct answers are picked
+      // ✅ All correct selected → lock and show Next/Results
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
-    // ───────── DEFAULT ─────────
+    // Fallback
     return NEXT_BTN_MSG;
   }
+  
+  
+  
   
   
   
