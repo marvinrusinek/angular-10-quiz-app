@@ -677,15 +677,13 @@ export class SelectionMessageService {
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
-      // ✅ If already locked correct → never downgrade
+      // 🔒 Enforce locks first (never let "click-off" override)
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // 🔒 If already locked incorrect → enforce until a correct is picked
       if (this._singleAnswerIncorrectLock.has(index)) {
         if (picked?.correct) {
-          // Promote: correct overrides previous incorrect lock
+          // Promote → correct overrides previous incorrect lock
           this._singleAnswerCorrectLock.add(index);
           this._singleAnswerIncorrectLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -713,15 +711,13 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      // ✅ If already locked complete → never downgrade
+      // 🔒 Enforce locks first
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // 🔒 If already locked in-progress → enforce until complete
       if (this._multiAnswerInProgressLock.has(index)) {
         if (remaining === 0) {
-          // Promote: completion overrides in-progress
+          // Promote to complete
           this._multiAnswerCompletionLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -729,7 +725,7 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // No pick yet → stable pre-selection message
+      // No pick yet → stable "Select N correct answers..."
       if (!anySelected) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
@@ -750,6 +746,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
