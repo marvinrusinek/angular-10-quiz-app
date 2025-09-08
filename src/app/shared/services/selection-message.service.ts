@@ -690,7 +690,7 @@ export class SelectionMessageService {
           this._singleAnswerIncorrectLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         }
-        // 🚫 Always enforce incorrect message (prevents "click-off" flipping text)
+        // 🚫 Even if nothing is selected (click-off), stay locked on this message
         return 'Select a correct answer to continue...';
       }
   
@@ -704,7 +704,7 @@ export class SelectionMessageService {
         return 'Select a correct answer to continue...';
       }
   
-      // No pick yet
+      // No pick yet (only if never locked)
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -722,6 +722,7 @@ export class SelectionMessageService {
       // 🔒 Already locked in-progress → enforce until complete
       if (this._multiAnswerInProgressLock.has(index)) {
         if (remaining === 0) {
+          // Promote: all correct chosen → lock completion
           this._multiAnswerCompletionLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -729,13 +730,13 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // No pick yet → stable pre-selection
+      // No pick yet → always stable "Select N correct answers..."
       if (!anySelected) {
         this._multiAnswerInProgressLock.add(index); // lock pre-selection state
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made but not complete
+      // Some picks made
       if (remaining > 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
@@ -749,6 +750,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
