@@ -692,9 +692,12 @@ export class QuizQuestionLoaderService {
   
     // Now recompute baseline message after everything has been cleared
     this.selectionMessageService.setSelectionMessage(false);
-    this.selectionMessageService['_multiAnswerCompletionLock'].clear();
+
+    // Clear all selection locks to reset state for the new question
     this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
     this.selectionMessageService['_singleAnswerCorrectLock'].clear();
+    this.selectionMessageService['_multiAnswerInProgressLock'].clear();
+    this.selectionMessageService['_multiAnswerCompletionLock'].clear();
   }
 
   private resetQuestionDisplayState(): void {
