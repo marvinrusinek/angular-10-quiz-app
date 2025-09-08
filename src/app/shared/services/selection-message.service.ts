@@ -594,7 +594,7 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🔒 Incorrect already locked → enforce until correct overrides
+      // 🔒 Incorrect already locked → enforce unless user has now chosen correct
       if (this._singleAnswerIncorrectLock.has(index)) {
         if (picked?.correct) {
           // Promote: correct overrides incorrect
@@ -602,6 +602,7 @@ export class SelectionMessageService {
           this._singleAnswerIncorrectLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         }
+        // Even if nothing is picked anymore (click-off), stay locked to incorrect
         return 'Select a correct answer to continue...';
       }
   
@@ -615,7 +616,7 @@ export class SelectionMessageService {
         return 'Select a correct answer to continue...';
       }
   
-      // No pick yet
+      // No pick yet (fresh question, no clicks yet)
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -638,18 +639,18 @@ export class SelectionMessageService {
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         }
-        // Stay consistent, don’t flash back to generic
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // No pick yet → always stable "Select N correct answers..."
+      // No pick yet → always stable "Select N correct answers…"
       if (!anySelected) {
         this._multiAnswerInProgressLock.add(index); // lock pre-selection state
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made but not yet complete
+      // Some picks made
       if (remaining > 0) {
+        // First time partial → lock in-progress
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
@@ -662,6 +663,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
