@@ -344,28 +344,28 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
   
-    // ───────── LOCK PRIORITY ─────────
-    if (this._singleAnswerCorrectLock.has(index)) {
-      // Once correct is chosen → always show Next/Results
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      // Incorrect lock → always show incorrect prompt
-      return 'Select a correct answer to continue...';
-    }
-  
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
+        // ✅ Correct pick → clear incorrect lock, set correct lock
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (picked && !picked.correct) {
+        // First incorrect pick → set incorrect lock
         this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+  
+      // Check locks if no fresh pick
+      if (this._singleAnswerCorrectLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
   
@@ -391,8 +391,10 @@ export class SelectionMessageService {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
+    // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
