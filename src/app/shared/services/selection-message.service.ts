@@ -58,11 +58,16 @@ export class SelectionMessageService {
   public completedByIndex = new Map<number, boolean>();
 
   // Track which questions have been "locked" once correct is chosen
-  private _singleAnswerCorrectLock = new Set<number>();
-  // Track first incorrect pick on single-answer until a correct is chosen
-  private _singleAnswerIncorrectLock: Set<number> = new Set<number>();
-  // Track when a multi-answer question has been fully satisfied (all correct picked)
-  private _multiAnswerCompletionLock: Set<number> = new Set<number>();
+  // Single-answer: one for incorrect, one for correct
+  private _singleAnswerIncorrectLock: Set<number> = new Set();
+  private _singleAnswerCorrectLock: Set<number> = new Set();
+
+  // Multi-answer: one for "in-progress" (partial selections), 
+  // one for "completion" (all correct selected)
+  private _multiAnswerInProgressLock: Set<number> = new Set();
+  private _multiAnswerCompletionLock: Set<number> = new Set();
+
+
 
   private _singleAnswerState = new Map<number, 'incorrect' | 'correct'>();  // per-question SA state
 
