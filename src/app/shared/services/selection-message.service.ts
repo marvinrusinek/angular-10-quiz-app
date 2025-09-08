@@ -618,7 +618,7 @@ export class SelectionMessageService {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER ─────────
+    // ───────── MULTI-ANSWER (fixed) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
@@ -640,13 +640,12 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // ───── PRE-SELECTION (no picks yet) ─────
+      // No pick yet → show "Select N correct answers…"
       if (!anySelected) {
-        // Always show expected total correct answers here
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // ───── AFTER PICKS ─────
+      // Some picks made
       if (remaining > 0) {
         // First time partial → lock in-progress
         this._multiAnswerInProgressLock.add(index);
