@@ -552,6 +552,7 @@ export class SelectionMessageService {
   }
   
   
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
