@@ -348,23 +348,23 @@ export class SelectionMessageService {
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
-      // ✅ If we've already locked correct → always return NEXT/RESULTS
+      // ✅ Correct lock → never downgrade again
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🔒 If we've already locked incorrect → always return incorrect message
+      // 🔒 Incorrect lock → always show incorrect message
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
   
-      // If correct is picked now → lock and return NEXT/RESULTS
+      // First correct pick → lock and stay at Next/Results
       if (picked?.correct) {
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // If incorrect is picked now → lock and return incorrect message
+      // First incorrect pick → lock and stay incorrect
       if (picked && !picked.correct) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
@@ -380,13 +380,13 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      // ✅ If already locked → freeze to NEXT/RESULTS
+      // ✅ Already completed → lock to Next/Results
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (!anySelected) {
-        // Pre-selection: show how many correct are expected
+        // Pre-selection: tell user how many they need to pick
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -402,6 +402,7 @@ export class SelectionMessageService {
     // ───────── DEFAULT ─────────
     return NEXT_BTN_MSG;
   }
+  
   
   
   
