@@ -496,36 +496,35 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
-  
-    // ───────── HARD LOCKS (never downgrade on re-eval) ─────────
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      return 'Select a correct answer to continue...';
-    }
-    if (this._multiAnswerCompletionLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._multiAnswerInProgressLock.has(index)) {
-      const totalCorrectLocked = (opts ?? []).filter(o => !!o?.correct).length;
-      const selectedCorrectLocked = (opts ?? []).filter(o => o.selected && o.correct).length;
-      const remainingLocked = Math.max(0, totalCorrectLocked - selectedCorrectLocked);
-      return remainingLocked > 0
-        ? `Select ${remainingLocked} more correct answer${remainingLocked > 1 ? 's' : ''} to continue...`
-        : (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
-    }
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
+      // ✅ If already locked correct, never downgrade
+      if (this._singleAnswerCorrectLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // 🔒 If locked incorrect, enforce unless user has now chosen correct
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        if (picked?.correct) {
+          // Promote: correct overrides previous incorrect lock
+          this._singleAnswerCorrectLock.add(index);
+          this._singleAnswerIncorrectLock.delete(index);
+          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
+        return 'Select a correct answer to continue...';
+      }
+  
+      // First pick cases
       if (picked?.correct) {
-        this._singleAnswerCorrectLock.add(index);   // lock correct
+        this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
       if (picked && !picked.correct) {
-        this._singleAnswerIncorrectLock.add(index); // lock incorrect
+        this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
   
@@ -539,20 +538,43 @@ export class SelectionMessageService {
       const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-      if (!opts.some(o => !!o.selected)) {
+      // ✅ If already locked complete, never downgrade
+      if (this._multiAnswerCompletionLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // 🔒 If locked in-progress, enforce until complete
+      if (this._multiAnswerInProgressLock.has(index)) {
+        if (remaining === 0) {
+          // Promote: all correct chosen → lock completion
+          this._multiAnswerCompletionLock.add(index);
+          this._multiAnswerInProgressLock.delete(index);
+          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      }
+  
+      // No pick yet → show "Select N correct answers…"
+      if (!anySelected) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
+  
+      // Some picks made
       if (remaining > 0) {
+        // First time partial → lock in-progress
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
+      // All correct selected → lock complete
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
+    // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
