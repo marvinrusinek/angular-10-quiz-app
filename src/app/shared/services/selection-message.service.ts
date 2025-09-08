@@ -334,73 +334,65 @@ export class SelectionMessageService {
     return NEXT_BTN_MSG;
   } */
   // Centralized, deterministic message builder
-public computeFinalMessage(args: {
-  index: number;
-  total: number;
-  qType: QuestionType;
-  opts: Option[];
-}): string {
-  const { index, total, qType, opts } = args;
-  const isLast = total > 0 && index === total - 1;
-  const anySelected = (opts ?? []).some(o => !!o?.selected);
-
-  // ───────── SINGLE-ANSWER ─────────
-  if (qType === QuestionType.SingleAnswer) {
-    const picked = (opts ?? []).find(o => !!o.selected);
-
-    // ✅ Correct pick → lock permanently to Next/Results
-    if (picked?.correct) {
-      this._singleAnswerCorrectLock.add(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-
-    // ❌ Incorrect pick → once locked, never downgrade/upgrade again
-    if (picked && !picked.correct) {
-      this._singleAnswerIncorrectLock.add(index);
-      return 'Select a correct answer to continue...';
-    }
-
-    // Respect existing locks on "click-off" or re-evaluation
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
+  public computeFinalMessage(args: {
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+    const anySelected = (opts ?? []).some(o => !!o?.selected);
+  
+    // ───────── LOCK OVERRIDES ─────────
     if (this._singleAnswerIncorrectLock.has(index)) {
       return 'Select a correct answer to continue...';
     }
-
-    // Before any pick → START/CONTINUE
-    return index === 0 ? START_MSG : CONTINUE_MSG;
-  }
-
-  // ───────── MULTI-ANSWER ─────────
-  if (qType === QuestionType.MultipleAnswer) {
-    const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
-    const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
-
-    // 🔒 If already locked as complete → stick with Next/Results
+    if (this._singleAnswerCorrectLock.has(index)) {
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
     if (this._multiAnswerCompletionLock.has(index)) {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
-    // Before any pick → show expected total, not CONTINUE
-    if (!anySelected) {
-      return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      const picked = (opts ?? []).find(o => !!o.selected);
+  
+      if (picked?.correct) {
+        this._singleAnswerCorrectLock.add(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      if (picked && !picked.correct) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+  
+      return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
-    // Still missing correct picks → countdown message
-    if (remaining > 0) {
-      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
+      const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
+      const remaining = Math.max(0, totalCorrect - selectedCorrect);
+  
+      if (!anySelected) {
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+  
+      if (remaining > 0) {
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      }
+  
+      this._multiAnswerCompletionLock.add(index);
+      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-
-    // ✅ All correct selected → lock and show Next/Results
-    this._multiAnswerCompletionLock.add(index);
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+  
+    return NEXT_BTN_MSG;
   }
-
-  // ───────── DEFAULT FALLBACK ─────────
-  return NEXT_BTN_MSG;
-}
+  
 
 
   
