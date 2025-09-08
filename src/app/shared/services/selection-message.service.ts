@@ -677,24 +677,24 @@ export class SelectionMessageService {
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
-      // ✅ Correct already locked → never downgrade
+      // ✅ Correct already locked → never downgrade (ignore click-off)
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🔒 Incorrect already locked → enforce until correct overrides
+      // 🔒 Incorrect already locked → enforce until correct is picked
       if (this._singleAnswerIncorrectLock.has(index)) {
         if (picked?.correct) {
-          // Promote: correct overrides incorrect
+          // Promote: correct overrides previous incorrect lock
           this._singleAnswerCorrectLock.add(index);
           this._singleAnswerIncorrectLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         }
-        // 🚫 Even if nothing is selected (click-off), stay locked on this message
+        // 🚫 Stay locked on incorrect message even if user clicks off
         return 'Select a correct answer to continue...';
       }
   
-      // First pick cases
+      // First pick cases (only reached if not locked yet)
       if (picked?.correct) {
         this._singleAnswerCorrectLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -704,7 +704,7 @@ export class SelectionMessageService {
         return 'Select a correct answer to continue...';
       }
   
-      // No pick yet (only if never locked)
+      // No pick yet (only before any lock is set)
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -722,7 +722,6 @@ export class SelectionMessageService {
       // 🔒 Already locked in-progress → enforce until complete
       if (this._multiAnswerInProgressLock.has(index)) {
         if (remaining === 0) {
-          // Promote: all correct chosen → lock completion
           this._multiAnswerCompletionLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -750,6 +749,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
