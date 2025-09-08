@@ -633,10 +633,12 @@ export class SelectionMessageService {
       // 🔒 Already locked in-progress → enforce until complete
       if (this._multiAnswerInProgressLock.has(index)) {
         if (remaining === 0) {
+          // Promote: all correct chosen → lock completion
           this._multiAnswerCompletionLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
         }
+        // Stay consistent, don’t flash back to generic
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
@@ -646,7 +648,7 @@ export class SelectionMessageService {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made
+      // Some picks made but not yet complete
       if (remaining > 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
@@ -660,6 +662,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
