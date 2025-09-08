@@ -344,31 +344,22 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
   
-    // ───────── LOCK OVERRIDES (highest priority) ─────────
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._multiAnswerCompletionLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      return 'Select a correct answer to continue...';
-    }
-  
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
-        // ✅ Correct pick always wins, even if incorrect was chosen before
+        // ✅ Correct pick always wins, lock permanently
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // clear any prior incorrect
+        this._singleAnswerIncorrectLock.delete(index); // clear any incorrect lock
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (picked && !picked.correct) {
         // First incorrect pick → lock
-        this._singleAnswerIncorrectLock.add(index);
+        if (!this._singleAnswerIncorrectLock.has(index)) {
+          this._singleAnswerIncorrectLock.add(index);
+        }
         return 'Select a correct answer to continue...';
       }
   
@@ -383,7 +374,7 @@ export class SelectionMessageService {
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
       if (!anySelected) {
-        // Pre-selection → "Select N correct answers to continue..."
+        // Pre-selection → stable message
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -399,6 +390,8 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
+  
   
   
 
