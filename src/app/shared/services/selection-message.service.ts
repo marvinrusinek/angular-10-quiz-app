@@ -344,15 +344,15 @@ export class SelectionMessageService {
     const isLast = total > 0 && index === total - 1;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
   
-    // ───────── LOCK OVERRIDES ─────────
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      return 'Select a correct answer to continue...';
-    }
+    // ───────── LOCK OVERRIDES (highest priority) ─────────
     if (this._singleAnswerCorrectLock.has(index)) {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
     if (this._multiAnswerCompletionLock.has(index)) {
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+    }
+    if (this._singleAnswerIncorrectLock.has(index)) {
+      return 'Select a correct answer to continue...';
     }
   
     // ───────── SINGLE-ANSWER ─────────
@@ -360,15 +360,19 @@ export class SelectionMessageService {
       const picked = (opts ?? []).find(o => !!o.selected);
   
       if (picked?.correct) {
+        // ✅ Correct pick always wins, even if incorrect was chosen before
         this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index); // clear any prior incorrect
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (picked && !picked.correct) {
+        // First incorrect pick → lock
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
   
+      // No pick yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -379,6 +383,7 @@ export class SelectionMessageService {
       const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
       if (!anySelected) {
+        // Pre-selection → "Select N correct answers to continue..."
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -386,12 +391,15 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
+      // ✅ Lock once all correct answers are picked
       this._multiAnswerCompletionLock.add(index);
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
+    // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
 
 
