@@ -765,43 +765,30 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
+    const picked = (opts ?? []).find(o => !!o.selected);
+    const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
+    const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
     const anySelected = (opts ?? []).some(o => !!o?.selected);
-  
-    // ───────── LOCK ENFORCEMENT (runs before recompute) ─────────
-    if (this._singleAnswerCorrectLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._singleAnswerIncorrectLock.has(index)) {
-      return 'Select a correct answer to continue...';
-    }
-    if (this._multiAnswerCompletionLock.has(index)) {
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-    if (this._multiAnswerInProgressLock.has(index)) {
-      // still in-progress until promoted
-      const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
-      const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-      const remaining = Math.max(0, totalCorrect - selectedCorrect);
-      if (remaining === 0) {
-        this._multiAnswerCompletionLock.add(index);
-        this._multiAnswerInProgressLock.delete(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-    }
+    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      const picked = (opts ?? []).find(o => !!o.selected);
-  
-      // ✅ Correct pick → lock and never downgrade
-      if (picked?.correct) {
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // clear any wrong lock
+      // Lock once correct picked
+      if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🔒 Incorrect pick → lock until correct chosen
+      // Lock once incorrect picked
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      // New pick
+      if (picked?.correct) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
       if (picked && !picked.correct) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
@@ -813,17 +800,18 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
-      const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-      const remaining = Math.max(0, totalCorrect - selectedCorrect);
+      // If already locked complete → never downgrade
+      if (this._multiAnswerCompletionLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
   
-      // No pick yet → always stable "Select N correct answers..."
+      // Pre-selection: always stable "Select N correct answers…"
       if (!anySelected) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made
+      // In-progress
       if (remaining > 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
@@ -837,6 +825,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
