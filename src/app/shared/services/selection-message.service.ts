@@ -757,7 +757,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   } */
-  public computeFinalMessage(args: { 
+  public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -792,58 +792,31 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      // Use canonical overlay as source of truth for correctness & counting
-      const key = (x: any, idx?: number) => x?.optionId ?? x?.value ?? x?.text ?? idx;
-  
-      let canonicalTotalCorrect = totalCorrect;
-      let canonicalSelectedCorrect = selectedCorrect;
-  
-      try {
-        const svc: any = (this as any).quizService;
-        const qArr: any[] = Array.isArray(svc?.questions) ? svc.questions as any[] : [];
-        const canonicalOpts: any[] =
-          (index >= 0 && index < qArr.length ? qArr[index]?.options : undefined) ?? [];
-  
-        if (canonicalOpts.length) {
-          const correctCanon = canonicalOpts.filter(o => !!o?.correct);
-          canonicalTotalCorrect = correctCanon.length || totalCorrect;
-  
-          const selectedKeys = new Set(
-            (opts ?? []).filter(o => !!o?.selected).map((o, i) => key(o, i))
-          );
-  
-          canonicalSelectedCorrect = correctCanon.filter((o, i) =>
-            selectedKeys.has(key(o, i))
-          ).length;
-        }
-      } catch {
-        // If anything fails, we fall back to UI snapshot variables above.
-      }
-  
       // ✅ Already locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ✅ All correct picked (canonical) → lock forever
-      if (canonicalSelectedCorrect === canonicalTotalCorrect && canonicalTotalCorrect > 0) {
+      // ✅ All correct picked → lock forever
+      if (selectedCorrect === totalCorrect && totalCorrect > 0) {
         this._multiAnswerCompletionLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects picked yet (even if wrongs are toggled) → stable pre-selection
-      if (canonicalSelectedCorrect === 0) {
-        return `Select ${canonicalTotalCorrect} correct answer${canonicalTotalCorrect > 1 ? 's' : ''} to continue...`;
+      // 🕐 No corrects picked yet → always show full count, even if wrongs are toggled
+      if (selectedCorrect === 0) {
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
       // 🔄 Some corrects picked, but not all yet
-      const remainingToPick = Math.max(0, canonicalTotalCorrect - canonicalSelectedCorrect);
+      const remainingToPick = totalCorrect - selectedCorrect;
       return `Select ${remainingToPick} more correct answer${remainingToPick > 1 ? 's' : ''} to continue...`;
     }
   
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
