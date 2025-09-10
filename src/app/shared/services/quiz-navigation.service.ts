@@ -279,15 +279,9 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
 
-    // Log navigation attempt
-    console.group('[🚦 NAVIGATION ATTEMPT]');
-    console.log('→ Target Index:', index);
-    console.log('→ quizId:', quizId);
-    console.log('→ routeUrl:', routeUrl);
-    console.log('→ currentUrl:', currentUrl);
-    console.log('→ currentIndex:', currentIndex);
-    console.groupEnd();
-  
+    // Reset locks for the current question before moving on
+    this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
+
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
       console.warn('[⚠️ Already on route – forcing reload]', {
