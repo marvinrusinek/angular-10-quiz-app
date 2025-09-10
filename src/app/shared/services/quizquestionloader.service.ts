@@ -668,6 +668,9 @@ export class QuizQuestionLoaderService {
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
 
+    // Reset selection message directly instead of recomputing
+    this.selectionMessageService.clearSelectionMessage();
+
     // Clear all lock sets (single + multi)
     this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
     this.selectionMessageService['_singleAnswerCorrectLock'].clear();

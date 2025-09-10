@@ -73,10 +73,17 @@ export class SelectionMessageService {
   // Track first incorrect clicks on single-answer questions
   private _firstClickIncorrectGuard: Set<number> = new Set<number>();
 
+  private _origNext = this.selectionMessageSubject.next.bind(this.selectionMessageSubject);
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
-  ) {}
+  ) {
+    this.selectionMessageSubject.next = (value: string) => {
+      console.warn('[Intercepted .next()]', value);
+      this._origNext(value);
+    };
+  }
 
   // Getter for the current selection message
   public getCurrentMessage(): string {

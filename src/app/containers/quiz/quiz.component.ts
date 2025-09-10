@@ -615,6 +615,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();  // force UI update when button state changes
       });
 
+    this.selectionMessageService.selectionMessage$.subscribe(msg => {
+      console.log('[Template sees]', msg);
+    });    
+
     this.setupQuiz();
     this.subscribeToRouteParams();
     this.registerVisibilityChangeHandler();
