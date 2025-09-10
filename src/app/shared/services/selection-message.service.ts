@@ -766,14 +766,11 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
   
-    // UI snapshot (may be stale; used only as fallback for totals)
     const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
     const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
     const selectedWrong = (opts ?? []).filter(o => o.selected && !o.correct).length;
-    const anySelected = (opts ?? []).some(o => !!o?.selected);
-    const remaining = Math.max(0, totalCorrect - selectedCorrect);
   
-    // ───────── SINGLE-ANSWER ─────────
+    // ───────── SINGLE-ANSWER (restore last working logic) ─────────
     if (qType === QuestionType.SingleAnswer) {
       // ✅ Correct → lock forever
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
@@ -790,7 +787,7 @@ export class SelectionMessageService {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER ─────────
+    // ───────── MULTI-ANSWER (new stable logic) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       // ✅ Already locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
@@ -803,19 +800,20 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects picked yet → always show full count, even if wrongs are toggled
+      // 🕐 No corrects picked yet → stable pre-selection
       if (selectedCorrect === 0) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
       // 🔄 Some corrects picked, but not all yet
-      const remainingToPick = totalCorrect - selectedCorrect;
-      return `Select ${remainingToPick} more correct answer${remainingToPick > 1 ? 's' : ''} to continue...`;
+      const remaining = totalCorrect - selectedCorrect;
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
   
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
