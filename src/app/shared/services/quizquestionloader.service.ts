@@ -668,15 +668,12 @@ export class QuizQuestionLoaderService {
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
 
-    // Reset selection message baseline
-    this.selectionMessageService.setSelectionMessage(false);
-
     // Clear all lock sets (single + multi)
-    /* this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
+    this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
     this.selectionMessageService['_singleAnswerCorrectLock'].clear();
     this.selectionMessageService['_multiAnswerInProgressLock'].clear();
     this.selectionMessageService['_multiAnswerCompletionLock'].clear();
-    this.selectionMessageService['_multiAnswerPreLock']?.clear(); */
+    this.selectionMessageService['_multiAnswerPreLock']?.clear();
   
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
