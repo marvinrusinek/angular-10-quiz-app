@@ -785,7 +785,7 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ❌ Wrong → once set, persist until overridden by correct
+      // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
       }
@@ -797,7 +797,7 @@ export class SelectionMessageService {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER (stable baseline) ─────────
+    // ───────── MULTI-ANSWER (stable baseline with pre-lock) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       // ✅ Already locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
@@ -807,12 +807,20 @@ export class SelectionMessageService {
       // ✅ All correct picked → lock forever
       if (selectedCorrect === totalCorrect && totalCorrect > 0) {
         this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock?.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects picked yet → stable pre-selection (ignore wrongs)
+      // 🕐 Pre-selection: no corrects yet → set and persist lock
       if (selectedCorrect === 0) {
+        this._multiAnswerPreLock ??= new Set<number>();
+        this._multiAnswerPreLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+  
+      // 🔄 If pre-lock exists but now some corrects are picked, clear it
+      if (this._multiAnswerPreLock?.has(index)) {
+        this._multiAnswerPreLock.delete(index);
       }
   
       // 🔄 Some corrects picked, but not all yet
@@ -823,6 +831,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
