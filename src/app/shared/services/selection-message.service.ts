@@ -773,17 +773,23 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // Lock once correct picked
+      // ✅ If already locked correct → never downgrade
       if (this._singleAnswerCorrectLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // Lock once incorrect picked
+      // 🔒 If already locked incorrect → enforce unless overridden by correct
       if (this._singleAnswerIncorrectLock.has(index)) {
+        if (picked?.correct) {
+          // Promote: correct overrides previous incorrect
+          this._singleAnswerCorrectLock.add(index);
+          this._singleAnswerIncorrectLock.delete(index);
+          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
         return 'Select a correct answer to continue...';
       }
   
-      // New pick
+      // First-time picks
       if (picked?.correct) {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
@@ -800,15 +806,14 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      // ✅ If already locked complete → never downgrade
+      // ✅ If locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ✅ If already locked in-progress → enforce stable countdown
+      // ✅ If locked in-progress → enforce stable countdown
       if (this._multiAnswerInProgressLock.has(index)) {
         if (remaining === 0) {
-          // Promote: all correct chosen → lock completion
           this._multiAnswerCompletionLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -816,13 +821,13 @@ export class SelectionMessageService {
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
-      // No picks yet → always stable "Select N correct answers…"
+      // Before any picks → stable "Select N correct answers…"
       if (!anySelected) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made but not complete → lock in-progress
+      // Some picks made but not all correct
       if (remaining > 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
@@ -836,6 +841,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
