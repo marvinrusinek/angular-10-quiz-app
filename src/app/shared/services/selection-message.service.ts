@@ -775,11 +775,11 @@ export class SelectionMessageService {
       // ✅ Correct → lock forever
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index);
+        this._singleAnswerIncorrectLock.delete(index); // promote if needed
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ❌ Wrong → once set, stays until promoted by a correct
+      // ❌ Wrong → once locked, never downgrade
       if (selectedWrong > 0 || this._singleAnswerIncorrectLock.has(index)) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
@@ -802,8 +802,12 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects picked yet → force stable pre-selection
+      // 🕐 PRE-SELECTION LOCK: if no corrects chosen yet, freeze message
       if (selectedCorrect === 0) {
+        // remember we’re in pre-selection state
+        if (!this._multiAnswerInProgressLock.has(index)) {
+          this._multiAnswerInProgressLock.add(index);
+        }
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -815,6 +819,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
