@@ -791,24 +791,31 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
+      // ✅ Already locked complete → never downgrade
+      if (this._multiAnswerCompletionLock.has(index)) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
       // ✅ All correct picked → lock forever
-      if (selectedCorrect === totalCorrect || this._multiAnswerCompletionLock.has(index)) {
+      if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects yet (only wrongs or nothing)
-      if (!anySelected || selectedCorrect === 0) {
+      // 🕐 No corrects yet (even if wrongs are toggled)
+      if (selectedCorrect === 0) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // 🔄 Some corrects picked, but not all
-      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      // 🔄 Some corrects picked, but not all yet
+      const remainingToPick = totalCorrect - selectedCorrect;
+      return `Select ${remainingToPick} more correct answer${remainingToPick > 1 ? 's' : ''} to continue...`;
     }
   
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
