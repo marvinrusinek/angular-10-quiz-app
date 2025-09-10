@@ -605,6 +605,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.sharedOptionComponent.initializeOptionBindings();
         }
 
+        // Baseline message recompute, now that options are known
+        if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+          queueMicrotask(async () => {
+            console.log(
+              '[QQC] Baseline selection message recompute',
+              this.currentQuestionIndex,
+              this.currentQuestion?.type,
+              this.optionsToDisplay?.length
+            );
+            await this.selectionMessageService.setSelectionMessage(false);
+          });
+        }
+
         // Finalize rendering state after one microtask delay
         setTimeout(() => {
           this.renderReady = true;
@@ -1895,7 +1908,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    this.resetTexts(); // clean slate before loading new question
+    this.resetTexts();  // clean slate before loading new question
     this.startLoading();
 
     // Reset selection and button state before processing question
