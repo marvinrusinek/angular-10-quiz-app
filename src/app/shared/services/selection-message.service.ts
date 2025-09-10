@@ -26,7 +26,8 @@ interface OptionSnapshot {
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
+  // private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
+  private selectionMessageSubject = new BehaviorSubject<string | null>(null);
   public selectionMessage$: Observable<string> =
     this.selectionMessageSubject.pipe(distinctUntilChanged());
 
@@ -766,57 +767,66 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
   
-    const totalCorrect = (opts ?? []).filter(o => !!o?.correct).length;
-    const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
-    const selectedWrong = (opts ?? []).filter(o => o.selected && !o.correct).length;
+    // ───────── GUARD: prevent flashing when options not ready ─────────
+    if (!opts || opts.length === 0) {
+      return this.selectionMessageSubject.getValue() ?? '';
+    }
   
-    // ───────── SINGLE-ANSWER ─────────
+    const totalCorrect = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // ✅ Correct → lock forever
+      // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // promote if needed
+        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ❌ Wrong → once locked, never downgrade
-      if (selectedWrong > 0 || this._singleAnswerIncorrectLock.has(index)) {
+      // ❌ Wrong → once set, persist until overridden by correct
+      if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
   
-      // None picked yet (no locks)
+      // None picked, no locks
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER ─────────
+    // ───────── MULTI-ANSWER (stable baseline) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       // ✅ Already locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
+  
       // ✅ All correct picked → lock forever
       if (selectedCorrect === totalCorrect && totalCorrect > 0) {
         this._multiAnswerCompletionLock.add(index);
-        this._multiAnswerPreLock.delete(index); // clear pre-lock
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
-      // 🕐 PRE-SELECTION: no corrects yet → lock this state
-      if (selectedCorrect === 0 || this._multiAnswerPreLock.has(index)) {
-        this._multiAnswerPreLock.add(index);
+  
+      // 🕐 No corrects picked yet → stable pre-selection (ignore wrongs)
+      if (selectedCorrect === 0) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-
+  
       // 🔄 Some corrects picked, but not all yet
-      const remaining = totalCorrect - selectedCorrect;
-      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      const remainingToPick = totalCorrect - selectedCorrect;
+      return `Select ${remainingToPick} more correct answer${remainingToPick > 1 ? 's' : ''} to continue...`;
     }
   
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
+  
+  
+  
   
   
   
@@ -880,6 +890,10 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
+  }
+
+  public clearSelectionMessage(): void {
+    this.selectionMessageSubject.next('');
   }
 
   public updateSelectionMessage(
