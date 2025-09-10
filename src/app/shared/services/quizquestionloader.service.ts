@@ -672,11 +672,11 @@ export class QuizQuestionLoaderService {
     this.selectionMessageService.setSelectionMessage(false);
 
     // Clear all lock sets (single + multi)
-    this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
+    /* this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
     this.selectionMessageService['_singleAnswerCorrectLock'].clear();
     this.selectionMessageService['_multiAnswerInProgressLock'].clear();
     this.selectionMessageService['_multiAnswerCompletionLock'].clear();
-    this.selectionMessageService['_multiAnswerPreLock']?.clear();
+    this.selectionMessageService['_multiAnswerPreLock']?.clear(); */
   
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
@@ -699,6 +699,16 @@ export class QuizQuestionLoaderService {
     // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
+  }
+
+  public resetQuestionLocksForIndex(index: number): void {
+    this.selectionMessageService['_singleAnswerIncorrectLock'].delete(index);
+    this.selectionMessageService['_singleAnswerCorrectLock'].delete(index);
+    this.selectionMessageService['_multiAnswerInProgressLock'].delete(index);
+    this.selectionMessageService['_multiAnswerCompletionLock'].delete(index);
+  
+    // if you added pre-lock
+    this.selectionMessageService['_multiAnswerPreLock']?.delete(index);
   }
 
   private resetQuestionDisplayState(): void {
