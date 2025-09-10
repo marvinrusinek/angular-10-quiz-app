@@ -71,6 +71,7 @@ export class SelectionMessageService {
   private _singleAnswerState = new Map<number, 'incorrect' | 'correct'>();  // per-question SA state
 
   private _multiAnswerLock = new Set<number>();
+  private _multiAnswerPreLock = new Set<number>();
 
   // Track first incorrect clicks on single-answer questions
   private _firstClickIncorrectGuard: Set<number> = new Set<number>();
@@ -776,58 +777,79 @@ export class SelectionMessageService {
     const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
     const selectedWrong = opts.filter(o => o.selected && !o.correct).length;
   
-    // ───────── SINGLE-ANSWER (sticky locks) ─────────
+    // ───────── SINGLE-ANSWER (force wrong > correct precedence) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // ✅ Correct → lock forever, clears wrong lock
-      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // ❌ Wrong → once set, persist until overridden
+      console.log('[SingleAnswer DEBUG]', {
+        selectedCorrect,
+        selectedWrong,
+        opts: opts.map(o => ({ text: o.text, selected: o.selected, correct: o.correct }))
+      });
+      // If any wrong is selected, force wrong message
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
       }
+
+      // If correct lock already exists, or correct option is picked
+      if (this._singleAnswerCorrectLock.has(index) || selectedCorrect > 0) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+
+      // Persist wrong lock if it exists and no new correct chosen
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
-  
-      // None picked, no locks
+
+      // No picks yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-  
-    // ───────── MULTI-ANSWER (stable baseline with pre-lock) ─────────
+
+
+    
+    // ───────── MULTI-ANSWER (authoritative locks) ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      // ✅ Already locked complete → never downgrade
+      // ✅ Completion lock → always win
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // ✅ All correct picked → lock forever
-      if (selectedCorrect === totalCorrect && totalCorrect > 0) {
-        this._multiAnswerCompletionLock.add(index);
-        this._multiAnswerPreLock?.delete(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+      // ✅ If pre-lock is active and no corrects picked yet → always win
+      if (this._multiAnswerPreLock.has(index) && selectedCorrect === 0) {
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-  
-      // 🕐 Pre-selection: no corrects yet → set and persist lock
+
+      // ✅ If in-progress lock is active → always win
+      if (this._multiAnswerInProgressLock.has(index) && selectedCorrect < totalCorrect) {
+        const remaining = totalCorrect - selectedCorrect;
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+      }
+
+      // 🕐 No locks yet → set pre-lock
       if (selectedCorrect === 0) {
-        this._multiAnswerPreLock ??= new Set<number>();
         this._multiAnswerPreLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-  
-      // 🔄 If pre-lock exists but now some corrects are picked, clear it
-      if (this._multiAnswerPreLock?.has(index)) {
+
+      // 🔄 Some corrects picked but not all → set in-progress lock
+      if (selectedCorrect > 0 && selectedCorrect < totalCorrect) {
         this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.add(index);
+        const remaining = totalCorrect - selectedCorrect;
+        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-  
-      // 🔄 Some corrects picked, but not all yet
-      const remainingToPick = totalCorrect - selectedCorrect;
-      return `Select ${remainingToPick} more correct answer${remainingToPick > 1 ? 's' : ''} to continue...`;
+
+      // ✅ All correct picked → lock complete
+      if (selectedCorrect === totalCorrect && totalCorrect > 0) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
     }
-  
+
+
     // Default fallback
     return NEXT_BTN_MSG;
   }
@@ -890,16 +912,28 @@ export class SelectionMessageService {
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
   
-      // Delegate to central resolver
-      const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+      // Defer one microtask to avoid transient states
+      setTimeout(() => {
+        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+
+        // Guard: never allow promotion to NEXT if wrong lock is still active
+        if (finalMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
+          console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
+          return;
+        }
+
+        // Debug logging so we can trace what actually gets emitted
+        console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
   
-      if (this.selectionMessageSubject.getValue() !== finalMsg) {
-        this.selectionMessageSubject.next(finalMsg);
-      }
+        if (this.selectionMessageSubject.getValue() !== finalMsg) {
+          this.selectionMessageSubject.next(finalMsg);
+          console.log('[setSelectionMessage] updated:', finalMsg);
+        }
+      }, 0);
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }
+  }  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
