@@ -659,9 +659,6 @@ export class QuizQuestionLoaderService {
   }
 
   public resetQuestionState(): void {
-    // Reset selection message to baseline before locks are cleared
-    this.selectionMessageService.setSelectionMessage('');
-    
     // Clear local UI state
     this.questionInitialized = false;  // block during reset
     this.isAnswered = false;
