@@ -763,7 +763,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   } */
-  /* public computeFinalMessage(args: {  
+  public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -856,90 +856,7 @@ export class SelectionMessageService {
 
     // Default fallback
     return NEXT_BTN_MSG;
-  } */
-  public computeFinalMessage(args: {  
-    index: number;
-    total: number;
-    qType: QuestionType;
-    opts: Option[];
-  }): string {
-    const { index, total, qType, opts } = args;
-    const isLast = total > 0 && index === total - 1;
-  
-    if (!opts || opts.length === 0) {
-      return this.selectionMessageSubject.getValue() ?? '';
-    }
-  
-    const totalCorrect = opts.filter(o => !!o?.correct).length;
-    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
-    const selectedWrong = opts.filter(o => o.selected && !o.correct).length;
-  
-    // ───────── SINGLE-ANSWER (sticky locks) ─────────
-    if (qType === QuestionType.SingleAnswer) {
-      // Wrong lock is sticky until a correct is chosen
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        if (selectedCorrect > 0) {
-          // Correct overrides wrong
-          this._singleAnswerIncorrectLock.delete(index);
-          this._singleAnswerCorrectLock.add(index);
-          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
-        return 'Select a correct answer to continue...';
-      }
-  
-      // Correct lock is sticky once set
-      if (this._singleAnswerCorrectLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // Fresh wrong pick
-      if (selectedWrong > 0) {
-        this._singleAnswerIncorrectLock.add(index);
-        return 'Select a correct answer to continue...';
-      }
-  
-      // Fresh correct pick
-      if (selectedCorrect > 0) {
-        this._singleAnswerCorrectLock.add(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // None picked
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
-    // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
-    if (qType === QuestionType.MultipleAnswer) {
-      // Already complete
-      if (this._multiAnswerCompletionLock.has(index)) {
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // Pre-selection message sticks until a correct is chosen
-      if (this._multiAnswerPreLock.has(index) || selectedCorrect === 0) {
-        this._multiAnswerPreLock.add(index);
-        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      }
-  
-      // Some corrects picked, not all yet
-      if (selectedCorrect < totalCorrect) {
-        const remaining = totalCorrect - selectedCorrect;
-        this._multiAnswerPreLock.delete(index);
-        this._multiAnswerInProgressLock.add(index);
-        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-      }
-  
-      // All corrects picked
-      this._multiAnswerCompletionLock.add(index);
-      this._multiAnswerPreLock.delete(index);
-      this._multiAnswerInProgressLock.delete(index);
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-  
-    // Default fallback
-    return NEXT_BTN_MSG;
   }
-  
   
   
   
