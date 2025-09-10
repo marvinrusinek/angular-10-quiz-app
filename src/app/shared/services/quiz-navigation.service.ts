@@ -14,6 +14,7 @@ import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
+import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
@@ -68,6 +69,7 @@ export class QuizNavigationService {
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
+    private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
     private router: Router
@@ -281,6 +283,9 @@ export class QuizNavigationService {
 
     // Reset locks for the current question before moving on
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
+
+    // Reset baseline message so new question doesn’t inherit last one
+    this.selectionMessageService.setSelectionMessage('');
 
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
