@@ -757,7 +757,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   } */
-  public computeFinalMessage(args: {
+  public computeFinalMessage(args: { 
     index: number;
     total: number;
     qType: QuestionType;
@@ -828,13 +828,13 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // No pick yet → stable message
-      if (!anySelected) {
+      // No pick yet OR only wrong picks → stable pre-selection message
+      if (!anySelected || selectedCorrect === 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
-      // Some picks made
+      // Some correct picks made, but not all yet
       if (remaining > 0) {
         this._multiAnswerInProgressLock.add(index);
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
@@ -848,6 +848,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   }
+  
   
   
   
