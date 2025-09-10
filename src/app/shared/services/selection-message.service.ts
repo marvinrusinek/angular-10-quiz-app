@@ -26,8 +26,7 @@ interface OptionSnapshot {
 
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
-  // private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
-  private selectionMessageSubject = new BehaviorSubject<string | null>(null);
+  private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
   public selectionMessage$: Observable<string> =
     this.selectionMessageSubject.pipe(distinctUntilChanged());
 
