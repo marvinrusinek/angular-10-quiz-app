@@ -795,22 +795,20 @@ export class SelectionMessageService {
       if (this._multiAnswerCompletionLock.has(index)) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
+
       // ✅ All correct picked → lock forever
       if (selectedCorrect === totalCorrect && totalCorrect > 0) {
         this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index); // clear pre-lock
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
-      // 🕐 PRE-SELECTION LOCK: if no corrects chosen yet, freeze message
-      if (selectedCorrect === 0) {
-        // remember we’re in pre-selection state
-        if (!this._multiAnswerInProgressLock.has(index)) {
-          this._multiAnswerInProgressLock.add(index);
-        }
+
+      // 🕐 PRE-SELECTION: no corrects yet → lock this state
+      if (selectedCorrect === 0 || this._multiAnswerPreLock.has(index)) {
+        this._multiAnswerPreLock.add(index);
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-  
+
       // 🔄 Some corrects picked, but not all yet
       const remaining = totalCorrect - selectedCorrect;
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
