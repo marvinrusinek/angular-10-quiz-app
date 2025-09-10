@@ -676,6 +676,7 @@ export class QuizQuestionLoaderService {
     this.selectionMessageService['_singleAnswerCorrectLock'].clear();
     this.selectionMessageService['_multiAnswerInProgressLock'].clear();
     this.selectionMessageService['_multiAnswerCompletionLock'].clear();
+    this.selectionMessageService['_multiAnswerPreLock']?.clear();
   
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
