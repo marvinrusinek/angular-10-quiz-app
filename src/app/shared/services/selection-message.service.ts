@@ -916,16 +916,16 @@ export class SelectionMessageService {
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
   
-      // Defer one microtask to avoid transient states
-      setTimeout(() => {
+      // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
+      queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-
+  
         // Guard: never allow promotion to NEXT if wrong lock is still active
         if (finalMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
           console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
           return;
         }
-
+  
         // Debug logging so we can trace what actually gets emitted
         console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
   
@@ -933,11 +933,11 @@ export class SelectionMessageService {
           this.selectionMessageSubject.next(finalMsg);
           console.log('[setSelectionMessage] updated:', finalMsg);
         }
-      }, 0);
+      });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }  
+  }
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
