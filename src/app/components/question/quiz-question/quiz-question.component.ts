@@ -2008,6 +2008,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           showIcon: false,
           selected: false,
         }));
+      
+        console.log(
+          '[DEBUG Q1 Options Snapshot]',
+          JSON.parse(JSON.stringify(this.currentQuestion.options.map(o => ({
+            text: o.text,
+            correct: o.correct
+          }))))
+        );
 
       // Emit early to reduce display lag
       this.quizService.questionPayloadSubject.next({
