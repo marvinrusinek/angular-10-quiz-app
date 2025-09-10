@@ -770,26 +770,26 @@ export class SelectionMessageService {
     const selectedCorrect = (opts ?? []).filter(o => o.selected && o.correct).length;
     const selectedWrong = (opts ?? []).filter(o => o.selected && !o.correct).length;
   
-    // ───────── SINGLE-ANSWER (with correct + incorrect locks) ─────────
+    // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
       // ✅ Correct → lock forever
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // clear incorrect if promoted
+        this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // ❌ Wrong → lock once and never downgrade
+      // ❌ Wrong → once set, stays until promoted by a correct
       if (selectedWrong > 0 || this._singleAnswerIncorrectLock.has(index)) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
   
-      // None picked yet
+      // None picked yet (no locks)
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER (stable pre-selection + completion lock) ─────────
+    // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
       // ✅ Already locked complete → never downgrade
       if (this._multiAnswerCompletionLock.has(index)) {
@@ -802,7 +802,7 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
-      // 🕐 No corrects picked yet → always show full count, even if wrongs toggled
+      // 🕐 No corrects picked yet → force stable pre-selection
       if (selectedCorrect === 0) {
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
