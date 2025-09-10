@@ -284,8 +284,7 @@ export class QuizNavigationService {
     // Reset locks for the current question before moving on
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
 
-    // Reset baseline message so new question doesn’t inherit last one
-    this.selectionMessageService.setSelectionMessage('');
+    await this.selectionMessageService.setSelectionMessage(false);
 
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
