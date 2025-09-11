@@ -975,27 +975,37 @@ export class SelectionMessageService {
   }
 
   public async setSelectionMessage(isAnswered: boolean): Promise<void> {
+    console.log('[ENTER setSelectionMessage]', { isAnswered });
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
+      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) {
+        console.warn('[setSelectionMessage] early return', { i0, total });
+        return;
+      }
   
-      // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
+      // NEW: immediate log, before scheduling microtask
+      console.log('[setSelectionMessage] scheduling recompute', { i0, total });
+  
       Promise.resolve().then(() => {
         console.log('[setSelectionMessage microtask triggered]', { i0, isAnswered });
-        
-        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        // Debug logging so we can trace what actually gets emitted
+        let finalMsg: string;
+        try {
+          finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+        } catch (err) {
+          console.error('[determineSelectionMessage ERROR]', err);
+          return;
+        }
+  
         console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
-  
-        // Route through guarded writer
         this.pushMessage(finalMsg, i0);
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
