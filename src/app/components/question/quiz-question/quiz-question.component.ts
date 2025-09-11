@@ -2073,6 +2073,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizService.nextOptionsSubject.next(this.optionsToDisplay);
       console.log('[🚀 Emitted Q1 question and options together]');
 
+      // Baseline selection message once question + total count are valid
+      queueMicrotask(() => {
+        console.log('[loadQuestion] Forcing baseline selection message after emit', {
+          index: this.currentQuestionIndex,
+          total: this.quizService.totalQuestions
+        });
+        this.selectionMessageService.setSelectionMessage(false);
+      });
+
       if (this.currentQuestion && this.optionsToDisplay?.length > 0) {
         this.questionAndOptionsReady.emit();
         this.quizService.emitQuestionAndOptions(

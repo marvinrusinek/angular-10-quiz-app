@@ -980,7 +980,7 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
 
-      console.log('[DEBUG indices]', { i0, total });
+      console.log('[DEBUG indices]', 'i0=', i0, 'total=', total);
 
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) {
         console.warn('[setSelectionMessage] early return', { i0, total });
