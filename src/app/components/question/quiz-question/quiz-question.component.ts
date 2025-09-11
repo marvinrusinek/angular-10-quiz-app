@@ -2707,9 +2707,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
         ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
        
-      optionsNow[evtIdx].selected = event.checked ?? true;
-      if (Array.isArray(this.optionsToDisplay)) {
-        (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+      // For single-answer: ignore deselect events (click-off)
+      // Once an option is clicked, it stays until another is chosen
+      if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
+        console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
+      } else {
+        optionsNow[evtIdx].selected = event.checked ?? true;
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+        }
       }
   
       console.log('[onOptionClicked]', {
