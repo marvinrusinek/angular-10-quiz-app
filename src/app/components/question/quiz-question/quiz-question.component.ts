@@ -2704,6 +2704,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
       }
   
+      console.log('[onOptionClicked]', {
+        clickedText: evtOpt?.text,
+        checked: event.checked,
+        selectedNow: optionsNow.map(o => ({ text: o.text, selected: o.selected }))
+      });
+  
       // Persist selection
       try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
   
@@ -2717,11 +2723,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }));
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
-      // 🚫 Removed inline msg-building logic here —
-      // now the SelectionMessageService is the single source of truth.
-  
       // Ask service to recompute selection message (after state update)
       queueMicrotask(async () => {
+        console.log('[onOptionClicked] Forcing recompute for index', i0);
         await this.selectionMessageService.setSelectionMessage(false);
       });
   
@@ -2798,6 +2802,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { this._clickGate = false; });
     }
   }
+  
   
   
   // Updates the highlighting and feedback icons for options after a click

@@ -904,6 +904,22 @@ export class SelectionMessageService {
         console.log('[SingleAnswer] Fresh correct pick', { index, selectedCorrect, selectedWrong });
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
+
+      console.log('[SingleAnswer DEBUG]', {
+        index,
+        opts: opts.map((o, i) => ({
+          text: o.text,
+          optionId: o.optionId,
+          selected: o.selected,
+          correct: o.correct,
+          stableKey: this.stableKey?.(o, i)
+        })),
+        selectedCorrect,
+        selectedWrong,
+        hasCorrectLock: this._singleAnswerCorrectLock.has(index),
+        hasWrongLock: this._singleAnswerIncorrectLock.has(index)
+      });
+      
   
       console.log('[SingleAnswer] None picked', { index, selectedCorrect, selectedWrong });
       return index === 0 ? START_MSG : CONTINUE_MSG;
