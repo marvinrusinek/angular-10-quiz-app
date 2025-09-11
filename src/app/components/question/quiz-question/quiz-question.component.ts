@@ -3179,12 +3179,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         const token = this.selectionMessageService['beginWrite']?.(i0);  // or expose a wrapper
   
-        // Build once in the service (handles MultipleAnswer/SingleAnswer + last question)
-        const msg = this.selectionMessageService.buildMessageFromSelection({
+        // Use the real lock-aware computeFinalMessage
+        const msg = this.selectionMessageService.computeFinalMessage({
           index: i0,
-          totalQuestions: this.totalQuestions,
-          questionType: qType,
-          options: optionsNow
+          total: this.totalQuestions,
+          qType: qType!,
+          opts: optionsNow
         });
   
         // Single write—no second branch, no race
@@ -3194,7 +3194,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
       });
     });
-  }
+  }  
 
   private async finalizeAfterClick(
     option: SelectedOption,
