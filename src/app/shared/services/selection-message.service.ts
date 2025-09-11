@@ -25,7 +25,7 @@ interface OptionSnapshot {
 @Injectable({ providedIn: 'root' })
 export class SelectionMessageService {
   private selectionMessageSubject = new BehaviorSubject<string>(START_MSG);
-  public selectionMessage$: Observable<string> =
+  public readonly selectionMessage$: Observable<string> =
     this.selectionMessageSubject.pipe(distinctUntilChanged());
 
   public optionsSnapshot: Option[] = [];
@@ -877,36 +877,28 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // ✅ If wrong lock is already active, keep it until a correct is picked
+      // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
-        if (selectedCorrect > 0) {
-          // Promote: correct overrides wrong
-          this._singleAnswerIncorrectLock.delete(index);
-          this._singleAnswerCorrectLock.add(index);
-          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
-        // Even if no wrong currently selected (clicked off),
-        // persist the "select correct answer" message
+        console.log('[Guard] Wrong lock holds, forcing "Select a correct answer..."');
         return 'Select a correct answer to continue...';
       }
 
-      // ✅ Correct → lock forever, clear wrong just in case
+      // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index);
+        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // ❌ Fresh wrong → set wrong lock
+      // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
 
-      // None picked, no locks yet
+      // None picked, no locks
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
   
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
@@ -941,8 +933,20 @@ export class SelectionMessageService {
   }
   
   
-
+  private pushMessage(newMsg: string, i0: number): void {
+    const current = this.selectionMessageSubject.getValue();
   
+    // Guard: prevent false promotion while wrong lock is active
+    if (newMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
+      console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
+      return;
+    }
+  
+    if (current !== newMsg) {
+      this.selectionMessageSubject.next(newMsg);
+      console.log('[pushMessage] updated:', newMsg);
+    }
+  }
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -980,19 +984,11 @@ export class SelectionMessageService {
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        // Guard: never allow promotion to NEXT if wrong lock is still active
-        if (finalMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
-          console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
-          return;
-        }
-  
         // Debug logging so we can trace what actually gets emitted
         console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
   
-        if (this.selectionMessageSubject.getValue() !== finalMsg) {
-          this.selectionMessageSubject.next(finalMsg);
-          console.log('[setSelectionMessage] updated:', finalMsg);
-        }
+        // Route through guarded writer
+        this.pushMessage(finalMsg, i0);
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
@@ -1192,9 +1188,10 @@ export class SelectionMessageService {
     questionType: QuestionType;
     options: Option[];
     canonicalOptions: CanonicalOption[];
+    onMessageChange?: (msg: string) => void;
     token?: number;
   }): void {
-    const { index, totalQuestions, questionType, canonicalOptions } = params;
+    const { index, totalQuestions, questionType, canonicalOptions, onMessageChange } = params;
   
     // Delegate all message building to computeFinalMessage
     const msg = this.computeFinalMessage({
@@ -1204,11 +1201,13 @@ export class SelectionMessageService {
       opts: canonicalOptions as Option[]
     });
   
-    // Emit only if changed
-    if (this.selectionMessageSubject.getValue() !== msg) {
-      this.selectionMessageSubject.next(msg);
-      console.log('[emitFromClick] emitted:', { index, msg });
+    // Optional callback hook for caller
+    if (onMessageChange) {
+      onMessageChange(msg);
     }
+  
+    // Route through guarded writer
+    this.pushMessage(msg, index);
   }
 
   /* ================= Helpers ================= */
