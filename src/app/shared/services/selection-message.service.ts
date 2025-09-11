@@ -877,28 +877,36 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // ✅ If wrong lock is already active → never promote to NEXT
+      // ✅ If wrong lock is already active, keep it until a correct is picked
       if (this._singleAnswerIncorrectLock.has(index)) {
-        console.log('[Guard] Wrong lock holds, forcing "Select a correct answer..."');
+        if (selectedCorrect > 0) {
+          // Promote: correct overrides wrong
+          this._singleAnswerIncorrectLock.delete(index);
+          this._singleAnswerCorrectLock.add(index);
+          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        }
+        // Even if no wrong currently selected (clicked off),
+        // persist the "select correct answer" message
         return 'Select a correct answer to continue...';
       }
 
-      // ✅ Correct → lock forever, clears wrong lock
+      // ✅ Correct → lock forever, clear wrong just in case
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
+        this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // ❌ Wrong → once set, persist until overridden
+      // ❌ Fresh wrong → set wrong lock
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
 
-      // None picked, no locks
+      // None picked, no locks yet
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
+
   
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
