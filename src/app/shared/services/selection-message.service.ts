@@ -981,7 +981,7 @@ export class SelectionMessageService {
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
   
       // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
-      queueMicrotask(() => {
+      Promise.resolve().then(() => {
         console.log('[setSelectionMessage microtask triggered]', { i0, isAnswered });
         
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
