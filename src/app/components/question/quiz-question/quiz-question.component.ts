@@ -2801,6 +2801,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => { 
         this._clickGate = false; 
         // Force recompute of selection message after this click
+        console.log('[QQC finally] forcing setSelectionMessage call');
         this.selectionMessageService.setSelectionMessage(false);
       });
     }
