@@ -2798,7 +2798,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.refreshFeedbackFor(evtOpt ?? undefined);
       });
     } finally {
-      queueMicrotask(() => { this._clickGate = false; });
+      queueMicrotask(() => { 
+        this._clickGate = false; 
+        // Force recompute of selection message after this click
+        this.selectionMessageService.setSelectionMessage(false);
+      });
     }
   }
   
