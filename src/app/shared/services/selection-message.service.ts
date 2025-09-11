@@ -877,31 +877,26 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // ✅ Wrong lock active → hold unless a correct is picked now
+      // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
-        if (selectedCorrect > 0) {
-          // Promote: correct overrides wrong
-          this._singleAnswerIncorrectLock.delete(index);
-          this._singleAnswerCorrectLock.add(index);
-          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
+        console.log('[Guard] Wrong lock holds, forcing "Select a correct answer..."');
         return 'Select a correct answer to continue...';
       }
-    
+
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // clear any stale wrong lock
+        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    
-      // ❌ Wrong → set lock once
+
+      // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-    
-      // None picked
+
+      // None picked, no locks
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
