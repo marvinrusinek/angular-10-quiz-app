@@ -877,51 +877,26 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
+      // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
-        if (selectedCorrect > 0) {
-          this._singleAnswerIncorrectLock.delete(index);
-          this._singleAnswerCorrectLock.add(index);
-          console.log('[SingleAnswer] Correct override after wrong', { index, selectedCorrect, selectedWrong });
-          return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-        }
-        console.log('[SingleAnswer] Wrong lock holds', { index, selectedCorrect, selectedWrong });
+        console.log('[Guard] Wrong lock holds, forcing "Select a correct answer..."');
         return 'Select a correct answer to continue...';
       }
-  
-      if (this._singleAnswerCorrectLock.has(index)) {
-        console.log('[SingleAnswer] Correct lock holds', { index, selectedCorrect, selectedWrong });
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      if (selectedWrong > 0) {
-        this._singleAnswerIncorrectLock.add(index);
-        console.log('[SingleAnswer] Fresh wrong pick', { index, selectedCorrect, selectedWrong });
-        return 'Select a correct answer to continue...';
-      }
-  
-      if (selectedCorrect > 0) {
+
+      // ✅ Correct → lock forever, clears wrong lock
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
-        console.log('[SingleAnswer] Fresh correct pick', { index, selectedCorrect, selectedWrong });
+        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      console.log('[SingleAnswer DEBUG]', {
-        index,
-        opts: opts.map((o, i) => ({
-          text: o.text,
-          optionId: o.optionId,
-          selected: o.selected,
-          correct: o.correct,
-          stableKey: this.stableKey?.(o, i)
-        })),
-        selectedCorrect,
-        selectedWrong,
-        hasCorrectLock: this._singleAnswerCorrectLock.has(index),
-        hasWrongLock: this._singleAnswerIncorrectLock.has(index)
-      });
-      
-  
-      console.log('[SingleAnswer] None picked', { index, selectedCorrect, selectedWrong });
+      // ❌ Wrong → once set, persist until overridden
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+
+      // None picked, no locks
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
