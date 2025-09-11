@@ -87,7 +87,7 @@ export class SelectionMessageService {
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
-    return this.selectionMessageSubject.getValue(); // get the current message value
+    return this.selectionMessageSubject.getValue();  // get the current message value
   }
 
   // Message determination function
