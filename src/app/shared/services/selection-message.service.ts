@@ -990,20 +990,26 @@ export class SelectionMessageService {
       // NEW: immediate log, before scheduling microtask
       console.log('[setSelectionMessage] scheduling recompute', { i0, total });
   
-      Promise.resolve().then(() => {
-        console.log('[setSelectionMessage microtask triggered]', { i0, isAnswered });
-  
-        let finalMsg: string;
-        try {
-          finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        } catch (err) {
-          console.error('[determineSelectionMessage ERROR]', err);
+      queueMicrotask(() => {
+        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+      
+        // Guard: never allow promotion to NEXT if wrong lock is still active
+        if (finalMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
+          console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
           return;
         }
-  
+      
+        // Guard: never allow demotion if correct lock is already active
+        if (this._singleAnswerCorrectLock.has(i0) &&
+            finalMsg !== NEXT_BTN_MSG &&
+            finalMsg !== SHOW_RESULTS_MSG) {
+          console.warn('[Guard] Prevented demotion away from NEXT (Q', i0, ')');
+          return;
+        }
+      
         console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
         this.pushMessage(finalMsg, i0);
-      });
+      });      
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
