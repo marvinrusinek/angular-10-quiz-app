@@ -331,7 +331,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private resetUIForNewQuestion(): void {
-    console.log('[QQC] ✅ Running resetUIForNewQuestion()');
     this.sharedOptionComponent?.resetUIForNewQuestion();
     // add any additional resets needed here
   }
