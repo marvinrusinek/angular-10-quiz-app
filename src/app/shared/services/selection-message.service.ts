@@ -883,6 +883,15 @@ export class SelectionMessageService {
     const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
+    console.log('[computeFinalMessage INPUT]', { 
+      index, qType, 
+      opts: (opts ?? []).map(o => ({
+        text: o.text,
+        correct: o.correct,
+        selected: o.selected
+      }))
+    });
+    
     if (qType === QuestionType.SingleAnswer) {
       console.log('[SingleAnswer DEBUG]', {
         index,
