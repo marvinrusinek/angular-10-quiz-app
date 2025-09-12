@@ -933,6 +933,19 @@ export class SelectionMessageService {
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         console.log(
+          '[SingleAnswer ✅ Correct branch hit]',
+          {
+            index,
+            selectedCorrect,
+            optsSnapshot: opts.map(o => ({
+              text: o.text,
+              correct: o.correct,
+              selected: o.selected
+            }))
+          }
+        );
+     
+        console.log(
           '[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]',
           { index, selectedCorrect }
         );
