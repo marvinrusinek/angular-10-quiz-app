@@ -99,6 +99,18 @@ export class SelectionMessageService {
     // Use the latest UI snapshot only to know what's selected…
     const uiSnapshot = this.getLatestOptionsSnapshot();
   
+    // ───────── ENTRY DEBUG LOG ─────────
+    console.log('[determineSelectionMessage ENTRY]', {
+      questionIndex,
+      totalQuestions,
+      snapshotSize: uiSnapshot?.length,
+      latestSnapshot: (uiSnapshot ?? []).map(o => ({
+        text: o.text,
+        correct: o.correct,
+        selected: o.selected
+      }))
+    });
+  
     // ───────── GUARD: prevent empty snapshots from breaking flow ─────────
     if (!uiSnapshot || uiSnapshot.length === 0) {
       console.warn('[determineSelectionMessage] ⚠️ Empty snapshot → return baseline', {
@@ -196,6 +208,7 @@ export class SelectionMessageService {
       opts: overlaid
     });
   }
+  
 
   // Centralized, deterministic message resolver (public entry point)
   /* public computeFinalMessage(args: {
