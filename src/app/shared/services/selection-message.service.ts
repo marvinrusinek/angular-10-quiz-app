@@ -1055,6 +1055,18 @@ export class SelectionMessageService {
   
       // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
       queueMicrotask(() => {
+        // 👇 NEW DEBUG LOG — check snapshot length before message computation
+        console.log('[setSelectionMessage] Using snapshot', {
+          i0,
+          total,
+          snapshotLength: this.optionsSnapshot?.length ?? 0,
+          snapshot: (this.optionsSnapshot ?? []).map(o => ({
+            text: o.text,
+            correct: o.correct,
+            selected: o.selected
+          }))
+        });
+        
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
 
         console.log('[setSelectionMessage → finalMsg]', finalMsg);
