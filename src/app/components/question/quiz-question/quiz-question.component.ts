@@ -2735,14 +2735,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
           .some(sel => getStableId(sel) === getStableId(o))
       }));
-      // Force update the selected flag for the clicked option immediately
-      canonicalOpts[evtIdx].selected = true;
 
-      console.log('[DEBUG canonicalOpts after fix]', canonicalOpts.map(o => ({
-        text: o.text,
-        correct: o.correct,
-        selected: o.selected
-      })));
+      // Force update the selected flag for the clicked option immediately
+      if (canonicalOpts[evtIdx]) {
+        canonicalOpts[evtIdx].selected = true;
+      }
+
+      // Log AFTER the fix to see the true state
+      console.log(
+        '[onOptionClicked → canonicalOpts final]',
+        JSON.stringify(
+          canonicalOpts.map(o => ({
+            text: o.text,
+            correct: o.correct,
+            selected: o.selected
+          })),
+          null,
+          2
+        )
+      );
 
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
