@@ -904,7 +904,7 @@ export class SelectionMessageService {
     const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
-    /* console.log('[computeFinalMessage INPUT]', { 
+    console.log('[computeFinalMessage INPUT]', { 
       index, qType, 
       opts: (opts ?? []).map(o => ({
         text: o.text,
@@ -946,37 +946,6 @@ export class SelectionMessageService {
       }
   
       // None picked, no locks
-      console.log('[SingleAnswer ⏸ None picked → baseline message]');
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    } */
-    // ───────── SINGLE-ANSWER (sticky locks) ─────────
-    if (qType === QuestionType.SingleAnswer) {
-      console.log('[SingleAnswer DEBUG]', {
-        index,
-        totalCorrect,
-        selectedCorrect,
-        selectedWrong,
-        hasCorrectLock: this._singleAnswerCorrectLock.has(index),
-        hasWrongLock: this._singleAnswerIncorrectLock.has(index),
-        isLast
-      });
-
-      // ✅ Correct → always wins, clears wrong lock
-      if (selectedCorrect > 0) {
-        console.log('[SingleAnswer ✅ Correct branch → NEXT/RESULTS]');
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-
-      // ❌ Wrong → persist until a correct is picked
-      if (selectedWrong > 0 || this._singleAnswerIncorrectLock.has(index)) {
-        console.log('[SingleAnswer ❌ Wrong branch → "Select a correct answer..." ]');
-        this._singleAnswerIncorrectLock.add(index);
-        return 'Select a correct answer to continue...';
-      }
-
-      // None picked → baseline
       console.log('[SingleAnswer ⏸ None picked → baseline message]');
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
