@@ -865,6 +865,11 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
+
+    console.log('[computeFinalMessage INPUT]', { 
+      index, qType, 
+      opts: (opts ?? []).map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
+    });
   
     if (!opts || opts.length === 0) {
       console.log('[computeFinalMessage] ❌ No opts, returning last value');
@@ -1008,6 +1013,8 @@ export class SelectionMessageService {
       // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+
+        console.log('[setSelectionMessage → finalMsg]', finalMsg);
   
         // 🚫 Guard: if wrong lock is active, do not allow NEXT to overwrite
         if (
@@ -1087,9 +1094,19 @@ export class SelectionMessageService {
   // Snapshot API
   // Writer: always store a cloned array so callers can’t mutate our state
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
+    // Defensive clone so we never hold external refs
     const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
-    this.optionsSnapshot = safe;  // persist internally
-    this.optionsSnapshotSubject.next(safe);  // still emit for any subscribers
+  
+    // Persist internally and notify observers
+    this.optionsSnapshot = safe;
+    this.optionsSnapshotSubject.next(safe);
+  
+    // Debug log of what was actually stored
+    console.log('[setOptionsSnapshot]', safe.map(o => ({
+      text: o.text,
+      correct: o.correct,
+      selected: o.selected
+    })));
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
