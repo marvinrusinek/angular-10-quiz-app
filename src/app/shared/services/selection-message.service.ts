@@ -877,39 +877,63 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
+      console.log('[SingleAnswer DEBUG]', {
+        index,
+        totalCorrect,
+        selectedCorrect,
+        selectedWrong,
+        hasCorrectLock: this._singleAnswerCorrectLock.has(index),
+        hasWrongLock: this._singleAnswerIncorrectLock.has(index),
+        isLast
+      });
+  
       // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
-        console.log('[Guard] Wrong lock holds, forcing "Select a correct answer..."');
+        console.log('[SingleAnswer ❌ Wrong lock holds → force "Select a correct answer..." ]');
         return 'Select a correct answer to continue...';
       }
-
+  
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        console.log('[SingleAnswer ✅ Correct branch → NEXT/RESULTS]');
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
+  
       // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
+        console.log('[SingleAnswer ❌ Wrong branch → lock + "Select a correct answer..." ]');
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-
+  
       // None picked, no locks
+      console.log('[SingleAnswer ⏸ None picked → baseline message]');
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
+      console.log('[MultiAnswer DEBUG]', {
+        index,
+        totalCorrect,
+        selectedCorrect,
+        selectedWrong,
+        hasPreLock: this._multiAnswerPreLock.has(index),
+        hasInProgressLock: this._multiAnswerInProgressLock.has(index),
+        hasCompletionLock: this._multiAnswerCompletionLock.has(index),
+        isLast
+      });
+  
       if (this._multiAnswerCompletionLock.has(index)) {
-        console.log('[MultiAnswer] Completion lock holds', { index, selectedCorrect, totalCorrect });
+        console.log('[MultiAnswer ✅ Completion lock holds]');
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       if (this._multiAnswerPreLock.has(index) || selectedCorrect === 0) {
         this._multiAnswerPreLock.add(index);
-        console.log('[MultiAnswer] Pre-lock baseline', { index, selectedCorrect, totalCorrect });
+        console.log('[MultiAnswer ⏸ Pre-lock baseline]');
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
   
@@ -917,20 +941,21 @@ export class SelectionMessageService {
         const remaining = totalCorrect - selectedCorrect;
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.add(index);
-        console.log('[MultiAnswer] In-progress', { index, selectedCorrect, totalCorrect, remaining });
+        console.log('[MultiAnswer 🔄 In-progress]', { remaining });
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
   
       this._multiAnswerCompletionLock.add(index);
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.delete(index);
-      console.log('[MultiAnswer] All correct picked', { index, selectedCorrect, totalCorrect });
+      console.log('[MultiAnswer 🎉 All correct picked]');
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
   
     console.log('[computeFinalMessage] Default fallback', { index });
     return NEXT_BTN_MSG;
   }
+  
   
   
   private pushMessage(newMsg: string, i0: number): void {
