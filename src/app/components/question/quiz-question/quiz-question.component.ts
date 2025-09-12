@@ -2687,7 +2687,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
     }
   
-    if (!this.currentQuestion || !this.currentOptions) return;
+    if (!this.currentQuestion || !this.currentOptions) {
+      console.warn('[onOptionClicked] ❌ currentQuestion/currentOptions missing, returning early');
+      return;
+    }
   
     const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
