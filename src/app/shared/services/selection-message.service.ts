@@ -891,7 +891,7 @@ export class SelectionMessageService {
         selected: o.selected
       }))
     });
-    
+
     if (qType === QuestionType.SingleAnswer) {
       console.log('[SingleAnswer DEBUG]', {
         index,
@@ -1022,6 +1022,15 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
+
+      // Defensive check: don’t recompute if we have no snapshot yet
+      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
+        console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
+          i0,
+          total
+        });
+        return;
+      }
   
       // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
       queueMicrotask(() => {
@@ -1109,6 +1118,10 @@ export class SelectionMessageService {
   public setOptionsSnapshot(opts: Option[] | null | undefined): void {
     // Defensive clone so we never hold external refs
     const safe = Array.isArray(opts) ? opts.map((o) => ({ ...o })) : [];
+    if (safe.length === 0) {
+      console.warn('[setOptionsSnapshot] Ignored empty options snapshot');
+      return;  // don’t overwrite with []
+    }
   
     // Persist internally and notify observers
     this.optionsSnapshot = safe;
