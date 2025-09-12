@@ -873,12 +873,12 @@ export class SelectionMessageService {
   
     // ───────── GUARD: prevent flashing when options not ready ─────────
     if (!opts || opts.length === 0) {
-      console.log('[computeFinalMessage] ⚠️ No opts yet → use baseline');
-      // Always return a safe baseline instead of falling back to last value
-      return index === 0 ? START_MSG : CONTINUE_MSG;
+      const last = this.selectionMessageSubject.getValue() ?? '';
+      console.warn('[computeFinalMessage] ⚠️ No opts yet → keeping last message', { last });
+      return last;
     }
   
-    const totalCorrect   = opts.filter(o => !!o?.correct).length;
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
     const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
     const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
   
@@ -902,7 +902,7 @@ export class SelectionMessageService {
   
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
-        console.log('[SingleAnswer ✅ Correct branch → NEXT/RESULTS]');
+        console.log('[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]', { index, selectedCorrect });
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
@@ -962,6 +962,7 @@ export class SelectionMessageService {
     console.log('[computeFinalMessage] Default fallback', { index });
     return NEXT_BTN_MSG;
   }
+  
   
   
   
