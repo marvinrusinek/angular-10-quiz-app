@@ -2681,6 +2681,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Wait if interaction is not ready yet
     if (!this.quizStateService.isInteractionReady()) {
+      console.warn('[onOptionClicked] Interaction not ready, waiting…');
       await firstValueFrom(
         this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
       );
