@@ -99,6 +99,16 @@ export class SelectionMessageService {
     // Use the latest UI snapshot only to know what's selected…
     const uiSnapshot = this.getLatestOptionsSnapshot();
   
+    // ───────── GUARD: prevent empty snapshots from breaking flow ─────────
+    if (!uiSnapshot || uiSnapshot.length === 0) {
+      console.warn('[determineSelectionMessage] ⚠️ Empty snapshot → return baseline', {
+        questionIndex,
+        totalQuestions
+      });
+      // Always return a safe baseline so we don’t feed [] into computeFinalMessage
+      return questionIndex === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
     // Compute correctness from canonical question options (authoritative)
     const svc: any = this.quizService as any;
     const qArr = Array.isArray(svc.questions)
@@ -168,6 +178,16 @@ export class SelectionMessageService {
     const qType: QuestionType = computedIsMulti
       ? QuestionType.MultipleAnswer
       : declaredType ?? QuestionType.SingleAnswer;
+  
+    console.log('[determineSelectionMessage] → calling computeFinalMessage', {
+      questionIndex,
+      qType,
+      overlaid: overlaid.map(o => ({
+        text: o.text,
+        correct: o.correct,
+        selected: o.selected
+      }))
+    });
   
     return this.computeFinalMessage({
       index: questionIndex,
