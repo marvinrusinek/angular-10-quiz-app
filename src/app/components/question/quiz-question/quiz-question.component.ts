@@ -2756,11 +2756,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOpts[evtIdx].selected = true;
       }
 
-      console.log('[onOptionClicked → canonicalOpts final]', canonicalOpts.map(o => ({
-        text: o.text,
-        correct: o.correct,
-        selected: o.selected
-      })));
+      console.log(
+        '[onOptionClicked → canonicalOpts final]',
+        canonicalOpts.map((o, idx) => ({
+          idx,
+          text: o.text,
+          correct: o.correct,
+          selected: o.selected
+        }))
+      );
 
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
