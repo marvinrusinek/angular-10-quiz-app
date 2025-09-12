@@ -891,11 +891,12 @@ export class SelectionMessageService {
       opts: (opts ?? []).map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
     });
   
-    // ───────── GUARD: prevent flashing when options not ready ─────────
+    // ───────── EXTRA GUARD: prevent empty snapshots from flashing ─────────
     if (!opts || opts.length === 0) {
-      const last = this.selectionMessageSubject.getValue() ?? '';
-      console.warn('[computeFinalMessage] ⚠️ No opts yet → keeping last message', { last });
-      return last;
+      console.warn('[computeFinalMessage] ⚠️ Empty opts received → baseline fallback', {
+        index, total
+      });
+      return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
     const totalCorrect    = opts.filter(o => !!o?.correct).length;
