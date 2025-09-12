@@ -932,10 +932,20 @@ export class SelectionMessageService {
   
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
-        console.log('[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]', { index, selectedCorrect });
+        console.log(
+          '[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]',
+          { index, selectedCorrect }
+        );
+
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+        const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+        // 🚫 Clear stale writes: force immediate push of correct msg
+        this.pushMessage(msg, index);
+
+        return msg;
       }
   
       // ❌ Wrong → once set, persist until overridden
