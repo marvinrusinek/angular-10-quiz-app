@@ -865,20 +865,22 @@ export class SelectionMessageService {
   }): string {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
-
+  
     console.log('[computeFinalMessage INPUT]', { 
       index, qType, 
       opts: (opts ?? []).map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
     });
   
+    // ───────── GUARD: prevent flashing when options not ready ─────────
     if (!opts || opts.length === 0) {
-      console.log('[computeFinalMessage] ❌ No opts, returning last value');
-      return this.selectionMessageSubject.getValue() ?? '';
+      console.log('[computeFinalMessage] ⚠️ No opts yet → use baseline');
+      // Always return a safe baseline instead of falling back to last value
+      return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    const totalCorrect = opts.filter(o => !!o?.correct).length;
+    const totalCorrect   = opts.filter(o => !!o?.correct).length;
     const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
-    const selectedWrong = opts.filter(o => o.selected && !o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
@@ -960,6 +962,7 @@ export class SelectionMessageService {
     console.log('[computeFinalMessage] Default fallback', { index });
     return NEXT_BTN_MSG;
   }
+  
   
   
   
