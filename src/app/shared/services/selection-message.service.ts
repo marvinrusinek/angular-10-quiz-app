@@ -1079,18 +1079,11 @@ export class SelectionMessageService {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-  
-      // 👇 NEW DEBUG LOG for totalQuestions edge case
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) {
-        console.warn('[setSelectionMessage] ⚠️ Aborting — invalid indices or totalQuestions = 0', {
-          i0,
-          total,
-          isAnswered
-        });
+        console.warn('[setSelectionMessage] ❌ Invalid indices', { i0, total });
         return;
       }
   
-      // Defensive check: don’t recompute if we have no snapshot yet
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
         console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
           i0,
@@ -1099,41 +1092,40 @@ export class SelectionMessageService {
         return;
       }
   
-      // Defer one microtask to avoid transient states (faster + cleaner than setTimeout)
       queueMicrotask(() => {
-        // 👇 NEW DEBUG LOG — check snapshot length before message computation
-        console.log('[setSelectionMessage] Using snapshot', {
+        console.log('[setSelectionMessage ENTRY]', {
           i0,
           total,
-          snapshotLength: this.optionsSnapshot?.length ?? 0,
-          snapshot: (this.optionsSnapshot ?? []).map(o => ({
+          snapshot: this.optionsSnapshot.map(o => ({
             text: o.text,
             correct: o.correct,
             selected: o.selected
-          }))
+          })),
+          hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
+          hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
         });
   
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        console.log('[setSelectionMessage → finalMsg]', finalMsg);
+        console.log('[setSelectionMessage → finalMsg]', finalMsg, {
+          i0,
+          hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
+          hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
+        });
   
-        // 🚫 Guard: if wrong lock is active, do not allow NEXT to overwrite
+        // Guard: don’t allow stale wrong lock to override
         if (
           finalMsg === NEXT_BTN_MSG &&
           this._singleAnswerIncorrectLock.has(i0) &&
           !this._singleAnswerCorrectLock.has(i0)
         ) {
-          console.warn(
-            '[Guard] Prevented false NEXT promotion while wrong lock active',
-            { i0, finalMsg }
-          );
+          console.warn('[Guard] Prevented false NEXT promotion while wrong lock active', {
+            i0,
+            finalMsg
+          });
           return;
         }
   
-        // Debug logging so we can trace what actually gets emitted
-        console.log('[setSelectionMessage]', { i0, finalMsg, isAnswered });
-  
-        // Route through guarded writer
         this.pushMessage(finalMsg, i0);
       });
     } catch (err) {
