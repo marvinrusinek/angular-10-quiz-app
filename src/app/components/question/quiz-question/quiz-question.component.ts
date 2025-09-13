@@ -2718,7 +2718,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // EARLY GUARD: no option selected
     if (evtOpt == null) {
-      // ⚠️ message no longer set here, service will handle baseline
+      // Message no longer set here, service will handle baseline
       return;
     }
   
@@ -2732,10 +2732,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.currentQuestion?.options?.map((o) => ({ ...o })) ??
         [];
   
-      // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
+      // For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        // ⚠️ do not return — continue with last known snapshot
+        // do not return — continue with last known snapshot
       } else {
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
@@ -2783,13 +2783,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ),
       }));
   
-      // 🔧 PATCH: enforce single-answer exclusivity at canonical level too
+      // Enforce single-answer exclusivity at canonical level too
       if (q?.type === QuestionType.SingleAnswer) {
         canonicalOpts.forEach((opt, idx) => {
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
   
-        // 🔍 Force correct lock priority if clicked option is correct
+        // Force correct lock priority if clicked option is correct
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
           this.selectionMessageService._singleAnswerCorrectLock.add(i0);
@@ -2798,7 +2798,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             idx: evtIdx,
             text: evtOpt.text,
           });
-          // this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2806,7 +2805,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      // 🆕 Immediate feedback sync (prevents icon delay when selecting multiple options)
+      // Immediate feedback sync (prevents icon delay when selecting multiple options)
       const selOptsSetImmediate = new Set(
         (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
           getStableId(o)
@@ -2826,7 +2825,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
   
-      // ✅ Single, unified snapshot + recompute
+      // Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
