@@ -2734,7 +2734,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
-        console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
+        console.log(
+          '[Guard] Ignoring deselect for single-answer at index',
+          evtIdx
+        );
         // ⚠️ do not return — continue with last known snapshot
       } else {
         if (q?.type === QuestionType.SingleAnswer) {
@@ -2761,7 +2764,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
         checked: event.checked,
-        selectedNow: optionsNow.map((o) => ({ text: o.text, selected: o.selected })),
+        selectedNow: optionsNow.map((o) => ({
+          text: o.text,
+          selected: o.selected,
+        })),
       });
   
       // Persist selection
@@ -2791,16 +2797,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           canonicalOpts[evtIdx].selected = true;
           this.selectionMessageService._singleAnswerCorrectLock.add(i0);
           this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
-          console.log('[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock', {
-            idx: evtIdx,
-            text: evtOpt.text,
-          });
+          console.log(
+            '[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock',
+            { idx: evtIdx, text: evtOpt.text }
+          );
           this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
         }
+      }
+  
+      // 🆕 Lock correction + immediate feedback sync
+      if (q?.type === QuestionType.SingleAnswer && evtOpt?.correct) {
+        this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
+        this.selectionMessageService._singleAnswerCorrectLock.add(i0);
+        console.log(
+          '[onOptionClicked PATCH] Correct selected → wrong lock cleared, correct lock set',
+          { idx: evtIdx, text: evtOpt.text }
+        );
+  
+        // Immediate feedback/icon sync
+        const selOptsSet = new Set(
+          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+            getStableId(o)
+          )
+        );
+        this.updateOptionHighlighting(selOptsSet);
+        this.refreshFeedbackFor(evtOpt ?? undefined);
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
       }
   
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
@@ -2822,27 +2849,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 🔍 DEBUG: check lock states right after recompute
       console.log('[onOptionClicked AFTER setSelectionMessage]', {
         i0,
-        hasCorrectLock: this.selectionMessageService._singleAnswerCorrectLock.has(i0),
-        hasWrongLock: this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
+        hasCorrectLock:
+          this.selectionMessageService._singleAnswerCorrectLock.has(i0),
+        hasWrongLock:
+          this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
         snapshot: canonicalOpts.map((o) => ({
           text: o.text,
           correct: o.correct,
           selected: o.selected,
         })),
       });
-  
-      // 🆕 Immediate feedback refresh so icons update for previous selections too
-      {
-        const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
-            getStableId(o)
-          )
-        );
-        this.updateOptionHighlighting(selOptsSet);
-        this.refreshFeedbackFor(evtOpt ?? undefined);
-        this.cdRef.markForCheck();
-        this.cdRef.detectChanges();
-      }
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
@@ -2880,7 +2896,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.setAnswerSelected(allCorrect);
       });
   
-      // Update explanation and highlighting (RAF for smoother UI)
+      // Update explanation and highlighting
       this._pendingRAF = requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
   
@@ -2904,6 +2920,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
         this.updateOptionHighlighting(selOptsSet);
         this.refreshFeedbackFor(evtOpt ?? undefined);
+  
         this.cdRef.markForCheck();
         this.cdRef.detectChanges();
       });
@@ -2929,6 +2946,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
   
   
   // Updates the highlighting and feedback icons for options after a click
