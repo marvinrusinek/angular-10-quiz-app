@@ -993,18 +993,21 @@ export class SelectionMessageService {
         hasCompletionLock: this._multiAnswerCompletionLock.has(index),
         isLast
       });
-  
+
+      // ✅ If completion lock is already active → always show NEXT/RESULTS
       if (this._multiAnswerCompletionLock.has(index)) {
         console.log('[MultiAnswer ✅ Completion lock holds]');
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
+
+      // ⏸ Pre-lock baseline (no correct selected yet)
       if (this._multiAnswerPreLock.has(index) || selectedCorrect === 0) {
         this._multiAnswerPreLock.add(index);
         console.log('[MultiAnswer ⏸ Pre-lock baseline]');
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
-  
+
+      // 🔄 In-progress (some but not all correct answers selected)
       if (selectedCorrect < totalCorrect) {
         const remaining = totalCorrect - selectedCorrect;
         this._multiAnswerPreLock.delete(index);
@@ -1012,21 +1015,15 @@ export class SelectionMessageService {
         console.log('[MultiAnswer 🔄 In-progress]', { remaining });
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
-  
+
+      // 🎉 All correct answers picked → promote to NEXT/RESULTS
       this._multiAnswerCompletionLock.add(index);
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.delete(index);
-      console.log('[MultiAnswer 🎉 All correct picked]');
+      console.log('[MultiAnswer 🎉 All correct picked → NEXT/RESULTS]');
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
-  
-    console.log('[computeFinalMessage] Default fallback', { index });
-    return NEXT_BTN_MSG;
   }
-  
-  
-  
-  
   
   private pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
