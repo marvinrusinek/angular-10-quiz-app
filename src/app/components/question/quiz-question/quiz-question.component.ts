@@ -2735,15 +2735,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       if (q?.type === QuestionType.SingleAnswer) {
-        // Exclusivity guard for single-answer:
-        // clear all selections, then set only the clicked one
-        optionsNow.forEach((opt, idx) => {
-          opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
-        });
-        if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+        if (event.checked === false) {
+          // 🚫 Ignore all deselect events for single-answer
+          console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
+        } else {
+          // Exclusivity guard for single-answer:
+          // clear all selections, then set only the clicked one
+          optionsNow.forEach((opt, idx) => {
+            opt.selected = idx === evtIdx; // only the clicked one survives
           });
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
+              opt.selected = idx === evtIdx;
+            });
+          }
         }
       } else {
         // Multi-answer: allow multiple selections
@@ -2751,7 +2756,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (Array.isArray(this.optionsToDisplay)) {
           (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
         }
-      }
+      }      
   
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
