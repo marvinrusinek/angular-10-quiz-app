@@ -998,27 +998,30 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // ✅ Preselection: nothing correct chosen yet
+      // ✅ Preselection: nothing correct chosen yet → lock and force return
       if (selectedCorrect === 0) {
         this._multiAnswerPreLock.add(index);
-        // ⛔ force early return so it never drops into CONTINUE_MSG
+        console.log('[MultiAnswer PRESELECTION → force baseline]');
         return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       }
 
-      // 🔄 Some correct chosen, but not all
+      // 🔄 Some correct chosen, but not all → progress message
       if (selectedCorrect < totalCorrect) {
         const remaining = totalCorrect - selectedCorrect;
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.add(index);
+        console.log('[MultiAnswer IN-PROGRESS]', { remaining });
         return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
       }
 
-      // 🎉 All correct chosen (completion lock)
+      // 🎉 All correct chosen → lock + NEXT/RESULTS
       this._multiAnswerCompletionLock.add(index);
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.delete(index);
+      console.log('[MultiAnswer COMPLETE → NEXT/RESULTS]');
       return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
     }
+
     // ───────── Default Fallback ─────────
     console.warn('[computeFinalMessage] Default fallback hit', { index, qType });
     return NEXT_BTN_MSG;
