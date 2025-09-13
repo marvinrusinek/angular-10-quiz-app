@@ -2727,28 +2727,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update local UI selection immediately
       const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
         ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-      
+  
+      // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
-        // For single-answer: ignore deselect events (click-off)
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-      } else {
-        if (q?.type === QuestionType.SingleAnswer) {
-          // Exclusivity guard for single-answer:
-          // clear all selections, then set only the clicked one
-          optionsNow.forEach((opt, idx) => {
+        return; // 🚫 bail early so nothing downstream sees "empty" snapshot
+      }
+  
+      if (q?.type === QuestionType.SingleAnswer) {
+        // Exclusivity guard for single-answer:
+        // clear all selections, then set only the clicked one
+        optionsNow.forEach((opt, idx) => {
+          opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+        });
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
             opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
           });
-          if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
-            });
-          }
-        } else {
-          // Multi-answer: allow multiple selections
-          optionsNow[evtIdx].selected = event.checked ?? true;
-          if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
-          }
+        }
+      } else {
+        // Multi-answer: allow multiple selections
+        optionsNow[evtIdx].selected = event.checked ?? true;
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
         }
       }
   
@@ -2872,6 +2873,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
   
   
   
