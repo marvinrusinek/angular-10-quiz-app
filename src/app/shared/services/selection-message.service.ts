@@ -75,6 +75,8 @@ export class SelectionMessageService {
 
   private _origNext = this.selectionMessageSubject.next.bind(this.selectionMessageSubject);
 
+  private _lastMessageByIndex = new Map<number, string>();
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -1062,7 +1064,7 @@ export class SelectionMessageService {
         console.warn('[setSelectionMessage] ❌ Invalid indices', { i0, total });
         return;
       }
-  
+
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
         console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
           i0,
@@ -1070,7 +1072,7 @@ export class SelectionMessageService {
         });
         return;
       }
-  
+
       queueMicrotask(() => {
         console.log('[setSelectionMessage ENTRY]', {
           i0,
@@ -1083,15 +1085,15 @@ export class SelectionMessageService {
           hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
           hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
         });
-  
+
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-  
+
         console.log('[setSelectionMessage → finalMsg]', finalMsg, {
           i0,
           hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
           hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
         });
-  
+
         // Guard: don’t allow stale wrong lock to override
         if (
           this._singleAnswerCorrectLock.has(i0) &&
@@ -1104,14 +1106,21 @@ export class SelectionMessageService {
           });
           return;
         }
-  
+
+        // 🚫 NEW: only push if changed
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg === finalMsg) {
+          console.log('[setSelectionMessage] Skipped duplicate message', { i0, finalMsg });
+          return;
+        }
+
+        this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
