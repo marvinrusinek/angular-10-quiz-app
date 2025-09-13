@@ -2786,7 +2786,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           });
   
           // 🚀 Force push NEXT_BTN_MSG so UI updates right away
+          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
           this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
+  
+          // Also unlock the Next button + mark as answered immediately
+          this.nextButtonStateService.setNextButtonState(true);
+          this.quizStateService.setAnswered(true);
+          this.quizStateService.setAnswerSelected(true);
+  
+          return; // 🚫 short-circuit here so nothing else overwrites the message
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2882,7 +2890,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
-    
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
