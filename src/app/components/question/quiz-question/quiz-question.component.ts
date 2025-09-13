@@ -2866,7 +2866,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
         );
         this.updateOptionHighlighting(selOptsSet);
-  
+        this.refreshFeedbackFor(evtOpt ?? undefined);
         this.cdRef.markForCheck();
         this.cdRef.detectChanges();
       });
