@@ -57,8 +57,8 @@ export class SelectionMessageService {
 
   // Track which questions have been "locked" once correct is chosen
   // Single-answer: one for incorrect, one for correct
-  private _singleAnswerIncorrectLock: Set<number> = new Set();
-  private _singleAnswerCorrectLock: Set<number> = new Set();
+  public _singleAnswerIncorrectLock: Set<number> = new Set();
+  public _singleAnswerCorrectLock: Set<number> = new Set();
 
   // Multi-answer: one for "in-progress" (partial selections), 
   // one for "completion" (all correct selected)

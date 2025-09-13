@@ -2823,6 +2823,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
+
+      console.log('[onOptionClicked AFTER setSelectionMessage]', {
+        i0,
+        hasCorrectLock: this.selectionMessageService._singleAnswerCorrectLock.has(i0),
+        hasWrongLock: this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
+        snapshot: canonicalOpts.map(o => ({
+          text: o.text,
+          correct: o.correct,
+          selected: o.selected
+        }))
+      });      
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
