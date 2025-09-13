@@ -982,44 +982,28 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      console.log('[MultiAnswer DEBUG]', {
-        index,
-        totalCorrect,
-        selectedCorrect,
-        selectedWrong,
-        hasPreLock: this._multiAnswerPreLock.has(index),
-        hasInProgressLock: this._multiAnswerInProgressLock.has(index),
-        hasCompletionLock: this._multiAnswerCompletionLock.has(index),
-        isLast
-      });
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
 
-      // ✅ All correct picked → NEXT/RESULTS
-      if (this._multiAnswerCompletionLock.has(index)) {
+      // Force baseline if no correct selected
+      if (selectedCorrect === 0) {
+        this._multiAnswerPreLock.add(index);
+        console.log('[MultiAnswer PRELOCK baseline → returning baselineMsg]', baselineMsg);
+        return baselineMsg;   // 🚨 hard return here
+      }
+
+      // All correct picked → NEXT/RESULTS
+      if (selectedCorrect === totalCorrect) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // ✅ Preselection: nothing correct chosen yet → lock and force return
-      if (selectedCorrect === 0) {
-        this._multiAnswerPreLock.add(index);
-        console.log('[MultiAnswer PRESELECTION → force baseline]');
-        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      }
-
-      // 🔄 Some correct chosen, but not all → progress message
-      if (selectedCorrect < totalCorrect) {
-        const remaining = totalCorrect - selectedCorrect;
-        this._multiAnswerPreLock.delete(index);
-        this._multiAnswerInProgressLock.add(index);
-        console.log('[MultiAnswer IN-PROGRESS]', { remaining });
-        return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
-      }
-
-      // 🎉 All correct chosen → lock + NEXT/RESULTS
-      this._multiAnswerCompletionLock.add(index);
+      // Some correct but not all
+      const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
-      this._multiAnswerInProgressLock.delete(index);
-      console.log('[MultiAnswer COMPLETE → NEXT/RESULTS]');
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      this._multiAnswerInProgressLock.add(index);
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
 
     // ───────── Default Fallback ─────────
