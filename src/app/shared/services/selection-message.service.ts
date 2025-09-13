@@ -1109,9 +1109,9 @@ export class SelectionMessageService {
   
         // Guard: don’t allow stale wrong lock to override
         if (
-          finalMsg === NEXT_BTN_MSG &&
-          this._singleAnswerIncorrectLock.has(i0) &&
-          !this._singleAnswerCorrectLock.has(i0)
+          this._singleAnswerCorrectLock.has(i0) &&
+          finalMsg !== NEXT_BTN_MSG &&
+          finalMsg !== SHOW_RESULTS_MSG
         ) {
           console.warn('[Guard] Prevented false NEXT promotion while wrong lock active', {
             i0,
