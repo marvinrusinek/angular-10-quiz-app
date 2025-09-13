@@ -2728,35 +2728,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
         ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
   
-      // 🔧 For single-answer: ignore deselect events (click-off)
+      // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        return; // 🚫 bail early so nothing downstream sees "empty" snapshot
-      }
-  
-      if (q?.type === QuestionType.SingleAnswer) {
-        if (event.checked === false) {
-          // 🚫 Ignore all deselect events for single-answer
-          console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        } else {
+        // ⚠️ do not return — continue with last known snapshot
+      } else {
+        if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
           // clear all selections, then set only the clicked one
           optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx; // only the clicked one survives
+            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
           });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx;
+              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
             });
           }
+        } else {
+          // Multi-answer: allow multiple selections
+          optionsNow[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          }
         }
-      } else {
-        // Multi-answer: allow multiple selections
-        optionsNow[evtIdx].selected = event.checked ?? true;
-        if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
-        }
-      }      
+      }
   
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
@@ -2782,27 +2777,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
   
-        // ✅ If the clicked option is correct → immediately push NEXT_BTN_MSG
+        // 🔍 Force correct lock priority if clicked option is correct
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
-          console.log('[onOptionClicked ✅ Correct single-answer]', {
+          this.selectionMessageService._singleAnswerCorrectLock.add(i0);
+          this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
+          console.log('[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock', {
             idx: evtIdx,
             text: evtOpt.text
           });
-  
-          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-  
-          // 🚀 Force push NEXT_BTN_MSG so UI updates right away
           this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
-          this._singleAnswerCorrectLock.add(i0);
-          this._singleAnswerIncorrectLock.delete(i0);
-  
-          // Enable Next button + mark answered
-          this.nextButtonStateService.setNextButtonState(true);
-          this.quizStateService.setAnswered(true);
-          this.quizStateService.setAnswerSelected(true);
-  
-          return; // 🚫 stop here so later recomputes don’t overwrite
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2823,17 +2807,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
-
+  
+      // 🔍 DEBUG: check lock states right after recompute
       console.log('[onOptionClicked AFTER setSelectionMessage]', {
         i0,
         hasCorrectLock: this.selectionMessageService._singleAnswerCorrectLock.has(i0),
         hasWrongLock: this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
-        snapshot: canonicalOpts.map(o => ({
-          text: o.text,
-          correct: o.correct,
-          selected: o.selected
-        }))
-      });      
+        snapshot: canonicalOpts.map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
+      });
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
@@ -2909,6 +2890,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
   
   
   // Updates the highlighting and feedback icons for options after a click
