@@ -2797,12 +2797,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
   
-      // Ask service to recompute selection message (after state update)
-      queueMicrotask(async () => {
-        console.log('[onOptionClicked] Forcing recompute for index', i0);
-        await this.selectionMessageService.setSelectionMessage(false);
-      });
-  
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
       const tok = this._msgTok;
