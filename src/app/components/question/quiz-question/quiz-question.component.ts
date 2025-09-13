@@ -2728,28 +2728,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
         ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
   
-      // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
+      // 🔧 For single-answer: ignore deselect events (click-off)
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        // ⚠️ do not return — continue with last known snapshot
-      } else {
-        if (q?.type === QuestionType.SingleAnswer) {
-          // Exclusivity guard for single-answer:
-          // clear all selections, then set only the clicked one
-          optionsNow.forEach((opt, idx) => {
+        return; // 🚫 bail early so nothing downstream sees "empty" snapshot
+      }
+  
+      if (q?.type === QuestionType.SingleAnswer) {
+        // Exclusivity guard for single-answer:
+        // clear all selections, then set only the clicked one
+        optionsNow.forEach((opt, idx) => {
+          opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+        });
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
             opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
           });
-          if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
-            });
-          }
-        } else {
-          // Multi-answer: allow multiple selections
-          optionsNow[evtIdx].selected = event.checked ?? true;
-          if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
-          }
+        }
+      } else {
+        // Multi-answer: allow multiple selections
+        optionsNow[evtIdx].selected = event.checked ?? true;
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
         }
       }
   
@@ -2777,24 +2777,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
   
-        // 🔍 If clicked option is correct → force NEXT_BTN_MSG immediately
+        // ✅ If the clicked option is correct → immediately push NEXT_BTN_MSG
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
-          console.log('[onOptionClicked PATCH ✅] Correct option explicitly set selected', {
+          console.log('[onOptionClicked ✅ Correct single-answer]', {
             idx: evtIdx,
             text: evtOpt.text
           });
   
-          // 🚀 Force push NEXT_BTN_MSG so UI updates right away
           this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-          this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
   
-          // Also unlock the Next button + mark as answered immediately
+          // 🚀 Force push NEXT_BTN_MSG so UI updates right away
+          this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
+          this._singleAnswerCorrectLock.add(i0);
+          this._singleAnswerIncorrectLock.delete(i0);
+  
+          // Enable Next button + mark answered
           this.nextButtonStateService.setNextButtonState(true);
           this.quizStateService.setAnswered(true);
           this.quizStateService.setAnswerSelected(true);
   
-          return; // 🚫 short-circuit here so nothing else overwrites the message
+          return; // 🚫 stop here so later recomputes don’t overwrite
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2890,6 +2893,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
