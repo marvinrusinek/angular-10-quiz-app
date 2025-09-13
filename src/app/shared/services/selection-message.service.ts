@@ -984,11 +984,11 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
 
-      // Force baseline if no correct selected
+      // Pre-lock: no correct answers selected
       if (selectedCorrect === 0) {
         this._multiAnswerPreLock.add(index);
         console.log('[MultiAnswer PRELOCK baseline → returning baselineMsg]', baselineMsg);
-        return baselineMsg;   // 🚨 hard return here
+        return baselineMsg;   // 🚨 hard return so it never flashes other text
       }
 
       // All correct picked → NEXT/RESULTS
@@ -999,7 +999,7 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // Some correct but not all
+      // Some correct but not all → in-progress message
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
@@ -1007,15 +1007,8 @@ export class SelectionMessageService {
     }
 
     // ───────── Default Fallback ─────────
-    if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-      // 🚫 Prevent fallback from overwriting the baseline pre-selection message
-      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      console.log('[Default Fallback GUARD → preserving baseline for MultiAnswer]', baselineMsg);
-      return baselineMsg;
-    }
-
-    console.warn('[computeFinalMessage] Default fallback hit', { index, qType });
-    return NEXT_BTN_MSG;
+    console.warn('[computeFinalMessage] ⚠️ Default fallback hit', { index, qType });
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
   
   public pushMessage(newMsg: string, i0: number): void {
