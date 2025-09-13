@@ -2781,6 +2781,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           canonicalOpts[evtIdx].selected = true;
         }
       }
+
+      this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+      await this.selectionMessageService.setSelectionMessage(false);
   
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
         idx,
