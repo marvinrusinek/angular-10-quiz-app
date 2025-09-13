@@ -1025,7 +1025,7 @@ export class SelectionMessageService {
     }
   }
   
-  private pushMessage(newMsg: string, i0: number): void {
+  public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
     // Guard: prevent false promotion while wrong lock is active
