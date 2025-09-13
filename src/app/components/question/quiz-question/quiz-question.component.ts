@@ -2916,7 +2916,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setSelectionMessage(false);
       });
     }
-  }
+  } */
   
   
   
