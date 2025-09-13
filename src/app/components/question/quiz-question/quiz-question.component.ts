@@ -2727,10 +2727,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update local UI selection immediately
       const optionsNow: Option[] = this.optionsToDisplay?.map(o => ({ ...o })) 
         ?? this.currentQuestion?.options?.map(o => ({ ...o })) ?? [];
-       
-      // For single-answer: ignore deselect events (click-off)
-      // Once an option is clicked, it stays until another is chosen
+      
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
+        // For single-answer: ignore deselect events (click-off)
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
       } else {
         if (q?.type === QuestionType.SingleAnswer) {
@@ -2770,23 +2769,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
           .some(sel => getStableId(sel) === getStableId(o))
       }));
-
-      // Force update the selected flag for the clicked option immediately
-      if (canonicalOpts[evtIdx]) {
-        canonicalOpts[evtIdx].selected = true;
+  
+      // 🔧 PATCH: enforce single-answer exclusivity at canonical level too
+      if (q?.type === QuestionType.SingleAnswer) {
+        canonicalOpts.forEach((opt, idx) => {
+          opt.selected = idx === evtIdx; // only the clicked one survives
+        });
+      } else {
+        if (canonicalOpts[evtIdx]) {
+          canonicalOpts[evtIdx].selected = true;
+        }
       }
-
+  
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
         idx,
         text: String(o.text),
         correct: !!o.correct,
         selected: !!o.selected
       }));
-
+  
       console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
-      console.log('[onOptionClicked → canonicalOpts final JSON]', JSON.stringify(frozenSnapshot, null, 2));
-
-
+  
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
       // Ask service to recompute selection message (after state update)
@@ -2811,8 +2814,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update Next button and quiz state
       queueMicrotask(() => {
         if (this._skipNextAsyncUpdates) return;
-        // Note: service message locks will determine gating, 
-        // here we just drive button enable/disable
         const correctOpts = canonicalOpts.filter(o => !!o.correct);
         const selOptsSet = new Set(
           (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
@@ -2843,7 +2844,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.explanationToDisplay = txt;
         this.explanationToDisplayChange.emit(txt);
   
-        // Update option highlighting/feedback
         const selOptsSet = new Set(
           (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map(o => getStableId(o))
         );
@@ -2867,12 +2867,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       queueMicrotask(() => { 
         this._clickGate = false; 
-        // Force recompute of selection message after this click
         console.log('[QQC finally] forcing setSelectionMessage call');
         this.selectionMessageService.setSelectionMessage(false);
       });
     }
   }
+  
   
   
   
