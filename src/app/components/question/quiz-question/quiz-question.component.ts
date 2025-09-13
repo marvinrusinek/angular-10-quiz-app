@@ -2776,7 +2776,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOpts.forEach((opt, idx) => {
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
-
+  
         // 🔍 Force-mark the clicked option as selected if it is correct
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
@@ -2878,7 +2878,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setSelectionMessage(false);
       });
     }
-  }
+  }  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
