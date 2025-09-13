@@ -2762,10 +2762,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         correct: !!o.correct,
         selected: !!o.selected
       }));
-      
+
       console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
       console.log('[onOptionClicked → canonicalOpts final JSON]', JSON.stringify(frozenSnapshot, null, 2));
-      
+
 
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
