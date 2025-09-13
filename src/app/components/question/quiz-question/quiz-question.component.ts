@@ -2910,15 +2910,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     } finally {
       queueMicrotask(() => {
-        this._clickGate = false;
-        console.log('[QQC finally] forcing setSelectionMessage call');
-        this.selectionMessageService.setSelectionMessage(false);
+        this._clickGate = false; 
+        if (q?.type === QuestionType.SingleAnswer) {
+          console.log('[QQC finally] forcing setSelectionMessage call (single-answer only)');
+          this.selectionMessageService.setSelectionMessage(false);
+        }
       });
     }
   }
-  
-  
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
