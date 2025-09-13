@@ -2776,6 +2776,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOpts.forEach((opt, idx) => {
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
+
+        // 🔍 Force-mark the clicked option as selected if it is correct
+        if (evtOpt?.correct && canonicalOpts[evtIdx]) {
+          canonicalOpts[evtIdx].selected = true;
+          console.log('[onOptionClicked PATCH] Correct option explicitly set selected', {
+            idx: evtIdx,
+            text: evtOpt.text
+          });
+        }
       } else {
         if (canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
