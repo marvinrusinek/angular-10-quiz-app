@@ -945,38 +945,29 @@ export class SelectionMessageService {
       }
 
       // ✅ Correct → lock forever, clears wrong lock
+      console.log('[SingleAnswer CHECK → before branch]', { selectedCorrect, selectedWrong, opts });
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
-        console.log(
-          '[SingleAnswer ✅ Correct branch hit]',
-          {
-            index,
-            selectedCorrect,
-            optsSnapshot: opts.map(o => ({
-              text: o.text,
-              correct: o.correct,
-              selected: o.selected
-            }))
-          }
-        );
-    
-        console.log(
-          '[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]',
-          { index, selectedCorrect }
-        );
+        console.log('[SingleAnswer ✅ Correct branch HIT!]', {
+          index,
+          selectedCorrect,
+          optsSnapshot: opts.map(o => ({
+            text: o.text,
+            correct: o.correct,
+            selected: o.selected
+          }))
+        });
 
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
 
-        // 🔧 Explicit message override for correct single-answer
         const msg = isLast
           ? SHOW_RESULTS_MSG
           : "Please click the next button to continue...";
 
-        // 🚫 Clear stale writes: force immediate push of correct msg
         this.pushMessage(msg, index);
-
         return msg;
       }
+
 
       // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
