@@ -2777,13 +2777,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           opt.selected = idx === evtIdx; // only the clicked one survives
         });
   
-        // 🔍 Force-mark the clicked option as selected if it is correct
+        // 🔍 If clicked option is correct → force NEXT_BTN_MSG immediately
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
-          console.log('[onOptionClicked PATCH] Correct option explicitly set selected', {
+          console.log('[onOptionClicked PATCH ✅] Correct option explicitly set selected', {
             idx: evtIdx,
             text: evtOpt.text
           });
+  
+          // 🚀 Force push NEXT_BTN_MSG so UI updates right away
+          this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2878,7 +2881,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.selectionMessageService.setSelectionMessage(false);
       });
     }
-  }  
+  }
+    
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
