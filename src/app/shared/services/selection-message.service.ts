@@ -962,7 +962,7 @@ export class SelectionMessageService {
 
         const msg = isLast
           ? SHOW_RESULTS_MSG
-          : "Please click the next button to continue...";
+          : NEXT_BTN_MSG;
 
         this.pushMessage(msg, index);
         return msg;
