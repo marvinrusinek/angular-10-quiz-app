@@ -918,6 +918,15 @@ export class SelectionMessageService {
     const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
+    console.log('[computeFinalMessage INPUT]', { 
+      index, qType, 
+      opts: (opts ?? []).map(o => ({
+        text: o.text,
+        correct: o.correct,
+        selected: o.selected
+      }))
+    });
+
     if (qType === QuestionType.SingleAnswer) {
       console.log('[SingleAnswer DEBUG]', {
         index,
@@ -928,33 +937,55 @@ export class SelectionMessageService {
         hasWrongLock: this._singleAnswerIncorrectLock.has(index),
         isLast
       });
-
-      // ✅ Correct → lock forever, clears wrong lock
-      if (selectedCorrect > 0) {
-        console.log('[SingleAnswer ✅ Correct branch → NEXT/RESULTS]');
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-
+  
       // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
         console.log('[SingleAnswer ❌ Wrong lock holds → force "Select a correct answer..." ]');
         return 'Select a correct answer to continue...';
       }
+  
+      // ✅ Correct → lock forever, clears wrong lock
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        console.log(
+          '[SingleAnswer ✅ Correct branch hit]',
+          {
+            index,
+            selectedCorrect,
+            optsSnapshot: opts.map(o => ({
+              text: o.text,
+              correct: o.correct,
+              selected: o.selected
+            }))
+          }
+        );
+     
+        console.log(
+          '[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]',
+          { index, selectedCorrect }
+        );
 
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
+
+        const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+        // 🚫 Clear stale writes: force immediate push of correct msg
+        this.pushMessage(msg, index);
+
+        return msg;
+      }
+  
       // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
         console.log('[SingleAnswer ❌ Wrong branch → lock + "Select a correct answer..." ]');
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-
+  
       // None picked, no locks
       console.log('[SingleAnswer ⏸ None picked → baseline message]');
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
-
   
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
