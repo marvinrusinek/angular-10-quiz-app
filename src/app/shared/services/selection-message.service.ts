@@ -937,13 +937,13 @@ export class SelectionMessageService {
         hasWrongLock: this._singleAnswerIncorrectLock.has(index),
         isLast
       });
-  
+
       // ✅ If wrong lock is already active → never promote to NEXT
       if (this._singleAnswerIncorrectLock.has(index)) {
         console.log('[SingleAnswer ❌ Wrong lock holds → force "Select a correct answer..." ]');
         return 'Select a correct answer to continue...';
       }
-  
+
       // ✅ Correct → lock forever, clears wrong lock
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         console.log(
@@ -958,7 +958,7 @@ export class SelectionMessageService {
             }))
           }
         );
-     
+    
         console.log(
           '[SingleAnswer ✅ Correct branch hit → should display NEXT/RESULTS]',
           { index, selectedCorrect }
@@ -967,21 +967,24 @@ export class SelectionMessageService {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index); // correct overrides wrong
 
-        const msg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+        // 🔧 Explicit message override for correct single-answer
+        const msg = isLast
+          ? SHOW_RESULTS_MSG
+          : "Please click the next button to continue...";
 
         // 🚫 Clear stale writes: force immediate push of correct msg
         this.pushMessage(msg, index);
 
         return msg;
       }
-  
+
       // ❌ Wrong → once set, persist until overridden
       if (selectedWrong > 0) {
         console.log('[SingleAnswer ❌ Wrong branch → lock + "Select a correct answer..." ]');
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-  
+
       // None picked, no locks
       console.log('[SingleAnswer ⏸ None picked → baseline message]');
       return index === 0 ? START_MSG : CONTINUE_MSG;
