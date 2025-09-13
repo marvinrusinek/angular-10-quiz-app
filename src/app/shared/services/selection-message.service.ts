@@ -1079,8 +1079,17 @@ export class SelectionMessageService {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
-
+  
+      // 👇 NEW DEBUG LOG for totalQuestions edge case
+      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) {
+        console.warn('[setSelectionMessage] ⚠️ Aborting — invalid indices or totalQuestions = 0', {
+          i0,
+          total,
+          isAnswered
+        });
+        return;
+      }
+  
       // Defensive check: don’t recompute if we have no snapshot yet
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
         console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
@@ -1103,9 +1112,9 @@ export class SelectionMessageService {
             selected: o.selected
           }))
         });
-        
+  
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-
+  
         console.log('[setSelectionMessage → finalMsg]', finalMsg);
   
         // 🚫 Guard: if wrong lock is active, do not allow NEXT to overwrite

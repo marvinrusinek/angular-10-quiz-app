@@ -1959,6 +1959,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
 
+      // 🔧 FIX: set totalQuestions before selection messages are computed
+      if (this.questionsArray?.length > 0) {
+        this.quizService.totalQuestions = this.questionsArray.length;
+        console.log('[loadQuestion] ✅ totalQuestions set', this.quizService.totalQuestions);
+      }
+
       // If questionsArray still empty, bail out gracefully
       if (this.questionsArray.length === 0) {
         console.warn(
