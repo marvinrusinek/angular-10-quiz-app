@@ -2731,25 +2731,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        return; // 🚫 bail early so nothing downstream sees "empty" snapshot
-      }
-  
-      if (q?.type === QuestionType.SingleAnswer) {
-        // Exclusivity guard for single-answer:
-        // clear all selections, then set only the clicked one
-        optionsNow.forEach((opt, idx) => {
-          opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
-        });
-        if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
+        // ⚠️ do not return — continue with last known snapshot
+      } else {
+        if (q?.type === QuestionType.SingleAnswer) {
+          // Exclusivity guard for single-answer:
+          // clear all selections, then set only the clicked one
+          optionsNow.forEach((opt, idx) => {
             opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
           });
-        }
-      } else {
-        // Multi-answer: allow multiple selections
-        optionsNow[evtIdx].selected = event.checked ?? true;
-        if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
+              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+            });
+          }
+        } else {
+          // Multi-answer: allow multiple selections
+          optionsNow[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          }
         }
       }
   
@@ -2781,9 +2781,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           canonicalOpts[evtIdx].selected = true;
         }
       }
-
-      this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-      await this.selectionMessageService.setSelectionMessage(false);
   
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
         idx,
@@ -2794,9 +2791,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
   
+      // ✅ Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-
-      // Force recompute synchronously once snapshot is set
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
   
@@ -2874,10 +2870,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
-  
-  
-  
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
