@@ -984,11 +984,14 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
 
-      // Pre-lock: no correct answers selected
-      if (selectedCorrect === 0) {
+      // Sticky pre-lock: if no correct selected, always show baseline
+      if (selectedCorrect === 0 || this._multiAnswerPreLock.has(index)) {
         this._multiAnswerPreLock.add(index);
+        this._multiAnswerInProgressLock.delete(index);
+        this._multiAnswerCompletionLock.delete(index);
+
         console.log('[MultiAnswer PRELOCK baseline → returning baselineMsg]', baselineMsg);
-        return baselineMsg;   // 🚨 hard return so it never flashes other text
+        return baselineMsg;
       }
 
       // All correct picked → NEXT/RESULTS
@@ -996,13 +999,15 @@ export class SelectionMessageService {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.delete(index);
+
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // Some correct but not all → in-progress message
+      // Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
+
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
 
