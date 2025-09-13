@@ -2795,7 +2795,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Force recompute synchronously once snapshot is set
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
-      await this.selectionMessageService.setSelectionMessage(false)
+      await this.selectionMessageService.setSelectionMessage(false);
   
       // Ask service to recompute selection message (after state update)
       queueMicrotask(async () => {
