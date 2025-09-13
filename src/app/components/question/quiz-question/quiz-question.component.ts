@@ -2798,7 +2798,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             idx: evtIdx,
             text: evtOpt.text,
           });
-          this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
+          // this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
