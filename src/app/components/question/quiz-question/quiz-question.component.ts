@@ -2734,23 +2734,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 🔧 HARD PATCH: For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
-        console.log(
-          '[Guard] Ignoring deselect for single-answer at index',
-          evtIdx
-        );
+        console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
         // ⚠️ do not return — continue with last known snapshot
       } else {
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
           // clear all selections, then set only the clicked one
           optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx ? event.checked ?? true : false;
+            opt.selected = idx === evtIdx;
           });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx ? event.checked ?? true : false;
+              opt.selected = idx === evtIdx;
             });
           }
+  
+          // 🔧 Sync the service map to only the clicked option
+          this.selectedOptionService.selectedOptionsMap.set(i0, [evtOpt]);
         } else {
           // Multi-answer: allow multiple selections
           optionsNow[evtIdx].selected = event.checked ?? true;
@@ -2797,37 +2797,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           canonicalOpts[evtIdx].selected = true;
           this.selectionMessageService._singleAnswerCorrectLock.add(i0);
           this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
-          console.log(
-            '[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock',
-            { idx: evtIdx, text: evtOpt.text }
-          );
+          console.log('[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock', {
+            idx: evtIdx,
+            text: evtOpt.text,
+          });
           this.selectionMessageService.pushMessage(NEXT_BTN_MSG, i0);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
         }
-      }
-  
-      // 🆕 Lock correction + immediate feedback sync
-      if (q?.type === QuestionType.SingleAnswer && evtOpt?.correct) {
-        this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
-        this.selectionMessageService._singleAnswerCorrectLock.add(i0);
-        console.log(
-          '[onOptionClicked PATCH] Correct selected → wrong lock cleared, correct lock set',
-          { idx: evtIdx, text: evtOpt.text }
-        );
-  
-        // Immediate feedback/icon sync
-        const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
-            getStableId(o)
-          )
-        );
-        this.updateOptionHighlighting(selOptsSet);
-        this.refreshFeedbackFor(evtOpt ?? undefined);
-        this.cdRef.markForCheck();
-        this.cdRef.detectChanges();
       }
   
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
@@ -2849,10 +2828,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // 🔍 DEBUG: check lock states right after recompute
       console.log('[onOptionClicked AFTER setSelectionMessage]', {
         i0,
-        hasCorrectLock:
-          this.selectionMessageService._singleAnswerCorrectLock.has(i0),
-        hasWrongLock:
-          this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
+        hasCorrectLock: this.selectionMessageService._singleAnswerCorrectLock.has(i0),
+        hasWrongLock: this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
         snapshot: canonicalOpts.map((o) => ({
           text: o.text,
           correct: o.correct,
@@ -2946,8 +2923,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
-  
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
