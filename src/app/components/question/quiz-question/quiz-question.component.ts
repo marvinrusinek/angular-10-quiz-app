@@ -2741,16 +2741,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Exclusivity guard for single-answer:
           // clear all selections, then set only the clicked one
           optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx;
+            opt.selected = idx === evtIdx ? event.checked ?? true : false;
           });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx;
+              opt.selected = idx === evtIdx ? event.checked ?? true : false;
             });
           }
-  
-          // 🔧 Sync the service map to only the clicked option
-          this.selectedOptionService.selectedOptionsMap.set(i0, [evtOpt]);
         } else {
           // Multi-answer: allow multiple selections
           optionsNow[evtIdx].selected = event.checked ?? true;
@@ -2809,6 +2806,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
+      // 🆕 Immediate feedback sync (prevents icon delay when selecting multiple options)
+      const selOptsSetImmediate = new Set(
+        (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+          getStableId(o)
+        )
+      );
+      this.updateOptionHighlighting(selOptsSetImmediate);
+      this.refreshFeedbackFor(evtOpt ?? undefined);
+      this.cdRef.markForCheck();
+      this.cdRef.detectChanges();
+  
       const frozenSnapshot = canonicalOpts.map((o, idx) => ({
         idx,
         text: String(o.text),
@@ -2820,22 +2828,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // ✅ Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-      console.log('[onOptionClicked] Triggering selection message recompute NOW', {
-        i0,
-      });
+      console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
       await this.selectionMessageService.setSelectionMessage(false);
-  
-      // 🔍 DEBUG: check lock states right after recompute
-      console.log('[onOptionClicked AFTER setSelectionMessage]', {
-        i0,
-        hasCorrectLock: this.selectionMessageService._singleAnswerCorrectLock.has(i0),
-        hasWrongLock: this.selectionMessageService._singleAnswerIncorrectLock.has(i0),
-        snapshot: canonicalOpts.map((o) => ({
-          text: o.text,
-          correct: o.correct,
-          selected: o.selected,
-        })),
-      });
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
@@ -2873,7 +2867,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.quizStateService.setAnswerSelected(allCorrect);
       });
   
-      // Update explanation and highlighting
+      // Update explanation and highlighting (RAF for smoother update)
       this._pendingRAF = requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
   
@@ -2923,6 +2917,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
+  
+  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
