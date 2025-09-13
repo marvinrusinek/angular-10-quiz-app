@@ -11,7 +11,7 @@ import { SelectedOptionService } from '../../shared/services/selectedoption.serv
 
 const START_MSG = 'Please start the quiz by selecting an option.';
 const CONTINUE_MSG = 'Please select an option to continue...';
-const NEXT_BTN_MSG = 'Please click the next button to continue.';
+const NEXT_BTN_MSG = 'Please click the next button to continue...';
 const SHOW_RESULTS_MSG = 'Please click the Show Results button.';
 const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${ remaining === 1 ? '' : 's' } to continue...`;
