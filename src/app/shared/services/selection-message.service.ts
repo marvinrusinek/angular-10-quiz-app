@@ -1007,6 +1007,13 @@ export class SelectionMessageService {
     }
 
     // ───────── Default Fallback ─────────
+    if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+      // 🚫 Prevent fallback from overwriting the baseline pre-selection message
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      console.log('[Default Fallback GUARD → preserving baseline for MultiAnswer]', baselineMsg);
+      return baselineMsg;
+    }
+
     console.warn('[computeFinalMessage] Default fallback hit', { index, qType });
     return NEXT_BTN_MSG;
   }
