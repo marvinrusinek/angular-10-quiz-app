@@ -1056,12 +1056,20 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
-      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
-      // 🆕 EARLY GUARD: sticky baseline for multi-answer
+      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
+        console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
+          i0,
+          total
+        });
+        return;
+      }
+  
+      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
+      // 🆕 HARD GUARD: Multi-answer sticky baseline
       if (qType === QuestionType.MultipleAnswer) {
         const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
         const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
@@ -1071,14 +1079,15 @@ export class SelectionMessageService {
   
           const prevMsg = this._lastMessageByIndex.get(i0);
           if (prevMsg !== baselineMsg) {
-            console.log('[Guard EARLY] Forcing sticky baseline for multi-answer', { i0, baselineMsg });
+            console.log('[Guard HARD] Forcing sticky baseline for multi-answer', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚨 bail out — don’t let anything else override
+          return; // 🚨 bail out completely, no fallback allowed
         }
       }
   
+      // Normal path continues only if baseline guard didn’t trigger
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
@@ -1102,6 +1111,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
