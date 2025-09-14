@@ -1136,6 +1136,23 @@ export class SelectionMessageService {
     const totalCorrect    = opts.filter(o => !!o?.correct).length;
     const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
     const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+
+    // ───────── SINGLE-ANSWER (unchanged) ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
@@ -1159,24 +1176,7 @@ export class SelectionMessageService {
       const remaining = totalCorrect - selectedCorrect;
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
-  
-    // ───────── SINGLE-ANSWER (unchanged) ─────────
-    if (qType === QuestionType.SingleAnswer) {
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        return 'Select a correct answer to continue...';
-      }
-      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
-        this._singleAnswerCorrectLock.add(index);
-        this._singleAnswerIncorrectLock.delete(index);
-        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-      if (selectedWrong > 0) {
-        this._singleAnswerIncorrectLock.add(index);
-        return 'Select a correct answer to continue...';
-      }
-      return index === 0 ? START_MSG : CONTINUE_MSG;
-    }
-  
+
     // ───────── Default fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
