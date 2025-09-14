@@ -2734,28 +2734,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        // do not return — continue with last known snapshot
+
+        // Ensure we keep the last snapshot intact instead of wiping selections
+        optionsNow.forEach((opt, idx) => {
+          if (opt.selected) {
+            // keep whatever was already marked selected
+            opt.selected = true;
+          }
+        });
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[]).forEach((opt) => {
+            if (opt.selected) {
+              opt.selected = true;
+            }
+          });
+        }
+
       } else {
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
           // clear all selections, then set only the clicked one
           optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx ? event.checked ?? true : false;
+            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
           });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx ? event.checked ?? true : false;
+              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
             });
           }
         } else {
           // Multi-answer: allow multiple selections
           optionsNow[evtIdx].selected = event.checked ?? true;
           if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[])[evtIdx].selected =
-              event.checked ?? true;
+            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
           }
         }
       }
+
   
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
