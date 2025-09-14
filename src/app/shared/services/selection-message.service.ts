@@ -1230,15 +1230,39 @@ export class SelectionMessageService {
   
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
+      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
+      // 🛡️ Guard baseline *before* queueMicrotask to prevent flash
+      if (qType === QuestionType.MultipleAnswer) {
+        const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+  
+        if (selectedCorrect === 0) {
+          const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+          const prevMsg = this._lastMessageByIndex.get(i0);
+          if (prevMsg !== baselineMsg) {
+            console.log('[Guard EARLY] Sticky baseline enforced (multi-answer only)', { i0, baselineMsg });
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+          }
+          return; // 🚨 block anything else (no CONTINUE_MSG allowed for multi-answer pre-selection)
+        }
+      }
+  
+      // Normal path continues if baseline didn’t trigger
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        // ───────── GUARDS ─────────
+        // 🛡️ Guard: disallow CONTINUE_MSG only for multi-answer
+        if (qType === QuestionType.MultipleAnswer && finalMsg === CONTINUE_MSG) {
+          console.log('[Guard BLOCK] Prevented CONTINUE_MSG for multi-answer', { i0 });
+          return; // 🚫 skip push
+        }
   
-        // 1) Single-answer: wrong lock shouldn’t override NEXT
+        // Guard: single-answer wrong lock shouldn’t override NEXT
         if (
           this._singleAnswerCorrectLock.has(i0) &&
           finalMsg !== NEXT_BTN_MSG &&
@@ -1247,26 +1271,9 @@ export class SelectionMessageService {
           return;
         }
   
-        // 2) Multi-answer: disallow CONTINUE_MSG completely
-        if (qType === QuestionType.MultipleAnswer) {
-          const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-          const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-  
-          if (selectedCorrect === 0) {
-            const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-            const prevMsg = this._lastMessageByIndex.get(i0);
-            if (prevMsg !== baselineMsg) {
-              console.log('[Guard] Multi-answer baseline enforced', { i0, baselineMsg });
-              this._lastMessageByIndex.set(i0, baselineMsg);
-              this.pushMessage(baselineMsg, i0);
-            }
-            return; // 🚨 bail out: CONTINUE_MSG never allowed here
-          }
-        }
-  
-        // 3) Don’t push duplicate messages
-        const prev = this._lastMessageByIndex.get(i0);
-        if (prev === finalMsg) return;
+        // Guard: don’t push duplicate
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -1275,7 +1282,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
