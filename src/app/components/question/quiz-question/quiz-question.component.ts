@@ -262,7 +262,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   _pendingPassiveRaf: number | null = null;
   canonicalOptions: CanonicalOption[] = [];
   private _msgTok = 0;
-  private _clickInProgress = false;
 
   // Flash-proof first-click guard
   // Tracks question indices for which the first incorrect click occurred
