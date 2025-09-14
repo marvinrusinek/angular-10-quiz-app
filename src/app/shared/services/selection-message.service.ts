@@ -1799,7 +1799,6 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
-  
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
       const qType: QuestionType | undefined =
@@ -1809,19 +1808,18 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER baseline guard ─────────
+      // ───────── STICKY BASELINE SHORT-CIRCUIT ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
         const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg !== baselineMsg) {
-          console.log('[Guard] Forcing sticky multi-answer baseline', { i0, baselineMsg });
+          console.log('[setSelectionMessage] Sticky baseline (multi)', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-        return; // 🚨 bail completely: do NOT schedule determineSelectionMessage
+        return; // 🚨 skip determineSelectionMessage → no flicker
       }
   
-      // ───────── SINGLE-ANSWER baseline guard ─────────
       if (
         qType === QuestionType.SingleAnswer &&
         selectedCorrect === 0 &&
@@ -1832,18 +1830,20 @@ export class SelectionMessageService {
         const baseline = i0 === 0 ? START_MSG : CONTINUE_MSG;
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg !== baseline) {
-          console.log('[Guard] Forcing sticky single-answer baseline', { i0, baseline });
+          console.log('[setSelectionMessage] Sticky baseline (single)', { i0, baseline });
           this._lastMessageByIndex.set(i0, baseline);
           this.pushMessage(baseline, i0);
         }
-        return; // 🚨 bail completely
+        return; // 🚨 skip determineSelectionMessage → no flicker
       }
   
-      // ───────── Normal path ─────────
+      // ───────── NORMAL PATH ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+  
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg === finalMsg) return;
+  
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
       });
@@ -1851,6 +1851,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
   
 
