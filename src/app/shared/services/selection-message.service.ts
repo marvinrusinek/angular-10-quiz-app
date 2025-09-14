@@ -76,7 +76,7 @@ export class SelectionMessageService {
   private _origNext = this.selectionMessageSubject.next.bind(this.selectionMessageSubject);
 
   public _lastMessageByIndex = new Map<number, string>();
-
+  private _baselineReleased = new Set<number>();
   private _msgRAF: number | null = null;
 
   constructor(
