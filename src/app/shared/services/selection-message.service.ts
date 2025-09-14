@@ -1380,7 +1380,6 @@ export class SelectionMessageService {
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
     
-  
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
@@ -1392,13 +1391,13 @@ export class SelectionMessageService {
     const selectedCorrect = this.optionsSnapshot?.filter(o => o.selected && o.correct).length ?? 0;
     const selectedWrong = this.optionsSnapshot?.filter(o => o.selected && !o.correct).length ?? 0;
   
-    // Multi-answer baseline → always stick until at least one correct is chosen
+    // 🛡️ Guard 1: Multi-answer baseline → always stick until at least one correct is chosen
     if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
       newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
       console.log('[pushMessage Guard] Forced multi-answer baseline', { i0, newMsg });
     }
   
-    // Single-answer baseline → always stick until first click
+    // 🛡️ Guard 2: Single-answer baseline → always stick until first click
     if (
       qType === QuestionType.SingleAnswer &&
       selectedCorrect === 0 &&
@@ -1410,18 +1409,42 @@ export class SelectionMessageService {
       console.log('[pushMessage Guard] Forced single-answer baseline', { i0, newMsg });
     }
   
-    // Guard: prevent false promotion while wrong lock is active
+    // 🛡️ Guard 3: prevent false NEXT promotion while wrong lock is active
     if (newMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
       console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
       return;
     }
   
-    // Only push if different
-    if (current !== newMsg) {
-      this.selectionMessageSubject.next(newMsg);
-      console.log('[pushMessage] updated:', newMsg);
+    // 🛡️ Guard 4: prevent CONTINUE_MSG overwrite during multi-answer baseline
+    if (
+      qType === QuestionType.MultipleAnswer &&
+      this._multiAnswerPreLock.has(i0) &&
+      newMsg === CONTINUE_MSG
+    ) {
+      console.warn('[Guard] Prevented CONTINUE_MSG override during multi-answer baseline (Q', i0, ')');
+      return;
     }
+  
+    // 🛡️ Guard 5: prevent duplicate baseline re-push for single-answer
+    if (
+      qType === QuestionType.SingleAnswer &&
+      (newMsg === CONTINUE_MSG || newMsg === START_MSG) &&
+      current === newMsg
+    ) {
+      console.log('[Guard] Skipped duplicate baseline for single-answer (Q', i0, ')');
+      return;
+    }
+  
+    // 🚫 Guard 6: don’t push duplicate messages
+    if (current === newMsg) {
+      return;
+    }
+  
+    // ✅ Final push
+    this.selectionMessageSubject.next(newMsg);
+    console.log('[pushMessage] updated:', newMsg);
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
