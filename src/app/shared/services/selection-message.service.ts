@@ -1319,7 +1319,7 @@ export class SelectionMessageService {
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -1378,7 +1378,78 @@ export class SelectionMessageService {
   
     // ───────── Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
+  } */
+  public computeFinalMessage(args: {
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    if (!opts || opts.length === 0) {
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // 🛡 baseline until first click
+      if (selectedCorrect === 0 && selectedWrong === 0 &&
+          !this._singleAnswerCorrectLock.has(index) &&
+          !this._singleAnswerIncorrectLock.has(index)) {
+        return index === 0 ? START_MSG : CONTINUE_MSG;
+      }
+  
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+    }
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+      // 🛡 baseline only until first correct is chosen
+      if (selectedCorrect === 0) {
+        this._multiAnswerPreLock.add(index);
+        this._multiAnswerInProgressLock.delete(index);
+        this._multiAnswerCompletionLock.delete(index);
+        return baselineMsg;   // 🚨 never CONTINUE_MSG here
+      }
+  
+      if (selectedCorrect === totalCorrect) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      const remaining = totalCorrect - selectedCorrect;
+      this._multiAnswerPreLock.delete(index);
+      this._multiAnswerInProgressLock.add(index);
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    // ───────── Default Fallback ─────────
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
+  
     
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
@@ -1535,7 +1606,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   } */
-  public async setSelectionMessage(isAnswered: boolean): Promise<void> {
+  /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
@@ -1593,7 +1664,65 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
+  } */
+  public async setSelectionMessage(isAnswered: boolean): Promise<void> {
+    try {
+      const i0 = this.quizService.currentQuestionIndex;
+      const total = this.quizService.totalQuestions;
+      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
+  
+      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
+  
+      const qType: QuestionType | undefined =
+        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
+  
+      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+  
+      // ───────── MULTI-ANSWER baseline guard ─────────
+      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baselineMsg) {
+          console.log('[Guard] Forcing sticky multi-answer baseline', { i0, baselineMsg });
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
+        }
+        return; // 🚨 bail completely: do NOT schedule determineSelectionMessage
+      }
+  
+      // ───────── SINGLE-ANSWER baseline guard ─────────
+      if (
+        qType === QuestionType.SingleAnswer &&
+        selectedCorrect === 0 &&
+        selectedWrong === 0 &&
+        !this._singleAnswerCorrectLock.has(i0) &&
+        !this._singleAnswerIncorrectLock.has(i0)
+      ) {
+        const baseline = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baseline) {
+          console.log('[Guard] Forcing sticky single-answer baseline', { i0, baseline });
+          this._lastMessageByIndex.set(i0, baseline);
+          this.pushMessage(baseline, i0);
+        }
+        return; // 🚨 bail completely
+      }
+  
+      // ───────── Normal path ─────────
+      queueMicrotask(() => {
+        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg === finalMsg) return;
+        this._lastMessageByIndex.set(i0, finalMsg);
+        this.pushMessage(finalMsg, i0);
+      });
+    } catch (err) {
+      console.error('[❌ setSelectionMessage ERROR]', err);
+    }
   }
+  
   
 
   public clearSelectionMessage(): void {
