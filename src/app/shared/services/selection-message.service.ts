@@ -1064,7 +1064,7 @@ export class SelectionMessageService {
         console.warn('[setSelectionMessage] ❌ Invalid indices', { i0, total });
         return;
       }
-
+  
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
         console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
           i0,
@@ -1072,7 +1072,7 @@ export class SelectionMessageService {
         });
         return;
       }
-
+  
       queueMicrotask(() => {
         console.log('[setSelectionMessage ENTRY]', {
           i0,
@@ -1085,16 +1085,18 @@ export class SelectionMessageService {
           hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
           hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
         });
-
+  
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-
+  
         console.log('[setSelectionMessage → finalMsg]', finalMsg, {
           i0,
           hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
           hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
         });
-
-        // Guard: don’t allow stale wrong lock to override
+  
+        // ───────── GUARDS ─────────
+  
+        // 1) Guard: don’t allow stale wrong lock to override NEXT
         if (
           this._singleAnswerCorrectLock.has(i0) &&
           finalMsg !== NEXT_BTN_MSG &&
@@ -1106,14 +1108,40 @@ export class SelectionMessageService {
           });
           return;
         }
-
-        // 🚫 NEW: only push if changed
+  
+        // 2) Guard: sticky pre-selection baseline for multi-answer
+        if (
+          this.quizService.getQuestionType(i0) === QuestionType.MultipleAnswer &&
+          finalMsg !== SHOW_RESULTS_MSG &&
+          finalMsg !== NEXT_BTN_MSG
+        ) {
+          const totalCorrect    = this.optionsSnapshot.filter(o => !!o.correct).length;
+          const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+  
+          if (selectedCorrect === 0) {
+            const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+            console.log('[Guard] Forcing baseline pre-selection message for multi-answer', baselineMsg);
+  
+            const prevMsg = this._lastMessageByIndex.get(i0);
+            if (prevMsg === baselineMsg) {
+              console.log('[setSelectionMessage] Skipped duplicate baseline', { i0, baselineMsg });
+              return;
+            }
+  
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+            return;
+          }
+        }
+  
+        // 3) Guard: only push if message actually changed
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg === finalMsg) {
           console.log('[setSelectionMessage] Skipped duplicate message', { i0, finalMsg });
           return;
         }
-
+  
+        // ───────── PUSH FINAL ─────────
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
       });
