@@ -1248,7 +1248,7 @@ export class SelectionMessageService {
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -1318,7 +1318,68 @@ export class SelectionMessageService {
   
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
-  }  
+  } */
+  public computeFinalMessage(args: {  
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    if (!opts || opts.length === 0) {
+      // 🚫 IMPORTANT: Don’t allow CONTINUE for MultiAnswer baseline
+      if (qType === QuestionType.MultipleAnswer) {
+        const totalCorrect = this.quizService.questions?.[index]?.options?.filter(o => o.correct).length ?? 0;
+        return `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      }
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      if (selectedCorrect === 0 && selectedWrong === 0) {
+        // Stick baseline until user clicks
+        return index === 0 ? START_MSG : CONTINUE_MSG;
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+    }
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+      if (selectedCorrect === 0) {
+        // Force baseline always, no CONTINUE allowed
+        return baselineMsg;
+      }
+      if (selectedCorrect === totalCorrect) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      const remaining = totalCorrect - selectedCorrect;
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    // ───────── Fallback ─────────
+    return index === 0 ? START_MSG : CONTINUE_MSG;
+  }
+    
   
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
