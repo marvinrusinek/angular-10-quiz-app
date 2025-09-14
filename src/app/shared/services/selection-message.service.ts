@@ -1015,7 +1015,7 @@ export class SelectionMessageService {
     console.warn('[computeFinalMessage] ⚠️ Default fallback hit', { index, qType });
     return index === 0 ? START_MSG : CONTINUE_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -1108,7 +1108,79 @@ export class SelectionMessageService {
     // ───────── Default Fallback ─────────
     // return NEXT_BTN_MSG;  // never CONTINUE_MSG for multi-answer
     return index === 0 ? START_MSG : CONTINUE_MSG;
+  } */
+  public computeFinalMessage(args: {  
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    // ───────── GUARD: prevent empty snapshots from flashing ─────────
+    if (!opts || opts.length === 0) {
+      console.warn('[computeFinalMessage] ⚠️ Empty opts received', { index, qType, total });
+  
+      if (qType === QuestionType.MultipleAnswer) {
+        // 🚫 Never fall back to CONTINUE_MSG for multi-answer
+        const totalCorrect = this.quizService.questions?.[index]?.options?.filter(o => o.correct).length ?? 0;
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        return baselineMsg;
+      }
+  
+      // For single-answer or unknown → safe fallback
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const totalCorrect = opts.filter(o => !!o.correct).length;
+      const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+      const isLast = total > 0 && index === total - 1;
+    
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+    
+      // 🚫 Always baseline until at least one correct is picked
+      if (selectedCorrect === 0) {
+        return baselineMsg;
+      }
+    
+      // ✅ All correct picked → NEXT/RESULTS
+      if (selectedCorrect === totalCorrect) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+    
+      // 🔄 Some correct but not all
+      const remaining = totalCorrect - selectedCorrect;
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    // ───────── SINGLE-ANSWER (unchanged) ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    // ───────── Default fallback ─────────
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
+  
   
   
   public pushMessage(newMsg: string, i0: number): void {
