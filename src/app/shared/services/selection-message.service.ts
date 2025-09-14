@@ -1058,6 +1058,27 @@ export class SelectionMessageService {
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
+      // 🆕 EARLY GUARD: sticky baseline for multi-answer
+      const qType: QuestionType | undefined =
+        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
+  
+      if (qType === QuestionType.MultipleAnswer) {
+        const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+  
+        if (selectedCorrect === 0) {
+          const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+          const prevMsg = this._lastMessageByIndex.get(i0);
+          if (prevMsg !== baselineMsg) {
+            console.log('[Guard EARLY] Forcing sticky baseline for multi-answer', { i0, baselineMsg });
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+          }
+          return; // 🚨 bail out — don’t let anything else override
+        }
+      }
+  
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
