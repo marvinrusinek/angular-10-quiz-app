@@ -1178,7 +1178,7 @@ export class SelectionMessageService {
     // return index === 0 ? START_MSG : CONTINUE_MSG;
     return NEXT_BTN_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -1247,7 +1247,79 @@ export class SelectionMessageService {
   
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
+  } */
+  public computeFinalMessage(args: {  
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    if (!opts || opts.length === 0) {
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── SINGLE-ANSWER (sticky baseline) ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // 🛡️ Force START/CONTINUE baseline until *first click*
+      if (
+        selectedCorrect === 0 &&
+        selectedWrong === 0 &&
+        !this._singleAnswerCorrectLock.has(index) &&
+        !this._singleAnswerIncorrectLock.has(index)
+      ) {
+        return index === 0 ? START_MSG : CONTINUE_MSG;
+      }
+  
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+    }
+  
+    // ───────── MULTI-ANSWER (sticky baseline) ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+      // 🛡️ Force baseline until at least one correct is chosen
+      if (selectedCorrect === 0 && !this._multiAnswerInProgressLock.has(index)) {
+        this._multiAnswerPreLock.add(index);
+        return baselineMsg;
+      }
+  
+      if (selectedCorrect === totalCorrect) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      const remaining = totalCorrect - selectedCorrect;
+      this._multiAnswerPreLock.delete(index);
+      this._multiAnswerInProgressLock.add(index);
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    // ───────── Default Fallback ─────────
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
+  
   
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
