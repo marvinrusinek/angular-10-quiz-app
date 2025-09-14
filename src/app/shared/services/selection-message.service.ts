@@ -1688,8 +1688,10 @@ export class SelectionMessageService {
   }
 
   public releaseBaseline(index: number): void {
-    this._baselineReleased.add(index);
-    console.log('[SelectionMessageService] Baseline released', { index });
+    if (!this._baselineReleased.has(index)) {
+      this._baselineReleased.add(index);
+      console.log('[SelectionMessageService] Baseline released', { index });
+    }
   }
 
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {

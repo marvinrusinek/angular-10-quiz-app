@@ -2993,7 +2993,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
       } else {
-        // 🔓 RELEASE sticky baseline the first time a meaningful click happens
+        // RELEASE sticky baseline the first time a meaningful click happens
         this.selectionMessageService.releaseBaseline(i0);
 
         if (q?.type === QuestionType.SingleAnswer) {
