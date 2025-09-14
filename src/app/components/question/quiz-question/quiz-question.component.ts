@@ -268,6 +268,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _firstClickIncorrectGuard = new Set<number>();
   private _skipNextAsyncUpdates = false;
   private _singleIncorrectLock = new Set<number>();
+  private _baselineReleased = new Set<number>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -2986,29 +2987,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-  
-        // Ensure we keep the last snapshot intact instead of wiping selections
-        optionsNow.forEach((opt, idx) => {
-          if (opt.selected) {
-            // keep whatever was already marked selected
-            opt.selected = true;
-          }
-        });
+        // keep last snapshot...
+        optionsNow.forEach((opt) => { if (opt.selected) opt.selected = true; });
         if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[]).forEach((opt) => {
-            if (opt.selected) {
-              opt.selected = true;
-            }
-          });
+          (this.optionsToDisplay as Option[]).forEach((opt) => { if (opt.selected) opt.selected = true; });
         }
-  
+
       } else {
+        // 🔓 RELEASE sticky baseline the first time a meaningful click happens
+        this._baselineReleased.add(i0);
+
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
-          // clear all selections, then set only the clicked one
-          optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
-          });
+          optionsNow.forEach((opt, idx) => { opt.selected = idx === evtIdx ? (event.checked ?? true) : false; });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
               opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
@@ -3022,6 +3013,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
       }
+
   
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
