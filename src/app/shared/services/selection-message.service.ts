@@ -986,14 +986,16 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
 
-      // 🛡️ Sticky pre-lock baseline: once active, baseline always wins until at least one correct is picked
-      if (selectedCorrect === 0 || this._multiAnswerPreLock.has(index)) {
+      // 🛡️ Sticky pre-lock baseline: once active, never allow any fallback/empty snapshot override
+      if (selectedCorrect === 0) {
         if (!this._multiAnswerPreLock.has(index)) {
           console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
           this._multiAnswerPreLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           this._multiAnswerCompletionLock.delete(index);
         }
+
+        // Force sticky return
         return baselineMsg;
       }
 
@@ -1011,6 +1013,7 @@ export class SelectionMessageService {
       this._multiAnswerInProgressLock.add(index);
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
+
 
     
     // ───────── Default Fallback ─────────
