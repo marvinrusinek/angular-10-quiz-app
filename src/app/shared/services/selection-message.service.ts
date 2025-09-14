@@ -1229,11 +1229,11 @@ export class SelectionMessageService {
   
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
-      // Safely get question type
+      // Safely get question type from quiz data
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      // 🛡️ Guard baseline *before* queueMicrotask to prevent flash on re-render
+      // HARD GUARD: enforce sticky baseline for multi-answer pre-selection
       if (qType === QuestionType.MultipleAnswer) {
         const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
         const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
@@ -1247,7 +1247,7 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚨 bail early so CONTINUE_MSG never gets scheduled
+          return; // 🚨 Bail early → CONTINUE_MSG can never slip in
         }
       }
   
@@ -1255,8 +1255,12 @@ export class SelectionMessageService {
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
+        // Guard against duplicate pushes
         const prevMsg = this._lastMessageByIndex.get(i0);
-        if (prevMsg === finalMsg) return;
+        if (prevMsg === finalMsg) {
+          console.log('[setSelectionMessage] Skipped duplicate message', { i0, finalMsg });
+          return;
+        }
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
