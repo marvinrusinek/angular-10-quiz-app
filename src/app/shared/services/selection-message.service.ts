@@ -1156,22 +1156,19 @@ export class SelectionMessageService {
   
     // ───────── MULTI-ANSWER ─────────
     if (qType === QuestionType.MultipleAnswer) {
-      const totalCorrect = opts.filter(o => !!o.correct).length;
-      const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
-      const isLast = total > 0 && index === total - 1;
-    
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-    
-      // 🚫 Always baseline until at least one correct is picked
+  
+      // 🚫 Force sticky baseline until a correct is picked
       if (selectedCorrect === 0) {
+        console.log('[MultiAnswer BASELINE enforced]', baselineMsg);
         return baselineMsg;
       }
-    
-      // ✅ All correct picked → NEXT/RESULTS
+  
+      // ✅ All correct picked
       if (selectedCorrect === totalCorrect) {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    
+  
       // 🔄 Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
