@@ -1318,11 +1318,36 @@ export class SelectionMessageService {
   
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
-  }
-  
+  }  
   
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
+  
+    // ───────── FINAL GUARD AGAINST FLICKER ─────────
+    const qType: QuestionType | undefined =
+      (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
+  
+    const totalCorrect = this.optionsSnapshot?.filter(o => !!o.correct).length ?? 0;
+    const selectedCorrect = this.optionsSnapshot?.filter(o => o.selected && o.correct).length ?? 0;
+    const selectedWrong = this.optionsSnapshot?.filter(o => o.selected && !o.correct).length ?? 0;
+  
+    // Multi-answer baseline → always stick until at least one correct is chosen
+    if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+      newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      console.log('[pushMessage Guard] Forced multi-answer baseline', { i0, newMsg });
+    }
+  
+    // Single-answer baseline → always stick until first click
+    if (
+      qType === QuestionType.SingleAnswer &&
+      selectedCorrect === 0 &&
+      selectedWrong === 0 &&
+      !this._singleAnswerCorrectLock.has(i0) &&
+      !this._singleAnswerIncorrectLock.has(i0)
+    ) {
+      newMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+      console.log('[pushMessage Guard] Forced single-answer baseline', { i0, newMsg });
+    }
   
     // Guard: prevent false promotion while wrong lock is active
     if (newMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
@@ -1330,6 +1355,7 @@ export class SelectionMessageService {
       return;
     }
   
+    // Only push if different
     if (current !== newMsg) {
       this.selectionMessageSubject.next(newMsg);
       console.log('[pushMessage] updated:', newMsg);
