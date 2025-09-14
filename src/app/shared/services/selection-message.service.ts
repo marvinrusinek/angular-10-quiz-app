@@ -1120,16 +1120,9 @@ export class SelectionMessageService {
   
     // ───────── GUARD: prevent empty snapshots from flashing ─────────
     if (!opts || opts.length === 0) {
-      console.warn('[computeFinalMessage] ⚠️ Empty opts received', { index, qType, total });
-  
-      if (qType === QuestionType.MultipleAnswer) {
-        // 🚫 Never fall back to CONTINUE_MSG for multi-answer
-        const totalCorrect = this.quizService.questions?.[index]?.options?.filter(o => o.correct).length ?? 0;
-        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        return baselineMsg;
-      }
-  
-      // For single-answer or unknown → safe fallback
+      console.warn('[computeFinalMessage] ⚠️ Empty opts received → baseline fallback', {
+        index, total
+      });
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -1158,19 +1151,29 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
   
-      // 🚫 Force sticky baseline until a correct is picked
+      // 🛡️ HARD BASELINE GUARD: if none selected, force baseline and never allow CONTINUE_MSG
       if (selectedCorrect === 0) {
-        console.log('[MultiAnswer BASELINE enforced]', baselineMsg);
-        return baselineMsg;
+        if (!this._multiAnswerPreLock.has(index)) {
+          console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
+          this._multiAnswerPreLock.add(index);
+          this._multiAnswerInProgressLock.delete(index);
+          this._multiAnswerCompletionLock.delete(index);
+        }
+        return baselineMsg; // 🚨 always return baseline until a correct is picked
       }
   
-      // ✅ All correct picked
+      // ✅ All correct picked → NEXT or RESULTS
       if (selectedCorrect === totalCorrect) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
       // 🔄 Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
+      this._multiAnswerPreLock.delete(index);
+      this._multiAnswerInProgressLock.add(index);
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
 
