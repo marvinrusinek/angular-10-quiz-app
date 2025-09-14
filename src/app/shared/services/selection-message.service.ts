@@ -1187,16 +1187,8 @@ export class SelectionMessageService {
     const { index, total, qType, opts } = args;
     const isLast = total > 0 && index === total - 1;
   
-    console.log('[computeFinalMessage INPUT]', { 
-      index, qType, 
-      opts: (opts ?? []).map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
-    });
-  
     // ───────── EXTRA GUARD: prevent empty snapshots from flashing ─────────
     if (!opts || opts.length === 0) {
-      console.warn('[computeFinalMessage] ⚠️ Empty opts received → baseline fallback', {
-        index, total
-      });
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
@@ -1206,56 +1198,47 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // 🛡️ Stick to START/CONTINUE baseline until a click
-      if (selectedCorrect === 0 && selectedWrong === 0) {
-        const baseline = index === 0 ? START_MSG : CONTINUE_MSG;
-        console.log('[SingleAnswer] Sticky baseline enforced', { index, baseline });
-        return baseline;
+      // 🛡️ Sticky baseline until *any* click happens
+      if (selectedCorrect === 0 && selectedWrong === 0 && 
+          !this._singleAnswerCorrectLock.has(index) && 
+          !this._singleAnswerIncorrectLock.has(index)) {
+        return index === 0 ? START_MSG : CONTINUE_MSG;  // 🚫 block CONTINUE_MSG flicker
       }
-    
-      // Wrong lock → always force wrong msg
+  
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
-    
-      // Correct → lock + NEXT/RESULTS
+  
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    
-      // Wrong → lock
+  
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
     }
   
-    // ───────── MULTI-ANSWER (baseline + progress) ─────────
+    // ───────── MULTI-ANSWER (sticky baseline + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-    
-      // 🛡️ HARD BASELINE GUARD: stick to baseline until a correct option is selected
-      if (selectedCorrect === 0) {
-        if (!this._multiAnswerPreLock.has(index)) {
-          console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
-          this._multiAnswerPreLock.add(index);
-          this._multiAnswerInProgressLock.delete(index);
-          this._multiAnswerCompletionLock.delete(index);
-        }
-        return baselineMsg;  // 🚨 never allow CONTINUE_MSG here
+  
+      // 🛡️ HARD BASELINE: if none selected, baseline only
+      if (selectedCorrect === 0 && !this._multiAnswerCompletionLock.has(index)) {
+        this._multiAnswerPreLock.add(index);
+        this._multiAnswerInProgressLock.delete(index);
+        return baselineMsg;  // 🚫 never allow CONTINUE_MSG here
       }
-    
-      // ✅ All correct picked → NEXT/RESULTS
+  
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    
-      // 🔄 Some correct but not all
+  
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
@@ -1265,8 +1248,6 @@ export class SelectionMessageService {
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
-  
-  
   
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
