@@ -1206,37 +1206,37 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER (sticky locks) ─────────
     if (qType === QuestionType.SingleAnswer) {
-      console.log('[SingleAnswer DEBUG]', {
-        index, totalCorrect, selectedCorrect, selectedWrong,
-        hasCorrectLock: this._singleAnswerCorrectLock.has(index),
-        hasWrongLock: this._singleAnswerIncorrectLock.has(index),
-        isLast
-      });
-  
+      // 🛡️ Stick to START/CONTINUE baseline until a click
+      if (selectedCorrect === 0 && selectedWrong === 0) {
+        const baseline = index === 0 ? START_MSG : CONTINUE_MSG;
+        console.log('[SingleAnswer] Sticky baseline enforced', { index, baseline });
+        return baseline;
+      }
+    
+      // Wrong lock → always force wrong msg
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
-  
+    
+      // Correct → lock + NEXT/RESULTS
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
+    
+      // Wrong → lock
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
       }
-  
-      // ✅ For single-answer: only START or CONTINUE
-      return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
     // ───────── MULTI-ANSWER (baseline + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-  
-      // 🛡️ Sticky pre-lock baseline: once active, always return baseline until a correct is chosen
+    
+      // 🛡️ HARD BASELINE GUARD: stick to baseline until a correct option is selected
       if (selectedCorrect === 0) {
         if (!this._multiAnswerPreLock.has(index)) {
           console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
@@ -1244,17 +1244,17 @@ export class SelectionMessageService {
           this._multiAnswerInProgressLock.delete(index);
           this._multiAnswerCompletionLock.delete(index);
         }
-        return baselineMsg; // 🚨 never fall back to CONTINUE_MSG
+        return baselineMsg;  // 🚨 never allow CONTINUE_MSG here
       }
-  
-      // ✅ All correct picked → NEXT or RESULTS
+    
+      // ✅ All correct picked → NEXT/RESULTS
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
+    
       // 🔄 Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
