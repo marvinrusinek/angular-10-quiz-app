@@ -2148,7 +2148,7 @@ export class SelectionMessageService {
       opts: canonicalOptions as Option[]
     });
   
-    // Optional callback hook for caller
+    // Callback hook for caller
     if (onMessageChange) {
       onMessageChange(msg);
     }
