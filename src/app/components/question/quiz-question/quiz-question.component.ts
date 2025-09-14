@@ -2680,7 +2680,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Called when a user clicks an option row
-  public override async onOptionClicked(event: {
+  /* public override async onOptionClicked(event: {
     option: SelectedOption | null;
     index: number;
     checked: boolean;
@@ -2931,7 +2931,296 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       });
     }
+  } */
+  public override async onOptionClicked(event: {
+    option: SelectedOption | null;
+    index: number;
+    checked: boolean;
+    wasReselected?: boolean;
+  }): Promise<void> {
+    // Reset skip flag at the start of each click
+    this._skipNextAsyncUpdates = false;
+  
+    // Cancel pending RAF
+    if (this._pendingRAF != null) {
+      cancelAnimationFrame(this._pendingRAF);
+      this._pendingRAF = null;
+    }
+  
+    // Wait if interaction is not ready yet
+    if (!this.quizStateService.isInteractionReady()) {
+      console.warn('[onOptionClicked] Interaction not ready, waiting…');
+      await firstValueFrom(
+        this.quizStateService.interactionReady$.pipe(filter(Boolean), take(1))
+      );
+    }
+  
+    if (!this.currentQuestion || !this.currentOptions) {
+      console.warn('[onOptionClicked] ❌ currentQuestion/currentOptions missing, returning early');
+      return;
+    }
+  
+    const i0 =
+      this.normalizeIndex(this.currentQuestionIndex ?? 0) ??
+      (this.currentQuestionIndex ?? 0);
+    const q = this.questions?.[i0];
+    const evtIdx = event.index;
+    const evtOpt = event.option;
+  
+    // EARLY GUARD: no option selected
+    if (evtOpt == null) {
+      // Message no longer set here, service will handle baseline
+      return;
+    }
+  
+    if (this._clickGate) return;
+    this._clickGate = true;
+  
+    try {
+      // Update local UI selection immediately
+      const optionsNow: Option[] =
+        this.optionsToDisplay?.map((o) => ({ ...o })) ??
+        this.currentQuestion?.options?.map((o) => ({ ...o })) ??
+        [];
+  
+      // For single-answer, ignore deselect events entirely
+      if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
+        console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
+  
+        // Ensure we keep the last snapshot intact instead of wiping selections
+        optionsNow.forEach((opt, idx) => {
+          if (opt.selected) {
+            // keep whatever was already marked selected
+            opt.selected = true;
+          }
+        });
+        if (Array.isArray(this.optionsToDisplay)) {
+          (this.optionsToDisplay as Option[]).forEach((opt) => {
+            if (opt.selected) {
+              opt.selected = true;
+            }
+          });
+        }
+  
+      } else {
+        if (q?.type === QuestionType.SingleAnswer) {
+          // Exclusivity guard for single-answer:
+          // clear all selections, then set only the clicked one
+          optionsNow.forEach((opt, idx) => {
+            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+          });
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
+              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+            });
+          }
+        } else {
+          // Multi-answer: allow multiple selections
+          optionsNow[evtIdx].selected = event.checked ?? true;
+          if (Array.isArray(this.optionsToDisplay)) {
+            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+          }
+        }
+      }
+  
+      console.log('[onOptionClicked]', {
+        clickedText: evtOpt?.text,
+        checked: event.checked,
+        selectedNow: optionsNow.map((o) => ({
+          text: o.text,
+          selected: o.selected,
+        })),
+      });
+  
+      // Persist selection
+      try {
+        this.selectedOptionService.setSelectedOption(evtOpt, i0);
+      } catch {}
+  
+      // Compute canonical options and stable keys
+      const getStableId = (o: Option, idx?: number) =>
+        this.selectionMessageService.stableKey(o, idx);
+      const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
+        ...o,
+        optionId: Number(o.optionId ?? getStableId(o, idx)),
+        selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).some(
+          (sel) => getStableId(sel) === getStableId(o)
+        ),
+      }));
+  
+      // Enforce single-answer exclusivity at canonical level too
+      if (q?.type === QuestionType.SingleAnswer) {
+        canonicalOpts.forEach((opt, idx) => {
+          opt.selected = idx === evtIdx; // only the clicked one survives
+        });
+  
+        // Force correct lock priority if clicked option is correct
+        if (evtOpt?.correct && canonicalOpts[evtIdx]) {
+          canonicalOpts[evtIdx].selected = true;
+          this.selectionMessageService._singleAnswerCorrectLock.add(i0);
+          this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
+          console.log('[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock', {
+            idx: evtIdx,
+            text: evtOpt.text,
+          });
+        }
+      } else {
+        if (canonicalOpts[evtIdx]) {
+          canonicalOpts[evtIdx].selected = true;
+        }
+      }
+  
+      // 🛡️🧱 STICKY MESSAGE GUARDS — block fallbacks/flashes
+      // Multi-answer: if 0 correct selected, force baseline and bail BEFORE any recompute
+      if (q?.type === QuestionType.MultipleAnswer) {
+        const totalCorrectMA = canonicalOpts.filter(o => !!o.correct).length;
+        const selectedCorrectMA = canonicalOpts.filter(o => o.selected && o.correct).length;
+  
+        if (selectedCorrectMA === 0) {
+          const baselineMsg = `Select ${totalCorrectMA} correct answer${totalCorrectMA > 1 ? 's' : ''} to continue...`;
+          const prev = this.selectionMessageService._lastMessageByIndex.get(i0);
+          if (prev !== baselineMsg) {
+            console.log('[onOptionClicked Guard] Forcing multi baseline (blocking fallback)', { i0, baselineMsg });
+            this.selectionMessageService._lastMessageByIndex.set(i0, baselineMsg);
+            this.selectionMessageService.pushMessage(baselineMsg, i0);
+          }
+          // Keep snapshot in sync so future recomputes are stable
+          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+          return; // 🚫 no setSelectionMessage call → no flash
+        }
+      }
+  
+      // Single-answer: if nothing selected yet, force START/CONTINUE and bail
+      if (q?.type === QuestionType.SingleAnswer) {
+        const sc = canonicalOpts.filter(o => o.selected && o.correct).length;
+        const sw = canonicalOpts.filter(o => o.selected && !o.correct).length;
+        if (sc === 0 && sw === 0) {
+          const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+          const prev = this.selectionMessageService._lastMessageByIndex.get(i0);
+          if (prev !== baselineMsg) {
+            console.log('[onOptionClicked Guard] Forcing single baseline (blocking fallback)', { i0, baselineMsg });
+            this.selectionMessageService._lastMessageByIndex.set(i0, baselineMsg);
+            this.selectionMessageService.pushMessage(baselineMsg, i0);
+          }
+          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+          return; // 🚫 no setSelectionMessage call → no flash
+        }
+      }
+  
+      // Immediate feedback sync (prevents icon delay when selecting multiple options)
+      const selOptsSetImmediate = new Set(
+        (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+          getStableId(o)
+        )
+      );
+      this.updateOptionHighlighting(selOptsSetImmediate);
+      this.refreshFeedbackFor(evtOpt ?? undefined);
+      this.cdRef.markForCheck();
+      this.cdRef.detectChanges();
+  
+      const frozenSnapshot = canonicalOpts.map((o, idx) => ({
+        idx,
+        text: String(o.text),
+        correct: !!o.correct,
+        selected: !!o.selected,
+      }));
+  
+      console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
+  
+      // Single, unified snapshot + recompute
+      this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
+      console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
+      await this.selectionMessageService.setSelectionMessage(false);
+  
+      // Emit selection message via service
+      this._msgTok = (this._msgTok ?? 0) + 1;
+      const tok = this._msgTok;
+  
+      this.selectionMessageService.emitFromClick({
+        index: i0,
+        totalQuestions: this.totalQuestions,
+        questionType: q?.type ?? QuestionType.SingleAnswer,
+        options: optionsNow,
+        canonicalOptions: canonicalOpts as CanonicalOption[],
+        token: tok,
+      });
+  
+      // Update Next button and quiz state
+      queueMicrotask(() => {
+        if (this._skipNextAsyncUpdates) return;
+        const correctOpts = canonicalOpts.filter((o) => !!o.correct);
+        const selOptsSet = new Set(
+          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+            getStableId(o)
+          )
+        );
+        const selectedCorrectCount = correctOpts.filter((o) =>
+          selOptsSet.has(getStableId(o))
+        ).length;
+        const allCorrect =
+          q?.type === QuestionType.MultipleAnswer
+            ? selectedCorrectCount === correctOpts.length &&
+              selOptsSet.size === correctOpts.length
+            : !!evtOpt?.correct;
+  
+        this.nextButtonStateService.setNextButtonState(allCorrect);
+        this.quizStateService.setAnswered(allCorrect);
+        this.quizStateService.setAnswerSelected(allCorrect);
+      });
+  
+      // Update explanation and highlighting (RAF for smoother update)
+      this._pendingRAF = requestAnimationFrame(() => {
+        if (this._skipNextAsyncUpdates) return;
+  
+        this.explanationTextService.setShouldDisplayExplanation(true);
+        this.displayExplanation = true;
+        this.showExplanationChange?.emit(true);
+  
+        const cached = this._formattedByIndex.get(i0);
+        const rawTrue = (q?.explanation ?? '').trim();
+        const txt =
+          cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+  
+        this.setExplanationFor(i0, txt);
+        this.explanationToDisplay = txt;
+        this.explanationToDisplayChange.emit(txt);
+  
+        const selOptsSet = new Set(
+          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+            getStableId(o)
+          )
+        );
+        this.updateOptionHighlighting(selOptsSet);
+        this.refreshFeedbackFor(evtOpt ?? undefined);
+  
+        this.cdRef.markForCheck();
+        this.cdRef.detectChanges();
+      });
+  
+      // Post-click tasks: feedback, core selection, marking, refresh
+      requestAnimationFrame(async () => {
+        if (this._skipNextAsyncUpdates) return;
+  
+        try {
+          if (evtOpt) this.optionSelected.emit(evtOpt);
+        } catch {}
+        this.feedbackText = await this.generateFeedbackText(q);
+        await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+        this.handleCoreSelection(event);
+        if (evtOpt) this.markBindingSelected(evtOpt);
+        this.refreshFeedbackFor(evtOpt ?? undefined);
+      });
+    } finally {
+      queueMicrotask(() => {
+        this._clickGate = false; 
+        if (q?.type === QuestionType.SingleAnswer) {
+          console.log('[QQC finally] forcing setSelectionMessage call (single-answer only)');
+          this.selectionMessageService.setSelectionMessage(false);
+        }
+      });
+    }
   }
+  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
