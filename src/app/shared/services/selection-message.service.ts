@@ -2140,7 +2140,7 @@ export class SelectionMessageService {
   }): void {
     const { index, totalQuestions, questionType, canonicalOptions, onMessageChange } = params;
   
-    // Delegate all message building to computeFinalMessage
+    // Always compute message via central logic
     const msg = this.computeFinalMessage({
       index,
       total: totalQuestions,
@@ -2148,14 +2148,13 @@ export class SelectionMessageService {
       opts: canonicalOptions as Option[]
     });
   
-    // Optional callback hook for caller
-    if (onMessageChange) {
-      onMessageChange(msg);
-    }
+    // Allow external observers to react
+    onMessageChange(msg);
   
-    // Route through guarded writer
+    // Write through guarded push (dedupe + baseline + locks)
     this.pushMessage(msg, index);
   }
+  
 
   /* ================= Helpers ================= */
   // Overlay UI/service selection onto canonical options (correct flags intact)
