@@ -985,25 +985,20 @@ export class SelectionMessageService {
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-    
-      // Guard: once pre-lock is active, never overwrite with anything else
+  
       if (selectedCorrect === 0) {
-        if (!this._multiAnswerPreLock.has(index)) {
-          console.log('[MultiAnswer] Activating pre-lock baseline');
-          this._multiAnswerPreLock.add(index);
-        }
-        return baselineMsg; // always return baseline while pre-lock holds
+        // once baseline is active, hold until progress
+        this._multiAnswerPreLock.add(index);
+        return baselineMsg;
       }
-    
-      // All correct picked
+  
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-    
-      // Some correct but not all
+  
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
