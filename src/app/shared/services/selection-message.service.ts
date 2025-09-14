@@ -1151,15 +1151,12 @@ export class SelectionMessageService {
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
   
-      // 🛡️ HARD BASELINE GUARD: if none selected, force baseline and never allow CONTINUE_MSG
+      // 🛡️ Pre-selection: sticky, CONTINUE_MSG never allowed
       if (selectedCorrect === 0) {
-        if (!this._multiAnswerPreLock.has(index)) {
-          console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
-          this._multiAnswerPreLock.add(index);
-          this._multiAnswerInProgressLock.delete(index);
-          this._multiAnswerCompletionLock.delete(index);
-        }
-        return baselineMsg; // 🚨 always return baseline until a correct is picked
+        this._multiAnswerPreLock.add(index);
+        this._multiAnswerInProgressLock.delete(index);
+        this._multiAnswerCompletionLock.delete(index);
+        return baselineMsg;
       }
   
       // ✅ All correct picked → NEXT or RESULTS
@@ -1178,7 +1175,8 @@ export class SelectionMessageService {
     }
 
     // ───────── Default fallback ─────────
-    return index === 0 ? START_MSG : CONTINUE_MSG;
+    // return index === 0 ? START_MSG : CONTINUE_MSG;
+    return NEXT_BTN_MSG;
   }
   
   
