@@ -1298,40 +1298,46 @@ export class SelectionMessageService {
   
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
-      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      const totalCorrect    = this.optionsSnapshot.filter(o => !!o.correct).length;
+      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-      const selectedWrong   = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER baseline ─────────
-      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0 && selectedWrong === 0) {
+      // 🛡️ EARLY HARD GUARD: Multi-answer sticky baseline
+      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
         const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg !== baselineMsg) {
+          console.log('[Guard HARD] Multi-answer baseline enforced', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-        return; // 🚨 bail — no microtask
+        return; // 🚨 stop here, block CONTINUE_MSG flicker
       }
   
-      // ───────── SINGLE-ANSWER baseline ─────────
-      if (qType === QuestionType.SingleAnswer && selectedCorrect === 0 && selectedWrong === 0) {
-        const baselineMsg = "Please select an option to continue...";
+      // 🛡️ EARLY HARD GUARD: Single-answer sticky baseline
+      if (qType === QuestionType.SingleAnswer &&
+          selectedCorrect === 0 &&
+          selectedWrong === 0 &&
+          !this._singleAnswerCorrectLock.has(i0) &&
+          !this._singleAnswerIncorrectLock.has(i0)) {
+        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg !== baselineMsg) {
+          console.log('[Guard HARD] Single-answer baseline enforced', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-        return; // 🚨 bail — no microtask
+        return; // 🚨 stop here too
       }
   
-      // ───────── Normal path continues ─────────
+      // ───────── Normal path if no baseline guard triggered ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
+        // Skip if duplicate
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg === finalMsg) return;
   
@@ -1342,7 +1348,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
