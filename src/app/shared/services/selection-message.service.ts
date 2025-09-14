@@ -1648,17 +1648,23 @@ export class SelectionMessageService {
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
-    // Guard: prevent false NEXT while wrong lock is active
+    // ───────── GUARD: Prevent false NEXT while wrong lock is active ─────────
     if (newMsg === NEXT_BTN_MSG && this._singleAnswerIncorrectLock.has(i0)) {
       console.warn('[Guard] Prevented false promotion to NEXT (Q', i0, ')');
       return;
     }
   
-    // Only push if different
-    if (current !== newMsg) {
-      this.selectionMessageSubject.next(newMsg);
-      console.log('[pushMessage] updated:', newMsg);
+    // ───────── GUARD: Skip duplicates ─────────
+    const prev = this._lastMessageByIndex.get(i0);
+    if (prev === newMsg || current === newMsg) {
+      console.log('[pushMessage] Skipped duplicate', { i0, newMsg });
+      return;
     }
+  
+    // ───────── Push Message ─────────
+    this._lastMessageByIndex.set(i0, newMsg);
+    this.selectionMessageSubject.next(newMsg);
+    console.log('[pushMessage] updated:', { i0, newMsg });
   }  
 
   // Build message on click (correct wording and logic)
