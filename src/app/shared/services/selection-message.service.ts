@@ -1472,7 +1472,7 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
-  public async setSelectionMessage(isAnswered: boolean): Promise<void> {
+  /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
@@ -1534,7 +1534,67 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }  
+  } */
+  public async setSelectionMessage(isAnswered: boolean): Promise<void> {
+    try {
+      const i0 = this.quizService.currentQuestionIndex;
+      const total = this.quizService.totalQuestions;
+      if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
+  
+      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
+  
+      // Safely get question type
+      const qType: QuestionType | undefined =
+        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
+  
+      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+  
+      // 🛡️ EARLY BASELINE GUARDS — bail out completely so CONTINUE/“select option” never queues
+  
+      // Multi-answer baseline
+      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
+        }
+        return; // 🚨 stop here, don’t call determineSelectionMessage
+      }
+  
+      // Single-answer baseline
+      if (
+        qType === QuestionType.SingleAnswer &&
+        selectedCorrect === 0 &&
+        selectedWrong === 0 &&
+        !this._singleAnswerCorrectLock.has(i0) &&
+        !this._singleAnswerIncorrectLock.has(i0)
+      ) {
+        const baseline = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baseline) {
+          this._lastMessageByIndex.set(i0, baseline);
+          this.pushMessage(baseline, i0);
+        }
+        return; // 🚨 stop here, don’t call determineSelectionMessage
+      }
+  
+      // Normal path (only runs once baseline is broken)
+      queueMicrotask(() => {
+        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg === finalMsg) return;
+  
+        this._lastMessageByIndex.set(i0, finalMsg);
+        this.pushMessage(finalMsg, i0);
+      });
+    } catch (err) {
+      console.error('[❌ setSelectionMessage ERROR]', err);
+    }
+  }
+  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
