@@ -1178,7 +1178,7 @@ export class SelectionMessageService {
     // return index === 0 ? START_MSG : CONTINUE_MSG;
     return NEXT_BTN_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -1264,6 +1264,60 @@ export class SelectionMessageService {
   
     // ───────── Default Fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
+  } */
+  public computeFinalMessage(args: {  
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    // ───────── EXTRA GUARD: prevent empty snapshots ─────────
+    if (!opts || opts.length === 0) {
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── MULTI-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+      // 🛡️ Always enforce baseline if no correct answers picked
+      if (selectedCorrect === 0) {
+        return baselineMsg; // 🚨 CONTINUE_MSG never allowed
+      }
+  
+      if (selectedCorrect === totalCorrect) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      const remaining = totalCorrect - selectedCorrect;
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // 🛡️ Baseline until something is clicked
+      if (selectedCorrect === 0 && selectedWrong === 0) {
+        return index === 0 ? START_MSG : CONTINUE_MSG;
+      }
+  
+      if (selectedCorrect > 0) {
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      if (selectedWrong > 0) {
+        return 'Select a correct answer to continue...';
+      }
+    }
+  
+    // ───────── DEFAULT ─────────
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
   
   
@@ -1318,35 +1372,38 @@ export class SelectionMessageService {
   
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
+      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
+      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+      const selectedWrong   = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+  
+      // 🛡️ EARLY BASELINE GUARDS — prevent flicker BEFORE any microtask
+      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
+        }
+        return; // 🚨 bail out — no microtask
+      }
+  
+      if (qType === QuestionType.SingleAnswer && selectedCorrect === 0 && selectedWrong === 0) {
+        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
+        }
+        return; // 🚨 bail out — no microtask
+      }
+  
+      // ───────── Normal path continues ─────────
       queueMicrotask(() => {
-        const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-  
-        let finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-  
-        // 🛡️ Guard: For multi-answer, never allow CONTINUE_MSG or START_MSG to override baseline
-        if (
-          qType === QuestionType.MultipleAnswer &&
-          selectedCorrect === 0 &&
-          (finalMsg === CONTINUE_MSG || finalMsg === START_MSG)
-        ) {
-          finalMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-          console.log('[Guard] Forced sticky baseline for multi-answer', { i0, finalMsg });
-        }
-  
-        // 🛡️ Guard: For single-answer, ensure it stays on START/CONTINUE until a click
-        if (
-          qType === QuestionType.SingleAnswer &&
-          selectedCorrect === 0 &&
-          finalMsg !== START_MSG &&
-          finalMsg !== CONTINUE_MSG
-        ) {
-          finalMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-          console.log('[Guard] Forced sticky baseline for single-answer', { i0, finalMsg });
-        }
+        const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg === finalMsg) return;
