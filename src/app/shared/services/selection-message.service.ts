@@ -1106,7 +1106,8 @@ export class SelectionMessageService {
     
   
     // ───────── Default Fallback ─────────
-    return NEXT_BTN_MSG;  // never CONTINUE_MSG for multi-answer
+    // return NEXT_BTN_MSG;  // never CONTINUE_MSG for multi-answer
+    return index === 0 ? START_MSG : CONTINUE_MSG;
   }
   
   
