@@ -982,21 +982,19 @@ export class SelectionMessageService {
       return index === 0 ? START_MSG : CONTINUE_MSG;
     }
   
-    // ───────── MULTI-ANSWER (stable sticky baseline + progress) ─────────
+    // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
 
-      // 🛡️ Sticky pre-lock baseline: once active, never allow any fallback/empty snapshot override
+      // 🛡️ Sticky baseline: once triggered, baseline always wins until at least 1 correct is chosen
       if (selectedCorrect === 0) {
         if (!this._multiAnswerPreLock.has(index)) {
-          console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
+          console.log('[MultiAnswer] Activating sticky pre-lock baseline', { index, baselineMsg });
           this._multiAnswerPreLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           this._multiAnswerCompletionLock.delete(index);
         }
-
-        // Force sticky return
-        return baselineMsg;
+        return baselineMsg; // 🚨 hard return, no flicker allowed
       }
 
       // ✅ All correct picked → NEXT or RESULTS
@@ -1007,13 +1005,12 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
 
-      // 🔄 Some correct but not all
+      // 🔄 Some correct but not all → progress message
       const remaining = totalCorrect - selectedCorrect;
-      this._multiAnswerPreLock.delete(index);
+      this._multiAnswerPreLock.delete(index); // release pre-lock once user starts answering
       this._multiAnswerInProgressLock.add(index);
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
-
 
     
     // ───────── Default Fallback ─────────
@@ -1080,7 +1077,7 @@ export class SelectionMessageService {
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      // 🆕 HARD GUARD: Multi-answer sticky baseline
+      // ───────── GUARD: Sticky baseline for multi-answer ─────────
       if (qType === QuestionType.MultipleAnswer) {
         const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
         const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
@@ -1090,15 +1087,15 @@ export class SelectionMessageService {
   
           const prevMsg = this._lastMessageByIndex.get(i0);
           if (prevMsg !== baselineMsg) {
-            console.log('[Guard HARD] Forcing sticky baseline for multi-answer', { i0, baselineMsg });
+            console.log('[Guard] Enforcing sticky multi-answer baseline', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚨 bail out completely, no fallback allowed
+          return; // 🚨 Bail out — don’t allow flicker from fallback paths
         }
       }
   
-      // Normal path continues only if baseline guard didn’t trigger
+      // ───────── Normal path continues only if baseline guard didn’t trigger ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
@@ -1108,12 +1105,19 @@ export class SelectionMessageService {
           finalMsg !== NEXT_BTN_MSG &&
           finalMsg !== SHOW_RESULTS_MSG
         ) {
+          console.warn('[Guard] Prevented false NEXT promotion while wrong lock active', {
+            i0,
+            finalMsg
+          });
           return;
         }
   
-        // Guard: don’t push duplicate
+        // Guard: don’t push duplicate messages
         const prevMsg = this._lastMessageByIndex.get(i0);
-        if (prevMsg === finalMsg) return;
+        if (prevMsg === finalMsg) {
+          console.log('[setSelectionMessage] Skipped duplicate message', { i0, finalMsg });
+          return;
+        }
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -1122,7 +1126,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
