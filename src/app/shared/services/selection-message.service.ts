@@ -1073,6 +1073,11 @@ export class SelectionMessageService {
         return;
       }
   
+      // Safely get question type from quiz data if available
+      const qType: QuestionType | undefined =
+        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ??
+        undefined;
+  
       queueMicrotask(() => {
         console.log('[setSelectionMessage ENTRY]', {
           i0,
@@ -1083,7 +1088,8 @@ export class SelectionMessageService {
             selected: o.selected
           })),
           hasCorrectLock: this._singleAnswerCorrectLock.has(i0),
-          hasWrongLock: this._singleAnswerIncorrectLock.has(i0)
+          hasWrongLock: this._singleAnswerIncorrectLock.has(i0),
+          qType
         });
   
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
@@ -1111,11 +1117,11 @@ export class SelectionMessageService {
   
         // 2) Guard: sticky pre-selection baseline for multi-answer
         if (
-          this.quizService.getQuestionType(i0) === QuestionType.MultipleAnswer &&
+          qType === QuestionType.MultipleAnswer &&
           finalMsg !== SHOW_RESULTS_MSG &&
           finalMsg !== NEXT_BTN_MSG
         ) {
-          const totalCorrect    = this.optionsSnapshot.filter(o => !!o.correct).length;
+          const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
           const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
   
           if (selectedCorrect === 0) {
@@ -1149,6 +1155,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
