@@ -1457,46 +1457,51 @@ export class SelectionMessageService {
   
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
+      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+      // ───────── HARD GUARD: Multi-answer sticky baseline ─────────
+      if (qType === QuestionType.MultipleAnswer) {
+        const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
   
-      // 🛡️ EARLY HARD GUARD: Multi-answer sticky baseline
-      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        const prevMsg = this._lastMessageByIndex.get(i0);
-        if (prevMsg !== baselineMsg) {
-          console.log('[Guard HARD] Multi-answer baseline enforced', { i0, baselineMsg });
-          this._lastMessageByIndex.set(i0, baselineMsg);
-          this.pushMessage(baselineMsg, i0);
+        if (selectedCorrect === 0) {
+          const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+  
+          const prevMsg = this._lastMessageByIndex.get(i0);
+          if (prevMsg !== baselineMsg) {
+            console.log('[Guard] Sticky baseline enforced (multi-answer)', { i0, baselineMsg });
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+          }
+          return; // 🚨 bail early, never call determineSelectionMessage
         }
-        return; // 🚨 stop here, block CONTINUE_MSG flicker
       }
   
-      // 🛡️ EARLY HARD GUARD: Single-answer sticky baseline
-      if (qType === QuestionType.SingleAnswer &&
-          selectedCorrect === 0 &&
-          selectedWrong === 0 &&
-          !this._singleAnswerCorrectLock.has(i0) &&
-          !this._singleAnswerIncorrectLock.has(i0)) {
-        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        const prevMsg = this._lastMessageByIndex.get(i0);
-        if (prevMsg !== baselineMsg) {
-          console.log('[Guard HARD] Single-answer baseline enforced', { i0, baselineMsg });
-          this._lastMessageByIndex.set(i0, baselineMsg);
-          this.pushMessage(baselineMsg, i0);
+      // ───────── HARD GUARD: Single-answer baseline ─────────
+      if (qType === QuestionType.SingleAnswer) {
+        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+        const selectedWrong   = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+  
+        if (selectedCorrect === 0 && selectedWrong === 0) {
+          const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+  
+          const prevMsg = this._lastMessageByIndex.get(i0);
+          if (prevMsg !== baselineMsg) {
+            console.log('[Guard] Sticky baseline enforced (single-answer)', { i0, baselineMsg });
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+          }
+          return; // 🚨 bail early, no determineSelectionMessage call
         }
-        return; // 🚨 stop here too
       }
   
-      // ───────── Normal path if no baseline guard triggered ─────────
+      // ───────── Normal path continues only if no baseline guard triggered ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        // Skip if duplicate
+        // Guard: don’t push duplicates
         const prevMsg = this._lastMessageByIndex.get(i0);
         if (prevMsg === finalMsg) return;
   
@@ -1506,7 +1511,7 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }
+  }  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
