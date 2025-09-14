@@ -77,6 +77,8 @@ export class SelectionMessageService {
 
   private _lastMessageByIndex = new Map<number, string>();
 
+  private _msgRAF: number | null = null;
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
@@ -893,7 +895,7 @@ export class SelectionMessageService {
     // Default fallback
     return NEXT_BTN_MSG;
   } */
-  public computeFinalMessage(args: {  
+  /* public computeFinalMessage(args: {  
     index: number;
     total: number;
     qType: QuestionType;
@@ -985,18 +987,108 @@ export class SelectionMessageService {
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-
-      // 🛡️ Sticky baseline: once triggered, baseline always wins until at least 1 correct is chosen
+  
+      // 🛡️ Sticky baseline
+      if (selectedCorrect === 0) {
+        this._multiAnswerPreLock.add(index);
+        this._multiAnswerInProgressLock.delete(index);
+        this._multiAnswerCompletionLock.delete(index);
+        return baselineMsg; // 🚨 ONLY baseline
+      }
+  
+      if (selectedCorrect === totalCorrect) {
+        this._multiAnswerCompletionLock.add(index);
+        this._multiAnswerPreLock.delete(index);
+        this._multiAnswerInProgressLock.delete(index);
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      const remaining = totalCorrect - selectedCorrect;
+      this._multiAnswerPreLock.delete(index);
+      this._multiAnswerInProgressLock.add(index);
+      return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
+    }
+  
+    return CONTINUE_MSG;    
+    
+    // ───────── Default Fallback ─────────
+    console.warn('[computeFinalMessage] ⚠️ Default fallback hit', { index, qType });
+    return index === 0 ? START_MSG : CONTINUE_MSG;
+  } */
+  public computeFinalMessage(args: {  
+    index: number;
+    total: number;
+    qType: QuestionType;
+    opts: Option[];
+  }): string {
+    const { index, total, qType, opts } = args;
+    const isLast = total > 0 && index === total - 1;
+  
+    console.log('[computeFinalMessage INPUT]', { 
+      index, qType, 
+      opts: (opts ?? []).map(o => ({ text: o.text, correct: o.correct, selected: o.selected }))
+    });
+  
+    // ───────── EXTRA GUARD: prevent empty snapshots from flashing ─────────
+    if (!opts || opts.length === 0) {
+      // If multi-answer pre-lock exists, keep its baseline
+      if (this._multiAnswerPreLock.has(index)) {
+        const totalCorrect = this.quizService.questions?.[index]?.options?.filter(o => !!o.correct).length ?? 0;
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        console.log('[computeFinalMessage] ⚠️ Empty opts but pre-lock active → baseline preserved', { index, baselineMsg });
+        return baselineMsg;
+      }
+  
+      console.warn('[computeFinalMessage] ⚠️ Empty opts received → skip message (return empty)', {
+        index, total
+      });
+      return ''; // 🚫 don’t return CONTINUE_MSG or START_MSG here
+    }
+  
+    const totalCorrect    = opts.filter(o => !!o?.correct).length;
+    const selectedCorrect = opts.filter(o => o.selected && o.correct).length;
+    const selectedWrong   = opts.filter(o => o.selected && !o.correct).length;
+  
+    // ───────── SINGLE-ANSWER (sticky locks) ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // ✅ Wrong lock → force correct-answer prompt
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      // ✅ Correct lock or selected correct → NEXT/RESULTS
+      if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
+        this._singleAnswerCorrectLock.add(index);
+        this._singleAnswerIncorrectLock.delete(index);
+  
+        return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+      }
+  
+      // ❌ Wrong selected → persist until overridden
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+  
+      // None picked → baseline
+      return index === 0 ? START_MSG : CONTINUE_MSG;
+    }
+  
+    // ───────── MULTI-ANSWER (sticky pre-lock + progress) ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+    
+      // 🛡️ HARD BASELINE: if none selected → baseline only, no fallbacks allowed
       if (selectedCorrect === 0) {
         if (!this._multiAnswerPreLock.has(index)) {
-          console.log('[MultiAnswer] Activating sticky pre-lock baseline', { index, baselineMsg });
+          console.log('[MultiAnswer] Activating sticky baseline', { index, baselineMsg });
           this._multiAnswerPreLock.add(index);
           this._multiAnswerInProgressLock.delete(index);
           this._multiAnswerCompletionLock.delete(index);
         }
-        return baselineMsg; // 🚨 hard return, no flicker allowed
+        return baselineMsg; // 🚨 baseline only
       }
-
+    
       // ✅ All correct picked → NEXT or RESULTS
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
@@ -1004,19 +1096,19 @@ export class SelectionMessageService {
         this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-
-      // 🔄 Some correct but not all → progress message
+    
+      // 🔄 Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
-      this._multiAnswerPreLock.delete(index); // release pre-lock once user starts answering
+      this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
-
     
+  
     // ───────── Default Fallback ─────────
-    console.warn('[computeFinalMessage] ⚠️ Default fallback hit', { index, qType });
-    return index === 0 ? START_MSG : CONTINUE_MSG;
+    return NEXT_BTN_MSG;  // never CONTINUE_MSG for multi-answer
   }
+  
   
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
@@ -1065,19 +1157,13 @@ export class SelectionMessageService {
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
   
-      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) {
-        console.warn('[setSelectionMessage] ⚠️ Skipped — no options snapshot available', {
-          i0,
-          total
-        });
-        return;
-      }
+      if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
       // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      // ───────── GUARD: Sticky baseline for multi-answer ─────────
+      // 🛡️ Guard baseline *before* queueMicrotask to prevent flash on re-render
       if (qType === QuestionType.MultipleAnswer) {
         const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
         const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
@@ -1087,37 +1173,20 @@ export class SelectionMessageService {
   
           const prevMsg = this._lastMessageByIndex.get(i0);
           if (prevMsg !== baselineMsg) {
-            console.log('[Guard] Enforcing sticky multi-answer baseline', { i0, baselineMsg });
+            console.log('[Guard EARLY] Enforcing baseline pre-selection', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚨 Bail out — don’t allow flicker from fallback paths
+          return; // 🚨 bail early so CONTINUE_MSG never gets scheduled
         }
       }
   
-      // ───────── Normal path continues only if baseline guard didn’t trigger ─────────
+      // Normal path continues if baseline guard didn’t trigger
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
   
-        // Guard: single-answer wrong lock shouldn’t override NEXT
-        if (
-          this._singleAnswerCorrectLock.has(i0) &&
-          finalMsg !== NEXT_BTN_MSG &&
-          finalMsg !== SHOW_RESULTS_MSG
-        ) {
-          console.warn('[Guard] Prevented false NEXT promotion while wrong lock active', {
-            i0,
-            finalMsg
-          });
-          return;
-        }
-  
-        // Guard: don’t push duplicate messages
         const prevMsg = this._lastMessageByIndex.get(i0);
-        if (prevMsg === finalMsg) {
-          console.log('[setSelectionMessage] Skipped duplicate message', { i0, finalMsg });
-          return;
-        }
+        if (prevMsg === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
