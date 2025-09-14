@@ -985,25 +985,33 @@ export class SelectionMessageService {
     // ───────── MULTI-ANSWER (stable pre-lock + progress) ─────────
     if (qType === QuestionType.MultipleAnswer) {
       const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-  
+
+      // 🛡️ Sticky pre-lock guard: always return baseline if nothing selected yet
       if (selectedCorrect === 0) {
-        // once baseline is active, hold until progress
-        this._multiAnswerPreLock.add(index);
-        return baselineMsg;
+        if (!this._multiAnswerPreLock.has(index)) {
+          console.log('[MultiAnswer] Activating sticky pre-lock baseline', { index, baselineMsg });
+          this._multiAnswerPreLock.add(index);
+          this._multiAnswerInProgressLock.delete(index);
+          this._multiAnswerCompletionLock.delete(index);
+        }
+        return baselineMsg; // 🚨 hard return, never let CONTINUE_MSG override
       }
-  
+
+      // ✅ All correct picked → lock completion
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
         this._multiAnswerInProgressLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
-  
+
+      // 🔄 Some correct but not all
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
       return `Select ${remaining} more correct answer${remaining > 1 ? 's' : ''} to continue...`;
     }
+
     
     // ───────── Default Fallback ─────────
     console.warn('[computeFinalMessage] ⚠️ Default fallback hit', { index, qType });
