@@ -1687,6 +1687,11 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
+  public releaseBaseline(index: number): void {
+    this._baselineReleased.add(index);
+    console.log('[SelectionMessageService] Baseline released', { index });
+  }
+
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;

@@ -268,7 +268,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _firstClickIncorrectGuard = new Set<number>();
   private _skipNextAsyncUpdates = false;
   private _singleIncorrectLock = new Set<number>();
-  private _baselineReleased = new Set<number>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -2995,7 +2994,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       } else {
         // 🔓 RELEASE sticky baseline the first time a meaningful click happens
-        this._baselineReleased.add(i0);
+        this.selectionMessageService.releaseBaseline(i0);
 
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
