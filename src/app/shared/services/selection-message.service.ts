@@ -1932,39 +1932,52 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
+  
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
+      // Safely get question type
       const qType: QuestionType | undefined =
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
-      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
+      // ───────── HARD BASELINE GUARD ─────────
+      if (
+        (qType === QuestionType.MultipleAnswer || qType === QuestionType.SingleAnswer) &&
+        !this._baselineReleased.has(i0)
+      ) {
+        const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+        const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+        const selectedWrong   = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // 🛡️ Baseline guard: only if no click has yet released baseline
-      if (!this._baselineReleased.has(i0)) {
+        let baselineMsg: string;
+  
         if (qType === QuestionType.MultipleAnswer) {
-          const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-          if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-            this._lastMessageByIndex.set(i0, baselineMsg);
-            this.pushMessage(baselineMsg, i0);
-          }
-          return; // 🚨 bail completely
+          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        } else {
+          // Single-answer baseline
+          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
         }
-        if (qType === QuestionType.SingleAnswer) {
-          const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-          if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-            this._lastMessageByIndex.set(i0, baselineMsg);
-            this.pushMessage(baselineMsg, i0);
-          }
-          return; // 🚨 bail completely
+  
+        console.log('[BaselineGuard] Forcing sticky pre-selection baseline', {
+          i0,
+          qType,
+          baselineMsg
+        });
+  
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
         }
+        return; // 🚫 block determineSelectionMessage while baseline lock is active
       }
   
-      // Normal path (after baseline released by a click)
+      // ───────── NORMAL FLOW ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
+  
+        const prevMsg = this._lastMessageByIndex.get(i0);
+        if (prevMsg === finalMsg) return;
+  
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
       });
@@ -1972,6 +1985,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
   
   
