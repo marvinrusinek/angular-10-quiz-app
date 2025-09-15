@@ -1787,6 +1787,10 @@ export class SelectionMessageService {
     }
   }
 
+  public hasBaselineReleased(i0: number): boolean {
+    return this._baselineReleased.has(i0);
+  }
+
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
@@ -2031,37 +2035,30 @@ export class SelectionMessageService {
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
       const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── EARLY BASELINE GUARD ─────────
-      if (!this._baselineReleased.has(i0)) {
-        let baselineMsg: string;
+      // ───────── STICKY BASELINE GUARD ─────────
+      if (!this.hasBaselineReleased(i0)) {
+        const baselineMsg =
+          qType === QuestionType.MultipleAnswer
+            ? `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`
+            : i0 === 0
+              ? START_MSG
+              : CONTINUE_MSG;
   
-        if (qType === QuestionType.MultipleAnswer) {
-          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        } else {
-          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        }
-  
-        if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Sticky baseline (pre-release)', { i0, baselineMsg });
+        const prev = this._lastMessageByIndex.get(i0);
+        if (prev !== baselineMsg) {
+          console.log('[setSelectionMessage] Forced baseline', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-  
-        return; // 🚨 bail early, no recompute → no flicker
+        return; // 🚫 NO fallthrough → no flicker
       }
   
-      // ───────── Normal path (after baseline released) ─────────
+      // ───────── Normal path after release ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        const prevMsg = this._lastMessageByIndex.get(i0);
-  
-        if (prevMsg === finalMsg) {
-          console.log('[setSelectionMessage] Skipped duplicate', { i0, finalMsg });
-          return;
-        }
+        const prev = this._lastMessageByIndex.get(i0);
+        if (prev === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -2070,7 +2067,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
   
   
   
