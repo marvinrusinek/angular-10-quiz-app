@@ -2133,9 +2133,11 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER: force baseline if not released and no correct selected ─────────
+      // ───────── MULTI-ANSWER: baseline ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        if (!this._baselineReleased.has(i0)) {
+        if (this._baselineReleased.has(i0)) {
+          // 🚦 Already released → skip baseline completely, fall through to normal path
+        } else {
           const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2143,11 +2145,11 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
+          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
-        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
-      // ───────── SINGLE-ANSWER: force START/CONTINUE if not released and no clicks ─────────
+      // ───────── SINGLE-ANSWER: baseline ─────────
       if (
         qType === QuestionType.SingleAnswer &&
         selectedCorrect === 0 &&
@@ -2155,7 +2157,9 @@ export class SelectionMessageService {
         !this._singleAnswerCorrectLock.has(i0) &&
         !this._singleAnswerIncorrectLock.has(i0)
       ) {
-        if (!this._baselineReleased.has(i0)) {
+        if (this._baselineReleased.has(i0)) {
+          // 🚦 Already released → skip baseline completely, fall through to normal path
+        } else {
           const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2163,8 +2167,8 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
+          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
-        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
       // ───────── NORMAL PATH ─────────
@@ -2175,8 +2179,21 @@ export class SelectionMessageService {
           return;
         }
   
+        // 🚦 Drop if baseline not released → avoids flicker
+        if (!this._baselineReleased.has(i0)) {
+          console.log('[setSelectionMessage] Baseline not released, skipping normal path', { i0 });
+          return;
+        }
+  
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
+        const lastMsg = this._lastMessageByIndex.get(i0);
+  
+        // 🚦 Allow upgrade even if it looks like a duplicate (baseline → NEXT/etc.)
+        if (lastMsg === finalMsg && finalMsg && !finalMsg.startsWith('Select')) {
+          console.log('[setSelectionMessage] Upgrade allowed despite duplicate', { i0, finalMsg });
+        } else {
+          if (lastMsg === finalMsg) return;
+        }
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -2185,6 +2202,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
   
   
