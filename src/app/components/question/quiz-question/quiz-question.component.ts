@@ -2977,6 +2977,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this._clickGate = true;
   
     try {
+      // Release sticky baseline the first time a meaningful click happens
+      this.selectionMessageService.releaseBaseline(i0);
+
       // Update local UI selection immediately
       const optionsNow: Option[] =
         this.optionsToDisplay?.map((o) => ({ ...o })) ??
@@ -2993,9 +2996,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
 
       } else {
-        // RELEASE sticky baseline the first time a meaningful click happens
-        this.selectionMessageService.releaseBaseline(i0);
-
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer:
           optionsNow.forEach((opt, idx) => { opt.selected = idx === evtIdx ? (event.checked ?? true) : false; });
