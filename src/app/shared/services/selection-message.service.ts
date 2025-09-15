@@ -2183,7 +2183,14 @@ export class SelectionMessageService {
         }
   
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
+        const lastMsg = this._lastMessageByIndex.get(i0);
+  
+        // 🚦 Allow baseline → NEXT/continue upgrade even if identical check would skip
+        if (lastMsg === finalMsg && finalMsg && !finalMsg.startsWith('Select')) {
+          console.log('[setSelectionMessage] Upgrade allowed despite duplicate', { i0, finalMsg });
+        } else {
+          if (lastMsg === finalMsg) return;
+        }
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
