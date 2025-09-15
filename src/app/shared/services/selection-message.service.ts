@@ -1728,12 +1728,6 @@ export class SelectionMessageService {
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
-    // Guard against cancelled tokens
-    if (this._pendingMsgTokens?.get(i0) === -1) {
-      console.log('[pushMessage] Skipped due to releaseBaseline cancel', { i0, newMsg });
-      return;
-    }
-  
     // Safely grab qType + snapshot info
     const qType: QuestionType | undefined =
       (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
@@ -1791,6 +1785,7 @@ export class SelectionMessageService {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
   }
+
   
 
   // Build message on click (correct wording and logic)
