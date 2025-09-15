@@ -1796,18 +1796,21 @@ export class SelectionMessageService {
     if (!this._baselineReleased) {
       this._baselineReleased = new Set<number>();
     }
+    if (!this._pendingMsgTokens) {
+      this._pendingMsgTokens = new Map<number, number>();
+    }
+    if (!this._msgTokenCounter) {
+      this._msgTokenCounter = 0;
+    }
   
+    // Mark this index as baseline released
     if (!this._baselineReleased.has(index)) {
       this._baselineReleased.add(index);
-      console.log('[releaseBaseline] Baseline released for question', index);
-  
-      // ───────── CANCEL PENDING MICROTASKS FOR THIS INDEX ─────────
-      const token = this._pendingMsgTokens?.get(index);
-      if (token != null) {
-        console.log('[releaseBaseline] Cancelling pending microtask for Q', index);
-        this._pendingMsgTokens.delete(index);
-      }
+      console.log('[releaseBaseline] Released baseline for question', index);
     }
+  
+    // Cancel any queued microtask for this index
+    this._pendingMsgTokens.set(index, -1);
   }
 
   public hasBaselineReleased(i0: number): boolean {
@@ -2083,7 +2086,6 @@ export class SelectionMessageService {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-  
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
@@ -2094,48 +2096,31 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER sticky baseline ─────────
-      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      // ───────── BASELINE ENFORCEMENT ─────────
+      if (!this._baselineReleased.has(i0)) {
+        let baselineMsg: string;
+        if (qType === QuestionType.MultipleAnswer) {
+          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        } else {
+          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        }
+  
         if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Sticky baseline (multi)', { i0, baselineMsg });
+          console.log('[setSelectionMessage] Enforcing sticky baseline', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-        return; // 🚨 bail → no flicker
+        return; // 🚫 stop here, never let CONTINUE_MSG overwrite baseline
       }
   
-      // ───────── SINGLE-ANSWER sticky baseline ─────────
-      if (
-        qType === QuestionType.SingleAnswer &&
-        selectedCorrect === 0 &&
-        selectedWrong === 0 &&
-        !this._singleAnswerCorrectLock.has(i0) &&
-        !this._singleAnswerIncorrectLock.has(i0)
-      ) {
-        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Sticky baseline (single)', { i0, baselineMsg });
-          this._lastMessageByIndex.set(i0, baselineMsg);
-          this.pushMessage(baselineMsg, i0);
-        }
-        return; // 🚨 bail → no flicker
-      }
+      // ───────── NORMAL PATH AFTER BASELINE RELEASED ─────────
+      const tok = ++this._msgTokenCounter;
+      this._pendingMsgTokens.set(i0, tok);
   
-      // ───────── NORMAL PATH (only after baseline released) ─────────
       queueMicrotask(() => {
-        const tok = ++this._msgTokenCounter;
-        this._pendingMsgTokens.set(i0, tok);
-  
-        // Skip if baseline still not released
-        if (!this._baselineReleased.has(i0)) {
-          console.log('[setSelectionMessage] Baseline still sticky → bail, no push', { i0 });
-          return;
-        }
-  
-        // Skip if releaseBaseline canceled this token
+        // Bail if canceled by releaseBaseline
         if (this._pendingMsgTokens.get(i0) !== tok) {
-          console.log('[setSelectionMessage] Microtask canceled for Q', i0);
+          console.log('[setSelectionMessage] Microtask canceled → skip Q', i0);
           return;
         }
   
