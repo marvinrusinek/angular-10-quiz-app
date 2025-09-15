@@ -195,6 +195,21 @@ export class SelectionMessageService {
       ? QuestionType.MultipleAnswer
       : declaredType ?? QuestionType.SingleAnswer;
   
+    // ───────── BASELINE GUARD: prevent flicker before baseline is released ─────────
+    if (!this._baselineReleased?.has(questionIndex)) {
+      if (qType === QuestionType.MultipleAnswer) {
+        const totalCorrect = overlaid.filter(o => !!o.correct).length;
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        console.log('[determineSelectionMessage] Sticky multi baseline enforced', { questionIndex, baselineMsg });
+        return baselineMsg;
+      } else {
+        const baselineMsg = questionIndex === 0 ? START_MSG : CONTINUE_MSG;
+        console.log('[determineSelectionMessage] Sticky single baseline enforced', { questionIndex, baselineMsg });
+        return baselineMsg;
+      }
+    }
+  
+    // ───────── NORMAL PATH ─────────
     console.log('[determineSelectionMessage] → calling computeFinalMessage', {
       questionIndex,
       qType,
@@ -212,6 +227,7 @@ export class SelectionMessageService {
       opts: overlaid
     });
   }
+  
   
   
 
