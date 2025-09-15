@@ -46,7 +46,7 @@ import { AnswerComponent } from '../../../components/question/answer/answer-comp
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuizQuestionComponent extends BaseQuestionComponent 
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
