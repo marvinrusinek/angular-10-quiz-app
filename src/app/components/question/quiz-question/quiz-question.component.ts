@@ -2977,9 +2977,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this._clickGate = true;
   
     try {
-      // Release sticky baseline the first time a meaningful click happens
-      this.selectionMessageService.releaseBaseline(i0);
-
       // Update local UI selection immediately
       const optionsNow: Option[] =
         this.optionsToDisplay?.map((o) => ({ ...o })) ??
@@ -2989,16 +2986,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
-        // keep last snapshot...
-        optionsNow.forEach((opt) => { if (opt.selected) opt.selected = true; });
+        optionsNow.forEach(opt => { if (opt.selected) opt.selected = true; });
         if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[]).forEach((opt) => { if (opt.selected) opt.selected = true; });
+          (this.optionsToDisplay as Option[]).forEach(opt => { if (opt.selected) opt.selected = true; });
         }
-
       } else {
+        // RELEASE sticky baseline the first time a meaningful click happens
+        this.selectionMessageService.releaseBaseline(i0);
+    
         if (q?.type === QuestionType.SingleAnswer) {
-          // Exclusivity guard for single-answer:
-          optionsNow.forEach((opt, idx) => { opt.selected = idx === evtIdx ? (event.checked ?? true) : false; });
+          // Exclusivity guard for single-answer
+          optionsNow.forEach((opt, idx) => {
+            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+          });
           if (Array.isArray(this.optionsToDisplay)) {
             (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
               opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
@@ -3012,7 +3012,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
       }
-
   
       console.log('[onOptionClicked]', {
         clickedText: evtOpt?.text,
