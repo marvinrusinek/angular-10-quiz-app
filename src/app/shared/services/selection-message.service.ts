@@ -1787,6 +1787,12 @@ export class SelectionMessageService {
   
     // ───────── Push only if changed ─────────
     if (current !== newMsg) {
+      console.trace('[TRACE pushMessage emit]', {
+        index: i0,
+        newMsg,
+        released: this._baselineReleased?.has(i0)
+      });
+      
       this.selectionMessageSubject.next(newMsg);
       console.log('[pushMessage] updated:', newMsg);
     } else {
