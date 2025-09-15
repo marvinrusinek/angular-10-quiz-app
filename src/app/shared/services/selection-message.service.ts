@@ -1793,33 +1793,30 @@ export class SelectionMessageService {
 
   // ───────── RELEASE STICKY BASELINE LOCK ─────────
   public releaseBaseline(index: number): void {
+    // Ensure data structures exist
     if (!this._baselineReleased) {
       this._baselineReleased = new Set<number>();
     }
     if (!this._pendingMsgTokens) {
       this._pendingMsgTokens = new Map<number, number>();
     }
-    if (!this._msgTokenCounter) {
+    if (typeof this._msgTokenCounter !== 'number') {
       this._msgTokenCounter = 0;
     }
   
-    // Mark this index as baseline released
+    // Mark this index as released so baseline guards stop firing
     if (!this._baselineReleased.has(index)) {
       this._baselineReleased.add(index);
-      console.log('[releaseBaseline] Released baseline for question', index);
+      console.log('[releaseBaseline] Baseline released for question', index);
+    } else {
+      console.log('[releaseBaseline] Already released, skipping', index);
     }
   
     // Cancel any queued microtask for this index
+    // Setting to -1 signals that pending setSelectionMessage calls must skip
     this._pendingMsgTokens.set(index, -1);
   
-    // Guard: clear stale START/CONTINUE if it was just set
-    queueMicrotask(() => {
-      const lastMsg = this._lastMessageByIndex.get(index);
-      if (lastMsg === START_MSG || lastMsg === CONTINUE_MSG) {
-        console.log('[releaseBaseline Guard] Clearing stale baseline for', index, lastMsg);
-        this._lastMessageByIndex.delete(index);
-      }
-    });
+    console.log('[releaseBaseline] Cancelled pending microtasks for index', index);
   }
 
   public hasBaselineReleased(i0: number): boolean {
