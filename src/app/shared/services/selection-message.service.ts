@@ -2130,9 +2130,11 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER: force baseline if not released and no correct selected ─────────
+      // ───────── MULTI-ANSWER: baseline ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        if (!this._baselineReleased.has(i0)) {
+        if (this._baselineReleased.has(i0)) {
+          // 🚦 Already released → skip baseline completely, allow normal path
+        } else {
           const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2140,11 +2142,11 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
+          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
-        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
-      // ───────── SINGLE-ANSWER: force START/CONTINUE if not released and no clicks ─────────
+      // ───────── SINGLE-ANSWER: baseline ─────────
       if (
         qType === QuestionType.SingleAnswer &&
         selectedCorrect === 0 &&
@@ -2152,7 +2154,9 @@ export class SelectionMessageService {
         !this._singleAnswerCorrectLock.has(i0) &&
         !this._singleAnswerIncorrectLock.has(i0)
       ) {
-        if (!this._baselineReleased.has(i0)) {
+        if (this._baselineReleased.has(i0)) {
+          // 🚦 Already released → skip baseline completely, allow normal path
+        } else {
           const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2160,8 +2164,8 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
+          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
-        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
       // ───────── NORMAL PATH ─────────
@@ -2188,6 +2192,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
   
 
