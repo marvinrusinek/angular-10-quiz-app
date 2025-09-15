@@ -2091,7 +2091,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 selected: o.selected
               }))
             });
-            this.selectionMessageService.setSelectionMessage(false);
+            const q = this.questions[this.currentQuestionIndex];
+            if (q) {
+              const totalCorrect = q.options.filter(o => !!o.correct).length;
+              // Push the baseline immediately
+              this.selectionMessageService.enforceBaselineAtInit(this.currentQuestionIndex, q.type, totalCorrect);
+              // this.selectionMessageService.setSelectionMessage(false);
+            }
           } else {
             console.warn('[loadQuestion] Skipped baseline recompute (no options yet)');
           }
