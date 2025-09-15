@@ -605,6 +605,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Baseline message recompute, now that options are known
         if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
+          // Release baseline immediately, before recomputing
+          this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+        
           queueMicrotask(async () => {
             console.log(
               '[QQC] Baseline selection message recompute',
