@@ -1728,6 +1728,12 @@ export class SelectionMessageService {
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
+    // Guard against cancelled tokens
+    if (this._pendingMsgTokens?.get(i0) === -1) {
+      console.log('[pushMessage] Skipped due to releaseBaseline cancel', { i0, newMsg });
+      return;
+    }
+  
     // Safely grab qType + snapshot info
     const qType: QuestionType | undefined =
       (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
@@ -1785,6 +1791,7 @@ export class SelectionMessageService {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
   }
+  
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
@@ -2165,6 +2172,12 @@ export class SelectionMessageService {
           return;
         }
   
+        // 🚦 Drop if baseline not released → avoids flicker
+        if (!this._baselineReleased.has(i0)) {
+          console.log('[setSelectionMessage] Baseline not released, skipping normal path', { i0 });
+          return;
+        }
+  
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
         if (this._lastMessageByIndex.get(i0) === finalMsg) return;
   
@@ -2175,6 +2188,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
 
   public clearSelectionMessage(): void {
