@@ -1714,22 +1714,15 @@ export class SelectionMessageService {
     const selectedCorrect = this.optionsSnapshot?.filter(o => o.selected && o.correct).length ?? 0;
     const selectedWrong = this.optionsSnapshot?.filter(o => o.selected && !o.correct).length ?? 0;
   
-    // ───────── MULTI-ANSWER baseline guard ─────────
-    if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-      newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      console.log('[pushMessage Guard] Forced sticky multi baseline', { i0, newMsg });
-    }
-  
-    // ───────── SINGLE-ANSWER baseline guard ─────────
-    if (
-      qType === QuestionType.SingleAnswer &&
-      selectedCorrect === 0 &&
-      selectedWrong === 0 &&
-      !this._singleAnswerCorrectLock.has(i0) &&
-      !this._singleAnswerIncorrectLock.has(i0)
-    ) {
-      newMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-      console.log('[pushMessage Guard] Forced sticky single baseline', { i0, newMsg });
+    // ───────── ENFORCE BASELINE UNTIL RELEASED ─────────
+    if (!this._baselineReleased?.has(i0)) {
+      if (qType === QuestionType.MultipleAnswer) {
+        newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        console.log('[pushMessage] Sticky multi baseline (not released)', { i0, newMsg });
+      } else if (qType === QuestionType.SingleAnswer) {
+        newMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        console.log('[pushMessage] Sticky single baseline (not released)', { i0, newMsg });
+      }
     }
   
     // ───────── Prevent false NEXT while wrong lock active ─────────
@@ -1738,7 +1731,7 @@ export class SelectionMessageService {
       return;
     }
   
-    // ───────── Push only if different ─────────
+    // ───────── Push only if changed ─────────
     if (current !== newMsg) {
       this.selectionMessageSubject.next(newMsg);
       console.log('[pushMessage] updated:', newMsg);
@@ -1746,6 +1739,7 @@ export class SelectionMessageService {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
   }
+  
   
 
 
