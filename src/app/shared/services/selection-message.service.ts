@@ -1727,6 +1727,14 @@ export class SelectionMessageService {
   } */
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
+
+    // Once baseline is released, never allow another baseline-style message
+    if (this._baselineReleased.has(i0)) {
+      if (newMsg.startsWith('Select') && newMsg.includes('correct answer')) {
+        console.log('[pushMessage Guard] Skipped stale baseline after release', { i0, newMsg });
+        return;
+      }
+    }
   
     // Safely grab qType + snapshot info
     const qType: QuestionType | undefined =
