@@ -793,36 +793,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  // REMOVE!!
-  async setSelectionMessage(isAnswered: boolean): Promise<void> {
-    try {
-      const index = this.currentQuestionIndex;
-      const total = this.totalQuestions;
-
-      if (typeof index !== 'number' || isNaN(index) || total <= 0) {
-        console.warn(
-          '[❌ setSelectionMessage] Invalid index or totalQuestions'
-        );
-        return;
-      }
-
-      const newMessage = this.selectionMessageService.determineSelectionMessage(
-        index,
-        total,
-        isAnswered
-      );
-      const current = this.selectionMessageService.getCurrentMessage();
-
-      if (newMessage !== current) {
-        this.selectionMessageService.updateSelectionMessage(newMessage);
-      } else {
-        console.log(`[⏸️ Skipping update — message already "${current}"`);
-      }
-    } catch (error) {
-      console.error('[❌ setSelectionMessage ERROR]', error);
-    }
-  }
-
   private async handleNavigationToQuestion(
     questionIndex: number
   ): Promise<void> {
@@ -993,7 +963,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.setSelectionMessage(false);
 
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
