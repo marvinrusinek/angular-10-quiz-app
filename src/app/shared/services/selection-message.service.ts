@@ -1785,6 +1785,21 @@ export class SelectionMessageService {
     return this._baselineReleased.has(i0);
   }
 
+  public enforceBaselineAtInit(i0: number, qType: QuestionType, totalCorrect: number): void {
+    if (!this._baselineReleased.has(i0)) {
+      let baselineMsg: string;
+      if (qType === QuestionType.MultipleAnswer) {
+        baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      } else {
+        baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+      }
+      this._lastMessageByIndex.set(i0, baselineMsg);
+      this.selectionMessageSubject.next(baselineMsg);
+      console.log('[enforceBaselineAtInit] Baseline set immediately', { i0, baselineMsg });
+    }
+  }
+  
+
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
