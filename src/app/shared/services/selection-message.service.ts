@@ -2134,14 +2134,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  
 
   public clearSelectionMessage(): void {
     this.selectionMessageSubject.next('');
