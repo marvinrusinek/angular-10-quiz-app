@@ -2130,11 +2130,9 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER: baseline ─────────
+      // ───────── MULTI-ANSWER: force baseline if not released and no correct selected ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        if (this._baselineReleased.has(i0)) {
-          // 🚦 Already released → skip baseline completely, allow normal path
-        } else {
+        if (!this._baselineReleased.has(i0)) {
           const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2142,11 +2140,11 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
+        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
-      // ───────── SINGLE-ANSWER: baseline ─────────
+      // ───────── SINGLE-ANSWER: force START/CONTINUE if not released and no clicks ─────────
       if (
         qType === QuestionType.SingleAnswer &&
         selectedCorrect === 0 &&
@@ -2154,9 +2152,7 @@ export class SelectionMessageService {
         !this._singleAnswerCorrectLock.has(i0) &&
         !this._singleAnswerIncorrectLock.has(i0)
       ) {
-        if (this._baselineReleased.has(i0)) {
-          // 🚦 Already released → skip baseline completely, allow normal path
-        } else {
+        if (!this._baselineReleased.has(i0)) {
           const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
@@ -2164,8 +2160,8 @@ export class SelectionMessageService {
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
-          return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
+        return; // 🚫 bail completely → never queue CONTINUE_MSG
       }
   
       // ───────── NORMAL PATH ─────────
@@ -2176,21 +2172,8 @@ export class SelectionMessageService {
           return;
         }
   
-        // 🚦 Drop if baseline not released → avoids flicker
-        if (!this._baselineReleased.has(i0)) {
-          console.log('[setSelectionMessage] Baseline not released, skipping normal path', { i0 });
-          return;
-        }
-  
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        const lastMsg = this._lastMessageByIndex.get(i0);
-  
-        // 🚦 Allow baseline → NEXT/continue upgrade even if identical check would skip
-        if (lastMsg === finalMsg && finalMsg && !finalMsg.startsWith('Select')) {
-          console.log('[setSelectionMessage] Upgrade allowed despite duplicate', { i0, finalMsg });
-        } else {
-          if (lastMsg === finalMsg) return;
-        }
+        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
