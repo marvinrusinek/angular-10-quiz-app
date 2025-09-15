@@ -2057,44 +2057,16 @@ export class SelectionMessageService {
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
-      const qType: QuestionType | undefined =
-        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
-  
-      const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
-      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
-      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
-  
-      // 🛡️ HARD BASELINE GUARD: If baseline enforced & not released yet → bail out
+      // 🛡️ If baseline has NOT been released yet → bail early
       if (!this._baselineReleased.has(i0)) {
-        let baselineMsg: string | null = null;
-  
-        if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        }
-        else if (
-          qType === QuestionType.SingleAnswer &&
-          selectedCorrect === 0 &&
-          selectedWrong === 0 &&
-          !this._singleAnswerCorrectLock.has(i0) &&
-          !this._singleAnswerIncorrectLock.has(i0)
-        ) {
-          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        }
-  
-        if (baselineMsg) {
-          const prev = this._lastMessageByIndex.get(i0);
-          if (prev !== baselineMsg) {
-            this._lastMessageByIndex.set(i0, baselineMsg);
-            this.pushMessage(baselineMsg, i0);
-            console.log('[setSelectionMessage] Baseline enforced (no override)', { i0, baselineMsg });
-          }
-          return; // 🚨 bail — don’t call determineSelectionMessage → prevents flash
-        }
+        console.log('[setSelectionMessage] Skipped — baseline lock active', { i0 });
+        return;
       }
   
-      // ───────── Normal path ─────────
+      // ───────── Normal path (only after baseline is released) ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+  
         if (this._lastMessageByIndex.get(i0) === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
