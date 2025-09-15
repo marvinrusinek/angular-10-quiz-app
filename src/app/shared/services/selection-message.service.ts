@@ -2034,38 +2034,34 @@ export class SelectionMessageService {
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── MULTI-ANSWER sticky baseline ─────────
-      if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+      // ───────── EARLY BASELINE GUARD ─────────
+      if (!this._baselineReleased.has(i0)) {
+        let baselineMsg: string;
+  
+        if (qType === QuestionType.MultipleAnswer) {
+          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
+        } else {
+          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        }
+  
         if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Sticky baseline (multi)', { i0, baselineMsg });
+          console.log('[setSelectionMessage] Sticky baseline (pre-release)', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
         }
-        return; // 🚫 bail early → prevents CONTINUE_MSG flicker
+  
+        return; // 🚨 bail early, no recompute → no flicker
       }
   
-      // ───────── SINGLE-ANSWER sticky baseline ─────────
-      if (
-        qType === QuestionType.SingleAnswer &&
-        selectedCorrect === 0 &&
-        selectedWrong === 0 &&
-        !this._singleAnswerCorrectLock.has(i0) &&
-        !this._singleAnswerIncorrectLock.has(i0)
-      ) {
-        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Sticky baseline (single)', { i0, baselineMsg });
-          this._lastMessageByIndex.set(i0, baselineMsg);
-          this.pushMessage(baselineMsg, i0);
-        }
-        return; // 🚫 bail early → prevents CONTINUE_MSG flicker
-      }
-  
-      // ───────── Normal path ─────────
+      // ───────── Normal path (after baseline released) ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
+        const prevMsg = this._lastMessageByIndex.get(i0);
+  
+        if (prevMsg === finalMsg) {
+          console.log('[setSelectionMessage] Skipped duplicate', { i0, finalMsg });
+          return;
+        }
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -2074,6 +2070,7 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
+  
   
   
   
