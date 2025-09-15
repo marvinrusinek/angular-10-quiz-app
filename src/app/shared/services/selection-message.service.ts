@@ -2096,45 +2096,65 @@ export class SelectionMessageService {
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
       const qType: QuestionType | undefined =
-        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
+        (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ??
+        undefined;
   
       const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
       const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
       const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── BASELINE ENFORCEMENT ─────────
-      if (!this._baselineReleased.has(i0)) {
-        let baselineMsg: string;
-        if (qType === QuestionType.MultipleAnswer) {
-          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        } else {
-          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        }
-  
+      // --- Baseline guards (before queue) ---
+      if (
+        qType === QuestionType.MultipleAnswer &&
+        selectedCorrect === 0 &&
+        !this._baselineReleased.has(i0)
+      ) {
+        const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
         if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
-          console.log('[setSelectionMessage] Enforcing sticky baseline', { i0, baselineMsg });
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.pushMessage(baselineMsg, i0);
+          console.log('[setSelectionMessage] Sticky multi baseline (pre-release)', { i0, baselineMsg });
         }
-        return; // 🚫 stop here, never let CONTINUE_MSG overwrite baseline
+        return; // 🚫 Bail early — nothing else should run
       }
   
-      // ───────── NORMAL PATH AFTER BASELINE RELEASED ─────────
-      const tok = ++this._msgTokenCounter;
-      this._pendingMsgTokens.set(i0, tok);
+      if (
+        qType === QuestionType.SingleAnswer &&
+        selectedCorrect === 0 &&
+        selectedWrong === 0 &&
+        !this._singleAnswerCorrectLock.has(i0) &&
+        !this._singleAnswerIncorrectLock.has(i0) &&
+        !this._baselineReleased.has(i0)
+      ) {
+        const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        if (this._lastMessageByIndex.get(i0) !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.pushMessage(baselineMsg, i0);
+          console.log('[setSelectionMessage] Sticky single baseline (pre-release)', { i0, baselineMsg });
+        }
+        return;
+      }
+  
+      // --- Queue normal path (cancellable) ---
+      const token = ++this._msgTokenCounter;
+      if (!this._pendingMsgTokens) this._pendingMsgTokens = new Map<number, number>();
+      this._pendingMsgTokens.set(i0, token);
   
       queueMicrotask(() => {
-        // Bail if canceled by releaseBaseline
-        if (this._pendingMsgTokens.get(i0) !== tok) {
-          console.log('[setSelectionMessage] Microtask canceled → skip Q', i0);
+        // Abort if releaseBaseline already nuked this token
+        if (this._pendingMsgTokens.get(i0) !== token) {
+          console.log('[setSelectionMessage] Skipped stale microtask after releaseBaseline', { i0, token });
           return;
         }
   
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
+  
+        // Avoid duplicates
         if (this._lastMessageByIndex.get(i0) === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
+        console.log('[setSelectionMessage] Queued normal message', { i0, finalMsg });
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
