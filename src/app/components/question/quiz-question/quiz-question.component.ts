@@ -72,18 +72,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Output() answerSelected = new EventEmitter<boolean>();
   @Output() optionSelected = new EventEmitter<SelectedOption>();
   @Output() displayStateChange = new EventEmitter<{
-    mode: 'question' | 'explanation';
-    answered: boolean;
+    mode: 'question' | 'explanation',
+    answered: boolean
   }>();
   @Output() feedbackApplied = new EventEmitter<number>();
   @Output() nextButtonState = new EventEmitter<boolean>();
   @Output() questionAndOptionsReady = new EventEmitter<void>();
 
   @Input() data: {
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    options: Option[];
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
+    options: Option[]
   };
   @Input() questionData!: QuizQuestion;
   @Input() question!: QuizQuestion;
