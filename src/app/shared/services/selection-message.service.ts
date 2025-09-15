@@ -1811,6 +1811,15 @@ export class SelectionMessageService {
   
     // Cancel any queued microtask for this index
     this._pendingMsgTokens.set(index, -1);
+  
+    // Guard: clear stale START/CONTINUE if it was just set
+    queueMicrotask(() => {
+      const lastMsg = this._lastMessageByIndex.get(index);
+      if (lastMsg === START_MSG || lastMsg === CONTINUE_MSG) {
+        console.log('[releaseBaseline Guard] Clearing stale baseline for', index, lastMsg);
+        this._lastMessageByIndex.delete(index);
+      }
+    });
   }
 
   public hasBaselineReleased(i0: number): boolean {
