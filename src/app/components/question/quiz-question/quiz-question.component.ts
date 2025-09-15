@@ -2991,7 +2991,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           (this.optionsToDisplay as Option[]).forEach(opt => { if (opt.selected) opt.selected = true; });
         }
       } else {
-        // RELEASE sticky baseline the first time a meaningful click happens
+        // Release sticky baseline the first time a meaningful click happens
         this.selectionMessageService.releaseBaseline(i0);
     
         if (q?.type === QuestionType.SingleAnswer) {
