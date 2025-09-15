@@ -1728,7 +1728,7 @@ export class SelectionMessageService {
   public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
   
-    // Safely grab qType and snapshot info
+    // Safely grab qType + snapshot info
     const qType: QuestionType | undefined =
       (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
@@ -1736,14 +1736,38 @@ export class SelectionMessageService {
     const selectedCorrect = this.optionsSnapshot?.filter(o => o.selected && o.correct).length ?? 0;
     const selectedWrong = this.optionsSnapshot?.filter(o => o.selected && !o.correct).length ?? 0;
   
-    // ───────── ENFORCE BASELINE UNTIL RELEASED ─────────
-    if (!this._baselineReleased?.has(i0)) {
-      if (qType === QuestionType.MultipleAnswer) {
+    // ───────── Multi-answer baseline guard ─────────
+    if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+      if (!this._baselineReleased.has(i0)) {
+        // Only force baseline if baseline not released yet
         newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        console.log('[pushMessage] Sticky multi baseline (not released)', { i0, newMsg });
-      } else if (qType === QuestionType.SingleAnswer) {
+        console.log('[pushMessage Guard] Sticky multi baseline (pre-release)', { i0, newMsg });
+      } else {
+        // After baseline released → never regress to CONTINUE_MSG
+        if (newMsg === CONTINUE_MSG) {
+          console.log('[pushMessage Guard] Skipped regressing to CONTINUE_MSG (multi)', { i0 });
+          return;
+        }
+      }
+    }
+  
+    // ───────── Single-answer baseline guard ─────────
+    if (
+      qType === QuestionType.SingleAnswer &&
+      selectedCorrect === 0 &&
+      selectedWrong === 0 &&
+      !this._singleAnswerCorrectLock.has(i0) &&
+      !this._singleAnswerIncorrectLock.has(i0)
+    ) {
+      if (!this._baselineReleased.has(i0)) {
         newMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-        console.log('[pushMessage] Sticky single baseline (not released)', { i0, newMsg });
+        console.log('[pushMessage Guard] Sticky single baseline (pre-release)', { i0, newMsg });
+      } else {
+        // After baseline released → don’t let a stale CONTINUE/START override
+        if (newMsg === START_MSG || newMsg === CONTINUE_MSG) {
+          console.log('[pushMessage Guard] Skipped stale baseline after release (single)', { i0, newMsg });
+          return;
+        }
       }
     }
   
@@ -1761,9 +1785,6 @@ export class SelectionMessageService {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
   }
-  
-  
-
 
   // Build message on click (correct wording and logic)
   public buildMessageFromSelection(params: {
