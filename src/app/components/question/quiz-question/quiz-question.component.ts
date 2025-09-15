@@ -3061,43 +3061,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      // 🛡️🧱 STICKY MESSAGE GUARDS — block fallbacks/flashes
-      // Multi-answer: if 0 correct selected, force baseline and bail BEFORE any recompute
-      if (q?.type === QuestionType.MultipleAnswer) {
-        const totalCorrectMA = canonicalOpts.filter(o => !!o.correct).length;
-        const selectedCorrectMA = canonicalOpts.filter(o => o.selected && o.correct).length;
-  
-        if (selectedCorrectMA === 0) {
-          const baselineMsg = `Select ${totalCorrectMA} correct answer${totalCorrectMA > 1 ? 's' : ''} to continue...`;
-          const prev = this.selectionMessageService._lastMessageByIndex.get(i0);
-          if (prev !== baselineMsg) {
-            console.log('[onOptionClicked Guard] Forcing multi baseline (blocking fallback)', { i0, baselineMsg });
-            this.selectionMessageService._lastMessageByIndex.set(i0, baselineMsg);
-            this.selectionMessageService.pushMessage(baselineMsg, i0);
-          }
-          // Keep snapshot in sync so future recomputes are stable
-          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-          return; // 🚫 no setSelectionMessage call → no flash
-        }
-      }
-  
-      // Single-answer: if nothing selected yet, force START/CONTINUE and bail
-      if (q?.type === QuestionType.SingleAnswer) {
-        const sc = canonicalOpts.filter(o => o.selected && o.correct).length;
-        const sw = canonicalOpts.filter(o => o.selected && !o.correct).length;
-        if (sc === 0 && sw === 0) {
-          const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
-          const prev = this.selectionMessageService._lastMessageByIndex.get(i0);
-          if (prev !== baselineMsg) {
-            console.log('[onOptionClicked Guard] Forcing single baseline (blocking fallback)', { i0, baselineMsg });
-            this.selectionMessageService._lastMessageByIndex.set(i0, baselineMsg);
-            this.selectionMessageService.pushMessage(baselineMsg, i0);
-          }
-          this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-          return; // 🚫 no setSelectionMessage call → no flash
-        }
-      }
-  
       // Immediate feedback sync (prevents icon delay when selecting multiple options)
       const selOptsSetImmediate = new Set(
         (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
