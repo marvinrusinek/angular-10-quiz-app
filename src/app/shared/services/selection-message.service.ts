@@ -79,6 +79,12 @@ export class SelectionMessageService {
   public _baselineReleased = new Set<number>();
   private _msgRAF: number | null = null;
 
+  // Track pending microtask tokens so we can cancel them
+  private _pendingMsgTokens = new Map<number, number>();
+
+  // Incremental counter for unique tokens
+  private _msgTokenCounter = 0;
+
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
