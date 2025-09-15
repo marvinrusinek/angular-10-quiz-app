@@ -17,9 +17,9 @@ const buildRemainingMsg = (remaining: number) =>
   `Select ${remaining} more correct answer${ remaining === 1 ? '' : 's' } to continue...`;
 
 interface OptionSnapshot {
-  id: number | string;
-  selected: boolean;
-  correct?: boolean;
+  id: number | string,
+  selected: boolean,
+  correct?: boolean
 }
 
 @Injectable({ providedIn: 'root' })
@@ -1701,10 +1701,15 @@ export class SelectionMessageService {
     return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
   }
 
+  // ───────── RELEASE STICKY BASELINE LOCK ─────────
   public releaseBaseline(index: number): void {
+    if (!this._baselineReleased) {
+      this._baselineReleased = new Set<number>();
+    }
+
     if (!this._baselineReleased.has(index)) {
       this._baselineReleased.add(index);
-      console.log('[SelectionMessageService] Baseline released', { index });
+      console.log('[releaseBaseline] Baseline released for question', index);
     }
   }
 
