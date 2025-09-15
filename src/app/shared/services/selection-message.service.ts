@@ -1786,19 +1786,36 @@ export class SelectionMessageService {
   }
 
   public enforceBaselineAtInit(i0: number, qType: QuestionType, totalCorrect: number): void {
+    // Only enforce if baseline not already released by a click
     if (!this._baselineReleased.has(i0)) {
-      let baselineMsg: string;
+      let baselineMsg: string | null = null;
+  
       if (qType === QuestionType.MultipleAnswer) {
         baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-      } else {
+  
+        // Mark multi-answer as pre-lock
+        this._multiAnswerPreLock.add(i0);
+        this._multiAnswerInProgressLock.delete(i0);
+        this._multiAnswerCompletionLock.delete(i0);
+      } 
+      else if (qType === QuestionType.SingleAnswer) {
         baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
       }
-      this._lastMessageByIndex.set(i0, baselineMsg);
-      this.selectionMessageSubject.next(baselineMsg);
-      console.log('[enforceBaselineAtInit] Baseline set immediately', { i0, baselineMsg });
+  
+      if (baselineMsg) {
+        const prev = this._lastMessageByIndex.get(i0);
+        if (prev !== baselineMsg) {
+          this._lastMessageByIndex.set(i0, baselineMsg);
+          this.selectionMessageSubject.next(baselineMsg);
+          console.log('[enforceBaselineAtInit] Baseline set immediately', { i0, baselineMsg });
+        } else {
+          console.log('[enforceBaselineAtInit] Skipped duplicate baseline', { i0, baselineMsg });
+        }
+      }
+    } else {
+      console.log('[enforceBaselineAtInit] Skipped — baseline already released by user action', { i0 });
     }
   }
-  
 
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
@@ -2044,30 +2061,41 @@ export class SelectionMessageService {
         (this.quizService.questions?.[i0]?.type as QuestionType | undefined) ?? undefined;
   
       const totalCorrect = this.optionsSnapshot.filter(o => !!o.correct).length;
+      const selectedCorrect = this.optionsSnapshot.filter(o => o.selected && o.correct).length;
+      const selectedWrong = this.optionsSnapshot.filter(o => o.selected && !o.correct).length;
   
-      // ───────── STICKY BASELINE GUARD ─────────
-      if (!this.hasBaselineReleased(i0)) {
-        const baselineMsg =
-          qType === QuestionType.MultipleAnswer
-            ? `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`
-            : i0 === 0
-              ? START_MSG
-              : CONTINUE_MSG;
+      // 🛡️ HARD BASELINE GUARD: If baseline enforced & not released yet → bail out
+      if (!this._baselineReleased.has(i0)) {
+        let baselineMsg: string | null = null;
   
-        const prev = this._lastMessageByIndex.get(i0);
-        if (prev !== baselineMsg) {
-          console.log('[setSelectionMessage] Forced baseline', { i0, baselineMsg });
-          this._lastMessageByIndex.set(i0, baselineMsg);
-          this.pushMessage(baselineMsg, i0);
+        if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+          baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
         }
-        return; // 🚫 NO fallthrough → no flicker
+        else if (
+          qType === QuestionType.SingleAnswer &&
+          selectedCorrect === 0 &&
+          selectedWrong === 0 &&
+          !this._singleAnswerCorrectLock.has(i0) &&
+          !this._singleAnswerIncorrectLock.has(i0)
+        ) {
+          baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
+        }
+  
+        if (baselineMsg) {
+          const prev = this._lastMessageByIndex.get(i0);
+          if (prev !== baselineMsg) {
+            this._lastMessageByIndex.set(i0, baselineMsg);
+            this.pushMessage(baselineMsg, i0);
+            console.log('[setSelectionMessage] Baseline enforced (no override)', { i0, baselineMsg });
+          }
+          return; // 🚨 bail — don’t call determineSelectionMessage → prevents flash
+        }
       }
   
-      // ───────── Normal path after release ─────────
+      // ───────── Normal path ─────────
       queueMicrotask(() => {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
-        const prev = this._lastMessageByIndex.get(i0);
-        if (prev === finalMsg) return;
+        if (this._lastMessageByIndex.get(i0) === finalMsg) return;
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
@@ -2076,7 +2104,6 @@ export class SelectionMessageService {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
   
   
   
