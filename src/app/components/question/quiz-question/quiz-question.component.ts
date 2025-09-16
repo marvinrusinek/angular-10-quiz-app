@@ -3174,7 +3174,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._clickGate = false; 
         if (q?.type === QuestionType.SingleAnswer) {
           console.log('[QQC finally] forcing setSelectionMessage call (single-answer only)');
-          this.selectionMessageService.setSelectionMessage(false);
+          this.selectionMessageService.setSelectionMessage(true);
         }
       });
     }
