@@ -284,8 +284,6 @@ export class QuizNavigationService {
     // Reset locks for the current question before moving on
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
 
-    // await this.selectionMessageService.setSelectionMessage(false);
-
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
       console.warn('[⚠️ Already on route – forcing reload]', {
