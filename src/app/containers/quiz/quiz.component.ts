@@ -3452,7 +3452,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.updateQuestionStateAndExplanation(this.currentQuestionIndex);
   }
 
-  // REMOVE!!
   private async fetchAndSetQuestionData(
     questionIndex: number
   ): Promise<boolean> {
@@ -3485,7 +3484,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetQuestionState();
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
+  
+      // Clear old selection message to avoid stale text
       this.selectionMessageService.updateSelectionMessage('');
+  
       this.resetComplete = false;
   
       // ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─-
@@ -3633,7 +3635,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        // Not answered yet: show the correct selection message and start timer
+        // Not answered yet: release baseline and compute the initial selection message once
+        this.selectionMessageService.releaseBaseline(questionIndex);
         await this.selectionMessageService.setSelectionMessage(false);
   
         this.timerService.startTimer(this.timerService.timePerQuestion);
@@ -3669,6 +3672,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   }
+  
 
   private async fetchQuestionDetails(
     questionIndex: number
