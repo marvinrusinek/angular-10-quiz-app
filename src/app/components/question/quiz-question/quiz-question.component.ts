@@ -3520,8 +3520,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
       // Then wait a frame to ensure the rendered list reflects the latest flags
-      requestAnimationFrame(async () => {
-        // Recompute from the UPDATED array the UI renders
+      requestAnimationFrame(() => {
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
           : this.currentQuestion?.options) as Option[] || [];
@@ -3529,11 +3528,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
   
-        // Instead of manual compute + update, use the guarded pipeline
-        await this.selectionMessageService.setSelectionMessage(this.isAnswered);
+        // 🚫 Do not call setSelectionMessage here — already handled elsewhere
       });
     });
   }
+  
 
   private async finalizeAfterClick(
     option: SelectedOption,
