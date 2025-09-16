@@ -605,18 +605,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Baseline message recompute, now that options are known
         if (this.optionsToDisplay && this.optionsToDisplay.length > 0) {
-          // Release baseline immediately, before recomputing
+          // Release baseline immediately
           this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
         
-          queueMicrotask(async () => {
-            console.log(
-              '[QQC] Baseline selection message recompute',
-              this.currentQuestionIndex,
-              this.currentQuestion?.type,
-              this.optionsToDisplay?.length
-            );
-            await this.selectionMessageService.setSelectionMessage(false);
-          });
+          // No need to call setSelectionMessage(false) again here —
+          // fetchAndSetQuestionData already did the initial compute.
+          console.log(
+            '[QQC] Baseline released only',
+            this.currentQuestionIndex,
+            this.currentQuestion?.type,
+            this.optionsToDisplay?.length
+          );
         }
 
         // Finalize rendering state after one microtask delay
