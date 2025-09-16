@@ -2240,19 +2240,4 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.generateOptionBindings();
     this.cdRef.detectChanges();
   }
-
-  private scheduleMsg(ctx: { index: number; questionType: QuestionType; options: Option[] }) {
-    this._msgPending = ctx;
-    if (this._msgRafId !== null) return;  // already scheduled this frame
-  
-    // Defer to next microtask and animation frame so selection is settled
-    queueMicrotask(() => {
-      this._msgRafId = requestAnimationFrame(() => {
-        const p = this._msgPending!;
-        this._msgPending = null;
-        this._msgRafId = null;
-        this.selectionMessageService.updateSelectionMessage('compute', p);
-      });
-    });
-  }
 }
