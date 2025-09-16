@@ -24,7 +24,6 @@ import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
   private quizQuestionComponent!: QuizQuestionComponent;
