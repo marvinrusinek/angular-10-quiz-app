@@ -3528,11 +3528,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
   
-        // 🚫 Do not call setSelectionMessage here — already handled elsewhere
+        // Do not call setSelectionMessage here — already handled elsewhere
       });
     });
   }
-  
 
   private async finalizeAfterClick(
     option: SelectedOption,
