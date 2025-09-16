@@ -84,6 +84,7 @@ export class SelectionMessageService {
 
   // Incremental counter for unique tokens
   private _msgTokenCounter = 0;
+  private _setMsgCounter = 0;
 
   constructor(
     private quizService: QuizService,
@@ -2129,7 +2130,12 @@ export class SelectionMessageService {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-      console.log('[TRACE setSelectionMessage]', { index: i0, isAnswered, stack: new Error().stack });
+      this._setMsgCounter++;
+      console.log(
+        `[TRACE setSelectionMessage #${this._setMsgCounter}] Q${i0} isAnswered=${isAnswered}`,
+        new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
+      );
+      
 
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
