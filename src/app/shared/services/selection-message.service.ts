@@ -2251,6 +2251,9 @@ export class SelectionMessageService {
 
   public clearSelectionMessage(): void {
     try {
+      const i0 = this.quizService.currentQuestionIndex;
+      console.log('[TRACE clearSelectionMessage] clearing message for Q' + i0, 
+              new Error().stack?.split('\n').slice(1, 4));
       this.selectionMessageSubject.next('');
       this.logWrite('clearSelectionMessage', '', this.quizService.currentQuestionIndex);
       console.log('[clearSelectionMessage] cleared current message');
