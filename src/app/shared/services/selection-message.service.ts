@@ -2129,6 +2129,8 @@ export class SelectionMessageService {
     try {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
+      console.log('[TRACE setSelectionMessage]', { index: i0, isAnswered, stack: new Error().stack });
+
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
