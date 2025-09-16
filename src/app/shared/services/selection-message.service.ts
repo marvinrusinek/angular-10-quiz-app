@@ -2165,10 +2165,14 @@ export class SelectionMessageService {
         new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
       );
 
-      // Block duplicate baseline until explicitly released
+      // Ignore stray "false" calls until baseline has been seeded by forceBaseline()
       if (!this._baselineReleased.has(i0) && isAnswered === false) {
-        console.log('[setSelectionMessage] Early call ignored (baseline already seeded)', { i0 });
-        return;
+        const lastMsg = this._lastMessageByIndex.get(i0);
+        if (lastMsg) {
+          console.log('[setSelectionMessage] Duplicate pre-release call ignored', { i0, lastMsg });
+          return;
+        }
+        // else: no lastMsg → allow this first one through (the seed)
       }
   
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
