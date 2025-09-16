@@ -933,8 +933,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Selection message / next-button logic
     try {
       setTimeout(async () => {
-        await this.setSelectionMessage(true);
-        this.nextButtonStateService.evaluateNextButtonState(
+          this.nextButtonStateService.evaluateNextButtonState(
           this.selectedOptionService.isAnsweredSubject.getValue(),
           this.quizStateService.isLoadingSubject.getValue(),
           this.quizStateService.isNavigatingSubject.getValue()
