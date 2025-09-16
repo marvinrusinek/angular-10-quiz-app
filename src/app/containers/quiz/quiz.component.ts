@@ -3484,10 +3484,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.resetQuestionState();
       this.resetQuestionDisplayState();
       this.explanationTextService.resetExplanationState();
-  
-      // Clear old selection message to avoid stale text
-      this.selectionMessageService.clearSelectionMessage?.();
-  
+
+      // Clear old selection message (do not recompute, just wipe it)
+      this.selectionMessageService.clearSelectionMessage();
+
       this.resetComplete = false;
   
       // ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─-
