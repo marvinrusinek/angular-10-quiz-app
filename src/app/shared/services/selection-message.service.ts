@@ -2263,42 +2263,32 @@ export class SelectionMessageService {
     message?: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
-    this._updateMsgCounter++;
-    console.log(
-      `[TRACE updateSelectionMessage #${this._updateMsgCounter}] message="${message}"`,
-      new Error().stack?.split('\n').slice(1, 4)
-    );
-    
     try {
+      if (!message || message.trim() === '') {
+        console.log('[updateSelectionMessage] skipped empty input');
+        return; // 🚫 don’t recompute baseline here
+      }
+  
       const i0 = ctx?.index ?? this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
-  
-      // Always recompute (currently hard-coded false)
       const msg = this.determineSelectionMessage(i0, total, false);
-      const current = this.selectionMessageSubject.getValue();
   
-      // Debug logs
-      console.log('[updateSelectionMessage] recomputed', {
+      console.log('[TRACE updateSelectionMessage]', {
         index: i0,
-        total,
         inputMessage: message,
         recomputedMessage: msg,
-        currentMessage: current
+        currentMessage: this.selectionMessageSubject.getValue()
       });
   
-      if (msg && current !== msg) {
+      if (msg && this.selectionMessageSubject.getValue() !== msg) {
         this.selectionMessageSubject.next(msg);
-        this.logWrite('updateSelectionMessage', msg, i0);
-        console.log('[updateSelectionMessage] ✅ pushed new message', { index: i0, msg });
-      } else if (!msg) {
-        console.log('[updateSelectionMessage] ⛔ skipped (empty message)', { index: i0 });
-      } else {
-        console.log('[updateSelectionMessage] ⏸️ skipped (duplicate message)', { index: i0, msg });
+        this.logWrite?.('updateSelectionMessage', msg, i0);
       }
     } catch (err) {
       console.error('[❌ updateSelectionMessage ERROR]', err);
     }
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
