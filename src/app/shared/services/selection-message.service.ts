@@ -2141,6 +2141,10 @@ export class SelectionMessageService {
   
       // ───────── MULTI-ANSWER: baseline ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
+        console.trace('[TRACE baseline fired]', {
+          index: i0,
+          released: this._baselineReleased?.has(i0)
+        });
         if (this._baselineReleased.has(i0)) {
           // 🚦 Already released → skip baseline completely, fall through to normal path
         } else {
