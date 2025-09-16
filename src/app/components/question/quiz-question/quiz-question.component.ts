@@ -3520,10 +3520,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   handleSelectionMessageUpdate(): void {
-    const i0     = this.currentQuestionIndex;
-    const isLast = i0 === (this.totalQuestions - 1);
-    const qType  = this.currentQuestion?.type;
-  
     // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
       // Then wait a frame to ensure the rendered list reflects the latest flags
