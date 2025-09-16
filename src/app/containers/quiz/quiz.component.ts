@@ -962,7 +962,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-    this.selectionMessageService.updateSelectionMessage('');
 
     // Defensive: only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
