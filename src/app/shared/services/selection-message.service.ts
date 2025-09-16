@@ -2164,15 +2164,11 @@ export class SelectionMessageService {
         `[TRACE setSelectionMessage #${this._setMsgCounter}] Q${i0} isAnswered=${isAnswered}`,
         new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
       );
-
-      // Ignore stray "false" calls until baseline has been seeded by forceBaseline()
+  
+      // 🚦 Ignore stray "false" calls until baseline has been seeded by forceBaseline()
       if (!this._baselineReleased.has(i0) && isAnswered === false) {
-        const lastMsg = this._lastMessageByIndex.get(i0);
-        if (lastMsg) {
-          console.log('[setSelectionMessage] Duplicate pre-release call ignored', { i0, lastMsg });
-          return;
-        }
-        // else: no lastMsg → allow this first one through (the seed)
+        console.log('[setSelectionMessage] Ignored pre-release call (baseline handled separately)', { i0 });
+        return;
       }
   
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
@@ -2253,10 +2249,7 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }
-
-  
-  
+  }  
   
 
   public clearSelectionMessage(): void {
