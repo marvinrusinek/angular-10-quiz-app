@@ -3174,7 +3174,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._clickGate = false; 
         if (q?.type === QuestionType.SingleAnswer) {
           console.log('[QQC finally] forcing setSelectionMessage call (single-answer only)');
+          this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
           this.selectionMessageService.setSelectionMessage(true);
+        } else {
+          // For multi-answer → release baseline as soon as first correct is selected
+          this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+          this.selectionMessageService.setSelectionMessage(this.isAnswered);
         }
       });
     }
