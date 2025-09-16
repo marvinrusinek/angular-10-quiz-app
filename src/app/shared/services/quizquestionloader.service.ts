@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
+import {
+  BehaviorSubject,
+  firstValueFrom,
+  forkJoin,
+  lastValueFrom,
+  Observable,
+  of,
+} from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -51,14 +58,14 @@ export class QuizQuestionLoaderService {
   public hasOptionsLoaded = false;
   public shouldRenderOptions = false;
   public pendingOptions: Option[] | null = null;
-  
+
   public hasContentLoaded = false;
   public isLoading = false;
   isQuestionDisplayed = false;
   isNextButtonEnabled = false;
   isAnswered = false;
   isAnswered$: Observable<boolean>;
-  
+
   shouldRenderQuestionComponent = false;
   resetComplete = false;
 
@@ -71,19 +78,23 @@ export class QuizQuestionLoaderService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanationText$ = this.explanationTextSubject.asObservable();
 
-  private combinedQuestionDataSubject = new BehaviorSubject<CombinedQuestionDataType | null>(null);
-  public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
+  private combinedQuestionDataSubject =
+    new BehaviorSubject<CombinedQuestionDataType | null>(null);
+  public combinedQuestionData$ =
+    this.combinedQuestionDataSubject.asObservable();
 
   isButtonEnabled = false;
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  public readonly isLoading$   = new BehaviorSubject<boolean>(false);  // true while a question is being fetched
-  private currentLoadAbortCtl  = new AbortController();  // abort a stale fetch when the user clicks “Next” too fast
+  public readonly isLoading$ = new BehaviorSubject<boolean>(false); // true while a question is being fetched
+  private currentLoadAbortCtl = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
 
   private qaSubject = new BehaviorSubject<QAPayload | null>(null);
   readonly qa$ = this.qaSubject.asObservable();
 
-  readonly optionsStream$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
+  readonly optionsStream$: BehaviorSubject<Option[]> = new BehaviorSubject<
+    Option[]
+  >([]);
   options$ = this.optionsStream$.asObservable();
 
   lastQuizId: string | null = null;
@@ -114,19 +125,21 @@ export class QuizQuestionLoaderService {
       this.isLoading = true;
       this.isQuestionDisplayed = false;
       this.isNextButtonEnabled = false;
-  
+
       // ───── Reset any previous data ─────
       this.optionsToDisplay = [];
       this.explanationToDisplay = '';
       this.questionData = null;
-  
+
       // ───── Validate quizId before proceeding ─────
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
-        console.warn(`[QuizQuestionLoaderService] ❌ No quiz ID available. Cannot load question contents.`);
+        console.warn(
+          `[QuizQuestionLoaderService] ❌ No quiz ID available. Cannot load question contents.`
+        );
         return;
       }
-  
+
       // ───── Attempt to fetch question, options, and explanation in parallel ─────
       try {
         type FetchedData = {
@@ -134,13 +147,19 @@ export class QuizQuestionLoaderService {
           options: Option[] | null;
           explanation: string | null;
         };
-  
-        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
-        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+
+        const question$ = this.quizService
+          .getCurrentQuestionByIndex(quizId, questionIndex)
+          .pipe(take(1));
+        const options$ = this.quizService
+          .getCurrentOptions(questionIndex)
+          .pipe(take(1));
         const explanation$ = this.explanationTextService.explanationsInitialized
-          ? this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex).pipe(take(1))
+          ? this.explanationTextService
+              .getFormattedExplanationTextForQuestion(questionIndex)
+              .pipe(take(1))
           : of('');
-  
+
         const data: FetchedData = await lastValueFrom(
           forkJoin({
             question: question$,
@@ -148,7 +167,10 @@ export class QuizQuestionLoaderService {
             explanation: explanation$,
           }).pipe(
             catchError((error) => {
-              console.error(`[QuizQuestionLoaderService] ❌ Error in forkJoin for Q${questionIndex}:`, error);
+              console.error(
+                `[QuizQuestionLoaderService] ❌ Error in forkJoin for Q${questionIndex}:`,
+                error
+              );
               return of({
                 question: null,
                 options: [],
@@ -157,14 +179,16 @@ export class QuizQuestionLoaderService {
             })
           )
         );
-  
+
         // ───── Guard against incomplete question data ─────
         if (
           !data.question?.questionText?.trim() ||
           !Array.isArray(data.options) ||
           data.options.length === 0
         ) {
-          console.warn(`[QuizQuestionLoaderService] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`);
+          console.warn(
+            `[QuizQuestionLoaderService] ⚠️ Missing question or options for Q${questionIndex}. Aborting render.`
+          );
           this.isLoading = false;
           return;
         }
@@ -175,37 +199,48 @@ export class QuizQuestionLoaderService {
         this.explanationTextService.setExplanationText('');
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.quizStateService.setDisplayState({ mode: 'question', answered: false }); */
-  
+
         // ───── Generate feedback message for current question ─────
         const correctOptions = data.options.filter((opt) => opt.correct);
-        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(correctOptions, data.options);
-  
+        const feedbackMessage = this.feedbackService.generateFeedbackForOptions(
+          correctOptions,
+          data.options
+        );
+
         // ───── Apply feedback to each option ─────
         const updatedOptions = data.options.map((opt) => ({
           ...opt,
           feedback: feedbackMessage,
         }));
-  
+
         // ───── Apply loaded values to local state ─────
         this.optionsToDisplay = [...updatedOptions];
         this.optionsToDisplay$.next(this.optionsToDisplay);
         this.hasOptionsLoaded = true;
-  
+
         this.questionData = data.question ?? ({} as QuizQuestion);
         this.explanationToDisplay = data.explanation ?? '';
         this.isQuestionDisplayed = true;
-  
-        console.log('[🧪 loadQuestionContents] optionsToDisplay assigned:', this.optionsToDisplay);
-  
+
+        console.log(
+          '[🧪 loadQuestionContents] optionsToDisplay assigned:',
+          this.optionsToDisplay
+        );
+
         // ───── Final loading flag ─────
         this.isLoading = false;
-  
       } catch (error) {
-        console.error(`[QuizQuestionLoaderService] ❌ Error loading question contents for Q${questionIndex}:`, error);
+        console.error(
+          `[QuizQuestionLoaderService] ❌ Error loading question contents for Q${questionIndex}:`,
+          error
+        );
         this.isLoading = false;
       }
     } catch (error) {
-      console.error(`[QuizQuestionLoaderService] ❌ Unexpected outer error:`, error);
+      console.error(
+        `[QuizQuestionLoaderService] ❌ Unexpected outer error:`,
+        error
+      );
       this.isLoading = false;
       // Optional: trigger UI update manually if using ChangeDetectionStrategy.OnPush
       // this.cdRef.detectChanges();
@@ -216,7 +251,9 @@ export class QuizQuestionLoaderService {
   // heading and list paint in the same change-detection pass (no flicker).
   async loadQuestionAndOptions(index: number): Promise<boolean> {
     // quizId & cache handling
-    if (!this.ensureRouteQuizId()) { return false; }
+    if (!this.ensureRouteQuizId()) {
+      return false;
+    }
 
     // Index Validation and Count Fetch
     const isCountValid = await this.ensureQuestionCount();
@@ -232,19 +269,20 @@ export class QuizQuestionLoaderService {
 
     // Fetch question and options for this quiz
     const { q, opts } = await this.fetchQuestionAndOptions(index);
-    if (!q || !opts.length) { return false; }
+    if (!q || !opts.length) {
+      return false;
+    }
 
     // Clone options and hydrate State
     const cloned = this.hydrateAndClone(opts);
-    this.currentQuestion  = { ...q, options: cloned };
+    this.currentQuestion = { ...q, options: cloned };
     this.optionsToDisplay = [...cloned];
     this.optionBindingsSrc = [...cloned];
-    
+
     this.currentQuestionIndex = index;
 
     // Explanation fallback
-    const explanation =
-      q.explanation?.trim() || 'No explanation available';
+    const explanation = q.explanation?.trim() || 'No explanation available';
 
     // Emit to observers downstream
     this.emitQaPayload(q, cloned, index, explanation);
@@ -259,20 +297,26 @@ export class QuizQuestionLoaderService {
   private ensureRouteQuizId(): boolean {
     const routeId =
       this.router.routerState.snapshot.root.firstChild?.params['quizId'];
-    if (!routeId) { console.error('[Loader] No quizId'); return false; }
-
-    if (routeId !== this.lastQuizId) {  // quiz switch
-      this.questionsArray = [];
-      this.lastQuizId     = routeId;
+    if (!routeId) {
+      console.error('[Loader] No quizId');
+      return false;
     }
-    this.activeQuizId       = routeId;
+
+    if (routeId !== this.lastQuizId) {
+      // quiz switch
+      this.questionsArray = [];
+      this.lastQuizId = routeId;
+    }
+    this.activeQuizId = routeId;
     this.quizService.quizId = routeId;
     return true;
   }
 
   // Fetch quiz length once per quiz
   private async ensureQuestionCount(): Promise<boolean> {
-    if (this.totalQuestions) { return true; }
+    if (this.totalQuestions) {
+      return true;
+    }
     const qs = await firstValueFrom(
       this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
     );
@@ -284,7 +328,9 @@ export class QuizQuestionLoaderService {
   // Bounds check
   private validateIndex(i: number): boolean {
     const ok = Number.isInteger(i) && i >= 0 && i < this.totalQuestions;
-    if (!ok) { console.warn('[Loader] bad index', i); }
+    if (!ok) {
+      console.warn('[Loader] bad index', i);
+    }
     return ok;
   }
 
@@ -294,7 +340,7 @@ export class QuizQuestionLoaderService {
   private async resetUiForNewQuestion(index: number): Promise<void> {
     // Parent-level reset
     this.resetQuestionState();
-    
+
     // Child component reset
     if (this.quizQuestionComponent) {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
@@ -304,18 +350,19 @@ export class QuizQuestionLoaderService {
     this.clearQA();
 
     // Per-question flags
-    this.questionTextLoaded  = false;
-    this.hasOptionsLoaded    = false;
+    this.questionTextLoaded = false;
+    this.hasOptionsLoaded = false;
     this.shouldRenderOptions = false;
-    this.isLoading           = true;
+    this.isLoading = true;
 
     // Explanation / selection messages
     this.explanationTextService.resetExplanationState();
-    this.selectionMessageService.updateSelectionMessage('');
+    // 🧹 Clear only — don’t recompute baseline here.
+    this.selectionMessageService.clearSelectionMessage();
     this.resetComplete = false;
 
     // Force a small delay so the DOM can repaint
-    await new Promise(res => setTimeout(res, 30));
+    await new Promise((res) => setTimeout(res, 30));
 
     // If the previous question was answered, update guards
     if (this.selectedOptionService.isQuestionAnswered(index)) {
@@ -328,7 +375,6 @@ export class QuizQuestionLoaderService {
   private async fetchQuestionAndOptions(
     index: number
   ): Promise<{ q: QuizQuestion | null; opts: Option[] }> {
-  
     // Which quiz is in the URL right now?
     const quizId =
       this.router.routerState.snapshot.root.firstChild?.params['quizId'];
@@ -336,34 +382,37 @@ export class QuizQuestionLoaderService {
       console.error('[Loader] ❌ No quizId in route');
       return { q: null, opts: [] };
     }
-  
+
     // Reset cache if user switched quizzes
     if (quizId !== this.lastQuizId) {
-      this.questionsArray = [];  // discard stale TypeScript list
-      this.lastQuizId     = quizId;
+      this.questionsArray = []; // discard stale TypeScript list
+      this.lastQuizId = quizId;
     }
-  
+
     // Re-fetch if cache empty
     if (this.questionsArray.length === 0) {
       this.questionsArray = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(quizId)
       );
     }
-  
+
     // Keep other services in sync
-    this.activeQuizId       = quizId;
+    this.activeQuizId = quizId;
     this.quizService.quizId = quizId;
-  
+
     // Hydrate the full quiz so downstream code has metadata
     const fullQuiz: Quiz = await firstValueFrom(
       this.quizDataService.getQuiz(quizId).pipe(take(1))
     );
-    this.quizService.setCurrentQuiz({ ...fullQuiz, questions: this.questionsArray });
-  
+    this.quizService.setCurrentQuiz({
+      ...fullQuiz,
+      questions: this.questionsArray,
+    });
+
     // Return the requested question + options
     const q = this.questionsArray[index] ?? null;
     const opts = q?.options ?? [];
-  
+
     return { q, opts };
   }
 
@@ -372,30 +421,29 @@ export class QuizQuestionLoaderService {
     const hydrated = opts.map((o, i) => ({
       ...o,
       optionId: o.optionId ?? i,
-      correct : !!o.correct ?? false,
-      feedback : o.feedback ?? '',
+      correct: !!o.correct ?? false,
+      feedback: o.feedback ?? '',
       selected: false,
       highlight: false,
-      showIcon: false
+      showIcon: false,
     }));
 
     const active = this.quizService.assignOptionActiveStates(hydrated, false);
 
     return typeof structuredClone === 'function'
-          ? structuredClone(active)
-          : JSON.parse(JSON.stringify(active));
+      ? structuredClone(active)
+      : JSON.parse(JSON.stringify(active));
   }
 
-  // Push options and heading downstream 
-  // Emits heading, options, and explanation through the BehaviourSubjects and 
+  // Push options and heading downstream
+  // Emits heading, options, and explanation through the BehaviourSubjects and
   // updates every downstream service in one place.
   private emitQaPayload(
-    question   : QuizQuestion,
-    options    : Option[],
-    index      : number,
+    question: QuizQuestion,
+    options: Option[],
+    index: number,
     explanation: string
   ): void {
-
     // Streams for the template
     this.optionsStream$.next([...options]);
     this.qaSubject.next({
@@ -405,7 +453,7 @@ export class QuizQuestionLoaderService {
       options: [...options],
       explanation,
       question,
-      selectionMessage: this.selectionMessageService.getCurrentMessage()
+      selectionMessage: this.selectionMessageService.getCurrentMessage(),
     });
 
     // State shared across services/components
@@ -422,8 +470,11 @@ export class QuizQuestionLoaderService {
     this.quizStateService.updateCurrentQuestion(question);
 
     // Broadcast QA for any external listener (progressbar, etc.)
-    const selMsg = this.selectionMessageService
-      .determineSelectionMessage(index, this.totalQuestions, false);
+    const selMsg = this.selectionMessageService.determineSelectionMessage(
+      index,
+      this.totalQuestions,
+      false
+    );
     this.quizStateService.emitQA(
       question,
       options,
@@ -441,7 +492,6 @@ export class QuizQuestionLoaderService {
     opts: Option[],
     idx: number
   ): Promise<void> {
-
     // Explanation text and timers
     const isAnswered = this.selectedOptionService.isQuestionAnswered(idx);
 
@@ -451,14 +501,15 @@ export class QuizQuestionLoaderService {
 
     let explanationText = '';
     if (isAnswered) {
-      explanationText =
-        q.explanation?.trim() || 'No explanation available';
-      this.explanationTextService
-          .setExplanationTextForQuestionIndex(idx, explanationText);
+      explanationText = q.explanation?.trim() || 'No explanation available';
+      this.explanationTextService.setExplanationTextForQuestionIndex(
+        idx,
+        explanationText
+      );
 
       this.quizStateService.setDisplayState({
         mode: 'explanation',
-        answered: true
+        answered: true,
       });
       this.timerService.isTimerRunning = false;
     } else {
@@ -466,19 +517,15 @@ export class QuizQuestionLoaderService {
     }
 
     // Down-stream state updates
-    this.setQuestionDetails(
-      q.questionText.trim(),
-      opts,
-      explanationText
-    );
+    this.setQuestionDetails(q.questionText.trim(), opts, explanationText);
 
     this.currentQuestionIndex = idx;
     this.explanationToDisplay = explanationText;
 
     this.questionPayload = {
-      question   : { ...q, options: opts },
-      options    : opts,
-      explanation: explanationText
+      question: { ...q, options: opts },
+      options: opts,
+      explanation: explanationText,
     };
     this.shouldRenderQuestionComponent = true;
     this.questionPayloadReadySource.next(true);
@@ -488,15 +535,18 @@ export class QuizQuestionLoaderService {
     this.quizStateService.updateCurrentQuestion({ ...q, options: opts });
 
     if (q.questionText && opts.length) {
-      const selMsg = this.selectionMessageService
-        .determineSelectionMessage(idx, this.totalQuestions, false);
+      const selMsg = this.selectionMessageService.determineSelectionMessage(
+        idx,
+        this.totalQuestions,
+        false
+      );
 
       this.quizStateService.emitQA(
-        { ...q, options: opts },   // question object
-        opts,                      // options list
-        selMsg,                    // selection message
-        this.quizService.quizId!,  // quiz id (non-null assertion)
-        idx                        // question index
+        { ...q, options: opts }, // question object
+        opts, // options list
+        selMsg, // selection message
+        this.quizService.quizId!, // quiz id (non-null assertion)
+        idx // question index
       );
     }
 
@@ -504,10 +554,10 @@ export class QuizQuestionLoaderService {
     await this.quizService.checkIfAnsweredCorrectly();
 
     // Final flags
-    this.questionTextLoaded   = true;
-    this.hasOptionsLoaded     = true;
-    this.shouldRenderOptions  = true;
-    this.resetComplete        = true;
+    this.questionTextLoaded = true;
+    this.hasOptionsLoaded = true;
+    this.shouldRenderOptions = true;
+    this.resetComplete = true;
 
     // Final emit so late subscribers have data
     this.optionsStream$.next([...opts]);
@@ -518,8 +568,10 @@ export class QuizQuestionLoaderService {
    *  Falls back to the full async path only if the cache is missing.
    *  Keeps all validation / type-detection logic and emits QA.
    */
-  private async fetchQuestionDetails(questionIndex: number): Promise<QuizQuestion> {
-    // ── FAST-PATH  ─────────────────────────────────────────────── 
+  private async fetchQuestionDetails(
+    questionIndex: number
+  ): Promise<QuizQuestion> {
+    // ── FAST-PATH  ───────────────────────────────────────────────
     const cachedQuiz: Quiz | null = this.quizService.activeQuiz;
     if (cachedQuiz?.questions?.length) {
       const cachedQ = cachedQuiz.questions[questionIndex];
@@ -550,7 +602,9 @@ export class QuizQuestionLoaderService {
       let explanation = 'No explanation available';
       if (this.explanationTextService.explanationsInitialized) {
         const fetched = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
+          this.explanationTextService.getFormattedExplanationTextForQuestion(
+            questionIndex
+          )
         );
         explanation = fetched?.trim() || explanation;
       } else {
@@ -558,17 +612,18 @@ export class QuizQuestionLoaderService {
       }
 
       // Determine question type
-      const correctCount = options.filter(opt => opt.correct).length;
-      const type = correctCount > 1
-        ? QuestionType.MultipleAnswer
-        : QuestionType.SingleAnswer;
+      const correctCount = options.filter((opt) => opt.correct).length;
+      const type =
+        correctCount > 1
+          ? QuestionType.MultipleAnswer
+          : QuestionType.SingleAnswer;
 
       // Assemble the question object
       const question: QuizQuestion = {
-        questionText : trimmedText,
+        questionText: trimmedText,
         options,
         explanation,
-        type
+        type,
       };
 
       const quizId = this.quizService.quizId ?? 'unknown-id';
@@ -579,19 +634,22 @@ export class QuizQuestionLoaderService {
       this.qaSubject.next({
         quizId,
         index,
-        heading    : question.questionText,
-        options    : [...question.options],
+        heading: question.questionText,
+        options: [...question.options],
         explanation: question.explanation,
         question,
-        selectionMessage
+        selectionMessage,
       });
 
       // Sync type with data-service cache
       this.quizDataService.setQuestionType(question);
       return question;
     } catch (error) {
-      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
-      throw error;  // propagate to loader
+      console.error(
+        `[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`,
+        error
+      );
+      throw error; // propagate to loader
     }
   }
 
@@ -601,19 +659,24 @@ export class QuizQuestionLoaderService {
     explanationText: string
   ): void {
     // Use fallback if question text is empty
-    this.questionToDisplay = questionText?.trim() || 'No question text available';
-  
+    this.questionToDisplay =
+      questionText?.trim() || 'No question text available';
+
     // Ensure options are a valid array
     this.optionsToDisplay = Array.isArray(options) ? options : [];
-  
+
     // Set explanation fallback
-    this.explanationToDisplay = explanationText?.trim() || 'No explanation available';
-  
+    this.explanationToDisplay =
+      explanationText?.trim() || 'No explanation available';
+
     // Emit latest values to any subscribers (template/UI)
     this.questionTextSubject.next(this.questionToDisplay);
     this.explanationTextSubject.next(this.explanationToDisplay);
 
-    if (!this.explanationToDisplay || this.explanationToDisplay === 'No explanation available') {
+    if (
+      !this.explanationToDisplay ||
+      this.explanationToDisplay === 'No explanation available'
+    ) {
       console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
     }
   }
@@ -624,7 +687,7 @@ export class QuizQuestionLoaderService {
     this.question = null;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
-  
+
     // Reset question component state only if method exists
     if (this.quizQuestionComponent) {
       if (typeof this.quizQuestionComponent.resetFeedback === 'function') {
@@ -634,22 +697,24 @@ export class QuizQuestionLoaderService {
         this.quizQuestionComponent.resetState();
       }
     } else {
-      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
+      console.warn(
+        '[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.'
+      );
     }
 
     // Reset visual selection state
     this.showFeedbackForOption = {};
-  
+
     // Background reset
     this.resetBackgroundService.setShouldResetBackground(true);
-  
+
     // Trigger global reset events
     this.resetStateService.triggerResetFeedback();
     this.resetStateService.triggerResetState();
-  
+
     // Clear selected options tracking
     this.selectedOptionService.clearOptions();
-  
+
     if (!this.explanationTextService.isExplanationLocked()) {
       this.explanationTextService.resetExplanationState();
     } else {
@@ -659,7 +724,7 @@ export class QuizQuestionLoaderService {
 
   public resetQuestionState(): void {
     // Clear local UI state
-    this.questionInitialized = false;  // block during reset
+    this.questionInitialized = false; // block during reset
     this.isAnswered = false;
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
@@ -676,14 +741,16 @@ export class QuizQuestionLoaderService {
     this.selectionMessageService['_multiAnswerInProgressLock'].clear();
     this.selectionMessageService['_multiAnswerCompletionLock'].clear();
     this.selectionMessageService['_multiAnswerPreLock']?.clear();
-  
+
     // Only reset options if current question exists
     if (this.currentQuestion?.options?.length) {
       for (const option of this.currentQuestion.options) {
         if (option.selected || option.highlight || !option.active) {
-          console.log(`[resetQuestionState] Clearing state for optionId: ${option.optionId}`);
+          console.log(
+            `[resetQuestionState] Clearing state for optionId: ${option.optionId}`
+          );
         }
-  
+
         // Reset all option UI-related flags
         option.selected = false;
         option.highlight = false;
@@ -692,9 +759,11 @@ export class QuizQuestionLoaderService {
         option.feedback = undefined;
       }
     } else {
-      console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
+      console.warn(
+        '[resetQuestionState] ⚠️ No current question options found to reset.'
+      );
     }
-  
+
     // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
@@ -705,7 +774,7 @@ export class QuizQuestionLoaderService {
     this.selectionMessageService['_singleAnswerCorrectLock'].delete(index);
     this.selectionMessageService['_multiAnswerInProgressLock'].delete(index);
     this.selectionMessageService['_multiAnswerCompletionLock'].delete(index);
-  
+
     // if you added pre-lock
     this.selectionMessageService['_multiAnswerPreLock']?.delete(index);
   }
@@ -800,27 +869,27 @@ export class QuizQuestionLoaderService {
   public async loadQA(index: number): Promise<boolean> {
     // Clear stale question and options immediately
     this.resetHeadlineStreams();
-  
+
     // Abort any in-flight request
     this.currentLoadAbortCtl.abort();
     this.currentLoadAbortCtl = new AbortController();
     this.isLoading$.next(true);
-  
+
     // Clear stale explanation so it can’t flash
     this.explanationTextService.explanationText$.next('');
-  
+
     try {
       // ─── Fetch all questions once ──────────────────────────────────
       const allQuestions = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
       );
       const q: QuizQuestion | undefined = allQuestions?.[index];
-  
+
       if (!q) {
         console.error('[loadQA] null question for Q', index);
         return false;
       }
-  
+
       // ─── Ensure we have an options array ───────────────────────────
       let opts = q.options ?? [];
       if (opts.length === 0) {
@@ -831,34 +900,40 @@ export class QuizQuestionLoaderService {
           return false;
         }
       }
-  
+
       // ─── Normalize / add fallback feedback once ───────────────────
       const finalOpts = opts.map((o, i) => ({
         ...o,
-        optionId : o.optionId ?? i,
-        active   : o.active  ?? true,
-        showIcon : !!o.showIcon,
-        selected : !!o.selected,
-        correct  : !!o.correct,
-        feedback : o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
+        optionId: o.optionId ?? i,
+        active: o.active ?? true,
+        showIcon: !!o.showIcon,
+        selected: !!o.selected,
+        correct: !!o.correct,
+        feedback:
+          o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`,
       }));
-  
+
       // ─── Synthesize the selection message ──────────────────────────
-      const msg = this.selectionMessageService
-                    .determineSelectionMessage(index, this.totalQuestions, false);
-  
+      const msg = this.selectionMessageService.determineSelectionMessage(
+        index,
+        this.totalQuestions,
+        false
+      );
+
       // ─── Clone question and attach quizId and index ────────────────
-      const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
-        ...q,
-        options: finalOpts
-      }));
-  
+      const safeQuestion: QuizQuestion = JSON.parse(
+        JSON.stringify({
+          ...q,
+          options: finalOpts,
+        })
+      );
+
       const effectiveQuizId = this.quizService.quizId;
-  
+
       // 🔥 Emit values into QuizService manually — no getNextQuestion() needed
       this.quizService.currentQuestionSource.next(safeQuestion);
       this.quizService.optionsSource.next(finalOpts);
-  
+
       // 🔥 Emit trio into state
       this.quizStateService.emitQA(
         safeQuestion,
@@ -867,7 +942,7 @@ export class QuizQuestionLoaderService {
         effectiveQuizId,
         index
       );
-  
+
       return true;
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
@@ -880,12 +955,13 @@ export class QuizQuestionLoaderService {
   }
 
   resetHeadlineStreams(): void {
-    this.questionToDisplay$.next('');  // clears question text
-    this.explanationTextService.explanationText$.next('');  // clears explanation
-    this.clearQA();  // clears question and options
-    this.quizStateService.setDisplayState({  // force “question” mode
+    this.questionToDisplay$.next(''); // clears question text
+    this.explanationTextService.explanationText$.next(''); // clears explanation
+    this.clearQA(); // clears question and options
+    this.quizStateService.setDisplayState({
+      // force “question” mode
       mode: 'question',
-      answered: false
+      answered: false,
     });
   }
 
@@ -897,7 +973,7 @@ export class QuizQuestionLoaderService {
       question: null as unknown as QuizQuestion,
       options: [],
       explanation: '',
-      selectionMessage: ''
+      selectionMessage: '',
     });
   }
 }
