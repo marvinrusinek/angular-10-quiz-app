@@ -3486,7 +3486,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.resetExplanationState();
   
       // Clear old selection message to avoid stale text
-      this.selectionMessageService.updateSelectionMessage('');
+      this.selectionMessageService.clearSelectionMessage?.();
   
       this.resetComplete = false;
   
@@ -3635,9 +3635,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
         this.timerService.isTimerRunning = false;
       } else {
-        // Not answered yet: release baseline and compute the initial selection message once
-        this.selectionMessageService.releaseBaseline(questionIndex);
-        await this.selectionMessageService.setSelectionMessage(false);
+        // Not answered yet: force baseline selection message exactly once
+        this.selectionMessageService.forceBaseline(questionIndex);
   
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
