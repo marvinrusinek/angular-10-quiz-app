@@ -3536,7 +3536,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
   
-        // 🚦 Instead of manual compute + update, use the guarded pipeline
+        // Instead of manual compute + update, use the guarded pipeline
         await this.selectionMessageService.setSelectionMessage(this.isAnswered);
       });
     });
