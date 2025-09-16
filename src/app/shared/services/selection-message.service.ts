@@ -1894,6 +1894,33 @@ export class SelectionMessageService {
     }
   }
 
+  public forceBaseline(index: number): void {
+    try {
+      const total = this.quizService.totalQuestions;
+  
+      // Reset any pending state
+      this._pendingMsgTokens?.set(index, -1);
+  
+      // Mark baseline as released for this index
+      this.releaseBaseline(index);
+  
+      // Compute the correct initial baseline message
+      const msg = this.determineSelectionMessage(index, total, false);
+  
+      // Push only if changed
+      const current = this.selectionMessageSubject.getValue();
+      if (msg && current !== msg) {
+        this.selectionMessageSubject.next(msg);
+        console.log('[forceBaseline] pushed baseline', { index, msg });
+      } else {
+        console.log('[forceBaseline] skipped duplicate', { index, msg });
+      }
+    } catch (err) {
+      console.error('[❌ forceBaseline ERROR]', err);
+    }
+  }
+  
+
   /* public async setSelectionMessage(isAnswered: boolean): Promise<void> {
     try {
       const i0 = this.quizService.currentQuestionIndex;
@@ -2227,7 +2254,12 @@ export class SelectionMessageService {
   
 
   public clearSelectionMessage(): void {
-    this.selectionMessageSubject.next('');
+    try {
+      this.selectionMessageSubject.next('');
+      console.log('[clearSelectionMessage] cleared current message');
+    } catch (err) {
+      console.error('[❌ clearSelectionMessage ERROR]', err);
+    }
   }
 
   public updateSelectionMessage(
