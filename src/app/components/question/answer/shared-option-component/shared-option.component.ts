@@ -32,10 +32,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @ViewChildren(HighlightOptionDirective)
   highlightDirectives!: QueryList<HighlightOptionDirective>;
   @Output() optionClicked = new EventEmitter<{
-    option: SelectedOption;
-    index: number;
-    checked: boolean;
-    wasReselected?: boolean;
+    option: SelectedOption,
+    index: number,
+    checked: boolean,
+    wasReselected?: boolean
   }>();
   @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
   @Output() reselectionDetected = new EventEmitter<boolean>();
