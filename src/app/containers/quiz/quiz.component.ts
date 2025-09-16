@@ -3632,7 +3632,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       } else {
         // Not answered yet: force baseline selection message exactly once
         this.selectionMessageService.forceBaseline(questionIndex);
-  
+        await this.selectionMessageService.setSelectionMessage(false);
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
   
