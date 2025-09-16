@@ -2098,7 +2098,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               const totalCorrect = q.options.filter(o => !!o.correct).length;
               // Push the baseline immediately
               this.selectionMessageService.enforceBaselineAtInit(this.currentQuestionIndex, q.type, totalCorrect);
-              // this.selectionMessageService.setSelectionMessage(false);
             }
           } else {
             console.warn('[loadQuestion] Skipped baseline recompute (no options yet)');
@@ -3091,7 +3090,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
       console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
-      await this.selectionMessageService.setSelectionMessage(false);
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
