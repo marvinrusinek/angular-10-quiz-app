@@ -2164,6 +2164,12 @@ export class SelectionMessageService {
         `[TRACE setSelectionMessage #${this._setMsgCounter}] Q${i0} isAnswered=${isAnswered}`,
         new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
       );
+
+      // Block duplicate baseline until explicitly released
+      if (!this._baselineReleased.has(i0) && isAnswered === false) {
+        console.log('[setSelectionMessage] Early call ignored (baseline already seeded)', { i0 });
+        return;
+      }
   
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
