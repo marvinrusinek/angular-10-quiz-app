@@ -2225,6 +2225,8 @@ export class SelectionMessageService {
     message?: string,
     ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
   ): void {
+    console.trace('[TRACE updateSelectionMessage caller]', { message, ctx });
+
     try {
       const i0 = ctx?.index ?? this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
