@@ -3527,7 +3527,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Wait a microtask so any selection mutations and state evals have landed
     queueMicrotask(() => {
       // Then wait a frame to ensure the rendered list reflects the latest flags
-      requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
         // Recompute from the UPDATED array the UI renders
         const optionsNow = (this.optionsToDisplay?.length
           ? this.optionsToDisplay
@@ -3536,24 +3536,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Notify the service that selection just changed (starts hold-off window)
         this.selectionMessageService.notifySelectionMutated(optionsNow);
   
-        const token = this.selectionMessageService['beginWrite']?.(i0);  // or expose a wrapper
-  
-        // Use the real lock-aware computeFinalMessage
-        const msg = this.selectionMessageService.computeFinalMessage({
-          index: i0,
-          total: this.totalQuestions,
-          qType: qType!,
-          opts: optionsNow
-        });
-  
-        // Single write—no second branch, no race
-        this.selectionMessageService.updateSelectionMessage(
-          msg,
-          { options: optionsNow, index: i0, questionType: qType, token }
-        );
+        // 🚦 Instead of manual compute + update, use the guarded pipeline
+        await this.selectionMessageService.setSelectionMessage(this.isAnswered);
       });
     });
-  }  
+  }
 
   private async finalizeAfterClick(
     option: SelectedOption,
