@@ -1911,6 +1911,7 @@ export class SelectionMessageService {
       const current = this.selectionMessageSubject.getValue();
       if (msg && current !== msg) {
         this.selectionMessageSubject.next(msg);
+        this.logWrite('clearSelectionMessage', '', this.quizService.currentQuestionIndex);
         console.log('[forceBaseline] pushed baseline', { index, msg });
       } else {
         console.log('[forceBaseline] skipped duplicate', { index, msg });
@@ -2163,8 +2164,7 @@ export class SelectionMessageService {
         `[TRACE setSelectionMessage #${this._setMsgCounter}] Q${i0} isAnswered=${isAnswered}`,
         new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
       );
-      
-
+  
       if (typeof i0 !== 'number' || isNaN(i0) || total <= 0) return;
       if (!this.optionsSnapshot || this.optionsSnapshot.length === 0) return;
   
@@ -2181,15 +2181,14 @@ export class SelectionMessageService {
           index: i0,
           released: this._baselineReleased?.has(i0)
         });
-        if (this._baselineReleased.has(i0)) {
-          // 🚦 Already released → skip baseline completely, fall through to normal path
-        } else {
+        if (!this._baselineReleased.has(i0)) {
           const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
             console.log('[setSelectionMessage] Sticky baseline (multi, pre-release)', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
+            this.logWrite?.('setSelectionMessage:baseline-multi', baselineMsg, i0);
           }
           return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
@@ -2203,15 +2202,14 @@ export class SelectionMessageService {
         !this._singleAnswerCorrectLock.has(i0) &&
         !this._singleAnswerIncorrectLock.has(i0)
       ) {
-        if (this._baselineReleased.has(i0)) {
-          // 🚦 Already released → skip baseline completely, fall through to normal path
-        } else {
+        if (!this._baselineReleased.has(i0)) {
           const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
             console.log('[setSelectionMessage] Sticky baseline (single, pre-release)', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
+            this.logWrite?.('setSelectionMessage:baseline-single', baselineMsg, i0);
           }
           return; // 🚫 bail → don’t queue normal path until releaseBaseline
         }
@@ -2219,13 +2217,11 @@ export class SelectionMessageService {
   
       // ───────── NORMAL PATH ─────────
       queueMicrotask(() => {
-        // Guard against cancelled tokens
         if (this._pendingMsgTokens?.get(i0) === -1) {
           console.log('[setSelectionMessage] Skipped microtask due to releaseBaseline cancel', { i0 });
           return;
         }
   
-        // 🚦 Drop if baseline not released → avoids flicker
         if (!this._baselineReleased.has(i0)) {
           console.log('[setSelectionMessage] Baseline not released, skipping normal path', { i0 });
           return;
@@ -2234,7 +2230,6 @@ export class SelectionMessageService {
         const finalMsg = this.determineSelectionMessage(i0, total, isAnswered);
         const lastMsg = this._lastMessageByIndex.get(i0);
   
-        // 🚦 Allow upgrade even if it looks like a duplicate (baseline → NEXT/etc.)
         if (lastMsg === finalMsg && finalMsg && !finalMsg.startsWith('Select')) {
           console.log('[setSelectionMessage] Upgrade allowed despite duplicate', { i0, finalMsg });
         } else {
@@ -2243,12 +2238,13 @@ export class SelectionMessageService {
   
         this._lastMessageByIndex.set(i0, finalMsg);
         this.pushMessage(finalMsg, i0);
+        this.logWrite?.('setSelectionMessage:normal', finalMsg, i0);
       });
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
   }
-  
+
   
   
   
@@ -2256,6 +2252,7 @@ export class SelectionMessageService {
   public clearSelectionMessage(): void {
     try {
       this.selectionMessageSubject.next('');
+      this.logWrite('clearSelectionMessage', '', this.quizService.currentQuestionIndex);
       console.log('[clearSelectionMessage] cleared current message');
     } catch (err) {
       console.error('[❌ clearSelectionMessage ERROR]', err);
@@ -2291,6 +2288,7 @@ export class SelectionMessageService {
   
       if (msg && current !== msg) {
         this.selectionMessageSubject.next(msg);
+        this.logWrite('updateSelectionMessage', msg, i0);
         console.log('[updateSelectionMessage] ✅ pushed new message', { index: i0, msg });
       } else if (!msg) {
         console.log('[updateSelectionMessage] ⛔ skipped (empty message)', { index: i0 });
@@ -2942,5 +2940,9 @@ export class SelectionMessageService {
       svc.currentQuestion ??
       null;
     return q?.type ?? QuestionType.SingleAnswer;
+  }
+
+  private logWrite(source: string, msg: string, index: number): void {
+    console.log(`[SELECTION MSG WRITE] from=${source} index=${index} msg="${msg}"`);
   }
 }
