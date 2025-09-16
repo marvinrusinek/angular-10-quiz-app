@@ -2262,37 +2262,6 @@ export class SelectionMessageService {
     }
   }
 
-  public updateSelectionMessage(
-    message?: string,
-    ctx?: { options?: Option[]; index?: number; token?: number; questionType?: QuestionType }
-  ): void {
-    try {
-      if (!message || message.trim() === '') {
-        console.log('[updateSelectionMessage] skipped empty input');
-        return; // 🚫 don’t recompute baseline here
-      }
-  
-      const i0 = ctx?.index ?? this.quizService.currentQuestionIndex;
-      const total = this.quizService.totalQuestions;
-      const msg = this.determineSelectionMessage(i0, total, false);
-  
-      console.log('[TRACE updateSelectionMessage]', {
-        index: i0,
-        inputMessage: message,
-        recomputedMessage: msg,
-        currentMessage: this.selectionMessageSubject.getValue()
-      });
-  
-      if (msg && this.selectionMessageSubject.getValue() !== msg) {
-        this.selectionMessageSubject.next(msg);
-        this.logWrite?.('updateSelectionMessage', msg, i0);
-      }
-    } catch (err) {
-      console.error('[❌ updateSelectionMessage ERROR]', err);
-    }
-  }
-  
-
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
   public updateMessageFromSelection(params: {
