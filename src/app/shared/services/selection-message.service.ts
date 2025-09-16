@@ -2229,33 +2229,23 @@ export class SelectionMessageService {
   
     try {
       const i0 = ctx?.index ?? this.quizService.currentQuestionIndex;
-      const total = this.quizService.totalQuestions;
+      const msg = (message ?? '').trim();
   
-      // Always recompute (currently hard-coded false)
-      const msg = this.determineSelectionMessage(i0, total, false);
-      const current = this.selectionMessageSubject.getValue();
-  
-      // Debug logs
-      console.log('[updateSelectionMessage] recomputed', {
-        index: i0,
-        total,
-        inputMessage: message,
-        recomputedMessage: msg,
-        currentMessage: current
-      });
-  
-      if (msg && current !== msg) {
+      if (msg && this.selectionMessageSubject.getValue() !== msg) {
         this.selectionMessageSubject.next(msg);
-        console.log('[updateSelectionMessage] ✅ pushed new message', { index: i0, msg });
+        console.log('[updateSelectionMessage] ✅ pushed explicit message', { index: i0, msg });
       } else if (!msg) {
-        console.log('[updateSelectionMessage] ⛔ skipped (empty message)', { index: i0 });
+        // Explicit clear only
+        this.selectionMessageSubject.next('');
+        console.log('[updateSelectionMessage] 🧹 cleared message', { index: i0 });
       } else {
-        console.log('[updateSelectionMessage] ⏸️ skipped (duplicate message)', { index: i0, msg });
+        console.log('[updateSelectionMessage] ⏸️ skipped duplicate', { index: i0, msg });
       }
     } catch (err) {
       console.error('[❌ updateSelectionMessage ERROR]', err);
     }
   }
+  
 
   // Helper: Compute and push atomically (passes options to guard)
   // Deterministic compute from the array passed in
