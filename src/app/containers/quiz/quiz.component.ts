@@ -3464,7 +3464,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (this.quizQuestionComponent) {
       this.quizQuestionComponent.renderReady = true;
     }
-
+  
     try {
       // ──────────────────────────  Safety Checks  ──────────────────────────
       if (
@@ -3479,7 +3479,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       if (questionIndex === this.totalQuestions - 1) {
         console.log(`[🔚 Last Question] Q${questionIndex}`);
       }
-
+  
       // ─────────────────────────  Reset Local State  ──────────────────────
       this.currentQuestion = null;
       this.resetQuestionState();
@@ -3487,7 +3487,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.explanationTextService.resetExplanationState();
       this.selectionMessageService.updateSelectionMessage('');
       this.resetComplete = false;
-
+  
       // ──────────────────-─-─-  Parallel Fetch  ──────────────────-─-─-─-─-
       const isAnswered =
         this.selectedOptionService.isQuestionAnswered(questionIndex);
@@ -3495,13 +3495,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         questionIndex,
         isAnsweredFromService: isAnswered
       });
-
+  
       // Only set false if it's actually unanswered
       if (isAnswered) {
         this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true, true);
       }
-
+  
       // Parallel fetch for question and options
       console.time('⏳ Parallel fetch: question + options');
       const [fetchedQuestion, fetchedOptions] = await Promise.all([
@@ -3511,7 +3511,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ),
       ]);
       console.timeEnd('⏳ Parallel fetch: question + options');
-
+  
       // Validate arrival of both question and options
       if (
         !fetchedQuestion ||
@@ -3522,17 +3522,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.error(`[❌ Q${questionIndex}] Missing question or options`);
         return false;
       }
-
+  
       // ───────────────────  Process question text  ──────────── 
       this.explanationTextService.setResetComplete(false);
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.explanationText$.next('');
-
+  
       const trimmedText = (fetchedQuestion?.questionText ?? '').trim() || 'No question available';
       this.questionToDisplay = trimmedText;
-
+  
       this.questionTextLoaded = true;
-
+  
       // ───────── Hydrate and clone options ─────────
       console.time('🧪 Hydrate options');
       const hydratedOptions = fetchedOptions.map((opt, idx) => ({
@@ -3542,7 +3542,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         feedback: opt.feedback ?? `The correct options are: ${opt.text}`
       }));
       console.timeEnd('🧪 Hydrate options');
-
+  
       console.time('⚙️ Assign active states');
       const finalOptions = this.quizService.assignOptionActiveStates(
         hydratedOptions,
@@ -3556,7 +3556,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         structuredClone?.(finalOptions) ??
         JSON.parse(JSON.stringify(finalOptions));
       console.timeEnd('🧬 Clone options');
-
+  
       // Defer header and options assignment so Angular renders them together
       console.time('🟢 Defer QA assignment');
       Promise.resolve().then(() => {
@@ -3572,7 +3572,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.cdRef.markForCheck();
         console.timeEnd('🟢 Defer QA assignment');
       });
-
+  
       // ───────────────────  Assign into Component State  ──────────────── 
       this.question = {
         questionText: fetchedQuestion.questionText,
@@ -3582,12 +3582,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       };
       this.currentQuestion = { ...this.question };
       this.optionsToDisplay = structuredClone(clonedOptions);
-
+  
       // Emit Q+A before any rendering logic kicks in
       this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
-
+  
       console.time('[3️⃣ Component assignment]');
-
+  
       // Emit QA data with benchmark
       console.time('🕒 QA emitted');
       this.quizService.questionPayloadSubject.next({
@@ -3596,7 +3596,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         explanation: this.currentQuestion?.explanation ?? ''
       });
       console.timeEnd('🕒 QA emitted');
-
+  
       // Then set QA observable or render flags AFTER
       this.quizStateService.qaSubject.next({
         question: this.currentQuestion!,
@@ -3607,7 +3607,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         heading: this.currentQuestion?.questionText ?? 'Untitled Question',
         selectionMessage: this.selectionMessageService.getCurrentMessage()
       });     
-
+  
       if (this.quizQuestionComponent) {
         this.quizQuestionComponent.updateOptionsSafely(clonedOptions);
       } else {
@@ -3616,16 +3616,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           console.log('[⏳ Pending options queued until component ready]');
         });
       }
-
+  
       // ───────── Flip “options loaded” flags together ─────────
       this.hasOptionsLoaded = true;
-
+  
       console.time('🎯 Time to render options');
       this.shouldRenderOptions = true;
-
+  
       // ───────────  Explanation/Timer/Badge Logic  ─────────
       let explanationText = '';
-
+  
       if (isAnswered) {
         // Already answered: restore explanation state and stop timer
         explanationText = fetchedQuestion.explanation?.trim() || 'No explanation available';
@@ -3634,32 +3634,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.timerService.isTimerRunning = false;
       } else {
         // Not answered yet: show the correct selection message and start timer
-        const expectedMessage =
-          this.selectionMessageService.determineSelectionMessage(
-            questionIndex,
-            this.totalQuestions,
-            false
-          );
-        const currentMessage = this.selectionMessageService.getCurrentMessage();
-
-        if (currentMessage !== expectedMessage) {
-          // Slight delay avoids overwrite by early option selection
-          setTimeout(() => {
-            this.selectionMessageService.updateSelectionMessage(
-              expectedMessage
-            );
-          }, 100);
-        } else {
-          console.log('[🛑 Skipping redundant setSelectionMessage]');
-        }
-
+        await this.selectionMessageService.setSelectionMessage(false);
+  
         this.timerService.startTimer(this.timerService.timePerQuestion);
       }
-
+  
       this.setQuestionDetails(trimmedText, finalOptions, explanationText);
       this.currentQuestionIndex = questionIndex;
       this.explanationToDisplay = explanationText;
-
+  
       console.time('[⏱️ Total Render Cycle]');
       console.time('[🚀 Sent QA to QQC]');
       this.questionPayload = {
@@ -3668,18 +3651,18 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         explanation: explanationText
       };
       this.shouldRenderQuestionComponent = true;
-
+  
       this.quizService.setCurrentQuestion(this.currentQuestion);
       this.quizService.setCurrentQuestionIndex(questionIndex);
       this.quizStateService.updateCurrentQuestion(this.currentQuestion);
-
+  
       await this.quizService.checkIfAnsweredCorrectly();
-
+  
       // Mark question ready
       this.resetComplete = true;
-
+  
       console.time('[1️⃣ fetchAndSetQuestionData TOTAL]');
-
+  
       return true;
     } catch (error) {
       console.error(`[❌ fetchAndSetQuestionData] Error at Q${questionIndex}:`, error);
