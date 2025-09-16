@@ -141,8 +141,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public showLocalExplanation = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
-    question: QuizQuestion;
-    options: Option[];
+    question: QuizQuestion,
+    options: Option[]
   } | null>(null);
   combinedQuestionData$: Observable<{
     question: QuizQuestion;
