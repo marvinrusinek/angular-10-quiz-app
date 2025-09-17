@@ -787,7 +787,7 @@ export class QuizQuestionLoaderService {
     try {
       // ─── Fetch all questions once ──────────────────────────────────
       const allQuestions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.activeQuizId));
-      const q: QuizQuestion | undefined = allQuestions?.[index];
+      const q: QuizQuestion | undefined = allQuestions[index];
 
       if (!q) {
         console.error('[loadQA] null question for Q', index);
