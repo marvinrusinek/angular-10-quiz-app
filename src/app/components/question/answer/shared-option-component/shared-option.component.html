@@ -14,11 +14,14 @@
         <mat-radio-button
           appHighlightOption
           class="option-radio single-option"
+          [disabled]="selectedOptionService.shouldDisableOption(b.option, currentQuestionIndex, optionsToDisplay)"
+          [ngClass]="{'disabled-option': selectedOptionService.shouldDisableOption(b.option, currentQuestionIndex, optionsToDisplay)}"
           [value]="b.option.optionId"
           [option]="b.option"
           [optionBinding]="b"
           [isSelected]="b.isSelected"
           [isCorrect]="b.isCorrect"
+          [allCorrectSelected]="areAllCorrectAnswersSelected()"
           [selectedOptionHistory]="selectedOptionHistory"
           [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
           [appHighlightInputType]="'radio'"
@@ -54,11 +57,14 @@
         <label class="option-row multiple-option">
           <mat-checkbox
             appHighlightOption
+            [disabled]="selectedOptionService.shouldDisableOption(b.option, currentQuestionIndex, optionsToDisplay)"
+            [ngClass]="{'disabled-option': selectedOptionService.shouldDisableOption(b.option, currentQuestionIndex, optionsToDisplay)}"
             [value]="b.option.optionId"
             [option]="b.option"
             [optionBinding]="b"
             [isSelected]="b.isSelected"
             [isCorrect]="b.isCorrect"
+            [allCorrectSelected]="areAllCorrectAnswersSelected()"
             [selectedOptionHistory]="selectedOptionHistory"
             [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
             [appHighlightInputType]="'checkbox'"
