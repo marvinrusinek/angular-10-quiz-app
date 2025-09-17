@@ -34,7 +34,6 @@ export class SelectionMessageService {
   private writeSeq = 0;
   private latestByIndex = new Map<number, number>();
   private freezeNextishUntil = new Map<number, number>();
-  private suppressPassiveUntil = new Map<number, number>();
 
   private idMapByIndex = new Map<number, Map<string, string | number>>();  // key -> canonicalId
 
