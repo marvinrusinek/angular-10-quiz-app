@@ -828,87 +828,6 @@ export class QuizQuestionLoaderService {
     this.optionsToDisplay = [];
   }
 
-  /* public async loadQA(index: number): Promise<boolean> {
-    // Clear stale question and options immediately
-    this.resetHeadlineStreams();
-  
-    // Abort any in-flight request
-    this.currentLoadAbortCtl.abort();
-    this.currentLoadAbortCtl = new AbortController();
-    this.isLoading$.next(true);
-  
-    // Clear stale explanation so it can’t flash
-    this.explanationTextService.explanationText$.next('');
-  
-    try {
-      // ─── Fetch the question skeleton ───────────────────────────────
-      const q: QuizQuestion = await firstValueFrom(
-        this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
-          map(questions => questions[index])
-        )
-      );
-      if (!q) {
-        console.error('[loadQA] null question for Q', index);
-        return false;
-      }
-  
-      // ─── Ensure we have an options array ───────────────────────────
-      let opts = q.options ?? [];
-      if (opts.length === 0) {
-        // Fetch options separately when they’re not embedded in the question
-        opts = await firstValueFrom(
-          this.quizDataService.getQuestionsForQuiz(this.activeQuizId).pipe(
-            map(qs => qs?.[index]?.options ?? [])
-          )
-        );
-        if (opts.length === 0) {
-          console.error('[loadQA] no options for Q', index);
-          return false;
-        }
-      }
-  
-      // ─── Normalize / add fallback feedback once ───────────────────
-      const finalOpts = opts.map((o, i) => ({
-        ...o,
-        optionId : o.optionId ?? i,
-        active   : o.active  ?? true,
-        showIcon : !!o.showIcon,
-        selected : !!o.selected,
-        correct  : !!o.correct,
-        feedback : o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
-      }));
-  
-      // ─── Synthesize the selection message ──────────────────────────
-      const msg = this.selectionMessageService
-                    .determineSelectionMessage(index, this.totalQuestions, false);
-
-      // ─── Clone question and attach quizId and index 
-      const safeQuestion: QuizQuestion = JSON.parse(JSON.stringify({
-        ...q,
-        options: finalOpts
-      }));
-
-      const effectiveQuizId = this.quizService.quizId;
-  
-      // Emit the trio ONCE (question now guaranteed to carry opts)
-      this.quizStateService.emitQA(
-        safeQuestion,
-        finalOpts,
-        msg,
-        effectiveQuizId,
-        index
-      );
-  
-      return true;
-    } catch (err: any) {
-      if (err?.name !== 'AbortError') {
-        console.error('[loadQA] fetch failed', err);
-      }
-      return false;
-    } finally {
-      this.isLoading$.next(false);
-    }
-  } */
   public async loadQA(index: number): Promise<boolean> {
     // Clear stale question and options immediately
     this.resetHeadlineStreams();
@@ -973,11 +892,11 @@ export class QuizQuestionLoaderService {
 
       const effectiveQuizId = this.quizService.quizId;
 
-      // 🔥 Emit values into QuizService manually — no getNextQuestion() needed
+      // Emit values into QuizService manually — no getNextQuestion() needed
       this.quizService.currentQuestionSource.next(safeQuestion);
       this.quizService.optionsSource.next(finalOpts);
 
-      // 🔥 Emit trio into state
+      // Emit trio into state
       this.quizStateService.emitQA(
         safeQuestion,
         finalOpts,
