@@ -339,7 +339,7 @@ export class QuizQuestionLoaderService {
   // next question starts with a clean slate.  Call before fetching data.
   private async resetUiForNewQuestion(index: number): Promise<void> {
     // Parent-level reset
-    this.resetQuestionState();
+    this.resetQuestionState(index);
 
     // Child component reset
     if (this.quizQuestionComponent) {
@@ -358,7 +358,6 @@ export class QuizQuestionLoaderService {
     // Explanation / selection messages
     this.explanationTextService.resetExplanationState();
     // 🧹 Clear only — don’t recompute baseline here.
-    this.selectionMessageService.clearSelectionMessage();
     this.resetComplete = false;
 
     // Force a small delay so the DOM can repaint
@@ -722,7 +721,7 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  public resetQuestionState(): void {
+  public resetQuestionState(index: number = this.currentQuestionIndex): void {
     // Clear local UI state
     this.questionInitialized = false; // block during reset
     this.isAnswered = false;
@@ -731,9 +730,6 @@ export class QuizQuestionLoaderService {
     this.isNextButtonEnabled = false;
     this.isButtonEnabled = false;
     this.isButtonEnabledSubject.next(false);
-
-    // Reset selection message directly instead of recomputing
-    // this.selectionMessageService.clearSelectionMessage();
 
     // Clear all lock sets (single + multi)
     this.selectionMessageService['_singleAnswerIncorrectLock'].clear();
@@ -767,6 +763,8 @@ export class QuizQuestionLoaderService {
     // Reset internal selected options tracking
     this.selectedOptionService.stopTimerEmitted = false;
     this.selectedOptionService.selectedOptionsMap.clear();
+
+    this.seedSelectionBaseline(index);
   }
 
   public resetQuestionLocksForIndex(index: number): void {
@@ -774,9 +772,54 @@ export class QuizQuestionLoaderService {
     this.selectionMessageService['_singleAnswerCorrectLock'].delete(index);
     this.selectionMessageService['_multiAnswerInProgressLock'].delete(index);
     this.selectionMessageService['_multiAnswerCompletionLock'].delete(index);
-
-    // if you added pre-lock
     this.selectionMessageService['_multiAnswerPreLock']?.delete(index);
+  }
+
+  private seedSelectionBaseline(index: number | null | undefined): void {
+    if (typeof index !== 'number' || !Number.isFinite(index)) {
+      return;
+    }
+
+    const i0 = Math.trunc(index);
+    if (i0 < 0) {
+      return;
+    }
+
+    if (!Array.isArray(this.questionsArray) || i0 >= this.questionsArray.length) {
+      return;
+    }
+
+    const question = this.questionsArray[i0];
+    if (!question || !Array.isArray(question.options) || question.options.length === 0) {
+      return;
+    }
+
+    const options = question.options;
+    const correctCount = options.reduce(
+      (total, option) => (option?.correct ? total + 1 : total),
+      0
+    );
+    const totalCorrect = Math.max(correctCount, 1);
+
+    let qType: QuestionType;
+    switch (question.type) {
+      case QuestionType.MultipleAnswer:
+        qType = QuestionType.MultipleAnswer;
+        break;
+      case QuestionType.TrueFalse:
+        qType = QuestionType.SingleAnswer;
+        break;
+      case QuestionType.SingleAnswer:
+      default:
+        qType = QuestionType.SingleAnswer;
+        break;
+    }
+
+    if (correctCount > 1) {
+      qType = QuestionType.MultipleAnswer;
+    }
+
+    this.selectionMessageService.enforceBaselineAtInit(i0, qType, totalCorrect);
   }
 
   private resetQuestionDisplayState(): void {
