@@ -745,4 +745,40 @@ export class SelectedOptionService {
       );
     });
   }
+
+  // selected-option.service.ts
+  public shouldDisableOption(
+    option: Option,
+    questionIndex: number,
+    options: Option[]
+  ): boolean {
+    const qType = this.quizService.questions?.[questionIndex]?.type;
+
+    const totalCorrect    = options.filter(o => o.correct).length;
+    const selectedCorrect = options.filter(o => o.correct && o.selected).length;
+
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // If a correct option has been chosen, disable every option (freeze the question)
+      if (selectedCorrect > 0) return true;
+
+      // If THIS option is the correct one and it’s selected, disable it too (no toggling off)
+      if (option.correct && option.selected) return true;
+
+      return false;
+    }
+
+    // ───────── MULTIPLE-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      // Lock correct options immediately when they’re selected
+      if (option.correct && option.selected) return true;
+
+      // Once ALL correct answers are selected, disable any remaining incorrect options
+      if (!option.correct && selectedCorrect >= totalCorrect) return true;
+
+      return false;
+    }
+
+    return false;
+  }
 }
