@@ -541,11 +541,11 @@ export class QuizQuestionLoaderService {
       );
 
       this.quizStateService.emitQA(
-        { ...q, options: opts }, // question object
-        opts, // options list
-        selMsg, // selection message
-        this.quizService.quizId!, // quiz id (non-null assertion)
-        idx // question index
+        { ...q, options: opts },  // question object
+        opts,  // options list
+        selMsg,  // selection message
+        this.quizService.quizId!,  // quiz id (non-null assertion)
+        idx  // question index
       );
     }
 
@@ -648,7 +648,7 @@ export class QuizQuestionLoaderService {
         `[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`,
         error
       );
-      throw error; // propagate to loader
+      throw error;  // propagate to loader
     }
   }
 
@@ -658,8 +658,7 @@ export class QuizQuestionLoaderService {
     explanationText: string
   ): void {
     // Use fallback if question text is empty
-    this.questionToDisplay =
-      questionText?.trim() || 'No question text available';
+    this.questionToDisplay = questionText?.trim() || 'No question text available';
 
     // Ensure options are a valid array
     this.optionsToDisplay = Array.isArray(options) ? options : [];
@@ -696,9 +695,7 @@ export class QuizQuestionLoaderService {
         this.quizQuestionComponent.resetState();
       }
     } else {
-      console.warn(
-        '[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.'
-      );
+      console.warn('[resetUI] ⚠️ quizQuestionComponent not initialized or dynamically loaded.');
     }
 
     // Reset visual selection state
