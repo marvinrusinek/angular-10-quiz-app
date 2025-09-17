@@ -28,7 +28,17 @@ div.mat-radio-inner-container {
     &:hover {
       border: 2px solid $vivid-blue;
     }
-  }
+
+    // Disabled state (applies when [disabled] is true)
+    &.disabled-option,
+    &[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;  // prevent accidental clicks
+      background-color: lighten($light-gray, 10%);
+      border-color: $medium-gray;
+    }
+  }  
 }
 
 .correct {
