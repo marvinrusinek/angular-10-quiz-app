@@ -2715,9 +2715,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    const i0 =
-      this.normalizeIndex(this.currentQuestionIndex ?? 0) ??
-      (this.currentQuestionIndex ?? 0);
+    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
@@ -2740,7 +2738,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // For single-answer, ignore deselect events entirely
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
-        console.log('[Guard] Ignoring deselect for single-answer at index', evtIdx);
         optionsNow.forEach(opt => { if (opt.selected) opt.selected = true; });
         if (Array.isArray(this.optionsToDisplay)) {
           (this.optionsToDisplay as Option[]).forEach(opt => { if (opt.selected) opt.selected = true; });
@@ -2768,19 +2765,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      console.log('[onOptionClicked]', {
-        clickedText: evtOpt?.text,
-        checked: event.checked,
-        selectedNow: optionsNow.map((o) => ({
-          text: o.text,
-          selected: o.selected,
-        })),
-      });
-  
       // Persist selection
-      try {
-        this.selectedOptionService.setSelectedOption(evtOpt, i0);
-      } catch {}
+      try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
   
       // Compute canonical options and stable keys
       const getStableId = (o: Option, idx?: number) =>
@@ -2796,7 +2782,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Enforce single-answer exclusivity at canonical level too
       if (q?.type === QuestionType.SingleAnswer) {
         canonicalOpts.forEach((opt, idx) => {
-          opt.selected = idx === evtIdx; // only the clicked one survives
+          opt.selected = idx === evtIdx;  // only the clicked one survives
         });
   
         // Force correct lock priority if clicked option is correct
@@ -2804,10 +2790,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           canonicalOpts[evtIdx].selected = true;
           this.selectionMessageService._singleAnswerCorrectLock.add(i0);
           this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
-          console.log('[onOptionClicked PATCH ✅] Correct option clicked → forcing NEXT lock', {
-            idx: evtIdx,
-            text: evtOpt.text,
-          });
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2833,11 +2815,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selected: !!o.selected,
       }));
   
-      console.log('[onOptionClicked → canonicalOpts final]', frozenSnapshot);
-  
       // Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
-      console.log('[onOptionClicked] Triggering selection message recompute NOW', { i0 });
   
       // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
@@ -2849,7 +2828,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         questionType: q?.type ?? QuestionType.SingleAnswer,
         options: optionsNow,
         canonicalOptions: canonicalOpts as CanonicalOption[],
-        token: tok,
+        token: tok
       });
   
       // Update Next button and quiz state
@@ -2857,9 +2836,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (this._skipNextAsyncUpdates) return;
         const correctOpts = canonicalOpts.filter((o) => !!o.correct);
         const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
-            getStableId(o)
-          )
+          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) => getStableId(o))
         );
         const selectedCorrectCount = correctOpts.filter((o) =>
           selOptsSet.has(getStableId(o))
@@ -2908,9 +2885,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       requestAnimationFrame(async () => {
         if (this._skipNextAsyncUpdates) return;
   
-        try {
-          if (evtOpt) this.optionSelected.emit(evtOpt);
-        } catch {}
+        try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
         this.feedbackText = await this.generateFeedbackText(q);
         await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
         this.handleCoreSelection(event);
@@ -2921,7 +2896,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       queueMicrotask(() => {
         this._clickGate = false; 
         if (q?.type === QuestionType.SingleAnswer) {
-          console.log('[QQC finally] forcing setSelectionMessage call (single-answer only)');
           this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
           this.selectionMessageService.setSelectionMessage(true);
         } else {
@@ -2932,7 +2906,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
