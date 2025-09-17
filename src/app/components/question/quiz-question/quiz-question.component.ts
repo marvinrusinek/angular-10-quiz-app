@@ -3020,7 +3020,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update quiz state
     this.quizStateService.setDisplayState({
       mode: 'explanation',
-      answered: true,
+      answered: true
     });
 
     // Finally drive _this_ component’s UI
@@ -3103,53 +3103,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.nextButtonStateService.setNextButtonState(shouldEnableNext);
   }
 
-  /* private emitExplanationIfValid(explanationText: string, lockedState: LockedState): void {
-    const currentQuestion = this.currentQuestion;
+  private emitExplanationIfValid(explanationText: string, questionIndex: number): void {
     const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-    const currentText = currentQuestion?.questionText?.trim() || '';
-  
-    const isSame =
-      currentIndex === lockedState.index &&
-      currentText === lockedState.text &&
-      currentQuestion?.questionText === lockedState.snapshot?.questionText &&
-      this.latestOptionClickTimestamp === lockedState.timestamp;
-  
-    if (isSame) {
-      this.explanationTextService.emitExplanationIfNeeded(explanationText, lockedState.index);
-
-      // Avoid double-setting index if already auto-advanced from Q1
-      if (!(lockedState.index === 0 && this.hasAutoAdvancedFromQ1)) {
-        const alreadySet = this.quizService.getCurrentQuestionIndex() === 0;
-        if (!alreadySet) {
-          this.quizService.setCurrentQuestionIndex(lockedState.index);
-        } else {
-          console.warn('[⛔ BLOCKED redundant setCurrentQuestionIndex(0)]');
-        }
-      }      
-    } else {
-      console.warn('[⛔ Explanation mismatch]', {
-        lockedIndex: lockedState.index,
-        currentIndex,
-        lockedText: lockedState.text,
-        currentText,
-        lockedTimestamp: lockedState.timestamp,
-        latest: this.latestOptionClickTimestamp,
-      });
-    }
-  } */
-  private emitExplanationIfValid(
-    explanationText: string,
-    questionIndex: number
-  ): void {
-    const currentIndex = this.fixedQuestionIndex ?? this.currentQuestionIndex;
-
-    console.log(
-      '[🔒 emitExplanationIfValid]',
-      'currentIndex=',
-      currentIndex,
-      'questionIndex=',
-      questionIndex
-    );
 
     // Only gate on the question index
     if (currentIndex !== questionIndex) {
