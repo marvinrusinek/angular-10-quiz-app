@@ -842,6 +842,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return option.showIcon === true;
   }
 
+  public areAllCorrectAnswersSelected(): boolean {
+    const index = typeof this.currentQuestionIndex === 'number'
+      ? this.currentQuestionIndex
+      : typeof this.quizService.currentQuestionIndex === 'number'
+        ? this.quizService.currentQuestionIndex
+        : undefined;
+
+    if (typeof index !== 'number') {
+      return false;
+    }
+
+    return this.selectedOptionService.areAllCorrectAnswersSelectedSync(index);
+  }
+
   public updateOptionAndUI(
     optionBinding: OptionBindings,
     index: number,
