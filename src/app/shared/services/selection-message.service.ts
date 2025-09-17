@@ -1628,29 +1628,27 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // If baseline not released yet → force sticky START/CONTINUE
+      // ❌ Wrong answer chosen → override baseline immediately
+      if (selectedWrong > 0) {
+        this._singleAnswerIncorrectLock.add(index);
+        return 'Select a correct answer to continue...';
+      }
+      if (this._singleAnswerIncorrectLock.has(index)) {
+        return 'Select a correct answer to continue...';
+      }
+  
+      // 🚦 If baseline not released yet → force sticky START/CONTINUE
       if (!this._baselineReleased.has(index)) {
         const baseline = index === 0 ? START_MSG : CONTINUE_MSG;
         console.log('[SingleAnswer] Sticky baseline (not released)', { index, baseline });
         return baseline;
       }
   
-      // If already locked into "wrong" → stick with corrective message
-      if (this._singleAnswerIncorrectLock.has(index)) {
-        return 'Select a correct answer to continue...';
-      }
-  
-      // Correct answer chosen → promote to NEXT/RESULTS
+      // ✅ Correct answer chosen → promote to NEXT/RESULTS
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-      }
-  
-      // Wrong answer chosen → lock and show corrective message
-      if (selectedWrong > 0) {
-        this._singleAnswerIncorrectLock.add(index);
-        return 'Select a correct answer to continue...';
       }
     }
   
@@ -1664,11 +1662,12 @@ export class SelectionMessageService {
         return baselineMsg;
       }
   
+      // Still baseline until at least one correct is chosen
       if (selectedCorrect === 0) {
-        // still baseline until a correct is chosen
         return baselineMsg;
       }
   
+      // ✅ All correct answers chosen → promote to NEXT/RESULTS
       if (selectedCorrect === totalCorrect) {
         this._multiAnswerCompletionLock.add(index);
         this._multiAnswerPreLock.delete(index);
@@ -1676,6 +1675,7 @@ export class SelectionMessageService {
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
+      // In-progress state: some correct chosen, not all yet
       const remaining = totalCorrect - selectedCorrect;
       this._multiAnswerPreLock.delete(index);
       this._multiAnswerInProgressLock.add(index);
@@ -1685,6 +1685,7 @@ export class SelectionMessageService {
     // ───────── Default fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
+  
     
   /* public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
