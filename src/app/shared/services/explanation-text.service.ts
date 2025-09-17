@@ -454,8 +454,6 @@ export class ExplanationTextService {
     const isSame = latest === trimmed;
   
     if (!isSame) {
-      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
-  
       this.explanationTexts[questionIndex] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
       this.setExplanationText(trimmed);
