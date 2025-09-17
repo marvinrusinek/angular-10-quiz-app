@@ -45,8 +45,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   @Input() currentQuestionIndex!: number;
   @Input() quizId!: string;
   @Input() optionsToDisplay!: Option[];
-  @Input() optionBindings: OptionBindings[];
-  optionBindingsSrc: Option[] = [];
+  @Input() optionBindings: OptionBindings[] = [];
+  private optionBindingsSource: Option[] = [];
   questionVersion = 0;
   showFeedbackForOption: { [optionId: number]: boolean } = {};
   selectedOption: SelectedOption | null = null;
@@ -129,8 +129,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
       // hand SharedOptionComponent its own fresh reference
-      this.optionBindingsSrc = this.optionsToDisplay.map(o => ({ ...o }));
-      this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSrc);  // respond to updates
+      this.optionBindingsSource = this.optionsToDisplay.map(o => ({ ...o }));
+      this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);  // respond to updates
   
       // Wake the OnPush CD cycle
       this.cdRef.markForCheck();
