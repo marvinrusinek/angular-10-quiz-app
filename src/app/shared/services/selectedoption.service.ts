@@ -6,6 +6,7 @@ import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { NextButtonStateService } from '../../shared/services/next-button-state.service';
+import { QuizService } from '../../shared/services/quiz.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -47,6 +48,7 @@ export class SelectedOptionService {
   }
 
   constructor(
+    private quizService: QuizService,
     private nextButtonStateService: NextButtonStateService
   ) {}
 
