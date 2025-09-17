@@ -748,7 +748,6 @@ export class SelectedOptionService {
     });
   }
 
-  // selected-option.service.ts
   public shouldDisableOption(
     option: Option,
     questionIndex: number,
@@ -756,7 +755,7 @@ export class SelectedOptionService {
   ): boolean {
     const qType = this.quizService.questions?.[questionIndex]?.type;
 
-    const totalCorrect    = options.filter(o => o.correct).length;
+    const totalCorrect = options.filter(o => o.correct).length;
     const selectedCorrect = options.filter(o => o.correct && o.selected).length;
 
     // ───────── SINGLE-ANSWER ─────────
