@@ -5690,5 +5690,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Use a short freeze only for Q1
     const token = this.selectionMessageService.beginWrite(i0, 200);
+  }
+  
+  public areAllCorrectAnswersSelected(): boolean {
+    return this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
   }  
 }
