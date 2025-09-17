@@ -602,7 +602,7 @@ export class QuizQuestionLoaderService {
         questionText: trimmedText,
         options,
         explanation,
-        type,
+        type
       };
 
       const quizId = this.quizService.quizId ?? 'unknown-id';
@@ -617,17 +617,14 @@ export class QuizQuestionLoaderService {
         options: [...question.options],
         explanation: question.explanation,
         question,
-        selectionMessage,
+        selectionMessage
       });
 
       // Sync type with data-service cache
       this.quizDataService.setQuestionType(question);
       return question;
     } catch (error) {
-      console.error(
-        `[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`,
-        error
-      );
+      console.error(`[❌ fetchQuestionDetails] Error loading Q${questionIndex}:`, error);
       throw error;  // propagate to loader
     }
   }
