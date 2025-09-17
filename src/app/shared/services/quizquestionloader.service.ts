@@ -848,8 +848,7 @@ export class QuizQuestionLoaderService {
         showIcon: !!o.showIcon,
         selected: !!o.selected,
         correct: !!o.correct,
-        feedback:
-          o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`,
+        feedback: o.feedback ?? `You're right! The correct answer is Option ${i + 1}.`
       }));
 
       // ─── Synthesize the selection message ──────────────────────────
