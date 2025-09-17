@@ -786,9 +786,7 @@ export class QuizQuestionLoaderService {
 
     try {
       // ─── Fetch all questions once ──────────────────────────────────
-      const allQuestions = await firstValueFrom(
-        this.quizDataService.getQuestionsForQuiz(this.activeQuizId)
-      );
+      const allQuestions = await firstValueFrom(this.quizDataService.getQuestionsForQuiz(this.activeQuizId));
       const q: QuizQuestion | undefined = allQuestions?.[index];
 
       if (!q) {
@@ -829,7 +827,7 @@ export class QuizQuestionLoaderService {
       const safeQuestion: QuizQuestion = JSON.parse(
         JSON.stringify({
           ...q,
-          options: finalOpts,
+          options: finalOpts
         })
       );
 
@@ -862,7 +860,7 @@ export class QuizQuestionLoaderService {
   resetHeadlineStreams(): void {
     this.questionToDisplay$.next('');  // clears question text
     this.explanationTextService.explanationText$.next('');  // clears explanation
-    this.clearQA(); // clears question and options
+    this.clearQA();  // clears question and options
     this.quizStateService.setDisplayState({
       mode: 'question',  // force “question” mode
       answered: false
