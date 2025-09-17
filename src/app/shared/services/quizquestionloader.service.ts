@@ -753,23 +753,15 @@ export class QuizQuestionLoaderService {
   }
 
   private seedSelectionBaseline(index: number | null | undefined): void {
-    if (typeof index !== 'number' || !Number.isFinite(index)) {
-      return;
-    }
+    if (typeof index !== 'number' || !Number.isFinite(index)) return;
 
     const i0 = Math.trunc(index);
-    if (i0 < 0) {
-      return;
-    }
+    if (i0 < 0) return;
 
-    if (!Array.isArray(this.questionsArray) || i0 >= this.questionsArray.length) {
-      return;
-    }
+    if (!Array.isArray(this.questionsArray) || i0 >= this.questionsArray.length) return;
 
     const question = this.questionsArray[i0];
-    if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-      return;
-    }
+    if (!question || !Array.isArray(question.options) || question.options.length === 0) return;
 
     const options = question.options;
     const correctCount = options.reduce(
@@ -792,10 +784,7 @@ export class QuizQuestionLoaderService {
         break;
     }
 
-    if (correctCount > 1) {
-      qType = QuestionType.MultipleAnswer;
-    }
-
+    if (correctCount > 1) qType = QuestionType.MultipleAnswer;
     this.selectionMessageService.enforceBaselineAtInit(i0, qType, totalCorrect);
   }
 
