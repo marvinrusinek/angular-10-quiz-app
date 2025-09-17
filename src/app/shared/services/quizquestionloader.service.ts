@@ -894,13 +894,12 @@ export class QuizQuestionLoaderService {
   }
 
   resetHeadlineStreams(): void {
-    this.questionToDisplay$.next(''); // clears question text
-    this.explanationTextService.explanationText$.next(''); // clears explanation
+    this.questionToDisplay$.next('');  // clears question text
+    this.explanationTextService.explanationText$.next('');  // clears explanation
     this.clearQA(); // clears question and options
     this.quizStateService.setDisplayState({
-      // force “question” mode
-      mode: 'question',
-      answered: false,
+      mode: 'question',  // force “question” mode
+      answered: false
     });
   }
 
@@ -912,7 +911,7 @@ export class QuizQuestionLoaderService {
       question: null as unknown as QuizQuestion,
       options: [],
       explanation: '',
-      selectionMessage: '',
+      selectionMessage: ''
     });
   }
 }
