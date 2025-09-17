@@ -77,7 +77,6 @@ export class ExplanationTextService {
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
     const already = this.latestExplanation?.trim();
-    console.warn('[📤 setExplanationText CALLED]', explanation);
   
     if (this.explanationLocked && trimmed === '') {
       console.warn('[🛡️ Blocked reset: explanation is locked]');
@@ -89,7 +88,6 @@ export class ExplanationTextService {
       return;
     }
   
-    console.log(`[📤 setExplanationText] Emitting:`, trimmed);
     this.latestExplanation = trimmed;
     this.explanationText$.next(trimmed);
     this.formattedExplanationSubject.next(trimmed);
@@ -166,7 +164,7 @@ export class ExplanationTextService {
   }
 
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
-    this.formattedExplanations = {}; // Clear existing data
+    this.formattedExplanations = {};  // Clear existing data
 
     if (!Array.isArray(explanations) || explanations.length === 0) {
       console.warn('No explanations provided for initialization.');
@@ -230,12 +228,6 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(trimmed);
   }
 
-  // Method to sanitize explanation text
-  private sanitizeExplanation(explanation: string): string {
-    // Trim and remove unwanted characters
-    return explanation.trim().replace(/<[^>]*>/g, '');
-  }
-
   storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
     if (index < 0) {
       console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
@@ -270,22 +262,6 @@ export class ExplanationTextService {
       .filter((index): index is number => index !== null);
   }
 
-  /* formatExplanation(question: QuizQuestion, correctOptionIndices: number[], explanation: string): string {
-    if (correctOptionIndices.length > 1) {
-      question.type = QuestionType.MultipleAnswer;
-
-      const optionsText = correctOptionIndices.length > 2 
-        ? `${correctOptionIndices.slice(0, -1).join(', ')} and ${correctOptionIndices.slice(-1)}` 
-        : correctOptionIndices.join(' and ');
-
-      return `Options ${optionsText} are correct because ${explanation}`;
-    } else if (correctOptionIndices.length === 1) {
-      question.type = QuestionType.SingleAnswer;
-      return `Option ${correctOptionIndices[0]} is correct because ${explanation}`;
-    } else {
-      return 'No correct option selected...';
-    }
-  } */
   formatExplanation(
     question: QuizQuestion,
     correctOptionIndices: number[] | null | undefined,
@@ -329,8 +305,7 @@ export class ExplanationTextService {
     questionIndex: number, formattedExplanation: string): void {
     if (!this.formattedExplanations$[questionIndex]) {
       // Initialize the BehaviorSubject if it doesn't exist at the specified index
-      this.formattedExplanations$[questionIndex] = 
-        new BehaviorSubject<string | null>(null);
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
     }
   
     // Access the BehaviorSubject at the specified questionIndex
@@ -365,67 +340,6 @@ export class ExplanationTextService {
     return of(explanations);
   }
 
-  /* emitExplanationIfNeeded(rawExplanation: string): void {
-    console.log('[🔍 Checking explanation state before emission]', Date.now());
-    console.log('[📤 Emitting explanation immediately:', rawExplanation, Date.now());
-
-    const trimmed = rawExplanation?.trim() || 'No explanation available';
-  
-    const latestExplanation = this.latestExplanation?.trim();
-    const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
-  
-    console.log('[🔍 emitExplanationIfNeeded] Checking explanation state:', {
-      trimmed,
-      latestExplanation,
-      formattedExplanation
-    });
-  
-    const shouldEmit = trimmed !== latestExplanation || !formattedExplanation;
-  
-    if (shouldEmit) {
-      console.log('[📤 Emitting explanation immediately:', trimmed);
-  
-      // Emit to observable and update state
-      this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
-      this.setShouldDisplayExplanation(true);
-      this.lockExplanation();
-  
-      console.log('[✅ Explanation emitted and locked:', trimmed);
-    } else {
-      console.log('[🛑 Explanation already set and formatted, skipping emit');
-    }
-  } */
-  /* emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
-    const trimmed = rawExplanation?.trim();
-    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.log('[⏭️ Skipping empty or default explanation]');
-      return;
-    }
-  
-    // Check if the current explanation text for this index is already set
-    const existingExplanation = this.explanationTexts[questionIndex]?.trim();
-    const formattedExplanation = this.formattedExplanationSubject.getValue()?.trim();
-  
-    // Emit only if the new explanation differs or we haven't emitted yet
-    const shouldEmit = trimmed !== existingExplanation || !formattedExplanation;
-  
-    if (shouldEmit) {
-      console.log('[📤 Emitting explanation for Q' + questionIndex + ']:', trimmed);
-  
-      // Save the explanation for this specific question index
-      this.explanationTexts[questionIndex] = trimmed;
-  
-      this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
-      this.setShouldDisplayExplanation(true);
-      this.lockExplanation();
-  
-      this.latestExplanation = trimmed;
-    } else {
-      console.log('[🛑 Explanation already emitted or same, skipping]');
-    }
-  } */
   emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
     const trimmed = rawExplanation?.trim();
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
@@ -462,15 +376,8 @@ export class ExplanationTextService {
   }
   
   public triggerExplanationEvaluation(): void {
-    console.log('[📢 triggerExplanationEvaluation] Triggered');
-  
     const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
-  
-    console.log('[🔍 Explanation Evaluation State]', {
-      currentExplanation,
-      shouldShow,
-    });
   
     if (shouldShow && currentExplanation) {
       console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
@@ -494,8 +401,7 @@ export class ExplanationTextService {
   }
 
   resetExplanationText(): void {
-    // this.explanationText$.next('');
-    this.isExplanationDisplayedSource.next(false); // set to false when explanation is hidden
+    this.isExplanationDisplayedSource.next(false);  // set to false when explanation is hidden
   }
 
   resetStateBetweenQuestions(): void {
@@ -519,35 +425,6 @@ export class ExplanationTextService {
     this.resetCompleteSubject.next(value);
   }
 
-  /* emitExplanationSafely(
-    explanationText: string,
-    lockedIndex: number,
-    lockedQuestionText: string,
-    currentQuestion: QuizQuestion | null,
-    emitFn: (text: string, index: number) => void
-  ): void {
-    const currentText = currentQuestion?.questionText?.trim();
-  
-    // Guard against invalid explanation
-    const trimmed = explanationText?.trim();
-    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.log(`[⏭️ emitExplanationSafely] Skipping empty/default explanation for Q${lockedIndex}`);
-      return;
-    }
-  
-    // Prevent cross-question leakage
-    if (!currentText || currentText !== lockedQuestionText) {
-      console.warn(
-        `[⛔ Skipping stale explanation for Q${lockedIndex}]`,
-        `Expected: "${lockedQuestionText}", Got: "${currentText}"`
-      );
-      return;
-    }
-  
-    // ✅ Safe to emit
-    console.log(`[✅ Emitting safe explanation for Q${lockedIndex}]`, trimmed);
-    emitFn(trimmed, lockedIndex);
-  } */
   emitExplanationIfNeededStrict({
     explanationText,
     questionIndex,
@@ -556,8 +433,8 @@ export class ExplanationTextService {
   }: {
     explanationText: string;
     questionIndex: number;
-    questionText: string;              // From the locked current question
-    expectedQuestionText: string;     // From the component calling this
+    questionText: string;              // from the locked current question
+    expectedQuestionText: string;      // from the component calling this
   }): void {
     const trimmed = explanationText?.trim();
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
