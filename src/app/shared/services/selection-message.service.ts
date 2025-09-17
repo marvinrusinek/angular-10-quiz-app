@@ -588,7 +588,7 @@ export class SelectionMessageService {
       let cid = (c as any).optionId ?? (c as any).id;
       if (cid == null) cid = `q${index}o${i}`;  // deterministic fallback id
       (c as any).optionId = cid;  // stamp canonical
-      fwd!.set(k, cid); // key match
+      fwd!.set(k, cid);  // key match
       fwd!.set(`ix:${i}`, cid);  // index alignment fallback
     });
     this.idMapByIndex.set(index, fwd!);
