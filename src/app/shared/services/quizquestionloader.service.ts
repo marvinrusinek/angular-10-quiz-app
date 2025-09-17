@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  forkJoin,
-  lastValueFrom,
-  Observable,
-  of,
-} from 'rxjs';
+import { BehaviorSubject, firstValueFrom, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -86,15 +79,13 @@ export class QuizQuestionLoaderService {
   isButtonEnabled = false;
   private isButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
-  public readonly isLoading$ = new BehaviorSubject<boolean>(false); // true while a question is being fetched
-  private currentLoadAbortCtl = new AbortController(); // abort a stale fetch when the user clicks “Next” too fast
+  public readonly isLoading$ = new BehaviorSubject<boolean>(false);  // true while a question is being fetched
+  private currentLoadAbortCtl = new AbortController();  // abort a stale fetch when the user clicks “Next” too fast
 
   private qaSubject = new BehaviorSubject<QAPayload | null>(null);
   readonly qa$ = this.qaSubject.asObservable();
 
-  readonly optionsStream$: BehaviorSubject<Option[]> = new BehaviorSubject<
-    Option[]
-  >([]);
+  readonly optionsStream$: BehaviorSubject<Option[]> = new BehaviorSubject<Option[]>([]);
   options$ = this.optionsStream$.asObservable();
 
   lastQuizId: string | null = null;
@@ -148,12 +139,8 @@ export class QuizQuestionLoaderService {
           explanation: string | null;
         };
 
-        const question$ = this.quizService
-          .getCurrentQuestionByIndex(quizId, questionIndex)
-          .pipe(take(1));
-        const options$ = this.quizService
-          .getCurrentOptions(questionIndex)
-          .pipe(take(1));
+        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
+        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
         const explanation$ = this.explanationTextService.explanationsInitialized
           ? this.explanationTextService
               .getFormattedExplanationTextForQuestion(questionIndex)
@@ -192,13 +179,6 @@ export class QuizQuestionLoaderService {
           this.isLoading = false;
           return;
         }
-
-        // Reset UI state for this new question
-        /* this.nextButtonStateService.setNextButtonState(false);
-        this.selectedOptionService.setAnswered(false);
-        this.explanationTextService.setExplanationText('');
-        this.explanationTextService.setShouldDisplayExplanation(false);
-        this.quizStateService.setDisplayState({ mode: 'question', answered: false }); */
 
         // ───── Generate feedback message for current question ─────
         const correctOptions = data.options.filter((opt) => opt.correct);
@@ -424,7 +404,7 @@ export class QuizQuestionLoaderService {
       feedback: o.feedback ?? '',
       selected: false,
       highlight: false,
-      showIcon: false,
+      showIcon: false
     }));
 
     const active = this.quizService.assignOptionActiveStates(hydrated, false);
