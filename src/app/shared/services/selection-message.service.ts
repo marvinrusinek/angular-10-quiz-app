@@ -64,20 +64,10 @@ export class SelectionMessageService {
   // one for "completion" (all correct selected)
   private _multiAnswerInProgressLock: Set<number> = new Set();
   private _multiAnswerCompletionLock: Set<number> = new Set();
-
-  private _singleAnswerState = new Map<number, 'incorrect' | 'correct'>();  // per-question SA state
-
-  private _multiAnswerLock = new Set<number>();
   private _multiAnswerPreLock = new Set<number>();
-
-  // Track first incorrect clicks on single-answer questions
-  private _firstClickIncorrectGuard: Set<number> = new Set<number>();
-
-  private _origNext = this.selectionMessageSubject.next.bind(this.selectionMessageSubject);
 
   public _lastMessageByIndex = new Map<number, string>();
   public _baselineReleased = new Set<number>();
-  private _msgRAF: number | null = null;
 
   // Track pending microtask tokens so we can cancel them
   private _pendingMsgTokens = new Map<number, number>();
@@ -90,12 +80,7 @@ export class SelectionMessageService {
   constructor(
     private quizService: QuizService,
     private selectedOptionService: SelectedOptionService
-  ) {
-    this.selectionMessageSubject.next = (value: string) => {
-      console.warn('[Intercepted .next()]', value);
-      this._origNext(value);
-    };
-  }
+  ) {}
 
   // Getter for the current selection message
   public getCurrentMessage(): string {
@@ -135,15 +120,11 @@ export class SelectionMessageService {
   
     // Compute correctness from canonical question options (authoritative)
     const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
+    const qArr = Array.isArray(svc.questions) ? (svc.questions as QuizQuestion[]) : [];
     const q =
       (questionIndex >= 0 && questionIndex < qArr.length
-        ? qArr[questionIndex]
-        : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined) ??
-      null;
+        ? qArr[questionIndex] : undefined) ??
+      (svc.currentQuestion as QuizQuestion | undefined) ?? null;
   
     // Resolve declared type (may be stale)
     const declaredType: QuestionType | undefined =
@@ -493,12 +474,8 @@ export class SelectionMessageService {
       const i0 = this.quizService.currentQuestionIndex;
       const total = this.quizService.totalQuestions;
       this._setMsgCounter++;
-      console.log(
-        `[TRACE setSelectionMessage #${this._setMsgCounter}] Q${i0} isAnswered=${isAnswered}`,
-        new Error().stack?.split('\n').slice(1, 4) // top 3 frames only
-      );
   
-      // 🚦 Ignore stray "false" calls until baseline has been seeded by forceBaseline()
+      // Ignore stray "false" calls until baseline has been seeded by forceBaseline()
       if (!this._baselineReleased.has(i0) && isAnswered === false) {
         console.log('[setSelectionMessage] Ignored pre-release call (baseline handled separately)', { i0 });
         return;
@@ -516,15 +493,10 @@ export class SelectionMessageService {
   
       // ───────── MULTI-ANSWER: baseline ─────────
       if (qType === QuestionType.MultipleAnswer && selectedCorrect === 0) {
-        console.trace('[TRACE baseline fired]', {
-          index: i0,
-          released: this._baselineReleased?.has(i0)
-        });
         if (!this._baselineReleased.has(i0)) {
           const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
-            console.log('[setSelectionMessage] Sticky baseline (multi, pre-release)', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
@@ -544,7 +516,6 @@ export class SelectionMessageService {
           const baselineMsg = i0 === 0 ? START_MSG : CONTINUE_MSG;
           const prev = this._lastMessageByIndex.get(i0);
           if (prev !== baselineMsg) {
-            console.log('[setSelectionMessage] Sticky baseline (single, pre-release)', { i0, baselineMsg });
             this._lastMessageByIndex.set(i0, baselineMsg);
             this.pushMessage(baselineMsg, i0);
           }
