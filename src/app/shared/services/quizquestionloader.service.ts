@@ -700,7 +700,7 @@ export class QuizQuestionLoaderService {
 
   public resetQuestionState(index: number = this.currentQuestionIndex): void {
     // Clear local UI state
-    this.questionInitialized = false; // block during reset
+    this.questionInitialized = false;  // block during reset
     this.isAnswered = false;
     this.selectedOptions = [];
     this.currentQuestionAnswered = false;
@@ -719,9 +719,7 @@ export class QuizQuestionLoaderService {
     if (this.currentQuestion?.options?.length) {
       for (const option of this.currentQuestion.options) {
         if (option.selected || option.highlight || !option.active) {
-          console.log(
-            `[resetQuestionState] Clearing state for optionId: ${option.optionId}`
-          );
+          console.log(`[resetQuestionState] Clearing state for optionId: ${option.optionId}`);
         }
 
         // Reset all option UI-related flags
@@ -732,9 +730,7 @@ export class QuizQuestionLoaderService {
         option.feedback = undefined;
       }
     } else {
-      console.warn(
-        '[resetQuestionState] ⚠️ No current question options found to reset.'
-      );
+      console.warn('[resetQuestionState] ⚠️ No current question options found to reset.');
     }
 
     // Reset internal selected options tracking
@@ -765,8 +761,7 @@ export class QuizQuestionLoaderService {
 
     const options = question.options;
     const correctCount = options.reduce(
-      (total, option) => (option?.correct ? total + 1 : total),
-      0
+      (total, option) => (option?.correct ? total + 1 : total), 0
     );
     const totalCorrect = Math.max(correctCount, 1);
 
