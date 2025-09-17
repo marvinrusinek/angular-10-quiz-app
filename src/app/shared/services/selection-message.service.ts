@@ -1609,7 +1609,7 @@ export class SelectionMessageService {
     // ───────── Default fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   } */
-  public computeFinalMessage(args: {  
+  public computeFinalMessage(args: {   
     index: number;
     total: number;
     qType: QuestionType;
@@ -1628,23 +1628,26 @@ export class SelectionMessageService {
   
     // ───────── SINGLE-ANSWER ─────────
     if (qType === QuestionType.SingleAnswer) {
-      // 🚦 If baseline not released yet → force sticky START/CONTINUE
+      // If baseline not released yet → force sticky START/CONTINUE
       if (!this._baselineReleased.has(index)) {
         const baseline = index === 0 ? START_MSG : CONTINUE_MSG;
         console.log('[SingleAnswer] Sticky baseline (not released)', { index, baseline });
         return baseline;
       }
   
+      // If already locked into "wrong" → stick with corrective message
       if (this._singleAnswerIncorrectLock.has(index)) {
         return 'Select a correct answer to continue...';
       }
   
+      // Correct answer chosen → promote to NEXT/RESULTS
       if (selectedCorrect > 0 || this._singleAnswerCorrectLock.has(index)) {
         this._singleAnswerCorrectLock.add(index);
         this._singleAnswerIncorrectLock.delete(index);
         return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
       }
   
+      // Wrong answer chosen → lock and show corrective message
       if (selectedWrong > 0) {
         this._singleAnswerIncorrectLock.add(index);
         return 'Select a correct answer to continue...';
@@ -1682,7 +1685,6 @@ export class SelectionMessageService {
     // ───────── Default fallback ─────────
     return index === 0 ? START_MSG : CONTINUE_MSG;
   }
-  
     
   /* public pushMessage(newMsg: string, i0: number): void {
     const current = this.selectionMessageSubject.getValue();
