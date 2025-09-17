@@ -96,18 +96,6 @@ export class SelectionMessageService {
     // Use the latest UI snapshot only to know what's selected…
     const uiSnapshot = this.getLatestOptionsSnapshot();
   
-    // ───────── ENTRY DEBUG LOG ─────────
-    console.log('[determineSelectionMessage ENTRY]', {
-      questionIndex,
-      totalQuestions,
-      snapshotSize: uiSnapshot?.length,
-      latestSnapshot: (uiSnapshot ?? []).map(o => ({
-        text: o.text,
-        correct: o.correct,
-        selected: o.selected
-      }))
-    });
-  
     // ───────── GUARD: prevent empty snapshots from breaking flow ─────────
     if (!uiSnapshot || uiSnapshot.length === 0) {
       console.warn('[determineSelectionMessage] ⚠️ Empty snapshot → return baseline', {
@@ -189,26 +177,14 @@ export class SelectionMessageService {
       if (qType === QuestionType.MultipleAnswer) {
         const totalCorrect = overlaid.filter(o => !!o.correct).length;
         const baselineMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        console.log('[determineSelectionMessage] Sticky multi baseline enforced', { questionIndex, baselineMsg });
         return baselineMsg;
       } else {
         const baselineMsg = questionIndex === 0 ? START_MSG : CONTINUE_MSG;
-        console.log('[determineSelectionMessage] Sticky single baseline enforced', { questionIndex, baselineMsg });
         return baselineMsg;
       }
     }
   
     // ───────── NORMAL PATH ─────────
-    console.log('[determineSelectionMessage] → calling computeFinalMessage', {
-      questionIndex,
-      qType,
-      overlaid: overlaid.map(o => ({
-        text: o.text,
-        correct: o.correct,
-        selected: o.selected
-      }))
-    });
-  
     return this.computeFinalMessage({
       index: questionIndex,
       total: totalQuestions,
@@ -300,13 +276,9 @@ export class SelectionMessageService {
       if (!this._baselineReleased.has(i0)) {
         // Only force baseline if baseline not released yet
         newMsg = `Select ${totalCorrect} correct answer${totalCorrect > 1 ? 's' : ''} to continue...`;
-        console.log('[pushMessage Guard] Sticky multi baseline (pre-release)', { i0, newMsg });
       } else {
         // After baseline released → never regress to CONTINUE_MSG
-        if (newMsg === CONTINUE_MSG) {
-          console.log('[pushMessage Guard] Skipped regressing to CONTINUE_MSG (multi)', { i0 });
-          return;
-        }
+        if (newMsg === CONTINUE_MSG) return;
       }
     }
   
@@ -350,34 +322,6 @@ export class SelectionMessageService {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
   }
-  
-  
-
-  // Build message on click (correct wording and logic)
-  public buildMessageFromSelection(params: {
-    index: number; // 0-based
-    totalQuestions: number;
-    questionType: QuestionType;
-    options: Option[];
-  }): string {
-    const { index, totalQuestions, questionType, options } = params;
-
-    const isLast = totalQuestions > 0 && index === totalQuestions - 1;
-    const correct = (options ?? []).filter((o) => !!o?.correct);
-    const selected = correct.filter((o) => !!o?.selected).length;
-    const isMulti = questionType === QuestionType.MultipleAnswer;
-
-    if (isMulti) {
-      const remaining = Math.max(0, correct.length - selected);
-      if (remaining > 0) {
-        return buildRemainingMsg(remaining);
-      }
-      return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-    }
-
-    // Single-answer: after any click, show Next/Results
-    return isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
-  }
 
   // ───────── RELEASE STICKY BASELINE LOCK ─────────
   public releaseBaseline(index: number): void {
@@ -403,12 +347,6 @@ export class SelectionMessageService {
     // Cancel any queued microtask for this index
     // Setting to -1 signals that pending setSelectionMessage calls must skip
     this._pendingMsgTokens.set(index, -1);
-  
-    console.log('[releaseBaseline] Cancelled pending microtasks for index', index);
-  }
-
-  public hasBaselineReleased(i0: number): boolean {
-    return this._baselineReleased.has(i0);
   }
 
   public enforceBaselineAtInit(i0: number, qType: QuestionType, totalCorrect: number): void {
@@ -550,43 +488,6 @@ export class SelectionMessageService {
     } catch (err) {
       console.error('[❌ setSelectionMessage ERROR]', err);
     }
-  }  
-  
-
-  public clearSelectionMessage(): void {
-    try {
-      this.selectionMessageSubject.next('');
-    } catch (err) {
-      console.error('[❌ clearSelectionMessage ERROR]', err);
-    }
-  }
-
-  // Helper: Compute and push atomically (passes options to guard)
-  // Deterministic compute from the array passed in
-  public updateMessageFromSelection(params: {
-    questionIndex: number;
-    totalQuestions: number;
-    questionType: QuestionType;
-    options: Option[];
-    token?: number;
-  }): void {
-    const {
-      questionIndex: i0,
-      totalQuestions,
-      questionType,
-      options,
-      token,
-    } = params;
-
-    if (typeof token === 'number' && this.isWriteFrozen(i0, token)) return;
-
-    const overlaid = this.getCanonicalOverlay(i0, options);
-    this.setOptionsSnapshot(overlaid);
-
-    const qType = questionType ?? this.getQuestionTypeForIndex(i0);
-    const isLast = totalQuestions > 0 && i0 === totalQuestions - 1;
-    const forced = this.multiGateMessage(i0, qType, overlaid);
-    const msg = forced ?? (isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG);
   }
 
   // Snapshot API
@@ -622,22 +523,6 @@ export class SelectionMessageService {
     this.latestByIndex.set(index, token);
     this.freezeNextishUntil.set(index, performance.now() + freezeMs);
     return token;
-  }
-
-  /** End a guarded write for this index.
-   *  - If `token` is stale (not the latest), we do nothing.
-   *  - If it’s the latest, we immediately end the “freeze window”
-   *    so legit Next/Results can show (once remaining === 0). */
-  public endWrite(
-    index: number,
-    token?: number,
-    opts?: { clearTokenWindow?: boolean }
-  ): void {
-    if (typeof token === 'number') {
-      const latest = this.latestByIndex.get(index);
-      if (latest != null && token !== latest) return;  // stale; ignore
-    }
-    if (opts?.clearTokenWindow) this.freezeNextishUntil.delete(index);
   }
 
   private inFreezeWindow(index: number): boolean {
@@ -843,10 +728,10 @@ export class SelectionMessageService {
     canon.forEach((c, i) => {
       const k = keyOf(c as any, i);
       let cid = (c as any).optionId ?? (c as any).id;
-      if (cid == null) cid = `q${index}o${i}`; // deterministic fallback id
-      (c as any).optionId = cid; // stamp canonical
+      if (cid == null) cid = `q${index}o${i}`;  // deterministic fallback id
+      (c as any).optionId = cid;  // stamp canonical
       fwd!.set(k, cid); // key match
-      fwd!.set(`ix:${i}`, cid); // index alignment fallback
+      fwd!.set(`ix:${i}`, cid);  // index alignment fallback
     });
     this.idMapByIndex.set(index, fwd!);
 
@@ -1104,17 +989,5 @@ export class SelectionMessageService {
     }
 
     return keys;
-  }
-
-  private getQuestionTypeForIndex(index: number): QuestionType {
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
-    const q =
-      (index >= 0 && index < qArr.length ? qArr[index] : undefined) ??
-      svc.currentQuestion ??
-      null;
-    return q?.type ?? QuestionType.SingleAnswer;
   }
 }
