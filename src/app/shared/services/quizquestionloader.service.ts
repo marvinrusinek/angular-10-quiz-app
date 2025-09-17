@@ -12,12 +12,10 @@ import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
 import { FeedbackService } from './feedback.service';
-import { NextButtonStateService } from './next-button-state.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { ResetBackgroundService } from './reset-background.service';
-import { RenderStateService } from './render-state.service';
 import { ResetStateService } from './reset-state.service';
 import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
@@ -94,10 +92,8 @@ export class QuizQuestionLoaderService {
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
-    private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
-    private renderStateService: RenderStateService,
     private resetBackgroundService: ResetBackgroundService,
     private resetStateService: ResetStateService,
     private selectionMessageService: SelectionMessageService,
@@ -151,7 +147,7 @@ export class QuizQuestionLoaderService {
           forkJoin({
             question: question$,
             options: options$,
-            explanation: explanation$,
+            explanation: explanation$
           }).pipe(
             catchError((error) => {
               console.error(
@@ -190,7 +186,7 @@ export class QuizQuestionLoaderService {
         // ───── Apply feedback to each option ─────
         const updatedOptions = data.options.map((opt) => ({
           ...opt,
-          feedback: feedbackMessage,
+          feedback: feedbackMessage
         }));
 
         // ───── Apply loaded values to local state ─────
@@ -202,11 +198,6 @@ export class QuizQuestionLoaderService {
         this.explanationToDisplay = data.explanation ?? '';
         this.isQuestionDisplayed = true;
 
-        console.log(
-          '[🧪 loadQuestionContents] optionsToDisplay assigned:',
-          this.optionsToDisplay
-        );
-
         // ───── Final loading flag ─────
         this.isLoading = false;
       } catch (error) {
@@ -217,13 +208,8 @@ export class QuizQuestionLoaderService {
         this.isLoading = false;
       }
     } catch (error) {
-      console.error(
-        `[QuizQuestionLoaderService] ❌ Unexpected outer error:`,
-        error
-      );
+      console.error(`[QuizQuestionLoaderService] ❌ Unexpected outer error:`, error);
       this.isLoading = false;
-      // Optional: trigger UI update manually if using ChangeDetectionStrategy.OnPush
-      // this.cdRef.detectChanges();
     }
   }
 
@@ -364,7 +350,7 @@ export class QuizQuestionLoaderService {
 
     // Reset cache if user switched quizzes
     if (quizId !== this.lastQuizId) {
-      this.questionsArray = []; // discard stale TypeScript list
+      this.questionsArray = [];  // discard stale TypeScript list
       this.lastQuizId = quizId;
     }
 
@@ -385,7 +371,7 @@ export class QuizQuestionLoaderService {
     );
     this.quizService.setCurrentQuiz({
       ...fullQuiz,
-      questions: this.questionsArray,
+      questions: this.questionsArray
     });
 
     // Return the requested question + options
