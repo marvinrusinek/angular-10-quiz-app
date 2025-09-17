@@ -143,8 +143,7 @@ export class SelectionMessageService {
     // Ensure canonical and UI snapshot share the same optionId space, enriching snapshot with canonical fields like text
     const canonical = Array.isArray(q?.options) ? (q!.options as Option[]) : [];
   
-    const priorSnapAsOpts: Option[] =
-      this.getLatestOptionsSnapshotAsOptions(canonical);
+    const priorSnapAsOpts: Option[] = this.getLatestOptionsSnapshotAsOptions(canonical);
   
     this.ensureStableIds(
       questionIndex,
