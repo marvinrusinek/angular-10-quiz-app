@@ -6235,13 +6235,5 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Use a short freeze only for Q1
     const token = this.selectionMessageService.beginWrite(i0, 200);
-  
-    this.selectionMessageService.updateMessageFromSelection({
-      questionIndex: i0,
-      totalQuestions: this.totalQuestions,
-      questionType: qType,
-      options: opts,
-      token
-    });
   }  
 }
