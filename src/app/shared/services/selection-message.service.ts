@@ -600,7 +600,7 @@ export class SelectionMessageService {
       list.forEach((o, i) => {
         const k = keyOf(o as any, i);
         let cid = fwd!.get(k);
-        if (cid == null) cid = fwd!.get(`ix:${i}`); // index fallback saves "first option" cases
+        if (cid == null) cid = fwd!.get(`ix:${i}`);  // index fallback saves "first option" cases
         if (cid != null) (o as any).optionId = cid;
       });
     }
@@ -652,9 +652,7 @@ export class SelectionMessageService {
         const fromId = this.expectedCorrectByQid.get(qid);
         if (typeof fromId === 'number' && fromId > 0) return fromId;
       }
-    } catch {
-      /* noop */
-    }
+    } catch {}
 
     return undefined;
   }
@@ -686,7 +684,7 @@ export class SelectionMessageService {
         id: s.id,
         selected: !!s.selected,
         // keep 'correct' only if it's a boolean; otherwise omit/undefined
-        correct: typeof s.correct === 'boolean' ? s.correct : undefined,
+        correct: typeof s.correct === 'boolean' ? s.correct : undefined
       }));
     }
 
@@ -714,7 +712,7 @@ export class SelectionMessageService {
       showIcon: !!s.selected,
       highlight: !!s.selected,
       feedback: '',
-      styleClass: '',
+      styleClass: ''
     } as unknown as Option;
   }
 
@@ -790,7 +788,7 @@ export class SelectionMessageService {
       // Passthrough optionals with safe defaults
       answer: o?.answer,
       feedback: typeof o?.feedback === 'string' ? o.feedback : '',
-      styleClass: typeof o?.styleClass === 'string' ? o.styleClass : '',
+      styleClass: typeof o?.styleClass === 'string' ? o.styleClass : ''
     } as Option;
   }
 
