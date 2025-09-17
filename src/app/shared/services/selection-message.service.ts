@@ -40,7 +40,6 @@ export class SelectionMessageService {
 
   // Per-question remaining tracker and short enforcement window
   lastRemainingByIndex = new Map<number, number>();
-  private enforceUntilByIndex = new Map<number, number>();
 
   // Force a minimum number of correct answers for specific questions (e.g., Q4 ⇒ 3)
   private expectedCorrectByIndex = new Map<number, number>();
@@ -75,7 +74,6 @@ export class SelectionMessageService {
   // Incremental counter for unique tokens
   private _msgTokenCounter = 0;
   private _setMsgCounter = 0;
-  private _updateMsgCounter = 0;
 
   constructor(
     private quizService: QuizService,
@@ -310,14 +308,7 @@ export class SelectionMessageService {
   
     // ───────── Push only if changed ─────────
     if (current !== newMsg) {
-      console.trace('[TRACE pushMessage emit]', {
-        index: i0,
-        newMsg,
-        released: this._baselineReleased?.has(i0)
-      });
-      
       this.selectionMessageSubject.next(newMsg);
-      console.log('[pushMessage] updated:', newMsg);
     } else {
       console.log('[pushMessage] skipped duplicate', { i0, newMsg });
     }
@@ -339,7 +330,6 @@ export class SelectionMessageService {
     // Mark this index as released so baseline guards stop firing
     if (!this._baselineReleased.has(index)) {
       this._baselineReleased.add(index);
-      console.log('[releaseBaseline] Baseline released for question', index);
     } else {
       console.log('[releaseBaseline] Already released, skipping', index);
     }
@@ -371,7 +361,6 @@ export class SelectionMessageService {
         if (prev !== baselineMsg) {
           this._lastMessageByIndex.set(i0, baselineMsg);
           this.selectionMessageSubject.next(baselineMsg);
-          console.log('[enforceBaselineAtInit] Baseline set immediately', { i0, baselineMsg });
         } else {
           console.log('[enforceBaselineAtInit] Skipped duplicate baseline', { i0, baselineMsg });
         }
@@ -398,7 +387,6 @@ export class SelectionMessageService {
       const current = this.selectionMessageSubject.getValue();
       if (msg && current !== msg) {
         this.selectionMessageSubject.next(msg);
-        console.log('[forceBaseline] pushed baseline', { index, msg });
       } else {
         console.log('[forceBaseline] skipped duplicate', { index, msg });
       }
@@ -503,13 +491,6 @@ export class SelectionMessageService {
     // Persist internally and notify observers
     this.optionsSnapshot = safe;
     this.optionsSnapshotSubject.next(safe);
-  
-    // Debug log of what was actually stored
-    console.log('[setOptionsSnapshot]', safe.map(o => ({
-      text: o.text,
-      correct: o.correct,
-      selected: o.selected
-    })));
   }
 
   public notifySelectionMutated(options: Option[] | null | undefined): void {
@@ -568,128 +549,6 @@ export class SelectionMessageService {
   }
 
   /* ================= Helpers ================= */
-  // Overlay UI/service selection onto canonical options (correct flags intact)
-  private getCanonicalOverlay(i0: number, optsCtx?: Option[] | null): Option[] {
-    const svc: any = this.quizService as any;
-    const qArr = Array.isArray(svc.questions)
-      ? (svc.questions as QuizQuestion[])
-      : [];
-    const q: QuizQuestion | undefined =
-      (i0 >= 0 && i0 < qArr.length ? qArr[i0] : undefined) ??
-      (svc.currentQuestion as QuizQuestion | undefined);
-
-    const canonical: Option[] = Array.isArray(q?.options) ? q!.options : [];
-
-    // Collect selected ids from ctx options (if provided)
-    const selectedIds = new Set<number | string>();
-    const source =
-      Array.isArray(optsCtx) && optsCtx.length
-        ? optsCtx
-        : this.getLatestOptionsSnapshot();
-    for (let i = 0; i < (source?.length ?? 0); i++) {
-      const o = source[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
-    }
-
-    // Union with current snapshot
-    const snap = this.getLatestOptionsSnapshot();
-    for (let i = 0; i < (snap?.length ?? 0); i++) {
-      const o = snap[i];
-      const id = (o as any)?.optionId ?? i;
-      if (o?.selected) selectedIds.add(id);
-    }
-
-    // Union with SelectedOptionService map (if it stores ids/objs)
-    try {
-      const rawSel: any =
-        this.selectedOptionService?.selectedOptionsMap?.get?.(i0);
-      if (rawSel instanceof Set) {
-        rawSel.forEach((id: any) => selectedIds.add(id));
-      } else if (Array.isArray(rawSel)) {
-        rawSel.forEach((so: any, idx: number) => {
-          const id = so?.optionId ?? so?.id ?? so?.value ?? idx;
-          if (id !== undefined) selectedIds.add(id);
-        });
-      }
-    } catch {}
-
-    // Return canonical with selected overlay (fallback to ctx/source if canonical missing)
-    // selectedIds: Set<number|string> built earlier
-    const result: Option[] = canonical.length
-      ? canonical.map((o, idx) => {
-          const id = this.toStableId(o, idx);
-          const sel = selectedIds.has(id);
-          return this.toOption(o, idx, sel);  // always an Option
-        })
-      : source.map((o, idx) => this.toOption(o, idx));  // always an Option
-
-    return result;  // Option[]
-  }
-
-  // Gate: if multi & remaining > 0, return the forced "Select N more..." message; else null
-  // UPDATED: honor expected-correct override and count only SELECTED-CORRECT
-  private multiGateMessage(
-    i0: number,
-    qType: QuestionType,
-    overlaid: Option[]
-  ): string | null {
-    // Decide if this is multi using declared, override, or canonical
-    const expectedOverride = this.getExpectedCorrectCount(i0);
-    const canonicalCorrect = overlaid.filter(
-      (o) =>
-        !!(o as any)?.correct ||
-        !!(o as any)?.isCorrect ||
-        String((o as any)?.correct).toLowerCase() === 'true'
-    ).length;
-
-    const isMulti =
-      qType === QuestionType.MultipleAnswer ||
-      (expectedOverride ?? 0) > 1 ||
-      canonicalCorrect > 1;
-
-    if (!isMulti) return null;
-
-    // Do NOT force "Select ..." before any pick — unless you explicitly want it.
-    // If you want to always show remaining even before first pick, set `requirePick=false`.
-    const anySelected = overlaid.some((o) => !!o?.selected);
-    if (!anySelected) {
-      // Show remaining for multi before first pick (your recent requirement for Q2/Q4)
-      const totalForThisQ =
-        typeof expectedOverride === 'number' &&
-        expectedOverride >= 1 &&
-        expectedOverride <= canonicalCorrect
-          ? expectedOverride
-          : canonicalCorrect;
-      return buildRemainingMsg(Math.max(1, totalForThisQ));
-    }
-
-    // Total required: prefer explicit override if sensible; else canonical count
-    const totalForThisQ =
-      typeof expectedOverride === 'number' &&
-      expectedOverride >= 1 &&
-      expectedOverride <= canonicalCorrect
-        ? expectedOverride
-        : canonicalCorrect;
-
-    // Count only the selected CORRECT options (overlay truth)
-    const selectedCorrect = overlaid.reduce(
-      (n, o: any) =>
-        n +
-        (!!o?.selected &&
-        (o?.correct === true ||
-          o?.isCorrect === true ||
-          String(o?.correct).toLowerCase() === 'true')
-          ? 1
-          : 0),
-      0
-    );
-
-    const remaining = Math.max(0, totalForThisQ - selectedCorrect);
-    if (remaining > 0) return buildRemainingMsg(remaining);
-    return null;
-  }
-
   // Ensure every canonical option has a stable optionId.
   // Also stamp matching ids onto any UI list passed in.
   // More tolerant keying (value|text|label|title|optionText|displayText) + index fallback.
