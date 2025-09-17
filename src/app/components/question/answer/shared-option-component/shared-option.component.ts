@@ -802,6 +802,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   getOptionDisplayText(option: Option, idx: number): string {
+    console.log(`[DBG option text check] idx=${idx}`, option);
     if (!option) {
       console.warn('[getOptionDisplayText] Missing option at index', idx);
       return `${idx + 1}. [No option data]`;
