@@ -825,7 +825,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return option.showIcon === true;
   }
 
-  public isOptionDisabled(option: Option): boolean {
+  /* public isOptionDisabled(option: Option): boolean {
     // Make sure dependencies exist
     if (!option || this.currentQuestionIndex == null || !this.optionsToDisplay) {
       return false;  // don’t disable if state isn’t ready
@@ -836,11 +836,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.currentQuestionIndex,
       this.optionsToDisplay
     );
+  } */
+  public isOptionDisabled(option: Option): boolean {
+    // Guard: disable only when all correct answers have been selected
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
+      this.currentQuestionIndex,
+      this.optionsToDisplay
+    );
+  
+    // Disable if all correct are chosen and this option is incorrect
+    if (allCorrectSelected && !option.correct) {
+      return true;
+    }
+  
+    return false;
   }
 
   public getOptionClasses(option: Option): { [key: string]: boolean } {
     return {
-      'disabled-option': this.isOptionDisabled(option)
+      'disabled-option': this.isOptionDisabled(option),
+      'correct-option': option.selected && option.correct,
+      'incorrect-option': option.selected && !option.correct
     };
   }
 
