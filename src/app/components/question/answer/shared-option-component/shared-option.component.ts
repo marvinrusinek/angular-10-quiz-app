@@ -123,10 +123,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   trackByQuestionScoped = (_: number, b: OptionBindings) =>
     `${this.questionVersion}-${b.option.optionId}`;
 
-  private _msgRafId: number | null = null;
-  private _msgPending:
-    | { index: number; questionType: QuestionType; options: Option[] }
-    | null = null;
+  private flashDisabledSet = new Set<number>();
 
   onDestroy$ = new Subject<void>();
 
@@ -821,40 +818,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return '';
   }
 
-  public isIconVisible(option: Option): boolean {
-    return option.showIcon === true;
-  }
-
-  /* public isOptionDisabled(option: Option): boolean {
-    // Make sure dependencies exist
-    if (!option || this.currentQuestionIndex == null || !this.optionsToDisplay) {
-      return false;  // don’t disable if state isn’t ready
-    }
-  
-    return this.selectedOptionService.shouldDisableOption(
-      option,
-      this.currentQuestionIndex,
-      this.optionsToDisplay
-    );
-  } */
-  public isOptionDisabled(option: Option): boolean {
-    // Guard: disable only when all correct answers have been selected
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
-  
-    // Disable if all correct are chosen and this option is incorrect
-    if (allCorrectSelected && !option.correct) {
-      return true;
-    }
-  
-    return false;
-  }
-
   public getOptionClasses(option: Option): { [key: string]: boolean } {
     return {
       'disabled-option': this.isOptionDisabled(option),
       'correct-option': option.selected && option.correct,
-      'incorrect-option': option.selected && !option.correct
+      'incorrect-option': option.selected && !option.correct,
+      'flash-red': this.flashDisabledSet.has(option.optionId)
     };
+  }
+
+  public isIconVisible(option: Option): boolean {
+    return option.showIcon === true;
+  }
+
+
+  // Decide if an option should be disabled
+  public isOptionDisabled(option: Option): boolean {
+    const allCorrectSelected =
+      this.selectedOptionService.areAllCorrectAnswersSelectedSync(
+        this.currentQuestionIndex
+      );
+  
+    // Once all correct are selected → disable all incorrects
+    if (allCorrectSelected && !option.correct) {
+      return true;
+    }
+  
+    // Already flashed → disable
+    if (this.flashDisabledSet.has(option.optionId)) {
+      return true;
+    }
+  
+    return false;
   }
 
   public areAllCorrectAnswersSelected(): boolean {
@@ -869,6 +864,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
 
     return this.selectedOptionService.areAllCorrectAnswersSelectedSync(index);
+  }
+
+  // Call this when an incorrect option is clicked
+  public flashAndDisable(option: Option): void {
+    if (!option.correct) {
+      this.flashDisabledSet.add(option.optionId);
+      
+      // Allow CSS animation to play
+      setTimeout(() => {
+        // Remove flash-red, but keep it disabled
+        this.flashDisabledSet.delete(option.optionId);
+        this.cdRef.markForCheck();
+      }, 500);  // 500ms flash
+    }
   }
 
   public updateOptionAndUI(
