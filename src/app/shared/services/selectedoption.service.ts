@@ -613,17 +613,27 @@ export class SelectedOptionService {
   }
 
   public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
-    const selected = this.selectedOptionsMap.get(questionIndex) || [];
-  
-    const correctOptionIds = selected
-      .filter((opt) => opt.correct)
-      .map((opt) => opt.optionId);
-  
-    const selectedIds = selected.map((opt) => opt.optionId);
-  
-    return correctOptionIds.length > 0 && correctOptionIds.every(id => selectedIds.includes(id));
-  }
+    const question = this.quizService.questions?.[questionIndex];
+    if (!question || !Array.isArray(question.options)) {
+      return false;
+    }
 
+    const correctOptionIds = question.options
+      .filter((opt) => opt.correct)
+      .map((opt) => opt.optionId)
+      .filter((id): id is number => typeof id === 'number');
+
+    if (correctOptionIds.length === 0) {
+      return false;
+    }
+
+    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+
+    return correctOptionIds.every((correctId) =>
+      selectedOptions.some((opt) => opt.optionId === correctId && opt.selected !== false)
+    );
+  }
+  
   public isQuestionAnswered(questionIndex: number): boolean {
     const options = this.selectedOptionsMap.get(questionIndex);
     return Array.isArray(options) && options.length > 0;
