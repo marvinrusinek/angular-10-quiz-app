@@ -66,7 +66,7 @@ div.mat-radio-inner-container {
 
 .disabled-option {
   opacity: 0.6;
-  pointer-events: none; // prevent clicks
+  pointer-events: none;  // prevent clicks
   cursor: not-allowed;
 }
 
@@ -78,4 +78,14 @@ div.mat-radio-inner-container {
 .incorrect-option {
   background-color: $red !important;
   border: 2px solid $vivid-blue !important;
+}
+
+.flash-red {
+  animation: flashRed 0.5s ease;
+}
+
+@keyframes flashRed {
+  0%   { background-color: $red; }
+  50%  { background-color: lighten($red, 15%); }
+  100% { background-color: $light-gray; }  // back to normal disabled
 }
