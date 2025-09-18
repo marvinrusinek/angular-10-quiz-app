@@ -1,63 +1,19 @@
 <!-- Show list only when there are options -->
 <ng-container *ngIf="canDisplayOptions && renderReady && optionsToDisplay?.length > 0; else noOptions">
-<form [formGroup]="form" class="options-form">
+  <form [formGroup]="form" class="options-form">
 
-  <!-- ─────────── SINGLE-ANSWER (radio) ─────────── -->
-  <mat-radio-group
-    *ngIf="type === 'single'"
-    class="options-group options"
-    formControlName="selectedOptionId">
-    
-    <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
-         class="option-container">
+    <!-- ─────────── SINGLE-ANSWER (radio) ─────────── -->
+    <mat-radio-group
+      *ngIf="type === 'single'"
+      class="options-group options"
+      formControlName="selectedOptionId">
+      
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
+          class="option-container">
 
-      <mat-radio-button
-        appHighlightOption
-        class="option-radio single-option"
-        [value]="b.option.optionId"
-        [option]="b.option"
-        [optionBinding]="b"
-        [isSelected]="b.isSelected"
-        [isCorrect]="b.isCorrect"
-        [allCorrectSelected]="areAllCorrectAnswersSelected()"
-        [selectedOptionHistory]="selectedOptionHistory"
-        [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-        [appHighlightInputType]="'radio'"
-        [appHighlightReset]="shouldResetBackground"
-        [ngClass]="getOptionClasses(b.option)"
-        [disabled]="isOptionDisabled(b.option)"
-        (click)="handleClick(b, i)"
-        (change)="updateOptionAndUI(b, i, $event)">
-
-        <div class="option-wrapper">
-          <span class="option-text">
-            {{ getOptionDisplayText(b.option, i) }}
-          </span>
-          <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
-            {{ getOptionIcon(b.option) }}
-          </mat-icon>
-        </div>
-      </mat-radio-button>
-
-      <!-- Feedback block (outside the radio) -->
-      <div class="feedback-wrapper" *ngIf="b.option.optionId === lastFeedbackOptionId">
-        <codelab-quiz-feedback
-          *ngIf="feedbackConfigs[b.option.optionId]?.showFeedback"
-          [feedbackConfig]="feedbackConfigs[b.option.optionId]">
-        </codelab-quiz-feedback>
-      </div>
-    </div>
-  </mat-radio-group>
-
-  <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
-  <div *ngIf="type === 'multiple'" class="options-group options">
-    <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
-         class="option-container">
-
-      <label class="option-row multiple-option">
-        <mat-checkbox
+        <mat-radio-button
           appHighlightOption
-          [checked]="b.option.selected"
+          class="option-radio single-option"
           [value]="b.option.optionId"
           [option]="b.option"
           [optionBinding]="b"
@@ -66,11 +22,11 @@
           [allCorrectSelected]="areAllCorrectAnswersSelected()"
           [selectedOptionHistory]="selectedOptionHistory"
           [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
-          [appHighlightInputType]="'checkbox'"
+          [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
           [ngClass]="getOptionClasses(b.option)"
           [disabled]="isOptionDisabled(b.option)"
-          (click)="handleClick(b, i)"
+          (click)="handleClick(b, i); flashAndDisable(b.option)"
           (change)="updateOptionAndUI(b, i, $event)">
 
           <div class="option-wrapper">
@@ -81,22 +37,66 @@
               {{ getOptionIcon(b.option) }}
             </mat-icon>
           </div>
-        </mat-checkbox>
-      </label>
+        </mat-radio-button>
 
-      <!-- Feedback block (outside the checkbox) -->
-      <div class="feedback-wrapper" *ngIf="b.option.optionId === lastFeedbackOptionId">
-        <codelab-quiz-feedback
-          *ngIf="feedbackConfigs[b.option.optionId]?.showFeedback"
-          [feedbackConfig]="feedbackConfigs[b.option.optionId]">
-        </codelab-quiz-feedback>
+        <!-- Feedback block (outside the radio) -->
+        <div class="feedback-wrapper" *ngIf="b.option.optionId === lastFeedbackOptionId">
+          <codelab-quiz-feedback
+            *ngIf="feedbackConfigs[b.option.optionId]?.showFeedback"
+            [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+          </codelab-quiz-feedback>
+        </div>
+      </div>
+    </mat-radio-group>
+
+    <!-- ─────────── MULTIPLE-ANSWER (checkbox) ─────────── -->
+    <div *ngIf="type === 'multiple'" class="options-group options">
+      <div *ngFor="let b of optionBindings; let i = index; trackBy: trackByQuestionScoped"
+          class="option-container">
+
+        <label class="option-row multiple-option">
+          <mat-checkbox
+            appHighlightOption
+            [checked]="b.option.selected"
+            [value]="b.option.optionId"
+            [option]="b.option"
+            [optionBinding]="b"
+            [isSelected]="b.isSelected"
+            [isCorrect]="b.isCorrect"
+            [allCorrectSelected]="areAllCorrectAnswersSelected()"
+            [selectedOptionHistory]="selectedOptionHistory"
+            [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
+            [appHighlightInputType]="'checkbox'"
+            [appHighlightReset]="shouldResetBackground"
+            [ngClass]="getOptionClasses(b.option)"
+            [disabled]="isOptionDisabled(b.option)"
+            (click)="handleClick(b, i); flashAndDisable(b.option)"
+            (change)="updateOptionAndUI(b, i, $event)">
+
+            <div class="option-wrapper">
+              <span class="option-text">
+                {{ getOptionDisplayText(b.option, i) }}
+              </span>
+              <mat-icon *ngIf="shouldShowIcon(b.option)" class="opt-icon">
+                {{ getOptionIcon(b.option) }}
+              </mat-icon>
+            </div>
+          </mat-checkbox>
+        </label>
+
+        <!-- Feedback block (outside the checkbox) -->
+        <div class="feedback-wrapper" *ngIf="b.option.optionId === lastFeedbackOptionId">
+          <codelab-quiz-feedback
+            *ngIf="feedbackConfigs[b.option.optionId]?.showFeedback"
+            [feedbackConfig]="feedbackConfigs[b.option.optionId]">
+          </codelab-quiz-feedback>
+        </div>
       </div>
     </div>
-  </div>
-</form>
+  </form>
 </ng-container>
 
 <!-- Fallback when no options yet -->
 <ng-template #noOptions>
-<span *ngIf="showNoOptionsFallback">Options not ready...</span>
+  <span *ngIf="showNoOptionsFallback">Options not ready...</span>
 </ng-template>
