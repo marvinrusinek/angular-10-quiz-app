@@ -837,7 +837,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.optionsToDisplay
     );
   }
-  
+
+  public getOptionClasses(option: Option): { [key: string]: boolean } {
+    return {
+      'disabled-option': this.isOptionDisabled(option)
+    };
+  }
 
   public areAllCorrectAnswersSelected(): boolean {
     const index = typeof this.currentQuestionIndex === 'number'
