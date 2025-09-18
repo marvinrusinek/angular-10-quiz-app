@@ -802,24 +802,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   getOptionDisplayText(option: Option, idx: number): string {
-    console.log(`[DBG option text check] idx=${idx}`, option);
-    if (!option) {
-      console.warn('[getOptionDisplayText] Missing option at index', idx);
-      return `${idx + 1}. [No option data]`;
-    }
-  
-    const text =
-      option.text?.trim() ??
-      option.value?.toString() ??
-      option.optionId?.toString() ??
-      '';
-  
-    if (!text) {
-      console.warn('[getOptionDisplayText] Empty text field', { option, idx });
-      return `${idx + 1}. [No text]`;
-    }
-  
-    return `${idx + 1}. ${text}`;
+    return `${idx + 1}. ${option?.text ?? ''}`;
   }  
 
   getOptionIcon(option: Option): string {
