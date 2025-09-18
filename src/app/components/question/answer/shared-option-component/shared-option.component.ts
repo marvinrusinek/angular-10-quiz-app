@@ -821,9 +821,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return '';
   }
 
-  isIconVisible(option: Option): boolean {
+  public isIconVisible(option: Option): boolean {
     return option.showIcon === true;
   }
+
+  public isOptionDisabled(option: Option): boolean {
+    // Make sure dependencies exist
+    if (!option || this.currentQuestionIndex == null || !this.optionsToDisplay) {
+      return false;  // don’t disable if state isn’t ready
+    }
+  
+    return this.selectedOptionService.shouldDisableOption(
+      option,
+      this.currentQuestionIndex,
+      this.optionsToDisplay
+    );
+  }
+  
 
   public areAllCorrectAnswersSelected(): boolean {
     const index = typeof this.currentQuestionIndex === 'number'
