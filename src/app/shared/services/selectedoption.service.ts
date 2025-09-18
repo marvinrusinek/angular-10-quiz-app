@@ -631,12 +631,13 @@ export class SelectedOptionService {
       return false;
     }
 
-    const correctOptionIds = question.options.reduce<string[]>((acc, opt, idx) => {
-      if (!opt?.correct) {
+    // Collect the identifiers for every correct option on the question.
+    const correctOptionIds = question.options.reduce<string[]>((acc, option, idx) => {
+      if (!option?.correct) {
         return acc;
       }
 
-      const normalized = this.normalizeOptionId(opt.optionId ?? idx);
+      const normalized = this.normalizeOptionId(option.optionId ?? idx);
       if (normalized !== null) {
         acc.push(normalized);
       }
@@ -648,30 +649,39 @@ export class SelectedOptionService {
       return false;
     }
 
-    const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-    const selectedIds = selectedOptions.reduce<string[]>((acc, opt) => {
-      if (opt?.selected === false) {
-        return acc;
-      }
+    // Build a set of everything that is currently marked as selected.  We combine the
+    // cached selections from `selectedOptionsMap` with the live `question.options`
+    // array so the computation stays in sync with the UI even if the map lags a tick.
+    const selectedIdSet = new Set<string>();
 
-      const normalized = this.normalizeOptionId(opt?.optionId);
+    const addIfValid = (candidate: unknown): void => {
+      const normalized = this.normalizeOptionId(candidate);
       if (normalized !== null) {
-        acc.push(normalized);
+        selectedIdSet.add(normalized);
+      }
+    };
+
+    for (const opt of this.selectedOptionsMap.get(questionIndex) ?? []) {
+      if (opt?.selected === false) {
+        continue;
       }
 
-      return acc;
-    }, []);
+      addIfValid(opt?.optionId);
+    }
 
-    if (selectedIds.length === 0) {
+    question.options.forEach((opt, idx) => {
+      if (!opt?.selected) {
+        return;
+      }
+
+      addIfValid(opt.optionId ?? idx);
+    });
+
+    if (selectedIdSet.size === 0) {
       return false;
     }
 
-    const selectedIdSet = new Set(selectedIds);
-
-    return (
-      selectedIdSet.size >= correctOptionIds.length &&
-      correctOptionIds.every((correctId) => selectedIdSet.has(correctId))
-    );
+    return correctOptionIds.every((correctId) => selectedIdSet.has(correctId));
   }
   
   public isQuestionAnswered(questionIndex: number): boolean {
