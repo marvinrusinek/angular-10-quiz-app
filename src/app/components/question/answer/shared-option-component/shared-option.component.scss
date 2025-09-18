@@ -63,3 +63,19 @@ div.mat-radio-inner-container {
   color: red;
   margin-left: 10px;
 }
+
+.disabled-option {
+  opacity: 0.6;
+  pointer-events: none; // prevent clicks
+  cursor: not-allowed;
+}
+
+.correct-option {
+  background-color: $green !important;
+  border: 2px solid $vivid-blue !important;
+}
+
+.incorrect-option {
+  background-color: $red !important;
+  border: 2px solid $vivid-blue !important;
+}
