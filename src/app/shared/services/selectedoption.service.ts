@@ -612,38 +612,66 @@ export class SelectedOptionService {
     }
   }
 
+  private normalizeOptionId(id: unknown): string | null {
+    if (typeof id === 'number') {
+      return Number.isFinite(id) ? String(id) : null;
+    }
+
+    if (typeof id === 'string') {
+      const trimmed = id.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+
+    return null;
+  }
+
   public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
     const question = this.quizService.questions?.[questionIndex];
     if (!question || !Array.isArray(question.options)) {
       return false;
     }
 
-    const correctOptionIds = question.options
-      .map((opt, idx) => ({
-        id: opt.optionId ?? idx,
-        isCorrect: !!opt.correct,
-      }))
-      .filter(({ isCorrect }) => isCorrect)
-      .map(({ id }) => id)
-      .filter((id): id is number | string => id !== null && id !== undefined);
+    const correctOptionIds = question.options.reduce<string[]>((acc, opt, idx) => {
+      if (!opt?.correct) {
+        return acc;
+      }
+
+      const normalized = this.normalizeOptionId(opt.optionId ?? idx);
+      if (normalized !== null) {
+        acc.push(normalized);
+      }
+
+      return acc;
+    }, []);
 
     if (correctOptionIds.length === 0) {
       return false;
     }
 
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-    const selectedIds = selectedOptions
-      .filter((opt) => opt.selected !== false)
-      .map((opt) => opt.optionId ?? null)
-      .filter((id): id is number | string => id !== null);
+    const selectedIds = selectedOptions.reduce<string[]>((acc, opt) => {
+      if (opt?.selected === false) {
+        return acc;
+      }
+
+      const normalized = this.normalizeOptionId(opt?.optionId);
+      if (normalized !== null) {
+        acc.push(normalized);
+      }
+
+      return acc;
+    }, []);
 
     if (selectedIds.length === 0) {
       return false;
     }
 
-    const selectedIdSet = new Set(selectedIds.map((id) => String(id)));
+    const selectedIdSet = new Set(selectedIds);
 
-    return correctOptionIds.every((correctId) => selectedIdSet.has(String(correctId)));
+    return (
+      selectedIdSet.size >= correctOptionIds.length &&
+      correctOptionIds.every((correctId) => selectedIdSet.has(correctId))
+    );
   }
   
   public isQuestionAnswered(questionIndex: number): boolean {
