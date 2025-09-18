@@ -619,19 +619,31 @@ export class SelectedOptionService {
     }
 
     const correctOptionIds = question.options
-      .filter((opt) => opt.correct)
-      .map((opt) => opt.optionId)
-      .filter((id): id is number => typeof id === 'number');
+      .map((opt, idx) => ({
+        id: opt.optionId ?? idx,
+        isCorrect: !!opt.correct,
+      }))
+      .filter(({ isCorrect }) => isCorrect)
+      .map(({ id }) => id)
+      .filter((id): id is number | string => id !== null && id !== undefined);
 
     if (correctOptionIds.length === 0) {
       return false;
     }
 
     const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+    const selectedIds = selectedOptions
+      .filter((opt) => opt.selected !== false)
+      .map((opt) => opt.optionId ?? null)
+      .filter((id): id is number | string => id !== null);
 
-    return correctOptionIds.every((correctId) =>
-      selectedOptions.some((opt) => opt.optionId === correctId && opt.selected !== false)
-    );
+    if (selectedIds.length === 0) {
+      return false;
+    }
+
+    const selectedIdSet = new Set(selectedIds.map((id) => String(id)));
+
+    return correctOptionIds.every((correctId) => selectedIdSet.has(String(correctId)));
   }
   
   public isQuestionAnswered(questionIndex: number): boolean {
