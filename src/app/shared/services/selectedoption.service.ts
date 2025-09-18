@@ -611,6 +611,7 @@ export class SelectedOptionService {
       }
     }
   }
+  
 
   private normalizeOptionId(id: unknown): string | null {
     if (typeof id === 'number') {
