@@ -834,20 +834,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Decide if an option should be disabled
   public isOptionDisabled(option: Option): boolean {
-    const allCorrectSelected =
-      this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-        this.currentQuestionIndex
-      );
+    const qType = this.quizService.questions?.[this.currentQuestionIndex]?.type;
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
+      this.currentQuestionIndex
+    );
   
-    // Once all correct are selected → disable all incorrects
-    if (allCorrectSelected && !option.correct) {
-      return true;
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // If the correct answer has been picked, lock the entire question
+      if (option.correct && option.selected) return true; // lock the chosen correct
+      if (allCorrectSelected) return true;                // lock all once answered
+      return false;
     }
   
-    // Already flashed → disable
-    if (this.flashDisabledSet.has(option.optionId)) {
-      return true;
+    // ───────── MULTIPLE-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      // Lock correct answers as soon as they’re picked
+      if (option.correct && option.selected) return true;
+  
+      // Once *all* corrects are selected, lock remaining incorrects
+      if (!option.correct && allCorrectSelected) return true;
+  
+      return false;
     }
+  
+    // ───────── Universal fallback ─────────
+    if (this.flashDisabledSet.has(option.optionId)) return true;
   
     return false;
   }
