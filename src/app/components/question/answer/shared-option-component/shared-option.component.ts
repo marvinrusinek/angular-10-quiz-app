@@ -839,10 +839,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   } */
   public isOptionDisabled(option: Option): boolean {
     // Guard: disable only when all correct answers have been selected
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-      this.currentQuestionIndex,
-      this.optionsToDisplay
-    );
+    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
   
     // Disable if all correct are chosen and this option is incorrect
     if (allCorrectSelected && !option.correct) {
