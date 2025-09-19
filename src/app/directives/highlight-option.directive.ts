@@ -82,7 +82,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
   
           // Check if every correct option is now selected
           this.selectedOptionService
-            .areAllCorrectAnswersSelected(currentOptions, this.quizService.currentQuestionIndex)
+            .areAllCorrectAnswersSelectedSync(this.quizService.currentQuestionIndex)
             .then(result => {
               this.areAllCorrectAnswersSelected = result;
               console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', result);
