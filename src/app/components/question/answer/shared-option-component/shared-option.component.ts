@@ -578,12 +578,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       };
   
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
-  
+
       // Mark this option as having triggered sound for this question
       this.soundService.markPlayed(questionIndex, optionId);
     } else {
       console.warn('[⚠️ Option already selected - skipping UI update]');
     }
+
+    this.flashAndDisable(optionBinding.option);
   }
 
   handleChange(optionBinding: OptionBindings, index: number): void {
