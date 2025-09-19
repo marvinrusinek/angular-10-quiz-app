@@ -834,44 +834,46 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Decide if an option should be disabled
   public isOptionDisabled(option: Option): boolean {
+    const optionId = option?.optionId;
+    const bindings = this.optionBindings ?? [];
+
+    const hasCorrectSelection = bindings.some(b => b.isSelected && !!b.option?.correct);
+    const allCorrectSelectedLocally = bindings
+      .filter(b => !!b.option?.correct)
+      .every(b => b.isSelected);
+
     const qType = this.quizService.questions?.[this.currentQuestionIndex]?.type;
     const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
       this.currentQuestionIndex
     );
-  
-    // ───────── SINGLE-ANSWER ─────────
-    /* if (qType === QuestionType.SingleAnswer) {
-      // If the correct answer has been picked, lock the entire question
-      if (option.correct && option.selected) return true; // lock the chosen correct
-      if (allCorrectSelected) return true;                // lock all once answered
-      return false;
-    } */
-    if (qType === QuestionType.SingleAnswer) {
-      // Once the correct answer has been chosen, keep the distractors disabled
-      if (allCorrectSelected) {
+
+    const resolvedType = qType ?? (this.type === 'single' ? QuestionType.SingleAnswer : QuestionType.MultipleAnswer);
+
+    if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
+      if (hasCorrectSelection || allCorrectSelected) {
         return !option.correct;
       }
 
-      // Radio buttons cannot be unselected, so leave the chosen option enabled
-      // to avoid preventing focus/aria updates while still allowing other
-      // options prior to answering.
       return false;
     }
-  
-    // ───────── MULTIPLE-ANSWER ─────────
-    if (qType === QuestionType.MultipleAnswer) {
-      // Lock correct answers as soon as they’re picked
-      if (option.correct && option.selected) return true;
-  
-      // Once *all* corrects are selected, lock remaining incorrects
-      if (!option.correct && allCorrectSelected) return true;
-  
+
+    if (resolvedType === QuestionType.MultipleAnswer) {
+      const isCorrectAndSelected = !!option.correct && !!option.selected;
+      if (isCorrectAndSelected) {
+        return true;
+      }
+
+      if (!option.correct && (allCorrectSelectedLocally || allCorrectSelected)) {
+        return true;
+      }
+
       return false;
     }
-  
-    // ───────── Universal fallback ─────────
-    if (this.flashDisabledSet.has(option.optionId)) return true;
-  
+
+    if (optionId != null && this.flashDisabledSet.has(optionId)) {
+      return true;
+    }
+
     return false;
   }
 
