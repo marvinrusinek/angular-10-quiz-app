@@ -888,20 +888,17 @@ export class SelectedOptionService {
         return;
       }
 
-      const candidates: unknown[] = [option.optionId, idx];
+      const canonicalId = this.resolveCanonicalOptionId(
+        questionIndex,
+        option?.optionId,
+        idx
+      );
 
-      if (typeof option?.optionId === 'number' && Number.isInteger(option.optionId)) {
-        const zeroBasedFromMetadata = option.optionId - 1;
-        if (zeroBasedFromMetadata !== idx) {
-          candidates.push(zeroBasedFromMetadata);
-        }
-      }
-
-      for (const candidate of candidates) {
-        const normalized = this.normalizeOptionId(candidate);
-        if (normalized !== null) {
-          correctOptionIds.add(normalized);
-        }
+      const fallbackId =
+        canonicalId !== null && canonicalId !== undefined ? canonicalId : idx;
+      const normalized = this.normalizeOptionId(fallbackId);
+      if (normalized !== null) {
+        correctOptionIds.add(normalized);
       }
     });
 
