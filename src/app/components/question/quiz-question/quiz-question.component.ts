@@ -43,6 +43,15 @@ import { BaseQuestionComponent } from '../../../components/question/base/base-qu
 import { SharedOptionComponent } from '../../../components/question/answer/shared-option-component/shared-option.component';
 import { AnswerComponent } from '../../../components/question/answer/answer-component/answer.component';
 
+type FeedbackKey = number | string;
+
+export interface FeedbackConfig {
+  showFeedback: boolean;
+  icon?: string;      // 'check_circle' | 'cancel' | etc.
+  isCorrect?: boolean;
+  text?: string;      // optional message
+}
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
@@ -270,6 +279,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _singleIncorrectLock = new Set<number>();
 
   private questionFresh = true;
+  private flashDisabledSet: Set<FeedbackKey> = new Set();
+  public feedbackConfigs: Record<FeedbackKey, FeedbackConfig> = {};
+  public lastFeedbackOptionId: FeedbackKey = -1 as const;
 
   private destroy$: Subject<void> = new Subject<void>();
 
