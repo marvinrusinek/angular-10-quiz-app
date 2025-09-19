@@ -239,7 +239,72 @@ export class SelectedOptionService {
   }
 
   setSelectedOptions(options: SelectedOption[]): void {
-    this.selectedOptionSubject.next(options);
+    const normalizedOptions = Array.isArray(options)
+      ? options.filter(Boolean)
+      : [];
+
+    if (normalizedOptions.length === 0) {
+      this.selectedOption = [];
+      this.selectedOptionSubject.next([]);
+      this.isOptionSelectedSubject.next(false);
+      this.updateAnsweredState([], this.getFallbackQuestionIndex());
+      return;
+    }
+
+    const groupedSelections = new Map<number, SelectedOption[]>();
+
+    for (const option of normalizedOptions) {
+      const qIndex = option?.questionIndex;
+
+      if (qIndex === undefined || qIndex === null) {
+        console.warn('[setSelectedOptions] Missing questionIndex on option', option);
+        continue;
+      }
+
+      const enrichedOption: SelectedOption = this.canonicalizeOptionForQuestion(
+        qIndex,
+        {
+          ...option,
+          questionIndex: qIndex,
+          selected: option.selected ?? true,
+          highlight: option.highlight ?? true,
+          showIcon: option.showIcon ?? true
+        }
+      );
+
+      if (
+        enrichedOption?.optionId === undefined ||
+        enrichedOption.optionId === null
+      ) {
+        console.warn('[setSelectedOptions] Unable to resolve canonical optionId', {
+          option,
+          questionIndex: qIndex
+        });
+        continue;
+      }
+
+      const existing = groupedSelections.get(qIndex) ?? [];
+      existing.push(enrichedOption);
+      groupedSelections.set(qIndex, existing);
+    }
+
+    const combinedSelections: SelectedOption[] = [];
+
+    groupedSelections.forEach((selections, questionIndex) => {
+      const committed = this.commitSelections(questionIndex, selections);
+      if (committed.length > 0) {
+        combinedSelections.push(...committed);
+      }
+      this.updateAnsweredState(committed, questionIndex);
+    });
+
+    if (combinedSelections.length === 0) {
+      this.updateAnsweredState([], this.getFallbackQuestionIndex());
+    }
+
+    this.selectedOption = combinedSelections;
+    this.selectedOptionSubject.next(combinedSelections);
+    this.isOptionSelectedSubject.next(combinedSelections.length > 0);
   }
 
   setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
