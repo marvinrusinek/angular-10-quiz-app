@@ -2125,10 +2125,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.time('[✨ updateHighlighting]');
     this.updateHighlighting();
     console.timeEnd('[✨ updateHighlighting]');
-  
+
+    this.updateLockedIncorrectOptions();
+
     // Flag updates with minimal delay
     this.optionsReady = true;
-    this.renderReady = true;  
+    this.renderReady = true;
     this.viewReady = true;
     this.cdRef.detectChanges();  // ensure view is in sync
     console.timeEnd('[⚙️ processOptionBindings]');
