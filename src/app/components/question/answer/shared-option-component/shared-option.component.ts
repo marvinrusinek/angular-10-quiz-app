@@ -545,6 +545,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   handleClick(optionBinding: OptionBindings, index: number): void {
+    if (this.shouldDisableOption(optionBinding)) {
+      return;
+    }
+
     const optionId = optionBinding.option.optionId;
     const questionIndex = this.quizService.getCurrentQuestionIndex();
   
