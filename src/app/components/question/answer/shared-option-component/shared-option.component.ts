@@ -2451,4 +2451,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.generateOptionBindings();
     this.cdRef.detectChanges();
   }
+
+  isLocked(b: any, i: number): boolean {
+    try {
+      const id = this.selectionMessageService.stableKey(b.option, i);
+      const qIndex = this.currentQuestionIndex ?? 0;
+      return this.selectedOptionService.isOptionLocked(qIndex, id);
+    } catch {
+      return false;
+    }
+  }
 }

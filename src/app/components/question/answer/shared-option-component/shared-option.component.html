@@ -25,8 +25,9 @@
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
           [ngClass]="getOptionClasses(b)"
-          [disabled]="shouldDisableOption(b)"
-          (click)="handleClick(b, i)"
+          [disabled]="shouldDisableOption(b) || isLocked(b, i)"
+          [attr.aria-disabled]="(shouldDisableOption(b) || isLocked(b, i)) ? true : null"
+          (click)="(shouldDisableOption(b) || isLocked(b, i)) ? $event.stopImmediatePropagation() : handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)">
 
           <div class="option-wrapper">
@@ -69,8 +70,9 @@
             [appHighlightInputType]="'checkbox'"
             [appHighlightReset]="shouldResetBackground"
             [ngClass]="getOptionClasses(b)"
-            [disabled]="shouldDisableOption(b)"
-            (click)="handleClick(b, i)"
+            [disabled]="shouldDisableOption(b) || isLocked(b, i)"
+            [attr.aria-disabled]="(shouldDisableOption(b) || isLocked(b, i)) ? true : null"
+            (click)="(shouldDisableOption(b) || isLocked(b, i)) ? $event.stopImmediatePropagation() : handleClick(b, i)"
             (change)="updateOptionAndUI(b, i, $event)">
 
             <div class="option-wrapper">
