@@ -819,9 +819,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return '';
   }
 
-  public getOptionClasses(option: Option): { [key: string]: boolean } {
+  public getOptionClasses(binding: OptionBindings): { [key: string]: boolean } {
+    const option = binding.option;
+
     return {
-      'disabled-option': this.isOptionDisabled(option),
+      'disabled-option': this.shouldDisableOption(binding),
       'correct-option': option.selected && option.correct,
       'incorrect-option': option.selected && !option.correct,
       'flash-red': this.flashDisabledSet.has(option.optionId)
@@ -834,50 +836,42 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
 
   // Decide if an option should be disabled
-  public isOptionDisabled(option: Option): boolean {
-    const optionId = option?.optionId;
-    const bindings = this.optionBindings ?? [];
+  public shouldDisableOption(binding: OptionBindings): boolean {
+    if (!binding || !binding.option) {
+      return false;
+    }
+
+    const option = binding.option;
+    const optionId = option.optionId;
 
     if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) {
       return true;
     }
 
-    const matchingBinding = bindings.find(b => b.option?.optionId === optionId);
-    if (matchingBinding?.disabled) {
+    if (binding.disabled) {
       return true;
     }
 
+    const resolvedType = this.resolveQuestionType();
+    const bindings = this.optionBindings ?? [];
+    const options = this.optionsToDisplay ?? [];
+
     const hasCorrectSelection = bindings.some(b => b.isSelected && !!b.option?.correct);
-    const allCorrectSelectedLocally = bindings
-      .filter(b => !!b.option?.correct)
-      .every(b => b.isSelected);
-
-    const qType = this.quizService.questions?.[this.currentQuestionIndex]?.type;
-    const allCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-      this.currentQuestionIndex
-    );
-
-    const resolvedType = qType ?? (this.type === 'single' ? QuestionType.SingleAnswer : QuestionType.MultipleAnswer);
+    const correctOptions = options.filter(opt => opt.correct);
+    const allCorrectSelectedLocally = correctOptions.length > 0 && correctOptions.every(opt => !!opt.selected);
 
     if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
-      if (hasCorrectSelection || allCorrectSelected) {
-        return !option.correct;
-      }
-
-      return false;
+      return hasCorrectSelection ? !option.correct : false;
     }
 
     if (resolvedType === QuestionType.MultipleAnswer) {
-      const isCorrectAndSelected = !!option.correct && !!option.selected;
-      if (isCorrectAndSelected) {
-        return true;
+      if (option.correct && option.selected) {
+        return false;
       }
 
-      if (!option.correct && (allCorrectSelectedLocally || allCorrectSelected)) {
-        return true;
+      if (allCorrectSelectedLocally) {
+        return !option.correct;
       }
-
-      return false;
     }
 
     if (optionId != null && this.flashDisabledSet.has(optionId)) {
@@ -885,6 +879,93 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
 
     return false;
+  }
+
+  private resolveQuestionType(): QuestionType {
+    if (this.currentQuestion?.type) {
+      return this.currentQuestion.type;
+    }
+
+    const candidateIndex =
+      typeof this.currentQuestionIndex === 'number'
+        ? this.currentQuestionIndex
+        : this.quizService?.getCurrentQuestionIndex?.();
+
+    if (typeof candidateIndex === 'number') {
+      const question = this.quizService.questions?.[candidateIndex];
+      if (question?.type) {
+        return question.type;
+      }
+    }
+
+    return this.type === 'multiple'
+      ? QuestionType.MultipleAnswer
+      : QuestionType.SingleAnswer;
+  }
+
+  private updateLockedIncorrectOptions(): void {
+    const bindings = this.optionBindings ?? [];
+
+    if (!bindings.length) {
+      this.lockedIncorrectOptionIds.clear();
+      return;
+    }
+
+    const resolvedType = this.resolveQuestionType();
+    const hasCorrectSelection = bindings.some(b => b.isSelected && !!b.option?.correct);
+    const allCorrectSelectedLocally = bindings
+      .filter(b => !!b.option?.correct)
+      .every(b => b.isSelected);
+
+    const candidateIndex =
+      typeof this.currentQuestionIndex === 'number'
+        ? this.currentQuestionIndex
+        : this.quizService?.getCurrentQuestionIndex?.();
+
+    const allCorrectPersisted =
+      typeof candidateIndex === 'number'
+        ? this.selectedOptionService.areAllCorrectAnswersSelectedSync(candidateIndex)
+        : false;
+
+    let shouldLockIncorrect = false;
+
+    if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
+      shouldLockIncorrect = hasCorrectSelection || allCorrectPersisted;
+    } else if (resolvedType === QuestionType.MultipleAnswer) {
+      shouldLockIncorrect = allCorrectSelectedLocally || allCorrectPersisted;
+    }
+
+    if (!shouldLockIncorrect) {
+      this.lockedIncorrectOptionIds.clear();
+      bindings.forEach(binding => {
+        binding.disabled = false;
+        if (binding.option) {
+          binding.option.active = true;
+        }
+      });
+      this.cdRef.markForCheck();
+      return;
+    }
+
+    bindings.forEach(binding => {
+      const optionId = binding.option?.optionId;
+      const shouldDisable = !binding.option?.correct;
+
+      binding.disabled = shouldDisable;
+      if (binding.option) {
+        binding.option.active = !shouldDisable;
+      }
+
+      if (optionId != null) {
+        if (shouldDisable) {
+          this.lockedIncorrectOptionIds.add(optionId);
+        } else {
+          this.lockedIncorrectOptionIds.delete(optionId);
+        }
+      }
+    });
+
+    this.cdRef.markForCheck();
   }
 
   private resolveQuestionType(): QuestionType {
