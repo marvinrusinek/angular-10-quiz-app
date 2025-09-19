@@ -125,6 +125,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private flashDisabledSet = new Set<number>();
   private lockedIncorrectOptionIds = new Set<number>();
+  private shouldLockIncorrectOptions = false;
   private hasCorrectSelectionForLock = false;
   private allCorrectSelectedForLock = false;
   private allCorrectPersistedForLock = false;
@@ -848,35 +849,35 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const option = binding.option;
     const optionId = option.optionId;
 
+    const bindings = this.optionBindings ?? [];
+    const resolvedType = this.resolvedTypeForLock ?? this.resolveQuestionType();
+    const hasCorrectSelection = bindings.some(b =>
+      (!!b.option?.selected || b.isSelected) && !!b.option?.correct
+    );
+    const correctBindings = bindings.filter(b => !!b.option?.correct);
+    const allCorrectSelectedLocally = correctBindings.length > 0
+      && correctBindings.every(b => !!b.option?.selected || b.isSelected);
+    const allCorrectPersisted = this.areAllCorrectAnswersSelected();
+    const shouldLockIncorrect = this.shouldLockIncorrectOptions || this.computeShouldLockIncorrectOptions(
+      resolvedType,
+      hasCorrectSelection,
+      allCorrectSelectedLocally,
+      allCorrectPersisted
+    );
+
+    if (shouldLockIncorrect && !option.correct) {
+      return true;
+    }
+
     if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) {
       return true;
-    }
-
-    if (binding.disabled) {
-      return true;
-    }
-
-    const resolvedType = this.resolvedTypeForLock;
-
-    if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
-      if (this.hasCorrectSelectionForLock || this.allCorrectPersistedForLock) {
-        return !option.correct;
-      }
-    } else if (resolvedType === QuestionType.MultipleAnswer) {
-      if (option.correct && (option.selected || binding.isSelected)) {
-        return false;
-      }
-
-      if (this.allCorrectSelectedForLock || this.allCorrectPersistedForLock) {
-        return !option.correct;
-      }
     }
 
     if (optionId != null && this.flashDisabledSet.has(optionId)) {
       return true;
     }
 
-    return false;
+    return !!binding.disabled;
   }
 
   private resolveQuestionType(): QuestionType {
@@ -906,14 +907,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     if (!bindings.length) {
       this.lockedIncorrectOptionIds.clear();
+      this.shouldLockIncorrectOptions = false;
       return;
     }
 
     const resolvedType = this.resolveQuestionType();
     const hasCorrectSelection = bindings.some(b => b.isSelected && !!b.option?.correct);
-    const allCorrectSelectedLocally = bindings
-      .filter(b => !!b.option?.correct)
-      .every(b => b.isSelected);
+    const correctBindings = bindings.filter(b => !!b.option?.correct);
+    const allCorrectSelectedLocally = correctBindings.length > 0
+      && correctBindings.every(b => b.isSelected);
 
     const candidateIndex =
       typeof this.currentQuestionIndex === 'number'
@@ -930,13 +932,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.allCorrectSelectedForLock = allCorrectSelectedLocally;
     this.allCorrectPersistedForLock = allCorrectPersisted;
 
-    let shouldLockIncorrect = false;
+    const shouldLockIncorrect = this.computeShouldLockIncorrectOptions(
+      resolvedType,
+      hasCorrectSelection,
+      allCorrectSelectedLocally,
+      allCorrectPersisted
+    );
 
-    if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
-      shouldLockIncorrect = hasCorrectSelection || allCorrectPersisted;
-    } else if (resolvedType === QuestionType.MultipleAnswer) {
-      shouldLockIncorrect = allCorrectSelectedLocally || allCorrectPersisted;
-    }
+    this.shouldLockIncorrectOptions = shouldLockIncorrect;
 
     if (!shouldLockIncorrect) {
       this.lockedIncorrectOptionIds.clear();
@@ -946,6 +949,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           binding.option.active = true;
         }
       });
+      this.shouldLockIncorrectOptions = false;
       this.cdRef.markForCheck();
       return;
     }
@@ -969,6 +973,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     });
 
     this.cdRef.markForCheck();
+  }
+
+  private computeShouldLockIncorrectOptions(
+    resolvedType: QuestionType,
+    hasCorrectSelection: boolean,
+    allCorrectSelectedLocally: boolean,
+    allCorrectPersisted: boolean
+  ): boolean {
+    if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
+      return hasCorrectSelection || allCorrectPersisted;
+    }
+
+    if (resolvedType === QuestionType.MultipleAnswer) {
+      return allCorrectSelectedLocally || allCorrectPersisted;
+    }
+
+    return false;
   }
 
   public areAllCorrectAnswersSelected(): boolean {
