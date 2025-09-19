@@ -266,9 +266,9 @@ export class SelectedOptionService {
         {
           ...option,
           questionIndex: qIndex,
-          selected: option.selected ?? true,
-          highlight: option.highlight ?? true,
-          showIcon: option.showIcon ?? true
+          selected: true,
+          highlight: true,
+          showIcon: true
         }
       );
 
