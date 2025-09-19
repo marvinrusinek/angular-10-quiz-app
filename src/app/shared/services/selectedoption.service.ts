@@ -54,41 +54,55 @@ export class SelectedOptionService {
 
   // Method to update the selected option state
   public async selectOption(
-    optionId: number, 
-    questionIndex: number, 
-    text: string, 
+    optionId: number,
+    questionIndex: number,
+    text: string,
     isMultiSelect: boolean
   ): Promise<void> {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
     }
-  
+
+    const canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId);
+    if (canonicalOptionId == null) {
+      console.error('Unable to determine a canonical optionId for selection', {
+        optionId,
+        questionIndex,
+        text,
+      });
+      return;
+    }
+
     const newSelection: SelectedOption = {
-      optionId,
+      optionId: canonicalOptionId,
       questionIndex,
       text,
       selected: true,
       highlight: true,
       showIcon: true
     };
-  
-    const currentSelections = this.getSelectedOptions();
-    const filteredSelections = currentSelections.filter(
-      s => !(s.optionId === optionId && s.questionIndex === questionIndex)
+
+    const currentSelections = this.selectedOptionsMap.get(questionIndex) || [];
+    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(
+      questionIndex,
+      currentSelections
+    );
+    const filteredSelections = canonicalCurrent.filter(
+      s => !(s.optionId === canonicalOptionId && s.questionIndex === questionIndex)
     );
     const updatedSelections = [...filteredSelections, newSelection];
-  
-    this.selectedOptionSubject.next(updatedSelections);
-    this.selectedOptionsMap.set(questionIndex, updatedSelections);
-  
+    const committedSelections = this.commitSelections(questionIndex, updatedSelections);
+
+    this.selectedOptionSubject.next(committedSelections);
+
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
       console.log('[🔓 Next Enabled] Called for questionIndex:', questionIndex);
     } else {
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-    
+
       if (selectedOptions.length === 0) {
         console.warn('[⚠️ No selected options found for multi-select]');
         this.setNextButtonEnabled(false);
