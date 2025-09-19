@@ -1944,7 +1944,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // ─── 4) Create option bindings ─────────────────────────────
     this.optionBindings = this.optionsToDisplay.map((opt, idx) => {
       const selected = !!opt.selected;
-  
+
       const enriched: SelectedOption = {
         ...(opt as SelectedOption),
         questionIndex: currentIndex,
@@ -1952,19 +1952,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         highlight: opt.highlight ?? selected,
         showIcon: opt.showIcon
       };
-  
+
       if (enriched.selected && enriched.optionId != null) {
         showMap[enriched.optionId] = true;
       }
-  
+
       const binding = this.getOptionBindings(enriched, idx, selected);
       binding.option = enriched;
       binding.showFeedbackForOption = showMap;
       return binding;
     });
-  
+
     this.showFeedbackForOption = showMap;
-  
+
+    this.updateLockedIncorrectOptions();
+
     // ─── 5) Immediate change detection ─────────────────────────
     this.cdRef.detectChanges();
   
