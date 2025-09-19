@@ -911,8 +911,58 @@ export class SelectedOptionService {
     // array so the computation stays in sync with the UI even if the map lags a tick.
     const selectedIdSet = new Set<string>();
 
-    const addIfValid = (candidate: unknown): void => {
-      const normalized = this.normalizeOptionId(candidate);
+    const findFallbackIndex = (candidate: unknown): number | undefined => {
+      const numericCandidate = this.extractNumericId(candidate);
+      if (numericCandidate === null) {
+        return undefined;
+      }
+
+      if (
+        numericCandidate >= 0 &&
+        numericCandidate < question.options.length
+      ) {
+        return numericCandidate;
+      }
+
+      const zeroBased = numericCandidate - 1;
+      if (zeroBased >= 0 && zeroBased < question.options.length) {
+        return zeroBased;
+      }
+
+      const metadataIndex = question.options.findIndex(opt => {
+        const extracted = this.extractNumericId(opt?.optionId);
+        return extracted === numericCandidate;
+      });
+
+      return metadataIndex >= 0 ? metadataIndex : undefined;
+    };
+
+    const addIfValid = (candidate: unknown, fallbackIndex?: number): void => {
+      const canonicalId = this.resolveCanonicalOptionId(
+        questionIndex,
+        candidate,
+        fallbackIndex
+      );
+
+      let idToNormalize: number | string | null =
+        canonicalId !== null && canonicalId !== undefined
+          ? canonicalId
+          : null;
+
+      if (idToNormalize === null) {
+        if (typeof fallbackIndex === 'number') {
+          idToNormalize = fallbackIndex;
+        } else {
+          const extracted = this.extractNumericId(candidate);
+          idToNormalize = extracted;
+        }
+      }
+
+      if (idToNormalize === null || idToNormalize === undefined) {
+        return;
+      }
+
+      const normalized = this.normalizeOptionId(idToNormalize);
       if (normalized !== null) {
         selectedIdSet.add(normalized);
       }
@@ -923,7 +973,8 @@ export class SelectedOptionService {
         continue;
       }
 
-      addIfValid(opt?.optionId);
+      const fallbackIdx = findFallbackIndex(opt?.optionId);
+      addIfValid(opt?.optionId, fallbackIdx);
     }
 
     question.options.forEach((opt, idx) => {
@@ -931,8 +982,9 @@ export class SelectedOptionService {
         return;
       }
 
-      addIfValid(opt.optionId ?? idx);
+      addIfValid(opt.optionId ?? idx, idx);
     });
+
 
     if (selectedIdSet.size === 0) {
       return false;
