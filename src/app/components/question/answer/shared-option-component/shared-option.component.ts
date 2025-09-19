@@ -1171,7 +1171,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Apply highlight and feedback for this specific option again
     this.applyHighlighting(optionBinding);
     this.applyFeedback(optionBinding);
-  
+
+    this.updateLockedIncorrectOptions();
+
     // Enforce single-answer logic
     if (this.type === 'single') {
       this.enforceSingleSelection(optionBinding);
