@@ -840,10 +840,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     );
   
     // ───────── SINGLE-ANSWER ─────────
-    if (qType === QuestionType.SingleAnswer) {
+    /* if (qType === QuestionType.SingleAnswer) {
       // If the correct answer has been picked, lock the entire question
       if (option.correct && option.selected) return true; // lock the chosen correct
       if (allCorrectSelected) return true;                // lock all once answered
+      return false;
+    } */
+    if (qType === QuestionType.SingleAnswer) {
+      // Once the correct answer has been chosen, keep the distractors disabled
+      if (allCorrectSelected) {
+        return !option.correct;
+      }
+
+      // Radio buttons cannot be unselected, so leave the chosen option enabled
+      // to avoid preventing focus/aria updates while still allowing other
+      // options prior to answering.
       return false;
     }
   
