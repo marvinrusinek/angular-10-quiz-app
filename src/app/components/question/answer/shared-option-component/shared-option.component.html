@@ -26,7 +26,7 @@
           [appHighlightReset]="shouldResetBackground"
           [ngClass]="getOptionClasses(b)"
           [disabled]="shouldDisableOption(b)"
-          (click)="handleClick(b, i); flashAndDisable(b.option)"
+          (click)="handleClick(b, i)"
           (change)="updateOptionAndUI(b, i, $event)">
 
           <div class="option-wrapper">
@@ -70,7 +70,7 @@
             [appHighlightReset]="shouldResetBackground"
             [ngClass]="getOptionClasses(b)"
             [disabled]="shouldDisableOption(b)"
-            (click)="handleClick(b, i); flashAndDisable(b.option)"
+            (click)="handleClick(b, i)"
             (change)="updateOptionAndUI(b, i, $event)">
 
             <div class="option-wrapper">
