@@ -269,6 +269,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private _skipNextAsyncUpdates = false;
   private _singleIncorrectLock = new Set<number>();
 
+  private questionFresh = true;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -5729,5 +5731,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private getStableId(o: Option, idx?: number): string | number {
     return o.optionId ?? o.value ?? `${o.text}-${idx ?? ''}`;
+  }
+
+  private resetPerQuestionState(nextIndex: number): void {
+    // 1) Unlock everything for the new question
+    this.selectedOptionService.resetLocksForQuestion(nextIndex);
+  
+    // 2) Clear any ad-hoc disables & feedback
+    this.flashDisabledSet?.clear?.();
+    this.feedbackConfigs = {};
+    this.showFeedbackForOption = {};
+    this.lastFeedbackOptionId = -1;
+  
+    // 3) Fresh-state flags
+    this.questionFresh = true;               // your disable guard uses this
+    this.quizStateService.setAnswered(false);
+    this.quizStateService.setAnswerSelected(false);
+    this.explanationTextService.setShouldDisplayExplanation(false);
+  
+    // 4) Re-enable form controls
+    try { this.questionForm?.enable?.({ emitEvent: false }); } catch {}
+  
+    // 5) Render
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 }
