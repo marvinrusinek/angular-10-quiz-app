@@ -38,6 +38,7 @@ export class SelectedOptionService {
   stopTimerEmitted = false;
 
   currentQuestionType: QuestionType | null = null;
+  private _lockedByQuestion = new Map<number, Set<string | number>>();
 
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
@@ -1230,5 +1231,31 @@ export class SelectedOptionService {
     }
   
     return false;
-  }  
+  }
+
+  isOptionLocked(qIndex: number, optId: string | number): boolean {
+    return this._lockedByQuestion.get(qIndex)?.has(optId) ?? false;
+  }
+
+  lockOption(qIndex: number, optId: string | number): void {
+    let set = this._lockedByQuestion.get(qIndex);
+    if (!set) {
+      set = new Set<string | number>();
+      this._lockedByQuestion.set(qIndex, set);
+    }
+    set.add(optId);
+  }
+
+  lockMany(qIndex: number, optIds: (string | number)[]): void {
+    let set = this._lockedByQuestion.get(qIndex);
+    if (!set) {
+      set = new Set<string | number>();
+      this._lockedByQuestion.set(qIndex, set);
+    }
+    optIds.forEach(id => set!.add(id));
+  }
+
+  resetLocksForQuestion(qIndex: number): void {
+    this._lockedByQuestion.delete(qIndex);
+  }
 }
