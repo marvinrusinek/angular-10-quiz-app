@@ -24,8 +24,8 @@
           [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
           [appHighlightInputType]="'radio'"
           [appHighlightReset]="shouldResetBackground"
-          [ngClass]="getOptionClasses(b.option)"
-          [disabled]="isOptionDisabled(b.option)"
+          [ngClass]="getOptionClasses(b)"
+          [disabled]="shouldDisableOption(b)"
           (click)="handleClick(b, i); flashAndDisable(b.option)"
           (change)="updateOptionAndUI(b, i, $event)">
 
@@ -68,8 +68,8 @@
             [highlightCorrectAfterIncorrect]="highlightCorrectAfterIncorrect"
             [appHighlightInputType]="'checkbox'"
             [appHighlightReset]="shouldResetBackground"
-            [ngClass]="getOptionClasses(b.option)"
-            [disabled]="isOptionDisabled(b.option)"
+            [ngClass]="getOptionClasses(b)"
+            [disabled]="shouldDisableOption(b)"
             (click)="handleClick(b, i); flashAndDisable(b.option)"
             (change)="updateOptionAndUI(b, i, $event)">
 
