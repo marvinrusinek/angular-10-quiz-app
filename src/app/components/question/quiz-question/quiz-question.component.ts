@@ -5768,4 +5768,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
   }
+
+  private revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
+    for (const o of canonicalOpts) {
+      const key = Number(
+        o.optionId ?? this.selectionMessageService.stableKey(o)
+      );
+      this.feedbackConfigs[key] = {
+        ...this.feedbackConfigs[key],
+        showFeedback: true,
+        icon: o.correct ? 'check_circle' : 'cancel',
+        isCorrect: !!o.correct,
+      };
+      this.showFeedbackForOption[key] = true;
+    }
+    this.cdRef.markForCheck();
+  }
 }
