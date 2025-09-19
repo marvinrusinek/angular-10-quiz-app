@@ -5694,5 +5694,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
   public areAllCorrectAnswersSelected(): boolean {
     return this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
-  }  
+  }
+
+  private getStableId(o: Option, idx?: number): string | number {
+    return o.optionId ?? o.value ?? `${o.text}-${idx ?? ''}`;
+  }
 }
