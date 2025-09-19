@@ -1782,9 +1782,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         binding.option.selected = false;
         binding.showFeedback = false;
         binding.option.showIcon = false;
+        binding.disabled = false;
       }
     }
-  
+
+    this.lockedIncorrectOptionIds.clear();
     this.updateHighlighting();
   }
 
@@ -1798,7 +1800,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.selectedOptionHistory = [];
     this.feedbackConfigs = [];
     this.iconVisibility = [];
-  }  
+    this.lockedIncorrectOptionIds.clear();
+  }
 
   getOptionClass(option: Option): string {
     if (!this.showFeedback) {
