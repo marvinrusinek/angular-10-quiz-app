@@ -856,24 +856,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return true;
     }
 
-    const resolvedType = this.resolveQuestionType();
-    const bindings = this.optionBindings ?? [];
-    const options = this.optionsToDisplay ?? [];
-
-    const hasCorrectSelection = bindings.some(b => b.isSelected && !!b.option?.correct);
-    const correctOptions = options.filter(opt => opt.correct);
-    const allCorrectSelectedLocally = correctOptions.length > 0 && correctOptions.every(opt => !!opt.selected);
+    const resolvedType = this.resolvedTypeForLock;
 
     if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
-      return hasCorrectSelection ? !option.correct : false;
-    }
-
-    if (resolvedType === QuestionType.MultipleAnswer) {
-      if (option.correct && option.selected) {
+      if (this.hasCorrectSelectionForLock || this.allCorrectPersistedForLock) {
+        return !option.correct;
+      }
+    } else if (resolvedType === QuestionType.MultipleAnswer) {
+      if (option.correct && (option.selected || binding.isSelected)) {
         return false;
       }
 
-      if (allCorrectSelectedLocally) {
+      if (this.allCorrectSelectedForLock || this.allCorrectPersistedForLock) {
         return !option.correct;
       }
     }
