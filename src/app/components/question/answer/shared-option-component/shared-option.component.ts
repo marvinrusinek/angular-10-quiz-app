@@ -925,6 +925,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         ? this.selectedOptionService.areAllCorrectAnswersSelectedSync(candidateIndex)
         : false;
 
+    this.resolvedTypeForLock = resolvedType;
+    this.hasCorrectSelectionForLock = hasCorrectSelection;
+    this.allCorrectSelectedForLock = allCorrectSelectedLocally;
+    this.allCorrectPersistedForLock = allCorrectPersisted;
+
     let shouldLockIncorrect = false;
 
     if (resolvedType === QuestionType.SingleAnswer || resolvedType === QuestionType.TrueFalse) {
