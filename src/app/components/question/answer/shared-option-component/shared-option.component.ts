@@ -125,6 +125,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private flashDisabledSet = new Set<number>();
   private lockedIncorrectOptionIds = new Set<number>();
+  private hasCorrectSelectionForLock = false;
+  private allCorrectSelectedForLock = false;
+  private allCorrectPersistedForLock = false;
+  private resolvedTypeForLock: QuestionType = QuestionType.SingleAnswer;
 
   onDestroy$ = new Subject<void>();
 
