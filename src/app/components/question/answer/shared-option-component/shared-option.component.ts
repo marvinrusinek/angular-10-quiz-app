@@ -62,7 +62,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Input() isNavigatingBackwards: boolean = false;
   @Input() renderReady = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
-  @Input() questionFresh = true;
   @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
