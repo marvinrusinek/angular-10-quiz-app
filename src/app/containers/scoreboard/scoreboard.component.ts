@@ -174,7 +174,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private readIndexFromSnapshot(): number {
     const raw = this.getParamDeep(this.router.routerState.snapshot.root, 'questionIndex');
-    return this.coerceIndex(raw); // uses your existing coerceIndex + routeIsOneBased
+    return this.coerceIndex(raw); // uses existing coerceIndex and routeIsOneBased
   }
 
   private readIndexFromRouter(): number {
