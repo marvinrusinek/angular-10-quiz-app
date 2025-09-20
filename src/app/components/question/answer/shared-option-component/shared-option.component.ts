@@ -2495,8 +2495,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   // Use the same key shape everywhere (STRING so we don't lose non-numeric ids)
-  private keyOf(option: Option, idx?: number): string {
-    const raw = option?.optionId ?? this.selectionMessageService.stableKey(option, idx);
-    return String(raw);
+  // Stable per-row key: prefer numeric optionId; fallback to stableKey + index
+  private keyOf(o: Option, i: number): string {
+    const raw = o?.optionId ?? this.selectionMessageService.stableKey(o, i);
+    // Normalize to string so we can use mixed keys safely
+    return Number.isFinite(Number(raw)) ? String(Number(raw)) : String(raw);
   }
 }
