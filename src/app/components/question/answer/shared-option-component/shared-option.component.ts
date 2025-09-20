@@ -871,17 +871,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       allCorrectPersisted
     );
 
-    if (shouldLockIncorrect && !option.correct) {
-      return true;
-    }
+    if (shouldLockIncorrect && !option.correct) return true;
 
-    if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) {
-      return true;
-    }
+    if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) return true;
 
-    if (optionId != null && this.flashDisabledSet.has(optionId)) {
-      return true;
-    }
+    if (optionId != null && this.flashDisabledSet.has(optionId)) return true;
 
     return !!binding.disabled;
   }
