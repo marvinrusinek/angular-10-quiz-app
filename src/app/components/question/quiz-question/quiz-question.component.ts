@@ -5790,14 +5790,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const rawKey = o.optionId ?? this.selectionMessageService.stableKey(o, i);
       const key = Number(rawKey);
 
-      // If key isn't numeric, don't silently fail—use a string key instead
+      // If key isn't numeric, don't silently fail — use a string key instead
       if (!Number.isFinite(key)) {
         const sk = String(rawKey);
         this.feedbackConfigs[sk] = {
           ...(this.feedbackConfigs[sk] ?? {}),
-          showFeedback: true,
+          showFeedback: true, 
           icon: o.correct ? 'check_circle' : 'cancel',
-          isCorrect: !!o.correct,
+          isCorrect: !!o.correct
         };
         this.showFeedbackForOption[sk] = true;
         continue;
@@ -5807,7 +5807,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         ...(this.feedbackConfigs[key] ?? {}),  // keep any existing fields
         showFeedback: true,
         icon: o.correct ? 'check_circle' : 'cancel',
-        isCorrect: !!o.correct,
+        isCorrect: !!o.correct
       };
       this.showFeedbackForOption[key] = true;
     }
