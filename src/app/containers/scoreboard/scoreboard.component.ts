@@ -74,25 +74,25 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   // Computed fallback badge (pure function of route index and totalQuestions)
   private readonly computedBadgeText$: Observable<string> = combineLatest([
-  this.displayIndex$,
-  this.quizService.totalQuestions$.pipe(
-    map(t => Number(t)),
-    startWith(-1)  // sentinel → emit immediately
-  )
+    this.displayIndex$,
+    this.quizService.totalQuestions$.pipe(
+      map(t => Number(t)),
+      startWith(-1)  // sentinel → emit immediately
+    )
   ]).pipe(
-  map(([n, total]) => (Number.isFinite(total) && total > 0) ? `Question ${n} of ${total}` : ''),
-  distinctUntilChanged(),
-  shareReplay(1)
+    map(([n, total]) => (Number.isFinite(total) && total > 0) ? `Question ${n} of ${total}` : ''),
+    distinctUntilChanged(),
+    shareReplay(1)
   );
 
   // Final badge: prefer service text if non-empty; otherwise show computed fallback
   public readonly badgeText$: Observable<string> = combineLatest([
-  this.serviceBadgeText$,
-  this.computedBadgeText$
+    this.serviceBadgeText$,
+    this.computedBadgeText$
   ]).pipe(
-  map(([svc, cmp]) => svc !== '' ? svc : cmp),
-  distinctUntilChanged(),
-  shareReplay(1)
+    map(([svc, cmp]) => svc !== '' ? svc : cmp),
+    distinctUntilChanged(),
+    shareReplay(1)
   );
 
   constructor(
