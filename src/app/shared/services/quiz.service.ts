@@ -106,11 +106,8 @@ export class QuizService implements OnDestroy {
   currentOptions$: Observable<Option[]> =
     this.currentOptionsSubject.asObservable();
 
-  private optionsLoadingSubject = new BehaviorSubject<boolean>(false);
-
   totalQuestionsSubject = new BehaviorSubject<number>(0);
-  // totalQuestions$ = this.totalQuestionsSubject.asObservable();
-
+  
   private questionDataSubject = new BehaviorSubject<any>(null);
   questionData$ = this.questionDataSubject.asObservable();
 
@@ -192,6 +189,7 @@ export class QuizService implements OnDestroy {
   quizScore: QuizScore;
   highScores: QuizScore[];
   highScoresLocal = JSON.parse(localStorage.getItem('highScoresLocal')) || [];
+  private readonly STORAGE_KEY = (quizId: string) => `quiz:${quizId}:idx`;
 
   combinedQuestionDataSubject =
     new BehaviorSubject<CombinedQuestionDataType | null>(null);
@@ -209,7 +207,7 @@ export class QuizService implements OnDestroy {
   // Sticky per-index minimums
   private minExpectedByIndex: Record<number, number> = {};
 
-  private minDisplayRemainingById:    Record<string, number> = {};
+  private minDisplayRemainingById: Record<string, number> = {};
   private minDisplayRemainingByIndex: Record<number, number> = {};
 
   constructor(
@@ -2224,20 +2222,50 @@ export class QuizService implements OnDestroy {
     this.quizResetSource.next();
   }
 
-  public preventResetOnVisibilityChange(): void {
+  // Call this when the index changes (or on visibility/pageshow if you insist)
+  public preventResetOnVisibilityChange(quizId: string): void {
     console.log('[QuizService] 🛑 Preventing question index reset on tab switch...');
 
     // Retrieve the last known question index
     const lastKnownIndex = this.getCurrentQuestionIndex();
 
     // Ensure the question index does NOT get reset to 0 or an incorrect value
-    if (lastKnownIndex > 0) {
-      localStorage.setItem('savedQuestionIndex', JSON.stringify(lastKnownIndex));
-      console.log('[QuizService] ✅ Ensured question index persistence:', lastKnownIndex);
+    if (Number.isFinite(lastKnownIndex) && (lastKnownIndex as number) >= 0) {
+      try {
+        localStorage.setItem(
+          this.STORAGE_KEY(quizId),
+          JSON.stringify({ i: lastKnownIndex, ts: Date.now() })
+        );
+        console.log('[QuizService] ✅ Ensured question index persistence:', lastKnownIndex);
+      } catch (e) {
+        console.warn('[QuizService] ⚠️ Persistence failed:', e);
+      }
     } else {
-      console.warn('[QuizService] ⚠️ No valid last known index found. Skipping persistence.');
+      console.warn('[QuizService] ⚠️ No valid last known index found. Skipping persistence.', { lastKnownIndex });
     }
   }
+
+  // Restore if the route is missing or clearly wrong
+  public restoreIndexIfMissing(quizId: string, currentIndexFromRoute: number | null, navigateTo: (idx: number) => void): void {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY(quizId));
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as { i: number; ts?: number };
+      const saved = parsed?.i;
+
+      if (!Number.isFinite(saved) || saved < 0) return;
+
+      // Only act if route index is missing/null or obviously wrong
+      if (currentIndexFromRoute == null || currentIndexFromRoute < 0) {
+        console.log('[QuizService] ↩️ Restoring question index from storage:', saved);
+        navigateTo(saved);  // caller supplies a router-bound function
+      }
+    } catch (e) {
+      console.warn('[QuizService] ⚠️ Restore failed:', e);
+    }
+  }
+
 
   emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
     if (!currentQuestion || !options?.length) {
