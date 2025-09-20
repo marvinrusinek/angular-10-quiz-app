@@ -66,29 +66,41 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   // 1-based for display
   readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(map(i => i + 1));
 
-  // badge text waits until totalQuestions is known (> 0)
-  public readonly badgeText$: Observable<string> = combineLatest([
-    this.displayIndex$,
-    this.quizService.totalQuestions$.pipe(
-      map(t => Number(t)),
-      startWith(-1) // sentinel so combineLatest emits immediately
-    )
+  // Service badge stream. Seed with '' so combineLatest emits.
+  private readonly serviceBadgeText$: Observable<string> =
+  (this.quizService.badgeText as Observable<string>).pipe(
+    startWith(''),   // ensures immediate emission
+    map(s => (s ?? '').trim())  // normalize
+  );
+
+  // Computed fallback badge (pure function of route index and totalQuestions)
+  private readonly computedBadgeText$: Observable<string> = combineLatest([
+  this.displayIndex$,
+  this.quizService.totalQuestions$.pipe(
+    map(t => Number(t)),
+    startWith(-1)  // sentinel → emit immediately
+  )
   ]).pipe(
-    // emit empty string until total is valid; '' is falsy so your *ngIf stays hidden
-    map(([n, total]) => (Number.isFinite(total) && total > 0) ? `Question ${n} of ${total}` : ''),
-    distinctUntilChanged(),
-    shareReplay(1)
-  );  
+  map(([n, total]) => (Number.isFinite(total) && total > 0) ? `Question ${n} of ${total}` : ''),
+  distinctUntilChanged(),
+  shareReplay(1)
+  );
+
+  // Final badge: prefer service text if non-empty; otherwise show computed fallback
+  public readonly badgeText$: Observable<string> = combineLatest([
+  this.serviceBadgeText$,
+  this.computedBadgeText$
+  ]).pipe(
+  map(([svc, cmp]) => svc !== '' ? svc : cmp),
+  distinctUntilChanged(),
+  shareReplay(1)
+  );
 
   constructor(
     private readonly quizService: QuizService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly router: Router
-  ) {
-    this.badgeText$ = this.quizService.badgeText;
-    this.badgeText$.pipe(takeUntil(this.unsubscribe$))
-      .subscribe(text => this.setupBadgeTextSubscription());
-  }
+  ) {}
 
   ngOnInit(): void {
     this.handleRouteParameters();
@@ -177,14 +189,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private readIndexFromSnapshot(): number {
     const raw = this.getParamDeep(this.router.routerState.snapshot.root, 'questionIndex');
-    return this.coerceIndex(raw); // uses existing coerceIndex and routeIsOneBased
-  }
-
-  private readIndexFromRouter(): number {
-    const raw = this.getParamDeep(this.router.routerState.snapshot.root, 'questionIndex');
-    let n = Number(raw);
-    if (!Number.isFinite(n)) n = 0;
-    if (this.routeIsOneBased) n -= 1;     // normalize to 0-based internally
-    return n < 0 ? 0 : n;
+    return this.coerceIndex(raw);  // uses existing coerceIndex and routeIsOneBased
   }
 }
