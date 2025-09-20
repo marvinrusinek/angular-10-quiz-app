@@ -62,6 +62,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Input() isNavigatingBackwards: boolean = false;
   @Input() renderReady = false;
   @Input() finalRenderReady$: Observable<boolean> | null = null;
+  @Input() questionFresh = true;
   @Input() questionVersion = 0;  // increments every time questionIndex changes
   public finalRenderReady = false;
   private finalRenderReadySub?: Subscription;
@@ -848,6 +849,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Decide if an option should be disabled
   public shouldDisableOption(binding: OptionBindings): boolean {
+    // Fresh question → nothing disabled at first paint
+    if (this.questionFresh) return false;
+
     if (!binding || !binding.option) {
       return false;
     }
