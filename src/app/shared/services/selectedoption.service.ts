@@ -1189,6 +1189,50 @@ export class SelectedOptionService {
     });
   }
 
+  public shouldDisableOption(
+    option: Option,
+    questionIndex: number,
+    options: Option[]
+  ): boolean {
+    const qType = this.quizService.questions?.[questionIndex]?.type;
+  
+    const totalCorrect = options.filter(o => o.correct).length;
+    const selectedCorrect = options.filter(o => o.correct && o.selected).length;
+  
+    // ───────── SINGLE-ANSWER ─────────
+    if (qType === QuestionType.SingleAnswer) {
+      // Once a correct option is chosen:
+      if (selectedCorrect > 0) {
+        if (!option.correct) {
+          // Disable all incorrects
+          return true;
+        }
+        if (option.correct && option.selected) {
+          // Keep the chosen correct visible + locked (but not disabled grey)
+          return false;
+        }
+      }
+      return false;
+    }
+  
+    // ───────── MULTIPLE-ANSWER ─────────
+    if (qType === QuestionType.MultipleAnswer) {
+      if (option.correct && option.selected) {
+        // Keep correct ones active once selected
+        return false;
+      }
+  
+      if (!option.correct && selectedCorrect >= totalCorrect) {
+        // Disable all wrong options after all corrects are chosen
+        return true;
+      }
+  
+      return false;
+    }
+  
+    return false;
+  }
+
   isOptionLocked(qIndex: number, optId: string | number): boolean {
     return this._lockedByQuestion.get(qIndex)?.has(optId) ?? false;
   }
