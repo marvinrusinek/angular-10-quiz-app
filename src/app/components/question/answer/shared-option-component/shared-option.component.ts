@@ -2493,4 +2493,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
     this.handleClick(binding, idx);
   }
+
+  // Use the same key shape everywhere (STRING so we don't lose non-numeric ids)
+  private keyOf(option: Option, idx?: number): string {
+    const raw = option?.optionId ?? this.selectionMessageService.stableKey(option, idx);
+    return String(raw);
+  }
 }
