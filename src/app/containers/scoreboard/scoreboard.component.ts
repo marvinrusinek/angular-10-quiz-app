@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { combineLatest, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, merge, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -19,26 +19,39 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   badgeText: string;
   unsubscribe$ = new Subject<void>();
 
-  // 0-based index from the route (normalized, replayed)
-  readonly routeIndex$: Observable<number> = this.activatedRoute.paramMap.pipe(
-    map(pm => Number(pm.get('questionIndex'))),
-    map(n => Number.isFinite(n) ? n : 0),
-    map(n => this.routeIsOneBased ? n - 1 : n),
-    map(n => (n < 0 ? 0 : n)),
+  // normalize/clamp helper
+  private coerceIndex = (raw: string | null): number => {
+    let n = Number(raw);
+    if (!Number.isFinite(n)) n = 0;
+    if (this.routeIsOneBased) n = n - 1;
+    return n < 0 ? 0 : n;
+  };
+
+  // seed from snapshot to avoid the "1" flash on resume
+  private readonly seedIndex = this.coerceIndex(
+    this.activatedRoute.snapshot.paramMap.get('questionIndex')
+  );
+
+  // 0-based route index stream, seeded with snapshot
+  readonly routeIndex$: Observable<number> = merge(
+    of(this.seedIndex),
+    this.activatedRoute.paramMap.pipe(
+      map(pm => this.coerceIndex(pm.get('questionIndex')))
+    )
+  ).pipe(
     distinctUntilChanged(),
     shareReplay(1)
   );
 
-  // Display index is 1-based for the badge
-  readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(
-    map(i => i + 1)
-  );
+  // 1-based for display
+  readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(map(i => i + 1));
 
-  // Derive badge text purely from route index + totalQuestions$
+  // badge text waits until totalQuestions is known (>0)
   public readonly badgeText$: Observable<string> = combineLatest([
     this.displayIndex$,
     this.quizService.totalQuestions$
   ]).pipe(
+    filter(([, total]) => Number.isFinite(total as number) && (total as number) > 0),
     map(([n, total]) => `Question ${n} of ${total}`),
     distinctUntilChanged(),
     shareReplay(1)
