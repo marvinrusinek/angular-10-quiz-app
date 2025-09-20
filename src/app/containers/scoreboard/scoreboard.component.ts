@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Params, Router } from '@angular/router';
 import { combineLatest, fromEvent, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -69,13 +69,16 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   // badge text waits until totalQuestions is known (> 0)
   public readonly badgeText$: Observable<string> = combineLatest([
     this.displayIndex$,
-    this.quizService.totalQuestions$
+    this.quizService.totalQuestions$.pipe(
+      map(t => Number(t)),
+      startWith(-1) // sentinel so combineLatest emits immediately
+    )
   ]).pipe(
-    filter(([, total]) => Number.isFinite(total as number) && (total as number) > 0),
-    map(([n, total]) => `Question ${n} of ${total}`),
+    // emit empty string until total is valid; '' is falsy so your *ngIf stays hidden
+    map(([n, total]) => (Number.isFinite(total) && total > 0) ? `Question ${n} of ${total}` : ''),
     distinctUntilChanged(),
     shareReplay(1)
-  );
+  );  
 
   constructor(
     private readonly quizService: QuizService,
