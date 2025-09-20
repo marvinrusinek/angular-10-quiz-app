@@ -53,6 +53,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     fromEvent(document, 'visibilitychange').pipe(
       filter(() => document.visibilityState === 'visible'),
       map(() => this.readIndexFromSnapshot())
+    ),
+    // handle bfcache resume (Safari/iOS, some Chrome cases)
+    fromEvent(window, 'pageshow').pipe(
+      map(() => this.readIndexFromSnapshot())
     )
   ).pipe(
     distinctUntilChanged(),
