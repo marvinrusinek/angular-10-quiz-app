@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { ReplaySubject, of, Observable, Subject, throwError } from 'rxjs';
+import { Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
