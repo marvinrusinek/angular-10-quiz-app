@@ -5780,29 +5780,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return o.optionId ?? o.value ?? `${o.text}-${idx ?? ''}`;
   }
   
-  private revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
+  // shared-option.component.ts
+  public revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
     // Reveal feedback for EVERY option before any locking/disable runs
-    for (const o of canonicalOpts) {
-      // Use numeric optionId when present; fall back to a stable key → number
-      const rawKey = o.optionId ?? this.selectionMessageService.stableKey(o);
+    for (let i = 0; i < canonicalOpts.length; i++) {
+      const o = canonicalOpts[i];
+
+      // Prefer numeric optionId; fall back to a stable key WITH index
+      const rawKey = o.optionId ?? this.selectionMessageService.stableKey(o, i);
       const key = Number(rawKey);
-  
-      // Skip if we still can’t produce a finite number (avoids NaN keys)
+
+      // If key isn't numeric, don't silently fail—use a string key instead
       if (!Number.isFinite(key)) {
-        console.warn('[revealFeedbackForAllOptions] Non-numeric key', rawKey, o);
+        const sk = String(rawKey);
+        this.feedbackConfigs[sk] = {
+          ...(this.feedbackConfigs[sk] ?? {}),
+          showFeedback: true,
+          icon: o.correct ? 'check_circle' : 'cancel',
+          isCorrect: !!o.correct,
+        };
+        this.showFeedbackForOption[sk] = true;
         continue;
       }
-  
+
       this.feedbackConfigs[key] = {
-        ...this.feedbackConfigs[key],  // keep any existing fields
+        ...(this.feedbackConfigs[key] ?? {}),  // keep any existing fields
         showFeedback: true,
         icon: o.correct ? 'check_circle' : 'cancel',
         isCorrect: !!o.correct,
       };
       this.showFeedbackForOption[key] = true;
     }
-  
+
     // Trigger view update
-    this.cdRef.markForCheck();
-  }  
+    this.cdRef?.markForCheck?.();
+  }
 }
