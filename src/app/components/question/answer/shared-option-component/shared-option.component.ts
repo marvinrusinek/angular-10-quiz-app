@@ -261,7 +261,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   
     if (shouldRegenerate) {
-      console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
       this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
     } else if (
