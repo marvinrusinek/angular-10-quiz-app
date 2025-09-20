@@ -19,7 +19,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   badgeText: string;
   unsubscribe$ = new Subject<void>();
 
-  // normalize/clamp helper
+  // Normalize/clamp helper
   private coerceIndex = (raw: string | null): number => {
     let n = Number(raw);
     if (!Number.isFinite(n)) n = 0;
@@ -27,7 +27,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     return n < 0 ? 0 : n;
   };
 
-  // seed from snapshot to avoid the "1" flash on resume
+  // Seed from snapshot to avoid the "1" flash on resume
   private readonly seedIndex = this.coerceIndex(
     this.activatedRoute.snapshot.paramMap.get('questionIndex')
   );
@@ -46,7 +46,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   // 1-based for display
   readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(map(i => i + 1));
 
-  // badge text waits until totalQuestions is known (>0)
+  // badge text waits until totalQuestions is known (> 0)
   public readonly badgeText$: Observable<string> = combineLatest([
     this.displayIndex$,
     this.quizService.totalQuestions$
