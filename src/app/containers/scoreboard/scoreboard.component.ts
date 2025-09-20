@@ -18,7 +18,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   questionNumber: number;
   badgeText: string;
   unsubscribe$ = new Subject<void>();
-  private readonly destroyed$ = new Subject<void>();
 
   // Normalize/clamp helper
   private coerceIndex = (raw: string | null): number => {
@@ -69,7 +68,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   // Service badge stream. Seed with '' so combineLatest emits.
   private readonly serviceBadgeText$: Observable<string> =
   (this.quizService.badgeText as Observable<string>).pipe(
-    startWith(''),   // ensures immediate emission
+    startWith(''),  // ensures immediate emission
     map(s => (s ?? '').trim())  // normalize
   );
 
