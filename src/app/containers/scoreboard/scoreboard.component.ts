@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Params, Router } from '@angular/router';
 import { combineLatest, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 
@@ -18,6 +18,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   questionNumber: number;
   badgeText: string;
   unsubscribe$ = new Subject<void>();
+  private readonly destroyed$ = new Subject<void>();
 
   // Normalize/clamp helper
   private coerceIndex = (raw: string | null): number => {
@@ -59,7 +60,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private quizService: QuizService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router
   ) {
     this.badgeText$ = this.quizService.badgeText;
     this.badgeText$.pipe(takeUntil(this.unsubscribe$))
@@ -139,5 +141,23 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     this.quizService.badgeText.subscribe(updatedText => {
       this.badgeText = updatedText;
     });
+  }
+
+  private getParamDeep(snap: ActivatedRouteSnapshot, key: string): string | null {
+    let cur: ActivatedRouteSnapshot | null = snap;
+    while (cur) {
+      const v = cur.paramMap.get(key);
+      if (v != null) return v;
+      cur = cur.firstChild ?? null;
+    }
+    return null;
+  }
+
+  private readIndexFromRouter(): number {
+    const raw = this.getParamDeep(this.router.routerState.snapshot.root, 'questionIndex');
+    let n = Number(raw);
+    if (!Number.isFinite(n)) n = 0;
+    if (this.routeIsOneBased) n -= 1;     // normalize to 0-based internally
+    return n < 0 ? 0 : n;
   }
 }
