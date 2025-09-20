@@ -2841,13 +2841,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (q?.type === QuestionType.SingleAnswer) {
           if (evtOpt?.correct) {
-            // ✅ Correct click → freeze the whole group
+            // Correct click → freeze the whole group
             const allIdsNum = (this.optionsToDisplay ?? [])
               .map(o => Number(o.optionId))
               .filter(Number.isFinite);
             this.selectedOptionService.lockMany(i0, allIdsNum as number[]);
           } else {
-            // ❌ Incorrect click → DO NOT freeze the group
+            // Incorrect click → DO NOT freeze the group
             // leave other options unlocked so the user can try again
           }
         }
