@@ -15,7 +15,6 @@ import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
-import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { SoundService } from '../../../../shared/services/sound.service';
@@ -137,7 +136,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
     private quizService: QuizService,
-    private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
     private soundService: SoundService,
@@ -860,7 +858,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       (this.selectedOptionService.selectedOptionsMap?.get(qIndex) ?? []).length > 0;
     const localSel =
       (this.optionBindings ?? []).some(b => b?.option?.selected || b?.isSelected);
-    const answered = this.quizStateService?.isAnswered?.() ?? false;
+    const answered = this.quizService.isAnswered(qIndex) ?? false;
     const fresh = !(persistedSel || localSel || answered);
     if (fresh) return false; // nothing disabled on first paint
   
