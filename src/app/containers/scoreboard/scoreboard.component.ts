@@ -23,7 +23,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   private coerceIndex = (raw: string | null): number => {
     let n = Number(raw);
     if (!Number.isFinite(n)) n = 0;
-    if (this.routeIsOneBased) n = n - 1;
+    if (this.routeIsOneBased) n -= 1;  // normalize to 0-based internally
     return n < 0 ? 0 : n;
   };
 
@@ -62,6 +62,8 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     private activatedRoute: ActivatedRoute
   ) {
     this.badgeText$ = this.quizService.badgeText;
+    this.badgeText$.pipe(takeUntil(this.unsubscribe$))
+      .subscribe(text => this.setupBadgeTextSubscription());
   }
 
   ngOnInit(): void {
