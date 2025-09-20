@@ -2830,21 +2830,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 1) Reveal feedback for ALL options now (so ❌/✔ show even if we disable next)
       this.revealFeedbackForAllOptions(canonicalOpts);
-  
-      // 2) Apply one-shot locks using NUMERIC optionId (single pass)
+
+      // 2) Apply one-shot locks using NUMERIC optionId
       try {
         const clickedIdNum = Number(evtOpt?.optionId ?? NaN);
         if (Number.isFinite(clickedIdNum)) {
+          // Always “spend” the clicked option so it can’t be re-clicked
           this.selectedOptionService.lockOption(i0, clickedIdNum);
         }
-  
-        // For single-answer, freeze the whole group after first click
+
         if (q?.type === QuestionType.SingleAnswer) {
-          const allIdsNum = (this.optionsToDisplay ?? [])
-            .map((o) => Number(o.optionId))
-            .filter(Number.isFinite);
-          this.selectedOptionService.lockMany(i0, allIdsNum as number[]);
+          if (evtOpt?.correct) {
+            // ✅ Correct click → freeze the whole group
+            const allIdsNum = (this.optionsToDisplay ?? [])
+              .map(o => Number(o.optionId))
+              .filter(Number.isFinite);
+            this.selectedOptionService.lockMany(i0, allIdsNum as number[]);
+          } else {
+            // ❌ Incorrect click → DO NOT freeze the group
+            // leave other options unlocked so the user can try again
+          }
         }
+        // Multiple-answer behavior unchanged
       } catch { /* noop */ }
   
       /* =========================
