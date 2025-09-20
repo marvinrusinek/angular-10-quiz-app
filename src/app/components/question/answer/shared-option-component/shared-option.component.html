@@ -26,7 +26,7 @@
           [appHighlightReset]="shouldResetBackground"
           [ngClass]="getOptionClasses(b)"
           [disabled]="isDisabled(b, i)"
-          [attr.aria-disabled]="isDisabled(b, i) ? 'true' : null"
+          [attr.aria-disabled]="isDisabled(b, i)"
           (click)="onOptionClick(b, i, $event)"
           (change)="updateOptionAndUI(b, i, $event)">
 
@@ -71,7 +71,7 @@
             [appHighlightReset]="shouldResetBackground"
             [ngClass]="getOptionClasses(b)"
             [disabled]="isDisabled(b, i)"
-            [attr.aria-disabled]="isDisabled(b, i) ? 'true' : null"
+            [attr.aria-disabled]="isDisabled(b, i)"
             (click)="onOptionClick(b, i, $event)"
             (change)="updateOptionAndUI(b, i, $event)">
 
