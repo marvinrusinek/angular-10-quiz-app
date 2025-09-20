@@ -172,10 +172,16 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private setupBadgeTextSubscription(): void {
-    this.quizService.badgeText.subscribe(updatedText => {
-      this.badgeText = updatedText;
-    });
-  }
+    this.quizService.badgeText
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        map(s => (s ?? '').trim()),
+        filter(s => s !== '')  // ignore empty/placeholder emissions
+      )
+      .subscribe((updatedText: string) => {
+        this.badgeText = updatedText;
+      });
+  }  
 
   private getParamDeep(snap: ActivatedRouteSnapshot, key: string): string | null {
     let cur: ActivatedRouteSnapshot | null = snap;
