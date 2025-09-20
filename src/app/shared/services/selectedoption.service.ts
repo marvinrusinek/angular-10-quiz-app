@@ -100,7 +100,6 @@ export class SelectedOptionService {
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
-      console.log('[🔓 Next Enabled] Called for questionIndex:', questionIndex);
     } else {
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
 
