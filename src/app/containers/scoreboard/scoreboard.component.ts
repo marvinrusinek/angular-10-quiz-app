@@ -24,7 +24,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     map(pm => Number(pm.get('questionIndex'))),
     map(n => Number.isFinite(n) ? n : 0),
     map(n => this.routeIsOneBased ? n - 1 : n),
-    map(n => (n < 0 ? 0 : n)),          // clamp if needed
+    map(n => (n < 0 ? 0 : n)),
     distinctUntilChanged(),
     shareReplay(1)
   );
@@ -37,7 +37,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   // Derive badge text purely from route index + totalQuestions$
   public readonly badgeText$: Observable<string> = combineLatest([
     this.displayIndex$,
-    this.quizService.totalQuestions$  // assume this is a BehaviorSubject/Observable<number>
+    this.quizService.totalQuestions$
   ]).pipe(
     map(([n, total]) => `Question ${n} of ${total}`),
     distinctUntilChanged(),
