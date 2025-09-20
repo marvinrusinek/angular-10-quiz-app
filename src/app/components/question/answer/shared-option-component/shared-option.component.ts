@@ -14,8 +14,8 @@ import { SelectedOption } from '../../../../shared/models/SelectedOption.model';
 import { SharedOptionConfig } from '../../../../shared/models/SharedOptionConfig.model';
 import { ExplanationTextService } from '../../../../shared/services/explanation-text.service';
 import { FeedbackService } from '../../../../shared/services/feedback.service';
-import { NextButtonStateService } from '../../../../shared/services/next-button-state.service';
 import { QuizService } from '../../../../shared/services/quiz.service';
+import { QuizStateService } from '../../../../shared/services/quizstate.service';
 import { SelectedOptionService } from '../../../../shared/services/selectedoption.service';
 import { SelectionMessageService } from '../../../../shared/services/selection-message.service';
 import { SoundService } from '../../../../shared/services/sound.service';
@@ -136,8 +136,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
-    private nextButtonStateService: NextButtonStateService,
     private quizService: QuizService,
+    private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
     private selectionMessageService: SelectionMessageService,
     private soundService: SoundService,
@@ -848,37 +848,63 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Decide if an option should be disabled
   public shouldDisableOption(binding: OptionBindings): boolean {
-    if (!binding || !binding.option) {
-      return false;
-    }
-
+    if (!binding || !binding.option) return false;
+  
     const option = binding.option;
     const optionId = option.optionId;
-
+    const qIndex = this.currentQuestionIndex ?? 0;
+  
+    // ── Derived "fresh" guard: enable everything until the first real selection exists ──
+    // Checks both persisted selections and local bindings to avoid timing glitches.
+    const persistedSel =
+      (this.selectedOptionService.selectedOptionsMap?.get(qIndex) ?? []).length > 0;
+    const localSel =
+      (this.optionBindings ?? []).some(b => b?.option?.selected || b?.isSelected);
+    const answered = this.quizStateService?.isAnswered?.() ?? false;
+    const fresh = !(persistedSel || localSel || answered);
+    if (fresh) return false; // nothing disabled on first paint
+  
+    // ── One-shot lock: if this option was "spent", block immediately ──
+    try {
+      if (optionId != null && this.selectedOptionService.isOptionLocked(qIndex, optionId)) {
+        return true;
+      }
+    } catch {}
+  
+    // ── Your existing logic (unchanged) ──
     const bindings = this.optionBindings ?? [];
     const resolvedType = this.resolvedTypeForLock ?? this.resolveQuestionType();
+  
     const hasCorrectSelection = bindings.some(b =>
       (!!b.option?.selected || b.isSelected) && !!b.option?.correct
     );
+  
     const correctBindings = bindings.filter(b => !!b.option?.correct);
-    const allCorrectSelectedLocally = correctBindings.length > 0
-      && correctBindings.every(b => !!b.option?.selected || b.isSelected);
+  
+    const allCorrectSelectedLocally =
+      correctBindings.length > 0 &&
+      correctBindings.every(b => !!b.option?.selected || b.isSelected);
+  
     const allCorrectPersisted = this.areAllCorrectAnswersSelected();
-    const shouldLockIncorrect = this.shouldLockIncorrectOptions || this.computeShouldLockIncorrectOptions(
-      resolvedType,
-      hasCorrectSelection,
-      allCorrectSelectedLocally,
-      allCorrectPersisted
-    );
-
+  
+    const shouldLockIncorrect =
+      this.shouldLockIncorrectOptions ||
+      this.computeShouldLockIncorrectOptions(
+        resolvedType,
+        hasCorrectSelection,
+        allCorrectSelectedLocally,
+        allCorrectPersisted
+      );
+  
     if (shouldLockIncorrect && !option.correct) return true;
-
+  
     if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) return true;
-
+  
     if (optionId != null && this.flashDisabledSet.has(optionId)) return true;
-
+  
     return !!binding.disabled;
   }
+  
 
   private resolveQuestionType(): QuestionType {
     if (this.currentQuestion?.type) {
