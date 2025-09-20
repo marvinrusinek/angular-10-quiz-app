@@ -300,7 +300,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
           // Service cache for this index (what update/expiry wrote)
           const svcRaw = (
-            this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
+            this.explanationTextService?.formattedExplanations[currentIndex].explanation ?? ''
           ).toString().trim();
           if (svcRaw) return svcRaw;
   
@@ -468,15 +468,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         this.quizService.setCurrentQuestion(question);
 
-        /* setTimeout(() => {
-          this.questionRendered.next(true); // Use BehaviorSubject
-          this.initializeExplanationTextObservable();
-          // this.fetchExplanationTextAfterRendering(question);
-        }, 300); // Ensure this runs after the current rendering cycle
-        */
         setTimeout(() => {
           this.fetchExplanationTextAfterRendering(question);
-        }, 300);  // adjust delay as necessary
+        }, 300);
       } else {
         console.error('Invalid question index:', zeroBasedIndex);
       }
@@ -517,11 +511,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Set before test fetch
       this.explanationTextService.explanationsInitialized = true;
   
-      // Now it's safe to fetch
-      const result = await firstValueFrom(
-        this.explanationTextService.getFormattedExplanationTextForQuestion(0)
-      );
-  
       this.initializeCurrentQuestionIndex();
     } catch (error) {
       console.error('Error in initializeQuestionData:', error);
@@ -558,39 +547,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private initializeCurrentQuestionIndex(): void {
     this.quizService.currentQuestionIndex = 0;
     this.currentQuestionIndex$ = this.quizService.getCurrentQuestionIndexObservable();
-  }
-
-  // Function to handle the display of correct answers
-  private handleCorrectAnswersDisplay(question: QuizQuestion): void {
-    const isMultipleAnswer$ = this.quizQuestionManagerService.isMultipleAnswerQuestion(question).pipe(
-        map(value => value ?? false),  // default to `false` if value is `undefined`
-        distinctUntilChanged()
-    );
-    const isExplanationDisplayed$ = this.explanationTextService.isExplanationDisplayed$.pipe(
-        map(value => value ?? false),  // default to `false` if value is `undefined`
-        distinctUntilChanged()
-    );
-
-    combineLatest([isMultipleAnswer$, isExplanationDisplayed$])
-      .pipe(
-        take(1),
-        switchMap(([isMultipleAnswer, isExplanationDisplayed]) => {
-          if (this.isSingleAnswerWithExplanation(isMultipleAnswer, isExplanationDisplayed)) {
-            // For single-answer questions with an explanation, do not display correct answers
-            return of(false);
-          } else {
-            // For all other cases, display correct answers
-            return of(isMultipleAnswer && !isExplanationDisplayed);
-          }
-        }),
-        catchError(error => {
-          console.error('Error in handleCorrectAnswersDisplay:', error);
-          return of(false);  // default to not displaying correct answers in case of error
-        })
-      )
-      .subscribe((shouldDisplayCorrectAnswers: boolean) => {
-        this.shouldDisplayCorrectAnswersSubject.next(shouldDisplayCorrectAnswers);
-      });
   }
 
   private updateCorrectAnswersDisplay(question: QuizQuestion | null): Observable<void> {
@@ -659,37 +615,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex);
       })
     );
-  }
-
-  updateExplanationForQuestion(question: QuizQuestion): void {
-    // Combine explanationTextService's observable with selectedOptionExplanation$
-    const explanationText$ = combineLatest([
-      this.explanationTextService.getExplanationText$().pipe(
-        map(value => value ?? 'No explanation available'),  // default to 'No explanation available' if value is `undefined`
-        distinctUntilChanged()
-      ),
-      this.selectedOptionService.selectedOptionExplanation$.pipe(
-        map(value => value ?? null),  // default to `null` if value is `undefined`
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([explanationText, selectedOptionExplanation]) =>
-        selectedOptionExplanation ?? explanationText ?? 'No explanation available'
-      ),
-      catchError(error => {
-        console.error('Error in updateExplanationForQuestion:', error);
-        return of('No explanation available');  // emit default message in case of error
-      })
-    );
-
-    // Subscribe to explanationText$ and update the explanation text accordingly
-    explanationText$.subscribe((explanationText) => {
-      if (this.quizService.areQuestionsEqual(question, this.question)) {
-        this.explanationText = explanationText as string ?? null;
-      } else {
-        this.explanationText = null;
-      }
-    });
   }
 
   private initializeCombinedQuestionData(): void {
@@ -925,18 +850,5 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of(null);  // default to null in case of error
       })
     );
-  }
-
-  // Helper function to check if it's a single-answer question with an explanation
-  private isSingleAnswerWithExplanation(
-    isMultipleAnswer: boolean,
-    isExplanationDisplayed: boolean): boolean {
-    return !isMultipleAnswer && isExplanationDisplayed;
-  }
-
-  public showLocalExplanationText(html: string) {
-    this.localExplanationText = html;
-    this.showLocalExplanation = true;
-    this.cdRef.markForCheck();
   }
 }
