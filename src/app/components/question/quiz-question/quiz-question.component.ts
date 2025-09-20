@@ -2744,10 +2744,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const getStableId = (o: Option | SelectedOption, idx?: number) =>
       this.selectionMessageService.stableKey(o as Option, idx);
   
-    // [LOCK] Hard block re-clicks based on stable ID
+    // [LOCK] Hard block re-clicks using NUMERIC optionId (matches SOC’s checks).
     try {
-      const lockId = getStableId(evtOpt, evtIdx);
-      if (this.selectedOptionService.isOptionLocked(i0, lockId)) {
+      const lockIdNum = Number(evtOpt?.optionId);
+      if (Number.isFinite(lockIdNum) && this.selectedOptionService.isOptionLocked(i0, lockIdNum)) {
         // Already spent → ignore silently
         return;
       }
@@ -2755,7 +2755,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (this._clickGate) return;
     this._clickGate = true;
-
+  
     this.questionFresh = false;
   
     try {
@@ -2824,24 +2824,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      // [LOCK] Lock the clicked option immediately (one-shot behavior)
-      try {
-        const clickedId = getStableId(evtOpt, evtIdx);
-        this.selectedOptionService.lockOption(i0, clickedId);
+      /* =========================
+         [REVEAL→LOCK] Do this in order
+         ========================= */
   
-        // [LOCK] For single-answer, freeze the whole group after first click
-        if (q?.type === QuestionType.SingleAnswer) {
-          const allIds = (this.optionsToDisplay ?? []).map((o, idx) => getStableId(o, idx));
-          this.selectedOptionService.lockMany(i0, allIds);
+      // 1) Reveal feedback for ALL options now (so ❌/✔ show even if we disable next)
+      this.revealFeedbackForAllOptions(canonicalOpts);
+  
+      // 2) Apply one-shot locks using NUMERIC optionId (single pass)
+      try {
+        const clickedIdNum = Number(evtOpt?.optionId ?? NaN);
+        if (Number.isFinite(clickedIdNum)) {
+          this.selectedOptionService.lockOption(i0, clickedIdNum);
         }
-        // If you want to hard-finish multi-answer when done, you can also lock remaining here.
-        // if (this.selectedOptionService.areAllCorrectAnswersSelectedSync(i0)) {
-        //   const remaining = (this.optionsToDisplay ?? [])
-        //     .filter((o, idx) => !this.selectedOptionService.isOptionLocked(i0, getStableId(o, idx)))
-        //     .map((o, idx) => getStableId(o, idx));
-        //   this.selectedOptionService.lockMany(i0, remaining);
-        // }
-      } catch {}
+  
+        // For single-answer, freeze the whole group after first click
+        if (q?.type === QuestionType.SingleAnswer) {
+          const allIdsNum = (this.optionsToDisplay ?? [])
+            .map((o) => Number(o.optionId))
+            .filter(Number.isFinite);
+          this.selectedOptionService.lockMany(i0, allIdsNum as number[]);
+        }
+      } catch { /* noop */ }
+  
+      /* =========================
+         continue as before…
+         ========================= */
   
       // Immediate feedback sync (prevents icon delay when selecting multiple options)
       const selOptsSetImmediate = new Set(
@@ -2951,8 +2959,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       });
     }
-  }
-  
+  }  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
