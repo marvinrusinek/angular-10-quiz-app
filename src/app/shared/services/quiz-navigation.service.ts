@@ -14,7 +14,6 @@ import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
 import { SelectedOptionService } from './selectedoption.service';
-import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
@@ -69,7 +68,6 @@ export class QuizNavigationService {
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private selectedOptionService: SelectedOptionService,
-    private selectionMessageService: SelectionMessageService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
     private router: Router
