@@ -78,7 +78,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
-      const questionIndex = +params.questionIndex; // Keep it as 0-based index
+      const questionIndex = +params.questionIndex;  // keep it as 0-based index
       const updatedQuestionNumber = questionIndex;
 
       // Only update if the number actually changes
