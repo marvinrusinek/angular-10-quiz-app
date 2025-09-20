@@ -163,10 +163,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       tap((state) => console.log('[displayState$ emitted]:', state))
     );
 
-    this.explanationTextService.explanationText$.subscribe((text) => {
-      console.log('[🧪 explanationText$ EMITTED]:', text);
-    });
-
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.explanationText$.next('');
     
