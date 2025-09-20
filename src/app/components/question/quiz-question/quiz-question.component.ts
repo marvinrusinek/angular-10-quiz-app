@@ -5774,18 +5774,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
   
   private revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
+    // Reveal feedback for EVERY option before any locking/disable runs
     for (const o of canonicalOpts) {
-      const key = Number(
-        o.optionId ?? this.selectionMessageService.stableKey(o)
-      );
+      // Use numeric optionId when present; fall back to a stable key → number
+      const rawKey = o.optionId ?? this.selectionMessageService.stableKey(o);
+      const key = Number(rawKey);
+  
+      // Skip if we still can’t produce a finite number (avoids NaN keys)
+      if (!Number.isFinite(key)) {
+        console.warn('[revealFeedbackForAllOptions] Non-numeric key', rawKey, o);
+        continue;
+      }
+  
       this.feedbackConfigs[key] = {
-        ...this.feedbackConfigs[key],
+        ...this.feedbackConfigs[key],  // keep any existing fields
         showFeedback: true,
         icon: o.correct ? 'check_circle' : 'cancel',
         isCorrect: !!o.correct,
       };
       this.showFeedbackForOption[key] = true;
     }
+  
+    // Trigger view update
     this.cdRef.markForCheck();
-  }
+  }  
 }
