@@ -5545,7 +5545,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.lastFeedbackOptionId = -1;
 
     // If you’re using per-question numeric keys:
-    try { this._idMap?.delete?.(i0); } catch {}
+    // try { this._idMap?.delete?.(i0); } catch {}
 
     // ── 3) Explanation & display mode ──────────────────────────
     this.displayExplanation = false;
@@ -5566,7 +5566,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.questionFresh = true;
 
     // ── 5) Form state ──────────────────────────────────────────
-    try { (this.questionForm ?? this.form)?.enable?.({ emitEvent: false }); } catch {}
+    try { this.questionForm?.enable({ emitEvent: false }); } catch {}
 
     // ── 6) Clear any click dedupe/log cosmetics ────────────────
     this.lastLoggedIndex = -1;
