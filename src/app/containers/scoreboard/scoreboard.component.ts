@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, combineLatest, distinctUntilChanged, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
 
@@ -17,8 +17,32 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
   badgeText: string;
-  badgeText$: Observable<string>;
   unsubscribe$ = new Subject<void>();
+
+  // 0-based index from the route (normalized, replayed)
+  readonly routeIndex$: Observable<number> = this.activatedRoute.paramMap.pipe(
+    map(pm => Number(pm.get('questionIndex'))),
+    map(n => Number.isFinite(n) ? n : 0),
+    map(n => this.routeIsOneBased ? n - 1 : n),
+    map(n => (n < 0 ? 0 : n)),          // clamp if needed
+    distinctUntilChanged(),
+    shareReplay(1)
+  );
+
+  // Display index is 1-based for the badge
+  readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(
+    map(i => i + 1)
+  );
+
+  // Derive badge text purely from route index + totalQuestions$
+  public readonly badgeText$: Observable<string> = combineLatest([
+    this.displayIndex$,
+    this.quizService.totalQuestions$  // assume this is a BehaviorSubject/Observable<number>
+  ]).pipe(
+    map(([n, total]) => `Question ${n} of ${total}`),
+    distinctUntilChanged(),
+    shareReplay(1)
+  );
 
   constructor(
     private quizService: QuizService,
