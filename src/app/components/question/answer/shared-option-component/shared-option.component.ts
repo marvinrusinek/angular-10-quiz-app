@@ -811,14 +811,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return `${idx + 1}. ${option?.text ?? ''}`;
   }  
 
-  getOptionIcon(option: Option): string {
-    if (!this.showFeedback) return ''; // ensure feedback is enabled
+  public getOptionIcon(option: Option, i: number): string {
+    // keep your guard: if global feedback is off, render nothing
+    if (!this.showFeedback) return '';
   
-    // Return 'close' if feedback explicitly marks it incorrect
-    if (option.feedback === 'x') return 'close';
+    // 1) Primary source: child-managed feedbackConfigs
+    const k = this.keyOf(option, i);
+    const cfg = this.feedbackConfigs[k];
+    if (cfg?.showFeedback) {
+      // normalize to Material icons you’re using everywhere else
+      return cfg.icon ?? (cfg.isCorrect ? 'check_circle' : 'cancel');
+    }
   
-    // Return 'check' for correct answers, otherwise 'close' for incorrect ones
-    return option.correct ? 'check' : 'close';
+    // Legacy explicit per-option flag (your old path)
+    if ((option as any).feedback === 'x') return 'cancel'; // was 'close' – 'cancel' matches the set above
+  
+    // Legacy default: correct = check, otherwise cancel
+    return option.correct ? 'check_circle' : 'cancel';
   }
 
   getOptionIconClass(option: Option): string {
