@@ -4,7 +4,6 @@ import { ReplaySubject, of, Observable, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
-import { TimerService } from '../../shared/services/timer.service';
 
 @Component({
   selector: 'codelab-scoreboard',
@@ -22,7 +21,6 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private quizService: QuizService,
-    private timerService: TimerService,
     private activatedRoute: ActivatedRoute
   ) {
     this.badgeText$ = this.quizService.badgeText;
