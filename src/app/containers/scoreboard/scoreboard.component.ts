@@ -12,7 +12,7 @@ import { QuizService } from '../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
-  private readonly routeIsOneBased = false;
+  private readonly routeIsOneBased = true;
   totalQuestions = 0;
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
@@ -119,7 +119,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     console.warn('No questionIndex found in route parameters.');
     return of(null);
   }
-  
+
   private setupBadgeTextSubscription(): void {
     this.quizService.badgeText.subscribe(updatedText => {
       this.badgeText = updatedText;
