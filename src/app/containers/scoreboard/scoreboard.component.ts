@@ -35,10 +35,10 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   // 0-based route index stream, seeded with snapshot
   readonly routeIndex$: Observable<number> = merge(
-    // seed (your original)
+    // seed original
     of(this.seedIndex),
   
-    // paramMap updates (your original)
+    // paramMap updates
     this.activatedRoute.paramMap.pipe(
       map(pm => this.coerceIndex(pm.get('questionIndex')))
     ),
