@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, Params, Router } from '@angular/router';
-import { combineLatest, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Params, Router } from '@angular/router';
+import { combineLatest, fromEvent, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 
 import { QuizService } from '../../shared/services/quiz.service';
@@ -35,15 +35,30 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   // 0-based route index stream, seeded with snapshot
   readonly routeIndex$: Observable<number> = merge(
+    // seed (your original)
     of(this.seedIndex),
+  
+    // paramMap updates (your original)
     this.activatedRoute.paramMap.pipe(
       map(pm => this.coerceIndex(pm.get('questionIndex')))
+    ),
+  
+    // navigation completions → re-read from snapshot (fixes router timing)
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(() => this.readIndexFromSnapshot())
+    ),
+  
+    // tab becomes visible again → re-read from snapshot (fixes "Question 1" flash)
+    fromEvent(document, 'visibilitychange').pipe(
+      filter(() => document.visibilityState === 'visible'),
+      map(() => this.readIndexFromSnapshot())
     )
   ).pipe(
     distinctUntilChanged(),
     shareReplay(1)
   );
-
+  
   // 1-based for display
   readonly displayIndex$: Observable<number> = this.routeIndex$.pipe(map(i => i + 1));
 
@@ -59,9 +74,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   );
 
   constructor(
-    private quizService: QuizService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router
+    private readonly quizService: QuizService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router
   ) {
     this.badgeText$ = this.quizService.badgeText;
     this.badgeText$.pipe(takeUntil(this.unsubscribe$))
@@ -151,6 +166,11 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       cur = cur.firstChild ?? null;
     }
     return null;
+  }
+
+  private readIndexFromSnapshot(): number {
+    const raw = this.getParamDeep(this.router.routerState.snapshot.root, 'questionIndex');
+    return this.coerceIndex(raw); // uses your existing coerceIndex + routeIsOneBased
   }
 
   private readIndexFromRouter(): number {
