@@ -2479,4 +2479,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return false;
     }
   }
+
+  // Single place to decide disabled
+  public isDisabled(binding: OptionBindings, idx: number): boolean {
+    return this.shouldDisableOption(binding) || this.isLocked(binding, idx);
+  }
+
+  // Click wrapper that no-ops when disabled
+  public onOptionClick(binding: OptionBindings, idx: number, ev: MouseEvent): void {
+    if (this.isDisabled(binding, idx)) {
+      ev.stopImmediatePropagation();
+      ev.preventDefault();
+      return;
+    }
+    this.handleClick(binding, idx);
+  }
 }
