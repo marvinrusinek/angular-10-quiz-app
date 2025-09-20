@@ -119,12 +119,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
     console.warn('No questionIndex found in route parameters.');
     return of(null);
   }
-
-  private handleError(error: Error): Observable<never> {
-    console.error('Error in switchMap: ', error);
-    return throwError(() => error);
-  }
-
+  
   private setupBadgeTextSubscription(): void {
     this.quizService.badgeText.subscribe(updatedText => {
       this.badgeText = updatedText;
