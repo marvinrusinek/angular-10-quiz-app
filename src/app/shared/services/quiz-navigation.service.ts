@@ -157,18 +157,30 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
-    const routeParams = this.activatedRoute.snapshot.firstChild?.paramMap;
-    let currentIndex = routeParams
-      ? parseInt(routeParams.get('questionIndex') ?? '', 10) - 1
-      : 0;
-    if (isNaN(currentIndex) || currentIndex < 0) currentIndex = 0;
-
-    const targetIndex = currentIndex + offset;  // 0-based
-
+    // Read current index from the full router snapshot (robust across tab resumes / nested routes)
+    const readIndexFromSnapshot = (): number => {
+      let snap = this.router.routerState.snapshot.root;
+      let raw: string | null = null;
+      while (snap) {
+        const v = snap.paramMap.get('questionIndex');
+        if (v != null) { raw = v; break; }
+        snap = snap.firstChild!;
+      }
+      // Route is 1-based in URL → normalize to 0-based internally
+      let n = Number(raw);
+      if (!Number.isFinite(n)) n = 0;
+      n = n - 1;
+      if (n < 0) n = 0;
+      return n;
+    };
+  
+    let currentIndex = readIndexFromSnapshot();   // 0-based
+    const targetIndex = currentIndex + offset;    // 0-based
+  
     // Block if going out of bounds
     if (targetIndex < 0) {
       console.warn('[⛔] Already at first question, cannot go back.');
-      return;
+      return false;
     }
   
     // Guard against loading or navigating
@@ -176,7 +188,7 @@ export class QuizNavigationService {
     // const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-
+  
     console.group('[🟡 NAV BLOCK CHECK]');
     console.log('offset:', offset);
     console.log('isLoading:', isLoading);
@@ -184,40 +196,42 @@ export class QuizNavigationService {
     console.log('quizState.isLoading:', this.quizStateService.isLoadingSubject.getValue());
     console.log('quizState.isNavigating:', this.quizStateService.isNavigatingSubject.getValue());
     console.groupEnd();
-     
+  
     if (isLoading || isNavigating) {
-      console.warn('[🚫 Navigation blocked]', {
-        offset,
-        isLoading,
-        isNavigating
-      });
-      return;
+      console.warn('[🚫 Navigation blocked]', { offset, isLoading, isNavigating });
+      return false;
     }
   
     const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
     if (!effectiveQuizId) {
       console.error('[❌ No quizId available]');
-      return;
+      return false;
     }
-
+  
     // Fetch the quiz metadata that matches the current route
     const currentQuiz: Quiz = await firstValueFrom(
       this.quizDataService.getQuiz(effectiveQuizId).pipe(
         filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
         take(1)
       )
-    );
-
+    ).catch(err => {
+      console.error('[❌ getQuiz error]', err);
+      return undefined as any;
+    });
+  
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
-      return;
+      return false;
     }
-
+  
     // Early Exit: already beyond last question, navigate to /results
     const lastIndex = currentQuiz.questions.length - 1;
     if (targetIndex > lastIndex) {
-      await this.router.navigate(['/results', effectiveQuizId]);
-      return;
+      const moved = await this.router.navigate(['/results', effectiveQuizId]).catch(err => {
+        console.error('[❌ navigate to results error]', err);
+        return false;
+      });
+      return !!moved;
     }
   
     this.isNavigating = true;
@@ -239,10 +253,10 @@ export class QuizNavigationService {
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
-
+  
         this.selectedOptionService.setAnswered(false, true);
         this.nextButtonStateService.reset();
-
+  
         await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
   
         this.notifyNavigationSuccess();
@@ -251,10 +265,11 @@ export class QuizNavigationService {
       } else {
         console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
       }
-
-      return navSuccess;
+  
+      return !!navSuccess;
     } catch (err) {
       console.error('[❌ navigateWithOffset error]', err);
+      return false;
     } finally {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
