@@ -2755,6 +2755,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     if (this._clickGate) return;
     this._clickGate = true;
+
+    this.questionFresh = false;
   
     try {
       // Update local UI selection immediately
@@ -5524,42 +5526,68 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Per-question next and selections reset done from the child, timer
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
-  
-    // Hard-hide and clear text for the new question
+
+    // ── 0) Stop any in-flight UI work ─────────────────────────
+    if (this._pendingRAF != null) {
+      cancelAnimationFrame(this._pendingRAF);
+      this._pendingRAF = null;
+    }
+    this._skipNextAsyncUpdates = false;
+
+    // ── 1) Unlock & clear per-question selection/locks ─────────
+    this.selectedOptionService.resetLocksForQuestion(i0);
+    this.selectedOptionService.clearSelectionsForQuestion(i0);
+
+    // ── 2) Reset disable/feedback maps ─────────────────────────
+    this.flashDisabledSet?.clear?.();
+    this.feedbackConfigs = {};
+    this.showFeedbackForOption = {};
+    this.lastFeedbackOptionId = -1;
+
+    // If you’re using per-question numeric keys:
+    try { this._idMap?.delete?.(i0); } catch {}
+
+    // ── 3) Explanation & display mode ──────────────────────────
     this.displayExplanation = false;
     this.explanationToDisplay = '';
     this.explanationToDisplayChange?.emit('');
     this.showExplanationChange?.emit(false);
     this.explanationOwnerIdx = -1;
-  
-    // Ensure no lock blocks the next show
+
     this.explanationTextService.unlockExplanation?.();
     this.explanationTextService.resetExplanationText();
     this.explanationTextService.setShouldDisplayExplanation(false);
-  
+
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-  
-    // Usual resets...
-    this.nextButtonStateService.reset();
-    this.nextButtonStateService.setNextButtonState(false);
+    this.quizStateService.setAnswered(false);
     this.quizStateService.setAnswerSelected(false);
-    this.selectedOptionService.clearSelectionsForQuestion(i0);
-  
-    // Clear click dedupe
+
+    // ── 4) “Fresh question” guard so nothing is disabled on load ─
+    this.questionFresh = true;
+
+    // ── 5) Form state ──────────────────────────────────────────
+    try { (this.questionForm ?? this.form)?.enable?.({ emitEvent: false }); } catch {}
+
+    // ── 6) Clear any click dedupe/log cosmetics ────────────────
     this.lastLoggedIndex = -1;
     this.lastLoggedQuestionIndex = -1;
-  
-    // Prewarm silently; do not touch visibility here (single source of truth)
+
+    // ── 7) Prewarm explanation cache (no UI toggles here) ──────
     this.resolveFormatted(i0, { useCache: true, setCache: true });
-  
-    // Restart timer
+
+    // ── 8) Timer reset/restart ─────────────────────────────────
     this.timerService.stopTimer?.();
     this.timerService.resetTimer();
     requestAnimationFrame(() =>
       this.timerService.startTimer(this.timerService.timePerQuestion, true)
     );
     queueMicrotask(() => this.emitPassiveNow(index));
+
+    // ── 9) Render ──────────────────────────────────────────────
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
+
 
   // One call to reset everything the child controls for a given question
   public resetForQuestion(index: number): void {
@@ -5744,31 +5772,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private getStableId(o: Option, idx?: number): string | number {
     return o.optionId ?? o.value ?? `${o.text}-${idx ?? ''}`;
   }
-
-  private resetPerQuestionState(nextIndex: number): void {
-    // 1) Unlock everything for the new question
-    this.selectedOptionService.resetLocksForQuestion(nextIndex);
   
-    // 2) Clear any ad-hoc disables & feedback
-    this.flashDisabledSet?.clear?.();
-    this.feedbackConfigs = {};
-    this.showFeedbackForOption = {};
-    this.lastFeedbackOptionId = -1;
-  
-    // 3) Fresh-state flags
-    this.questionFresh = true;               // your disable guard uses this
-    this.quizStateService.setAnswered(false);
-    this.quizStateService.setAnswerSelected(false);
-    this.explanationTextService.setShouldDisplayExplanation(false);
-  
-    // 4) Re-enable form controls
-    try { this.questionForm?.enable?.({ emitEvent: false }); } catch {}
-  
-    // 5) Render
-    this.cdRef.markForCheck();
-    this.cdRef.detectChanges();
-  }
-
   private revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
     for (const o of canonicalOpts) {
       const key = Number(
