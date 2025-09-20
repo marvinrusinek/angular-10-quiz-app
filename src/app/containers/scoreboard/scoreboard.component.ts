@@ -12,6 +12,7 @@ import { QuizService } from '../../shared/services/quiz.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly routeIsOneBased = false;
   totalQuestions = 0;
   totalQuestions$ = new ReplaySubject<number>(1);
   questionNumber: number;
