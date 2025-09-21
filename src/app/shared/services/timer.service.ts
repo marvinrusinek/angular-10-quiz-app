@@ -76,17 +76,12 @@ export class TimerService {
     // Prevent duplicate subscriptions
     this.stopTimerSignalSubscription?.unsubscribe();
   
-    this.stopTimerSignalSubscription = this.selectedOptionService.stopTimer$
-      .subscribe(() => {
-        if (!this.isTimerRunning) {
-          console.log('[TimerService] Stop signal received but timer is not running.');
-          return;
-        }
-
-        this.handleStopTimerSignal();
-        console.log('[TimerService] Stop signal received from SelectedOptionService. Stopping timer.');
-      });
-  }
+    // Delegate fully to the handler (it does the check + logs + stop)
+    this.stopTimerSignalSubscription =
+      this.selectedOptionService.stopTimer$.subscribe(() =>
+        this.handleStopTimerSignal()
+      );
+  }  
 
   private handleStopTimerSignal(): void {
     if (!this.isTimerRunning) {
