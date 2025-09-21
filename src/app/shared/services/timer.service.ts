@@ -267,21 +267,23 @@ export class TimerService {
       this.selectedOptionService.stopTimerEmitted &&
       this.isTimerStoppedForCurrentQuestion
     ) {
-      console.log(
-        '[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.'
-      );
+      console.log('[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.');
       return false;
     }
   
     if (questionIndex == null || questionIndex < 0) {
-      console.warn(
-        '[TimerService] attemptStopTimerForQuestion called without a valid question index.'
-      );
+      console.warn('[TimerService] attemptStopTimerForQuestion called without a valid question index.');
       return false;
     }
   
     if (this.stoppedForQuestion.has(questionIndex)) {
       // Extra guard in case flags weren’t reset somewhere else
+      return false;
+    }
+  
+    // If the timer isn't running, nothing to stop (prevents no-op reentry)
+    if (!this.isTimerRunning) {
+      console.log('[TimerService] attemptStopTimerForQuestion skipped — timer is not running.');
       return false;
     }
   
@@ -299,17 +301,24 @@ export class TimerService {
     // Fire sound (or any UX) BEFORE stopping so teardown doesn’t kill it
     try { options.onBeforeStop?.(); } catch {}
   
-    // Force the stop here to mirror your working path
-    this.stopTimer(options.onStop, { force: true });
-  
-    // Mark as stopped for this question
+    // Mark as stopped for this question BEFORE stopping to avoid re-entrancy
     this.selectedOptionService.stopTimerEmitted = true;
-    this.isTimerStoppedForCurrentQuestion = true;  // mark as stopped for this question
+    this.isTimerStoppedForCurrentQuestion = true;
     this.stoppedForQuestion.add(questionIndex);
   
-    return true;
+    try {
+      // Force the stop here to mirror your working path
+      this.stopTimer(options.onStop, { force: true });
+      return true;
+    } catch (err) {
+      // Roll back flags if stop fails
+      this.selectedOptionService.stopTimerEmitted = false;
+      this.isTimerStoppedForCurrentQuestion = false;
+      this.stoppedForQuestion.delete(questionIndex);
+      console.error('[TimerService] stopTimer failed in attemptStopTimerForQuestion:', err);
+      return false;
+    }
   }
-  
 
   preventRestartForCurrentQuestion(): void {
     if (this.isTimerStoppedForCurrentQuestion) {
