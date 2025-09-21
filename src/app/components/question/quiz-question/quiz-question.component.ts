@@ -4268,7 +4268,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Check if the answer is correct and stop the timer if it is
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     if (isCorrect) {
-      this.timerService.stopTimer();
+      this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+      });
     }
   }
 
