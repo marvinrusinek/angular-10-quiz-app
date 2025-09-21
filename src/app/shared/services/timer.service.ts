@@ -248,31 +248,33 @@ export class TimerService {
     }
   }
 
-  attemptStopTimerForQuestion(
-    options: StopTimerAttemptOptions = {}
-  ): boolean {
+  attemptStopTimerForQuestion(options: StopTimerAttemptOptions = {}): boolean {
     const questionIndex =
       typeof options.questionIndex === 'number'
         ? options.questionIndex
         : this.quizService?.currentQuestionIndex ?? null;
-
-    if (this.selectedOptionService.stopTimerEmitted) {
+  
+    // Skip if we've already stopped for this question
+    if (
+      this.selectedOptionService.stopTimerEmitted &&
+      this.isTimerStoppedForCurrentQuestion
+    ) {
       console.log(
         '[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.'
       );
       return false;
     }
-
+  
     if (questionIndex == null || questionIndex < 0) {
       console.warn(
         '[TimerService] attemptStopTimerForQuestion called without a valid question index.'
       );
       return false;
     }
-
+  
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex);
-
+  
     if (!allCorrectSelected) {
       console.log(
         '[TimerService] attemptStopTimerForQuestion rejected — correct answers not fully selected yet.',
@@ -280,12 +282,14 @@ export class TimerService {
       );
       return false;
     }
-
+  
     this.stopTimer(options.onStop);
     this.selectedOptionService.stopTimerEmitted = true;
-
+    this.isTimerStoppedForCurrentQuestion = true;  // mark as stopped for this question
+  
     return true;
   }
+  
 
   preventRestartForCurrentQuestion(): void {
     if (this.isTimerStoppedForCurrentQuestion) {
