@@ -1055,6 +1055,13 @@ export class SelectedOptionService {
       return false;
     }
 
+    // If any selected option is not correct, the question is not fully answered yet.
+    for (const selectedId of selectedIdSet) {
+      if (!correctOptionIds.has(selectedId)) {
+        return false;
+      }
+    }
+
     for (const correctId of correctOptionIds) {
       if (!selectedIdSet.has(correctId)) {
         return false;
