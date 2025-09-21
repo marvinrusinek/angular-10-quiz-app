@@ -5650,6 +5650,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.questionFresh = true;
     this.timedOut = false;
 
+    // fresh question: clear timer guards
+    this._timerStoppedForQuestion = false;
+    this._lastAllCorrect = false;
+
     // ── 5) Form state ──────────────────────────────────────────
     try { this.questionForm?.enable({ emitEvent: false }); } catch {}
 
