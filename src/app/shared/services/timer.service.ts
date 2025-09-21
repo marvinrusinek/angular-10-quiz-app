@@ -2,6 +2,14 @@ import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
 import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 
+import { SelectedOptionService } from './selectedoption.service';
+import { QuizService } from './quiz.service';
+
+interface StopTimerAttemptOptions {
+  questionIndex?: number;
+  onStop?: (elapsedTime: number) => void;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   timePerQuestion = 30;
