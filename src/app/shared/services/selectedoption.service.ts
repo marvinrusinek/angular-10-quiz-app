@@ -1057,7 +1057,7 @@ export class SelectedOptionService {
     };
 
     for (const opt of this.selectedOptionsMap.get(questionIndex) ?? []) {
-      if (opt?.selected === false) {
+      if (!this.coerceToBoolean(opt?.selected)) {
         continue;
       }
 
@@ -1066,7 +1066,7 @@ export class SelectedOptionService {
     }
 
     question.options.forEach((opt, idx) => {
-      if (!opt?.selected) {
+      if (!this.coerceToBoolean(opt?.selected)) {
         return;
       }
 
@@ -1076,6 +1076,13 @@ export class SelectedOptionService {
 
     if (selectedIdSet.size === 0) {
       return false;
+    }
+
+    // If any selected option is not correct, the question is not fully answered yet.
+    for (const selectedId of selectedIdSet) {
+      if (!correctOptionIds.has(selectedId)) {
+        return false;
+      }
     }
 
     // If any selected option is not correct, the question is not fully answered yet.
