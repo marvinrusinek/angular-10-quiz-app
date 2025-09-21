@@ -496,20 +496,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.resetPerQuestionState(idx as number);  // reset for the incoming question
       });
 
-      try {
-        this._origStopTimer = this.timerService.stopTimer?.bind(this.timerService);
-    
-        this.timerService.stopTimer = (() => {
-          // Block stop unless we've actually finished the question
-          if (!(this.timedOut || this._lastAllCorrect)) {
-            // Uncomment to find the culprit:
-            // console.warn('[Blocked stopTimer]', { timedOut: this.timedOut, allCorrect: this._lastAllCorrect, stack: new Error().stack });
-            return;
-          }
-          this._origStopTimer?.();
-        }) as any;
-      } catch {}
-
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
       this.explanationText = '';
@@ -3011,7 +2997,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // - Single-answer: clicked option is correct
         // - Multi-answer: your existing isAnswered (all correct selected)
         const selectionComplete =
-          q?.type === QuestionType.SingleAnswer ? !!evtOpt?.correct : this.isAnswered;
+          q?.type === QuestionType.SingleAnswer ? !!evtOpt?.correct : this._lastAllCorrect;
     
         this.selectionMessageService.setSelectionMessage(selectionComplete);
       });
