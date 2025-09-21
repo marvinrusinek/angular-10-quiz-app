@@ -256,6 +256,13 @@ export class TimerService {
         ? options.questionIndex
         : this.quizService?.currentQuestionIndex ?? null;
 
+    if (this.selectedOptionService.stopTimerEmitted) {
+      console.log(
+        '[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.'
+      );
+      return false;
+    }
+
     if (questionIndex == null || questionIndex < 0) {
       console.warn(
         '[TimerService] attemptStopTimerForQuestion called without a valid question index.'
@@ -265,6 +272,7 @@ export class TimerService {
 
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex);
+
     if (!allCorrectSelected) {
       console.log(
         '[TimerService] attemptStopTimerForQuestion rejected — correct answers not fully selected yet.',
