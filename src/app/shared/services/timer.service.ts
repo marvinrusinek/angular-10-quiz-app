@@ -7,8 +7,8 @@ import { QuizService } from './quiz.service';
 
 interface StopTimerAttemptOptions {
   questionIndex?: number;
-  onBeforeStop?: () => void;  // play sound before teardown
-  onStop?: () => void;  // post-stop hook
+  onBeforeStop?: () => void;
+  onStop?: (elapsedMs?: number) => void;  // allow elapsed
 }
 
 @Injectable({ providedIn: 'root' })
