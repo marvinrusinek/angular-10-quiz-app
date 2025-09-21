@@ -34,7 +34,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   // 0-based route index stream, seeded with snapshot
   readonly routeIndex$: Observable<number> = merge(
-    // seed original
+    // Seed original
     of(this.seedIndex),
   
     // paramMap updates
@@ -42,18 +42,18 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
       map(pm => this.coerceIndex(pm.get('questionIndex')))
     ),
   
-    // navigation completions → re-read from snapshot (fixes router timing)
+    // Navigation completions → re-read from snapshot (fixes router timing)
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       map(() => this.readIndexFromSnapshot())
     ),
   
-    // tab becomes visible again → re-read from snapshot (fixes "Question 1" flash)
+    // Tab becomes visible again → re-read from snapshot (fixes "Question 1" flash)
     fromEvent(document, 'visibilitychange').pipe(
       filter(() => document.visibilityState === 'visible'),
       map(() => this.readIndexFromSnapshot())
     ),
-    // handle bfcache resume (Safari/iOS, some Chrome cases)
+    // Handle bfcache resume (Safari/iOS, some Chrome cases)
     fromEvent(window, 'pageshow').pipe(
       map(() => this.readIndexFromSnapshot())
     )
