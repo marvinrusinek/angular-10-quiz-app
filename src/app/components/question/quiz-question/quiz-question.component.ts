@@ -3033,16 +3033,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.lockMany(i0, allIds);
     } catch {}
   
+    // 2a) Announce completion to any listeners (progress, gating, etc.)
+    try {
+      this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+      this.selectionMessageService.setSelectionMessage(true);
+    } catch {}
+  
+    // 2b) Show explanation immediately
+    try {
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+  
+      const cached = this._formattedByIndex.get(i0);
+      const rawTrue = (q.explanation ?? '').trim();
+      const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+      this.setExplanationFor(i0, txt);
+      this.explanationToDisplay = txt;
+      this.explanationToDisplayChange?.emit(txt);
+    } catch {}
+  
     // 3) Allow navigation to proceed
     this.nextButtonStateService.setNextButtonState(true);
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
   
+    // 3a) Defensive stop in case the timer didn’t auto-stop at zero
+    try { this.timerService.stopTimer?.(); } catch {}
+  
     // Render
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
   }
-  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
