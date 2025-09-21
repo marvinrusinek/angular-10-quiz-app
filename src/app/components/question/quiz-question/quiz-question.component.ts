@@ -2928,6 +2928,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.nextButtonStateService.setNextButtonState(allCorrect);
         this.quizStateService.setAnswered(allCorrect);
         this.quizStateService.setAnswerSelected(allCorrect);
+
+        // Stop the timer only when the question is actually finished correctly
+        if (allCorrect) {
+          try { this.timerService.stopTimer(); } catch {}
+        }
       });
   
       // Update explanation and highlighting (RAF for smoother update)
