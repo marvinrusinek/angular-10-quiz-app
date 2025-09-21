@@ -49,7 +49,11 @@ export class TimerService {
   private expiredIndexSubject = new Subject<number>();
   public expiredIndex$ = this.expiredIndexSubject.asObservable();
 
-  constructor(private ngZone: NgZone) {}
+  constructor(
+    private ngZone: NgZone,
+    private selectedOptionService: SelectedOptionService,
+    private quizService: QuizService
+  ) {}
 
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
