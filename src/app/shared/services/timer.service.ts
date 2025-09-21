@@ -168,7 +168,7 @@ export class TimerService {
     console.log('Attempting to reset timer...');
     if (this.isTimerRunning) {
       console.log('Timer is running. Stopping before resetting...');
-      this.stopTimer();
+      this.stopTimer(undefined, { force: true });
     }
 
     this.elapsedTime = 0;
