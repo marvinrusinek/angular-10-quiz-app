@@ -521,6 +521,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    this.timerService.expired$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.onQuestionTimedOut());
+
     try {
       // Call the parent class's ngOnInit method
       super.ngOnInit();
@@ -2979,7 +2983,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       });
     }
-  }  
+  }
+
+  private onQuestionTimedOut(): void {
+    // Ignore repeated signals
+    if (this.timedOut) return;
+    this.timedOut = true;
+  
+    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+    const q  = this.questions?.[i0];
+    if (!q) return;
+  
+    // Helper you already use elsewhere
+    const getStableId = (o: Option, idx?: number) =>
+      this.selectionMessageService.stableKey(o, idx);
+  
+    // Build canonical snapshot
+    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => ({
+      ...o,
+      optionId: Number(o.optionId ?? getStableId(o, idx)),
+      selected: !!o.selected
+    }));
+  
+    // 1) Reveal feedback for ALL options so ✔/✖ show
+    try { this.revealFeedbackForAllOptions(canonicalOpts); } catch {}
+  
+    // 2) Lock the entire group (no further changes after timeout)
+    try {
+      const allIds = canonicalOpts
+        .map(o => Number(o.optionId))
+        .filter(Number.isFinite) as number[];
+      this.selectedOptionService.lockMany(i0, allIds);
+    } catch {}
+  
+    // 3) Allow navigation to proceed
+    this.nextButtonStateService.setNextButtonState(true);
+    this.quizStateService.setAnswered(true);
+    this.quizStateService.setAnswerSelected(true);
+  
+    // Render
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
+  }
+  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
