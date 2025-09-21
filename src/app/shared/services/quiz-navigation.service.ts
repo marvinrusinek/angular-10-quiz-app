@@ -74,7 +74,7 @@ export class QuizNavigationService {
   ) {}
 
   handleRouteParams(params: ParamMap): 
-    Observable<{ quizId: string; questionIndex: number; quizData: Quiz }> {
+    Observable<{ quizId: string, questionIndex: number, quizData: Quiz }> {
     const quizId = params.get('quizId');
     const questionIndex = Number(params.get('questionIndex'));
   
