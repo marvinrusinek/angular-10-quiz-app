@@ -964,133 +964,129 @@ export class SelectedOptionService {
 
   public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
     const question = this.quizService.questions?.[questionIndex];
-    if (!question || !Array.isArray(question.options)) {
+    const options = Array.isArray(question?.options) ? question.options : [];
+
+    if (!question || options.length === 0) {
       return false;
     }
 
-    // Collect the identifiers for every correct option on the question.
-    const correctOptionIds = new Set<string>();
-    question.options.forEach((option, idx) => {
-      if (!this.coerceToBoolean(option?.correct)) {
-        return;
-      }
-
-      const canonicalId = this.resolveCanonicalOptionId(
-        questionIndex,
-        option?.optionId,
-        idx
-      );
-
-      const fallbackId =
-        canonicalId !== null && canonicalId !== undefined ? canonicalId : idx;
-      const normalized = this.normalizeOptionId(fallbackId);
-      if (normalized !== null) {
-        correctOptionIds.add(normalized);
+    const correctIndexes = new Set<number>();
+    options.forEach((option, idx) => {
+      if (this.coerceToBoolean(option?.correct)) {
+        correctIndexes.add(idx);
       }
     });
 
-    if (correctOptionIds.size === 0) {
+    if (correctIndexes.size === 0) {
       return false;
     }
 
-    // Build a set of everything that is currently marked as selected.  We combine the
-    // cached selections from `selectedOptionsMap` with the live `question.options`
-    // array so the computation stays in sync with the UI even if the map lags a tick.
-    const selectedIdSet = new Set<string>();
+    const selectedIndexes = new Set<number>();
+    const mapSelections = this.selectedOptionsMap.get(questionIndex) ?? [];
 
-    const findFallbackIndex = (candidate: unknown): number | undefined => {
-      const numericCandidate = this.extractNumericId(candidate);
-      if (numericCandidate === null) {
-        return undefined;
-      }
-
-      if (
-        numericCandidate >= 0 &&
-        numericCandidate < question.options.length
-      ) {
-        return numericCandidate;
-      }
-
-      const zeroBased = numericCandidate - 1;
-      if (zeroBased >= 0 && zeroBased < question.options.length) {
-        return zeroBased;
-      }
-
-      const metadataIndex = question.options.findIndex(opt => {
-        const extracted = this.extractNumericId(opt?.optionId);
-        return extracted === numericCandidate;
-      });
-
-      return metadataIndex >= 0 ? metadataIndex : undefined;
-    };
-
-    const addIfValid = (candidate: unknown, fallbackIndex?: number): void => {
-      const canonicalId = this.resolveCanonicalOptionId(
-        questionIndex,
-        candidate,
-        fallbackIndex
-      );
-
-      let idToNormalize: number | string | null =
-        canonicalId !== null && canonicalId !== undefined
-          ? canonicalId
-          : null;
-
-      if (idToNormalize === null) {
-        if (typeof fallbackIndex === 'number') {
-          idToNormalize = fallbackIndex;
-        } else {
-          const extracted = this.extractNumericId(candidate);
-          idToNormalize = extracted;
-        }
-      }
-
-      if (idToNormalize === null || idToNormalize === undefined) {
-        return;
-      }
-
-      const normalized = this.normalizeOptionId(idToNormalize);
-      if (normalized !== null) {
-        selectedIdSet.add(normalized);
-      }
-    };
-
-    for (const opt of this.selectedOptionsMap.get(questionIndex) ?? []) {
-      if (!this.coerceToBoolean(opt?.selected)) {
+    for (const selection of mapSelections) {
+      if (!this.coerceToBoolean(selection?.selected)) {
         continue;
       }
 
-      const fallbackIdx = findFallbackIndex(opt?.optionId);
-      addIfValid(opt?.optionId, fallbackIdx);
+      const resolvedIndex = this.resolveOptionIndexFromSelection(
+        options,
+        selection
+      );
+
+      if (resolvedIndex !== null) {
+        selectedIndexes.add(resolvedIndex);
+      }
     }
 
-    question.options.forEach((opt, idx) => {
-      if (!this.coerceToBoolean(opt?.selected)) {
-        return;
+    options.forEach((option, idx) => {
+      if (this.coerceToBoolean(option?.selected)) {
+        selectedIndexes.add(idx);
       }
-
-      addIfValid(opt.optionId ?? idx, idx);
     });
 
-
-    if (selectedIdSet.size === 0) {
+    if (selectedIndexes.size === 0) {
       return false;
     }
 
-    // If any selected option is not correct, the question is not fully answered yet.
-    for (const selectedId of selectedIdSet) {
-      if (!correctOptionIds.has(selectedId)) {
+    for (const index of selectedIndexes) {
+      if (!correctIndexes.has(index)) {
         return false;
       }
     }
 
-    for (const correctId of correctOptionIds) {
-      if (!selectedIdSet.has(correctId)) {
+    for (const index of correctIndexes) {
+      if (!selectedIndexes.has(index)) {
         return false;
       }
     }
 
     return true;
+  }
+
+  private resolveOptionIndexFromSelection(
+    options: Option[],
+    selection: SelectedOption | Option | null | undefined
+  ): number | null {
+    if (!selection) {
+      return null;
+    }
+
+    const indexFromId = this.resolveOptionIndexFromId(
+      options,
+      (selection as SelectedOption)?.optionId
+    );
+    if (indexFromId !== null) {
+      return indexFromId;
+    }
+
+    const text = (selection as Option)?.text;
+    if (typeof text === 'string' && text.trim().length > 0) {
+      const normalizedText = text.trim().toLowerCase();
+      const match = options.findIndex(opt =>
+        (opt?.text ?? '').trim().toLowerCase() === normalizedText
+      );
+
+      if (match >= 0) {
+        return match;
+      }
+    }
+
+    return null;
+  }
+
+  private resolveOptionIndexFromId(
+    options: Option[],
+    candidateId: unknown
+  ): number | null {
+    if (!Array.isArray(options) || options.length === 0) {
+      return null;
+    }
+
+    const normalizedTarget = this.normalizeOptionId(candidateId);
+    if (normalizedTarget !== null) {
+      const metadataMatch = options.findIndex(
+        opt => this.normalizeOptionId(opt?.optionId) === normalizedTarget
+      );
+
+      if (metadataMatch >= 0) {
+        return metadataMatch;
+      }
+    }
+
+    const numericId = this.extractNumericId(candidateId);
+    if (numericId !== null) {
+      if (numericId >= 0 && numericId < options.length) {
+        return numericId;
+      }
+
+      const zeroBased = numericId - 1;
+      if (zeroBased >= 0 && zeroBased < options.length) {
+        return zeroBased;
+      }
+    }
+
+    return null;
   }
   
   public isQuestionAnswered(questionIndex: number): boolean {
