@@ -3850,11 +3850,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     if (allCorrectSelected) {
-      if (this.timerService.isTimerRunning) {
-        // Stop timer immediately
-        await this.timerService.stopTimer();
+      const stopped = this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+      });
+
+      if (stopped) {
         this.timerService.isTimerRunning = false; // ensure the timer state is updated
-      } else {
+      } else if (!this.timerService.isTimerRunning) {
         console.log(
           '[handleCorrectnessOutcome] ⚠️ Timer was already stopped. No action taken.'
         );
