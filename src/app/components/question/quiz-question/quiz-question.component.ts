@@ -285,6 +285,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private lastResetFor = -1;
   private timedOut = false;
 
+  // Tracks whether we already stopped for this question
+  private _timerStoppedForQuestion = false;
+
+  // Last computed "allCorrect" (used across microtasks/finally)
+  private _lastAllCorrect = false;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
