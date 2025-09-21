@@ -283,6 +283,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public feedbackConfigs: Record<FeedbackKey, FeedbackConfig> = {};
   public lastFeedbackOptionId: FeedbackKey = -1 as const;
   private lastResetFor = -1;
+  private timedOut = false;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -5590,6 +5591,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // ── 4) “Fresh question” guard so nothing is disabled on load ─
     this.questionFresh = true;
+    this.timedOut = false;
 
     // ── 5) Form state ──────────────────────────────────────────
     try { this.questionForm?.enable({ emitEvent: false }); } catch {}
