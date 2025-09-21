@@ -41,6 +41,7 @@ export class TimerService {
   // Timer observable
   timer$: Observable<number>;
   private timerSubscription: Subscription | null = null;
+  private stopTimerSignalSubscription: Subscription | null = null;
 
   private expiredSubject = new Subject<void>();
   public expired$ = this.expiredSubject.asObservable();
@@ -53,10 +54,21 @@ export class TimerService {
     private ngZone: NgZone,
     private selectedOptionService: SelectedOptionService,
     private quizService: QuizService
-  ) {}
+  ) {
+    this.stopTimerSignalSubscription = this.selectedOptionService.stopTimer$.subscribe(() => {
+      if (!this.isTimerRunning) {
+        console.log('[TimerService] Stop signal received but timer is not running.');
+        return;
+      }
+
+      console.log('[TimerService] Stop signal received from SelectedOptionService. Stopping timer.');
+      this.stopTimer(undefined, { force: true });
+    });
+  }
 
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
+    this.stopTimerSignalSubscription?.unsubscribe();
   }
 
   // Starts the timer
