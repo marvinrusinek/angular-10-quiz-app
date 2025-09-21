@@ -2986,15 +2986,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     } finally {
       queueMicrotask(() => {
-        this._clickGate = false; 
-        if (q?.type === QuestionType.SingleAnswer) {
-          this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
-          this.selectionMessageService.setSelectionMessage(true);
-        } else {
-          // For multi-answer → release baseline as soon as first correct is selected
-          this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
-          this.selectionMessageService.setSelectionMessage(this.isAnswered);
-        }
+        this._clickGate = false;
+    
+        // Release sticky baseline regardless
+        this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+    
+        // Only mark complete when it really is:
+        // - Single-answer: clicked option is correct
+        // - Multi-answer: your existing isAnswered (all correct selected)
+        const selectionComplete =
+          q?.type === QuestionType.SingleAnswer ? !!evtOpt?.correct : this.isAnswered;
+    
+        this.selectionMessageService.setSelectionMessage(selectionComplete);
       });
     }
   }
