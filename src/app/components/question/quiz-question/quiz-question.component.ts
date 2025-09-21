@@ -4841,11 +4841,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Check if all correct answers are selected
-      const allCorrectSelected =
-        await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-          this.currentQuestionIndex
-        );
-
       // Update answered state
       this.selectedOptionService.updateAnsweredState(
         currentQuestion.options,
@@ -4853,11 +4848,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
       // Handle multiple-answer logic
-      if (allCorrectSelected) {
+      const timerStopped = this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+      });
+
+      if (timerStopped) {
         console.log(
-          '[handleOptionClicked] All correct options selected. Stopping the timer.'
+          '[handleOptionClicked] All correct options selected. Timer stopped successfully.'
         );
-        this.timerService.stopTimer();
       }
 
       // Ensure the UI reflects the changes
