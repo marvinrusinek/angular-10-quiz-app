@@ -962,61 +962,33 @@ export class SelectedOptionService {
     return canonicalSelections;
   }
 
-  public areAllCorrectAnswersSelectedSync(questionIndex: number): boolean {
-    const question = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(question?.options) ? question.options : [];
+  public areAllCorrectAnswersSelectedSync(
+    questionIndex: number,
+    optionsSnapshot?: Option[]
+  ): boolean {
+    // Prefer the live snapshot passed from the component (fresh `selected` flags)
+    const sourceOptions: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : (this.quizService.questions?.[questionIndex]?.options ?? []);
 
-    if (!question || options.length === 0) {
-      return false;
-    }
+    if (!sourceOptions || sourceOptions.length === 0) return false;
 
-    const selections = this.canonicalizeSelectionsForQuestion(
-      questionIndex,
-      this.selectedOptionsMap.get(questionIndex) || []
+    const totalCorrect = sourceOptions.reduce(
+      (n, o) => n + (this.coerceToBoolean(o?.correct) ? 1 : 0), 0
+    );
+    if (totalCorrect === 0) return false;
+
+    const selectedCorrect = sourceOptions.reduce(
+      (n, o) =>
+        n + (this.coerceToBoolean(o?.correct) && this.coerceToBoolean(o?.selected) ? 1 : 0),
+      0
     );
 
-    if (selections.length === 0) {
-      return false;
-    }
-
-    const correctIndexes = options.reduce((indexes: number[], option, idx) => {
-      if (this.coerceToBoolean(option?.correct)) {
-        indexes.push(idx);
-      }
-      return indexes;
-    }, [] as number[]);
-
-    if (correctIndexes.length === 0) {
-      return false;
-    }
-
-    const selectedIndexes = new Set<number>();
-
-    for (const selection of selections) {
-      const resolvedIndex = this.resolveOptionIndexFromSelection(
-        options,
-        selection
-      );
-
-      if (resolvedIndex === null) {
-        return false;
-      }
-
-      const option = options[resolvedIndex];
-
-      if (!this.coerceToBoolean(option?.correct)) {
-        return false;
-      }
-
-      selectedIndexes.add(resolvedIndex);
-    }
-
-    if (selectedIndexes.size !== selections.length) {
-      return false;
-    }
-
-    return correctIndexes.every((idx) => selectedIndexes.has(idx));
+    // Only requirement: every correct is selected (ignore any wrongs that are also selected)
+    return selectedCorrect === totalCorrect;
   }
+
 
   private collectSelectedOptionIndexes(
     questionIndex: number,
