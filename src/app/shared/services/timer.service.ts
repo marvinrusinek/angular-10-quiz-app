@@ -320,12 +320,6 @@ export class TimerService {
     }
   }
 
-  public resetTimerFlagsFor(index: number): void {
-    this.isTimerStoppedForCurrentQuestion = false;
-    this.selectedOptionService.stopTimerEmitted = false;
-    this.stoppedForQuestion.delete(index);
-  }
-
   preventRestartForCurrentQuestion(): void {
     if (this.isTimerStoppedForCurrentQuestion) {
       console.warn(`[TimerService] ⚠️ Timer restart prevented.`);
@@ -340,6 +334,12 @@ export class TimerService {
   // Sets a custom elapsed time
   setElapsed(time: number): void {
     this.elapsedTime = time;
+  }
+
+  public resetTimerFlagsFor(index: number): void {
+    this.isTimerStoppedForCurrentQuestion = false;
+    this.selectedOptionService.stopTimerEmitted = false;
+    this.stoppedForQuestion.delete(index);
   }
 
   // Calculates the total elapsed time from recorded times
