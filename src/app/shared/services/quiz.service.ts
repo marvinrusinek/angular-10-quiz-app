@@ -210,6 +210,10 @@ export class QuizService implements OnDestroy {
   private minDisplayRemainingById: Record<string, number> = {};
   private minDisplayRemainingByIndex: Record<number, number> = {};
 
+  private readonly _preReset$ = new Subject<number>();
+  // Emitted with the target question index just before navigation hydrates it
+  readonly preReset$ = this._preReset$.asObservable();
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -2338,5 +2342,10 @@ export class QuizService implements OnDestroy {
   public setMinDisplayRemainingForIndex(i: number, n: number): void {
     if (!Number.isFinite(i as any)) return;
     this.minDisplayRemainingByIndex[i] = Math.max(1, Math.floor(n || 0));
+  }
+
+  // Called by navigation to ask the active QQC to hard-reset per-question state
+  requestPreReset(index: number): void {
+    this._preReset$.next(index);
   }
 }
