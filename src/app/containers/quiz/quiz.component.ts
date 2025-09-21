@@ -2975,8 +2975,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
         // Call checkIfAnswered() to track answered state
         setTimeout(() => {
-          this.checkIfAnswered((hasAnswered) => {
-            this.handleTimer(hasAnswered);
+          this.checkIfAnswered((areAllCorrectSelected) => {
+            this.handleTimer(areAllCorrectSelected);
           });
         }, 150);
 
@@ -3036,8 +3036,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         isAnyOptionSelected,
         areAllCorrectSelected,
       });
-    
-      callback(isAnyOptionSelected || areAllCorrectSelected);
+
+      callback(areAllCorrectSelected);
     } catch (error) {
       console.error(
         '[checkIfAnswered] Error checking if all correct answers are selected:',
@@ -3048,9 +3048,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private handleTimer(hasAnswered: boolean): void {
-    // Stop the timer if the question is already answered
-    if (hasAnswered && !this.selectedOptionService.stopTimerEmitted) {
+  private handleTimer(allCorrectSelected: boolean): void {
+    // Stop the timer only after the correct answer(s) have been provided
+    if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
       this.timerService.stopTimer();
       this.selectedOptionService.stopTimerEmitted = true;
     }
