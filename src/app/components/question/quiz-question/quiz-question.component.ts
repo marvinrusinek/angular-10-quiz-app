@@ -282,6 +282,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private flashDisabledSet: Set<FeedbackKey> = new Set();
   public feedbackConfigs: Record<FeedbackKey, FeedbackConfig> = {};
   public lastFeedbackOptionId: FeedbackKey = -1 as const;
+  private lastResetFor = -1;
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -474,6 +475,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizNavigationService.resetUIForNewQuestion$.subscribe(() => {
       this.resetUIForNewQuestion();
     });
+
+    this.quizService.preReset$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(idx => Number.isFinite(idx as number) && (idx as number) >= 0),
+        filter(idx => idx !== this.lastResetFor),   // optional de-dupe
+        tap(idx => this.lastResetFor = idx as number)
+      )
+      .subscribe(idx => {
+        this.resetPerQuestionState(idx as number); // reset for the incoming question
+      });
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
