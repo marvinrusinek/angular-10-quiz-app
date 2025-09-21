@@ -970,22 +970,51 @@ export class SelectedOptionService {
       return false;
     }
 
-    const correctIndexes = new Set<number>();
-    options.forEach((option, idx) => {
-      if (this.coerceToBoolean(option?.correct)) {
-        correctIndexes.add(idx);
-      }
-    });
+    const selectedIndexes = this.collectSelectedOptionIndexes(
+      questionIndex,
+      options
+    );
 
-    if (correctIndexes.size === 0) {
+    if (!selectedIndexes || selectedIndexes.size === 0) {
       return false;
     }
 
-    const selectedIndexes = new Set<number>();
+    let hasCorrectOption = false;
+
+    for (const [index, option] of options.entries()) {
+      const isCorrect = this.coerceToBoolean(option?.correct);
+      const isSelected = selectedIndexes.has(index);
+
+      if (isCorrect) {
+        hasCorrectOption = true;
+
+        if (!isSelected) {
+          return false;
+        }
+      } else if (isSelected) {
+        return false;
+      }
+    }
+
+    return hasCorrectOption;
+  }
+
+  private collectSelectedOptionIndexes(
+    questionIndex: number,
+    options: Option[]
+  ): Set<number> | null {
+    const indexes = new Set<number>();
     const mapSelections = this.selectedOptionsMap.get(questionIndex) ?? [];
 
     for (const selection of mapSelections) {
-      if (!this.coerceToBoolean(selection?.selected)) {
+      if (!selection) {
+        continue;
+      }
+
+      if (
+        selection.selected !== undefined &&
+        !this.coerceToBoolean(selection.selected)
+      ) {
         continue;
       }
 
@@ -994,34 +1023,21 @@ export class SelectedOptionService {
         selection
       );
 
-      if (resolvedIndex !== null) {
-        selectedIndexes.add(resolvedIndex);
+      if (resolvedIndex === null) {
+        console.warn('[collectSelectedOptionIndexes] Unable to resolve index for selection.', selection);
+        return null;
       }
+
+      indexes.add(resolvedIndex);
     }
 
     options.forEach((option, idx) => {
       if (this.coerceToBoolean(option?.selected)) {
-        selectedIndexes.add(idx);
+        indexes.add(idx);
       }
     });
 
-    if (selectedIndexes.size === 0) {
-      return false;
-    }
-
-    for (const index of selectedIndexes) {
-      if (!correctIndexes.has(index)) {
-        return false;
-      }
-    }
-
-    for (const index of correctIndexes) {
-      if (!selectedIndexes.has(index)) {
-        return false;
-      }
-    }
-
-    return true;
+    return indexes;
   }
 
   private resolveOptionIndexFromSelection(
