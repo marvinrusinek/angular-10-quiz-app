@@ -739,12 +739,13 @@ export class SelectedOptionService {
       // Validate and normalize options
       const validatedOptions = questionOptions.map((option, index) => ({
         ...option,
-        correct: option.correct ?? false,
-        optionId: option.optionId ?? index + 1,
+        correct: this.coerceToBoolean(option.correct),
+        selected: this.coerceToBoolean(option.selected),
+        optionId: option.optionId ?? index + 1
       }));
-  
+
       // Determine answered state
-      const isAnswered = validatedOptions.some((option) => option.selected);
+      const isAnswered = validatedOptions.some(option => option.selected);
       this.isAnsweredSubject.next(isAnswered);
 
       // Validate if all correct answers are selected
@@ -772,7 +773,29 @@ export class SelectedOptionService {
       }
     }
   }
-  
+
+  private coerceToBoolean(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true') {
+        return true;
+      }
+
+      if (normalized === 'false' || normalized.length === 0) {
+        return false;
+      }
+    }
+
+    if (typeof value === 'number') {
+      return value !== 0;
+    }
+
+    return false;
+  }
 
   private normalizeOptionId(id: unknown): string | null {
     if (typeof id === 'number') {
