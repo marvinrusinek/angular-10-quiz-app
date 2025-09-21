@@ -809,7 +809,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (!alreadyShowing) {
           // Stop the ticking
-          this.timerService.stopTimer?.();
+          this.timerService.stopTimer?.(undefined, { force: true });
 
           // Flip to explanation inside Angular
           this.ngZone.run(() => { this.onTimerExpiredFor(i0); });
@@ -2037,7 +2037,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Abort before UI update
       if (signal?.aborted) {
         console.warn('[loadQuestion] Load aborted before UI update.');
-        this.timerService.stopTimer();
+        this.timerService.stopTimer(undefined, { force: true });
         return false;
       }
 
@@ -2111,7 +2111,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Abort after UI update
       if (signal?.aborted) {
         console.warn('[loadQuestion] Load aborted after UI update.');
-        this.timerService.stopTimer();
+        this.timerService.stopTimer(undefined, { force: true });
         return false;
       }
 
@@ -3061,7 +3061,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setAnswerSelected(true);
   
     // 3a) Defensive stop in case the timer didn’t auto-stop at zero
-    try { this.timerService.stopTimer(); } catch {}
+    try { this.timerService.stopTimer(undefined, { force: true }); } catch {}
   
     // Render
     this.cdRef.markForCheck();
@@ -3502,10 +3502,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try {
       // Check if all correct options are selected
-      const allCorrectSelected = await this.selectedOptionService.areAllCorrectAnswersSelectedSync(
-          this.currentQuestionIndex
-        );
-
       // Update options state
       this.optionsToDisplay = this.optionsToDisplay.map((opt) => {
         const isSelected = opt.optionId === option.optionId;
@@ -3519,11 +3515,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
 
       // Stop the timer if all correct options are selected
-      if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-        // Timer stopped, all correct answers selected
-        this.timerService.stopTimer();
-        this.selectedOptionService.stopTimerEmitted = true;
-      } else {
+      const stopped = this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+      });
+
+      if (!stopped) {
         console.log('❌ Timer not stopped: Conditions not met.');
       }
     } catch (error) {
@@ -3791,8 +3787,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       if (stopTimer) {
-        console.log('[stopTimerIfApplicable] Stopping timer: Condition met.');
-        this.timerService.stopTimer();
+        const stopped = this.timerService.attemptStopTimerForQuestion({
+          questionIndex: this.currentQuestionIndex,
+        });
+
+        if (stopped) {
+          console.log('[stopTimerIfApplicable] Stopping timer: Condition met.');
+        } else {
+          console.log('[stopTimerIfApplicable] Timer stop attempt rejected.');
+        }
       } else {
         console.log('[stopTimerIfApplicable] Timer not stopped: Condition not met.');
       }
