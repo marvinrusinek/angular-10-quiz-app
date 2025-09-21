@@ -263,16 +263,8 @@ export class TimerService {
       return false;
     }
 
-    if (this.selectedOptionService.stopTimerEmitted) {
-      console.log(
-        '[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.'
-      );
-      return false;
-    }
-
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex);
-
     if (!allCorrectSelected) {
       console.log(
         '[TimerService] attemptStopTimerForQuestion rejected — correct answers not fully selected yet.',
