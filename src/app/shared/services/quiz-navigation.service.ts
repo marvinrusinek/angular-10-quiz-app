@@ -253,6 +253,12 @@ export class QuizNavigationService {
       if (navSuccess) {
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
+
+        // Tell QQC to hard-reset state for the incoming question
+        this.quizService.requestPreReset(targetIndex);
+
+        // Give the component a microtask to process the reset before we hydrate options
+        await Promise.resolve();
   
         this.selectedOptionService.setAnswered(false, true);
         this.nextButtonStateService.reset();
