@@ -180,11 +180,6 @@ export class TimerService {
       return;
     }
 
-    if (!shouldForce && this.selectedOptionService.stopTimerEmitted) {
-      console.log('[TimerService] stopTimer skipped because it was already emitted.');
-      return;
-    }
-
     // End the ticking subscription
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
