@@ -128,9 +128,9 @@ export class QuizNavigationService {
   
     // Stop the timer and record elapsed time
     if (this.timerService.isTimerRunning) {
-      this.timerService.stopTimer((elapsedTime: number) => {␊
-        this.elapsedTimeDisplay = elapsedTime;␊
-        console.log('Elapsed time recorded for results:', elapsedTime);␊
+      this.timerService.stopTimer((elapsedTime: number) => {
+        this.elapsedTimeDisplay = elapsedTime;
+        console.log('Elapsed time recorded for results:', elapsedTime);
       }, { force: true });
     } else {
       console.log('Timer was not running, skipping stopTimer.');
