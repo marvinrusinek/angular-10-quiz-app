@@ -3059,7 +3059,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.quizStateService.setAnswerSelected(true);
   
     // 3a) Defensive stop in case the timer didn’t auto-stop at zero
-    try { this.timerService.stopTimer?.(); } catch {}
+    try { this.timerService.stopTimer(); } catch {}
   
     // Render
     this.cdRef.markForCheck();
