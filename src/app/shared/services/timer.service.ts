@@ -73,8 +73,6 @@ export class TimerService {
   }
 
   private listenForCorrectSelections(): void {
-    this.stopTimerSignalSubscription?.unsubscribe();
-  
     this.stopTimerSignalSubscription =
       this.selectedOptionService.stopTimer$.subscribe(() => {
         if (!this.isTimerRunning) {
