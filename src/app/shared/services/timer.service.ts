@@ -84,9 +84,7 @@ export class TimerService {
         }
 
         this.handleStopTimerSignal();
-  
         console.log('[TimerService] Stop signal received from SelectedOptionService. Stopping timer.');
-        this.stopTimer(undefined, { force: true });
       });
   }
 
