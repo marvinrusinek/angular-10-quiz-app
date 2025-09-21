@@ -4714,9 +4714,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const isCorrect = await this.quizService.checkIfAnsweredCorrectly();
     if (isCorrect) {
       // Stop the timer and provide an empty callback
-      this.timerService.stopTimer(() => {
-        console.log('Correct answer selected!');
-        // add additional logic here
+      this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+        onStop: () => {
+          console.log('Correct answer selected!');
+          // add additional logic here
+        },
       });
     }
   }
