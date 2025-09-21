@@ -64,11 +64,49 @@ export class TimerService {
       console.log('[TimerService] Stop signal received from SelectedOptionService. Stopping timer.');
       this.stopTimer(undefined, { force: true });
     });
+    this.listenForCorrectSelections();
   }
 
   ngOnDestroy(): void {
     this.timerSubscription?.unsubscribe();
     this.stopTimerSignalSubscription?.unsubscribe();
+  }
+
+  private listenForCorrectSelections(): void {
+    this.stopTimerSignalSubscription?.unsubscribe();
+    this.stopTimerSignalSubscription = this.selectedOptionService.stopTimer$.subscribe(
+      () => this.handleStopTimerSignal()
+    );
+  }
+
+  private handleStopTimerSignal(): void {
+    if (!this.isTimerRunning) {
+      console.log('[TimerService] Stop signal received but timer is not running.');
+      return;
+    }
+
+    const activeQuestionIndex = this.quizService?.currentQuestionIndex ?? -1;
+    if (activeQuestionIndex < 0) {
+      console.warn(
+        '[TimerService] Stop signal received without a valid question index. Forcing timer stop.'
+      );
+      this.stopTimer(undefined, { force: true });
+      return;
+    }
+
+    const stopped = this.attemptStopTimerForQuestion({
+      questionIndex: activeQuestionIndex,
+      onStop: (elapsed) => {
+        this.elapsedTimes[activeQuestionIndex] = elapsed;
+      },
+    });
+
+    if (!stopped) {
+      console.warn(
+        '[TimerService] Stop signal received but automatic stop was rejected. Forcing timer stop.'
+      );
+      this.stopTimer(undefined, { force: true });
+    }
   }
 
   // Starts the timer
