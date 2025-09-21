@@ -819,57 +819,56 @@ export class SelectedOptionService {
       return typeof fallbackIndex === 'number' ? fallbackIndex : null;
     }
 
-    let numericId: number | null = null;
-
-    if (typeof rawId === 'number' && Number.isFinite(rawId)) {
-      numericId = rawId;
-    } else if (typeof rawId === 'string') {
-      const trimmed = rawId.trim();
-      if (trimmed.length === 0) {
-        numericId = null;
-      } else {
-        const parsed = Number(trimmed);
-        numericId = Number.isFinite(parsed) ? parsed : null;
-      }
-    }
-
-    if (numericId === null || !Number.isInteger(numericId)) {
-      return typeof fallbackIndex === 'number' ? fallbackIndex : null;
-    }
-
     const question = this.quizService.questions?.[questionIndex];
     const options = Array.isArray(question?.options) ? question.options : [];
 
-    const inBounds = numericId >= 0 && numericId < options.length;
-    const zeroBasedCandidate = numericId - 1;
-    const zeroBasedInBounds =
-      zeroBasedCandidate >= 0 && zeroBasedCandidate < options.length;
+    const numericId = this.extractNumericId(rawId);
 
-    if (inBounds) {
-      const directOption = options[numericId];
-      const directId = this.extractNumericId(directOption?.optionId);
-      if (!zeroBasedInBounds || directId === numericId) {
-        return numericId;
-      }
+    const fallbackInBounds =
+      typeof fallbackIndex === 'number' &&
+      fallbackIndex >= 0 &&
+      fallbackIndex < options.length;
+
+    if (numericId === null || !Number.isInteger(numericId)) {
+      return fallbackInBounds ? fallbackIndex! : null;
     }
 
-    if (zeroBasedInBounds) {
-      const candidateOption = options[zeroBasedCandidate];
-      const candidateId = this.extractNumericId(candidateOption?.optionId);
-      if (candidateId === numericId) {
-        return zeroBasedCandidate;
-      }
-    }
-
-    if (inBounds) {
+    // 1) If the provided numeric id is already a zero-based index for this question,
+    //    respect it so we don't misidentify incorrect selections as correct ones.
+    if (numericId >= 0 && numericId < options.length && fallbackIndex === undefined) {
       return numericId;
     }
 
-    if (zeroBasedInBounds) {
+    // 2) When we have a fallback index (e.g. when iterating over the question's
+    //    option metadata), prefer it if the option at that index matches the id.
+    if (fallbackInBounds) {
+      const fallbackOption = options[fallbackIndex!];
+      const fallbackOptionId = this.extractNumericId(fallbackOption?.optionId);
+      if (fallbackOptionId === numericId) {
+        return fallbackIndex!;
+      }
+    }
+
+    // 3) Otherwise try to resolve the numeric id to a concrete option index.
+    if (numericId >= 0 && numericId < options.length) {
+      return numericId;
+    }
+
+    const matchByMetadata = options.findIndex(opt => {
+      const candidateId = this.extractNumericId(opt?.optionId);
+      return candidateId === numericId;
+    });
+
+    if (matchByMetadata >= 0) {
+      return matchByMetadata;
+    }
+
+    const zeroBasedCandidate = numericId - 1;
+    if (zeroBasedCandidate >= 0 && zeroBasedCandidate < options.length) {
       return zeroBasedCandidate;
     }
 
-    return numericId;
+    return fallbackInBounds ? fallbackIndex! : null;
   }
 
   private extractNumericId(id: unknown): number | null {
