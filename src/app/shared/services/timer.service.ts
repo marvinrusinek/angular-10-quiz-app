@@ -98,7 +98,7 @@ export class TimerService {
         if (isCountdown && elapsed >= duration) {
           console.log('[TimerService] Time expired. Stopping timer.');
           this.ngZone.run(() => this.expiredSubject.next());
-          this.stopTimer();
+          this.stopTimer(undefined, { force: true });
         }
       }),
       takeUntil(this.isStop),
@@ -115,11 +115,20 @@ export class TimerService {
   }
 
   // Stops the timer
-  stopTimer(callback?: (elapsedTime: number) => void): void {
+  stopTimer(
+    callback?: (elapsedTime: number) => void,
+    options: { force?: boolean } = {}
+  ): void {
+    const shouldForce = !!options.force;
     console.log('Entered stopTimer(). Timer running:', this.isTimerRunning);
 
     if (!this.isTimerRunning) {
       console.log('Timer is not running. Nothing to stop.');
+      return;
+    }
+
+    if (!shouldForce && this.selectedOptionService.stopTimerEmitted) {
+      console.log('[TimerService] stopTimer skipped because it was already emitted.');
       return;
     }
 
@@ -189,6 +198,45 @@ export class TimerService {
       console.log('[TimerService] Resuming stopwatch');
       this.startTimer(this.timePerQuestion, false);
     }
+  }
+
+  attemptStopTimerForQuestion(
+    options: StopTimerAttemptOptions = {}
+  ): boolean {
+    const questionIndex =
+      typeof options.questionIndex === 'number'
+        ? options.questionIndex
+        : this.quizService?.currentQuestionIndex ?? null;
+
+    if (questionIndex == null || questionIndex < 0) {
+      console.warn(
+        '[TimerService] attemptStopTimerForQuestion called without a valid question index.'
+      );
+      return false;
+    }
+
+    if (this.selectedOptionService.stopTimerEmitted) {
+      console.log(
+        '[TimerService] attemptStopTimerForQuestion skipped — timer already stopped for this question.'
+      );
+      return false;
+    }
+
+    const allCorrectSelected =
+      this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex);
+
+    if (!allCorrectSelected) {
+      console.log(
+        '[TimerService] attemptStopTimerForQuestion rejected — correct answers not fully selected yet.',
+        { questionIndex }
+      );
+      return false;
+    }
+
+    this.stopTimer(options.onStop);
+    this.selectedOptionService.stopTimerEmitted = true;
+
+    return true;
   }
 
   preventRestartForCurrentQuestion(): void {
