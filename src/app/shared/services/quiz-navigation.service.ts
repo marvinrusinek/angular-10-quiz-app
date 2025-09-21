@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, first, map, take } from 'rxjs/operators';
 
 import { Option } from '../models/Option.model';
@@ -209,18 +209,16 @@ export class QuizNavigationService {
     }
   
     // Fetch the quiz metadata that matches the current route
-    let currentQuiz: Quiz | null = null;
-    try {
-      currentQuiz = await firstValueFrom(
-        this.quizDataService.getQuiz(effectiveQuizId).pipe(
-          filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
-          take(1)
-        )
-      );
-    } catch (err) {
-      console.error('[❌ getQuiz error]', err);
-      currentQuiz = null;
-    }
+    const currentQuiz: Quiz | null = await firstValueFrom(
+      this.quizDataService.getQuiz(effectiveQuizId).pipe(
+        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
+        take(1),
+        catchError(err => {
+          console.error('[❌ getQuiz error]', err);
+          return of(null);
+        })
+      )
+    );
   
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
