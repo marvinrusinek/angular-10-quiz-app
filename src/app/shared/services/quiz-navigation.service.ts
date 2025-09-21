@@ -300,9 +300,13 @@ export class QuizNavigationService {
     const routeUrl = `/question/${quizId}/${index + 1}`;
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const nextIndex = index;
 
-    // Reset locks for the current question before moving on
+    // Clean up locks for the question we're leaving
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
+    
+    // Prep timer guards for the incoming question
+    this.timerService.resetTimerFlagsFor(nextIndex);
 
     // Check both index and route URL to determine if forced reload is needed
     if (currentIndex === index && currentUrl === routeUrl) {
