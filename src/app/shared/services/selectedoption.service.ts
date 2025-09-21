@@ -972,7 +972,7 @@ export class SelectedOptionService {
     // Collect the identifiers for every correct option on the question.
     const correctOptionIds = new Set<string>();
     question.options.forEach((option, idx) => {
-      if (!option?.correct) {
+      if (!this.coerceToBoolean(option?.correct)) {
         return;
       }
 
