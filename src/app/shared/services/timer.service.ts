@@ -7,7 +7,8 @@ import { QuizService } from './quiz.service';
 
 interface StopTimerAttemptOptions {
   questionIndex?: number;
-  onStop?: (elapsedTime: number) => void;
+  onBeforeStop?: () => void;  // play sound before teardown
+  onStop?: () => void;  // post-stop hook
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,6 +50,8 @@ export class TimerService {
   // Expiry that includes the question index
   private expiredIndexSubject = new Subject<number>();
   public expiredIndex$ = this.expiredIndexSubject.asObservable();
+
+  private stoppedForQuestion = new Set<number>();
 
   constructor(
     private ngZone: NgZone,
@@ -111,6 +114,11 @@ export class TimerService {
       );
       this.stopTimer(undefined, { force: true });
     }
+  }
+
+  public deferAttemptStop(options: StopTimerAttemptOptions = {}): void {
+    // Ensure state (selected flags) is committed before we read it
+    queueMicrotask(() => this.attemptStopTimerForQuestion(options));
   }
 
   // Starts the timer
@@ -248,7 +256,7 @@ export class TimerService {
     }
   }
 
-  attemptStopTimerForQuestion(options: StopTimerAttemptOptions = {}): boolean {
+  public attemptStopTimerForQuestion(options: StopTimerAttemptOptions = {}): boolean {
     const questionIndex =
       typeof options.questionIndex === 'number'
         ? options.questionIndex
@@ -272,6 +280,11 @@ export class TimerService {
       return false;
     }
   
+    if (this.stoppedForQuestion.has(questionIndex)) {
+      // Extra guard in case flags weren’t reset somewhere else
+      return false;
+    }
+  
     const allCorrectSelected =
       this.selectedOptionService.areAllCorrectAnswersSelectedSync(questionIndex);
   
@@ -283,9 +296,16 @@ export class TimerService {
       return false;
     }
   
-    this.stopTimer(options.onStop);
+    // Fire sound (or any UX) BEFORE stopping so teardown doesn’t kill it
+    try { options.onBeforeStop?.(); } catch {}
+  
+    // Force the stop here to mirror your working path
+    this.stopTimer(options.onStop, { force: true, reason: 'all-correct', index: questionIndex });
+  
+    // Mark as stopped for this question
     this.selectedOptionService.stopTimerEmitted = true;
     this.isTimerStoppedForCurrentQuestion = true;  // mark as stopped for this question
+    this.stoppedForQuestion.add(questionIndex);
   
     return true;
   }
