@@ -5703,7 +5703,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.resolveFormatted(i0, { useCache: true, setCache: true });
 
     // ── 8) Timer reset/restart ─────────────────────────────────
-    this.timerService.stopTimer?.();
+    this.timerService.stopTimer?.(undefined, { force: true });
     this.timerService.resetTimer();
     requestAnimationFrame(() =>
       this.timerService.startTimer(this.timerService.timePerQuestion, true)
@@ -5731,7 +5731,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Flip into explanation mode and enable Next immediately
     this.ngZone.run(() => {
-      this.timerService.stopTimer();
+      this.timerService.stopTimer(undefined, { force: true });
   
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
@@ -5943,7 +5943,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Only "completed" may stop due to correctness. Guard it.
     if (reason === 'completed' && !this._lastAllCorrect) return;
 
-    try { this.timerService.stopTimer?.(); } catch {}
+    try { this.timerService.stopTimer?.(undefined, { force: true }); } catch {}
     this._timerStoppedForQuestion = true;
   }
 }
