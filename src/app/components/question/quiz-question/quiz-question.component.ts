@@ -2931,13 +2931,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               selOptsSet.size === correctOpts.length
             : !!evtOpt?.correct;
   
+        // Persist for use in finally and stop guard
+        this._lastAllCorrect = allCorrect;
+        
         this.nextButtonStateService.setNextButtonState(allCorrect);
         this.quizStateService.setAnswered(allCorrect);
         this.quizStateService.setAnswerSelected(allCorrect);
 
-        // Stop the timer only when the question is actually finished correctly
+        // Only stop the timer when the question is actually finished correctly
         if (allCorrect) {
-          try { this.timerService.stopTimer(); } catch {}
+          this.safeStopTimer('completed');
         }
       });
   
