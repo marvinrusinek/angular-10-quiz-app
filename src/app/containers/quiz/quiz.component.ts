@@ -1028,7 +1028,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.indexSubscription?.unsubscribe();
     this.questionAndOptionsSubscription?.unsubscribe();
     this.optionSelectedSubscription?.unsubscribe();
-    this.timerService.stopTimer(null);
+    this.timerService.stopTimer(null, { force: true });
 
     this.nextButtonStateService.cleanupNextButtonStateStream();
 
@@ -3050,9 +3050,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private handleTimer(allCorrectSelected: boolean): void {
     // Stop the timer only after the correct answer(s) have been provided
-    if (allCorrectSelected && !this.selectedOptionService.stopTimerEmitted) {
-      this.timerService.stopTimer();
-      this.selectedOptionService.stopTimerEmitted = true;
+    if (allCorrectSelected) {
+      const stopped = this.timerService.attemptStopTimerForQuestion({
+        questionIndex: this.currentQuestionIndex,
+      });
+
+      if (!stopped) {
+        console.log('[handleTimer] Timer stop skipped — waiting for correct selections.');
+      }
     }
 
     // Start the timer only after the first question has been set and stabilized
