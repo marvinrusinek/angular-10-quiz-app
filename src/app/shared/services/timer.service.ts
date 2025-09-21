@@ -300,7 +300,7 @@ export class TimerService {
     try { options.onBeforeStop?.(); } catch {}
   
     // Force the stop here to mirror your working path
-    this.stopTimer(options.onStop, { force: true, reason: 'all-correct', index: questionIndex });
+    this.stopTimer(options.onStop, { force: true });
   
     // Mark as stopped for this question
     this.selectedOptionService.stopTimerEmitted = true;
