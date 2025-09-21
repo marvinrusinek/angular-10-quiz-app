@@ -8,7 +8,7 @@ import { QuizService } from './quiz.service';
 interface StopTimerAttemptOptions {
   questionIndex?: number;
   onBeforeStop?: () => void;
-  onStop?: (elapsedMs?: number) => void;  // allow elapsed
+  onStop?: (elapsedMs?: number) => void;  // allow elapsed to be delivered
 }
 
 @Injectable({ providedIn: 'root' })
