@@ -970,33 +970,52 @@ export class SelectedOptionService {
       return false;
     }
 
-    const selectedIndexes = this.collectSelectedOptionIndexes(
+    const selections = this.canonicalizeSelectionsForQuestion(
       questionIndex,
-      options
+      this.selectedOptionsMap.get(questionIndex) || []
     );
 
-    if (!selectedIndexes || selectedIndexes.size === 0) {
+    if (selections.length === 0) {
       return false;
     }
 
-    let hasCorrectOption = false;
-
-    for (const [index, option] of options.entries()) {
-      const isCorrect = this.coerceToBoolean(option?.correct);
-      const isSelected = selectedIndexes.has(index);
-
-      if (isCorrect) {
-        hasCorrectOption = true;
-
-        if (!isSelected) {
-          return false;
-        }
-      } else if (isSelected) {
-        return false;
+    const correctIndexes = options.reduce((indexes: number[], option, idx) => {
+      if (this.coerceToBoolean(option?.correct)) {
+        indexes.push(idx);
       }
+      return indexes;
+    }, [] as number[]);
+
+    if (correctIndexes.length === 0) {
+      return false;
     }
 
-    return hasCorrectOption;
+    const selectedIndexes = new Set<number>();
+
+    for (const selection of selections) {
+      const resolvedIndex = this.resolveOptionIndexFromSelection(
+        options,
+        selection
+      );
+
+      if (resolvedIndex === null) {
+        return false;
+      }
+
+      const option = options[resolvedIndex];
+
+      if (!this.coerceToBoolean(option?.correct)) {
+        return false;
+      }
+
+      selectedIndexes.add(resolvedIndex);
+    }
+
+    if (selectedIndexes.size !== selections.length) {
+      return false;
+    }
+
+    return correctIndexes.every((idx) => selectedIndexes.has(idx));
   }
 
   private collectSelectedOptionIndexes(
