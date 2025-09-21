@@ -3359,7 +3359,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.timerService.stopTimer((elapsedTime: number) => {
         this.elapsedTimeDisplay = elapsedTime;
         console.log('Elapsed time recorded for results:', elapsedTime);
-      });
+      }, { force: true });
     } else {
       console.log('Timer was not running, skipping stopTimer.');
     }
@@ -3950,7 +3950,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.soundService.reset();  // allow sounds to play again
     this.soundService.clearPlayedOptionsForQuestion(0);
-    this.timerService.stopTimer?.();
+    this.timerService.stopTimer?.(undefined, { force: true });
 
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
@@ -4123,7 +4123,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     // Reset sound + timer state
     this.soundService.reset();
     this.soundService.clearPlayedOptionsForQuestion(0);
-    this.timerService.stopTimer?.();
+    this.timerService.stopTimer?.(undefined, { force: true });
   
     // Cleanup the previous stream before resetting
     this.nextButtonStateService.cleanupNextButtonStateStream();
@@ -4277,7 +4277,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Reset sounds/timer
     this.soundService.reset?.();
-    this.timerService.stopTimer?.();
+    this.timerService.stopTimer?.(undefined, { force: true });
   
     // Navigate to Q1
     this.router.navigate(['/question', this.quizId, 1]).then(() => {
