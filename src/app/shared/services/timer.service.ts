@@ -164,7 +164,6 @@ export class TimerService {
     );
   
     this.timerSubscription = timer$.subscribe();
-  
     console.log('[TimerService] Timer started successfully.');
   }
 
