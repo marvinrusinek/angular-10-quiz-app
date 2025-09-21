@@ -73,10 +73,21 @@ export class TimerService {
   }
 
   private listenForCorrectSelections(): void {
+    // Prevent duplicate subscriptions
     this.stopTimerSignalSubscription?.unsubscribe();
-    this.stopTimerSignalSubscription = this.selectedOptionService.stopTimer$.subscribe(
-      () => this.handleStopTimerSignal()
-    );
+  
+    this.stopTimerSignalSubscription = this.selectedOptionService.stopTimer$
+      .subscribe(() => {
+        if (!this.isTimerRunning) {
+          console.log('[TimerService] Stop signal received but timer is not running.');
+          return;
+        }
+
+        this.handleStopTimerSignal();
+  
+        console.log('[TimerService] Stop signal received from SelectedOptionService. Stopping timer.');
+        this.stopTimer(undefined, { force: true });
+      });
   }
 
   private handleStopTimerSignal(): void {
