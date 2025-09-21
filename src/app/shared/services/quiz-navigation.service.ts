@@ -209,15 +209,18 @@ export class QuizNavigationService {
     }
   
     // Fetch the quiz metadata that matches the current route
-    const currentQuiz: Quiz = await firstValueFrom(
-      this.quizDataService.getQuiz(effectiveQuizId).pipe(
-        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
-        take(1)
-      )
-    ).catch(err => {
+    let currentQuiz: Quiz | null = null;
+    try {
+      currentQuiz = await firstValueFrom(
+        this.quizDataService.getQuiz(effectiveQuizId).pipe(
+          filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
+          take(1)
+        )
+      );
+    } catch (err) {
       console.error('[❌ getQuiz error]', err);
-      return undefined as any;
-    });
+      currentQuiz = null;
+    }
   
     if (!effectiveQuizId || !currentQuiz) {
       console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
