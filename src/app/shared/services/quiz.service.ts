@@ -2324,12 +2324,12 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  // Prefer by id; fallback to index
+  // Prefer by id, fallback to index
   public getMinDisplayRemaining(index?: number, qId?: string): number {
-    if (qId && (this as any).minDisplayRemainingById?.[qId] != null) {
-      return (this as any).minDisplayRemainingById[qId] as number;
+    if (qId && this.minDisplayRemainingById?.[qId] != null) {
+      return this.minDisplayRemainingById[qId] as number;
     }
-    return (this as any).minDisplayRemainingByIndex?.[index ?? this.currentQuestionIndex ?? 0] ?? 0;
+    return this.minDisplayRemainingByIndex[index ?? this.currentQuestionIndex ?? 0] ?? 0;
   }
 
   // Configure a floor by stable question id (recommended)
