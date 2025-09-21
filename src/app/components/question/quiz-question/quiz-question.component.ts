@@ -3008,7 +3008,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.timedOut = true;
   
     const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
-    const q  = this.questions?.[i0];
+    const q  = this.questions[i0];
     if (!q) return;
   
     // Helper you already use elsewhere
