@@ -5893,4 +5893,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Trigger view update
     this.cdRef?.markForCheck?.();
   }
+
+  // Centralized, reasoned stop. Only stops when allowed.
+  private safeStopTimer(reason: 'completed' | 'timeout' | 'navigate'): void {
+    if (this._timerStoppedForQuestion) return;
+
+    // Only "completed" may stop due to correctness. Guard it.
+    if (reason === 'completed' && !this._lastAllCorrect) return;
+
+    try { this.timerService.stopTimer?.(); } catch {}
+    this._timerStoppedForQuestion = true;
+  }
 }
