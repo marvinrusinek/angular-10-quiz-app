@@ -493,8 +493,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         tap(idx => this.lastResetFor = idx as number)
       )
       .subscribe(idx => {
-        this.resetPerQuestionState(idx as number); // reset for the incoming question
+        this.resetPerQuestionState(idx as number);  // reset for the incoming question
       });
+
+      try {
+        this._origStopTimer = this.timerService.stopTimer?.bind(this.timerService);
+    
+        this.timerService.stopTimer = (() => {
+          // Block stop unless we've actually finished the question
+          if (!(this.timedOut || this._lastAllCorrect)) {
+            // Uncomment to find the culprit:
+            // console.warn('[Blocked stopTimer]', { timedOut: this.timedOut, allCorrect: this._lastAllCorrect, stack: new Error().stack });
+            return;
+          }
+          this._origStopTimer?.();
+        }) as any;
+      } catch {}
 
     this.activatedRoute.paramMap.subscribe(async (params) => {
       this.explanationVisible = false;
