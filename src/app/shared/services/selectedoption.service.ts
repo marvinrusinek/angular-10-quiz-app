@@ -536,15 +536,33 @@ export class SelectedOptionService {
   }
 
   removeSelectedOptionIndex(questionIndex: number, optionIndex: number): void {
-    if (this.selectedOptionIndices[questionIndex]) {
+    if (Array.isArray(this.selectedOptionIndices[questionIndex])) {
       const optionPos = this.selectedOptionIndices[questionIndex].indexOf(optionIndex);
       if (optionPos > -1) {
         this.selectedOptionIndices[questionIndex].splice(optionPos, 1);
-
-        // Sync with selectedOptionsMap
-        this.updateSelectedOptions(questionIndex, optionIndex, 'remove');
       }
     }
+
+    const canonicalId = this.resolveCanonicalOptionId(questionIndex, optionIndex);
+    if (canonicalId == null) {
+      console.warn('[removeSelectedOptionIndex] Unable to resolve canonical optionId', {
+        optionIndex,
+        questionIndex,
+      });
+      return;
+    }
+
+    const currentOptions = this.canonicalizeSelectionsForQuestion(
+      questionIndex,
+      this.selectedOptionsMap.get(questionIndex) || []
+    );
+
+    const updatedOptions = currentOptions.filter(option => option.optionId !== canonicalId);
+    if (updatedOptions.length === currentOptions.length) {
+      return;
+    }
+
+    this.commitSelections(questionIndex, updatedOptions);
   }
 
   // Add (and persist) one option for a question
