@@ -706,30 +706,46 @@ export class SelectedOptionService {
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
+      let resolvedIndex = Number.isInteger(questionIndex) ? questionIndex : -1;
+
+      if (resolvedIndex < 0) {
+        const currentIndex = this.quizService?.getCurrentQuestionIndex?.();
+        if (typeof currentIndex === 'number' && currentIndex >= 0) {
+          resolvedIndex = currentIndex;
+        }
+      }
+
       // Validate inputs
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.info('[updateAnsweredState] No options provided. Attempting fallback.');
-  
-        if (questionIndex < 0) {
-          questionIndex = this.getFallbackQuestionIndex();
-          if (questionIndex < 0) {
-            console.error('[updateAnsweredState] Invalid fallback question index:', questionIndex);
+
+        if (resolvedIndex < 0) {
+          resolvedIndex = this.getFallbackQuestionIndex();
+          if (resolvedIndex < 0) {
+            console.error('[updateAnsweredState] Invalid fallback question index:', resolvedIndex);
             return;
           }
         }
-  
-        questionOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+        questionOptions = this.selectedOptionsMap.get(resolvedIndex) ?? [];
         if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
           if (this.selectedOptionsMap.size === 0) {
             console.info('[updateAnsweredState] selectedOptionsMap is empty.  Using default options without warning.');
-          } else if (!this.selectedOptionsMap.has(questionIndex)) {
-            console.warn(`[updateAnsweredState] No entry for questionIndex: 
-            ${questionIndex}. Using default options.`);
+          } else if (!this.selectedOptionsMap.has(resolvedIndex)) {
+            console.warn(`[updateAnsweredState] No entry for questionIndex:
+            ${resolvedIndex}. Using default options.`);
           }
           questionOptions = this.getDefaultOptions();
         }
       }
-  
+
+      questionIndex = resolvedIndex;
+
+      if (questionIndex == null || questionIndex < 0) {
+        console.error('[updateAnsweredState] Unable to resolve a valid question index.');
+        return;
+      }
+
       // Final validation of options
       if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
         console.error('[updateAnsweredState] Unable to proceed. No valid options available.');
