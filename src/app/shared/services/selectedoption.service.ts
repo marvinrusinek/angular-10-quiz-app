@@ -962,64 +962,82 @@ export class SelectedOptionService {
     return canonicalSelections;
   }
 
-  // Pass an optional live snapshot so we read fresh `.selected` flags
+  // Snapshot-aware, ignores wrong selections, and NEVER early-returns before trying canonical
   public areAllCorrectAnswersSelectedSync(
     questionIndex: number,
     optionsSnapshot?: Option[]
   ): boolean {
     const question = this.quizService.questions?.[questionIndex];
-    const liveOptions = Array.isArray(question?.options) ? question.options! : [];
+    const liveOptions = Array.isArray(question?.options) ? question!.options : [];
     if (!question || liveOptions.length === 0) return false;
 
-    // Prefer the live snapshot passed from the component (fresh `selected` flags)
+    // Prefer the freshest state if provided by the caller
     const sourceOptions: Option[] =
       Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
         ? optionsSnapshot
         : liveOptions;
 
-    // ── FAST PATH: derive directly from selected flags; ignore wrong selections ──
+    // ── FAST PATH: derive from snapshot.selected; ignore wrongs ──
+    // NOTE: if snapshot has under-flagged .correct (common in UI copies),
+    // we DO NOT return false; we fall through to the canonical fallback.
     const totalCorrect = sourceOptions.reduce(
       (n, o) => n + (this.coerceToBoolean(o?.correct) ? 1 : 0),
       0
     );
-    if (totalCorrect === 0) return false;
 
-    const selectedCorrect = sourceOptions.reduce(
-      (n, o) =>
-        n +
-        (this.coerceToBoolean(o?.correct) && this.coerceToBoolean(o?.selected) ? 1 : 0),
-      0
-    );
+    if (totalCorrect > 0) {
+      const selectedCorrect = sourceOptions.reduce(
+        (n, o) =>
+          n +
+          (this.coerceToBoolean(o?.correct) &&
+          this.coerceToBoolean(o?.selected)
+            ? 1
+            : 0),
+        0
+      );
+      if (selectedCorrect === totalCorrect) {
+        // ✅ Every correct is selected (wrongs don’t matter)
+        return true;
+      }
+      // else: fall through to canonical check
+    }
+    // If totalCorrect === 0 or counts didn't match, try canonical.
 
-    // Only requirement: every correct is selected (ignore any wrongs that are also selected)
-    if (selectedCorrect === totalCorrect) return true;
-
-    // ── FALLBACK: UI hasn’t flushed yet; use your canonical selections ──
-    const selections = this.canonicalizeSelectionsForQuestion(
-      questionIndex,
-      this.selectedOptionsMap.get(questionIndex) || []
-    );
-    if (selections.length === 0) return false;
-
+    // ── CANONICAL FALLBACK: use the quiz’s authoritative options ──
     const correctIndexes = liveOptions.reduce((idxs: number[], opt, idx) => {
       if (this.coerceToBoolean(opt?.correct)) idxs.push(idx);
       return idxs;
     }, []);
     if (correctIndexes.length === 0) return false;
 
-    // Track only the indexes of selected CORRECT options (ignore wrong/unresolved)
+    // Build set of selected CORRECT indexes, ignoring wrong/unresolved
     const selectedCorrectIdx = new Set<number>();
-    for (const sel of selections) {
-      const idx = this.resolveOptionIndexFromSelection(liveOptions, sel);
-      if (idx == null) continue; // ignore unresolved
-      if (this.coerceToBoolean(liveOptions[idx]?.correct)) {
-        selectedCorrectIdx.add(idx);
+
+    // Prefer reading .selected directly from liveOptions if your click already toggled them
+    for (let i = 0; i < liveOptions.length; i++) {
+      const opt = liveOptions[i];
+      if (this.coerceToBoolean(opt?.correct) && this.coerceToBoolean(opt?.selected)) {
+        selectedCorrectIdx.add(i);
+      }
+    }
+
+    // If liveOptions.selected hasn't flushed yet, fall back to canonicalized selections map
+    if (selectedCorrectIdx.size === 0) {
+      const selections = this.canonicalizeSelectionsForQuestion(
+        questionIndex,
+        this.selectedOptionsMap.get(questionIndex) || []
+      );
+      for (const sel of selections) {
+        const idx = this.resolveOptionIndexFromSelection(liveOptions, sel);
+        if (idx == null) continue; // ignore unresolved
+        if (this.coerceToBoolean(liveOptions[idx]?.correct)) {
+          selectedCorrectIdx.add(idx);
+        }
       }
     }
 
     return correctIndexes.every((i) => selectedCorrectIdx.has(i));
   }
-
 
   private collectSelectedOptionIndexes(
     questionIndex: number,
