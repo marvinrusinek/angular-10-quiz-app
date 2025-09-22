@@ -4178,7 +4178,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Overlay UI.selected → canonical by identity
     const snapshot = this.selectedOptionService.overlaySelectedByIdentity(canonical, ui);
   
-    // Hop a macrotask to let async pipes/CD flush
+    // Hop a macrotask to let async pipes/CD settle
     setTimeout(() => {
       if (this.selectedOptionService.areAllCorrectAnswersSelectedSync(lockedIndex, snapshot)) {
         try { this.soundService?.play('correct'); } catch {}
