@@ -770,6 +770,7 @@ export class SelectedOptionService {
 
       const canonicalOptions = this.resolveCanonicalOptionsFor(resolvedIndex);
       const allCorrectAnswersSelected = this.determineIfAllCorrectAnswersSelected(
+        resolvedIndex,
         snapshot,
         canonicalOptions
       );
