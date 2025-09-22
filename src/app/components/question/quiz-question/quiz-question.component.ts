@@ -4175,7 +4175,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.timerService.attemptStopTimerForQuestion({
           questionIndex: lockedIndex,
           optionsSnapshot: snapshot,
-          onStop: (elapsed) => { this.elapsedTimes[lockedIndex] = elapsed ?? 0; },
+          onStop: (elapsed) => { this.timerService.elapsedTimes[lockedIndex] = elapsed ?? 0; }
         });
       }
     }, 0);
@@ -4210,7 +4210,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       correct: option.correct ?? false,
       selected: true,
       highlight: true,
-      showIcon: true,
+      showIcon: true
     };
     this.selectedOptionService.updateSelectionState(
       this.currentQuestionIndex,
