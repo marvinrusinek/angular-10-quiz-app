@@ -493,11 +493,30 @@ export class SelectedOptionService {
     const existingOption = options.find(o => o.optionId === canonicalId);
 
     if (!existingOption) {
+      const canonicalOptions = this.quizService.questions?.[questionIndex]?.options;
+      const resolvedIndex =
+        typeof canonicalId === 'number' && canonicalId >= 0
+          ? canonicalId
+          : optionIndex;
+
+      const canonicalOption =
+        Array.isArray(canonicalOptions) &&
+        resolvedIndex >= 0 &&
+        resolvedIndex < canonicalOptions.length
+          ? canonicalOptions[resolvedIndex]
+          : undefined;
+
+      const baseOption: SelectedOption = canonicalOption
+        ? { ...canonicalOption }
+        : {
+            optionId: canonicalId ?? optionIndex,
+            text: `Option ${optionIndex + 1}`
+          };
+
       const newOption: SelectedOption = {
-        optionId: canonicalId ?? optionIndex,
-        questionIndex,  // ensure the questionIndex is set correctly␊
-        text: `Option ${optionIndex + 1}`,  // placeholder text, update if needed
-        correct: false,  // default to false unless explicitly set elsewhere
+        ...baseOption,
+        optionId: canonicalId ?? baseOption.optionId ?? optionIndex,
+        questionIndex,  // ensure the questionIndex is set correctly
         selected: true  // mark as selected since it's being added
       };
 
