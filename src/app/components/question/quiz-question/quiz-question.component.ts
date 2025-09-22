@@ -4167,29 +4167,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private stopTimerIfAllCorrectSelected(): void {
-    const lockedIndex = this.quizService.getCurrentQuestionIndex();
+    const idx = this.quizService.getCurrentQuestionIndex();
   
-    // Canonical options (truth for `correct`)
-    const canonical = (this.quizService.questions?.[lockedIndex]?.options ?? []).map(o => ({ ...o }));
-  
-    // Live UI options (truth for `selected`)
+    // Canonical (truth for `correct`)
+    const canonical = (this.quizService.questions?.[idx]?.options ?? []).map(o => ({ ...o }));
+    // UI (truth for `selected`, possibly a different array)
     const ui = (this.optionsToDisplay ?? []).map(o => ({ ...o }));
   
-    // Overlay UI.selected → canonical by identity
+    // Overlay UI.selected → canonical by identity (id/value/text), index-agnostic
     const snapshot = this.selectedOptionService.overlaySelectedByIdentity(canonical, ui);
   
-    // Hop a macrotask to let async pipes/CD settle
+    // Defer one macrotask so any async CD/pipes settle
     setTimeout(() => {
-      if (this.selectedOptionService.areAllCorrectAnswersSelectedSync(lockedIndex, snapshot)) {
+      const totalCorrect    = snapshot.filter(o => !!(o as any).correct).length;
+      const selectedCorrect = snapshot.filter(o => !!(o as any).correct && !!(o as any).selected).length;
+  
+      // quick debug; comment out when green
+      // console.log('[StopGate]', { idx, totalCorrect, selectedCorrect, running: this.timerService.isTimerRunning });
+  
+      if (totalCorrect > 0 && selectedCorrect === totalCorrect) {
         try { this.soundService?.play('correct'); } catch {}
+  
         this.timerService.attemptStopTimerForQuestion({
-          questionIndex: lockedIndex,
-          optionsSnapshot: snapshot,
-          onStop: (elapsed) => { this.timerService.elapsedTimes[lockedIndex] = elapsed ?? 0; }
+          questionIndex: idx,
+          optionsSnapshot: snapshot,                // make the service read this exact state
+          onStop: (elapsed) => {
+            (this.timerService as any).elapsedTimes ||= [];
+            (this.timerService as any).elapsedTimes[idx] = elapsed ?? 0;
+          },
         });
       }
     }, 0);
-  }  
+  }
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
