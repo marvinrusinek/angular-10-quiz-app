@@ -2,11 +2,13 @@ import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, Subscription, timer } from 'rxjs';
 import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 
+import { Option } from '../models/Option.model';
 import { SelectedOptionService } from './selectedoption.service';
 import { QuizService } from './quiz.service';
 
 interface StopTimerAttemptOptions {
   questionIndex?: number;
+  optionsSnapshot?: Option[];
   onBeforeStop?: () => void;
   onStop?: (elapsedMs?: number) => void;  // allow elapsed to be delivered
 }
