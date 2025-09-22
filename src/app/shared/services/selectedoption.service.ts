@@ -706,66 +706,30 @@ export class SelectedOptionService {
   
   updateAnsweredState(questionOptions: Option[] = [], questionIndex: number = -1): void {
     try {
-      let resolvedIndex = Number.isInteger(questionIndex) ? questionIndex : -1;
+      const resolvedIndex = this.resolveEffectiveQuestionIndex(questionIndex, questionOptions);
 
-      if (resolvedIndex < 0) {
-        const currentIndex = this.quizService?.getCurrentQuestionIndex?.();
-        if (typeof currentIndex === 'number' && currentIndex >= 0) {
-          resolvedIndex = currentIndex;
-        }
-      }
-
-      // Validate inputs
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.info('[updateAnsweredState] No options provided. Attempting fallback.');
-
-        if (resolvedIndex < 0) {
-          resolvedIndex = this.getFallbackQuestionIndex();
-          if (resolvedIndex < 0) {
-            console.error('[updateAnsweredState] Invalid fallback question index:', resolvedIndex);
-            return;
-          }
-        }
-
-        questionOptions = this.selectedOptionsMap.get(resolvedIndex) ?? [];
-        if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-          if (this.selectedOptionsMap.size === 0) {
-            console.info('[updateAnsweredState] selectedOptionsMap is empty.  Using default options without warning.');
-          } else if (!this.selectedOptionsMap.has(resolvedIndex)) {
-            console.warn(`[updateAnsweredState] No entry for questionIndex:
-            ${resolvedIndex}. Using default options.`);
-          }
-          questionOptions = this.getDefaultOptions();
-        }
-      }
-
-      questionIndex = resolvedIndex;
-
-      if (questionIndex == null || questionIndex < 0) {
+      if (resolvedIndex == null || resolvedIndex < 0) {
         console.error('[updateAnsweredState] Unable to resolve a valid question index.');
         return;
       }
 
-      // Final validation of options
-      if (!Array.isArray(questionOptions) || questionOptions.length === 0) {
-        console.error('[updateAnsweredState] Unable to proceed. No valid options available.');
+      const snapshot = this.buildCanonicalSelectionSnapshot(resolvedIndex, questionOptions);
+
+      if (!Array.isArray(snapshot) || snapshot.length === 0) {
+        console.warn('[updateAnsweredState] No option snapshot available for evaluation.');
         return;
       }
-  
-      // Validate and normalize options
-      const validatedOptions = questionOptions.map((option, index) => ({
-        ...option,
-        correct: this.coerceToBoolean(option.correct),
-        selected: this.coerceToBoolean(option.selected),
-        optionId: option.optionId ?? index + 1
-      }));
 
-      // Determine answered state
-      const isAnswered = validatedOptions.some(option => option.selected);
+      const isAnswered = snapshot.some(option => this.coerceToBoolean(option.selected));
       this.isAnsweredSubject.next(isAnswered);
 
-      // Validate if all correct answers are selected
-      const allCorrectAnswersSelected = this.areAllCorrectAnswersSelectedSync(questionIndex);
+      const totalCorrect = snapshot.filter(option => this.coerceToBoolean(option.correct)).length;
+      const selectedCorrect = snapshot.filter(
+        option => this.coerceToBoolean(option.correct) && this.coerceToBoolean(option.selected)
+      ).length;
+
+      const allCorrectAnswersSelected = totalCorrect > 0 && totalCorrect === selectedCorrect;
+
       if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
         console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
         this.stopTimer$.next();
@@ -774,6 +738,88 @@ export class SelectedOptionService {
     } catch (error) {
       console.error('[updateAnsweredState] Unhandled error:', error);
     }
+  }
+
+  private resolveEffectiveQuestionIndex(
+    explicitIndex: number,
+    questionOptions: Option[]
+  ): number | null {
+    if (typeof explicitIndex === 'number' && explicitIndex >= 0) {
+      return explicitIndex;
+    }
+
+    const optionIndexFromPayload = Array.isArray(questionOptions)
+      ? questionOptions
+          .map(opt => (opt as SelectedOption)?.questionIndex)
+          .find(idx => typeof idx === 'number' && idx >= 0)
+      : undefined;
+
+    if (typeof optionIndexFromPayload === 'number') {
+      return optionIndexFromPayload;
+    }
+
+    const currentIndex = this.quizService?.getCurrentQuestionIndex?.();
+    if (typeof currentIndex === 'number' && currentIndex >= 0) {
+      return currentIndex;
+    }
+
+    const fallbackIndex = this.getFallbackQuestionIndex();
+    return fallbackIndex >= 0 ? fallbackIndex : null;
+  }
+
+  private buildCanonicalSelectionSnapshot(
+    questionIndex: number,
+    overrides: Option[]
+  ): Option[] {
+    const canonicalOptions = Array.isArray(this.quizService.questions?.[questionIndex]?.options)
+      ? this.quizService.questions[questionIndex].options
+      : [];
+
+    const normalizedOverrides = Array.isArray(overrides) ? overrides.filter(Boolean) : [];
+    const mapSelections = this.canonicalizeSelectionsForQuestion(
+      questionIndex,
+      this.selectedOptionsMap.get(questionIndex) || []
+    );
+
+    const overlaySelections = new Map<number, Option>();
+
+    const recordSelection = (option: Option, fallbackIdx?: number): void => {
+      if (!option) {
+        return;
+      }
+
+      const resolvedIdx = this.resolveOptionIndexFromSelection(canonicalOptions, option);
+
+      if (resolvedIdx != null && resolvedIdx >= 0) {
+        overlaySelections.set(resolvedIdx, option);
+      } else if (typeof fallbackIdx === 'number' && fallbackIdx >= 0) {
+        overlaySelections.set(fallbackIdx, option);
+      }
+    };
+
+    normalizedOverrides.forEach((opt, idx) => recordSelection(opt, idx));
+    mapSelections.forEach(opt => recordSelection(opt));
+
+    const baseOptions = canonicalOptions.length > 0
+      ? canonicalOptions
+      : normalizedOverrides.length > 0
+      ? normalizedOverrides
+      : mapSelections;
+
+    return baseOptions.map((option, idx) => {
+      const overlay = overlaySelections.get(idx);
+      const mergedOption = {
+        ...option,
+        ...(overlay ?? {}),
+      } as Option;
+
+      return {
+        ...mergedOption,
+        optionId: overlay?.optionId ?? option?.optionId ?? idx,
+        correct: this.coerceToBoolean((overlay as Option)?.correct ?? option?.correct),
+        selected: this.coerceToBoolean((overlay as Option)?.selected ?? option?.selected),
+      };
+    });
   }
 
   private debugSelectedOptionsMap(): void {
