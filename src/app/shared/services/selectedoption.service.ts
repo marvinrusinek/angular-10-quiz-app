@@ -851,12 +851,12 @@ export class SelectedOptionService {
       : [];
 
     const baseOptions = [
-      canonicalOptions,
-      Array.isArray(subjectOptions) ? subjectOptions : [],
-      dataOptions,
-      normalizedOverrides,
-      mapSelections,
-    ].find(options => Array.isArray(options) && options.length > 0) || [];
+        canonicalOptions,
+        Array.isArray(subjectOptions) ? subjectOptions : [],
+        dataOptions,
+        normalizedOverrides,
+        mapSelections,
+      ].find(options => Array.isArray(options) && options.length > 0) || [];
 
     return baseOptions.map((option, idx) => {
       const overlay = overlaySelections.get(idx);
@@ -895,6 +895,7 @@ export class SelectedOptionService {
   }
 
   private determineIfAllCorrectAnswersSelected(
+    questionIndex: number,
     snapshot: Option[],
     canonicalOptions: Option[]
   ): boolean {
@@ -910,14 +911,94 @@ export class SelectedOptionService {
         canonicalWithSelections
       );
 
-      if (correctIndexes.size === selectedCorrectIndexes.size) {
-        return correctIndexes.size > 0;
-      }
+      return (
+        correctIndexes.size > 0 &&
+        selectedCorrectIndexes.size > 0 &&
+        correctIndexes.size === selectedCorrectIndexes.size
+      );
+    }
 
-      return false;
+    const expectedCorrectAnswerCount = this.resolveExpectedCorrectAnswerCount(
+      questionIndex
+    );
+
+    if (expectedCorrectAnswerCount > 0) {
+      const selectedCorrectIndexes = this.collectSelectedCorrectOptionIndexes(
+        snapshot
+      );
+
+      return (
+        selectedCorrectIndexes.size > 0 &&
+        selectedCorrectIndexes.size === expectedCorrectAnswerCount
+      );
     }
 
     return this.evaluateAllCorrectSelections(snapshot);
+  }
+
+  private resolveExpectedCorrectAnswerCount(questionIndex: number): number {
+    const questionText = this.resolveQuestionText(questionIndex);
+
+    if (questionText) {
+      const trimmedText = questionText.trim();
+      const mappedAnswers = this.quizService.correctAnswers?.get(trimmedText);
+
+      if (Array.isArray(mappedAnswers) && mappedAnswers.length > 0) {
+        return mappedAnswers.length;
+      }
+    }
+
+    const candidateOptionSets: Array<Option[] | undefined | null> = [
+      this.quizService.questions?.[questionIndex]?.options,
+      this.quizService.selectedQuiz?.questions?.[questionIndex]?.options,
+      this.quizService.activeQuiz?.questions?.[questionIndex]?.options,
+      this.quizService.correctOptions,
+      this.quizService.currentOptions?.getValue?.(),
+      this.quizService.data?.currentOptions,
+    ];
+
+    for (const options of candidateOptionSets) {
+      const normalized = Array.isArray(options) ? options.filter(Boolean) : [];
+
+      if (normalized.length === 0) {
+        continue;
+      }
+
+      const correctCount = normalized.reduce(
+        (count, option) =>
+          count + (this.coerceToBoolean(option?.correct) ? 1 : 0),
+        0
+      );
+
+      if (correctCount > 0) {
+        return correctCount;
+      }
+    }
+
+    return 0;
+  }
+
+  private resolveQuestionText(questionIndex: number): string | null {
+    const candidateQuestions = [
+      this.quizService.questions?.[questionIndex],
+      this.quizService.selectedQuiz?.questions?.[questionIndex],
+      this.quizService.activeQuiz?.questions?.[questionIndex],
+      this.quizService.currentQuestion?.getValue?.(),
+    ];
+
+    for (const question of candidateQuestions) {
+      const text = question?.questionText;
+
+      if (typeof text === 'string' && text.trim().length > 0) {
+        return text.trim();
+      }
+    }
+
+    const fallbackText = this.quizService.data?.questionText;
+
+    return typeof fallbackText === 'string' && fallbackText.trim().length > 0
+      ? fallbackText.trim()
+      : null;
   }
 
   private overlaySnapshotOntoCanonicalOptions(
