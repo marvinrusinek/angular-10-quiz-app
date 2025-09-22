@@ -4163,6 +4163,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.processCurrentQuestionState(currentQuestion, option, index);
     await this.handleCorrectnessAndTimer();
+
+    const lockedIndex = this.quizService.getCurrentQuestionIndex();
+    const canonical = (this.quizService.questions?.[lockedIndex]?.options ?? []).map(o => ({ ...o }));
+    const ui = (this.optionsToDisplay ?? []).map(o => ({ ...o }));
+    const snapshot = this.selectedOptionService.overlaySelectedByIdentity(canonical, ui);
+
+    setTimeout(() => {
+      if (this.selectedOptionService.areAllCorrectAnswersSelectedSync(lockedIndex, snapshot)) {
+        try { this.soundService?.play('correct'); } catch {}
+        this.timerService.attemptStopTimerForQuestion({
+          questionIndex: lockedIndex,
+          optionsSnapshot: snapshot,
+          onStop: (elapsed) => { this.elapsedTimes[lockedIndex] = elapsed ?? 0; },
+        });
+      }
+    }, 0);
   }
 
   // Helper method to update feedback for options
