@@ -968,23 +968,68 @@ export class SelectedOptionService {
     optionsSnapshot?: Option[]
   ): boolean {
     const canonical = this.quizService.questions?.[questionIndex]?.options ?? [];
-
-    // If a snapshot is provided, use it as source of truth.
-    const src = (Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0)
-      ? optionsSnapshot
-      : canonical;
-
+  
+    // Prefer caller snapshot (ideally: overlaySelectedByIdentity(canonical, ui))
+    const src: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : canonical;
+  
     if (!Array.isArray(src) || src.length === 0) return false;
-
-    const totalCorrect = src.reduce((n, o) => n + (this.coerceToBoolean(o?.correct) ? 1 : 0), 0);
-    if (totalCorrect === 0) return false;
-
-    const selectedCorrect = src.reduce(
-      (n, o) => n + (this.coerceToBoolean(o?.correct) && this.coerceToBoolean(o?.selected) ? 1 : 0),
-      0
+  
+    // ── FAST PATH: evaluate from src; ignore wrong selections ──
+    let totalCorrect = 0;
+    let selectedCorrect = 0;
+    for (const o of src) {
+      const isCorrect = this.coerceToBoolean(o?.correct);
+      if (isCorrect) {
+        totalCorrect++;
+        if (this.coerceToBoolean(o?.selected)) selectedCorrect++;
+      }
+    }
+    if (totalCorrect > 0 && selectedCorrect === totalCorrect) {
+      return true; // ✅ all correct selected (wrongs don't matter)
+    }
+  
+    // ── FALLBACK 1: use canonical selected flags if snapshot lacked .correct ──
+    // (works when UI mutates the same objects or you've mirrored .selected into canonical)
+    let fallbackTotal = 0;
+    const selectedCorrectIdx = new Set<number>();
+    for (let i = 0; i < canonical.length; i++) {
+      const o = canonical[i];
+      if (this.coerceToBoolean(o?.correct)) {
+        fallbackTotal++;
+        if (this.coerceToBoolean(o?.selected)) selectedCorrectIdx.add(i);
+      }
+    }
+    if (fallbackTotal > 0 && selectedCorrectIdx.size === fallbackTotal) {
+      return true;
+    }
+  
+    // ── Fallback 2: last resort — derive selection from your canonicalized map ──
+    const selections = this.canonicalizeSelectionsForQuestion(
+      questionIndex,
+      this.selectedOptionsMap.get(questionIndex) || []
     );
-
-    return selectedCorrect === totalCorrect;  // wrong selections don’t matter
+    if (selections.length === 0) return false;
+  
+    const correctIdx: number[] = [];
+    for (let i = 0; i < canonical.length; i++) {
+      if (this.coerceToBoolean(canonical[i]?.correct)) correctIdx.push(i);
+    }
+    if (correctIdx.length === 0) return false;
+  
+    // Mark only CORRECT selections (ignore wrong/unresolved)
+    selectedCorrectIdx.clear();
+    for (const sel of selections) {
+      const idx = this.resolveOptionIndexFromSelection(canonical, sel);
+      if (idx == null) continue;
+      if (this.coerceToBoolean(canonical[idx]?.correct)) {
+        selectedCorrectIdx.add(idx);
+      }
+    }
+  
+    return correctIdx.every(i => selectedCorrectIdx.has(i));
   }
 
   private collectSelectedOptionIndexes(
