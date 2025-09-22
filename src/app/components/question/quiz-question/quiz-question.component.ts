@@ -4163,12 +4163,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.processCurrentQuestionState(currentQuestion, option, index);
     await this.handleCorrectnessAndTimer();
+    this.stopTimerIfAllCorrectSelected();
+  }
 
+  private stopTimerIfAllCorrectSelected(): void {
     const lockedIndex = this.quizService.getCurrentQuestionIndex();
+  
+    // Canonical options (truth for `correct`)
     const canonical = (this.quizService.questions?.[lockedIndex]?.options ?? []).map(o => ({ ...o }));
+  
+    // Live UI options (truth for `selected`)
     const ui = (this.optionsToDisplay ?? []).map(o => ({ ...o }));
+  
+    // Overlay UI.selected → canonical by identity
     const snapshot = this.selectedOptionService.overlaySelectedByIdentity(canonical, ui);
-
+  
+    // Hop a macrotask to let async pipes/CD flush
     setTimeout(() => {
       if (this.selectedOptionService.areAllCorrectAnswersSelectedSync(lockedIndex, snapshot)) {
         try { this.soundService?.play('correct'); } catch {}
@@ -4179,7 +4189,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         });
       }
     }, 0);
-  }
+  }  
 
   // Helper method to update feedback for options
   private updateFeedbackForOption(option: SelectedOption): void {
