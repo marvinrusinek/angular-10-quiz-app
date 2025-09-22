@@ -873,6 +873,109 @@ export class SelectedOptionService {
     });
   }
 
+  private resolveCanonicalOptionsFor(questionIndex: number): Option[] {
+    const primaryOptions = this.quizService.questions?.[questionIndex]?.options;
+    const selectedQuizOptions = this.quizService.selectedQuiz?.questions?.[questionIndex]?.options;
+    const activeQuizOptions = this.quizService.activeQuiz?.questions?.[questionIndex]?.options;
+    const subjectOptions = this.quizService.currentOptions?.getValue?.();
+    const dataOptions = this.quizService.data?.currentOptions;
+
+    const candidate = [
+      primaryOptions,
+      selectedQuizOptions,
+      activeQuizOptions,
+      subjectOptions,
+      dataOptions,
+    ].find(options => Array.isArray(options) && options.length > 0);
+
+    return Array.isArray(candidate)
+      ? candidate.map(option => ({ ...option }))
+      : [];
+  }
+
+  private determineIfAllCorrectAnswersSelected(
+    snapshot: Option[],
+    canonicalOptions: Option[]
+  ): boolean {
+    const correctIndexes = this.collectCorrectOptionIndexes(canonicalOptions);
+
+    if (correctIndexes.size > 0) {
+      const canonicalWithSelections = this.overlaySnapshotOntoCanonicalOptions(
+        canonicalOptions,
+        snapshot
+      );
+
+      const selectedCorrectIndexes = this.collectSelectedCorrectOptionIndexes(
+        canonicalWithSelections
+      );
+
+      if (correctIndexes.size === selectedCorrectIndexes.size) {
+        return correctIndexes.size > 0;
+      }
+
+      return false;
+    }
+
+    return this.evaluateAllCorrectSelections(snapshot);
+  }
+
+  private overlaySnapshotOntoCanonicalOptions(
+    canonicalOptions: Option[],
+    snapshot: Option[]
+  ): Option[] {
+    if (!Array.isArray(canonicalOptions) || canonicalOptions.length === 0) {
+      return [];
+    }
+
+    const overlaysByIndex = new Map<number, Option>();
+
+    snapshot.forEach(option => {
+      const resolvedIdx = this.resolveOptionIndexFromSelection(canonicalOptions, option);
+      if (resolvedIdx != null) {
+        overlaysByIndex.set(resolvedIdx, option);
+      }
+    });
+
+    return canonicalOptions.map((option, idx) => {
+      const overlay = overlaysByIndex.get(idx);
+      if (!overlay) {
+        return option;
+      }
+
+      return {
+        ...option,
+        selected: this.coerceToBoolean(overlay.selected ?? option.selected),
+      };
+    });
+  }
+
+  private collectCorrectOptionIndexes(options: Option[]): Set<number> {
+    const indexes = new Set<number>();
+
+    options.forEach((option, idx) => {
+      if (this.coerceToBoolean(option?.correct)) {
+        indexes.add(idx);
+      }
+    });
+
+    return indexes;
+  }
+
+  private collectSelectedCorrectOptionIndexes(options: Option[]): Set<number> {
+    const indexes = new Set<number>();
+
+    options.forEach((option, idx) => {
+      if (
+        this.coerceToBoolean(option?.correct) &&
+        this.coerceToBoolean(option?.selected)
+      ) {
+        indexes.add(idx);
+      }
+    });
+
+    return indexes;
+  }
+
   private debugSelectedOptionsMap(): void {
     if (this.selectedOptionsMap.size === 0) {
       console.warn('selectedOptionsMap is empty.');
