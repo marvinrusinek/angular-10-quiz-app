@@ -962,81 +962,29 @@ export class SelectedOptionService {
     return canonicalSelections;
   }
 
-  // Snapshot-aware, ignores wrong selections, and NEVER early-returns before trying canonical
+  // Prefer the caller-provided snapshot (already overlaid) and ignore wrongs.
   public areAllCorrectAnswersSelectedSync(
     questionIndex: number,
     optionsSnapshot?: Option[]
   ): boolean {
-    const question = this.quizService.questions?.[questionIndex];
-    const liveOptions = Array.isArray(question?.options) ? question!.options : [];
-    if (!question || liveOptions.length === 0) return false;
+    const canonical = this.quizService.questions?.[questionIndex]?.options ?? [];
 
-    // Prefer the freshest state if provided by the caller
-    const sourceOptions: Option[] =
-      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
-        ? optionsSnapshot
-        : liveOptions;
+    // If a snapshot is provided, use it as source of truth.
+    const src = (Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0)
+      ? optionsSnapshot
+      : canonical;
 
-    // ── FAST PATH: derive from snapshot.selected; ignore wrongs ──
-    // NOTE: if snapshot has under-flagged .correct (common in UI copies),
-    // we DO NOT return false; we fall through to the canonical fallback.
-    const totalCorrect = sourceOptions.reduce(
-      (n, o) => n + (this.coerceToBoolean(o?.correct) ? 1 : 0),
+    if (!Array.isArray(src) || src.length === 0) return false;
+
+    const totalCorrect = src.reduce((n, o) => n + (this.coerceToBoolean(o?.correct) ? 1 : 0), 0);
+    if (totalCorrect === 0) return false;
+
+    const selectedCorrect = src.reduce(
+      (n, o) => n + (this.coerceToBoolean(o?.correct) && this.coerceToBoolean(o?.selected) ? 1 : 0),
       0
     );
 
-    if (totalCorrect > 0) {
-      const selectedCorrect = sourceOptions.reduce(
-        (n, o) =>
-          n +
-          (this.coerceToBoolean(o?.correct) &&
-          this.coerceToBoolean(o?.selected)
-            ? 1
-            : 0),
-        0
-      );
-      if (selectedCorrect === totalCorrect) {
-        // ✅ Every correct is selected (wrongs don’t matter)
-        return true;
-      }
-      // else: fall through to canonical check
-    }
-    // If totalCorrect === 0 or counts didn't match, try canonical.
-
-    // ── CANONICAL FALLBACK: use the quiz’s authoritative options ──
-    const correctIndexes = liveOptions.reduce((idxs: number[], opt, idx) => {
-      if (this.coerceToBoolean(opt?.correct)) idxs.push(idx);
-      return idxs;
-    }, []);
-    if (correctIndexes.length === 0) return false;
-
-    // Build set of selected CORRECT indexes, ignoring wrong/unresolved
-    const selectedCorrectIdx = new Set<number>();
-
-    // Prefer reading .selected directly from liveOptions if your click already toggled them
-    for (let i = 0; i < liveOptions.length; i++) {
-      const opt = liveOptions[i];
-      if (this.coerceToBoolean(opt?.correct) && this.coerceToBoolean(opt?.selected)) {
-        selectedCorrectIdx.add(i);
-      }
-    }
-
-    // If liveOptions.selected hasn't flushed yet, fall back to canonicalized selections map
-    if (selectedCorrectIdx.size === 0) {
-      const selections = this.canonicalizeSelectionsForQuestion(
-        questionIndex,
-        this.selectedOptionsMap.get(questionIndex) || []
-      );
-      for (const sel of selections) {
-        const idx = this.resolveOptionIndexFromSelection(liveOptions, sel);
-        if (idx == null) continue; // ignore unresolved
-        if (this.coerceToBoolean(liveOptions[idx]?.correct)) {
-          selectedCorrectIdx.add(idx);
-        }
-      }
-    }
-
-    return correctIndexes.every((i) => selectedCorrectIdx.has(i));
+    return selectedCorrect === totalCorrect;  // wrong selections don’t matter
   }
 
   private collectSelectedOptionIndexes(
