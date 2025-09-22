@@ -1135,36 +1135,60 @@ export class SelectedOptionService {
     return indexes;
   }
 
-  private resolveOptionIndexFromSelection(
-    options: Option[],
-    selection: SelectedOption | Option | null | undefined
-  ): number | null {
-    if (!selection) {
-      return null;
-    }
-
-    const indexFromId = this.resolveOptionIndexFromId(
-      options,
-      (selection as SelectedOption)?.optionId
-    );
-    if (indexFromId !== null) {
-      return indexFromId;
-    }
-
-    const text = (selection as Option)?.text;
-    if (typeof text === 'string' && text.trim().length > 0) {
-      const normalizedText = text.trim().toLowerCase();
-      const match = options.findIndex(opt =>
-        (opt?.text ?? '').trim().toLowerCase() === normalizedText
-      );
-
-      if (match >= 0) {
-        return match;
-      }
-    }
-
-    return null;
+  private normalizeStr(x: unknown): string {
+    return typeof x === 'string'
+      ? x.trim().toLowerCase().replace(/\s+/g, ' ')
+      : '';
   }
+  
+  private resolveOptionIndexFromSelection(options: Option[], selection: any): number | null {
+    // Build maps once from canonical options
+    const byId = new Map<number | string, number>();
+    const byText = new Map<string, number>();
+    const byValue = new Map<string, number>();
+  
+    for (let i = 0; i < options.length; i++) {
+      const o: any = options[i];
+  
+      // Map by id (0 is valid)
+      if (o.optionId !== null && o.optionId !== undefined) byId.set(o.optionId, i);
+      if (o.id       !== null && o.id       !== undefined) byId.set(o.id, i);
+  
+      // String keys (normalized)
+      const t = this.normalizeStr(o.text);
+      if (t) byText.set(t, i);
+  
+      const v = this.normalizeStr(o.value);
+      if (v) byValue.set(v, i);
+    }
+  
+    // 1) Strict id match (accept 0)
+    if ('optionId' in selection && selection.optionId !== null && selection.optionId !== undefined) {
+      const hit = byId.get(selection.optionId);
+      if (hit !== undefined) return hit;
+    }
+    if ('id' in selection && selection.id !== null && selection.id !== undefined) {
+      const hit = byId.get(selection.id);
+      if (hit !== undefined) return hit;
+    }
+  
+    // 2) Fallback by text
+    const sText = this.normalizeStr(selection?.text);
+    if (sText) {
+      const hit = byText.get(sText);
+      if (hit !== undefined) return hit;
+    }
+  
+    // 3) Fallback by value
+    const sValue = this.normalizeStr(selection?.value);
+    if (sValue) {
+      const hit = byValue.get(sValue);
+      if (hit !== undefined) return hit;
+    }
+  
+    console.warn('Unable to determine a canonical optionId for selection', selection);
+    return null;
+  }  
 
   private resolveOptionIndexFromId(
     options: Option[],
