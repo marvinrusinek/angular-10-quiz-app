@@ -1288,35 +1288,58 @@ export class SelectedOptionService {
     this._lockedByQuestion.delete(qIndex);
   }
 
+  // --- shared identity helpers ---
   private normKey(x: unknown): string {
     if (x == null) return '';
     return String(x).trim().toLowerCase().replace(/\s+/g, ' ');
   }
 
-  /**
-   * Overlay the UI's `selected` flags onto the canonical options using a stable identity:
-   * prefer optionId, then id, then value, then text. Index is NEVER used.
-   */
-  public overlaySelectedByIdentity(canonical: Option[], ui: Option[]): Option[] {
-    if (!Array.isArray(canonical) || canonical.length === 0) return [];
-    const out = canonical.map(o => ({ ...o, selected: false })); // reset, then overlay
+  private forEachUiMatch(
+    canonical: Option[],
+    ui: Option[] | undefined,
+    cb: (canonIndex: number, uiItem: Option) => void
+  ): void {
+    if (!Array.isArray(canonical) || canonical.length === 0) return;
+    if (!Array.isArray(ui) || ui.length === 0) return;
 
-    // Build identity map from canonical
     const idxByKey = new Map<string, number>();
     for (let i = 0; i < canonical.length; i++) {
-      const o = canonical[i] as any;
-      const key = this.normKey(o.optionId ?? o.id ?? o.value ?? o.text ?? i);
+      const c: any = canonical[i];
+      // 0 is valid — use nullish checks, not truthy
+      const key = this.normKey(c.optionId ?? c.id ?? c.value ?? c.text ?? i);
       if (key) idxByKey.set(key, i);
     }
 
-    // Apply UI selections by identity
-    for (const u of ui ?? []) {
-      const uu = u as any;
+    for (const u of ui) {
+      const uu: any = u;
       const key = this.normKey(uu.optionId ?? uu.id ?? uu.value ?? uu.text);
-      const idx = key ? idxByKey.get(key) : undefined;
-      if (idx !== undefined) out[idx].selected = !!uu.selected;
+      const i = key ? idxByKey.get(key) : undefined;
+      if (i !== undefined) cb(i, u);
     }
+  }
+
+  // --- keep your overlay (pure, returns a snapshot) ---
+  public overlaySelectedByIdentity(canonical: Option[], ui: Option[]): Option[] {
+    if (!Array.isArray(canonical) || canonical.length === 0) return [];
+    const out = canonical.map(o => ({ ...o, selected: false }));
+
+    this.forEachUiMatch(canonical, ui, (i, u) => {
+      out[i].selected = !!(u as any).selected;
+    });
 
     return out;
+  }
+
+  // --- add sync (mutates canonical in-place) ---
+  public syncSelectionsToCanonical(questionIndex: number, ui: Option[]): void {
+    const canonical = this.quizService.questions?.[questionIndex]?.options ?? [];
+    if (!Array.isArray(canonical) || canonical.length === 0) return;
+
+    // Clear previous selected flags (optional; remove if you want "sticky" selections)
+    for (const c of canonical as any[]) c.selected = !!c.selected && false;
+
+    this.forEachUiMatch(canonical, ui, (i, u) => {
+      (canonical[i] as any).selected = !!(u as any).selected;
+    });
   }
 }
