@@ -95,6 +95,14 @@ export class SelectedOptionService {
     const updatedSelections = [...filteredSelections, newSelection];
     const committedSelections = this.commitSelections(questionIndex, updatedSelections);
 
+    if (!Array.isArray(this.selectedOptionIndices[questionIndex])) {
+      this.selectedOptionIndices[questionIndex] = [];
+    }
+
+    if (!this.selectedOptionIndices[questionIndex].includes(optionId)) {
+      this.selectedOptionIndices[questionIndex].push(optionId);
+    }
+
     this.selectedOptionSubject.next(committedSelections);
 
     if (!isMultiSelect) {
