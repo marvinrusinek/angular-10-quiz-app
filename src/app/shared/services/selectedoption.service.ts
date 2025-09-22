@@ -99,8 +99,8 @@ export class SelectedOptionService {
       this.selectedOptionIndices[questionIndex] = [];
     }
 
-    if (!this.selectedOptionIndices[questionIndex].includes(optionId)) {
-      this.selectedOptionIndices[questionIndex].push(optionId);
+    if (!this.selectedOptionIndices[questionIndex].includes(canonicalOptionId)) {
+      this.selectedOptionIndices[questionIndex].push(canonicalOptionId);
     }
 
     this.selectedOptionSubject.next(committedSelections);
