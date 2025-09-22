@@ -5940,7 +5940,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       this.feedbackConfigs[key] = {
-        ...(this.feedbackConfigs[key] ?? {}),  // keep any existing fields
+        ...(this.feedbackConfigs[key] ?? {}),
         showFeedback: true,
         icon: o.correct ? 'check_circle' : 'cancel',
         isCorrect: !!o.correct
@@ -5949,7 +5949,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // Trigger view update
-    this.cdRef?.markForCheck?.();
+    this.cdRef.markForCheck();
   }
 
   // Centralized, reasoned stop. Only stops when allowed.
