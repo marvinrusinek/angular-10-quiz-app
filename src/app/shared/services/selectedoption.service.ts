@@ -768,12 +768,11 @@ export class SelectedOptionService {
       const isAnswered = snapshot.some(option => this.coerceToBoolean(option.selected));
       this.isAnsweredSubject.next(isAnswered);
 
-      const totalCorrect = snapshot.filter(option => this.coerceToBoolean(option.correct)).length;
-      const selectedCorrect = snapshot.filter(
-        option => this.coerceToBoolean(option.correct) && this.coerceToBoolean(option.selected)
-      ).length;
-
-      const allCorrectAnswersSelected = totalCorrect > 0 && totalCorrect === selectedCorrect;
+      const canonicalOptions = this.resolveCanonicalOptionsFor(resolvedIndex);
+      const allCorrectAnswersSelected = this.determineIfAllCorrectAnswersSelected(
+        snapshot,
+        canonicalOptions
+      );
 
       if (allCorrectAnswersSelected && !this.stopTimerEmitted) {
         console.log('[updateAnsweredState] Stopping timer as all correct answers are selected.');
@@ -845,11 +844,18 @@ export class SelectedOptionService {
     normalizedOverrides.forEach((opt, idx) => recordSelection(opt, idx));
     mapSelections.forEach(opt => recordSelection(opt));
 
-    const baseOptions = canonicalOptions.length > 0
-      ? canonicalOptions
-      : normalizedOverrides.length > 0
-      ? normalizedOverrides
-      : mapSelections;
+    const subjectOptions = this.quizService.currentOptions?.getValue?.();
+    const dataOptions = Array.isArray(this.quizService.data?.currentOptions)
+      ? this.quizService.data.currentOptions
+      : [];
+
+    const baseOptions = [
+      canonicalOptions,
+      Array.isArray(subjectOptions) ? subjectOptions : [],
+      dataOptions,
+      normalizedOverrides,
+      mapSelections,
+    ].find(options => Array.isArray(options) && options.length > 0) || [];
 
     return baseOptions.map((option, idx) => {
       const overlay = overlaySelections.get(idx);
