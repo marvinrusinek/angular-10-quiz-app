@@ -3035,10 +3035,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // 2) Lock the entire group (no further changes after timeout)
     try {
-      const allIds = canonicalOpts
-        .map(o => Number(o.optionId))
-        .filter(Number.isFinite) as number[];
-      this.selectedOptionService.lockMany(i0, allIds);
+      this.selectedOptionService.lockMany(i0, stableIds);
     } catch {}
   
     // 2a) Announce completion to any listeners (progress, gating, etc.)
