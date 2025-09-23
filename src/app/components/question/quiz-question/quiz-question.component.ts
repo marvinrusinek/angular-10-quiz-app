@@ -3140,7 +3140,118 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
-  }    
+  }
+
+  private handleTimerStoppedForActiveQuestion(reason: 'timeout' | 'stopped'): void {
+    if (this._timerStoppedForQuestion) {
+      return;
+    }
+
+    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+    if (!Number.isFinite(i0) || !this.questions?.[i0]) {
+      return;
+    }
+
+    const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0);
+
+    this.applyLocksAndDisableForQuestion(i0, canonicalOpts, lockKeys, {
+      revealFeedback: reason === 'timeout'
+    });
+
+    if (reason !== 'timeout') {
+      try {
+        this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+      } catch {}
+    }
+
+    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
+  }
+
+  private collectLockContextForQuestion(i0: number): {
+    canonicalOpts: Option[];
+    lockKeys: Set<string | number>;
+  } {
+    const lockKeys = new Set<string | number>();
+
+    const addKeyVariant = (raw: unknown) => {
+      if (raw == null) return;
+
+      if (typeof raw === 'number') {
+        lockKeys.add(raw);
+        lockKeys.add(String(raw));
+        return;
+      }
+
+      const str = String(raw).trim();
+      if (!str) return;
+
+      const num = Number(str);
+      if (Number.isFinite(num)) {
+        lockKeys.add(num);
+      }
+
+      lockKeys.add(str);
+    };
+
+    const harvestOptionKeys = (opt?: Option, idx?: number) => {
+      if (!opt) return;
+
+      addKeyVariant(opt.optionId);
+      addKeyVariant(opt.value);
+
+      try {
+        const stable = this.selectionMessageService.stableKey(opt, idx);
+        addKeyVariant(stable);
+      } catch {}
+    };
+
+    const question = this.questions?.[i0];
+    const canonicalOpts: Option[] = (question?.options ?? []).map((o, idx) => {
+      harvestOptionKeys(o, idx);
+
+      const numericId = Number(o.optionId);
+
+      return {
+        ...o,
+        optionId: Number.isFinite(numericId) ? numericId : o.optionId,
+        selected: !!o.selected
+      } as Option;
+    });
+
+    (this.optionsToDisplay ?? []).forEach((opt, idx) => harvestOptionKeys(opt, idx));
+    (this.sharedOptionComponent?.optionBindings ?? []).forEach((binding, idx) =>
+      harvestOptionKeys(binding?.option, idx)
+    );
+
+    return { canonicalOpts, lockKeys };
+  }
+
+  private applyLocksAndDisableForQuestion(
+    i0: number,
+    canonicalOpts: Option[],
+    lockKeys: Set<string | number>,
+    options: { revealFeedback: boolean }
+  ): void {
+    if (options.revealFeedback) {
+      try { this.revealFeedbackForAllOptions(canonicalOpts); } catch {}
+    }
+
+    try { this.selectedOptionService.lockQuestion(i0); } catch {}
+
+    if (lockKeys.size) {
+      try {
+        this.selectedOptionService.lockMany(i0, Array.from(lockKeys));
+      } catch {}
+    }
+
+    try {
+      this.sharedOptionComponent?.forceDisableAllOptions?.();
+      this.sharedOptionComponent?.triggerViewRefresh?.();
+    } catch {}
+
+    this._timerStoppedForQuestion = true;
+  }
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
