@@ -3038,7 +3038,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // 2a) Announce completion to any listeners (progress, gating, etc.)
     try {
       this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
-      this.selectionMessageService.setSelectionMessage(true);
+
+      const anySelected = canonicalOpts.some(opt => !!opt?.selected);
+      if (!anySelected) {
+        const total = this.totalQuestions ?? this.quizService?.totalQuestions ?? 0;
+        const isLastQuestion = total > 0 && i0 === total - 1;
+        this.selectionMessageService.forceNextButtonMessage(i0, {
+          isLastQuestion,
+        });
+      } else {
+        this.selectionMessageService.setSelectionMessage(true);
+      }
     } catch {}
   
     // 2b) Show explanation immediately

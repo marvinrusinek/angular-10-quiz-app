@@ -337,6 +337,22 @@ export class SelectionMessageService {
     this._pendingMsgTokens.set(index, -1);
   }
 
+  /**
+   * Forces the selection message to promote the Next/Show Results prompt. Used when
+   * progression is allowed without an explicit selection (e.g., timer expiry).
+   */
+   public forceNextButtonMessage(index: number, opts: { isLastQuestion?: boolean } = {}): void {
+    if (index == null || index < 0) return;
+
+    const total = this.quizService?.totalQuestions ?? this.quizService?.questions?.length ?? 0;
+    const isLast = opts.isLastQuestion ?? (total > 0 && index === total - 1);
+    const nextMsg = isLast ? SHOW_RESULTS_MSG : NEXT_BTN_MSG;
+
+    this._baselineReleased.add(index);
+    this._lastMessageByIndex.set(index, nextMsg);
+    this.pushMessage(nextMsg, index);
+  }
+
   public enforceBaselineAtInit(i0: number, qType: QuestionType, totalCorrect: number): void {
     // Only enforce if baseline not already released by a click
     if (!this._baselineReleased.has(i0)) {
