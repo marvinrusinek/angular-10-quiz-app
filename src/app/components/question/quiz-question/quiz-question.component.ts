@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, C
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap, timeout } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, skip, switchMap, take, takeUntil, tap, timeout } from 'rxjs/operators';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 
@@ -532,6 +532,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.timerService.expired$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.onQuestionTimedOut());
+
+    this.timerService.stop$
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe(() => {
+        const shouldForceDisable =
+          this.timedOut ||
+          !this.questionFresh ||
+          this.timerService.isTimerStoppedForCurrentQuestion ||
+          this.selectedOptionService.stopTimerEmitted;
+
+        if (!shouldForceDisable) {
+          return;
+        }
+
+        try {
+          this.sharedOptionComponent?.forceDisableAllOptions?.();
+          this.sharedOptionComponent?.triggerViewRefresh?.();
+        } catch {}
+      });
 
     try {
       // Call the parent class's ngOnInit method
