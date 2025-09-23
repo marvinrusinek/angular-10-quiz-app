@@ -46,10 +46,10 @@ import { AnswerComponent } from '../../../components/question/answer/answer-comp
 type FeedbackKey = number | string;
 
 export interface FeedbackConfig {
-  showFeedback: boolean;
-  icon?: string;
-  isCorrect?: boolean;
-  text?: string;  // optional message
+  showFeedback: boolean,
+  icon?: string,
+  isCorrect?: boolean,
+  text?: string  // optional message
 }
 
 @Component({
