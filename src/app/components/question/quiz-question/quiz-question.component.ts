@@ -3020,12 +3020,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Build canonical snapshot
     const stableIds: Array<string | number> = [];
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
-      const stableId = (o.optionId ?? getStableId(o, idx)) as string | number;
-      stableIds.push(stableId);
-
+      const stableKey = getStableId(o, idx);
+  
+      // Store both numeric + string representations so every lock check resolves.
+      const numericId = Number(o.optionId);
+      if (Number.isFinite(numericId)) {
+        stableIds.push(numericId);
+        stableIds.push(String(numericId));
+      } else if (stableKey) {
+        stableIds.push(stableKey);
+      }
+  
       return {
         ...o,
-        optionId: typeof stableId === 'number' ? stableId : o.optionId,
+        optionId: Number.isFinite(numericId) ? numericId : o.optionId,
         selected: !!o.selected
       } as Option;
     });
@@ -3041,7 +3049,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // 2a) Announce completion to any listeners (progress, gating, etc.)
     try {
       this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
-
+  
       const anySelected = canonicalOpts.some(opt => !!opt?.selected);
       if (!anySelected) {
         const total = this.totalQuestions ?? this.quizService?.totalQuestions ?? 0;
