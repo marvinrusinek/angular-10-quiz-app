@@ -3013,12 +3013,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  private onQuestionTimedOut(): void {
+  private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
     if (this.timedOut) return;
     this.timedOut = true;
-  
-    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+
+    const activeIndex = targetIndex ?? this.currentQuestionIndex ?? 0;
+    const i0 = this.normalizeIndex(activeIndex);
     const q  = this.questions[i0];
     if (!q) return;
   
