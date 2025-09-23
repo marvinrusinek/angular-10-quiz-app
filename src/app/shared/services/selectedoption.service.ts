@@ -1413,7 +1413,13 @@ export class SelectedOptionService {
       Array.isArray(optionsSnapshot) ? optionsSnapshot : []
     );
 
-    return this.evaluateAllCorrectSelections(snapshot);
+    const canonicalOptions = this.resolveCanonicalOptionsFor(questionIndex);
+
+    return this.determineIfAllCorrectAnswersSelected(
+      questionIndex,
+      snapshot,
+      canonicalOptions
+    );
   }
 
   private evaluateAllCorrectSelections(snapshot: Option[]): boolean {
