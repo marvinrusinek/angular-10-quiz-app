@@ -2421,6 +2421,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         opt.active = true;
       }
     });
+    try {
+      const qIndex =
+        typeof this.currentQuestionIndex === 'number'
+          ? this.currentQuestionIndex
+          : this.quizService?.getCurrentQuestionIndex?.();
+      if (typeof qIndex === 'number') {
+        this.selectedOptionService.unlockQuestion(qIndex);
+      }
+    } catch {}
     this.cdRef.markForCheck();
   }
 
