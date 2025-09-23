@@ -3072,7 +3072,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // 2) Lock the entire group (no further changes after timeout)
     try {
+      this.selectedOptionService.lockQuestion(i0);
       this.selectedOptionService.lockMany(i0, Array.from(lockKeys));
+    } catch {}
+  
+    // Immediately reflect the disabled state in the rendered bindings
+    try {
+      this.sharedOptionComponent?.forceDisableAllOptions?.();
+      this.sharedOptionComponent?.triggerViewRefresh?.();
     } catch {}
   
     // 2a) Announce completion to any listeners (progress, gating, etc.)
@@ -3116,7 +3123,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
-  }  
+  }    
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
@@ -5744,6 +5751,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ── 1) Unlock & clear per-question selection/locks ─────────
     this.selectedOptionService.resetLocksForQuestion(i0);
     this.selectedOptionService.clearSelectionsForQuestion(i0);
+    this.sharedOptionComponent?.clearForceDisableAllOptions?.();
 
     // ── 2) Reset disable/feedback maps ─────────────────────────
     this.flashDisabledSet?.clear?.();
