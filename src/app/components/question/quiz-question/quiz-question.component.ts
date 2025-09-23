@@ -531,7 +531,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.timerService.expired$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.onQuestionTimedOut());
+      .subscribe(() => {
+        const idx = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+        this.onQuestionTimedOut(idx);
+      });
 
     this.timerService.stop$
       .pipe(skip(1), takeUntil(this.destroy$))
