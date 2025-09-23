@@ -3018,11 +3018,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectionMessageService.stableKey(o, idx);
   
     // Build canonical snapshot
-    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => ({
-      ...o,
-      optionId: Number(o.optionId ?? getStableId(o, idx)),
-      selected: !!o.selected
-    }));
+    const stableIds: Array<string | number> = [];
+    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
+      const stableId = (o.optionId ?? getStableId(o, idx)) as string | number;
+      stableIds.push(stableId);
+
+      return {
+        ...o,
+        optionId: typeof stableId === 'number' ? stableId : o.optionId,
+        selected: !!o.selected
+      } as Option;
+    });
   
     // 1) Reveal feedback for ALL options so ✔/✖ show
     try { this.revealFeedbackForAllOptions(canonicalOpts); } catch {}
