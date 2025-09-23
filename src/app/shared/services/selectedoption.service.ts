@@ -39,6 +39,7 @@ export class SelectedOptionService {
 
   currentQuestionType: QuestionType | null = null;
   private _lockedByQuestion = new Map<number, Set<string | number>>();
+  private _questionLocks = new Set<number>()
 
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
@@ -1523,8 +1524,23 @@ export class SelectedOptionService {
     optIds.forEach(id => set!.add(id));
   }
 
+  lockQuestion(qIndex: number): void {
+    if (Number.isFinite(qIndex)) {
+      this._questionLocks.add(qIndex);
+    }
+  }
+
+  unlockQuestion(qIndex: number): void {
+    this._questionLocks.delete(qIndex);
+  }
+
+  isQuestionLocked(qIndex: number): boolean {
+    return this._questionLocks.has(qIndex);
+  }
+
   resetLocksForQuestion(qIndex: number): void {
     this._lockedByQuestion.delete(qIndex);
+    this._questionLocks.delete(qIndex);
   }
 
   // --- shared identity helpers ---
