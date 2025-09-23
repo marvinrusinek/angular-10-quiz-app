@@ -1445,47 +1445,6 @@ export class SelectedOptionService {
     return totalCorrect > 0 && selectedCorrect === totalCorrect;
   }
 
-  private collectSelectedOptionIndexes(
-    questionIndex: number,
-    options: Option[]
-  ): Set<number> | null {
-    const indexes = new Set<number>();
-    const mapSelections = this.selectedOptionsMap.get(questionIndex) ?? [];
-
-    for (const selection of mapSelections) {
-      if (!selection) {
-        continue;
-      }
-
-      if (
-        selection.selected !== undefined &&
-        !this.coerceToBoolean(selection.selected)
-      ) {
-        continue;
-      }
-
-      const resolvedIndex = this.resolveOptionIndexFromSelection(
-        options,
-        selection
-      );
-
-      if (resolvedIndex === null) {
-        console.warn('[collectSelectedOptionIndexes] Unable to resolve index for selection.', selection);
-        return null;
-      }
-
-      indexes.add(resolvedIndex);
-    }
-
-    options.forEach((option, idx) => {
-      if (this.coerceToBoolean(option?.selected)) {
-        indexes.add(idx);
-      }
-    });
-
-    return indexes;
-  }
-
   private normalizeStr(x: unknown): string {
     return typeof x === 'string'
       ? x.trim().toLowerCase().replace(/\s+/g, ' ')
