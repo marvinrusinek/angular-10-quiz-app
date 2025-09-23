@@ -3181,6 +3181,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.sharedOptionComponent?.triggerViewRefresh?.();
     } catch {}
 
+    try {
+      // Update local bindings and option snapshots so any direct consumers
+      // within this component also respect the disabled state even if the
+      // child component has not yet processed the disable broadcast.
+      this.optionBindings = (this.optionBindings ?? []).map(binding => {
+        const updated = {
+          ...binding,
+          disabled: true,
+        } as OptionBindings;
+
+        if (updated.option) {
+          updated.option = {
+            ...updated.option,
+            active: false,
+          } as Option;
+        }
+
+        return updated;
+      });
+
+      this.optionsToDisplay = (this.optionsToDisplay ?? []).map(option => ({
+        ...option,
+        active: false,
+      }));
+    } catch {}
+
     this._timerStoppedForQuestion = true;
   }
   
