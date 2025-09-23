@@ -536,18 +536,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.timerService.stop$
       .pipe(skip(1), takeUntil(this.destroy$))
       .subscribe(() => {
-        const shouldForceDisable =
-          this.timedOut ||
-          !this.questionFresh ||
-          this.timerService.isTimerStoppedForCurrentQuestion ||
-          this.selectedOptionService.stopTimerEmitted;
-
-        if (!shouldForceDisable) {
-          return;
-        }
-
-        const reason = this.timedOut ? 'timeout' : 'stopped';
-        this.handleTimerStoppedForActiveQuestion(reason);
+        queueMicrotask(() => {
+          const reason = this.timedOut ? 'timeout' : 'stopped';
+          this.handleTimerStoppedForActiveQuestion(reason);
+        });
       });
 
     try {
