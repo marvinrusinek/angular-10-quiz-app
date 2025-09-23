@@ -6000,9 +6000,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Always return a 0-based index that exists in `this.questions`
   private normalizeIndex(idx: number): number {
-    if (this.questions?.[idx] != null) return idx;  // already 0-based
-    if (this.questions?.[idx - 1] != null) return idx - 1;  // 1-based → 0-based
-    return 0;
+    if (!Number.isFinite(idx)) {
+      return 0;
+    }
+
+    const normalized = Math.trunc(idx);
+
+    if (!this.questions || this.questions.length === 0) {
+      return normalized >= 0 ? normalized : 0;
+    }
+
+    if (this.questions[normalized] != null) {
+      return normalized;
+    }
+
+    const potentialOneBased = normalized - 1;
+    const looksOneBased =
+      normalized === potentialOneBased + 1 &&
+      potentialOneBased >= 0 &&
+      potentialOneBased < this.questions.length &&
+      this.questions[potentialOneBased] != null;
+
+    if (looksOneBased) {
+      return potentialOneBased;
+    }
+
+    return Math.min(Math.max(normalized, 0), this.questions.length - 1);
   }
 
   private async resolveFormatted(
