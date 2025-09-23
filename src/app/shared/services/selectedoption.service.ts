@@ -954,7 +954,7 @@ export class SelectedOptionService {
   ): Set<number> {
     const ids = new Set<number>();
 
-    canonicalOptions.forEach((option, idx) => {
+    const recordFromOption = (option: Option, idx?: number): void => {
       if (!this.coerceToBoolean(option?.correct)) {
         return;
       }
@@ -968,11 +968,9 @@ export class SelectedOptionService {
       if (canonicalId !== null) {
         ids.add(canonicalId);
       }
-    });
+    };
 
-    if (ids.size > 0) {
-      return ids;
-    }
+    canonicalOptions.forEach((option, idx) => recordFromOption(option, idx));
 
     const questionText = this.resolveQuestionText(questionIndex);
     const mappedAnswers = questionText
@@ -992,10 +990,6 @@ export class SelectedOptionService {
       });
     }
 
-    if (ids.size > 0) {
-      return ids;
-    }
-
     const candidateOptionSets: Array<Option[] | undefined | null> = [
       this.quizService.selectedQuiz?.questions?.[questionIndex]?.options,
       this.quizService.activeQuiz?.questions?.[questionIndex]?.options,
@@ -1007,27 +1001,7 @@ export class SelectedOptionService {
     for (const options of candidateOptionSets) {
       const normalized = Array.isArray(options) ? options.filter(Boolean) : [];
 
-      for (let idx = 0; idx < normalized.length; idx++) {
-        const option = normalized[idx];
-
-        if (!this.coerceToBoolean(option?.correct)) {
-          continue;
-        }
-
-        const canonicalId = this.resolveCanonicalOptionId(
-          questionIndex,
-          option?.optionId,
-          idx
-        );
-
-        if (canonicalId !== null) {
-          ids.add(canonicalId);
-        }
-      }
-
-      if (ids.size > 0) {
-        break;
-      }
+      normalized.forEach((option, idx) => recordFromOption(option, idx));
     }
 
     return ids;
@@ -1104,14 +1078,16 @@ export class SelectedOptionService {
   }
 
   private resolveExpectedCorrectAnswerCount(questionIndex: number): number {
+    let maxCorrectCount = 0;
+
     const questionText = this.resolveQuestionText(questionIndex);
 
     if (questionText) {
       const trimmedText = questionText.trim();
       const mappedAnswers = this.quizService.correctAnswers?.get(trimmedText);
 
-      if (Array.isArray(mappedAnswers) && mappedAnswers.length > 0) {
-        return mappedAnswers.length;
+      if (Array.isArray(mappedAnswers)) {
+        maxCorrectCount = Math.max(maxCorrectCount, mappedAnswers.length);
       }
     }
 
@@ -1138,11 +1114,11 @@ export class SelectedOptionService {
       );
 
       if (correctCount > 0) {
-        return correctCount;
+        maxCorrectCount = Math.max(maxCorrectCount, correctCount);
       }
     }
 
-    return 0;
+    return maxCorrectCount;
   }
 
   private resolveQuestionText(questionIndex: number): string | null {
