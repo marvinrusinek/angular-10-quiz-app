@@ -3017,12 +3017,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const getStableId = (o: Option, idx?: number) =>
       this.selectionMessageService.stableKey(o, idx);
   
-    // ───────────────────────────────────────────────────────────────
-    // Build canonical snapshot and collect robust lock keys
-    // (numeric + string variants, plus from rendered projections/bindings)
-    // ───────────────────────────────────────────────────────────────
     const lockKeys = new Set<string | number>();
-  
     const addKeyVariant = (raw: unknown) => {
       if (raw == null) return;
   
@@ -3039,20 +3034,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       if (Number.isFinite(num)) {
         lockKeys.add(num);
       }
+  
       lockKeys.add(str);
     };
   
     const harvestOptionKeys = (opt?: Option, idx?: number) => {
       if (!opt) return;
+  
       addKeyVariant(opt.optionId);
-      addKeyVariant((opt as any)?.value);
+      addKeyVariant(opt.value);
+  
       const stable = getStableId(opt, idx);
       addKeyVariant(stable);
     };
   
+    // Build canonical snapshot and collect lock keys from the canonical options
     const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
       harvestOptionKeys(o, idx);
+  
       const numericId = Number(o.optionId);
+  
       return {
         ...o,
         optionId: Number.isFinite(numericId) ? numericId : o.optionId,
@@ -3115,7 +3116,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
-  }
+  }  
   
   // Updates the highlighting and feedback icons for options after a click
   private updateOptionHighlighting(selectedKeys: Set<string | number>): void {
