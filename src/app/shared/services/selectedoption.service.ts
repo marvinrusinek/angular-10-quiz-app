@@ -899,22 +899,33 @@ export class SelectedOptionService {
     snapshot: Option[],
     canonicalOptions: Option[]
   ): boolean {
-    const correctIndexes = this.collectCorrectOptionIndexes(canonicalOptions);
+    const correctOptionIds = this.collectCorrectOptionIds(
+      questionIndex,
+      canonicalOptions
+    );
 
-    if (correctIndexes.size > 0) {
-      const canonicalWithSelections = this.overlaySnapshotOntoCanonicalOptions(
-        canonicalOptions,
-        snapshot
-      );
+    const selectedOptionIds = this.collectSelectedOptionIds(
+      questionIndex,
+      canonicalOptions,
+      snapshot
+    );
 
-      const selectedCorrectIndexes = this.collectSelectedCorrectOptionIndexes(
-        canonicalWithSelections
-      );
+    if (correctOptionIds.size > 0) {
+      if (selectedOptionIds.size === 0) {
+        return false;
+      }
+
+      let selectedCorrectCount = 0;
+
+      selectedOptionIds.forEach(id => {
+        if (correctOptionIds.has(id)) {
+          selectedCorrectCount++;
+        }
+      });
 
       return (
-        correctIndexes.size > 0 &&
-        selectedCorrectIndexes.size > 0 &&
-        correctIndexes.size === selectedCorrectIndexes.size
+        selectedCorrectCount > 0 &&
+        selectedCorrectCount === correctOptionIds.size
       );
     }
 
@@ -934,6 +945,161 @@ export class SelectedOptionService {
     }
 
     return this.evaluateAllCorrectSelections(snapshot);
+  }
+
+  private collectCorrectOptionIds(
+    questionIndex: number,
+    canonicalOptions: Option[]
+  ): Set<number> {
+    const ids = new Set<number>();
+
+    canonicalOptions.forEach((option, idx) => {
+      if (!this.coerceToBoolean(option?.correct)) {
+        return;
+      }
+
+      const canonicalId = this.resolveCanonicalOptionId(
+        questionIndex,
+        option?.optionId,
+        idx
+      );
+
+      if (canonicalId !== null) {
+        ids.add(canonicalId);
+      }
+    });
+
+    if (ids.size > 0) {
+      return ids;
+    }
+
+    const questionText = this.resolveQuestionText(questionIndex);
+    const mappedAnswers = questionText
+      ? this.quizService.correctAnswers?.get(questionText)
+      : undefined;
+
+    if (Array.isArray(mappedAnswers)) {
+      mappedAnswers.forEach(rawId => {
+        const canonicalId = this.resolveCanonicalOptionId(
+          questionIndex,
+          rawId
+        );
+
+        if (canonicalId !== null) {
+          ids.add(canonicalId);
+        }
+      });
+    }
+
+    if (ids.size > 0) {
+      return ids;
+    }
+
+    const candidateOptionSets: Array<Option[] | undefined | null> = [
+      this.quizService.selectedQuiz?.questions?.[questionIndex]?.options,
+      this.quizService.activeQuiz?.questions?.[questionIndex]?.options,
+      this.quizService.correctOptions,
+      this.quizService.currentOptions?.getValue?.(),
+      this.quizService.data?.currentOptions,
+    ];
+
+    for (const options of candidateOptionSets) {
+      const normalized = Array.isArray(options) ? options.filter(Boolean) : [];
+
+      for (let idx = 0; idx < normalized.length; idx++) {
+        const option = normalized[idx];
+
+        if (!this.coerceToBoolean(option?.correct)) {
+          continue;
+        }
+
+        const canonicalId = this.resolveCanonicalOptionId(
+          questionIndex,
+          option?.optionId,
+          idx
+        );
+
+        if (canonicalId !== null) {
+          ids.add(canonicalId);
+        }
+      }
+
+      if (ids.size > 0) {
+        break;
+      }
+    }
+
+    return ids;
+  }
+
+  private collectSelectedOptionIds(
+    questionIndex: number,
+    canonicalOptions: Option[],
+    snapshot: Option[]
+  ): Set<number> {
+    const ids = new Set<number>();
+    const selections = this.selectedOptionsMap.get(questionIndex) || [];
+
+    selections.forEach((selection, idx) => {
+      if (!selection) {
+        return;
+      }
+
+      const canonicalId = this.resolveCanonicalOptionId(
+        questionIndex,
+        selection.optionId,
+        idx
+      );
+
+      if (canonicalId !== null) {
+        ids.add(canonicalId);
+      }
+    });
+
+    if (Array.isArray(snapshot) && snapshot.length > 0) {
+      snapshot.forEach((option, idx) => {
+        if (!this.coerceToBoolean(option?.selected)) {
+          return;
+        }
+
+        const canonicalId = this.resolveCanonicalOptionId(
+          questionIndex,
+          option?.optionId,
+          idx
+        );
+
+        if (canonicalId !== null) {
+          ids.add(canonicalId);
+        }
+      });
+    }
+
+    if (ids.size > 0 || canonicalOptions.length === 0) {
+      return ids;
+    }
+
+    const canonicalWithSelections = this.overlaySnapshotOntoCanonicalOptions(
+      canonicalOptions,
+      snapshot
+    );
+
+    canonicalWithSelections.forEach((option, idx) => {
+      if (!this.coerceToBoolean(option?.selected)) {
+        return;
+      }
+
+      const canonicalId = this.resolveCanonicalOptionId(
+        questionIndex,
+        option?.optionId,
+        idx
+      );
+
+      if (canonicalId !== null) {
+        ids.add(canonicalId);
+      }
+    });
+
+    return ids;
   }
 
   private resolveExpectedCorrectAnswerCount(questionIndex: number): number {
