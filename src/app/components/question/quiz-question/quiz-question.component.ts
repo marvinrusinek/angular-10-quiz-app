@@ -3022,74 +3022,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const q  = this.questions[i0];
     if (!q) return;
   
-    // Helper you already use elsewhere
-    const getStableId = (o: Option, idx?: number) =>
-      this.selectionMessageService.stableKey(o, idx);
+    // Collect canonical snapshot + robust lock keys
+    const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0);
   
-    const lockKeys = new Set<string | number>();
-    const addKeyVariant = (raw: unknown) => {
-      if (raw == null) return;
-  
-      if (typeof raw === 'number') {
-        lockKeys.add(raw);
-        lockKeys.add(String(raw));
-        return;
-      }
-  
-      const str = String(raw).trim();
-      if (!str) return;
-  
-      const num = Number(str);
-      if (Number.isFinite(num)) {
-        lockKeys.add(num);
-      }
-  
-      lockKeys.add(str);
-    };
-  
-    const harvestOptionKeys = (opt?: Option, idx?: number) => {
-      if (!opt) return;
-  
-      addKeyVariant(opt.optionId);
-      addKeyVariant(opt.value);
-  
-      const stable = getStableId(opt, idx);
-      addKeyVariant(stable);
-    };
-  
-    // Build canonical snapshot and collect lock keys from the canonical options
-    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
-      harvestOptionKeys(o, idx);
-  
-      const numericId = Number(o.optionId);
-  
-      return {
-        ...o,
-        optionId: Number.isFinite(numericId) ? numericId : o.optionId,
-        selected: !!o.selected
-      } as Option;
+    // 1) Reveal feedback, lock, and disable options now that the timer has ended
+    this.applyLocksAndDisableForQuestion(i0, canonicalOpts, lockKeys, {
+      revealFeedback: true
     });
-  
-    // Collect lock keys from the rendered options as well (covers reshuffles / projections)
-    (this.optionsToDisplay ?? []).forEach((opt, idx) => harvestOptionKeys(opt, idx));
-    (this.sharedOptionComponent?.optionBindings ?? []).forEach((binding, idx) =>
-      harvestOptionKeys(binding?.option, idx)
-    );
-  
-    // 1) Reveal feedback for ALL options so ✔/✖ show
-    try { this.revealFeedbackForAllOptions(canonicalOpts); } catch {}
-  
-    // 2) Lock the entire group (no further changes after timeout)
-    try {
-      this.selectedOptionService.lockQuestion(i0);
-      this.selectedOptionService.lockMany(i0, Array.from(lockKeys));
-    } catch {}
-  
-    // Immediately reflect the disabled state in the rendered bindings
-    try {
-      this.sharedOptionComponent?.forceDisableAllOptions?.();
-      this.sharedOptionComponent?.triggerViewRefresh?.();
-    } catch {}
   
     // 2a) Announce completion to any listeners (progress, gating, etc.)
     try {
@@ -3132,7 +3071,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Render
     this.cdRef.markForCheck();
     this.cdRef.detectChanges();
-  }
+  }  
 
   private handleTimerStoppedForActiveQuestion(reason: 'timeout' | 'stopped'): void {
     if (this._timerStoppedForQuestion) {
