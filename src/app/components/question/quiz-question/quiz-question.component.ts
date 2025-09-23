@@ -3017,20 +3017,42 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const getStableId = (o: Option, idx?: number) =>
       this.selectionMessageService.stableKey(o, idx);
   
-    // Build canonical snapshot
-    const stableIds: Array<string | number> = [];
-    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
-      const stableKey = getStableId(o, idx);
+    // ───────────────────────────────────────────────────────────────
+    // Build canonical snapshot and collect robust lock keys
+    // (numeric + string variants, plus from rendered projections/bindings)
+    // ───────────────────────────────────────────────────────────────
+    const lockKeys = new Set<string | number>();
   
-      // Store both numeric + string representations so every lock check resolves.
-      const numericId = Number(o.optionId);
-      if (Number.isFinite(numericId)) {
-        stableIds.push(numericId);
-        stableIds.push(String(numericId));
-      } else if (stableKey) {
-        stableIds.push(stableKey);
+    const addKeyVariant = (raw: unknown) => {
+      if (raw == null) return;
+  
+      if (typeof raw === 'number') {
+        lockKeys.add(raw);
+        lockKeys.add(String(raw));
+        return;
       }
   
+      const str = String(raw).trim();
+      if (!str) return;
+  
+      const num = Number(str);
+      if (Number.isFinite(num)) {
+        lockKeys.add(num);
+      }
+      lockKeys.add(str);
+    };
+  
+    const harvestOptionKeys = (opt?: Option, idx?: number) => {
+      if (!opt) return;
+      addKeyVariant(opt.optionId);
+      addKeyVariant((opt as any)?.value);
+      const stable = getStableId(opt, idx);
+      addKeyVariant(stable);
+    };
+  
+    const canonicalOpts: Option[] = (q.options ?? []).map((o, idx) => {
+      harvestOptionKeys(o, idx);
+      const numericId = Number(o.optionId);
       return {
         ...o,
         optionId: Number.isFinite(numericId) ? numericId : o.optionId,
@@ -3038,12 +3060,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } as Option;
     });
   
+    // Collect lock keys from the rendered options as well (covers reshuffles / projections)
+    (this.optionsToDisplay ?? []).forEach((opt, idx) => harvestOptionKeys(opt, idx));
+    (this.sharedOptionComponent?.optionBindings ?? []).forEach((binding, idx) =>
+      harvestOptionKeys(binding?.option, idx)
+    );
+  
     // 1) Reveal feedback for ALL options so ✔/✖ show
     try { this.revealFeedbackForAllOptions(canonicalOpts); } catch {}
   
     // 2) Lock the entire group (no further changes after timeout)
     try {
-      this.selectedOptionService.lockMany(i0, stableIds);
+      this.selectedOptionService.lockMany(i0, Array.from(lockKeys));
     } catch {}
   
     // 2a) Announce completion to any listeners (progress, gating, etc.)
