@@ -861,6 +861,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const qIndex = this.currentQuestionIndex ?? 0;
 
     if (this.forceDisableAll) return true;
+
+    try {
+      if (this.selectedOptionService.isQuestionLocked(qIndex)) {
+        return true;
+      }
+    } catch {}
     if (binding.disabled) return true;
 
     // ── Derived "fresh" guard: enable everything until the first real selection exists ──
