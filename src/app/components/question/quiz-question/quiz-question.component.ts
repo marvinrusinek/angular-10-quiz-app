@@ -3105,7 +3105,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.detectChanges();
   }
 
-  private collectLockContextForQuestion(i0: number): {
+  private collectLockContextForQuestion(
+    i0: number,
+    context: { question?: QuizQuestion | null; fallbackOptions?: Option[] | null } = {}
+  ): {
     canonicalOpts: Option[];
     lockKeys: Set<string | number>;
   } {
@@ -3143,8 +3146,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch {}
     };
 
-    const question = this.questions?.[i0];
-    const canonicalOpts: Option[] = (question?.options ?? []).map((o, idx) => {
+    const resolvedQuestion =
+      context.question ??
+      this.questions?.[i0] ??
+      (this.currentQuestionIndex === i0 ? this.currentQuestion : undefined);
+
+    const baseOptions = (() => {
+      if (Array.isArray(resolvedQuestion?.options) && resolvedQuestion.options.length) {
+        return resolvedQuestion.options;
+      }
+      if (Array.isArray(context.fallbackOptions) && context.fallbackOptions.length) {
+        return context.fallbackOptions;
+      }
+      if (Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.length) {
+        return this.optionsToDisplay;
+      }
+      return [] as Option[];
+    })();
+
+    let canonicalOpts: Option[] = baseOptions.map((o, idx) => {
       harvestOptionKeys(o, idx);
 
       const numericId = Number(o.optionId);
@@ -3155,6 +3175,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selected: !!o.selected
       } as Option;
     });
+
+    if (!canonicalOpts.length && Array.isArray(this.sharedOptionComponent?.optionBindings)) {
+      canonicalOpts = this.sharedOptionComponent.optionBindings
+        .map((binding, idx) => {
+          const opt = binding?.option;
+          if (!opt) return undefined;
+          harvestOptionKeys(opt, idx);
+          const numericId = Number(opt.optionId);
+          return {
+            ...opt,
+            optionId: Number.isFinite(numericId) ? numericId : opt.optionId,
+            selected: !!opt.selected
+          } as Option;
+        })
+        .filter((opt): opt is Option => !!opt);
+    }
 
     (this.optionsToDisplay ?? []).forEach((opt, idx) => harvestOptionKeys(opt, idx));
     (this.sharedOptionComponent?.optionBindings ?? []).forEach((binding, idx) =>
