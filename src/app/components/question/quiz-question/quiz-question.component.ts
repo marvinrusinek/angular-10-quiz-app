@@ -3020,12 +3020,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const activeIndex = targetIndex ?? this.currentQuestionIndex ?? 0;
     const i0 = this.normalizeIndex(activeIndex);
-    const q  = this.questions[i0];
-    if (!q) return;
-  
+    const q  =
+      this.questions?.[i0] ??
+      (this.currentQuestionIndex === i0 ? this.currentQuestion : undefined);
+
     // Collect canonical snapshot + robust lock keys
-    const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0);
-  
+    const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0, {
+      question: q,
+      fallbackOptions: this.optionsToDisplay,
+    });
+
     // 1) Reveal feedback, lock, and disable options now that the timer has ended
     this.applyLocksAndDisableForQuestion(i0, canonicalOpts, lockKeys, {
       revealFeedback: true
