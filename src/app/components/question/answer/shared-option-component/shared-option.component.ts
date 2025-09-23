@@ -129,6 +129,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private allCorrectSelectedForLock = false;
   private allCorrectPersistedForLock = false;
   private resolvedTypeForLock: QuestionType = QuestionType.SingleAnswer;
+  private forceDisableAll = false;
 
   onDestroy$ = new Subject<void>();
 
@@ -854,11 +855,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   // Decide if an option should be disabled
   public shouldDisableOption(binding: OptionBindings): boolean {
     if (!binding || !binding.option) return false;
-  
+
     const option = binding.option;
     const optionId = option.optionId;
     const qIndex = this.currentQuestionIndex ?? 0;
-  
+
+    if (this.forceDisableAll) return true;
+    if (binding.disabled) return true;
+
     // ── Derived "fresh" guard: enable everything until the first real selection exists ──
     // Checks both persisted selections and local bindings to avoid timing glitches.
     const persistedSel =
