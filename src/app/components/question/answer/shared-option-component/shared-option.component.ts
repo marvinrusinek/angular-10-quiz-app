@@ -1862,6 +1862,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.lockedIncorrectOptionIds.clear();
     this.updateHighlighting();
     this.forceDisableAll = false;
+    try {
+      const qIndex =
+        typeof this.currentQuestionIndex === 'number'
+          ? this.currentQuestionIndex
+          : this.quizService?.getCurrentQuestionIndex?.();
+      if (typeof qIndex === 'number') {
+        this.selectedOptionService.unlockQuestion(qIndex);
+      }
+    } catch {}
   }
 
   public resetUIForNewQuestion(): void {
