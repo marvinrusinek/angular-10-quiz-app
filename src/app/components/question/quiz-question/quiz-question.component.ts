@@ -3033,7 +3033,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // 2a) Announce completion to any listeners (progress, gating, etc.)
     try {
-      this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
+      this.selectionMessageService.releaseBaseline(activeIndex);
   
       const anySelected = canonicalOpts.some(opt => !!opt?.selected);
       if (!anySelected) {
@@ -5907,7 +5907,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const i0 = this.normalizeIndex(index);
     if (this.handledOnExpiry.has(i0)) return;
     this.handledOnExpiry.add(i0);
-  
+
+    // Ensure the active question locks immediately when time runs out,
+    // even if the timer service's expired$ signal is delayed.
+    this.onQuestionTimedOut(i0);
+
     // Flip into explanation mode and enable Next immediately
     this.ngZone.run(() => {
       this.timerService.stopTimer(undefined, { force: true });
