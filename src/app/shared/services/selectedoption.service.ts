@@ -910,41 +910,42 @@ export class SelectedOptionService {
       snapshot
     );
 
-    if (correctOptionIds.size > 0) {
-      if (selectedOptionIds.size === 0) {
-        return false;
-      }
+    const expectedCorrectAnswerCount = this.resolveExpectedCorrectAnswerCount(
+      questionIndex
+    );
 
-      let selectedCorrectCount = 0;
+    const totalCorrectRequired = Math.max(
+      correctOptionIds.size,
+      expectedCorrectAnswerCount
+    );
 
+    if (totalCorrectRequired === 0) {
+      return this.evaluateAllCorrectSelections(snapshot);
+    }
+
+    let selectedCorrectCount = 0;
+
+    if (correctOptionIds.size > 0 && selectedOptionIds.size > 0) {
       selectedOptionIds.forEach(id => {
         if (correctOptionIds.has(id)) {
           selectedCorrectCount++;
         }
       });
-
-      return (
-        selectedCorrectCount > 0 &&
-        selectedCorrectCount === correctOptionIds.size
-      );
     }
 
-    const expectedCorrectAnswerCount = this.resolveExpectedCorrectAnswerCount(
-      questionIndex
+    const selectedCorrectIndexes = this.collectSelectedCorrectOptionIndexes(
+      snapshot
     );
 
-    if (expectedCorrectAnswerCount > 0) {
-      const selectedCorrectIndexes = this.collectSelectedCorrectOptionIndexes(
-        snapshot
-      );
+    selectedCorrectCount = Math.max(
+      selectedCorrectCount,
+      selectedCorrectIndexes.size
+    );
 
-      return (
-        selectedCorrectIndexes.size > 0 &&
-        selectedCorrectIndexes.size === expectedCorrectAnswerCount
-      );
-    }
-
-    return this.evaluateAllCorrectSelections(snapshot);
+    return (
+      selectedCorrectCount > 0 &&
+      selectedCorrectCount === totalCorrectRequired
+    );
   }
 
   private collectCorrectOptionIds(
