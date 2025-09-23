@@ -47,9 +47,9 @@ type FeedbackKey = number | string;
 
 export interface FeedbackConfig {
   showFeedback: boolean;
-  icon?: string;      // 'check_circle' | 'cancel' | etc.
+  icon?: string;
   isCorrect?: boolean;
-  text?: string;      // optional message
+  text?: string;  // optional message
 }
 
 @Component({
