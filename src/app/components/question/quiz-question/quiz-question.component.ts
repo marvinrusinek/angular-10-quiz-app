@@ -5883,6 +5883,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOptionService.clearSelectionsForQuestion(i0);
     this.sharedOptionComponent?.clearForceDisableAllOptions?.();
 
+    // Ensure any previous expiry guards are cleared for this question
+    this.handledOnExpiry.delete(i0);
+    this.timerService.resetTimerFlagsFor?.(i0);
+
     // ── 2) Reset disable/feedback maps ─────────────────────────
     this.flashDisabledSet?.clear?.();
     this.feedbackConfigs = {};
