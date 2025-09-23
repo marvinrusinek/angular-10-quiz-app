@@ -320,82 +320,6 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(committed);
   }
 
-  private isValidSelectedOption(option: SelectedOption): boolean {
-    if (!option || option.optionId === undefined || option.questionIndex === undefined || !option.text) {
-      console.error('Invalid SelectedOption data:', option);
-      return false;
-    }
-    return true;
-  }
-  
-  private isOptionAlreadySelected(option: SelectedOption | SelectedOption[]): boolean {
-    if (Array.isArray(option)) {
-      // Handle the case where option is an array of SelectedOption
-      return option.every(opt => this.isSingleOptionAlreadySelected(opt));
-    } else {
-      // Handle the case where option is a single SelectedOption
-      return this.isSingleOptionAlreadySelected(option);
-    }
-  }
-  
-  private isSingleOptionAlreadySelected(option: SelectedOption): boolean {
-    const selectedOption = this.selectedOption as SelectedOption;
-    return selectedOption?.optionId === option.optionId;
-  }
-  
-  private areOptionsAlreadySelected(options: SelectedOption[]): boolean {
-    // Ensure this.selectedOption is a single SelectedOption, not an array
-    if (Array.isArray(this.selectedOption)) {
-      console.error('Unexpected array in this.selectedOption');
-      return false;
-    }
-
-    const selectedOption = this.selectedOption as SelectedOption;
-  
-    // Compare selected options with the array passed in
-    return options.every(opt => selectedOption?.optionId === opt.optionId);
-  }
-  
-  private handleSingleOption(option: SelectedOption, currentQuestionIndex: number, isMultiSelect: boolean): void {
-    const canonicalOption = this.canonicalizeOptionForQuestion(
-      currentQuestionIndex,
-      option
-    );
-
-    if (canonicalOption?.optionId === undefined || canonicalOption.optionId === null) {
-      console.warn('[handleSingleOption] Unable to resolve canonical optionId', {
-        option,
-        currentQuestionIndex,
-      });
-      return;
-    }
-
-    // Set the selected option (as an array)
-    this.selectedOption = [canonicalOption];
-    this.selectedOptionSubject.next([canonicalOption]);
-
-    // Update the selected status
-    this.isOptionSelectedSubject.next(true);
-
-    if (isMultiSelect) {
-      const existing = this.selectedOptionsMap.get(currentQuestionIndex) || [];
-      const canonicalExisting = this.canonicalizeSelectionsForQuestion(
-        currentQuestionIndex,
-        existing
-      );
-
-      if (!canonicalExisting.some(opt => opt.optionId === canonicalOption.optionId)) {
-        canonicalExisting.push(canonicalOption);
-      }
-
-      this.commitSelections(currentQuestionIndex, canonicalExisting);
-    } else {
-      this.commitSelections(currentQuestionIndex, [canonicalOption]);
-    }
-
-    this.updateSelectedOptions(currentQuestionIndex, canonicalOption.optionId, 'add');
-  }
-
   getSelectedOptions(): SelectedOption[] {
     const combined: SelectedOption[] = [];
   
@@ -566,60 +490,6 @@ export class SelectedOptionService {
   }
 
   // Add (and persist) one option for a question
-  /* addSelection(option: SelectedOption | number, optionId?: number): void {
-    let qIndex: number;
-    let optId: number;
-    let enrichedOption: SelectedOption | null = null;
-
-    // Determine which overload was called
-    if (typeof option === 'number') {
-      // Called as addSelection(questionIndex, optionId)
-      qIndex = option;
-      optId  = optionId!;
-    } else {
-      // Called as addSelection(option)
-      enrichedOption = {
-        ...option,
-        selected:  true,
-        showIcon:  true,
-        highlight: true
-      };
-      qIndex = enrichedOption.questionIndex!;
-      optId  = enrichedOption.optionId;
-    }
-
-    // Get or initialize the list for this question
-    const current = this.selectedOptionsMap.get(qIndex) || [];
-
-    // Skip if already selected
-    if (current.some(sel => sel.optionId === optId)) {
-      console.log(`[⚠️ Option already selected] Q${qIndex}, Option ${optId}`);
-      return;
-    }
-
-    // Build the enriched entry
-    const entry = enrichedOption
-      ? enrichedOption
-      : ({
-          questionIndex: qIndex,
-          optionId:      optId,
-          selected:      true,
-          showIcon:      true,
-          highlight:     true
-        } as SelectedOption);
-
-    // Persist the updated list
-    const updated = [...current, entry];
-    this.selectedOptionsMap.set(qIndex, updated);
-
-    // Broadcast the full, deduplicated list
-    this.selectedOption     = updated;
-    this.selectedOptionSubject.next(updated);
-    this.isOptionSelectedSubject.next(true);
-
-    // Debug the new state
-    console.log(`[📦 Q${qIndex} selections]`, updated.map(o => o.optionId));
-  } */
   public addSelection(questionIndex: number, option: SelectedOption): void {
     // 1) Get or initialize the list for this question
     const list = this.canonicalizeSelectionsForQuestion(
@@ -1174,18 +1044,6 @@ export class SelectedOptionService {
     });
   }
 
-  private collectCorrectOptionIndexes(options: Option[]): Set<number> {
-    const indexes = new Set<number>();
-
-    options.forEach((option, idx) => {
-      if (this.coerceToBoolean(option?.correct)) {
-        indexes.add(idx);
-      }
-    });
-
-    return indexes;
-  }
-
   private collectSelectedCorrectOptionIndexes(options: Option[]): Set<number> {
     const indexes = new Set<number>();
 
@@ -1199,20 +1057,6 @@ export class SelectedOptionService {
     });
 
     return indexes;
-  }
-
-  private debugSelectedOptionsMap(): void {
-    if (this.selectedOptionsMap.size === 0) {
-      console.warn('selectedOptionsMap is empty.');
-    } else {
-      for (const [questionIndex, options] of this.selectedOptionsMap) {
-        if (!Array.isArray(options) || options.length === 0) {
-          console.warn(`No valid options for questionIndex: ${questionIndex}`);
-        } else {
-          console.log(`Options for questionIndex ${questionIndex}:`, options);
-        }
-      }
-    }
   }
 
   private coerceToBoolean(value: unknown): boolean {
@@ -1275,13 +1119,13 @@ export class SelectedOptionService {
     }
 
     // 1) If the provided numeric id is already a zero-based index for this question,
-    //    respect it so we don't misidentify incorrect selections as correct ones.
+    // respect it so we don't misidentify incorrect selections as correct ones.
     if (numericId >= 0 && numericId < options.length && fallbackIndex === undefined) {
       return numericId;
     }
 
     // 2) When we have a fallback index (e.g. when iterating over the question's
-    //    option metadata), prefer it if the option at that index matches the id.
+    // option metadata), prefer it if the option at that index matches the id.
     if (fallbackInBounds) {
       const fallbackOption = options[fallbackIndex!];
       const fallbackOptionId = this.extractNumericId(fallbackOption?.optionId);
