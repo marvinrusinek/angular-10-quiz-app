@@ -908,10 +908,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (shouldLockIncorrect && !option.correct) return true;
   
     if (optionId != null && this.lockedIncorrectOptionIds.has(optionId)) return true;
-  
+
     if (optionId != null && this.flashDisabledSet.has(optionId)) return true;
-  
-    return !!binding.disabled;
+
+    return false;
   }
   
 
@@ -943,6 +943,17 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (!bindings.length) {
       this.lockedIncorrectOptionIds.clear();
       this.shouldLockIncorrectOptions = false;
+      return;
+    }
+
+    if (this.forceDisableAll) {
+      bindings.forEach(binding => {
+        binding.disabled = true;
+        if (binding.option) {
+          binding.option.active = false;
+        }
+      });
+      this.cdRef.markForCheck();
       return;
     }
 
@@ -1836,11 +1847,15 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         binding.showFeedback = false;
         binding.option.showIcon = false;
         binding.disabled = false;
+        if (binding.option) {
+          binding.option.active = true;
+        }
       }
     }
 
     this.lockedIncorrectOptionIds.clear();
     this.updateHighlighting();
+    this.forceDisableAll = false;
   }
 
   public resetUIForNewQuestion(): void {
@@ -2359,6 +2374,38 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   public triggerViewRefresh(): void {
+    this.cdRef.markForCheck();
+  }
+
+  public forceDisableAllOptions(): void {
+    this.forceDisableAll = true;
+    (this.optionBindings ?? []).forEach(binding => {
+      binding.disabled = true;
+      if (binding.option) {
+        binding.option.active = false;
+      }
+    });
+    (this.optionsToDisplay ?? []).forEach(opt => {
+      if (opt) {
+        opt.active = false;
+      }
+    });
+    this.cdRef.markForCheck();
+  }
+
+  public clearForceDisableAllOptions(): void {
+    this.forceDisableAll = false;
+    (this.optionBindings ?? []).forEach(binding => {
+      binding.disabled = false;
+      if (binding.option) {
+        binding.option.active = true;
+      }
+    });
+    (this.optionsToDisplay ?? []).forEach(opt => {
+      if (opt) {
+        opt.active = true;
+      }
+    });
     this.cdRef.markForCheck();
   }
 
