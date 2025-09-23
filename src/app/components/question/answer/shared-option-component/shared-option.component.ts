@@ -858,7 +858,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     const option = binding.option;
     const optionId = option.optionId;
-    const qIndex = this.currentQuestionIndex ?? 0;
+    const qIndex = this.resolveCurrentQuestionIndex();
 
     if (this.forceDisableAll) return true;
 
@@ -2540,7 +2540,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   isLocked(b: any, i: number): boolean {
     try {
       const id = this.selectionMessageService.stableKey(b.option, i);
-      const qIndex = this.currentQuestionIndex ?? 0;
+      const qIndex = this.resolveCurrentQuestionIndex();
       return this.selectedOptionService.isOptionLocked(qIndex, id);
     } catch {
       return false;
@@ -2568,5 +2568,26 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const raw = o?.optionId ?? this.selectionMessageService.stableKey(o, i);
     // Normalize to string to use mixed keys safely
     return Number.isFinite(Number(raw)) ? String(Number(raw)) : String(raw);
+  }
+
+  private resolveCurrentQuestionIndex(): number {
+    const localIdx = this.currentQuestionIndex;
+    if (typeof localIdx === 'number' && Number.isFinite(localIdx)) {
+      return localIdx;
+    }
+
+    const serviceIdx = this.quizService?.currentQuestionIndex;
+    if (typeof serviceIdx === 'number' && Number.isFinite(serviceIdx)) {
+      return serviceIdx;
+    }
+
+    try {
+      const getterIdx = this.quizService?.getCurrentQuestionIndex?.();
+      if (typeof getterIdx === 'number' && Number.isFinite(getterIdx)) {
+        return getterIdx;
+      }
+    } catch {}
+
+    return 0;
   }
 }
