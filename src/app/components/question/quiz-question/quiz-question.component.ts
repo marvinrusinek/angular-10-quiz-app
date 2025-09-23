@@ -3092,11 +3092,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
-    // When navigating to a new question we forcibly stop/reset the timer before
-    // the next countdown starts. That emits on stop$ with `reason === 'stopped'`
-    // while the question is still in its initial "fresh" state. Without this
-    // guard we would treat the reset as a real stop event and disable the
-    // options for the next question before the user can interact with them.
     if (reason !== 'timeout' && this.questionFresh) {
       return;
     }
