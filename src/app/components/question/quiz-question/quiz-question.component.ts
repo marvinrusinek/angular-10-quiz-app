@@ -3058,7 +3058,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.showExplanationChange?.emit(true);
   
       const cached = this._formattedByIndex.get(i0);
-      const rawTrue = (q.explanation ?? '').trim();
+      const rawTrue =
+        (q?.explanation ?? this.currentQuestion?.explanation ?? '').trim();
       const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
       this.setExplanationFor(i0, txt);
       this.explanationToDisplay = txt;
