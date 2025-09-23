@@ -136,10 +136,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public selectedIndices = new Set<number>();
 
   combinedQuestionData$: Subject<{
-    questionText: string;
-    explanationText?: string;
-    correctAnswersText?: string;
-    currentOptions: Option[];
+    questionText: string,
+    explanationText?: string,
+    correctAnswersText?: string,
+    currentOptions: Option[]
   }> = new Subject();
 
   selectedOption: SelectedOption | null = null;
