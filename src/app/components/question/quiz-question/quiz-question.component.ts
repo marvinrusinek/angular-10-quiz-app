@@ -546,10 +546,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           return;
         }
 
-        try {
-          this.sharedOptionComponent?.forceDisableAllOptions?.();
-          this.sharedOptionComponent?.triggerViewRefresh?.();
-        } catch {}
+        const reason = this.timedOut ? 'timeout' : 'stopped';
+        this.handleTimerStoppedForActiveQuestion(reason);
       });
 
     try {
