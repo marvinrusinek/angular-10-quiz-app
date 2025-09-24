@@ -5130,12 +5130,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     };
     this.showFeedbackForOption = { [selectedOption.optionId]: true };
     this.selectedOptionService.setSelectedOption(selectedOption);
+
+    // Build a snapshot that mirrors what the user sees (UI order + flags)
+    const qIdx = this.quizService.getCurrentQuestionIndex();
+    const canonical = (this.quizService.questions?.[qIdx]?.options ?? []).map(o => ({ ...o }));
+    const ui        = (this.optionsToDisplay ?? []).map(o => ({ ...o }));
+
+    // Prefer your identity overlay if you have it; otherwise use UI list
+    const snapshot: Option[] =
+      this.selectedOptionService.overlaySelectedByIdentity?.(canonical, ui) ?? ui ?? canonical;
+
+    // Coerce optionId safely (0 is valid)
+    const oidNum = Number(selectedOption.optionId);
+    const safeOptionId = Number.isFinite(oidNum) ? oidNum : 0;
+
     this.selectedOption = selectedOption;
-    this.selectedOptionService.selectOption(
+    await this.selectedOptionService.selectOption(
       selectedOption.optionId,
       selectedOption.questionIndex,
       selectedOption.text,
-      this.isMultipleAnswer
+      this.isMultipleAnswer,
+      snapshot
     );
 
     this.explanationTextService.setIsExplanationTextDisplayed(true);
