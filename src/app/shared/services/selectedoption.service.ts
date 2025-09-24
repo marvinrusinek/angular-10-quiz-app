@@ -1103,83 +1103,82 @@ export class SelectedOptionService {
     const options = Array.isArray(question?.options) ? question!.options : [];
     if (!question || options.length === 0) return null;
   
-    // Derive both views of the 3rd arg
+    // 3rd-arg views
     const fallbackIndex = typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
-    const text = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
+    const hintText      = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
   
-    const numericId = this.extractNumericId(rawId);  // should return number | null (0 allowed)
+    // helpers (0 is valid)
+    const toNum = (v: unknown): number | null => {
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // includes 0
+      const n = Number(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
+    const norm = (s: unknown): string =>
+      typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+    const stableKey = (opt: any, idx: number) =>
+      this.selectionMessageService?.stableKey
+        ? this.selectionMessageService.stableKey(opt, idx)
+        : `${questionIndex}:${idx}:${norm(opt?.text)}`;
   
-    const fallbackInBounds =
-      typeof fallbackIndex === 'number' &&
-      fallbackIndex >= 0 &&
-      fallbackIndex < options.length;
+    const inBounds = (i: number | undefined) =>
+      typeof i === 'number' && i >= 0 && i < options.length;
   
-    // If rawId is missing, try text match; otherwise use fallback index if provided
-    if (rawId === undefined || rawId === null) {
-      if (text) {
-        const norm = (s: unknown) =>
-          typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
-        const tKey = norm(text);
-        const byText = options.findIndex(o => norm((o as any).text) === tKey);
-        if (byText >= 0) return byText;
-        const byValue = options.findIndex(o => norm((o as any).value) === tKey);
-        if (byValue >= 0) return byValue;
+    // 0) Exact id match (supports 0, string/number)
+    const tryExactId = (id: unknown): number | undefined => {
+      for (let i = 0; i < options.length; i++) {
+        const opt: any = options[i];
+        if (opt?.optionId === id) {
+          const n = toNum(opt.optionId);
+          return n ?? i;
+        }
       }
-      return fallbackInBounds ? fallbackIndex! : null;
-    }
+      return undefined;
+    };
   
-    // If we didn’t get a numeric id, bail to fallback index (if valid) or text match
-    if (numericId === null || !Number.isInteger(numericId)) {
-      if (text) {
-        const norm = (s: unknown) =>
-          typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
-        const tKey = norm(text);
-        const byText = options.findIndex(o => norm((o as any).text) === tKey);
-        if (byText >= 0) return byText;
-        const byValue = options.findIndex(o => norm((o as any).value) === tKey);
-        if (byValue >= 0) return byValue;
-      }
-      return fallbackInBounds ? fallbackIndex! : null;
-    }
+    // 1) rawId present → try exact id, then numeric id semantics
+    if (rawId !== undefined && rawId !== null) {
+      const exact = tryExactId(rawId);
+      if (exact !== undefined) return exact;
   
-    // 1) If the provided numeric id is already a zero-based index for this question,
-    // respect it so we don't misidentify incorrect selections as correct ones.
-    if (numericId >= 0 && numericId < options.length && fallbackIndex === undefined) {
-      return numericId;
-    }
+      const asNum = toNum(rawId);
+      if (asNum !== null) {
+        // If it's clearly an index and no fallback index was provided, respect it.
+        if (inBounds(asNum) && fallbackIndex === undefined) return asNum;
   
-    // 2) When we have a fallback index (e.g. when iterating over the question's
-    // option metadata), prefer it if the option at that index matches the id.
-    if (fallbackInBounds) {
-      const fallbackOption = options[fallbackIndex!];
-      const fallbackOptionId = this.extractNumericId((fallbackOption as any)?.optionId);
-      if (fallbackOptionId === numericId) {
-        return fallbackIndex!;
+        // Match any option whose optionId numerically equals asNum
+        for (let i = 0; i < options.length; i++) {
+          const n = toNum((options[i] as any)?.optionId);
+          if (n !== null && n === asNum) return n; // return canonical numeric id
+        }
+  
+        // Friendly off-by-one: if looks 1-based, allow 0-based neighbor
+        const zeroBased = asNum - 1;
+        if (inBounds(zeroBased)) return zeroBased;
       }
     }
   
-    // 3) Otherwise try to resolve the numeric id to a concrete option index.
-    //    First, see if any option's optionId matches this numericId.
-    const matchByMetadata = options.findIndex(opt => {
-      const candidateId = this.extractNumericId((opt as any)?.optionId);
-      return candidateId === numericId;
-    });
-    if (matchByMetadata >= 0) return matchByMetadata;
+    // 2) Use text hint (matches text/value/stableKey)
+    if (hintText) {
+      const key = norm(hintText);
   
-    // If numericId looks like a 1-based index, allow the 0-based neighbor.
-    const zeroBasedCandidate = numericId - 1;
-    if (zeroBasedCandidate >= 0 && zeroBasedCandidate < options.length) {
-      return zeroBasedCandidate;
+      let hit = options.findIndex(o => norm((o as any).text) === key);
+      if (!inBounds(hit)) hit = options.findIndex(o => norm((o as any).value) === key);
+      if (!inBounds(hit)) hit = options.findIndex((o, i) => norm(stableKey(o, i)) === key);
+  
+      if (inBounds(hit)) {
+        const n = toNum((options[hit!] as any).optionId);
+        return n ?? hit!;
+      }
     }
   
-    // Last try: if numericId is a valid in-bounds index, use it as such.
-    if (numericId >= 0 && numericId < options.length) {
-      return numericId;
+    // 3) Fallback index if provided and valid
+    if (inBounds(fallbackIndex)) {
+      const n = toNum((options[fallbackIndex!] as any).optionId);
+      return n ?? fallbackIndex!;
     }
   
-    // Nothing matched; use fallback index if valid, else null.
-    return fallbackInBounds ? fallbackIndex! : null;
-  }  
+    return null;
+  }    
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
