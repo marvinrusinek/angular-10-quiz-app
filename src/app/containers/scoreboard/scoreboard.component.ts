@@ -104,6 +104,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.handleRouteParameters();
     this.setupBadgeTextSubscription();
+    this.syncBadgeWithRouteSlug();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -137,7 +138,7 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
           this.totalQuestions = totalQuestions;
       
           // Ensure questionNumber is valid before updating badge
-          const validQuestionNumber = this.questionNumber > 0 ? this.questionNumber : 1;
+          const validQuestionNumber = this.questionNumber >= 1 ? this.questionNumber : 1;
       
           if (validQuestionNumber <= totalQuestions) {
             this.quizService.updateBadgeText(validQuestionNumber, totalQuestions);
