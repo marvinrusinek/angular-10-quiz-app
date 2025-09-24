@@ -12,7 +12,7 @@ export class SoundService {
   private playedSoundOptions: Set<string> = new Set();
 
   constructor() {
-    this.initializeSounds();
+    this.ensureSoundsReady();
   }
 
   initializeSounds(): void {
