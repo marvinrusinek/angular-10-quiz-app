@@ -66,7 +66,7 @@ export class SelectedOptionService {
       return;
     }
 
-    const canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId);
+    const canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, text);
     if (canonicalOptionId == null) {
       console.error('Unable to determine a canonical optionId for selection', {
         optionId,
@@ -1097,63 +1097,89 @@ export class SelectedOptionService {
   private resolveCanonicalOptionId(
     questionIndex: number,
     rawId: unknown,
-    fallbackIndex?: number
+    fallbackIndexOrText?: number | string
   ): number | null {
-    if (rawId === undefined || rawId === null) {
-      return typeof fallbackIndex === 'number' ? fallbackIndex : null;
-    }
-
     const question = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(question?.options) ? question.options : [];
-
-    const numericId = this.extractNumericId(rawId);
-
+    const options = Array.isArray(question?.options) ? question!.options : [];
+    if (!question || options.length === 0) return null;
+  
+    // Derive both views of the 3rd arg
+    const fallbackIndex = typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
+    const text = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
+  
+    const numericId = this.extractNumericId(rawId);  // should return number | null (0 allowed)
+  
     const fallbackInBounds =
       typeof fallbackIndex === 'number' &&
       fallbackIndex >= 0 &&
       fallbackIndex < options.length;
-
-    if (numericId === null || !Number.isInteger(numericId)) {
+  
+    // If rawId is missing, try text match; otherwise use fallback index if provided
+    if (rawId === undefined || rawId === null) {
+      if (text) {
+        const norm = (s: unknown) =>
+          typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+        const tKey = norm(text);
+        const byText = options.findIndex(o => norm((o as any).text) === tKey);
+        if (byText >= 0) return byText;
+        const byValue = options.findIndex(o => norm((o as any).value) === tKey);
+        if (byValue >= 0) return byValue;
+      }
       return fallbackInBounds ? fallbackIndex! : null;
     }
-
+  
+    // If we didn’t get a numeric id, bail to fallback index (if valid) or text match
+    if (numericId === null || !Number.isInteger(numericId)) {
+      if (text) {
+        const norm = (s: unknown) =>
+          typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+        const tKey = norm(text);
+        const byText = options.findIndex(o => norm((o as any).text) === tKey);
+        if (byText >= 0) return byText;
+        const byValue = options.findIndex(o => norm((o as any).value) === tKey);
+        if (byValue >= 0) return byValue;
+      }
+      return fallbackInBounds ? fallbackIndex! : null;
+    }
+  
     // 1) If the provided numeric id is already a zero-based index for this question,
     // respect it so we don't misidentify incorrect selections as correct ones.
     if (numericId >= 0 && numericId < options.length && fallbackIndex === undefined) {
       return numericId;
     }
-
+  
     // 2) When we have a fallback index (e.g. when iterating over the question's
     // option metadata), prefer it if the option at that index matches the id.
     if (fallbackInBounds) {
       const fallbackOption = options[fallbackIndex!];
-      const fallbackOptionId = this.extractNumericId(fallbackOption?.optionId);
+      const fallbackOptionId = this.extractNumericId((fallbackOption as any)?.optionId);
       if (fallbackOptionId === numericId) {
         return fallbackIndex!;
       }
     }
-
+  
     // 3) Otherwise try to resolve the numeric id to a concrete option index.
-    if (numericId >= 0 && numericId < options.length) {
-      return numericId;
-    }
-
+    //    First, see if any option's optionId matches this numericId.
     const matchByMetadata = options.findIndex(opt => {
-      const candidateId = this.extractNumericId(opt?.optionId);
+      const candidateId = this.extractNumericId((opt as any)?.optionId);
       return candidateId === numericId;
     });
-
-    if (matchByMetadata >= 0) {
-      return matchByMetadata;
-    }
-
+    if (matchByMetadata >= 0) return matchByMetadata;
+  
+    // If numericId looks like a 1-based index, allow the 0-based neighbor.
     const zeroBasedCandidate = numericId - 1;
     if (zeroBasedCandidate >= 0 && zeroBasedCandidate < options.length) {
       return zeroBasedCandidate;
     }
-
+  
+    // Last try: if numericId is a valid in-bounds index, use it as such.
+    if (numericId >= 0 && numericId < options.length) {
+      return numericId;
+    }
+  
+    // Nothing matched; use fallback index if valid, else null.
     return fallbackInBounds ? fallbackIndex! : null;
-  }
+  }  
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
