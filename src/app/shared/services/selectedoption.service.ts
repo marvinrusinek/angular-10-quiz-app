@@ -7,7 +7,6 @@ import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { NextButtonStateService } from '../../shared/services/next-button-state.service';
 import { QuizService } from '../../shared/services/quiz.service';
-import { SelectionMessageService } from '../../shared/services/selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -52,8 +51,7 @@ export class SelectedOptionService {
 
   constructor(
     private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService,
-    private selectionMessageService: SelectionMessageService
+    private nextButtonStateService: NextButtonStateService
   ) {}
 
   // Method to update the selected option state
@@ -1112,22 +1110,26 @@ export class SelectedOptionService {
       return Number.isFinite(n) ? n : null;
     };
     const decodeHtml = (s: string) =>
-      s
-        .replace(/&nbsp;/gi, ' ')
-        .replace(/&amp;/gi, '&')
-        .replace(/&lt;/gi, '<')
-        .replace(/&gt;/gi, '>')
-        .replace(/&quot;/gi, '"')
-        .replace(/&#39;/gi, "'");
+      s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'");
     const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
     const norm = (s: unknown) =>
       typeof s === 'string'
         ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
         : '';
-    const stableKey = (opt: any, idx: number) =>
-      this.selectionMessageService?.stableKey
-        ? this.selectionMessageService.stableKey(opt, idx)
-        : `${questionIndex}:${idx}:${norm(opt?.text)}`;
+  
+    // 🔒 Pure, collision-resistant stable key (no service calls)
+    const stableKey = (opt: any): string => {
+      const idPart = opt?.optionId != null ? String(opt.optionId) : '';
+      const valuePart = norm(opt?.value) || norm(opt?.text);
+      // don’t include idx so it remains stable across reorders
+      return `${questionIndex}|${idPart}|${valuePart}`;
+    };
+  
     const inBounds = (i: number | undefined) =>
       typeof i === 'number' && i >= 0 && i < options.length;
   
@@ -1157,7 +1159,7 @@ export class SelectedOptionService {
       const v = norm(o.value);
       if (v) byValue.set(v, i);
   
-      byStable.set(norm(stableKey(o, i)), i);
+      byStable.set(stableKey(o), i);
     }
   
     // 1) Try raw id variants first
@@ -1187,7 +1189,11 @@ export class SelectedOptionService {
   
       let hit = byText.get(key);
       if (hit === undefined) hit = byValue.get(key);
-      if (hit === undefined) hit = byStable.get(key);
+      if (hit === undefined) {
+        // build a synthetic option to look up stableKey by the same normalization
+        const synthetic = { optionId: undefined, value: hintText, text: hintText };
+        hit = byStable.get(stableKey(synthetic));
+      }
   
       if (hit !== undefined) {
         const oidNum = toNum((options[hit] as any).optionId);
@@ -1202,8 +1208,7 @@ export class SelectedOptionService {
     }
   
     return null;
-  }
-      
+  }      
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
