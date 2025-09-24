@@ -3079,7 +3079,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Render
     this.cdRef.markForCheck();
-    this.cdRef.detectChanges();
   }  
 
   private handleTimerStoppedForActiveQuestion(reason: 'timeout' | 'stopped'): void {
