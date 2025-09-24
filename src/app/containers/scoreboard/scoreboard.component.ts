@@ -154,8 +154,9 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
   private processRouteParams(params: Params): Observable<number> {
     if (params.questionIndex !== undefined) {
-      const questionIndex = +params.questionIndex;  // keep it as 0-based index
-      const updatedQuestionNumber = questionIndex;
+      const rawIndex = params.questionIndex != null ? String(params.questionIndex) : null;
+      const normalizedIndex = this.coerceIndex(rawIndex);
+      const updatedQuestionNumber = normalizedIndex + 1;  // convert to 1-based for display/badge
 
       // Only update if the number actually changes
       if (this.questionNumber !== updatedQuestionNumber) {
@@ -169,6 +170,27 @@ export class ScoreboardComponent implements OnInit, OnChanges, OnDestroy {
 
     console.warn('No questionIndex found in route parameters.');
     return of(null);
+  }
+
+  private syncBadgeWithRouteSlug(): void {
+    combineLatest([
+      this.displayIndex$,
+      this.quizService.totalQuestions$.pipe(
+        map((total) => Number(total)),
+        filter((total) => Number.isFinite(total) && total > 0)
+      )
+    ])
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        filter(([displayIndex]) => Number.isFinite(displayIndex) && displayIndex > 0),
+        distinctUntilChanged(
+          ([prevIndex, prevTotal], [currIndex, currTotal]) =>
+            prevIndex === currIndex && prevTotal === currTotal
+        )
+      )
+      .subscribe(([displayIndex, totalQuestions]) => {
+        this.quizService.updateBadgeText(displayIndex, totalQuestions);
+      });
   }
 
   private setupBadgeTextSubscription(): void {
