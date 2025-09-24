@@ -133,30 +133,5 @@ export class SoundService {
       key.startsWith(`${questionIndex}-`)
     );
     keysToDelete.forEach(key => this.playedSoundOptions.delete(key));
-  }
-
-  private configureHowler(): void {
-    try {
-      Howler.autoUnlock = true;
-    } catch (error) {
-      console.warn('[⚠️ Unable to configure Howler autoUnlock]', error);
-    }
-  }
-
-  private resolveSoundUrl(fileName: string): string {
-    const fallbackUrl = `assets/sounds/${fileName}`;
-
-    try {
-      const baseHref = this.document?.baseURI ?? this.document?.location?.href;
-
-      if (!baseHref) {
-        return fallbackUrl;
-      }
-
-      return new URL(`assets/sounds/${fileName}`, baseHref).toString();
-    } catch (error) {
-      console.warn('[⚠️ Falling back to relative sound path]', error);
-      return fallbackUrl;
-    }
-  }
+  } 
 }
