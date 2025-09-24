@@ -16,7 +16,7 @@ export class SoundService {
   }
 
   initializeSounds(): void {
-    this.sounds['correct'] = new Howl({
+    /* this.sounds['correct'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
       html5: true
     });
@@ -24,7 +24,16 @@ export class SoundService {
     this.sounds['incorrect'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
       html5: true
-    });  
+    }); */
+    this.sounds['correct'] = new Howl({
+      src: ['../../../assets/sounds/correct.mp3'],
+      html5: true
+    });
+
+    this.sounds['incorrect'] = new Howl({
+      src: ['../../../assets/sounds/incorrect.mp3'],
+      html5: true
+    });
   }
 
   // Play a sound only once per (questionIndex + optionId)
