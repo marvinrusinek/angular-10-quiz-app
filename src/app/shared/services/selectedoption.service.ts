@@ -176,7 +176,7 @@ export class SelectedOptionService {
     if (canonicalId == null) {
       console.warn('[removeOption] Unable to resolve canonical optionId', {
         optionId,
-        questionIndex,
+        questionIndex
       });
       return;
     }
@@ -483,9 +483,7 @@ export class SelectedOptionService {
     );
 
     const updatedOptions = currentOptions.filter(option => option.optionId !== canonicalId);
-    if (updatedOptions.length === currentOptions.length) {
-      return;
-    }
+    if (updatedOptions.length === currentOptions.length) return;
 
     this.commitSelections(questionIndex, updatedOptions);
   }
