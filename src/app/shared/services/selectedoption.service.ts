@@ -1122,14 +1122,6 @@ export class SelectedOptionService {
         ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
         : '';
   
-    // 🔒 Pure, collision-resistant stable key (no service calls)
-    const stableKey = (opt: any): string => {
-      const idPart = opt?.optionId != null ? String(opt.optionId) : '';
-      const valuePart = norm(opt?.value) || norm(opt?.text);
-      // don’t include idx so it remains stable across reorders
-      return `${questionIndex}|${idPart}|${valuePart}`;
-    };
-  
     const inBounds = (i: number | undefined) =>
       typeof i === 'number' && i >= 0 && i < options.length;
   
@@ -1138,9 +1130,15 @@ export class SelectedOptionService {
   
     // Build lookups
     const byId = new Map<string | number, number>();
-    const byText = new Map<string, number>();
-    const byValue = new Map<string, number>();
-    const byStable = new Map<string, number>();
+    const byAlias = new Map<string, number>(); // text/value/label/name/title/displayText/description/stable
+  
+    const aliasFields = ['text','value','label','name','title','displayText','html','description'];
+  
+    const stableKey = (opt: any): string => {
+      const idPart = opt?.optionId != null ? String(opt.optionId) : '';
+      const alias = aliasFields.map(f => norm(opt?.[f])).find(Boolean) || '';
+      return `${questionIndex}|${idPart}|${alias}`;
+    };
   
     for (let i = 0; i < options.length; i++) {
       const o: any = options[i];
@@ -1153,13 +1151,12 @@ export class SelectedOptionService {
         byId.set(String(o.optionId), i);
       }
   
-      const t = norm(o.text);
-      if (t) byText.set(t, i);
-  
-      const v = norm(o.value);
-      if (v) byValue.set(v, i);
-  
-      byStable.set(stableKey(o), i);
+      // aliases
+      for (const f of aliasFields) {
+        const k = norm(o?.[f]);
+        if (k) byAlias.set(k, i);
+      }
+      byAlias.set(norm(stableKey(o)), i);
     }
   
     // 1) Try raw id variants first
@@ -1172,29 +1169,22 @@ export class SelectedOptionService {
         const i = byId.get(k as any);
         if (i !== undefined) {
           const oidNum = toNum((options[i] as any).optionId);
-          return oidNum ?? i; // return numeric canonical id if possible; else index
+          return oidNum ?? i; // return canonical numeric id if possible; else index
         }
       }
   
-      // If numeric-looking id acts as index and no fallback index given, respect it
-      if (rawNum !== null && inBounds(rawNum) && fallbackIndex === undefined) return rawNum;
+      // Numeric-looking id: treat as index if sensible and no explicit fallback
+      const rawIdx = toNum(rawId);
+      if (rawIdx !== null && inBounds(rawIdx) && fallbackIndex === undefined) return rawIdx;
   
       // Friendly 1-based → 0-based
-      if (rawNum !== null && inBounds(rawNum - 1)) return rawNum - 1;
+      if (rawIdx !== null && inBounds(rawIdx - 1)) return rawIdx - 1;
     }
   
-    // 2) Use text hint if provided (text → value → stableKey)
+    // 2) Use text hint if provided (match across all aliases & stableKey)
     if (hintText) {
       const key = norm(hintText);
-  
-      let hit = byText.get(key);
-      if (hit === undefined) hit = byValue.get(key);
-      if (hit === undefined) {
-        // build a synthetic option to look up stableKey by the same normalization
-        const synthetic = { optionId: undefined, value: hintText, text: hintText };
-        hit = byStable.get(stableKey(synthetic));
-      }
-  
+      const hit = byAlias.get(key);
       if (hit !== undefined) {
         const oidNum = toNum((options[hit] as any).optionId);
         return oidNum ?? hit;
@@ -1208,7 +1198,8 @@ export class SelectedOptionService {
     }
   
     return null;
-  }      
+  }
+       
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
