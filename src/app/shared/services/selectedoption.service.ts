@@ -1470,11 +1470,29 @@ export class SelectedOptionService {
 
   public evaluateNextButtonStateForQuestion(
     questionIndex: number,
-    isMultiSelect: boolean
+    isMultiSelect: boolean,
+    allowEmptySelection = false
   ): void {
     // Defer to ensure setSelectedOption has updated the map this tick
     queueMicrotask(() => {
       const selected = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+      if (allowEmptySelection) {
+        // Timer-expiry or external overrides may allow progression without a choice.
+        // Preserve the "answered" state while keeping selection tracking honest.
+        const anySelected = selected.length > 0;
+
+        this.setAnswered(true);
+        this.isOptionSelectedSubject.next(anySelected);
+        this.nextButtonStateService.setNextButtonState(true);
+
+        console.log('[🔓 Next Enabled] Override allowing empty selection', {
+          questionIndex,
+          anySelected,
+        });
+
+        return;
+      }
 
       if (!isMultiSelect) {
         // Single → deterministic on first selection
