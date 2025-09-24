@@ -7,6 +7,7 @@ import { Option } from '../../shared/models/Option.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 import { NextButtonStateService } from '../../shared/services/next-button-state.service';
 import { QuizService } from '../../shared/services/quiz.service';
+import { SelectionMessageService } from '../../shared/services/selection-message.service';
 
 @Injectable({ providedIn: 'root' })
 export class SelectedOptionService {
@@ -51,7 +52,8 @@ export class SelectedOptionService {
 
   constructor(
     private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService
+    private nextButtonStateService: NextButtonStateService,
+    private selectionMessageService: SelectionMessageService
   ) {}
 
   // Method to update the selected option state
@@ -1096,89 +1098,112 @@ export class SelectedOptionService {
 
   private resolveCanonicalOptionId(
     questionIndex: number,
-    rawId: unknown,
+    rawId: number | string | null | undefined,
     fallbackIndexOrText?: number | string
   ): number | null {
-    const question = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(question?.options) ? question!.options : [];
-    if (!question || options.length === 0) return null;
+    const q = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(q?.options) ? q!.options : [];
+    if (!q || options.length === 0) return null;
   
-    // 3rd-arg views
-    const fallbackIndex = typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
-    const hintText      = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
-  
-    // helpers (0 is valid)
+    // helpers
     const toNum = (v: unknown): number | null => {
-      if (typeof v === 'number' && Number.isFinite(v)) return v; // includes 0
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
       const n = Number(String(v));
       return Number.isFinite(n) ? n : null;
     };
-    const norm = (s: unknown): string =>
-      typeof s === 'string' ? s.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+    const decodeHtml = (s: string) =>
+      s
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'");
+    const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
+    const norm = (s: unknown) =>
+      typeof s === 'string'
+        ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
+        : '';
     const stableKey = (opt: any, idx: number) =>
       this.selectionMessageService?.stableKey
         ? this.selectionMessageService.stableKey(opt, idx)
         : `${questionIndex}:${idx}:${norm(opt?.text)}`;
-  
     const inBounds = (i: number | undefined) =>
       typeof i === 'number' && i >= 0 && i < options.length;
   
-    // 0) Exact id match (supports 0, string/number)
-    const tryExactId = (id: unknown): number | undefined => {
-      for (let i = 0; i < options.length; i++) {
-        const opt: any = options[i];
-        if (opt?.optionId === id) {
-          const n = toNum(opt.optionId);
-          return n ?? i;
-        }
+    const fallbackIndex = typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
+    const hintText      = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
+  
+    // Build lookups
+    const byId = new Map<string | number, number>();
+    const byText = new Map<string, number>();
+    const byValue = new Map<string, number>();
+    const byStable = new Map<string, number>();
+  
+    for (let i = 0; i < options.length; i++) {
+      const o: any = options[i];
+  
+      // id variants (0 valid)
+      if (o.optionId !== null && o.optionId !== undefined) {
+        byId.set(o.optionId, i);
+        const asNum = toNum(o.optionId);
+        if (asNum !== null) byId.set(asNum, i);
+        byId.set(String(o.optionId), i);
       }
-      return undefined;
-    };
   
-    // 1) rawId present → try exact id, then numeric id semantics
-    if (rawId !== undefined && rawId !== null) {
-      const exact = tryExactId(rawId);
-      if (exact !== undefined) return exact;
+      const t = norm(o.text);
+      if (t) byText.set(t, i);
   
-      const asNum = toNum(rawId);
-      if (asNum !== null) {
-        // If it's clearly an index and no fallback index was provided, respect it.
-        if (inBounds(asNum) && fallbackIndex === undefined) return asNum;
+      const v = norm(o.value);
+      if (v) byValue.set(v, i);
   
-        // Match any option whose optionId numerically equals asNum
-        for (let i = 0; i < options.length; i++) {
-          const n = toNum((options[i] as any)?.optionId);
-          if (n !== null && n === asNum) return n; // return canonical numeric id
-        }
-  
-        // Friendly off-by-one: if looks 1-based, allow 0-based neighbor
-        const zeroBased = asNum - 1;
-        if (inBounds(zeroBased)) return zeroBased;
-      }
+      byStable.set(norm(stableKey(o, i)), i);
     }
   
-    // 2) Use text hint (matches text/value/stableKey)
+    // 1) Try raw id variants first
+    if (rawId !== undefined && rawId !== null) {
+      const candidates: Array<string | number> = [rawId, String(rawId)];
+      const rawNum = toNum(rawId);
+      if (rawNum !== null) candidates.push(rawNum);
+  
+      for (const k of candidates) {
+        const i = byId.get(k as any);
+        if (i !== undefined) {
+          const oidNum = toNum((options[i] as any).optionId);
+          return oidNum ?? i; // return numeric canonical id if possible; else index
+        }
+      }
+  
+      // If numeric-looking id acts as index and no fallback index given, respect it
+      if (rawNum !== null && inBounds(rawNum) && fallbackIndex === undefined) return rawNum;
+  
+      // Friendly 1-based → 0-based
+      if (rawNum !== null && inBounds(rawNum - 1)) return rawNum - 1;
+    }
+  
+    // 2) Use text hint if provided (text → value → stableKey)
     if (hintText) {
       const key = norm(hintText);
   
-      let hit = options.findIndex(o => norm((o as any).text) === key);
-      if (!inBounds(hit)) hit = options.findIndex(o => norm((o as any).value) === key);
-      if (!inBounds(hit)) hit = options.findIndex((o, i) => norm(stableKey(o, i)) === key);
+      let hit = byText.get(key);
+      if (hit === undefined) hit = byValue.get(key);
+      if (hit === undefined) hit = byStable.get(key);
   
-      if (inBounds(hit)) {
-        const n = toNum((options[hit!] as any).optionId);
-        return n ?? hit!;
+      if (hit !== undefined) {
+        const oidNum = toNum((options[hit] as any).optionId);
+        return oidNum ?? hit;
       }
     }
   
     // 3) Fallback index if provided and valid
     if (inBounds(fallbackIndex)) {
-      const n = toNum((options[fallbackIndex!] as any).optionId);
-      return n ?? fallbackIndex!;
+      const oidNum = toNum((options[fallbackIndex!] as any).optionId);
+      return oidNum ?? fallbackIndex!;
     }
   
     return null;
-  }    
+  }
+      
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
