@@ -5146,9 +5146,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.selectedOption = selectedOption;
     await this.selectedOptionService.selectOption(
-      selectedOption.optionId,
+      safeOptionId as any,
       selectedOption.questionIndex,
-      selectedOption.text,
+      selectedOption.text ?? (selectedOption as any).value ?? '',
       this.isMultipleAnswer,
       snapshot
     );
