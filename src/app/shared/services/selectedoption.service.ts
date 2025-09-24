@@ -65,62 +65,100 @@ export class SelectedOptionService {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
       return;
     }
-
-    const canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, text);
+  
+    // Resolve a best-effort index from the incoming text across common aliases.
+    const q = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(q?.options) ? q!.options : [];
+  
+    const decodeHtml = (s: string) =>
+      s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'");
+    const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
+    const norm = (s: unknown) =>
+      typeof s === 'string'
+        ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
+        : '';
+  
+    const key = norm(text);
+    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
+  
+    let fallbackIndexFromText = -1;
+    for (let i = 0; i < options.length && fallbackIndexFromText < 0; i++) {
+      const o: any = options[i];
+      for (const f of aliasFields) {
+        if (norm(o?.[f]) === key) { fallbackIndexFromText = i; break; }
+      }
+    }
+  
+    // ⚠️ IMPORTANT: pass the index (if found) as the 3rd arg — not the raw text.
+    const resolverHint: number | string | undefined =
+      fallbackIndexFromText >= 0 ? fallbackIndexFromText : text;
+  
+    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
+  
+    // Last-resort fallback: if resolver failed but we have a concrete index, use it.
+    if (canonicalOptionId == null && fallbackIndexFromText >= 0) {
+      console.warn('[SelectedOptionService] Resolver missed; falling back to text-derived index', {
+        questionIndex, optionId, text, fallbackIndexFromText
+      });
+      canonicalOptionId = fallbackIndexFromText;
+    }
+  
     if (canonicalOptionId == null) {
+      // Log a compact snapshot to see why it failed.
       console.error('Unable to determine a canonical optionId for selection', {
-        optionId,
-        questionIndex,
-        text,
+        optionId, questionIndex, text,
+        optionsSnapshot: options.map((o: any, i: number) => ({
+          i, id: o?.optionId, text: o?.text, value: o?.value,
+          label: o?.label, name: o?.name, title: o?.title, displayText: o?.displayText
+        }))
       });
       return;
     }
-
+  
     const newSelection: SelectedOption = {
-      optionId: canonicalOptionId,
+      optionId: canonicalOptionId,        // numeric id if available, else index
       questionIndex,
       text,
       selected: true,
       highlight: true,
       showIcon: true
     };
-
+  
     const currentSelections = this.selectedOptionsMap.get(questionIndex) || [];
-    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(
-      questionIndex,
-      currentSelections
-    );
+    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(questionIndex, currentSelections);
     const filteredSelections = canonicalCurrent.filter(
       s => !(s.optionId === canonicalOptionId && s.questionIndex === questionIndex)
     );
     const updatedSelections = [...filteredSelections, newSelection];
     const committedSelections = this.commitSelections(questionIndex, updatedSelections);
-
+  
     if (!Array.isArray(this.selectedOptionIndices[questionIndex])) {
       this.selectedOptionIndices[questionIndex] = [];
     }
-
     if (!this.selectedOptionIndices[questionIndex].includes(canonicalOptionId)) {
       this.selectedOptionIndices[questionIndex].push(canonicalOptionId);
     }
-
+  
     this.selectedOptionSubject.next(committedSelections);
-
+  
     if (!isMultiSelect) {
       this.isOptionSelectedSubject.next(true);
       this.setNextButtonEnabled(true);
     } else {
       const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
-
       if (selectedOptions.length === 0) {
         console.warn('[⚠️ No selected options found for multi-select]');
         this.setNextButtonEnabled(false);
         console.log('[⛔ Next Disabled] No options selected for multi-select');
         return;
       }
-    
+  
       const allCorrect = await this.areAllCorrectAnswersSelectedSync(questionIndex);
-    
       if (allCorrect) {
         this.setNextButtonEnabled(true);
         console.log('[✅ Multi-select → all correct options selected → Next enabled]');
@@ -129,7 +167,7 @@ export class SelectedOptionService {
         console.log('[⛔ Multi-select → waiting for more correct selections]');
       }
     }
-
+  
     console.info('[🧠 selectOption()] Emitted updated selections:', committedSelections);
   }
   
