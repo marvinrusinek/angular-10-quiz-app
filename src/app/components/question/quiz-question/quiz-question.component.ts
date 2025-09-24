@@ -1162,15 +1162,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private restoreQuizState(): void {
     try {
+      const storageIndex =
+        typeof this.currentQuestionIndex === 'number' &&
+        !Number.isNaN(this.currentQuestionIndex)
+          ? this.currentQuestionIndex
+          : 0;
+
+      const explanationKey = `explanationText_${storageIndex}`;
+      const displayModeKey = `displayMode_${storageIndex}`;
+      const optionsKey = `options_${storageIndex}`;
+      const selectedOptionsKey = `selectedOptions_${storageIndex}`;
+      const feedbackKey = `feedbackText_${storageIndex}`;
+
       // Restore explanation text
       this.currentExplanationText =
-        sessionStorage.getItem(`explanationText`) || '';
-      const displayMode = sessionStorage.getItem(`displayMode`);
+        sessionStorage.getItem(explanationKey) ||
+        sessionStorage.getItem(`explanationText`) ||
+        '';
+      const displayMode =
+        sessionStorage.getItem(displayModeKey) ||
+        sessionStorage.getItem(`displayMode`);
       this.displayState.mode =
         displayMode === 'explanation' ? 'explanation' : 'question';
 
       // Restore options
-      const optionsData = sessionStorage.getItem(`options`);
+      const optionsData =
+        sessionStorage.getItem(optionsKey) ||
+        sessionStorage.getItem(`options`);
       if (optionsData) {
         try {
           const parsedOptions = JSON.parse(optionsData);
@@ -1199,7 +1217,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // Restore selected options safely and apply feedback
-      const selectedOptionsData = sessionStorage.getItem(`selectedOptions`);
+      const selectedOptionsData =
+        sessionStorage.getItem(selectedOptionsKey) ||
+        sessionStorage.getItem(`selectedOptions`);
       if (selectedOptionsData) {
         try {
           const selectedOptions = JSON.parse(selectedOptionsData);
@@ -1225,6 +1245,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           );
         }
       }
+
+      // Restore feedback text
+      this.feedbackText =
+        sessionStorage.getItem(feedbackKey) ||
+        sessionStorage.getItem(`feedbackText`) ||
+        '';
 
       // Force feedback to be applied even if state wasn't restored properly
       setTimeout(() => {
