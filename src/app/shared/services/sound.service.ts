@@ -44,12 +44,12 @@ export class SoundService {
 
   initializeSounds(): void {
     this.sounds['correct'] = new Howl({
-      src: [this.resolveSoundUrl('correct.mp3')],
+      src: [this.resolveSoundUrl('https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3')],
       preload: true
     });
 
     this.sounds['incorrect'] = new Howl({
-      src: [this.resolveSoundUrl('incorrect.mp3')],
+      src: [this.resolveSoundUrl('https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3')],
       preload: true
     });
   }
