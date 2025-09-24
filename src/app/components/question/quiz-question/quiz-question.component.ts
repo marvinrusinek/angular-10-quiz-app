@@ -5975,7 +5975,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       const qType = this.questions?.[i0]?.type ?? this.currentQuestion?.type;
       if (qType === QuestionType.MultipleAnswer) {
-        try { this.selectedOptionService.evaluateNextButtonStateForQuestion(i0, true); } catch {}
+        try {
+          this.selectedOptionService.evaluateNextButtonStateForQuestion(
+            i0,
+            true,
+            true
+          );
+        } catch {}
       } else {
         try { this.selectedOptionService.setAnswered(true); } catch {}
         try { this.nextButtonStateService.setNextButtonState(true); } catch {}
