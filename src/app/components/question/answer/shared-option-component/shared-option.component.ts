@@ -605,12 +605,22 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     this.updateOptionAndUI(optionBinding, index, simulatedEvent);
   
+    const enrichedOption: SelectedOption = {
+      ...clonedOption,
+      questionIndex: this.quizService.getCurrentQuestionIndex(),
+    };
+
     this.optionClicked.emit({
-      option: clonedOption,
+      option: enrichedOption,
       index,
       checked: true,
       wasReselected: wasSelected
     });
+
+    if (!wasSelected) {
+      this.soundService.playOnceForOption(enrichedOption);
+      this.soundService.markPlayed(enrichedOption.questionIndex ?? -1, enrichedOption.optionId);
+    }
   }
 
   preserveOptionHighlighting(): void {
