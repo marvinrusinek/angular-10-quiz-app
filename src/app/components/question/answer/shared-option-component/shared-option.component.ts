@@ -551,28 +551,33 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const wasPreviouslySelected = this.soundService.hasPlayed(questionIndex, optionId);
     console.log('[🧪 SOC] wasPreviouslySelected (from soundService):', wasPreviouslySelected);
   
+    const enrichedOption: SelectedOption = {
+      ...optionBinding.option,
+      questionIndex,
+    };
+
     // Emit BEFORE any mutation
     this.optionClicked.emit({
-      option: {
-        ...optionBinding.option,
-        questionIndex,
-      },
+      option: enrichedOption,
       index,
       checked: true,
       wasReselected: wasPreviouslySelected
     });
-  
+
     // Only update UI if this is a new selection
     if (!wasPreviouslySelected) {
       const simulatedEvent: MatRadioChange = {
-        source: {
+        source: {    
           value: optionBinding.option.optionId,
           checked: true,
         } as unknown as MatRadioButton,
         value: optionBinding.option.optionId
       };
-  
+      
       this.updateOptionAndUI(optionBinding, index, simulatedEvent);
+
+      // Fire the sound immediately for the first-time selection
+      this.soundService.playOnceForOption(enrichedOption);
 
       // Mark this option as having triggered sound for this question
       this.soundService.markPlayed(questionIndex, optionId);
