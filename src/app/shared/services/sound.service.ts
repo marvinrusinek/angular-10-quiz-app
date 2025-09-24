@@ -12,11 +12,11 @@ export class SoundService {
   // Track which (questionIndex, optionId) pairs played sound
   private playedSoundOptions: Set<string> = new Set();
 
-  /* constructor() {
+  constructor() {
     this.initializeSounds();
-  } */
+  }
 
-  /* initializeSounds(): void {
+  initializeSounds(): void {
     this.sounds['correct'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
       html5: true
@@ -26,7 +26,7 @@ export class SoundService {
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
       html5: true
     });
-    this.sounds['correct'] = new Howl({
+    /* this.sounds['correct'] = new Howl({
       src: ['../../../assets/sounds/correct.mp3'],
       html5: true
     });
@@ -34,15 +34,15 @@ export class SoundService {
     this.sounds['incorrect'] = new Howl({
       src: ['../../../assets/sounds/incorrect.mp3'],
       html5: true
-    });
-  } */
-
-  constructor(@Optional() @Inject(DOCUMENT) private readonly document: Document | null) {
-    this.configureHowler();
-    this.initializeSounds();
+    }); */
   }
 
-  initializeSounds(): void {
+  /* constructor(@Optional() @Inject(DOCUMENT) private readonly document: Document | null) {
+    this.configureHowler();
+    this.initializeSounds();
+  } */
+
+  /* initializeSounds(): void {
     this.sounds['correct'] = new Howl({
       src: [this.resolveSoundUrl('https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3')],
       preload: true
@@ -52,7 +52,7 @@ export class SoundService {
       src: [this.resolveSoundUrl('https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3')],
       preload: true
     });
-  }
+  } */
 
   // Play a sound only once per (questionIndex + optionId)
   playOnceForOption(option: SelectedOption): void {
