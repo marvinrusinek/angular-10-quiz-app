@@ -550,7 +550,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Check selected state before anything mutates it
     const wasPreviouslySelected = this.soundService.hasPlayed(questionIndex, optionId);
     console.log('[🧪 SOC] wasPreviouslySelected (from soundService):', wasPreviouslySelected);
-  
+
     const enrichedOption: SelectedOption = {
       ...optionBinding.option,
       questionIndex,
@@ -567,7 +567,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Only update UI if this is a new selection
     if (!wasPreviouslySelected) {
       const simulatedEvent: MatRadioChange = {
-        source: {    
+        source: {
           value: optionBinding.option.optionId,
           checked: true,
         } as unknown as MatRadioButton,
@@ -607,7 +607,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     const enrichedOption: SelectedOption = {
       ...clonedOption,
-      questionIndex: this.quizService.getCurrentQuestionIndex(),
+      questionIndex: this.quizService.getCurrentQuestionIndex()
     };
 
     this.optionClicked.emit({
