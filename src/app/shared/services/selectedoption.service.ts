@@ -472,7 +472,7 @@ export class SelectedOptionService {
     if (canonicalId == null) {
       console.warn('[removeSelectedOptionIndex] Unable to resolve canonical optionId', {
         optionIndex,
-        questionIndex,
+        questionIndex
       });
       return;
     }
