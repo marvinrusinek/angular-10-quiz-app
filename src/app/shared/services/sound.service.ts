@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
