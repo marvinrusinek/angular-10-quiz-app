@@ -1167,16 +1167,35 @@ export class SelectedOptionService {
     rawId: number | string | null | undefined,
     fallbackIndexOrText?: number | string
   ): number | null {
-    const q = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(q?.options) ? q!.options : [];
-    if (!q || options.length === 0) return null;
-  
     // helpers
     const toNum = (v: unknown): number | null => {
       if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
       const n = Number(String(v));
       return Number.isFinite(n) ? n : null;
     };
+    const fallbackNumeric = (): number | null => {
+      const rawNumeric = toNum(rawId);
+      if (rawNumeric !== null) {
+        return rawNumeric;
+      }
+
+      if (typeof fallbackIndexOrText === 'number') {
+        return fallbackIndexOrText >= 0 ? fallbackIndexOrText : null;
+      }
+
+      if (typeof fallbackIndexOrText === 'string') {
+        return toNum(fallbackIndexOrText);
+      }
+
+      return null;
+    };
+
+    const q = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(q?.options) ? q!.options : [];
+    if (!q || options.length === 0) {
+      return fallbackNumeric();
+    }
+  
     const decodeHtml = (s: string) =>
       s.replace(/&nbsp;/gi, ' ')
        .replace(/&amp;/gi, '&')
