@@ -204,8 +204,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.selectionSub = this.selectedOptionService.selectedOption$
       .pipe(
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        // defer processing until the next animation frame
-        observeOn(animationFrameScheduler)
+        observeOn(animationFrameScheduler)  // defer processing until next animation frame
       )
       .subscribe((incoming) => {
         const selList: SelectedOption[] = Array.isArray(incoming)
