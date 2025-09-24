@@ -59,7 +59,8 @@ export class SelectedOptionService {
     optionId: number,
     questionIndex: number,
     text: string,
-    isMultiSelect: boolean
+    isMultiSelect: boolean,
+    optionsSnapshot?: Option[]            // ← NEW (optional live snapshot)
   ): Promise<void> {
     if (optionId == null || questionIndex == null || !text) {
       console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
@@ -69,6 +70,12 @@ export class SelectedOptionService {
     // Resolve a best-effort index from the incoming text across common aliases.
     const q = this.quizService.questions?.[questionIndex];
     const options = Array.isArray(q?.options) ? q!.options : [];
+  
+    // Prefer the caller-provided snapshot (fresh UI state) if available
+    const source: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : options;
   
     const decodeHtml = (s: string) =>
       s.replace(/&nbsp;/gi, ' ')
@@ -82,37 +89,60 @@ export class SelectedOptionService {
       typeof s === 'string'
         ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
         : '';
+    const toNum = (v: unknown): number | null => {
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
+      const n = Number(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
   
     const key = norm(text);
     const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
   
+    // Try to find a concrete index in the chosen source by matching text/value/aliases
     let fallbackIndexFromText = -1;
-    for (let i = 0; i < options.length && fallbackIndexFromText < 0; i++) {
-      const o: any = options[i];
+    for (let i = 0; i < source.length && fallbackIndexFromText < 0; i++) {
+      const o: any = source[i];
       for (const f of aliasFields) {
         if (norm(o?.[f]) === key) { fallbackIndexFromText = i; break; }
       }
     }
   
-    // ⚠️ IMPORTANT: pass the index (if found) as the 3rd arg — not the raw text.
+    // Also try to resolve by id inside the same source (handle 0, string/number)
+    let indexFromId = -1;
+    for (let i = 0; i < source.length && indexFromId < 0; i++) {
+      const oid = (source[i] as any)?.optionId;
+      if (oid === optionId || String(oid) === String(optionId) || toNum(oid) === toNum(optionId)) {
+        indexFromId = i;
+      }
+    }
+  
+    // ⚠️ IMPORTANT: prefer a concrete index hint (from id or text) over raw text
     const resolverHint: number | string | undefined =
-      fallbackIndexFromText >= 0 ? fallbackIndexFromText : text;
+      indexFromId >= 0 ? indexFromId :
+      (fallbackIndexFromText >= 0 ? fallbackIndexFromText : text);
   
     let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
   
-    // Last-resort fallback: if resolver failed but we have a concrete index, use it.
-    if (canonicalOptionId == null && fallbackIndexFromText >= 0) {
-      console.warn('[SelectedOptionService] Resolver missed; falling back to text-derived index', {
-        questionIndex, optionId, text, fallbackIndexFromText
-      });
-      canonicalOptionId = fallbackIndexFromText;
+    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
+    if (canonicalOptionId == null) {
+      if (indexFromId >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot indexFromId', {
+          questionIndex, optionId, text, indexFromId
+        });
+        canonicalOptionId = indexFromId;
+      } else if (fallbackIndexFromText >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
+          questionIndex, optionId, text, fallbackIndexFromText
+        });
+        canonicalOptionId = fallbackIndexFromText;
+      }
     }
   
     if (canonicalOptionId == null) {
       // Log a compact snapshot to see why it failed.
       console.error('Unable to determine a canonical optionId for selection', {
         optionId, questionIndex, text,
-        optionsSnapshot: options.map((o: any, i: number) => ({
+        optionsSnapshot: source.map((o: any, i: number) => ({
           i, id: o?.optionId, text: o?.text, value: o?.value,
           label: o?.label, name: o?.name, title: o?.title, displayText: o?.displayText
         }))
