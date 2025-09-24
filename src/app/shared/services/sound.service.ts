@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { Howl, Howler } from 'howler';
 
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
@@ -11,12 +12,12 @@ export class SoundService {
   // Track which (questionIndex, optionId) pairs played sound
   private playedSoundOptions: Set<string> = new Set();
 
-  constructor() {
+  /* constructor() {
     this.initializeSounds();
-  }
+  } */
 
-  initializeSounds(): void {
-    /* this.sounds['correct'] = new Howl({
+  /* initializeSounds(): void {
+    this.sounds['correct'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/correct.mp3'],
       html5: true
     });
@@ -24,7 +25,7 @@ export class SoundService {
     this.sounds['incorrect'] = new Howl({
       src: ['https://raw.githubusercontent.com/marvinrusinek/angular-10-quiz-app/master/src/assets/sounds/incorrect.mp3'],
       html5: true
-    }); */
+    });
     this.sounds['correct'] = new Howl({
       src: ['../../../assets/sounds/correct.mp3'],
       html5: true
@@ -33,6 +34,23 @@ export class SoundService {
     this.sounds['incorrect'] = new Howl({
       src: ['../../../assets/sounds/incorrect.mp3'],
       html5: true
+    });
+  } */
+
+  constructor(@Optional() @Inject(DOCUMENT) private readonly document: Document | null) {
+    this.configureHowler();
+    this.initializeSounds();
+  }
+
+  initializeSounds(): void {
+    this.sounds['correct'] = new Howl({
+      src: [this.resolveSoundUrl('correct.mp3')],
+      preload: true
+    });
+
+    this.sounds['incorrect'] = new Howl({
+      src: [this.resolveSoundUrl('incorrect.mp3')],
+      preload: true
     });
   }
 
@@ -142,5 +160,30 @@ export class SoundService {
       key.startsWith(`${questionIndex}-`)
     );
     keysToDelete.forEach(key => this.playedSoundOptions.delete(key));
-  }  
+  }
+
+  private configureHowler(): void {
+    try {
+      Howler.autoUnlock = true;
+    } catch (error) {
+      console.warn('[⚠️ Unable to configure Howler autoUnlock]', error);
+    }
+  }
+
+  private resolveSoundUrl(fileName: string): string {
+    const fallbackUrl = `assets/sounds/${fileName}`;
+
+    try {
+      const baseHref = this.document?.baseURI ?? this.document?.location?.href;
+
+      if (!baseHref) {
+        return fallbackUrl;
+      }
+
+      return new URL(`assets/sounds/${fileName}`, baseHref).toString();
+    } catch (error) {
+      console.warn('[⚠️ Falling back to relative sound path]', error);
+      return fallbackUrl;
+    }
+  }
 }
