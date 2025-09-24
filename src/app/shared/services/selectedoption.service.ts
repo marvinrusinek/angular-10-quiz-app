@@ -1167,14 +1167,17 @@ export class SelectedOptionService {
     rawId: number | string | null | undefined,
     fallbackIndexOrText?: number | string
   ): number | null {
-    // helpers
-    const toNum = (v: unknown): number | null => {
-      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
-      const n = Number(String(v));
-      return Number.isFinite(n) ? n : null;
+    const toFiniteNumber = (value: unknown): number | null => {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+
+      const parsed = Number(String(value));
+      return Number.isFinite(parsed) ? parsed : null;
     };
-    const fallbackNumeric = (): number | null => {
-      const rawNumeric = toNum(rawId);
+
+    const parseFallbackNumber = (): number | null => {
+      const rawNumeric = toFiniteNumber(rawId);
       if (rawNumeric !== null) {
         return rawNumeric;
       }
@@ -1184,106 +1187,125 @@ export class SelectedOptionService {
       }
 
       if (typeof fallbackIndexOrText === 'string') {
-        return toNum(fallbackIndexOrText);
+        return toFiniteNumber(fallbackIndexOrText);
       }
 
       return null;
     };
 
-    const q = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(q?.options) ? q!.options : [];
-    if (!q || options.length === 0) {
-      return fallbackNumeric();
+    const question = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(question?.options) ? question.options ?? [] : [];
+    if (!question || options.length === 0) {
+      return parseFallbackNumber();
     }
-  
-    const decodeHtml = (s: string) =>
-      s.replace(/&nbsp;/gi, ' ')
-       .replace(/&amp;/gi, '&')
-       .replace(/&lt;/gi, '<')
-       .replace(/&gt;/gi, '>')
-       .replace(/&quot;/gi, '"')
-       .replace(/&#39;/gi, "'");
-    const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
-    const norm = (s: unknown) =>
-      typeof s === 'string'
-        ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
+
+    const decodeHtml = (value: string) =>
+      value
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'");
+    const stripTags = (value: string) => value.replace(/<[^>]*>/g, ' ');
+    const normalize = (value: unknown) =>
+      typeof value === 'string'
+        ? stripTags(decodeHtml(value)).trim().toLowerCase().replace(/\s+/g, ' ')
         : '';
-  
-    const inBounds = (i: number | undefined) =>
-      typeof i === 'number' && i >= 0 && i < options.length;
-  
-    const fallbackIndex = typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
-    const hintText      = typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
-  
-    // Build lookups
-    const byId = new Map<string | number, number>();
-    const byAlias = new Map<string, number>(); // text/value/label/name/title/displayText/description/stable
-  
-    const aliasFields = ['text','value','label','name','title','displayText','html','description'];
-  
-    const stableKey = (opt: any): string => {
-      const idPart = opt?.optionId != null ? String(opt.optionId) : '';
-      const alias = aliasFields.map(f => norm(opt?.[f])).find(Boolean) || '';
+
+    const inBounds = (index: number | undefined) =>
+      typeof index === 'number' && index >= 0 && index < options.length;
+
+    const fallbackIndex =
+      typeof fallbackIndexOrText === 'number' ? fallbackIndexOrText : undefined;
+    const hintText =
+      typeof fallbackIndexOrText === 'string' ? fallbackIndexOrText : undefined;
+    const normalizedHint = hintText ? normalize(hintText) : null;
+
+    const resolveFromIndex = (index: number): number => {
+      const numericId = toFiniteNumber((options[index] as any)?.optionId);
+      return numericId ?? index;
+    };
+
+    const aliasFields = [
+      'text',
+      'value',
+      'label',
+      'name',
+      'title',
+      'displayText',
+      'html',
+      'description'
+    ];
+
+    const lookupById = new Map<string | number, number>();
+    const lookupByAlias = new Map<string, number>();
+
+    const buildStableKey = (option: any): string => {
+      const idPart = option?.optionId != null ? String(option.optionId) : '';
+      const alias = aliasFields.map((field) => normalize(option?.[field])).find(Boolean) || '';
       return `${questionIndex}|${idPart}|${alias}`;
     };
-  
-    for (let i = 0; i < options.length; i++) {
-      const o: any = options[i];
-  
-      // id variants (0 valid)
-      if (o.optionId !== null && o.optionId !== undefined) {
-        byId.set(o.optionId, i);
-        const asNum = toNum(o.optionId);
-        if (asNum !== null) byId.set(asNum, i);
-        byId.set(String(o.optionId), i);
+
+    options.forEach((option: any, index) => {
+      if (option?.optionId !== null && option?.optionId !== undefined) {
+        lookupById.set(option.optionId, index);
+
+        const numericId = toFiniteNumber(option.optionId);
+        if (numericId !== null) {
+          lookupById.set(numericId, index);
+        }
+
+        lookupById.set(String(option.optionId), index);
       }
-  
-      // aliases
-      for (const f of aliasFields) {
-        const k = norm(o?.[f]);
-        if (k) byAlias.set(k, i);
-      }
-      byAlias.set(norm(stableKey(o)), i);
-    }
-  
-    // 1) Try raw id variants first
+
+      aliasFields.forEach((field) => {
+        const key = normalize(option?.[field]);
+        if (key) {
+          lookupByAlias.set(key, index);
+        }
+      });
+
+      lookupByAlias.set(normalize(buildStableKey(option)), index);
+    });
+
     if (rawId !== undefined && rawId !== null) {
+      const rawNumeric = toFiniteNumber(rawId);
       const candidates: Array<string | number> = [rawId, String(rawId)];
-      const rawNum = toNum(rawId);
-      if (rawNum !== null) candidates.push(rawNum);
-  
-      for (const k of candidates) {
-        const i = byId.get(k as any);
-        if (i !== undefined) {
-          const oidNum = toNum((options[i] as any).optionId);
-          return oidNum ?? i; // return canonical numeric id if possible; else index
+      if (rawNumeric !== null) {
+        candidates.push(rawNumeric);
+      }
+
+      for (const candidate of candidates) {
+        const match = lookupById.get(candidate as any);
+        if (match !== undefined) {
+          return resolveFromIndex(match);
         }
       }
-  
-      // Numeric-looking id: treat as index if sensible and no explicit fallback
-      const rawIdx = toNum(rawId);
-      if (rawIdx !== null && inBounds(rawIdx) && fallbackIndex === undefined) return rawIdx;
-  
-      // Friendly 1-based → 0-based
-      if (rawIdx !== null && inBounds(rawIdx - 1)) return rawIdx - 1;
-    }
-  
-    // 2) Use text hint if provided (match across all aliases & stableKey)
-    if (hintText) {
-      const key = norm(hintText);
-      const hit = byAlias.get(key);
-      if (hit !== undefined) {
-        const oidNum = toNum((options[hit] as any).optionId);
-        return oidNum ?? hit;
+
+      if (rawNumeric !== null) {
+        if (inBounds(rawNumeric) && fallbackIndex === undefined) {
+          return rawNumeric;
+        }
+
+        const zeroBased = rawNumeric - 1;
+        if (inBounds(zeroBased)) {
+          return zeroBased;
+        }
       }
     }
-  
-    // 3) Fallback index if provided and valid
-    if (inBounds(fallbackIndex)) {
-      const oidNum = toNum((options[fallbackIndex!] as any).optionId);
-      return oidNum ?? fallbackIndex!;
+
+    if (normalizedHint) {
+      const match = lookupByAlias.get(normalizedHint);
+      if (match !== undefined) {
+        return resolveFromIndex(match);
+      }
     }
-  
+
+    if (inBounds(fallbackIndex)) {
+      return resolveFromIndex(fallbackIndex!);
+    }
+
     return null;
   }
        
