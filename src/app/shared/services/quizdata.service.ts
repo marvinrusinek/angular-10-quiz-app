@@ -21,6 +21,7 @@ export class QuizDataService implements OnDestroy {
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
   private quizzes: Quiz[] = [];
+  private readonly quizQuestionCache = new Map<string, QuizQuestion[]>();
 
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
   selectedQuizSubject = new BehaviorSubject<Quiz | null>(null);
@@ -178,9 +179,9 @@ export class QuizDataService implements OnDestroy {
               correct  : base.correct ?? false,
               selected : false,
               highlight: false,
-              showIcon : false,
+              showIcon : false
             } as Option;
-          }),
+          })
         }));
 
         if (this.quizService.isShuffleEnabled()) {
@@ -192,6 +193,8 @@ export class QuizDataService implements OnDestroy {
             }
           });
         }
+
+        this.quizQuestionCache.set(quizId, clonedQuestions);
 
         return clonedQuestions;
       }),
@@ -211,22 +214,26 @@ export class QuizDataService implements OnDestroy {
     
     return this.getQuiz(quizId).pipe(
       map(quiz => {
-        if (!quiz || questionIndex < 0 || questionIndex >= quiz.questions.length) {
+        const cachedQuestions = this.quizQuestionCache.get(quizId);
+        const questionsToUse = cachedQuestions ?? quiz?.questions ?? [];
+
+        if (questionIndex < 0 || questionIndex >= questionsToUse.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
-        const question = quiz.questions[questionIndex];
+
+        const question = questionsToUse[questionIndex];
         if (!question) {
           console.error(`No question found at index ${questionIndex}`);
           return null;
         }
-  
+
         // Check for undefined options and handle accordingly
         const options = question.options ?? [];
         if (options.length === 0) {
           console.warn(`No options found for question at index ${questionIndex}`);
         }
-  
+
         return [question, options] as [QuizQuestion, Option[]];
       }),
       catchError(error => {
@@ -316,7 +323,19 @@ export class QuizDataService implements OnDestroy {
 
   getOptions(quizId: string, questionIndex: number): Observable<Option[]> {
     return this.getQuiz(quizId).pipe(
-      map((quiz) => this.extractOptions(quiz, questionIndex)),
+      map((quiz) => {
+        const cachedQuestions = this.quizQuestionCache.get(quizId);
+        if (cachedQuestions) {
+          if (questionIndex < 0 || questionIndex >= cachedQuestions.length) {
+            console.warn(`Question at index ${questionIndex} not found in cached quiz "${quizId}".`);
+            return [];
+          }
+
+          return cachedQuestions[questionIndex].options ?? [];
+        }
+
+        return this.extractOptions(quiz, questionIndex);
+      }),
       distinctUntilChanged(),
       catchError((error: HttpErrorResponse) => {
         console.error(`Error fetching options for quiz ID "${quizId}", question index ${questionIndex}:`, error.message);
