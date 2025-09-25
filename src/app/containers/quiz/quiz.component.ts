@@ -488,6 +488,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizId = quizId;
 
+    await this.ensureInitialQuestionFromRoute();
+
     this.indexSubscription = this.quizService.currentQuestionIndex$
       .pipe(distinctUntilChanged())
       .subscribe((idx: number) => {
