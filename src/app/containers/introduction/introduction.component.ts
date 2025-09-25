@@ -210,7 +210,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
     // Shuffle questions if enabled
     if (shouldShuffleOptions) {
-      this.quizService.shuffleQuestionsAndAnswers(quizId); // Unified shuffle method
+      this.quizService.shuffleQuestionsAndAnswers(quizId);  // unified shuffle method
       console.log('Shuffling questions and answers for quiz ID:', quizId);
     }
   
