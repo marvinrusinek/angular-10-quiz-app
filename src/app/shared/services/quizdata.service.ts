@@ -46,8 +46,8 @@ export class QuizDataService implements OnDestroy {
 
   getQuizzes(): Observable<Quiz[]> {
     return this.quizzes$.pipe(
-      filter(quizzes => quizzes.length > 0),  // Ensure data is loaded
-      take(1)  // Ensure it emits only once
+      filter(quizzes => quizzes.length > 0),  // ensure data is loaded
+      take(1)  // ensure it emits only once
     );
   }
 
@@ -204,6 +204,31 @@ export class QuizDataService implements OnDestroy {
         console.error('[QuizDataService] getQuestionsForQuiz:', error);
         // Rethrow so upstream callers see the failure
         return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Ensure the quiz session questions are available before starting a quiz.
+   * Reuses any cached clone for the quiz and re-applies it to the quiz service
+   * so downstream consumers receive a consistent question set.
+   */
+  prepareQuizSession(quizId: string): Observable<QuizQuestion[]> {
+    if (!quizId) {
+      console.error('[prepareQuizSession] quizId is required.');
+      return of([]);
+    }
+
+    const cached = this.quizQuestionCache.get(quizId);
+    if (Array.isArray(cached) && cached.length > 0) {
+      this.quizService.applySessionQuestions(quizId, cached);
+      return of(cached);
+    }
+
+    return this.getQuestionsForQuiz(quizId).pipe(
+      catchError((error: Error) => {
+        console.error('[prepareQuizSession] Failed to fetch questions:', error);
+        return of([]);
       })
     );
   }
