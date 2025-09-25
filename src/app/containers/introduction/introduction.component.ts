@@ -211,7 +211,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Failed to prepare quiz session:', error);
     }
 
-    this.navigateToFirstQuestion(quizId, shouldShuffleOptions, feedbackMode);
+    try {
+      await this.navigateToFirstQuestion(
+        quizId,
+        shouldShuffleOptions,
+        feedbackMode
+      );
+    } catch (error) {
+      console.error('Failed to navigate to first question:', error);
+    }
   }
 
   private navigateToFirstQuestion(
@@ -220,6 +228,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     feedbackMode: string
   ): void {
     void this.router.navigate(['/question', quizId, 1], {
+      
+      
       state: { shouldShuffleOptions, feedbackMode }
     });
   }
