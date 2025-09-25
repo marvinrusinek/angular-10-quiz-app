@@ -171,7 +171,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   } 
   
-  onCheckboxChange(event: { checked: boolean }): void {
+  onCheckboxChange(event: MatSlideToggleChange): void {
     console.log('Checkbox change event:', event);
 
     // Update the user preference for highlighting correct answers
