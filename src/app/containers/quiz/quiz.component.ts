@@ -1155,6 +1155,98 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.subscribeToCurrentQuestion();
   }
 
+  private async ensureInitialQuestionFromRoute(): Promise<void> {
+    const existingPayload = this.quizService.questionPayloadSubject?.value;
+    if (existingPayload?.question && existingPayload?.options?.length) {
+      return;
+    }
+
+    const quizIdFromRoute = this.quizId || this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (!quizIdFromRoute) {
+      console.error('[ensureInitialQuestionFromRoute] ❌ Missing quizId from route.');
+      return;
+    }
+
+    const routeIndexParam = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const parsedRouteIndex = Number(routeIndexParam);
+    const normalizedIndex = Number.isFinite(parsedRouteIndex) && parsedRouteIndex > 0
+      ? parsedRouteIndex - 1
+      : 0;
+
+    try {
+      const quiz = await firstValueFrom(
+        this.quizDataService.getQuiz(quizIdFromRoute).pipe(take(1))
+      );
+
+      if (!quiz || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+        console.error('[ensureInitialQuestionFromRoute] ❌ Quiz not found or contains no questions.', {
+          quizId: quizIdFromRoute
+        });
+        return;
+      }
+
+      const safeIndex = Math.min(Math.max(normalizedIndex, 0), quiz.questions.length - 1);
+      const rawQuestion = quiz.questions[safeIndex];
+
+      if (!rawQuestion) {
+        console.error('[ensureInitialQuestionFromRoute] ❌ Missing question for index.', {
+          quizId: quizIdFromRoute,
+          safeIndex
+        });
+        return;
+      }
+
+      const rawOptions = Array.isArray(rawQuestion.options) ? [...rawQuestion.options] : [];
+      const hydratedOptions = this.quizService.assignOptionIds(rawOptions).map((option) => ({
+        ...option,
+        correct: option.correct ?? false,
+        selected: option.selected ?? false,
+        active: option.active ?? true,
+        showIcon: option.showIcon ?? false,
+      }));
+
+      if (hydratedOptions.length === 0) {
+        console.error('[ensureInitialQuestionFromRoute] ❌ Question has no options to display.', {
+          quizId: quizIdFromRoute,
+          safeIndex
+        });
+        return;
+      }
+
+      const hydratedQuestion: QuizQuestion = {
+        ...rawQuestion,
+        options: hydratedOptions
+      };
+
+      this.quiz = quiz;
+      this.selectedQuiz = quiz;
+      this.currentQuiz = quiz;
+      this.questions = quiz.questions;
+      this.questionsArray = [...quiz.questions];
+      this.totalQuestions = quiz.questions.length;
+      this.currentQuestionIndex = safeIndex;
+      this.isQuizLoaded = true;
+      this.question = hydratedQuestion;
+      this.currentQuestion = hydratedQuestion;
+      this.qaToDisplay = { question: hydratedQuestion, options: hydratedOptions };
+      this.optionsToDisplay = [...hydratedOptions];
+      this.shouldRenderOptions = true;
+      this.questionToDisplaySubject.next(
+        hydratedQuestion.questionText?.trim() ?? 'No question available'
+      );
+
+      this.quizService.setQuizId(quizIdFromRoute);
+      this.quizService.setSelectedQuiz(quiz);
+      this.quizService.setActiveQuiz(quiz);
+      this.quizService.setCurrentQuestionIndex(safeIndex);
+      this.quizService.updateBadgeText(safeIndex + 1, quiz.questions.length);
+      this.quizService.emitQuestionAndOptions(hydratedQuestion, hydratedOptions);
+      this.cdRef.markForCheck();
+    } catch (error) {
+      console.error('[ensureInitialQuestionFromRoute] ❌ Failed to load quiz/question from route.', error);
+    }
+  }
+
   /***************** Initialize route parameters and subscribe to updates ****************/
   fetchRouteParams(): void {
     this.activatedRoute.params
