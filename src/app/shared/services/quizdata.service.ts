@@ -345,11 +345,11 @@ export class QuizDataService implements OnDestroy {
   }
   
   private extractOptions(quiz: Quiz, questionIndex: number): Option[] {
-    if (!quiz.questions || quiz.questions.length <= questionIndex) {
+    if (!quiz?.questions || quiz.questions.length <= questionIndex) {
       console.warn(`Question at index ${questionIndex} not found in quiz "${quiz.quizId}".`);
       return [];
     }
-  
+
     return quiz.questions[questionIndex].options || [];
   }
 
