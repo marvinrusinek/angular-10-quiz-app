@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -113,6 +114,7 @@ import { QuizGuard } from './router/guards/quiz.guard';
     MatGridListModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
     MatToolbarModule,
     NgbModule,
     AngMusicPlayerModule,

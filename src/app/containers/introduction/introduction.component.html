@@ -38,23 +38,14 @@
 
     <mat-card-actions [formGroup]="preferencesForm">
       <!-- Shuffle Questions and Answers Checkbox -->
-      <mat-checkbox style="font: Aptos"
+      <mat-slide-toggle style="font: Aptos"
         formControlName="shouldShuffleOptions"
         (change)="onCheckboxChange($event)"
         [checked]="highlightPreference"
         disableRipple="true" capture
         aria-label="Shuffle questions and answers">
-        Shuffle questions and answers
-      </mat-checkbox>
-
-      <!-- Immediate Feedback Checkbox -->
-      <mat-checkbox style="margin-top: -10px"
-        formControlName="isImmediateFeedback"
-        [checked]="highlightPreference"
-        disableRipple="true" capture
-        aria-label="Enable immediate feedback">
-        Enable immediate feedback
-      </mat-checkbox>
+        Shuffle Questions &amp; Answers
+      </mat-slide-toggle>
 
       <mat-button
         *ngIf="selectedQuiz"
