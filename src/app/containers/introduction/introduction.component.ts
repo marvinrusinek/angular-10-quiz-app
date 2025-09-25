@@ -206,7 +206,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
 
     try {
-      await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
+      await firstValueFrom(this.quizDataService.prepareQuizSession(quizId));
     } catch (error) {
       console.error('Failed to prepare quiz session:', error);
     }
