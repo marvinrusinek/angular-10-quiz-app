@@ -562,7 +562,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         });
   
         if (isMultipleAnswer && !explanationDisplayed) {
-          newCorrectAnswersText = `(${correctAnswers} answers are correct)`;
+          newCorrectAnswersText = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            correctAnswers,
+            question.options?.length ?? 0
+          );
         } else {
           newCorrectAnswersText = '';  // clear text if explanation is displayed
         }
