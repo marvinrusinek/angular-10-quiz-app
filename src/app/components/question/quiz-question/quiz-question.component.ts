@@ -167,6 +167,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   resetStateSubscription: Subscription;
   sharedVisibilitySubscription: Subscription;
   optionSelectionSubscription: Subscription;
+  shufflePreferenceSubscription: Subscription;
   private idxSub!: Subscription;
   isMultipleAnswer: boolean;
   isExplanationTextDisplayed = false;
@@ -432,6 +433,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.time('[📥 QQC received QA]');
         console.log('[📥 QQC got payload]', payload);
         console.timeEnd('[📥 QQC received QA]');
+      });
+
+    this.shufflePreferenceSubscription = this.quizService.checkedShuffle$
+      .subscribe((shouldShuffle) => {
+        this.shuffleOptions = shouldShuffle;
       });
 
     this.quizNavigationService.navigationSuccess$.subscribe(() => {
@@ -777,6 +783,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayModeSubscription?.unsubscribe();
     this.renderReadySubscription?.unsubscribe();
     this.timerSub?.unsubscribe();
+    this.shufflePreferenceSubscription?.unsubscribe();
   }
 
   // Listen for the visibility change event
