@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { BehaviorSubject, EMPTY, of, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, firstValueFrom, of, Subject } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -182,7 +182,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.highlightPreference = event.checked;
   }
 
-  onStartQuiz(quizId: string): void {
+  async onStartQuiz(quizId: string): Promise<void> {
     if (!quizId) {
       console.error('Quiz data is not ready.');
       return;
@@ -208,11 +208,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizService.setQuizId(quizId);
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
 
+    try {
+      await firstValueFrom(this.quizDataService.getQuestionsForQuiz(quizId));
+    } catch (error) {
+      console.error('Failed to prepare quiz session:', error);
+    }
+
     // Shuffle questions if enabled
-    if (shouldShuffleOptions) {
+    /* if (shouldShuffleOptions) {
       this.quizService.shuffleQuestionsAndAnswers(quizId);  // unified shuffle method
       console.log('Shuffling questions and answers for quiz ID:', quizId);
-    }
+    } */
   
     // Navigate to the quiz with preferences passed via state
     this.router.navigate(['/question', quizId, 1], {
