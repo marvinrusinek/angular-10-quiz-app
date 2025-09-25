@@ -169,16 +169,16 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     });
   } 
   
-  onCheckboxChange(event: MatSlideToggleChange): void {
-    console.log('Checkbox change event:', event);
+  onSlideToggleChange(event: MatSlideToggleChange): void {
+    console.log('Slide toggle change event:', event);
 
-    // Update the user preference for highlighting correct answers
-    this.userPreferenceService.setHighlightPreference(event.checked);
+    const isChecked = event.checked;
 
-    this.shouldShuffleOptions = event.checked;
-    this.isCheckedSubject.next(event.checked);
-    this.quizService.setCheckedShuffle(event.checked);
-    this.highlightPreference = event.checked;
+    this.userPreferenceService.setHighlightPreference(isChecked);
+    this.highlightPreference = isChecked;
+    this.shouldShuffleOptions = isChecked;
+    this.quizService.setCheckedShuffle(isChecked);
+    this.isCheckedSubject.next(isChecked);
   }
 
   async onStartQuiz(quizId: string): Promise<void> {
