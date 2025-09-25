@@ -37,10 +37,10 @@
     </mat-card-content>
 
     <mat-card-actions [formGroup]="preferencesForm">
-      <!-- Shuffle Questions and Answers Checkbox -->
-      <mat-slide-toggle style="font: Aptos"
+      <!-- "Shuffle Questions and Answers" slide toggle -->
+      <mat-slide-toggle
         formControlName="shouldShuffleOptions"
-        (change)="onCheckboxChange($event)"
+        (change)="onSlideToggleChange($event)"
         [checked]="highlightPreference"
         disableRipple="true" capture
         aria-label="Shuffle questions and answers">
