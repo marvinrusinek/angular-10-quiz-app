@@ -3113,7 +3113,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       isSelected: false  // always default to unselected
     })) as Option[];
 
-    if (this.selectedQuiz && this.options.length > 1) {
+    if (
+      this.selectedQuiz &&
+      this.options.length > 1 &&
+      this.quizService.isShuffleEnabled()
+    ) {
       Utils.shuffleArray(this.options);
     }
 
