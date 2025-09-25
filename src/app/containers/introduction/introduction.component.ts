@@ -69,7 +69,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.selectedQuiz$
       .pipe(
         takeUntil(this.destroy$),
-        filter((quiz) => quiz !== null) // Ensure we proceed only if there's a valid quiz
+        filter((quiz) => quiz !== null)  // ensure we proceed only if there's a valid quiz
       )
       .subscribe(() => {
         this.cdRef.markForCheck();
@@ -97,13 +97,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const quizId = params['quizId'];
     if (!quizId) {
       console.error('No quiz ID found in route parameters');
-      return EMPTY; // Return EMPTY if no quizId is available
+      return EMPTY;  // return EMPTY if no quizId is available
     }
   
     return this.quizDataService.getQuiz(quizId).pipe(
       catchError((error) => {
         console.error('Error fetching quiz:', error);
-        return EMPTY; // Handle the error by returning EMPTY to keep the Observable flow intact
+        return EMPTY;  // handle the error by returning EMPTY to keep the Observable flow intact
       })
     );
   }
