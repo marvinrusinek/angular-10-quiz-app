@@ -1849,7 +1849,7 @@ export class QuizService implements OnDestroy {
 
         const updatedQuestions = questions.map((question) => ({
           ...question,
-          options: this.shuffleAnswers(question.options), // Shuffle a copy of options
+          options: this.shuffleAnswers(question.options)  // shuffle a copy of options
         }));
 
         this.questionsSubject.next(updatedQuestions);
