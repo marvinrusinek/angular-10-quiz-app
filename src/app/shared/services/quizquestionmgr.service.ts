@@ -26,18 +26,21 @@ export class QuizQuestionManagerService {
   }
 
   getNumberOfCorrectAnswersText(
-    numberOfCorrectAnswers: number | undefined
+    numberOfCorrectAnswers: number | undefined,
+    totalOptions: number | undefined
   ): string {
     if ((numberOfCorrectAnswers ?? 0) === 0) {
       return 'No correct answers';
     }
 
-    const correctAnswersText =
-      numberOfCorrectAnswers > 1
-        ? `(${numberOfCorrectAnswers} answers are correct)`
-        : '';
+    if (!totalOptions || totalOptions <= 0) {
+      return numberOfCorrectAnswers === 1
+        ? '(1 answer is correct)'
+        : `(${numberOfCorrectAnswers} answers are correct)`;
+    }
 
-    return correctAnswersText;
+    const pluralSuffix = numberOfCorrectAnswers === 1 ? 'answer is' : 'answers are';
+    return `(${numberOfCorrectAnswers}/${totalOptions} ${pluralSuffix} correct)`;
   }
 
   updateCurrentQuestionDetail(question: QuizQuestion): void {
