@@ -1257,18 +1257,14 @@ export class QuizInitializationService {
     }
   
     const questionIndex = this.quizService.findQuestionIndex(question);
-    if (
-      questionIndex < 0 ||
-      questionIndex >= this.selectedQuiz.questions.length
-    ) {
+    if (questionIndex < 0 || questionIndex >= this.selectedQuiz.questions.length) {
       console.error('🚨 [updateQuizUIForNewQuestion] Invalid question index:', questionIndex);
       return;
     }
   
     // Reset UI elements
     this.selectedOption$.next(null);
-  }
-  
+  }  
 
   loadQuestionData(
     index: number,
