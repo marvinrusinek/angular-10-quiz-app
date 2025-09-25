@@ -10,6 +10,7 @@ import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { Utils } from '../../shared/utils/utils';
 
+
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
   private quizUrl = 'assets/data/quiz.json';
