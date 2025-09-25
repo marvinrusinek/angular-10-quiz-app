@@ -2731,8 +2731,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private getCorrectAnswersText(options: Option[]): string {
     const numCorrectAnswers =
       this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(options);
+    const totalOptions = Array.isArray(options) ? options.length : 0;
     return this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
-      numCorrectAnswers
+      numCorrectAnswers,
+      totalOptions
     );
   }
 
