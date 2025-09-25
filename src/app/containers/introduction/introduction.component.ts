@@ -225,12 +225,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   private navigateToFirstQuestion(
     quizId: string,
     shouldShuffleOptions: boolean,
-    feedbackMode: string
-  ): void {
-    void this.router.navigate(['/question', quizId, 1], {
-      
-      
-      state: { shouldShuffleOptions, feedbackMode }
+    feedbackMode: string,
+  ): Promise<boolean> {
+    return this.router.navigate(['/question', quizId, 1], {
+      state: { shouldShuffleOptions, feedbackMode },
     });
   }
   
