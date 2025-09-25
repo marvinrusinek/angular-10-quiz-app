@@ -176,6 +176,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Update the user preference for highlighting correct answers
     this.userPreferenceService.setHighlightPreference(event.checked);
 
+    this.shouldShuffleOptions = event.checked;
     this.isCheckedSubject.next(event.checked);
     this.quizService.setCheckedShuffle(event.checked);
     this.highlightPreference = event.checked;
@@ -204,6 +205,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       feedbackMode
     });
   
+    this.quizService.setQuizId(quizId);
+    this.quizService.setCheckedShuffle(shouldShuffleOptions);
+
     // Shuffle questions if enabled
     if (shouldShuffleOptions) {
       this.quizService.shuffleQuestionsAndAnswers(quizId); // Unified shuffle method
