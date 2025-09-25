@@ -31,13 +31,15 @@ mat-card-content {
 mat-card-actions {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   padding-bottom: 15px !important;
   margin-top: -20px;
 
-  mat-checkbox {
+  mat-slide-toggle {
     text-align: center;
-    padding-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   mat-button {
@@ -51,8 +53,7 @@ mat-card-actions {
     &:hover {
       border: 2px solid $black;
     }
-  }
-  
+  }  
 }
 
 
