@@ -793,7 +793,7 @@ export class QuizService implements OnDestroy {
 
         for (const question of quiz.questions) {
           if (question.options) {
-            Utils.shuffleArray(question.options); // Shuffle options
+            Utils.shuffleArray(question.options);  // shuffle options
           }
         }
       }
@@ -1719,6 +1719,10 @@ export class QuizService implements OnDestroy {
   }
 
   private shouldShuffle(): boolean {
+    return this.shuffleEnabledSubject.getValue();
+  }
+
+  isShuffleEnabled(): boolean {
     return this.shuffleEnabledSubject.getValue();
   }
 
