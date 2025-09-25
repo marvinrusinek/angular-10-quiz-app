@@ -40,7 +40,7 @@ export class QuizQuestionManagerService {
     }
 
     const pluralSuffix = numberOfCorrectAnswers === 1 ? 'answer is' : 'answers are';
-    return `(${numberOfCorrectAnswers}/${totalOptions} ${pluralSuffix} correct)`;
+    return `(${numberOfCorrectAnswers} ${pluralSuffix} correct)`;
   }
 
   updateCurrentQuestionDetail(question: QuizQuestion): void {
