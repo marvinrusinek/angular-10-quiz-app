@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { BehaviorSubject, EMPTY, firstValueFrom, of, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, firstValueFrom, of, Subject } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
@@ -133,19 +133,17 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   private handleQuizSelectionAndFetchQuestions(): void {
-    this.selectedQuiz$.pipe(
-      withLatestFrom(this.isCheckedSubject),
-      tap(([quiz, checked]) => {
-        console.log('Checkbox checked:', checked);
-        if (checked && quiz) {
-          console.log('Fetching and handling questions for quiz:', quiz.quizId);
+    combineLatest([this.selectedQuiz$, this.isCheckedSubject])
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(([quiz]): quiz is Quiz => !!quiz),
+        tap(([quiz, checked]) => {
+          console.log('Shuffle preference changed:', { quizId: quiz.quizId, checked });
+          this.shouldShuffleOptions = checked;
           this.fetchAndHandleQuestions(quiz.quizId);
-        } else {
-          console.log('Waiting for checkbox to be checked and quiz to be selected');
-        }
-      }),
-      takeUntil(this.destroy$)
-    ).subscribe();
+        })
+      )
+      .subscribe();
   }
 
   private fetchAndHandleQuestions(quizId: string): void {
