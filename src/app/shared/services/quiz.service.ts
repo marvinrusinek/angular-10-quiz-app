@@ -115,11 +115,10 @@ export class QuizService implements OnDestroy {
   displayExplanation = false;
   shouldDisplayExplanation = false;
 
-  _checkedShuffle: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+  private readonly shuffleEnabledSubject = new BehaviorSubject<boolean>(
     false
   );
-  checkedShuffle = new BehaviorSubject<boolean>(false);
-  checkedShuffle$ = this._checkedShuffle.asObservable();
+  checkedShuffle$ = this.shuffleEnabledSubject.asObservable();
   private shuffledQuestions: QuizQuestion[] = [];
 
   currentAnswer = '';
@@ -788,9 +787,9 @@ export class QuizService implements OnDestroy {
       }
 
       // Shuffle questions and options if needed
-      if (this.checkedShuffle.getValue()) {
+      if (this.shouldShuffle()) {
         console.info('[fetchQuizQuestions] Shuffling questions and options...');
-        Utils.shuffleArray(quiz.questions); // Shuffle questions
+        Utils.shuffleArray(quiz.questions);  // shuffle questions
 
         for (const question of quiz.questions) {
           if (question.options) {
@@ -907,7 +906,7 @@ export class QuizService implements OnDestroy {
           }
 
           // Shuffle questions and options if enabled
-          if (this.checkedShuffle.value) {
+          if (this.shouldShuffle()) {
             console.log('[QuizService] Shuffling questions and options...');
             Utils.shuffleArray(quiz.questions);
             for (const question of quiz.questions) {
@@ -1719,11 +1718,14 @@ export class QuizService implements OnDestroy {
     return Math.round((correctAnswers / totalQuestions) * 100);
   }
 
+  private shouldShuffle(): boolean {
+    return this.shuffleEnabledSubject.getValue();
+  }
+
   setCheckedShuffle(isChecked: boolean): void {
-    this.checkedShuffle.next(isChecked);
+    this.shuffleEnabledSubject.next(isChecked);
 
     if (!this.quizId) {
-      console.error('[setCheckedShuffle] No quizId set.');
       return;
     }
 
@@ -1762,7 +1764,7 @@ export class QuizService implements OnDestroy {
               questions
             );
 
-            if (this.checkedShuffle.getValue()) {
+            if (this.shouldShuffle()) {
               // Ensure checkedShuffle is resolved
               Utils.shuffleArray(questions);
               console.log(
@@ -1807,7 +1809,7 @@ export class QuizService implements OnDestroy {
   }
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
-    if (this.checkedShuffle.getValue() && questions && questions.length > 0) {
+    if (this.shouldShuffle() && questions && questions.length > 0) {
       return Utils.shuffleArray([...questions]); // Shuffle a copy for immutability
     }
     console.log(
@@ -1817,7 +1819,7 @@ export class QuizService implements OnDestroy {
   }
 
   shuffleAnswers(answers: Option[]): Option[] {
-    if (this.checkedShuffle.getValue() && answers && answers.length > 0) {
+    if (this.shouldShuffle() && answers && answers.length > 0) {
       return Utils.shuffleArray([...answers]);
     }
     console.log('[shuffleAnswers] Skipping shuffle or no answers available.');
@@ -1825,6 +1827,10 @@ export class QuizService implements OnDestroy {
   }
 
   shuffleQuestionsAndAnswers(quizId: string): void {
+    if (!this.shouldShuffle()) {
+      return;
+    }
+
     this.fetchAndShuffleQuestions(quizId);
 
     this.questionsSubject
