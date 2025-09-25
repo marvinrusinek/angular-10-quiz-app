@@ -8,6 +8,7 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { Utils } from '../../shared/utils/utils';
 
 @Injectable({ providedIn: 'root' })
 export class QuizDataService implements OnDestroy {
@@ -164,7 +165,7 @@ export class QuizDataService implements OnDestroy {
         }
 
         // Deep-clone every question and option
-        return quiz.questions.map((question) => ({
+        const clonedQuestions = quiz.questions.map((question) => ({
           ...question,
           options: question.options.map((option, idx) => {
             const base: Option = typeof structuredClone === 'function'
@@ -181,6 +182,18 @@ export class QuizDataService implements OnDestroy {
             } as Option;
           }),
         }));
+
+        if (this.quizService.isShuffleEnabled()) {
+          Utils.shuffleArray(clonedQuestions);
+
+          clonedQuestions.forEach((question) => {
+            if (Array.isArray(question.options) && question.options.length > 1) {
+              Utils.shuffleArray(question.options);
+            }
+          });
+        }
+
+        return clonedQuestions;
       }),
       catchError(error => {
         console.error('[QuizDataService] getQuestionsForQuiz:', error);
