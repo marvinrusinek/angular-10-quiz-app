@@ -204,6 +204,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
     this.quizService.setQuizId(quizId);
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
+    this.quizService.setCurrentQuestionIndex(0);
 
     try {
       await firstValueFrom(this.quizDataService.prepareQuizSession(quizId));
