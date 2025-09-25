@@ -200,10 +200,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
     this.userPreferenceService.setFeedbackMode(feedbackMode);
   
-    console.log('Preferences when starting quiz:', {
-      shouldShuffleOptions,
-      feedbackMode
-    });
+    console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
   
     this.quizService.setQuizId(quizId);
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
@@ -214,27 +211,18 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Failed to prepare quiz session:', error);
     }
 
-    // Shuffle questions if enabled
-    /* if (shouldShuffleOptions) {
-      this.quizService.shuffleQuestionsAndAnswers(quizId);  // unified shuffle method
-      console.log('Shuffling questions and answers for quiz ID:', quizId);
-    } */
-  
-    // Navigate to the quiz with preferences passed via state
-    this.router.navigate(['/question', quizId, 1], {
+    this.navigateToFirstQuestion(quizId, shouldShuffleOptions, feedbackMode);
+  }
+
+  private navigateToFirstQuestion(
+    quizId: string,
+    shouldShuffleOptions: boolean,
+    feedbackMode: string
+  ): void {
+    void this.router.navigate(['/question', quizId, 1], {
       state: { shouldShuffleOptions, feedbackMode }
-    })
-      .then((success) => {
-        if (success) {
-          console.log('Navigation successful');
-        } else {
-          console.error('Navigation failed');
-        }
-      })
-      .catch((error) => {
-        console.error('Navigation error:', error);
-      });
-  }  
+    });
+  }
   
   public get milestone(): string {
     const milestone = this.selectedQuiz?.milestone || 'Milestone not found';
