@@ -136,6 +136,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     combineLatest([this.selectedQuiz$, this.isCheckedSubject])
       .pipe(
         takeUntil(this.destroy$),
+        // Narrow the entire tuple: [Quiz, boolean]
         filter((tuple): tuple is [Quiz, boolean] => !!tuple[0]),
         tap(([quiz, checked]) => {
           console.log('Shuffle preference changed:', { quizId: quiz.quizId, checked });
