@@ -115,9 +115,7 @@ export class QuizService implements OnDestroy {
   displayExplanation = false;
   shouldDisplayExplanation = false;
 
-  private readonly shuffleEnabledSubject = new BehaviorSubject<boolean>(
-    false
-  );
+  private readonly shuffleEnabledSubject = new BehaviorSubject<boolean>(false);
   checkedShuffle$ = this.shuffleEnabledSubject.asObservable();
   private shuffledQuestions: QuizQuestion[] = [];
 
@@ -1728,12 +1726,6 @@ export class QuizService implements OnDestroy {
 
   setCheckedShuffle(isChecked: boolean): void {
     this.shuffleEnabledSubject.next(isChecked);
-
-    if (!this.quizId) {
-      return;
-    }
-
-    this.fetchAndShuffleQuestions(this.quizId);
   }
 
   fetchAndShuffleQuestions(quizId: string): void {
@@ -1768,16 +1760,21 @@ export class QuizService implements OnDestroy {
               questions
             );
 
+            let processedQuestions = questions;
             if (this.shouldShuffle()) {
               // Ensure checkedShuffle is resolved
-              Utils.shuffleArray(questions);
+              processedQuestions = this.shuffleQuestions([...questions]);
+              processedQuestions = processedQuestions.map((question) => ({
+                ...question,
+                options: this.shuffleAnswers(question.options ?? []),
+              }));
               console.log(
                 '[fetchAndShuffleQuestions] Questions after shuffle:',
-                questions
+                processedQuestions
               );
             }
 
-            this.shuffledQuestions = questions; // Store shuffled questions
+            this.applySessionQuestions(quizId, processedQuestions);
           }
         }),
         catchError((error) => {
@@ -1791,7 +1788,6 @@ export class QuizService implements OnDestroy {
       )
       .subscribe({
         next: (questions: QuizQuestion[]) => {
-          this.questionsSubject.next(questions);
           console.log(
             '[fetchAndShuffleQuestions] Emitting shuffled questions:',
             questions
@@ -1830,34 +1826,149 @@ export class QuizService implements OnDestroy {
     return answers;
   }
 
-  shuffleQuestionsAndAnswers(quizId: string): void {
-    if (!this.shouldShuffle()) {
+  private cloneQuestionForSession(
+    question: QuizQuestion
+  ): QuizQuestion | null {
+    if (!question) {
+      return null;
+    }
+
+    const deepClone = JSON.parse(JSON.stringify(question)) as QuizQuestion;
+    const normalizedOptions = Array.isArray(deepClone.options)
+      ? deepClone.options.map((option, optionIdx) => ({
+          ...option,
+          optionId:
+            typeof option.optionId === 'number' ? option.optionId : optionIdx,
+          correct: option.correct ?? false,
+          selected: option.selected ?? false,
+          highlight: option.highlight ?? false,
+          showIcon: option.showIcon ?? false,
+        }))
+      : [];
+
+    return {
+      ...deepClone,
+      options: normalizedOptions,
+    };
+  }
+
+  applySessionQuestions(quizId: string, questions: QuizQuestion[]): void {
+    if (!quizId) {
+      console.warn('[applySessionQuestions] quizId missing.');
       return;
     }
 
-    this.fetchAndShuffleQuestions(quizId);
+    if (!Array.isArray(questions) || questions.length === 0) {
+      console.warn('[applySessionQuestions] No questions supplied.');
+      return;
+    }
 
-    this.questionsSubject
-      .pipe(take(1))
-      .subscribe((questions: QuizQuestion[]) => {
-        if (!questions || questions.length === 0) {
-          console.warn(
-            '[shuffleQuestionsAndAnswers] No questions available to shuffle.'
-          );
-          return;
-        }
+    const sanitizedQuestions = questions
+      .map((question) => this.cloneQuestionForSession(question))
+      .filter((question): question is QuizQuestion => !!question);
 
-        const updatedQuestions = questions.map((question) => ({
-          ...question,
-          options: this.shuffleAnswers(question.options)  // shuffle a copy of options
-        }));
+    if (sanitizedQuestions.length === 0) {
+      console.warn('[applySessionQuestions] Sanitized question list empty.');
+      return;
+    }
 
-        this.questionsSubject.next(updatedQuestions);
-        console.log(
-          '[shuffleQuestionsAndAnswers] Questions and answers shuffled for quiz ID:',
-          quizId
-        );
-      });
+    this.shuffledQuestions = sanitizedQuestions;
+    this.questions = sanitizedQuestions;
+    this.questionsList = sanitizedQuestions;
+
+    this.totalQuestions = sanitizedQuestions.length;
+    this.totalQuestionsSubject.next(this.totalQuestions);
+
+    const boundedIndex = Math.min(
+      Math.max(this.currentQuestionIndex ?? 0, 0),
+      sanitizedQuestions.length - 1
+    );
+    this.currentQuestionIndex = Number.isFinite(boundedIndex)
+      ? boundedIndex
+      : 0;
+
+    this.currentQuestionIndexSource.next(this.currentQuestionIndex);
+    this.currentQuestionIndexSubject.next(this.currentQuestionIndex);
+
+    const currentQuestion = sanitizedQuestions[this.currentQuestionIndex] ?? null;
+    this.currentQuestionSource.next(currentQuestion);
+    this.currentQuestionSubject.next(currentQuestion);
+    this.currentQuestion.next(currentQuestion);
+
+    const correctAnswersMap = this.calculateCorrectAnswers(sanitizedQuestions);
+    this.correctAnswers = correctAnswersMap;
+    this.correctAnswersSubject.next(new Map(correctAnswersMap));
+
+    if (!Array.isArray(this.quizData)) {
+      this.quizData = [];
+    }
+
+    const baseQuiz =
+      this.quizData.find((quiz) => quiz.quizId === quizId) ||
+      (Array.isArray(this.quizInitialState)
+        ? this.quizInitialState.find((quiz) => quiz.quizId === quizId)
+        : undefined) ||
+      this.activeQuiz ||
+      this.selectedQuiz ||
+      ({ quizId } as Quiz);
+
+    const updatedQuiz: Quiz = {
+      ...baseQuiz,
+      quizId,
+      questions: sanitizedQuestions,
+    };
+
+    const quizIndex = this.quizData.findIndex((quiz) => quiz.quizId === quizId);
+    if (quizIndex >= 0) {
+      this.quizData[quizIndex] = updatedQuiz;
+    } else {
+      this.quizData.push(updatedQuiz);
+    }
+
+    if (this.activeQuiz?.quizId === quizId || !this.activeQuiz) {
+      this.activeQuiz = updatedQuiz;
+    }
+
+    if (this.selectedQuiz?.quizId === quizId || !this.selectedQuiz) {
+      this.selectedQuiz = updatedQuiz;
+    }
+
+    this.currentQuizSubject.next(updatedQuiz);
+    this._quizData$.next([...this.quizData]);
+    this.questionsSubject.next(sanitizedQuestions);
+  }
+
+  shuffleQuestionsAndAnswers(quizId: string): void {
+    if (!this.shouldShuffle()) {
+      const existingQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+      if (existingQuiz?.questions) {
+        this.applySessionQuestions(quizId, existingQuiz.questions);
+      }
+      return;
+    }
+
+    const targetQuiz = this.quizData.find((quiz) => quiz.quizId === quizId);
+    const sourceQuestions = targetQuiz?.questions || this.questions;
+
+    if (!Array.isArray(sourceQuestions) || sourceQuestions.length === 0) {
+      console.warn(
+        '[shuffleQuestionsAndAnswers] No questions available to shuffle.'
+      );
+      return;
+    }
+
+    const shuffledQuestions = this.shuffleQuestions([...sourceQuestions]).map(
+      (question) => ({
+        ...question,
+        options: this.shuffleAnswers(question.options ?? []),
+      })
+    );
+
+    this.applySessionQuestions(quizId, shuffledQuestions);
+    console.log(
+      '[shuffleQuestionsAndAnswers] Questions and answers shuffled for quiz ID:',
+      quizId
+    );
   }
 
   navigateToResults(): void {
