@@ -2337,6 +2337,44 @@ export class QuizService implements OnDestroy {
     }));
   }
 
+  resetQuizSessionState(): void {
+    this.isNavigating = false;
+
+    this.currentQuestionIndex = 0;
+    this.currentQuestionIndexSource.next(0);
+    this.currentQuestionIndexSubject.next(0);
+
+    this.currentQuestionSource.next(null);
+    this.currentQuestion.next(null);
+    this.currentQuestionSubject.next(null);
+
+    this.nextQuestionSource.next(null);
+    this.nextQuestionSubject.next(null);
+    this.nextOptionsSource.next([]);
+    this.nextOptionsSubject.next(null);
+    this.previousQuestionSubject.next(null);
+    this.previousOptionsSubject.next([]);
+
+    this.currentOptionsSubject.next([]);
+    this.optionsSubject.next([]);
+    this.optionsSource.next([]);
+
+    this.questionPayloadSubject.next(null);
+    this.answersSubject.next([]);
+    this.selectedOption$.next(null);
+    this.correctAnswersCountSubject.next(0);
+    this.correctAnswersSubject.next(new Map<string, number[]>());
+    this.correctAnswersLoadedSubject.next(false);
+
+    this.userAnswers = [];
+    this.previousAnswers = [];
+
+    this.badgeTextSource.next('');
+    this.explanationText.next('');
+    this.displayExplanation = false;
+    this.shouldDisplayExplanation = false;
+  }
+
   resetUserSelection(): void {
     this.selectedOption$.next('');
   }
