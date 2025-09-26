@@ -350,7 +350,7 @@ export class QuizNavigationService {
       const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!question) {
         console.warn(`[resetUIAndNavigate] ❌ No question found for index ${index}`);
-        return;
+        return false;
       }
   
       // Set the current question
