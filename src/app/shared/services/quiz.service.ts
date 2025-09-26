@@ -763,8 +763,11 @@ export class QuizService implements OnDestroy {
       }
 
       // Fetch quizzes from the API
-      const quizzes = await firstValueFrom(this.http.get<Quiz[]>(this.quizUrl));
-      const quiz = quizzes.find((q) => q.quizId === quizId);
+      const quizzes = await firstValueFrom<Quiz[]>(
+        this.http.get<Quiz[]>(this.quizUrl)
+      );                                       // quizzes: Quiz[]
+      
+      const quiz = quizzes.find(q => String(q.quizId) === String(quizId));
 
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
@@ -810,9 +813,9 @@ export class QuizService implements OnDestroy {
     quizId: string
   ): Promise<{ quizId: string; questions: QuizQuestion[] }> {
     try {
-      const questionsData = await firstValueFrom(
-        this.getQuestionsForQuiz(quizId)
-      );
+      const questionsData = await this.getQuestionsForQuiz(quizId)
+        .pipe(take(1))
+        .toPromise() as QuestionsData;
       this.questions = questionsData.questions;
       return questionsData;
     } catch (error) {
