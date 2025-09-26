@@ -14,7 +14,7 @@ import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
-import { QuestionsData } from '../../shared/models/QuestionsData.type';
+import { QuestionData } from '../../shared/models/QuestionData.type';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizComponentData } from '../../shared/models/QuizComponentData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -2158,7 +2158,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     questionIndex: number
   ): Promise<any> {
     try {
-      const rawData: QuestionsData | null = await firstValueFrom(
+      const rawData: QuestionData | null = await firstValueFrom(
         of(this.quizService.getQuestionData(quizId, questionIndex))
       );
 
