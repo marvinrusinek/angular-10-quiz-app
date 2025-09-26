@@ -1175,7 +1175,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       : 0;
 
     try {
-      const quiz = await firstValueFrom(
+      const quiz: Quiz = await firstValueFrom(
         this.quizDataService.getQuiz(quizIdFromRoute).pipe(take(1))
       );
 
