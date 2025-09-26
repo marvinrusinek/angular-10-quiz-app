@@ -37,24 +37,30 @@ mat-card-actions {
   padding-bottom: 25px !important;
   margin-top: -20px;
 
-  mat-slide-toggle {
-    display: block;
-    text-align: center;
-    margin-bottom: 20px;
-  }
+  .intro-preferences {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
 
-  mat-button {
-    display: block;
-    margin: 0 auto;
-    margin-top: -5px;
-    background: $vivid-blue;
-    color: $black;
-    width: 180px;
-
-    &:hover {
-      border: 2px solid $black;
+    mat-slide-toggle {
+      text-align: center;
     }
-  }  
+
+    mat-button {
+      display: block;
+      margin: 0 auto;
+      margin-top: -5px;
+      background: $vivid-blue;
+      color: $black;
+      width: 180px;
+
+      &:hover {
+        border: 2px solid $black;
+      }
+    }  
+  }
 }
 
 
