@@ -81,18 +81,18 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
           }
   
           // Check if every correct option is now selected
-          this.selectedOptionService
-            .areAllCorrectAnswersSelectedSync(this.quizService.currentQuestionIndex)
-            .then(result => {
-              this.areAllCorrectAnswersSelected = result;
-              console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', result);
-  
-              // Re-apply highlight in case the completion state just flipped
-              this.updateHighlight();
-            })
-            .catch(error =>
-              console.error('[HighlightOptionDirective] Error while checking correct answers:', error)
-            );
+          try {
+            const result = this.selectedOptionService
+              .areAllCorrectAnswersSelectedSync(this.quizService.currentQuestionIndex);
+          
+            this.areAllCorrectAnswersSelected = result;
+            console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', result);
+          
+            // Re-apply highlight in case the completion state just flipped
+            this.updateHighlight();
+          } catch (error) {
+            console.error('[HighlightOptionDirective] Error while checking correct answers:', error);
+          }
         });
       } catch (error) {
         console.error('[HighlightOptionDirective] Error in ngOnChanges:', error);
