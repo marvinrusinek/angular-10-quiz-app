@@ -36,37 +36,39 @@
       </div>
     </mat-card-content>
 
-    <mat-card-actions [formGroup]="preferencesForm">
-      <!-- "Shuffle Questions and Answers" slide toggle -->
-      <mat-slide-toggle
-        aria-label="Shuffle questions and answers">
-        Turn shuffling on
-      </mat-slide-toggle>
-
-       <!-- formControlName="shouldShuffleOptions"
-        (change)="onSlideToggleChange($event)"
-        [checked]="highlightPreference"
-        disableRipple="true" capture -->
-
-      <mat-button
-        *ngIf="selectedQuiz"
-        type="button"
-        mat-raised-button
-        routerLinkActive="active"
-        disableRipple="true"
-        name="start quiz"
-        class="btn btn-outline-primary"
-        (click)="onStartQuiz(selectedQuiz?.quizId)"
-        aria-label="Start the Quiz"
-      >
-        <span i18n
-          ><strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true"
-            >play_arrow</mat-icon
-          ></span
+    <mat-card-actions>
+      <form [formGroup]="preferencesForm" class="intro-preferences" novalidate>
+        <!-- "Shuffle Questions and Answers" slide toggle -->
+        <mat-slide-toggle
+          formControlName="shouldShuffleOptions"
+          (change)="onSlideToggleChange($event)"
+          [checked]="highlightPreference"
+          [disableRipple]="true"
+          aria-label="Shuffle questions and answers"
         >
-      </mat-button>
+          Turn on shuffle
+        </mat-slide-toggle>
+
+        <button
+          *ngIf="selectedQuiz"
+          type="button"
+          mat-raised-button
+          color="primary"
+          class="btn btn-outline-primary"
+          [disabled]="isStartingQuiz"
+          (click)="onStartQuiz(selectedQuiz?.quizId)"
+          aria-label="Start the Quiz"
+        >
+          <span i18n
+            ><strong>Start the Quiz!</strong>&nbsp;<mat-icon inline="true"
+              >play_arrow</mat-icon
+            ></span
+          >
+        </button>
+      </form>
     </mat-card-actions>
   </mat-card>
+
   <ng-template #loading>
     <p>Loading&hellip;</p>
   </ng-template>
