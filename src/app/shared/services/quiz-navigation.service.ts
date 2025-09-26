@@ -412,7 +412,7 @@ export class QuizNavigationService {
     
     this.quizService.submitQuizScore(this.answers).subscribe({
       next: () => {
-        console.log('[✅ Score submitted]');
+        console.log('Score submitted.');
         this.router.navigate(['results', quizId]);
       },
       error: (err) => {
