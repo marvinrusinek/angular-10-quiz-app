@@ -1645,7 +1645,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.setCurrentQuestionIndex(initialIndex);
 
     // Load the first question
-    const firstQuestion = await firstValueFrom(
+    const firstQuestion: QuizQuestion | null = await firstValueFrom(
       this.quizService.getQuestionByIndex(initialIndex)
     );
     if (firstQuestion) {
