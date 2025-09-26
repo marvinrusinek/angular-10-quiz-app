@@ -53,8 +53,8 @@ export class QuizInitializationService {
   showFeedback = false;
 
   private combinedQuestionDataSubject = new BehaviorSubject<{
-    question: QuizQuestion;
-    options: Option[];
+    question: QuizQuestion,
+    options: Option[]
   } | null>(null);
   public combinedQuestionData$ = this.combinedQuestionDataSubject.asObservable();
 
