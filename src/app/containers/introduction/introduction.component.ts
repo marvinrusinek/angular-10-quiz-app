@@ -250,7 +250,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private async navigateToFirstQuestion(): Promise<boolean> {
     try {
-      return await this.quizNavigationService.resetUIAndNavigate(0);
+      await this.quizNavigationService.resetUIAndNavigate(0);
+      return true;
     } catch (error) {
       console.error('Router navigation failed.', error);
       return false;
