@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { BehaviorSubject, combineLatest, EMPTY, of, Subject } from 'rxjs';
@@ -47,6 +47,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     private quizNavigationService: QuizNavigationService,
     private userPreferenceService: UserPreferenceService, 
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder,
     private cdRef: ChangeDetectorRef
   ) {
@@ -233,14 +234,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         console.error('Failed to prepare quiz session:', error);
       }
 
-      try {
-        const navigationSucceeded = await this.navigateToFirstQuestion();
+      const navigationSucceeded = await this.navigateToFirstQuestion(targetQuizId);
 
-        if (!navigationSucceeded) {
-          console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
-        }
-      } catch (error) {
-        console.error('Failed to navigate to first question:', error);
+      if (!navigationSucceeded) {
+        console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
       }
     } finally {
       this.isStartingQuiz = false;
@@ -248,12 +245,31 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async navigateToFirstQuestion(): Promise<boolean> {
+  private async navigateToFirstQuestion(targetQuizId: string): Promise<boolean> {
     try {
-      await this.quizNavigationService.resetUIAndNavigate(0);
-      return true;
+      const navigationSucceeded = await this.quizNavigationService.resetUIAndNavigate(0);
+
+      if (navigationSucceeded) {
+        return true;
+      }
+
+      console.warn('Navigation service did not complete; falling back to direct router navigation.', {
+        quizId: targetQuizId
+      });
     } catch (error) {
       console.error('Router navigation failed.', error);
+    }
+
+    try {
+      const fallbackSucceeded = await this.router.navigate(['/question', targetQuizId, 1]);
+
+      if (!fallbackSucceeded) {
+        console.error('Fallback navigation returned false.', { quizId: targetQuizId });
+      }
+
+      return fallbackSucceeded;
+    } catch (fallbackError) {
+      console.error('Fallback navigation threw an error.', fallbackError);
       return false;
     }
   }
