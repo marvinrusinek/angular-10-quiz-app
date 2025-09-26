@@ -179,12 +179,14 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.isCheckedSubject.next(isChecked);
   }
 
-  async onStartQuiz(quizId: string): Promise<void> {
-    if (!quizId) {
+  async onStartQuiz(quizId?: string): Promise<void> {
+    const targetQuizId = quizId ?? this.quizId;
+
+    if (!targetQuizId) {
       console.error('Quiz data is not ready.');
       return;
     }
-  
+
     // Retrieve form values
     const preferences = this.preferencesForm.value;
     console.log('Form Preferences:', preferences);
@@ -196,25 +198,29 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Set feedback mode in UserPreferenceService
     const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
     this.userPreferenceService.setFeedbackMode(feedbackMode);
-  
+
     console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
-  
-    this.quizService.setQuizId(quizId);
+
+    this.quizService.setQuizId(targetQuizId);
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
     this.quizService.setCurrentQuestionIndex(0);
 
     try {
-      await firstValueFrom(this.quizDataService.prepareQuizSession(quizId));
+      await firstValueFrom(this.quizDataService.prepareQuizSession(targetQuizId));
     } catch (error) {
       console.error('Failed to prepare quiz session:', error);
     }
 
     try {
-      await this.navigateToFirstQuestion(
-        quizId,
+      const navigationSucceeded = await this.navigateToFirstQuestion(
+        targetQuizId,
         shouldShuffleOptions,
         feedbackMode
       );
+
+      if (!navigationSucceeded) {
+        console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
+      }
     } catch (error) {
       console.error('Failed to navigate to first question:', error);
     }
@@ -227,6 +233,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   ): Promise<boolean> {
     return this.router.navigate(['/question', quizId, 1], {
       state: { shouldShuffleOptions, feedbackMode }
+    }).catch((error: unknown) => {
+      console.error('Router navigation failed.', error);
+      return false;
     });
   }
   
