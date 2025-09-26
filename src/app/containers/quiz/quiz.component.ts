@@ -431,16 +431,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     try {
       // Retrieve last known question index (DO NOT RESET!)
-      const savedIndex = localStorage.getItem('savedQuestionIndex');
-      let restoredIndex = this.quizService.getCurrentQuestionIndex();
-  
-      if (savedIndex !== null) {
-        restoredIndex = JSON.parse(savedIndex);
-      }
-  
+      const savedIndexRaw = localStorage.getItem('savedQuestionIndex');
+      let restoredIndex: number = this.quizService.getCurrentQuestionIndex();
+    
+      // Prefer safe numeric coercion over JSON.parse for a single number
+      const parsed = savedIndexRaw == null ? NaN : Number(savedIndexRaw);
+      if (Number.isFinite(parsed)) restoredIndex = parsed;
+    
       // Ensure the index is valid
-      const totalQuestions = await firstValueFrom(
-        this.quizService.getTotalQuestionsCount(this.quizId)
+      const totalQuestions: number = await firstValueFrom<number>(
+        this.quizService.getTotalQuestionsCount(this.quizId).pipe(take(1))
       );
   
       if (
