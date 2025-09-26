@@ -341,22 +341,34 @@ export class QuizNavigationService {
   }
   
   
-  public async resetUIAndNavigate(index: number): Promise<boolean> {
+  public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
       // Set question index in service
       this.quizService.setCurrentQuestionIndex(index);
-  
+
       // Get the question
       const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!question) {
         console.warn(`[resetUIAndNavigate] ❌ No question found for index ${index}`);
         return false;
       }
-  
+
       // Set the current question
       this.quizService.setCurrentQuestion(question);
-  
+
       // Update badge text
+      const effectiveQuizId = quizIdOverride ?? this.quizService.quizId ?? this.getQuizId();
+      if (!effectiveQuizId) {
+        console.error('[resetUIAndNavigate] ❌ Cannot navigate without a quizId.');
+        return false;
+      }
+
+      if (quizIdOverride && this.quizService.quizId !== quizIdOverride) {
+        this.quizService.setQuizId(quizIdOverride);
+      }
+
+      this.quizId = effectiveQuizId;
+
       const quiz = this.quizService.getActiveQuiz();
       const totalQuestions = quiz?.questions?.length ?? 0;
       if (typeof totalQuestions === 'number' && totalQuestions > 0) {
@@ -364,12 +376,7 @@ export class QuizNavigationService {
       }
 
       // Navigate only if the route is different
-      const quizId = this.quizService.quizId;
-      if (!quizId) {
-        console.error('[resetUIAndNavigate] ❌ Cannot navigate without a quizId.');
-        return false;
-      }
-      const routeUrl = `/question/${quizId}/${index + 1}`;
+      const routeUrl = `/question/${effectiveQuizId}/${index + 1}`;
       const currentUrl = this.router.url;
 
       if (currentUrl !== routeUrl) {
