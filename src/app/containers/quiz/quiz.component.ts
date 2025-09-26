@@ -1687,7 +1687,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           if (state.isAnswered && state.explanationDisplayed) {
             const explanationTextObservable =
               this.explanationTextService.getFormattedExplanation(+questionId);
-            const explanationText = await firstValueFrom(
+            const explanationText: string = await firstValueFrom(
               explanationTextObservable
             );
 
