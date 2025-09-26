@@ -1271,9 +1271,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-      const quiz = await this.quizDataService.getQuiz(this.quizId)
-        .pipe(take(1))
-        .toPromise() as Promise<Quiz>;
+      const quiz = (await firstValueFrom(
+        this.quizDataService.getQuiz(this.quizId)
+          .pipe(take(1), takeUntil(this.destroy$))
+      )) as Quiz;
 
       if (!quiz) {
         console.error('Quiz is null or undefined. Failed to load quiz data.');
