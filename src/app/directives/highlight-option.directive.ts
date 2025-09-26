@@ -133,13 +133,6 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
       const opt  = this.optionBinding.option;
       const host = this.el.nativeElement as HTMLElement;
   
-      console.log('[🎯 Directive] Highlight check', {
-        id: opt?.optionId,
-        selected: opt?.selected,
-        highlight: opt?.highlight,
-        showIcon: opt?.showIcon
-      });
-  
       // RESET styles
       this.renderer.removeStyle(host, 'background-color');
       this.renderer.removeClass(host, 'deactivated-option');
@@ -161,8 +154,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
         this.setPointerEvents(host, 'none');
       }
   
-      // FALLBACK: no highlight and not disabled — no icon
-      opt.showIcon = false;
+      opt.showIcon = false;  // FALLBACK: no highlight and not disabled — no icon
     }, 0);  // defer until DOM is ready
   }
   
