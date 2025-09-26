@@ -6211,7 +6211,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     return o.optionId ?? o.value ?? `${o.text}-${idx ?? ''}`;
   }
   
-  // shared-option.component.ts
   public revealFeedbackForAllOptions(canonicalOpts: Option[]): void {
     // Reveal feedback for EVERY option before any locking/disable runs
     for (let i = 0; i < canonicalOpts.length; i++) {
