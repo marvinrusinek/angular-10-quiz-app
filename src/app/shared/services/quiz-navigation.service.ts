@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, first, map, take } from 'rxjs/operators';
+import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
