@@ -180,11 +180,15 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   async onStartQuiz(quizId?: string): Promise<void> {
-    const targetQuizId = quizId ?? this.quizId;
-    const activeQuiz = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
-
-    if (!targetQuizId || !activeQuiz) {
+    const targetQuizId = quizId ?? this.quizId ?? this.getStoredQuizId();
+    if (!targetQuizId) {
       console.error('Quiz data is not ready.');
+      return;
+    }
+
+    const activeQuiz = await this.resolveActiveQuiz(targetQuizId);
+    if (!activeQuiz) {
+      console.error('Unable to start quiz because quiz data could not be loaded.');
       return;
     }
 
@@ -205,12 +209,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     this.quizDataService.setSelectedQuiz(activeQuiz);
     this.quizDataService.setCurrentQuiz(activeQuiz);
     this.quizService.setSelectedQuiz(activeQuiz);
+    this.quizService.setActiveQuiz(activeQuiz);
     this.quizService.setQuizId(targetQuizId);
-    try {
-      localStorage.setItem('quizId', targetQuizId);
-    } catch (storageError) {
-      console.warn('Unable to persist quizId to local storage.', storageError);
-    }
+    this.persistQuizId(targetQuizId);
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
     this.quizService.setCurrentQuestionIndex(0);
 
@@ -246,6 +247,45 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       console.error('Router navigation failed.', error);
       return false;
     });
+  }
+
+  private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
+    const quizFromState = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
+
+    if (quizFromState?.quizId === targetQuizId) {
+      return quizFromState;
+    }
+
+    try {
+      const loadedQuiz = await this.quizDataService.loadQuizById(targetQuizId);
+      if (loadedQuiz) {
+        this.selectedQuiz$.next(loadedQuiz);
+        this.quiz = loadedQuiz;
+      }
+      return loadedQuiz;
+    } catch (error) {
+      console.error('Failed to hydrate quiz before starting.', error);
+      return null;
+    }
+  }
+
+  private getStoredQuizId(): string | null {
+    try {
+      if (typeof localStorage === 'undefined') {
+        return null;
+      }
+      return localStorage.getItem('quizId');
+    } catch {
+      return null;
+    }
+  }
+
+  private persistQuizId(quizId: string): void {
+    try {
+      localStorage.setItem('quizId', quizId);
+    } catch (storageError) {
+      console.warn('Unable to persist quizId to local storage.', storageError);
+    }
   }
   
   public get milestone(): string {
