@@ -24,7 +24,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  preferencesForm: FormGroup; // Define the FormGroup
+  preferencesForm: FormGroup;  // define the FormGroup
   private isCheckedSubject = new BehaviorSubject<boolean>(false);
 
   shuffledQuestions: QuizQuestion[];
@@ -110,9 +110,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   private logQuizLoaded(quiz: Quiz | null): void {
-    // console.log('Quiz loaded:', quiz);
     if (!quiz) {
-      console.error('Quiz is undefined or null after fetching');
+      console.error('Quiz is undefined or null after fetching.');
     }
   }
   
@@ -124,7 +123,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       this.questionLabel = this.getPluralizedQuestionLabel(quiz.questions.length);
       this.cdRef.markForCheck();
     } else {
-      console.error('Quiz is undefined or null');
+      console.error('Quiz is undefined or null.');
     }
   }
   
@@ -171,8 +170,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   } 
   
   onSlideToggleChange(event: MatSlideToggleChange): void {
-    console.log('Slide toggle change event:', event);
-
     const isChecked = event.checked;
 
     this.userPreferenceService.setHighlightPreference(isChecked);
@@ -229,7 +226,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     feedbackMode: string,
   ): Promise<boolean> {
     return this.router.navigate(['/question', quizId, 1], {
-      state: { shouldShuffleOptions, feedbackMode },
+      state: { shouldShuffleOptions, feedbackMode }
     });
   }
   
