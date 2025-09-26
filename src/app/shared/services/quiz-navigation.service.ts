@@ -340,24 +340,9 @@ export class QuizNavigationService {
     }
   }
   
-  
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
-      // Set question index in service
-      this.quizService.setCurrentQuestionIndex(index);
-
-      // Get the question
-      const question = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-      if (!question) {
-        console.warn(`[resetUIAndNavigate] ❌ No question found for index ${index}`);
-        return false;
-      }
-
-      // Set the current question
-      this.quizService.setCurrentQuestion(question);
-
-      // Update badge text
-      const effectiveQuizId = quizIdOverride ?? this.quizService.quizId ?? this.getQuizId();
+      const effectiveQuizId = this.resolveEffectiveQuizId(quizIdOverride);
       if (!effectiveQuizId) {
         console.error('[resetUIAndNavigate] ❌ Cannot navigate without a quizId.');
         return false;
@@ -369,27 +354,37 @@ export class QuizNavigationService {
 
       this.quizId = effectiveQuizId;
 
-      const quiz = this.quizService.getActiveQuiz();
-      const totalQuestions = quiz?.questions?.length ?? 0;
-      if (typeof totalQuestions === 'number' && totalQuestions > 0) {
-        this.quizService.updateBadgeText(index + 1, totalQuestions);
-      }
+      // Always ensure the quiz session is hydrated before attempting to access questions.
+      await this.ensureSessionQuestions(effectiveQuizId);
 
-      // Navigate only if the route is different
-      const routeUrl = `/question/${effectiveQuizId}/${index + 1}`;
-      const currentUrl = this.router.url;
+      // Set question index in service so downstream subscribers know what we're targeting.
+      this.quizService.setCurrentQuestionIndex(index);
 
-      if (currentUrl !== routeUrl) {
-        const navSuccess = await this.router.navigateByUrl(routeUrl);
-        if (!navSuccess) {
-          console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${index}`);
-          return false;
+      const question = await this.tryResolveQuestion(index);
+      if (question) {
+        this.quizService.setCurrentQuestion(question);
+
+        const quiz = this.quizService.getActiveQuiz();
+        const totalQuestions = quiz?.questions?.length ?? 0;
+        if (typeof totalQuestions === 'number' && totalQuestions > 0) {
+          this.quizService.updateBadgeText(index + 1, totalQuestions);
         }
       } else {
-        console.warn(`[resetUIAndNavigate] ⚠️ Already on route ${routeUrl}`);
+        console.warn(`[resetUIAndNavigate] ⚠️ Proceeding without a cached question for index ${index}.`);
       }
 
-      // Final confirmation
+      const routeUrl = `/question/${effectiveQuizId}/${index + 1}`;
+      if (this.router.url === routeUrl) {
+        console.warn(`[resetUIAndNavigate] ⚠️ Already on route ${routeUrl}`);
+        return true;
+      }
+
+      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      if (!navSuccess) {
+        console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${index}`);
+        return false;
+      }
+
       console.log(`[resetUIAndNavigate] ✅ Navigation and UI reset complete for Q${index + 1}`);
       return true;
     } catch (err) {
