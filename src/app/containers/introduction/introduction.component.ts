@@ -186,6 +186,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.quizService.resetQuizSessionState();
+
     const activeQuiz = await this.resolveActiveQuiz(targetQuizId);
     if (!activeQuiz) {
       console.error('Unable to start quiz because quiz data could not be loaded.');
@@ -248,6 +250,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return false;
     });
   }
+
 
   private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
     const quizFromState = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
