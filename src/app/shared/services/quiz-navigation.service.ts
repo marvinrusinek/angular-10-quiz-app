@@ -436,13 +436,13 @@ export class QuizNavigationService {
     this.navigationToQuestionSubject.next({ question, options });
   }
 
-  private waitForUrl(url: string): Promise<void> {
+  private waitForUrl(url: string): Promise<string> {
     return firstValueFrom(
       this.router.events.pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        map(e => e.urlAfterRedirects || (e as NavigationEnd).url),
+        map(e => e.urlAfterRedirects || e.url),
         filter(u => u === url),
-        first()
+        take(1)
       )
     );
   }
