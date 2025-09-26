@@ -247,32 +247,27 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private async navigateToFirstQuestion(targetQuizId: string): Promise<boolean> {
     try {
-      const navigationSucceeded = await this.quizNavigationService.resetUIAndNavigate(0);
-
-      if (navigationSucceeded) {
-        return true;
-      }
-
-      console.warn('Navigation service did not complete; falling back to direct router navigation.', {
-        quizId: targetQuizId
-      });
+      // resetUIAndNavigate returns void; if it doesn't throw, consider it a success
+      await this.quizNavigationService.resetUIAndNavigate(0);
+      return true;
     } catch (error) {
       console.error('Router navigation failed.', error);
     }
-
+  
+    // Fallback to direct router navigation
     try {
       const fallbackSucceeded = await this.router.navigate(['/question', targetQuizId, 1]);
-
+  
       if (!fallbackSucceeded) {
         console.error('Fallback navigation returned false.', { quizId: targetQuizId });
       }
-
+  
       return fallbackSucceeded;
     } catch (fallbackError) {
       console.error('Fallback navigation threw an error.', fallbackError);
       return false;
     }
-  }
+  }  
 
   private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
     const quizFromState = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
