@@ -181,8 +181,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   async onStartQuiz(quizId?: string): Promise<void> {
     const targetQuizId = quizId ?? this.quizId;
+    const activeQuiz = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
 
-    if (!targetQuizId) {
+    if (!targetQuizId || !activeQuiz) {
       console.error('Quiz data is not ready.');
       return;
     }
@@ -190,18 +191,26 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Retrieve form values
     const preferences = this.preferencesForm.value;
     console.log('Form Preferences:', preferences);
-  
+
     // Access individual preferences from the form
     const shouldShuffleOptions = preferences.shouldShuffleOptions;
     const isImmediateFeedback = preferences.isImmediateFeedback;
-  
+
     // Set feedback mode in UserPreferenceService
     const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
     this.userPreferenceService.setFeedbackMode(feedbackMode);
 
     console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
 
+    this.quizDataService.setSelectedQuiz(activeQuiz);
+    this.quizDataService.setCurrentQuiz(activeQuiz);
+    this.quizService.setSelectedQuiz(activeQuiz);
     this.quizService.setQuizId(targetQuizId);
+    try {
+      localStorage.setItem('quizId', targetQuizId);
+    } catch (storageError) {
+      console.warn('Unable to persist quizId to local storage.', storageError);
+    }
     this.quizService.setCheckedShuffle(shouldShuffleOptions);
     this.quizService.setCurrentQuestionIndex(0);
 
