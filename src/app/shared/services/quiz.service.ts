@@ -10,6 +10,7 @@ import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
+import { QuestionsData } from '../../shared/models/QuestionsData.type';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
