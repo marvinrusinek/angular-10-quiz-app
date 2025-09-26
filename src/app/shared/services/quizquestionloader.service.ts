@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
+import { firstValueFrom, lastValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../models/question-type.enum';
 import { CombinedQuestionDataType } from '../models/CombinedQuestionDataType.model';
@@ -21,7 +22,6 @@ import { SelectedOptionService } from './selectedoption.service';
 import { SelectionMessageService } from './selection-message.service';
 import { TimerService } from './timer.service';
 import { QuizQuestionComponent } from '../../components/question/quiz-question/quiz-question.component';
-import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 @Injectable({ providedIn: 'root' })
 export class QuizQuestionLoaderService {
