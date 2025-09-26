@@ -91,7 +91,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
   
   private handleRouteParams(params: Params): void {
-    // console.log('Route params:', params);
     this.quizId = params['quizId'];
   }
   
