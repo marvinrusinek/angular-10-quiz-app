@@ -67,14 +67,3 @@ mat-card-actions {
     }  
   }
 }
-
-
-// overwrite the checkbox background
-::ng-deep .mat-checkbox-checked .mat-checkbox-background, .mat-checkbox-indeterminate .mat-checkbox-background {
-  background-color: $green !important;
-}
-
-// overwrite the ripple overlay on hover and click
-::ng-deep .mat-checkbox:not(.mat-checkbox-disabled) .mat-checkbox-ripple .mat-ripple-element {
-  background-color: $black !important;
-}
