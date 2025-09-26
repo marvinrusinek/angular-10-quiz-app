@@ -1,7 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { Option } from '../../shared/models/Option.model';

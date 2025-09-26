@@ -480,7 +480,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
 
     this.quizNavigationService.explanationReset$.subscribe(() => {
-      console.log('[QQC] 🔁 explanationReset$ received');
       this.resetExplanation();
     });
 
