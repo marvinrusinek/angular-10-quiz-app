@@ -26,6 +26,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
   preferencesForm: FormGroup;
   private isCheckedSubject = new BehaviorSubject<boolean>(false);
+  isStartingQuiz = false;
 
   shuffledQuestions: QuizQuestion[];
   shouldShuffleOptions = false;
@@ -180,61 +181,73 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   async onStartQuiz(quizId?: string): Promise<void> {
-    const targetQuizId = quizId ?? this.quizId ?? this.getStoredQuizId();
-    if (!targetQuizId) {
-      console.error('Quiz data is not ready.');
+    if (this.isStartingQuiz) {
       return;
     }
 
-    this.quizService.resetQuizSessionState();
-
-    const activeQuiz = await this.resolveActiveQuiz(targetQuizId);
-    if (!activeQuiz) {
-      console.error('Unable to start quiz because quiz data could not be loaded.');
-      return;
-    }
-
-    // Retrieve form values
-    const preferences = this.preferencesForm.value;
-    console.log('Form Preferences:', preferences);
-
-    // Access individual preferences from the form
-    const shouldShuffleOptions = preferences.shouldShuffleOptions;
-    const isImmediateFeedback = preferences.isImmediateFeedback;
-
-    // Set feedback mode in UserPreferenceService
-    const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
-    this.userPreferenceService.setFeedbackMode(feedbackMode);
-
-    console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
-
-    this.quizDataService.setSelectedQuiz(activeQuiz);
-    this.quizDataService.setCurrentQuiz(activeQuiz);
-    this.quizService.setSelectedQuiz(activeQuiz);
-    this.quizService.setActiveQuiz(activeQuiz);
-    this.quizService.setQuizId(targetQuizId);
-    this.persistQuizId(targetQuizId);
-    this.quizService.setCheckedShuffle(shouldShuffleOptions);
-    this.quizService.setCurrentQuestionIndex(0);
+    this.isStartingQuiz = true;
+    this.cdRef.markForCheck();
 
     try {
-      await firstValueFrom(this.quizDataService.prepareQuizSession(targetQuizId));
-    } catch (error) {
-      console.error('Failed to prepare quiz session:', error);
-    }
-
-    try {
-      const navigationSucceeded = await this.navigateToFirstQuestion(
-        targetQuizId,
-        shouldShuffleOptions,
-        feedbackMode
-      );
-
-      if (!navigationSucceeded) {
-        console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
+      const targetQuizId = quizId ?? this.quizId ?? this.getStoredQuizId();
+      if (!targetQuizId) {
+        console.error('Quiz data is not ready.');
+        return;
       }
-    } catch (error) {
-      console.error('Failed to navigate to first question:', error);
+
+      this.quizService.resetQuizSessionState();
+
+      const activeQuiz = await this.resolveActiveQuiz(targetQuizId);
+      if (!activeQuiz) {
+        console.error('Unable to start quiz because quiz data could not be loaded.');
+        return;
+      }
+
+      // Retrieve form values
+      const preferences = this.preferencesForm.value;
+      console.log('Form Preferences:', preferences);
+
+      // Access individual preferences from the form
+      const shouldShuffleOptions = preferences.shouldShuffleOptions;
+      const isImmediateFeedback = preferences.isImmediateFeedback;
+
+      // Set feedback mode in UserPreferenceService
+      const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
+      this.userPreferenceService.setFeedbackMode(feedbackMode);
+
+      console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
+
+      this.quizDataService.setSelectedQuiz(activeQuiz);
+      this.quizDataService.setCurrentQuiz(activeQuiz);
+      this.quizService.setSelectedQuiz(activeQuiz);
+      this.quizService.setActiveQuiz(activeQuiz);
+      this.quizService.setQuizId(targetQuizId);
+      this.persistQuizId(targetQuizId);
+      this.quizService.setCheckedShuffle(shouldShuffleOptions);
+      this.quizService.setCurrentQuestionIndex(0);
+
+      try {
+        await firstValueFrom(this.quizDataService.prepareQuizSession(targetQuizId));
+      } catch (error) {
+        console.error('Failed to prepare quiz session:', error);
+      }
+
+      try {
+        const navigationSucceeded = await this.navigateToFirstQuestion(
+          targetQuizId,
+          shouldShuffleOptions,
+          feedbackMode
+        );
+
+        if (!navigationSucceeded) {
+          console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
+        }
+      } catch (error) {
+        console.error('Failed to navigate to first question:', error);
+      }
+    } finally {
+      this.isStartingQuiz = false;
+      this.cdRef.markForCheck();
     }
   }
 
@@ -250,7 +263,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       return false;
     });
   }
-
 
   private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
     const quizFromState = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
