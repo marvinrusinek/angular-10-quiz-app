@@ -24,7 +24,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   quizId: string | undefined;
   selectedQuiz: Quiz | null;
   selectedQuiz$ = new BehaviorSubject<Quiz | null>(null);
-  preferencesForm: FormGroup;  // define the FormGroup
+  preferencesForm: FormGroup;
   private isCheckedSubject = new BehaviorSubject<boolean>(false);
 
   shuffledQuestions: QuizQuestion[];
