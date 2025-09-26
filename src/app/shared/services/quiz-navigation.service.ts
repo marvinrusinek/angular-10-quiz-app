@@ -19,7 +19,6 @@ import { TimerService } from './timer.service';
 
 type AnimationState = 'animationStarted' | 'none';
 
-
 @Injectable({ providedIn: 'root' })
 export class QuizNavigationService {
   animationState$ = new BehaviorSubject<AnimationState>('none');
@@ -186,19 +185,8 @@ export class QuizNavigationService {
     }
   
     // Guard against loading or navigating
-    // const isEnabled = this.nextButtonStateService.isButtonCurrentlyEnabled();
-    // const isAnswered = this.selectedOptionService.getAnsweredState();
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-  
-    console.group('[🟡 NAV BLOCK CHECK]');
-    console.log('offset:', offset);
-    console.log('isLoading:', isLoading);
-    console.log('isNavigating:', isNavigating);
-    console.log('quizState.isLoading:', this.quizStateService.isLoadingSubject.getValue());
-    console.log('quizState.isNavigating:', this.quizStateService.isNavigatingSubject.getValue());
-    console.groupEnd();
-  
     if (isLoading || isNavigating) {
       console.warn('[🚫 Navigation blocked]', { offset, isLoading, isNavigating });
       return false;
