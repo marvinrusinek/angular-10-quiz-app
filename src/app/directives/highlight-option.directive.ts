@@ -84,9 +84,7 @@ export class HighlightOptionDirective implements OnInit, OnChanges {
           try {
             const result = this.selectedOptionService
               .areAllCorrectAnswersSelectedSync(this.quizService.currentQuestionIndex);
-          
             this.areAllCorrectAnswersSelected = result;
-            console.log('[HighlightOptionDirective] areAllCorrectAnswersSelected:', result);
           
             // Re-apply highlight in case the completion state just flipped
             this.updateHighlight();
