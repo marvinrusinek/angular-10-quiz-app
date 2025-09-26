@@ -1665,7 +1665,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
 
       // Fetch questions for the quiz and await the result
-      const questions = await firstValueFrom(
+      const questions: QuizQuestion[] = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.quizId)
       );
       this.questions = questions;  // store the fetched questions in a component property
