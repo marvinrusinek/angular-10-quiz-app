@@ -14,6 +14,7 @@ import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
 import { QuestionState } from '../../shared/models/QuestionState.model';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
+import { QuestionsData } from '../../shared/models/QuestionsData.type';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizComponentData } from '../../shared/models/QuizComponentData.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
@@ -2125,7 +2126,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     // Update the current question
     firstValueFrom(firstQuestion)
-      .then((question) => {
+      .then((question: QuizQuestion) => {
         if (question) {
           this.quizService.setCurrentQuestion(question);
           this.loadCurrentQuestion();
@@ -2157,7 +2158,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     questionIndex: number
   ): Promise<any> {
     try {
-      const rawData = await firstValueFrom(
+      const rawData: QuestionData | null = await firstValueFrom(
         of(this.quizService.getQuestionData(quizId, questionIndex))
       );
 
@@ -2170,7 +2171,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         : of('');
 
       // Convert the Observable to a Promise and await its value
-      const explanation = await firstValueFrom(explanationObservable);
+      const explanation: string = await firstValueFrom(explanationObservable);
 
       const transformedData: QuizQuestion = {
         questionText: rawData.questionText ?? '',
