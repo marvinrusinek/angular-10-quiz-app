@@ -31,7 +31,7 @@
     "jquery": "3.5.1",
     "lodash": "4.17.21",
     "popper.js": "1.16.1",
-    "rxjs": "7.8.2",
+    "rxjs": "6.6.7",
     "tslib": "2.0.3",
     "typescript": "4.0.3",
     "zone.js": "0.11.1"
