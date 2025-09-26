@@ -39,13 +39,14 @@
     <mat-card-actions [formGroup]="preferencesForm">
       <!-- "Shuffle Questions and Answers" slide toggle -->
       <mat-slide-toggle
-        formControlName="shouldShuffleOptions"
-        (change)="onSlideToggleChange($event)"
-        [checked]="highlightPreference"
-        disableRipple="true" capture
         aria-label="Shuffle questions and answers">
         Turn shuffling on
       </mat-slide-toggle>
+
+       <!-- formControlName="shouldShuffleOptions"
+        (change)="onSlideToggleChange($event)"
+        [checked]="highlightPreference"
+        disableRipple="true" capture -->
 
       <mat-button
         *ngIf="selectedQuiz"
