@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { BehaviorSubject, combineLatest, EMPTY, of, Subject } from 'rxjs';
@@ -10,6 +10,7 @@ import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
 import { QuizDataService } from '../../shared/services/quizdata.service';
+import { QuizNavigationService } from '../../shared/services/quiz-navigation.service';
 import { UserPreferenceService } from '../../shared/services/user-preference.service';
 
 @Component({
@@ -43,10 +44,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   constructor(
     private quizService: QuizService,
     private quizDataService: QuizDataService,
+    private quizNavigationService: QuizNavigationService,
     private userPreferenceService: UserPreferenceService, 
     private activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
-    private router: Router,
     private cdRef: ChangeDetectorRef
   ) {
     // Initialize the form group with default values
@@ -233,11 +234,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       }
 
       try {
-        const navigationSucceeded = await this.navigateToFirstQuestion(
-          targetQuizId,
-          shouldShuffleOptions,
-          feedbackMode
-        );
+        const navigationSucceeded = await this.navigateToFirstQuestion();
 
         if (!navigationSucceeded) {
           console.error('Navigation to first question was prevented.', { quizId: targetQuizId });
@@ -251,17 +248,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   }
 
-  private navigateToFirstQuestion(
-    quizId: string,
-    shouldShuffleOptions: boolean,
-    feedbackMode: string,
-  ): Promise<boolean> {
-    return this.router.navigate(['/question', quizId, 1], {
-      state: { shouldShuffleOptions, feedbackMode }
-    }).catch((error: unknown) => {
+  private async navigateToFirstQuestion(): Promise<boolean> {
+    try {
+      return await this.quizNavigationService.resetUIAndNavigate(0);
+    } catch (error) {
       console.error('Router navigation failed.', error);
       return false;
-    });
+    }
   }
 
   private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
