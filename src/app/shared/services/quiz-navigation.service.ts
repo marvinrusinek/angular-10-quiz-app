@@ -341,7 +341,7 @@ export class QuizNavigationService {
   }
   
   
-  public async resetUIAndNavigate(index: number): Promise<void> {
+  public async resetUIAndNavigate(index: number): Promise<boolean> {
     try {
       // Set question index in service
       this.quizService.setCurrentQuestionIndex(index);
@@ -362,26 +362,32 @@ export class QuizNavigationService {
       if (typeof totalQuestions === 'number' && totalQuestions > 0) {
         this.quizService.updateBadgeText(index + 1, totalQuestions);
       }
-  
+
       // Navigate only if the route is different
       const quizId = this.quizService.quizId;
+      if (!quizId) {
+        console.error('[resetUIAndNavigate] ❌ Cannot navigate without a quizId.');
+        return false;
+      }
       const routeUrl = `/question/${quizId}/${index + 1}`;
       const currentUrl = this.router.url;
-  
+
       if (currentUrl !== routeUrl) {
         const navSuccess = await this.router.navigateByUrl(routeUrl);
         if (!navSuccess) {
           console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${index}`);
-          return;
+          return false;
         }
       } else {
         console.warn(`[resetUIAndNavigate] ⚠️ Already on route ${routeUrl}`);
       }
-  
+
       // Final confirmation
       console.log(`[resetUIAndNavigate] ✅ Navigation and UI reset complete for Q${index + 1}`);
+      return true;
     } catch (err) {
       console.error(`[resetUIAndNavigate] ❌ Error during reset:`, err);
+      return false;
     }
   }
 
