@@ -728,7 +728,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   private async handleVisibilityChange(): Promise<void> {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const currentIndex: number = this.quizService.getCurrentQuestionIndex();
     try {
       // Ensure questions are loaded
       if (!Array.isArray(this.questions) || this.questions.length === 0) {
@@ -736,7 +736,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         await this.loadQuizData();  // ensure loading before proceeding
       }
 
-      const totalQuestions = await firstValueFrom(
+      const totalQuestions: number = await firstValueFrom(
         this.quizService.getTotalQuestionsCount(this.quizId)
       );
 
