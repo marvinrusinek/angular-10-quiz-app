@@ -2158,7 +2158,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     questionIndex: number
   ): Promise<any> {
     try {
-      const rawData: QuestionData | null = await firstValueFrom(
+      const rawData: QuestionsData | null = await firstValueFrom(
         of(this.quizService.getQuestionData(quizId, questionIndex))
       );
 
