@@ -246,32 +246,47 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private async navigateToFirstQuestion(targetQuizId: string): Promise<boolean> {
+    if (!targetQuizId) {
+      console.error('[navigateToFirstQuestion] Missing targetQuizId.');
+      return false;
+    }
+  
     try {
-      const navigationSucceededViaService = await this.quizNavigationService.resetUIAndNavigate(0);
-
-      if (navigationSucceededViaService) {
+      // Preferred path: let the service reset UI and navigate to Q1 (index 0)
+      const viaService = await this.quizNavigationService.resetUIAndNavigate(0, targetQuizId);
+  
+      // If the service explicitly succeeded, we’re done.
+      if (viaService === true) {
         return true;
       }
-
-      console.warn('resetUIAndNavigate returned a falsy value. Falling back to direct router navigation.');
-    } catch (error) {
-      console.error('Router navigation failed.', error);
+  
+      // Service returned false/undefined/non-boolean – fall back to direct navigation
+      console.warn(
+        '[navigateToFirstQuestion] resetUIAndNavigate did not confirm success; falling back.',
+        { viaService }
+      );
+    } catch (err) {
+      console.error('[navigateToFirstQuestion] resetUIAndNavigate threw.', err);
+      // fall through to fallback
     }
-
+  
     // Fallback to direct router navigation
     try {
+      // Router expects 1-based question in your URL; index 0 ⇒ "/.../1"
       const fallbackSucceeded = await this.router.navigate(['/question', targetQuizId, 1]);
   
       if (!fallbackSucceeded) {
-        console.error('Fallback navigation returned false.', { quizId: targetQuizId });
+        console.error('[navigateToFirstQuestion] Fallback navigation returned false.', {
+          quizId: targetQuizId,
+        });
       }
   
       return fallbackSucceeded;
-    } catch (fallbackError) {
-      console.error('Fallback navigation threw an error.', fallbackError);
+    } catch (fallbackErr) {
+      console.error('[navigateToFirstQuestion] Fallback navigation threw.', fallbackErr);
       return false;
     }
-  }  
+  }    
 
   private async resolveActiveQuiz(targetQuizId: string): Promise<Quiz | null> {
     const quizFromState = this.selectedQuiz$.getValue() ?? this.quiz ?? null;
