@@ -393,6 +393,63 @@ export class QuizNavigationService {
     }
   }
 
+  private resolveEffectiveQuizId(quizIdOverride?: string): string | null {
+    if (quizIdOverride) {
+      return quizIdOverride;
+    }
+
+    if (this.quizService.quizId) {
+      return this.quizService.quizId;
+    }
+
+    if (this.quizId) {
+      return this.quizId;
+    }
+
+    try {
+      const stored = localStorage.getItem('quizId');
+      if (stored) {
+        return stored;
+      }
+    } catch {
+      // Ignore storage access issues – we'll fall through to null.
+    }
+
+    return null;
+  }
+
+  private async ensureSessionQuestions(quizId: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.quizDataService.prepareQuizSession(quizId).pipe(
+          take(1),
+          catchError((error: Error) => {
+            console.error('[resetUIAndNavigate] ❌ Failed to prepare quiz session:', error);
+            return of([]);
+          })
+        )
+      );
+    } catch (error) {
+      console.error('[resetUIAndNavigate] ❌ Error while ensuring session questions:', error);
+    }
+  }
+
+  private async tryResolveQuestion(index: number): Promise<QuizQuestion | null> {
+    try {
+      return await firstValueFrom(
+        this.quizService.getQuestionByIndex(index).pipe(
+          catchError((error: Error) => {
+            console.error(`[resetUIAndNavigate] ❌ Failed to resolve question at index ${index}:`, error);
+            return of(null);
+          })
+        )
+      );
+    } catch (error) {
+      console.error(`[resetUIAndNavigate] ❌ Question stream did not emit for index ${index}:`, error);
+      return null;
+    }
+  }
+
   private resetExplanationAndState(): void {
     // Immediately reset explanation-related state to avoid stale data
     this.explanationTextService.setExplanationText('');
