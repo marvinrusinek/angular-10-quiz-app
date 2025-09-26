@@ -59,6 +59,11 @@ mat-card-actions {
       &:hover {
         border: 2px solid $black;
       }
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
     }  
   }
 }
