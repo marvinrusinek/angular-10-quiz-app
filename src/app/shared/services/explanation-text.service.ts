@@ -200,7 +200,7 @@ export class ExplanationTextService {
   }
 
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
-    this.formattedExplanations = {};  // Clear existing data
+    this.formattedExplanations = {};  // clear existing data
     this.formattedExplanationByQuestionText.clear();
 
     if (!Array.isArray(explanations) || explanations.length === 0) {
@@ -318,7 +318,17 @@ export class ExplanationTextService {
     }
 
     return question.options
-      .map((option, index) => option.correct ? index + 1 : null)
+      .map((option, index) => {
+        if (!option?.correct) {
+          return null;
+        }
+
+        const displayIndex = typeof option.displayOrder === 'number'
+          ? option.displayOrder
+          : index;
+
+        return displayIndex + 1;
+      })
       .filter((index): index is number => index !== null);
   }
 
