@@ -1940,7 +1940,7 @@ export class QuizService implements OnDestroy {
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
     if (this.shouldShuffle() && questions && questions.length > 0) {
-      return Utils.shuffleArray([...questions]); // Shuffle a copy for immutability
+      return Utils.shuffleArray([...questions]);  // shuffle a copy for immutability
     }
     console.log(
       '[shuffleQuestions] Skipping shuffle or no questions available.'
