@@ -11,6 +11,7 @@ import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { QuestionData } from '../../shared/models/QuestionData.type';
+import { QuestionsData } from '../../shared/models/QuestionsData.type';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
