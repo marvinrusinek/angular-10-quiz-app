@@ -548,7 +548,7 @@ export class QuizService implements OnDestroy {
         correct  : opt?.correct === true,
         value    : opt?.value    ?? null,
         answer   : opt?.answer   ?? null,
-        selected : false,  // always reset UI flags␊
+        selected : false,  // always reset UI flags
         showIcon : false,
         feedback : (opt?.feedback ?? 'No feedback available').trim(),
         styleClass: opt?.styleClass ?? ''
@@ -711,6 +711,18 @@ export class QuizService implements OnDestroy {
     quizId: string,
     questionIndex: number
   ): Observable<QuizQuestion | null> {
+    if (!Number.isInteger(questionIndex) || questionIndex < 0) {
+      console.warn(
+        `[getCurrentQuestionByIndex] ⚠️ Invalid question index ${questionIndex}. Returning null.`
+      );
+      return of(null);
+    }
+
+    const inMemoryQuestion = this.resolveSessionQuestion(quizId, questionIndex);
+    if (inMemoryQuestion) {
+      return of(inMemoryQuestion);
+    }
+
     return this.getQuizData().pipe(
       map((quizzes) => {
         const selectedQuiz = quizzes.find((quiz) => quiz.quizId === quizId);
@@ -726,18 +738,85 @@ export class QuizService implements OnDestroy {
           );
         }
 
-        const question = selectedQuiz.questions[questionIndex];
+        const baseQuestion = selectedQuiz.questions[questionIndex];
+        const clonedQuestion = this.cloneQuestionForSession(baseQuestion);
 
-        // Ensure optionIds are assigned
-        question.options = this.assignOptionIds(question.options);
+        if (!clonedQuestion) {
+          console.warn(
+            `[getCurrentQuestionByIndex] ⚠️ Unable to clone question at index ${questionIndex}.`
+          );
+          return null;
+        }
 
-        return question;
+        const sanitizedOptions = this.sanitizeOptions(clonedQuestion.options ?? []);
+
+        return {
+          ...clonedQuestion,
+          options: sanitizedOptions,
+        };
       }),
       catchError((error) => {
         console.error('Error fetching specific question:', error);
         return of(null);
       })
     );
+  }
+
+  private resolveSessionQuestion(
+    quizId: string,
+    questionIndex: number
+  ): QuizQuestion | null {
+    const sources: Array<{ label: string; questions?: QuizQuestion[] }> = [
+      { label: 'questionsSubject', questions: this.questionsSubject.getValue() },
+      { label: 'shuffledQuestions', questions: this.shuffledQuestions },
+      { label: 'questions', questions: this.questions },
+      {
+        label: 'activeQuiz',
+        questions:
+          this.activeQuiz?.quizId === quizId ? this.activeQuiz?.questions : undefined,
+      },
+      {
+        label: 'selectedQuiz',
+        questions:
+          this.selectedQuiz?.quizId === quizId ? this.selectedQuiz?.questions : undefined,
+      },
+    ];
+
+    for (const { label, questions } of sources) {
+      if (!Array.isArray(questions) || questions.length === 0) {
+        continue;
+      }
+
+      if (questionIndex >= questions.length) {
+        continue;
+      }
+
+      const baseQuestion = questions[questionIndex];
+
+      if (!baseQuestion) {
+        console.warn(
+          `[resolveSessionQuestion] ⚠️ Missing question at index ${questionIndex} in ${label}.`
+        );
+        continue;
+      }
+
+      const clonedQuestion = this.cloneQuestionForSession(baseQuestion);
+      if (!clonedQuestion) {
+        console.warn(
+          `[resolveSessionQuestion] ⚠️ Unable to clone question from ${label} at index ${questionIndex}.`
+        );
+        continue;
+      }
+
+      const sanitizedOptions = this.sanitizeOptions(clonedQuestion.options ?? []);
+
+      return {
+        ...clonedQuestion,
+        options: sanitizedOptions,
+      };
+    }
+
+    return null;
   }
 
   getQuestionTextForIndex(index: number): Observable<string | undefined> {
