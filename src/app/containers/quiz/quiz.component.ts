@@ -1731,9 +1731,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       const questions: QuizQuestion[] = await firstValueFrom(
         this.quizDataService.getQuestionsForQuiz(this.quizId)
       );
-      this.questions = questions;  // store the fetched questions in a component property
 
-      const question = questions[this.currentQuestionIndex];
+      this.applyQuestionsFromSession(questions);
+
+      const question = this.questions[this.currentQuestionIndex];
 
       // Check for stored states after ensuring we have the questions
       const storedStates = this.quizStateService.getStoredState(this.quizId);
