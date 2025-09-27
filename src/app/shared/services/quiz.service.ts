@@ -908,7 +908,7 @@ export class QuizService implements OnDestroy {
       this.shuffledQuestions = sanitizedQuestions;
 
       // Emit a fresh copy so that consumers don't accidentally mutate the
-      // cached list and desynchronise future navigation lookups.
+      // cached list and desynchronize future navigation lookups.
       const broadcastQuestions = sanitizedQuestions.map((question) =>
         this.cloneQuestionForSession(question) ?? question
       );
