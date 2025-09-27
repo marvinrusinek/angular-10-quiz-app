@@ -236,6 +236,7 @@ export class QuizDataService implements OnDestroy {
         this.quizQuestionCache.set(quizId, clonedQuestions);
 
         this.quizService.applySessionQuestions(quizId, clonedQuestions);
+        this.syncSelectedQuizState(quizId, clonedQuestions, quiz);
 
         return clonedQuestions;
       }),
