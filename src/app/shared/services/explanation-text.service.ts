@@ -18,6 +18,7 @@ export class ExplanationTextService {
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   formattedExplanationSubject = new BehaviorSubject<string | null>(null);
   formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
+  private formattedExplanationByQuestionText = new Map<string, string>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
   explanationsUpdated$ = this.explanationsUpdated.asObservable();
@@ -155,16 +156,52 @@ export class ExplanationTextService {
     return of(explanation);
   }
 
+  getFormattedExplanationByQuestion(
+    question: QuizQuestion | null | undefined,
+    fallbackIndex?: number
+  ): string | null {
+    if (!question) {
+      if (typeof fallbackIndex === 'number' && fallbackIndex >= 0) {
+        return this.formattedExplanations[fallbackIndex]?.explanation ?? null;
+      }
+      return null;
+    }
+
+    const indexedKey = this.buildQuestionKey(question.questionText, fallbackIndex);
+    if (indexedKey) {
+      const indexedMatch = this.formattedExplanationByQuestionText.get(indexedKey);
+      if (indexedMatch) {
+        return indexedMatch;
+      }
+    }
+
+    const plainKey = this.buildQuestionKey(question.questionText);
+    if (plainKey) {
+      const plainMatch = this.formattedExplanationByQuestionText.get(plainKey);
+      if (plainMatch) {
+        return plainMatch;
+      }
+    }
+
+    if (typeof fallbackIndex === 'number' && fallbackIndex >= 0) {
+      return this.formattedExplanations[fallbackIndex]?.explanation ?? null;
+    }
+
+    return null;
+  }
+
   initializeExplanationTexts(explanations: string[]): void {
     this.explanationTexts = {};
+    this.formattedExplanationByQuestionText.clear();
 
     for (const [index, explanation] of explanations.entries()) {
       this.explanationTexts[index] = explanation;
-    }    
+    }
   }
 
   initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
     this.formattedExplanations = {};  // Clear existing data
+    this.formattedExplanationByQuestionText.clear();
 
     if (!Array.isArray(explanations) || explanations.length === 0) {
       console.warn('No explanations provided for initialization.');
