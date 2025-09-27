@@ -10,7 +10,7 @@ import { QUIZ_DATA, QUIZ_RESOURCES } from '../../shared/quiz';
 import { Utils } from '../../shared/utils/utils';
 import { QuizRoutes } from '../../shared/models/quiz-routes.enum';
 import { QuestionType } from '../../shared/models/question-type.enum';
-import { QuestionsData } from '../../shared/models/QuestionsData.type';
+import { QuestionData } from '../../shared/models/QuestionData.type';
 import { CombinedQuestionDataType } from '../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../shared/models/Option.model';
 import { QuestionPayload } from '../../shared/models/QuestionPayload.model';
@@ -929,7 +929,7 @@ export class QuizService implements OnDestroy {
     try {
       const questionsData = await this.getQuestionsForQuiz(quizId)
         .pipe(take(1))
-        .toPromise() as QuestionsData;
+        .toPromise() as QuestionData;
       this.questions = questionsData.questions;
       return questionsData;
     } catch (error) {
