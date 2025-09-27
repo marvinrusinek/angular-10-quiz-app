@@ -270,7 +270,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what <codelab-quiz-content> shows
-  private getCombinedDisplayTextStream(): void {
+  private async getCombinedDisplayTextStream(): Promise<void> {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
       this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
@@ -281,30 +281,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-  
+
         const question    = (questionText ?? '').trim();
         const explanation = (explanationText ?? '').trim();
         const correct     = (correctText ?? '').trim();
-  
+        const questionModel = this.quizService.questions?.[currentIndex] ?? null;
+
         // Do not gate on `explanation` being truthy
         const showExplanation =
           state?.mode === 'explanation' &&
           (shouldDisplayExplanation || explanation);
-  
+
         if (showExplanation) {
           // Stream (formatted or raw seeded on click/expiry)
           if (explanation) return explanation;
-  
+
+          const raw: string | null | undefined = await firstValueFrom<string | null>(
+            this.explanationTextService
+              .getFormattedExplanationTextForQuestion(currentIndex)
+              .pipe(take(1))
+          );
+
+          const cachedByQuestion: string | null = raw?.trim() ?? null;
+          if (cachedByQuestion) return cachedByQuestion;
+
           // Service cache for this index (what update/expiry wrote)
           const svcRaw = (
             this.explanationTextService?.formattedExplanations[currentIndex].explanation ?? ''
           ).toString().trim();
           if (svcRaw) return svcRaw;
-  
+
           // Model raw
-          const raw = (this.questions?.[currentIndex]?.explanation ?? '').toString().trim();
+          const rawSource = questionModel
+            ? questionModel.explanation
+            : this.questions?.[currentIndex]?.explanation;
+          const raw = (rawSource ?? '').toString().trim();
           if (raw) return raw;
-  
+
           // Final fallback
           return 'Explanation not available.';
         }
