@@ -262,6 +262,7 @@ export class QuizDataService implements OnDestroy {
     const cached = this.quizQuestionCache.get(quizId);
     if (Array.isArray(cached) && cached.length > 0) {
       this.quizService.applySessionQuestions(quizId, cached);
+      this.syncSelectedQuizState(quizId, cached);
       return of(cached);
     }
 
@@ -427,7 +428,9 @@ export class QuizDataService implements OnDestroy {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
 
-        const explanationTexts = quiz.questions.map((question) => {
+        const sourceQuestions = this.quizQuestionCache.get(quizId) ?? quiz.questions ?? [];
+
+        const explanationTexts = sourceQuestions.map((question) => {
           return typeof question.explanation === 'string' ? question.explanation : '';
         }) ?? [];
 
@@ -491,5 +494,39 @@ export class QuizDataService implements OnDestroy {
       catchError((error: HttpErrorResponse) => throwError(() => new Error(`Error submitting quiz ${quiz.quizId}: ` + error.message))),
       distinctUntilChanged()
     );
+  }
+
+  private syncSelectedQuizState(
+    quizId: string,
+    questions: QuizQuestion[],
+    sourceQuiz?: Quiz | null
+  ): void {
+    if (!Array.isArray(questions) || questions.length === 0) return;
+
+    const baseQuiz =
+      sourceQuiz ??
+      this.selectedQuiz$.getValue() ??
+      this.quizService.selectedQuiz ??
+      this.getCachedQuizById(quizId);
+
+    if (!baseQuiz) return;
+
+    const sanitizedQuestions = questions.map((question) => ({
+      ...question,
+      options: Array.isArray(question.options)
+        ? question.options.map((option) => ({ ...option }))
+        : []
+    }));
+
+    const syncedQuiz: Quiz = {
+      ...baseQuiz,
+      quizId: baseQuiz.quizId ?? quizId,
+      questions: sanitizedQuestions
+    };
+
+    this.setSelectedQuiz(syncedQuiz);
+    this.setCurrentQuiz(syncedQuiz);
+    this.quizService.setSelectedQuiz(syncedQuiz);
+    this.quizService.setActiveQuiz(syncedQuiz);
   }
 }
