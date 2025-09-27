@@ -1968,8 +1968,10 @@ export class QuizService implements OnDestroy {
       ? deepClone.options.map((option, optionIdx) => ({
           ...option,
           optionId:
-            typeof option.optionId === 'number' ? option.optionId : optionIdx,
-          correct: option.correct ?? false,
+            typeof option.optionId === 'number'
+              ? option.optionId
+              : optionIdx + 1,
+          correct: option.correct === true,
           selected: option.selected ?? false,
           highlight: option.highlight ?? false,
           showIcon: option.showIcon ?? false,
