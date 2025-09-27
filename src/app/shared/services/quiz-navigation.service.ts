@@ -434,7 +434,7 @@ export class QuizNavigationService {
     }
   }
 
-  public sync tryResolveQuestion(index: number): Promise<QuizQuestion | null> {
+  public async tryResolveQuestion(index: number): Promise<QuizQuestion | null> {
     try {
       return await firstValueFrom(
         this.quizService.getQuestionByIndex(index).pipe(
