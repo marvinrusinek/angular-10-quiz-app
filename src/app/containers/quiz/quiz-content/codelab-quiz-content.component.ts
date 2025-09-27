@@ -269,7 +269,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.formattedExplanationSubscription?.unsubscribe();
   }
 
-  // Combine the streams that decide what <codelab-quiz-content> shows
+  // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
@@ -279,59 +279,62 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      map(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-
-        const question    = (questionText ?? '').trim();
-        const explanation = (explanationText ?? '').trim();
-        const correct     = (correctText ?? '').trim();
+  
+        const question      = (questionText ?? '').trim();
+        const explanation   = (explanationText ?? '').trim();
+        const correct       = (correctText ?? '').trim();
         const questionModel = this.quizService.questions?.[currentIndex] ?? null;
-
-        // Do not gate on `explanation` being truthy
+  
         const showExplanation =
           state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || explanation);
-
+          (shouldDisplayExplanation || !!explanation);
+  
         if (showExplanation) {
-          // Stream (formatted or raw seeded on click/expiry)
-          if (explanation) return explanation;
-
-          const formattedRaw$ = this.explanationTextService
+          // If the formatted explanation is already present, emit it.
+          if (explanation) return of(explanation);
+  
+          // Otherwise, try to load formatted explanation once.
+          return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
               take(1),
-              map((s: string | null | undefined) => (s ?? '').trim())
+              map((s: string | null | undefined) => (s ?? '').trim()),
+              switchMap((trimmed) => {
+                if (trimmed) return of(trimmed);
+  
+                // Service cache fallback
+                const svcRaw = (
+                  this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
+                ).toString().trim();
+                if (svcRaw) return of(svcRaw);
+  
+                // Model fallback
+                const rawSource = questionModel
+                  ? questionModel.explanation
+                  : this.questions?.[currentIndex]?.explanation;
+                const modelRaw = (rawSource ?? '').toString().trim();
+                if (modelRaw) return of(modelRaw);
+  
+                // Final fallback
+                return of('Explanation not available.');
+              })
             );
-
-          const cachedByQuestion: Observable<string> = formattedRaw$;
-          if (cachedByQuestion) return cachedByQuestion;
-
-          // Service cache for this index (what update/expiry wrote)
-          const svcRaw = (
-            this.explanationTextService?.formattedExplanations[currentIndex].explanation ?? ''
-          ).toString().trim();
-          if (svcRaw) return svcRaw;
-
-          // Model raw
-          const rawSource = questionModel
-            ? questionModel.explanation
-            : this.questions?.[currentIndex]?.explanation;
-          const raw = (rawSource ?? '').toString().trim();
-          if (raw) return raw;
-
-          // Final fallback
-          return 'Explanation not available.';
         }
   
         // Otherwise show question (and correct count if present)
-        return correct
+        const out = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
+  
+        return of(out);
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
