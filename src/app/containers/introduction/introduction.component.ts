@@ -142,7 +142,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
         // Narrow the entire tuple: [Quiz, boolean]
         filter((tuple): tuple is [Quiz, boolean] => !!tuple[0]),
         tap(([quiz, checked]) => {
-          console.log('Shuffle preference changed:', { quizId: quiz.quizId, checked });
           this.shouldShuffleOptions = checked;
           this.fetchAndHandleQuestions(quiz.quizId);
         })
@@ -218,8 +217,6 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       const feedbackMode = isImmediateFeedback ? 'immediate' : 'lenient';
       this.userPreferenceService.setFeedbackMode(feedbackMode);
 
-      console.log('Preferences when starting quiz:', { shouldShuffleOptions, feedbackMode });
-
       this.quizDataService.setSelectedQuiz(activeQuiz);
       this.quizDataService.setCurrentQuiz(activeQuiz);
       this.quizService.setSelectedQuiz(activeQuiz);
@@ -284,7 +281,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   
     // Fallback to direct router navigation
     try {
-      // Router expects 1-based question in your URL; index 0 ⇒ "/.../1"
+      // Router expects 1-based question in URL; index 0 ⇒ "/.../1"
       const fallbackSucceeded = await this.ngZone.run(() =>
         this.router.navigate(['/question', quizId, 1])
       );
