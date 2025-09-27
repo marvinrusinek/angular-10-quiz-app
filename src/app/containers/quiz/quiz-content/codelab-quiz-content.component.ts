@@ -337,7 +337,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (isAvailable: boolean) => {
-          console.log('Emitting isContentAvailableChange:', isAvailable);
           this.isContentAvailableChange.emit(isAvailable);
           this.quizDataService.updateContentAvailableState(isAvailable);
         },
