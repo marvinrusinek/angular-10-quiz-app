@@ -284,8 +284,31 @@ export class ExplanationTextService {
       questionIndex: index,
       explanation: formattedExplanation
     };
-    
+
+    this.storeFormattedExplanationForQuestion(question, index, formattedExplanation);
+
     this.explanationsUpdated.next(this.formattedExplanations);
+  }
+
+  private storeFormattedExplanationForQuestion(
+    question: QuizQuestion,
+    index: number,
+    explanation: string
+  ): void {
+    if (!question) {
+      return;
+    }
+
+    const keyWithoutIndex = this.buildQuestionKey(question?.questionText);
+    const keyWithIndex = this.buildQuestionKey(question?.questionText, index);
+
+    if (keyWithoutIndex) {
+      this.formattedExplanationByQuestionText.set(keyWithoutIndex, explanation);
+    }
+
+    if (keyWithIndex) {
+      this.formattedExplanationByQuestionText.set(keyWithIndex, explanation);
+    }
   }
 
   getCorrectOptionIndices(question: QuizQuestion): number[] {
@@ -425,6 +448,23 @@ export class ExplanationTextService {
     }
     
     console.log('[✅ Change Detection Applied after Explanation Evaluation]');
+  }
+
+  private buildQuestionKey(
+    questionText: string | null | undefined,
+    index?: number
+  ): string | null {
+    const normalizedText = (questionText ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    if (!normalizedText && (index === undefined || index < 0)) {
+      return null;
+    }
+
+    const indexPart = typeof index === 'number' && index >= 0 ? `|${index}` : '';
+    return `${normalizedText}${indexPart}`;
   }
 
   private isQuestionValid(question: QuizQuestion): boolean {
