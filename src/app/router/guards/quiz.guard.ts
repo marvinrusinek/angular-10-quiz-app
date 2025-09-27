@@ -34,6 +34,11 @@ export class QuizGuard implements CanActivate {
 
     const questionIndex = normalizationResult.value;
 
+    const cachedQuiz = this.quizDataService.getCachedQuizById(quizId);
+    if (cachedQuiz) {
+      return of(this.evaluateQuestionRequest(cachedQuiz, questionIndex, quizId));
+    }
+
     return this.validateQuizId(quizId).pipe(
       switchMap((isValid): Observable<boolean | UrlTree> => {
         if (!isValid) {
@@ -117,38 +122,44 @@ export class QuizGuard implements CanActivate {
           return this.router.createUrlTree(['/select']);
         }
 
-        const totalQuestions = quiz.questions.length;
-
-        if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
-          console.warn(`[❌ QuizId=${quizId}] Quiz has no questions available.`);
-          return this.router.createUrlTree(['/select']);
-        }
-
-        const zeroBasedIndex = questionIndex - 1;
-        const isValidIndex = zeroBasedIndex >= 0 && zeroBasedIndex < totalQuestions;
-
-        if (isValidIndex) {
-          return true;
-        }
-
-        const fallbackIndex = Math.min(totalQuestions, Math.max(1, questionIndex));
-        console.warn('[🚫 Invalid QuestionIndex]', {
-          quizId,
-          requested: questionIndex,
-          totalQuestions,
-          fallbackIndex
-        });
-
-        if (fallbackIndex >= 1 && fallbackIndex <= totalQuestions && fallbackIndex !== questionIndex) {
-          return this.router.createUrlTree(['/question', quizId, fallbackIndex]);
-        }
-
-        return this.router.createUrlTree(['/intro', quizId]);
+        return this.evaluateQuestionRequest(quiz, questionIndex, quizId);
       }),
       catchError((error: unknown): Observable<boolean | UrlTree> => {
         console.error(`[❌ ensureQuestionWithinRange Error] quizId=${quizId}`, error);
         return of(this.router.createUrlTree(['/select']));
       })
     );
+  }
+
+  private evaluateQuestionRequest(
+    quiz: Quiz,
+    questionIndex: number,
+    quizId: string
+  ): boolean | UrlTree {
+    const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0;
+
+    if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
+      console.warn(`[❌ QuizId=${quizId}] Quiz has no questions available.`);
+      return this.router.createUrlTree(['/select']);
+    }
+
+    const zeroBasedIndex = questionIndex - 1;
+    if (zeroBasedIndex >= 0 && zeroBasedIndex < totalQuestions) {
+      return true;
+    }
+
+    const fallbackIndex = Math.min(totalQuestions, Math.max(1, questionIndex));
+    console.warn('[🚫 Invalid QuestionIndex]', {
+      quizId,
+      requested: questionIndex,
+      totalQuestions,
+      fallbackIndex
+    });
+
+    if (fallbackIndex >= 1 && fallbackIndex <= totalQuestions && fallbackIndex !== questionIndex) {
+      return this.router.createUrlTree(['/question', quizId, fallbackIndex]);
+    }
+
+    return this.router.createUrlTree(['/intro', quizId]);
   }
 }
