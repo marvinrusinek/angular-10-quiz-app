@@ -296,13 +296,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           // Stream (formatted or raw seeded on click/expiry)
           if (explanation) return explanation;
 
-          const raw: string | null | undefined = await firstValueFrom<string | null>(
+          const formattedRaw: string | null | undefined = await firstValueFrom<string | null>(
             this.explanationTextService
               .getFormattedExplanationTextForQuestion(currentIndex)
               .pipe(take(1))
           );
 
-          const cachedByQuestion: string | null = raw?.trim() ?? null;
+          const cachedByQuestion: string | null = formattedRaw?.trim() ?? null;
           if (cachedByQuestion) return cachedByQuestion;
 
           // Service cache for this index (what update/expiry wrote)
