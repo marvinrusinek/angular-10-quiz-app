@@ -1660,6 +1660,68 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
+  private hydrateQuestionSet(
+    questions: QuizQuestion[] | null | undefined
+  ): QuizQuestion[] {
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return [];
+    }
+
+    return questions.map((question) => ({
+      ...question,
+      options: Array.isArray(question.options)
+        ? question.options.map((option) => ({
+            ...option,
+            correct: option.correct ?? false
+          }))
+        : [],
+    }));
+  }
+
+  private applyQuestionsFromSession(questions: QuizQuestion[]): void {
+    const hydratedQuestions = this.hydrateQuestionSet(questions);
+
+    this.questions = hydratedQuestions;
+
+    if (hydratedQuestions.length === 0) {
+      this.explanationTextService.initializeExplanationTexts([]);
+      this.explanationTextService.initializeFormattedExplanations([]);
+      return;
+    }
+
+    const explanations = hydratedQuestions.map((question) =>
+      (question.explanation ?? '').trim()
+    );
+
+    this.explanationTextService.initializeExplanationTexts(explanations);
+    this.explanationTextService.initializeFormattedExplanations(
+      hydratedQuestions.map((question, index) => ({
+        questionIndex: index,
+        explanation: explanations[index]
+      }))
+    );
+
+    if (this.quiz) {
+      this.quiz = {
+        ...this.quiz,
+        questions: hydratedQuestions.map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({ ...option }))
+        })),
+      };
+    }
+
+    if (this.selectedQuiz) {
+      this.selectedQuiz = {
+        ...this.selectedQuiz,
+        questions: hydratedQuestions.map((question) => ({
+          ...question,
+          options: question.options.map((option) => ({ ...option }))
+        }))
+      };
+    }
+  }
+
   private async prepareQuizSession(): Promise<void> {
     try {
       this.currentQuestionIndex = 0;
