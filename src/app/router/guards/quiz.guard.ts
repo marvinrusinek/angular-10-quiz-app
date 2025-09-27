@@ -130,4 +130,3 @@ export class QuizGuard implements CanActivate {
 
     return this.router.createUrlTree(['/intro', quizId]);
   }
-}
