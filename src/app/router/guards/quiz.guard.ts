@@ -146,4 +146,57 @@ export class QuizGuard implements CanActivate {
 
     return { isValid: false, zeroBasedIndex: -1 };
   }
+
+  private tryValidateWithCachedQuiz(
+    quizId: string,
+    zeroBasedIndex: number
+  ): boolean | UrlTree | null {
+    const cachedCandidates: Array<Quiz | null> = [];
+
+    if (typeof this.quizDataService.selectedQuiz$?.getValue === 'function') {
+      cachedCandidates.push(this.quizDataService.selectedQuiz$.getValue());
+    }
+
+    if (typeof this.quizDataService.selectedQuizSubject?.getValue === 'function') {
+      cachedCandidates.push(this.quizDataService.selectedQuizSubject.getValue());
+    }
+
+    for (const candidate of cachedCandidates) {
+      if (!candidate || candidate.quizId !== quizId) {
+        continue;
+      }
+
+      const totalQuestions = candidate.questions?.length ?? 0;
+      if (totalQuestions <= 0) {
+        console.warn('[🛡️ QuizGuard] Cached quiz missing questions.', {
+          quizId,
+          totalQuestions
+        });
+        return this.router.createUrlTree(['/select']);
+      }
+
+      const isValidIndex =
+        Number.isInteger(zeroBasedIndex) &&
+        zeroBasedIndex >= 0 &&
+        zeroBasedIndex < totalQuestions;
+
+      if (isValidIndex) {
+        console.log('[🛡️ QuizGuard] Using cached quiz for validation.', {
+          quizId,
+          zeroBasedIndex,
+          totalQuestions
+        });
+        return true;
+      }
+
+      console.warn('[🛡️ QuizGuard] Cached quiz rejected invalid index.', {
+        quizId,
+        zeroBasedIndex,
+        totalQuestions
+      });
+      return this.router.createUrlTree(['/intro', quizId]);
+    }
+
+    return null;
+  }
 }
