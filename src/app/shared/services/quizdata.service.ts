@@ -110,6 +110,10 @@ export class QuizDataService implements OnDestroy {
     this.selectedQuiz$.next(quiz);
   }
 
+  getSelectedQuizSnapshot(): Quiz | null {
+    return this.selectedQuiz$.getValue();
+  }
+
   setSelectedQuizById(quizId: string): Observable<void> {
     return this.getQuizzes().pipe(
       map((quizzes: Quiz[]) => {
