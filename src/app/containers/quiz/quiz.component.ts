@@ -2574,13 +2574,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.isQuizDataLoaded = false;
     this.quizDataService.getQuestionsForQuiz(this.quizId).subscribe({
       next: (questions) => {
-        this.questions = questions.map((question) => ({
-          ...question,
-          options: question.options.map((option) => ({
-            ...option,
-            correct: option.correct ?? false
-          })),
-        }));
+        this.applyQuestionsFromSession(questions);
         this.isQuizDataLoaded = true;
         console.log('Loaded questions:', this.questions);
       },
