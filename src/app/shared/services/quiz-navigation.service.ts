@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, first, map, take } from 'rxjs/operators';
@@ -71,7 +71,8 @@ export class QuizNavigationService {
     private selectedOptionService: SelectedOptionService,
     private timerService: TimerService,
     private activatedRoute: ActivatedRoute, 
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {}
 
   handleRouteParams(params: ParamMap): 
@@ -218,10 +219,12 @@ export class QuizNavigationService {
     // Early Exit: already beyond last question, navigate to /results
     const lastIndex = currentQuiz.questions.length - 1;
     if (targetIndex > lastIndex) {
-      const moved = await this.router.navigate(['/results', effectiveQuizId]).catch(err => {
-        console.error('[❌ navigate to results error]', err);
-        return false;
-      });
+      const moved = await this.ngZone
+        .run(() => this.router.navigate(['/results', effectiveQuizId]))
+        .catch(err => {
+          console.error('[❌ navigate to results error]', err);
+          return false;
+        });
       return !!moved;
     }
   
@@ -307,16 +310,18 @@ export class QuizNavigationService {
       });
   
       // Navigate to dummy route first, then back to trigger full reload
-      const dummySuccess = await this.router.navigateByUrl('/', {
-        skipLocationChange: true,
-      });
+      const dummySuccess = await this.ngZone.run(() =>
+        this.router.navigateByUrl('/', {
+          skipLocationChange: true,
+        })
+      );
   
       if (!dummySuccess) {
         console.error('[❌ Dummy navigation failed]');
         return false;
       }
   
-      const reloadSuccess = await this.router.navigateByUrl(routeUrl);
+      const reloadSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
       if (reloadSuccess) {
         await this.waitForUrl(routeUrl);  // ensure route change completed
       }
@@ -326,7 +331,7 @@ export class QuizNavigationService {
   
     // Normal navigation case
     try {
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
       if (!navSuccess) {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
@@ -379,7 +384,7 @@ export class QuizNavigationService {
         return true;
       }
 
-      const navSuccess = await this.router.navigateByUrl(routeUrl);
+      const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
       if (!navSuccess) {
         console.error(`[resetUIAndNavigate] ❌ Navigation failed for index ${index}`);
         return false;
@@ -466,7 +471,7 @@ export class QuizNavigationService {
     this.quizService.submitQuizScore(this.answers).subscribe({
       next: () => {
         console.log('Score submitted.');
-        this.router.navigate(['results', quizId]);
+        this.ngZone.run(() => this.router.navigate(['results', quizId]));
       },
       error: (err) => {
         console.error('[❌ Error submitting score]', err);
