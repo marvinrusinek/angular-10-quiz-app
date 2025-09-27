@@ -2,6 +2,7 @@ import { Answer } from './Answer.type';
 
 export interface Option {
   optionId?: number;
+  displayOrder?: number;
   text: string;
   correct?: boolean;
   value?: number;
