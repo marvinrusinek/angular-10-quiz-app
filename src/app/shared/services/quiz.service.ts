@@ -1972,6 +1972,10 @@ export class QuizService implements OnDestroy {
             typeof option.optionId === 'number'
               ? option.optionId
               : optionIdx + 1,
+          displayOrder:
+            typeof option.displayOrder === 'number'
+              ? option.displayOrder
+              : optionIdx,
           correct: option.correct === true,
           selected: option.selected ?? false,
           highlight: option.highlight ?? false,
@@ -2441,7 +2445,8 @@ export class QuizService implements OnDestroy {
     return options.map((option, index) => ({
       ...option,
       // Assign optionId only if it's not a valid number
-      optionId: option.optionId ?? index + 1  // Use 1-based index for clarity
+      optionId: option.optionId ?? index + 1,  // use 1-based index for clarity
+      displayOrder: index
     }));
   }
 
