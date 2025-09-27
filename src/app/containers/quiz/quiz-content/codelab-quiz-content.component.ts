@@ -270,7 +270,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what <codelab-quiz-content> shows
-  private async getCombinedDisplayTextStream(): Promise<void> {
+  private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
       this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
@@ -296,13 +296,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           // Stream (formatted or raw seeded on click/expiry)
           if (explanation) return explanation;
 
-          const formattedRaw: string | null | undefined = await firstValueFrom<string | null>(
-            this.explanationTextService
-              .getFormattedExplanationTextForQuestion(currentIndex)
-              .pipe(take(1))
-          );
+          const formattedRaw$ = this.explanationTextService
+            .getFormattedExplanationTextForQuestion(currentIndex)
+            .pipe(
+              take(1),
+              map((s: string | null | undefined) => (s ?? '').trim())
+            );
 
-          const cachedByQuestion: string | null = formattedRaw?.trim() ?? null;
+          const cachedByQuestion: Observable<string> = formattedRaw$;
           if (cachedByQuestion) return cachedByQuestion;
 
           // Service cache for this index (what update/expiry wrote)
