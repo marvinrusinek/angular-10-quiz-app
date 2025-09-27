@@ -54,9 +54,25 @@ export class QuizDataService implements OnDestroy {
 
   private loadQuizzesData(): void {
     this.http.get<Quiz[]>(this.quizUrl).pipe(
-      tap(quizzes => this.quizzesSubject.next(quizzes)),
+      tap(quizzes => {
+        this.quizzes = Array.isArray(quizzes) ? [...quizzes] : [];
+        this.quizzesSubject.next(quizzes);
+      }),
       catchError(this.handleError)
     ).subscribe();
+  }
+
+  /**
+   * Returns a synchronously cached quiz instance, if available.
+   * Falls back to `null` when the quizzes list has not been populated yet
+   * or when the requested quiz cannot be found.
+   */
+  getCachedQuizById(quizId: string): Quiz | null {
+    if (!quizId) {
+      return null;
+    }
+
+    return this.quizzes.find((quiz) => quiz.quizId === quizId) ?? null;
   }
 
   async loadQuizById(quizId: string): Promise<Quiz | null> {
