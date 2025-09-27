@@ -82,17 +82,16 @@ export class QuizGuard implements CanActivate {
     quizId: string,
     zeroBasedIndex: number,
     rawQuestionIndex: number
-  ): Observable<boolean> {
+  ): Observable<boolean | UrlTree> {
     return this.quizDataService.getQuiz(quizId).pipe(
-      map((quiz: Quiz | null): boolean => {
+      map((quiz: Quiz | null): boolean | UrlTree => {
         console.log('[📦 handleQuizFetch] Got quiz:', quiz);
 
         if (!quiz || !quiz.questions) {
           console.warn(`[❌ No quiz data found for quizId=${quizId}]`);
-          this.router.navigate(['/select']);
-          return false;
+          return this.router.createUrlTree(['/select']);
         }
-  
+
         const totalQuestions = quiz.questions.length;
         const isValidIndex =
           Number.isInteger(zeroBasedIndex) &&
@@ -112,14 +111,31 @@ export class QuizGuard implements CanActivate {
           requested: rawQuestionIndex,
           normalized: zeroBasedIndex
         });
-        this.router.navigate(['/intro', quizId]);
-        return false;
+        return this.router.createUrlTree(['/intro', quizId]);
       }),
-      catchError((error: any): Observable<boolean> => {
+      catchError((error: any): Observable<boolean | UrlTree> => {
         console.error(`[❌ handleQuizFetch Error] quizId=${quizId}`, error);
-        this.router.navigate(['/select']);
-        return of(false);
+        return of(this.router.createUrlTree(['/select']));
       })
     );
+  }
+
+  private normalizeQuestionIndex(input: unknown): QuestionIndexValidation {
+    const parsed = Number(input);
+
+    if (!Number.isFinite(parsed)) {
+      return { isValid: false, zeroBasedIndex: -1 };
+    }
+
+    if (parsed >= 1) {
+      return { isValid: true, zeroBasedIndex: parsed - 1 };
+    }
+
+    if (parsed === 0) {
+      // Be tolerant of legacy 0-based URLs by snapping to the first question.
+      return { isValid: true, zeroBasedIndex: 0 };
+    }
+
+    return { isValid: false, zeroBasedIndex: -1 };
   }
 }
