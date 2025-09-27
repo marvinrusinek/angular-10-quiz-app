@@ -5,8 +5,6 @@ import {
   Router,
   UrlTree
 } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizDataService } from '../../shared/services/quizdata.service';
@@ -18,51 +16,38 @@ export class QuizGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+  canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
     const quizId: string | undefined = route.params['quizId'];
     const questionParam: unknown = route.params['questionIndex'];
 
     if (!quizId) {
       console.warn('[🛡️ QuizGuard] Missing quizId parameter.');
-      return of(this.router.createUrlTree(['/select']));
+      return this.router.createUrlTree(['/select']);
     }
 
-    const normalizationResult = this.normalizeQuestionIndex(questionParam, quizId);
-    if ('redirect' in normalizationResult) {
-      return of(normalizationResult.redirect);
+    const normalizedIndex = this.normalizeQuestionIndex(questionParam, quizId);
+    if (normalizedIndex instanceof UrlTree) {
+      return normalizedIndex;
     }
 
-    const questionIndex = normalizationResult.value;
-
-    const cachedQuiz = this.quizDataService.getCachedQuizById(quizId);
-    if (cachedQuiz) {
-      return of(this.evaluateQuestionRequest(cachedQuiz, questionIndex, quizId));
+    const knownQuiz = this.findKnownQuiz(quizId);
+    if (!knownQuiz) {
+      // Allow navigation to proceed while the resolver loads quiz data.
+      return true;
     }
 
-    return this.validateQuizId(quizId).pipe(
-      switchMap((isValid): Observable<boolean | UrlTree> => {
-        if (!isValid) {
-          console.warn('[🛡️ QuizGuard] Invalid quiz. Blocking navigation.');
-          return of(this.router.createUrlTree(['/select']));
-        }
-        return this.ensureQuestionWithinRange(quizId, questionIndex);
-      }),
-      catchError((error: Error): Observable<boolean | UrlTree> => {
-        console.error('[🛡️ QuizGuard ERROR]', error);
-        return of(this.router.createUrlTree(['/select']));
-      })
-    );
+    return this.evaluateQuestionRequest(knownQuiz, normalizedIndex, quizId);
   }
 
   private normalizeQuestionIndex(
     questionParam: unknown,
     quizId: string
-  ): { value: number } | { redirect: UrlTree } {
+  ): number | UrlTree {
     if (questionParam == null) {
       console.warn('[🛡️ QuizGuard] Missing question index; defaulting to first question.', {
         quizId
       });
-      return { redirect: this.router.createUrlTree(['/question', quizId, 1]) };
+      return this.router.createUrlTree(['/question', quizId, 1]);
     }
 
     const rawParam = String(questionParam).trim();
@@ -71,7 +56,7 @@ export class QuizGuard implements CanActivate {
         quizId,
         questionParam
       });
-      return { redirect: this.router.createUrlTree(['/question', quizId, 1]) };
+      return this.router.createUrlTree(['/question', quizId, 1]);
     }
 
     const parsedIndex = Number.parseInt(rawParam, 10);
@@ -81,7 +66,7 @@ export class QuizGuard implements CanActivate {
         quizId,
         questionParam
       });
-      return { redirect: this.router.createUrlTree(['/intro', quizId]) };
+      return this.router.createUrlTree(['/intro', quizId]);
     }
 
     if (parsedIndex < 1) {
@@ -89,46 +74,29 @@ export class QuizGuard implements CanActivate {
         quizId,
         questionParam
       });
-      return { redirect: this.router.createUrlTree(['/question', quizId, 1]) };
+      return this.router.createUrlTree(['/question', quizId, 1]);
     }
 
-    return { value: parsedIndex };
+    return parsedIndex;
   }
 
-  private validateQuizId(quizId: string): Observable<boolean> {
-    return this.quizDataService.isValidQuiz(quizId).pipe(
-      map((isValid: boolean): boolean => {
-        if (!isValid) {
-          console.warn('[❌ Invalid QuizId]', quizId);
-          return false;
-        }
-        return true;
-      }),
-      catchError((error: unknown): Observable<boolean> => {
-        console.error('[❌ QuizId Validation Error]', error);
-        return of(false);
-      })
-    );
-  }
+  private findKnownQuiz(quizId: string): Quiz | null {
+    const cachedQuiz = this.quizDataService.getCachedQuizById(quizId);
+    if (cachedQuiz) {
+      return cachedQuiz;
+    }
 
-  private ensureQuestionWithinRange(
-    quizId: string,
-    questionIndex: number
-  ): Observable<boolean | UrlTree> {
-    return this.quizDataService.getQuiz(quizId).pipe(
-      map((quiz: Quiz | null): boolean | UrlTree => {
-        if (!quiz || !Array.isArray(quiz.questions)) {
-          console.warn(`[❌ No quiz data found for quizId=${quizId}]`);
-          return this.router.createUrlTree(['/select']);
-        }
+    const selectedQuiz = this.quizDataService.getSelectedQuizSnapshot();
+    if (selectedQuiz?.quizId === quizId) {
+      return selectedQuiz;
+    }
 
-        return this.evaluateQuestionRequest(quiz, questionIndex, quizId);
-      }),
-      catchError((error: unknown): Observable<boolean | UrlTree> => {
-        console.error(`[❌ ensureQuestionWithinRange Error] quizId=${quizId}`, error);
-        return of(this.router.createUrlTree(['/select']));
-      })
-    );
+    const currentQuiz = this.quizDataService.getCurrentQuizSnapshot();
+    if (currentQuiz?.quizId === quizId) {
+      return currentQuiz;
+    }
+
+    return null;
   }
 
   private evaluateQuestionRequest(
