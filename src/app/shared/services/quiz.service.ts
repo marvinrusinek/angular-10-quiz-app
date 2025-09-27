@@ -929,7 +929,7 @@ export class QuizService implements OnDestroy {
     try {
       const questionsData = await this.getQuestionsForQuiz(quizId)
         .pipe(take(1))
-        .toPromise() as QuestionData;
+        .toPromise() as QuestionsData;
       this.questions = questionsData.questions;
       return questionsData;
     } catch (error) {
