@@ -533,22 +533,22 @@ export class QuizService implements OnDestroy {
       console.warn('⚠️ [sanitizeOptions] options is not an array');
       return [];
     }
-  
+
     return options.map((opt, idx) => {
       // don’t touch opt ⇢ instead calculate fallbacks into locals
       const safeId   = Number.isInteger(opt?.optionId) && opt.optionId >= 0
                        ? opt.optionId
-                       : idx;
-  
+                       : idx + 1;
+
       const safeText = (opt?.text ?? '').trim() || `Option ${idx + 1}`;
-  
+
       return {
         optionId : safeId,
         text     : safeText,
-        correct  : opt?.correct  ?? false,
+        correct  : opt?.correct === true,
         value    : opt?.value    ?? null,
         answer   : opt?.answer   ?? null,
-        selected : false,                 // always reset UI flags
+        selected : false,  // always reset UI flags␊
         showIcon : false,
         feedback : (opt?.feedback ?? 'No feedback available').trim(),
         styleClass: opt?.styleClass ?? ''
