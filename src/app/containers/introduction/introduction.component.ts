@@ -254,8 +254,8 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     }
   
     // Ensure the session is ready and we can resolve Q0 (best-effort; don’t block nav)
-    await this.ensureSessionQuestions(quizId);
-    const q0 = await this.tryResolveQuestion(0);
+    await this.quizNavigationService.ensureSessionQuestions(quizId);
+    const q0 = await this.quizNavigationService.tryResolveQuestion(0);
     if (!q0) {
       console.warn('[navigateToFirstQuestion] Q0 could not be resolved pre-nav (continuing anyway).', {
         quizId, index: 0
