@@ -138,6 +138,10 @@ export class QuizDataService implements OnDestroy {
     this.currentQuizSubject.next(quiz);
   }
 
+  getCurrentQuizSnapshot(): Quiz | null {
+    return this.currentQuizSubject.getValue();
+  }
+
   getQuiz(quizId: string): Observable<Quiz> {
     return this.quizzes$.pipe(
       filter(quizzes => {
