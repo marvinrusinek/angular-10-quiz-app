@@ -189,22 +189,31 @@ export class QuizDataService implements OnDestroy {
         }
 
         // Deep-clone every question and option
-        const clonedQuestions = quiz.questions.map((question) => ({
-          ...question,
-          options: question.options.map((option, idx) => {
+        const assignOptionMeta = (options: Option[] = []): Option[] =>
+          options.map((option, idx) => {
             const base: Option = typeof structuredClone === 'function'
               ? structuredClone(option)
               : { ...option };
 
             return {
               ...base,
-              optionId : idx,
-              correct  : base.correct ?? false,
+              optionId : idx + 1,
+              correct  : base.correct === true,
               selected : false,
               highlight: false,
               showIcon : false
             } as Option;
-          })
+          });
+
+        const resetOptionIds = (options: Option[] = []): Option[] =>
+          options.map((option, idx) => ({
+            ...option,
+            optionId: idx + 1
+          } as Option));
+
+        const clonedQuestions = quiz.questions.map((question) => ({
+          ...question,
+          options: assignOptionMeta(question.options ?? [])
         }));
 
         if (this.quizService.isShuffleEnabled()) {
@@ -212,8 +221,15 @@ export class QuizDataService implements OnDestroy {
 
           clonedQuestions.forEach((question) => {
             if (Array.isArray(question.options) && question.options.length > 1) {
-              Utils.shuffleArray(question.options);
+              const shuffled = Utils.shuffleArray([...(question.options ?? [])]);
+              question.options = resetOptionIds(shuffled);
+            } else {
+              question.options = resetOptionIds(question.options ?? []);
             }
+          });
+        } else {
+          clonedQuestions.forEach((question) => {
+            question.options = resetOptionIds(question.options ?? []);
           });
         }
 
