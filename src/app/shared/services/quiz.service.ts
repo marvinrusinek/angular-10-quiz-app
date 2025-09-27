@@ -1980,7 +1980,7 @@ export class QuizService implements OnDestroy {
 
     return {
       ...deepClone,
-      options: normalizedOptions,
+      options: normalizedOptions
     };
   }
 
