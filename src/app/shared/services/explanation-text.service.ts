@@ -345,7 +345,17 @@ export class ExplanationTextService {
     // Fallback: derive from the question’s own option flags (use 1-based for display to match typical copy)
     if (indices.length === 0 && Array.isArray(question?.options)) {
       indices = question.options
-        .map((opt, i) => (opt?.correct ? i + 1 : -1))  // +1 so text says “Option 2” etc.
+        .map((opt, i) => {
+          if (!opt?.correct) {
+            return -1;
+          }
+
+          const displayIndex = typeof opt.displayOrder === 'number'
+            ? opt.displayOrder
+            : i;
+
+          return displayIndex + 1;
+        })  // +1 so text says “Option 2” etc.
         .filter((n) => n > 0);
     }
   
