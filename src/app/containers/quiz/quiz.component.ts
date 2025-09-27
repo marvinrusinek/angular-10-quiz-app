@@ -1118,7 +1118,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizService.getShuffledQuestions().subscribe({
       next: (questions) => {
         if (questions && questions.length > 0) {
-          this.questions = questions;
+          this.applyQuestionsFromSession(questions);
           console.log('Shuffled questions received:', this.questions);
         } else {
           console.error('[initializeQuestions] No questions received.');
