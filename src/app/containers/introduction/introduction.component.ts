@@ -247,7 +247,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
 
   private async navigateToFirstQuestion(targetQuizId: string): Promise<boolean> {
     // Resolve the effective quiz id (override → service → component → localStorage)
-    const quizId = this.resolveEffectiveQuizId(targetQuizId);
+    const quizId = this.quizNavigationService.resolveEffectiveQuizId(targetQuizId);
     if (!quizId) {
       console.error('[navigateToFirstQuestion] Missing targetQuizId.');
       return false;

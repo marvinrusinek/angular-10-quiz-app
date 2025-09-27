@@ -393,7 +393,7 @@ export class QuizNavigationService {
     }
   }
 
-  private resolveEffectiveQuizId(quizIdOverride?: string): string | null {
+  public resolveEffectiveQuizId(quizIdOverride?: string): string | null {
     if (quizIdOverride) {
       return quizIdOverride;
     }
@@ -418,7 +418,7 @@ export class QuizNavigationService {
     return null;
   }
 
-  private async ensureSessionQuestions(quizId: string): Promise<void> {
+  public async ensureSessionQuestions(quizId: string): Promise<void> {
     try {
       await firstValueFrom(
         this.quizDataService.prepareQuizSession(quizId).pipe(
@@ -434,7 +434,7 @@ export class QuizNavigationService {
     }
   }
 
-  private async tryResolveQuestion(index: number): Promise<QuizQuestion | null> {
+  public sync tryResolveQuestion(index: number): Promise<QuizQuestion | null> {
     try {
       return await firstValueFrom(
         this.quizService.getQuestionByIndex(index).pipe(
