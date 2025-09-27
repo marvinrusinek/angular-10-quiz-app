@@ -1841,10 +1841,22 @@ export class QuizService implements OnDestroy {
   }
 
   getShuffledQuestions(): Observable<QuizQuestion[]> {
-    const questionsPromise: Promise<QuizQuestion[]> = this.fetchQuizQuestions(
-      this.quizId
-    );
-    return from(questionsPromise); // Convert the promise to an observable
+    const cachedQuestions = this.questionsSubject.getValue();
+    if (Array.isArray(cachedQuestions) && cachedQuestions.length > 0) {
+      return of(
+        cachedQuestions.map((question) =>
+          this.cloneQuestionForSession(question) ?? question
+        )
+      );
+    }
+
+    const quizId = this.quizId;
+    if (!quizId) {
+      console.warn('[getShuffledQuestions] Quiz ID not set.');
+      return of([]);
+    }
+
+    return from(this.fetchQuizQuestions(quizId));
   }
 
   shuffleQuestions(questions: QuizQuestion[]): QuizQuestion[] {
