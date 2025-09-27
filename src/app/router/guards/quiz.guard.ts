@@ -15,17 +15,34 @@ export class QuizGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const quizId: string = route.params['quizId'];
-    const questionIndex: number = +route.params['questionIndex'];
-  
-    console.log('[🛡️ QuizGuard] Checking canActivate for', { quizId, questionIndex });
-  
+    const rawQuestionIndex: number = Number(route.params['questionIndex']);
+    const normalizedIndex = Number.isFinite(rawQuestionIndex)
+      ? rawQuestionIndex - 1
+      : NaN;
+
+    console.log('[🛡️ QuizGuard] Checking canActivate for', {
+      quizId,
+      rawQuestionIndex,
+      normalizedIndex
+    });
+
+    if (!Number.isInteger(normalizedIndex) || normalizedIndex < 0) {
+      console.warn('[🛡️ QuizGuard] Invalid question index provided.', {
+        quizId,
+        rawQuestionIndex,
+        normalizedIndex
+      });
+      this.router.navigate(['/intro', quizId]);
+      return of(false);
+    }
+
     return this.handleQuizValidation(quizId).pipe(
       switchMap((isValid: boolean): Observable<boolean> => {
         if (!isValid) {
           console.warn('[🛡️ QuizGuard] Invalid quiz. Blocking navigation.');
           return of(false);
         }
-        return this.handleQuizFetch(quizId, questionIndex);
+        return this.handleQuizFetch(quizId, normalizedIndex, rawQuestionIndex);
       }),
       catchError((error: Error): Observable<boolean> => {
         console.error('[🛡️ QuizGuard ERROR]', error);
@@ -54,11 +71,15 @@ export class QuizGuard implements CanActivate {
     );
   }
 
-  private handleQuizFetch(quizId: string, questionIndex: number): Observable<boolean> {
+  private handleQuizFetch(
+    quizId: string,
+    zeroBasedIndex: number,
+    rawQuestionIndex: number
+  ): Observable<boolean> {
     return this.quizDataService.getQuiz(quizId).pipe(
       map((quiz: Quiz | null): boolean => {
         console.log('[📦 handleQuizFetch] Got quiz:', quiz);
-  
+
         if (!quiz || !quiz.questions) {
           console.warn(`[❌ No quiz data found for quizId=${quizId}]`);
           this.router.navigate(['/select']);
@@ -66,14 +87,25 @@ export class QuizGuard implements CanActivate {
         }
   
         const totalQuestions = quiz.questions.length;
-        const isValidIndex = questionIndex >= 0 && questionIndex <= totalQuestions;
-  
-        console.log('[🧪 QuestionIndex Check]', { questionIndex, totalQuestions, isValidIndex });
-  
+        const isValidIndex =
+          Number.isInteger(zeroBasedIndex) &&
+          zeroBasedIndex >= 0 &&
+          zeroBasedIndex < totalQuestions;
+
+        console.log('[🧪 QuestionIndex Check]', {
+          rawQuestionIndex,
+          zeroBasedIndex,
+          totalQuestions,
+          isValidIndex
+        });
+
         if (isValidIndex) return true;
-  
-        console.warn('[🚫 Invalid QuestionIndex]', { questionIndex });
-        this.router.navigate(['/intro', quizId]); 
+
+        console.warn('[🚫 Invalid QuestionIndex]', {
+          requested: rawQuestionIndex,
+          normalized: zeroBasedIndex
+        });
+        this.router.navigate(['/intro', quizId]);
         return false;
       }),
       catchError((error: any): Observable<boolean> => {
