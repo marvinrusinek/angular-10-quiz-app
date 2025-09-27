@@ -759,51 +759,85 @@ export class QuizService implements OnDestroy {
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     try {
       if (!quizId) {
-        console.error('Quiz ID is not provided or is empty:', quizId); // Log the quizId
+        console.error('Quiz ID is not provided or is empty:', quizId);
         throw new Error('Quiz ID is not provided or is empty');
+      }
+
+      // Reuse the already prepared questions when available to avoid
+      // reshuffling the quiz on every request (which also kept mutating
+      // the currently displayed options for a question).
+      const cachedQuestions = this.questionsSubject.getValue();
+      if (
+        Array.isArray(cachedQuestions) &&
+        cachedQuestions.length > 0 &&
+        this.quizId === quizId
+      ) {
+        return cachedQuestions.map((question) =>
+          this.cloneQuestionForSession(question) ?? question
+        );
       }
 
       // Fetch quizzes from the API
       const quizzes = await firstValueFrom<Quiz[]>(
         this.http.get<Quiz[]>(this.quizUrl)
-      );                                       // quizzes: Quiz[]
-      
-      const quiz = quizzes.find(q => String(q.quizId) === String(quizId));
+      );
+
+      const quiz = quizzes.find((q) => String(q.quizId) === String(quizId));
 
       if (!quiz) {
         throw new Error(`Quiz with ID ${quizId} not found`);
       }
 
       // Normalize questions and options
-      for (const question of quiz.questions) {
-        if (question.options) {
-          question.options = question.options.map((option, index) => ({
-            ...option,
-            correct: !!option.correct, // Ensure correct is a boolean
-            optionId: option.optionId ?? index + 1, // Ensure valid optionId
-          }));
-        } else {
+      const normalizedQuestions = quiz.questions.map((question) => {
+        const normalizedOptions = Array.isArray(question.options)
+          ? question.options.map((option, index) => ({
+              ...option,
+              correct: !!option.correct,
+              optionId: option.optionId ?? index + 1,
+            }))
+          : [];
+
+        if (!normalizedOptions.length) {
           console.error(
             `[fetchQuizQuestions] Question ${question.questionText} has no options.`
           );
         }
-      }
+
+        return {
+          ...question,
+          options: normalizedOptions,
+        };
+      });
 
       // Shuffle questions and options if needed
       if (this.shouldShuffle()) {
-        console.info('[fetchQuizQuestions] Shuffling questions and options...');
-        Utils.shuffleArray(quiz.questions);  // shuffle questions
+        Utils.shuffleArray(normalizedQuestions);
 
-        for (const question of quiz.questions) {
-          if (question.options) {
-            Utils.shuffleArray(question.options);  // shuffle options
+        for (const question of normalizedQuestions) {
+          if (question.options?.length) {
+            Utils.shuffleArray(question.options);
           }
         }
       }
 
-      // Emit the normalized and shuffled questions
-      this.questionsSubject.next(quiz.questions);
-      return quiz.questions;
+      const sanitizedQuestions = normalizedQuestions
+        .map((question) => this.cloneQuestionForSession(question))
+        .filter((question): question is QuizQuestion => !!question);
+
+      this.quizId = quizId;
+      this.shuffledQuestions = sanitizedQuestions;
+
+      // Emit a fresh copy so that consumers don't accidentally mutate the
+      // cached list and desynchronise future navigation lookups.
+      const broadcastQuestions = sanitizedQuestions.map((question) =>
+        this.cloneQuestionForSession(question) ?? question
+      );
+      this.questionsSubject.next(broadcastQuestions);
+
+      return sanitizedQuestions.map((question) =>
+        this.cloneQuestionForSession(question) ?? question
+      );
     } catch (error) {
       console.error('Error in fetchQuizQuestions:', error);
       return [];
