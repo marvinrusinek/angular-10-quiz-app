@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -49,6 +49,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
+    private ngZone: NgZone,
     private cdRef: ChangeDetectorRef
   ) {
     // Initialize the form group with default values
@@ -284,7 +285,9 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Fallback to direct router navigation
     try {
       // Router expects 1-based question in your URL; index 0 ⇒ "/.../1"
-      const fallbackSucceeded = await this.router.navigate(['/question', quizId, 1]);
+      const fallbackSucceeded = await this.ngZone.run(() =>
+        this.router.navigate(['/question', quizId, 1])
+      );
   
       if (!fallbackSucceeded) {
         console.error('[navigateToFirstQuestion] Fallback navigation returned false.', { quizId });
