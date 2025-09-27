@@ -68,9 +68,7 @@ export class QuizDataService implements OnDestroy {
    * or when the requested quiz cannot be found.
    */
   getCachedQuizById(quizId: string): Quiz | null {
-    if (!quizId) {
-      return null;
-    }
+    if (!quizId) return null;
 
     return this.quizzes.find((quiz) => quiz.quizId === quizId) ?? null;
   }
@@ -96,7 +94,7 @@ export class QuizDataService implements OnDestroy {
       ),
       catchError((error: any) => {
         console.error(`Error validating quiz ID "${quizId}":`, error.message || error);
-        return of(false); // Return `false` to indicate an invalid quiz
+        return of(false);  // return `false` to indicate an invalid quiz
       })
     );
   }
@@ -146,7 +144,7 @@ export class QuizDataService implements OnDestroy {
     return this.quizzes$.pipe(
       filter(quizzes => {
         if (!Array.isArray(quizzes)) {
-          return false; // wait until we get a real array
+          return false;  // wait until we get a real array
         }
       
         if (quizzes.length === 0) {
