@@ -42,6 +42,14 @@ export class QuizGuard implements CanActivate {
       return of(this.router.createUrlTree(['/intro', quizId]));
     }
 
+    const cachedValidation = this.tryValidateWithCachedQuiz(
+      quizId,
+      validation.zeroBasedIndex
+    );
+    if (cachedValidation !== null) {
+      return of(cachedValidation);
+    }
+
     return this.handleQuizValidation(quizId).pipe(
       switchMap((isValid: boolean): Observable<boolean | UrlTree> => {
         if (!isValid) {
