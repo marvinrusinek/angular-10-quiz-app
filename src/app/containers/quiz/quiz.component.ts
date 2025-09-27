@@ -1663,9 +1663,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   private hydrateQuestionSet(
     questions: QuizQuestion[] | null | undefined
   ): QuizQuestion[] {
-    if (!Array.isArray(questions) || questions.length === 0) {
-      return [];
-    }
+    if (!Array.isArray(questions) || questions.length === 0) return [];
 
     return questions.map((question) => ({
       ...question,
@@ -1674,7 +1672,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             ...option,
             correct: option.correct ?? false
           }))
-        : [],
+        : []
     }));
   }
 
@@ -1686,6 +1684,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (hydratedQuestions.length === 0) {
       this.explanationTextService.initializeExplanationTexts([]);
       this.explanationTextService.initializeFormattedExplanations([]);
+      this.syncQuestionSnapshotFromSession(hydratedQuestions);
       return;
     }
 
@@ -1719,6 +1718,106 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           options: question.options.map((option) => ({ ...option }))
         }))
       };
+    }
+
+    this.syncQuestionSnapshotFromSession(hydratedQuestions);
+  }
+
+  private syncQuestionSnapshotFromSession(
+    hydratedQuestions: QuizQuestion[]
+  ): void {
+    if (!Array.isArray(hydratedQuestions) || hydratedQuestions.length === 0) {
+      this.questionToDisplay = '';
+      this.questionToDisplaySubject.next(null);
+      this.qaToDisplay = undefined;
+      this.currentQuestion = null;
+      this.optionsToDisplay = [];
+      this.optionsToDisplay$.next([]);
+      this.currentOptions = [];
+      this.pendingOptions = null;
+      this.hasOptionsLoaded = false;
+      this.shouldRenderOptions = false;
+      this.explanationToDisplay = '';
+      this.explanationTextService.setExplanationText('');
+      return;
+    }
+
+    const candidateIndices: Array<number | null> = [
+      Number.isInteger(this.quizService?.currentQuestionIndex)
+        ? this.quizService.currentQuestionIndex
+        : null,
+      Number.isInteger(this.currentQuestionIndex)
+        ? this.currentQuestionIndex
+        : null,
+      Number.isInteger(this.previousIndex)
+        ? this.previousIndex
+        : null,
+    ];
+
+    const resolvedIndex = candidateIndices.find(
+      (value): value is number => typeof value === 'number'
+    );
+
+    const normalizedIndex = Math.min(
+      Math.max(resolvedIndex ?? 0, 0),
+      hydratedQuestions.length - 1
+    );
+
+    this.currentQuestionIndex = normalizedIndex;
+    this.quizService.setCurrentQuestionIndex(normalizedIndex);
+
+    const selectedQuestion = hydratedQuestions[normalizedIndex];
+    if (!selectedQuestion) {
+      return;
+    }
+
+    const normalizedOptions = this.quizService
+      .assignOptionIds(selectedQuestion.options ?? [])
+      .map((option) => ({
+        ...option,
+        correct: option.correct ?? false,
+        selected: option.selected ?? false,
+        active: option.active ?? true,
+        showIcon: option.showIcon ?? false,
+      }));
+
+    const trimmedQuestionText =
+      selectedQuestion.questionText?.trim() ?? 'No question available';
+
+    this.question = selectedQuestion;
+    this.currentQuestion = selectedQuestion;
+    this.questionData = selectedQuestion;
+    this.qaToDisplay = {
+      question: selectedQuestion,
+      options: normalizedOptions,
+    };
+
+    this.questionToDisplay = trimmedQuestionText;
+    this.questionToDisplaySubject.next(trimmedQuestionText);
+
+    this.optionsToDisplay = [...normalizedOptions];
+    this.optionsToDisplay$.next([...normalizedOptions]);
+    this.currentOptions = [...normalizedOptions];
+    this.pendingOptions = null;
+    this.hasOptionsLoaded = normalizedOptions.length > 0;
+    this.shouldRenderOptions = this.hasOptionsLoaded;
+
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.optionsToDisplay = [...normalizedOptions];
+    }
+
+    const trimmedExplanation = (selectedQuestion.explanation ?? '').trim();
+    this.explanationToDisplay = trimmedExplanation;
+    this.explanationTextService.setExplanationText(trimmedExplanation);
+    this.explanationTextService.setExplanationTextForQuestionIndex(
+      normalizedIndex,
+      trimmedExplanation
+    );
+
+    if (normalizedOptions.length > 0) {
+      const clonedOptions = normalizedOptions.map((option) => ({ ...option }));
+      this.quizService.setOptions(clonedOptions);
+      this.quizService.emitQuestionAndOptions(selectedQuestion, clonedOptions);
     }
   }
 
