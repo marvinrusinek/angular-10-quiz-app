@@ -246,14 +246,25 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   private async navigateToFirstQuestion(targetQuizId: string): Promise<boolean> {
-    if (!targetQuizId) {
+    // Resolve the effective quiz id (override → service → component → localStorage)
+    const quizId = this.resolveEffectiveQuizId(targetQuizId);
+    if (!quizId) {
       console.error('[navigateToFirstQuestion] Missing targetQuizId.');
       return false;
     }
   
+    // Ensure the session is ready and we can resolve Q0 (best-effort; don’t block nav)
+    await this.ensureSessionQuestions(quizId);
+    const q0 = await this.tryResolveQuestion(0);
+    if (!q0) {
+      console.warn('[navigateToFirstQuestion] Q0 could not be resolved pre-nav (continuing anyway).', {
+        quizId, index: 0
+      });
+    }
+  
     try {
       // Preferred path: let the service reset UI and navigate to Q1 (index 0)
-      const viaService = await this.quizNavigationService.resetUIAndNavigate(0, targetQuizId);
+      const viaService = await this.quizNavigationService.resetUIAndNavigate(0, quizId);
   
       // If the service explicitly succeeded, we’re done.
       if (viaService === true) {
@@ -273,12 +284,10 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     // Fallback to direct router navigation
     try {
       // Router expects 1-based question in your URL; index 0 ⇒ "/.../1"
-      const fallbackSucceeded = await this.router.navigate(['/question', targetQuizId, 1]);
+      const fallbackSucceeded = await this.router.navigate(['/question', quizId, 1]);
   
       if (!fallbackSucceeded) {
-        console.error('[navigateToFirstQuestion] Fallback navigation returned false.', {
-          quizId: targetQuizId,
-        });
+        console.error('[navigateToFirstQuestion] Fallback navigation returned false.', { quizId });
       }
   
       return fallbackSucceeded;
