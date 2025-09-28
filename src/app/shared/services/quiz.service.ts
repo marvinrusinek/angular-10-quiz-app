@@ -1636,6 +1636,25 @@ export class QuizService implements OnDestroy {
   }
 
   handleQuestionChange(
+    question: any,
+    selectedOptions: any[],
+    options: Option[]
+  ): void {
+    // Logic to update options based on the question
+    if (question) {
+      options = question.options;
+      this.resetAll();
+    }
+
+    // Logic to mark options as selected based on selectedOptions array
+    if (selectedOptions) {
+      for (const option of options) {
+        option.selected = selectedOptions.includes(option.value);
+      }
+    }
+  }
+
+  /* handleQuestionChange(
     question: QuizQuestion | null,
     selectedOptions: Array<string | number>,
     options: Option[]
@@ -1754,7 +1773,7 @@ export class QuizService implements OnDestroy {
     if (normalizedOptions.length) {
       this.setOptions(cloneOptions(normalizedOptions));
     }
-  }
+  } */
         
 
   private getSelectionKey(option: Option, fallbackIndex: number): string | number {
