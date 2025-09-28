@@ -1270,17 +1270,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     try {
-      const quiz = (await firstValueFrom(
-        this.quizDataService.getQuiz(this.quizId)
-          .pipe(take(1), takeUntil(this.destroy$))
-      )) as Quiz;
+      const { quiz, preparedQuestions } = await firstValueFrom(
+        forkJoin({
+          quiz: this.quizDataService
+            .getQuiz(this.quizId)
+            .pipe(take(1)),
+          preparedQuestions: this.quizDataService
+            .prepareQuizSession(this.quizId)
+            .pipe(take(1))
+        }).pipe(takeUntil(this.destroy$))
+      );
 
       if (!quiz) {
         console.error('Quiz is null or undefined. Failed to load quiz data.');
         return false;
       }
 
-      if (!quiz.questions || quiz.questions.length === 0) {
+      const questions = Array.isArray(preparedQuestions)
+        ? preparedQuestions
+        : quiz.questions;
+
+      if (!Array.isArray(questions) || questions.length === 0) {
         console.error(
           'Quiz has no questions or questions array is missing:',
           quiz
@@ -1288,10 +1298,21 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         return false;
       }
 
-      // Assign quiz data
-      this.quiz = quiz;
-      this.questions = quiz.questions;
-      this.currentQuestion = this.questions[this.currentQuestionIndex];
+      // Ensure the quiz instance and local state use the prepared (possibly shuffled) questions
+      this.quiz = {
+        ...quiz,
+        questions
+      };
+      this.questions = [...questions];
+
+      const safeIndex = Math.min(
+        Math.max(this.currentQuestionIndex ?? 0, 0),
+        this.questions.length - 1
+      );
+      this.currentQuestionIndex = safeIndex;
+      this.currentQuestion = this.questions[safeIndex] ?? null;
+
+      this.quizService.setCurrentQuiz(this.quiz);
       this.isQuizLoaded = true;
 
       return true;
