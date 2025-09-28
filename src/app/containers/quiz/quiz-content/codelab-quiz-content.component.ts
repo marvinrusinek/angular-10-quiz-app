@@ -797,9 +797,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         };
       }),
       distinctUntilChanged((prev, curr) => {
-        if (prev.currentQuestion?.questionId !== curr.currentQuestion?.questionId) {
-          return false;
-        }
+        const norm = (s?: string) =>
+          (s ?? '')
+            .replace(/<[^>]*>/g, ' ')     // strip HTML
+            .replace(/&nbsp;/g, ' ')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, ' ');
+
+        const questionKey = (q: QuizQuestion | null | undefined, idx?: number) => {
+          // Prefer a stable id if it exists in your model; fallback to normalized text + index
+          const textKey = norm(q?.questionText);
+          return `${textKey}#${Number.isFinite(idx) ? idx : -1}`;
+        };
+
+        const sameQuestion =
+          questionKey(prev.currentQuestion, (prev as any).currentIndex) ===
+          questionKey(curr.currentQuestion, (curr as any).currentIndex);
+        if (!sameQuestion) return false;
 
         if (prev.explanation !== curr.explanation) {
           return false;
