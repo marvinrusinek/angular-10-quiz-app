@@ -287,11 +287,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const correct       = (correctText ?? '').trim();
         const questionModel = this.quizService.questions?.[currentIndex] ?? null;
 
-        if (rawQuestion) {
-          this.lastQuestionText = rawQuestion;
+        const fallbackFromModel = (questionModel?.questionText ?? '').trim()
+          || (this.questions?.[currentIndex]?.questionText ?? '').trim();
+
+        const candidateSource = rawQuestion || this.lastQuestionText || fallbackFromModel;
+        const candidateQuestion = (candidateSource ?? '').toString().trim();
+
+        if (candidateQuestion) {
+          this.lastQuestionText = candidateQuestion;
         }
 
-        const question = this.lastQuestionText || 'No question available';
+        const question = candidateQuestion || 'No question available';
 
         const showExplanation =
           state?.mode === 'explanation' &&
