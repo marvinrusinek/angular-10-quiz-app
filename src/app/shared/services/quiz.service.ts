@@ -1693,13 +1693,33 @@ export class QuizService implements OnDestroy {
   private resolveOptionsForQuestion(
     questionOptions: Option[],
     incomingOptions: Option[],
-    questionLabel: string | null
+    questionLabel: string | null,
+    previousQuestionLabel: string | null
   ): Option[] {
     const sanitizedQuestionOptions = this.sanitizeOptions(questionOptions ?? []);
+    const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
+
+    const trimmedLabel = (questionLabel ?? '').trim().toLowerCase();
+    const trimmedPreviousLabel = (previousQuestionLabel ?? '').trim().toLowerCase();
+    const questionChanged =
+      trimmedLabel.length > 0 && trimmedLabel !== trimmedPreviousLabel;
+
+    if (questionChanged) {
+      if (!sanitizedIncomingOptions.length && sanitizedQuestionOptions.length) {
+        console.warn(
+          '[handleQuestionChange] Question changed but incoming options were empty. Falling back to question options.',
+          {
+            question: questionLabel,
+            previousQuestion: previousQuestionLabel
+          }
+        );
+        return sanitizedQuestionOptions;
+      }
+
+      return sanitizedIncomingOptions;
+    }
 
     if (sanitizedQuestionOptions.length) {
-      const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
-
       if (!sanitizedIncomingOptions.length) {
         return sanitizedQuestionOptions;
       }
@@ -1725,8 +1745,6 @@ export class QuizService implements OnDestroy {
       return sanitizedQuestionOptions;
     }
 
-    const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
-
     if (!sanitizedIncomingOptions.length) {
       console.warn('[handleQuestionChange] No options were available to resolve.');
     }
@@ -1734,6 +1752,32 @@ export class QuizService implements OnDestroy {
     return sanitizedIncomingOptions;
   }
 
+  private buildCorrectAnswerCountLabel(
+    question: QuizQuestion,
+    options: Option[]
+  ): string {
+    if (!question) {
+      return '';
+    }
+
+    const isMultipleAnswer =
+      question.type === QuestionType.MultipleAnswer ||
+      options.filter((option) => option.correct).length > 1;
+
+    if (!isMultipleAnswer) {
+      return '';
+    }
+
+    const correctCount = options.filter((option) => option.correct).length;
+
+    if (!correctCount) {
+      return '';
+    }
+
+    return correctCount === 1
+      ? '1 correct answer'
+      : `${correctCount} correct answers`;
+  }
 
   private optionsBelongToSameQuestion(
     questionOptions: Option[],
