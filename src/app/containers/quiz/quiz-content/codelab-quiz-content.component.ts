@@ -324,17 +324,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 return of('Explanation not available.');
               })
             );
-        }
+          }
+
+          // Otherwise show question (and correct count if present)
+          const out = correct
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
   
-        // Otherwise show question (and correct count if present)
-        const out = correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
-  
-        return of(out);
-      }),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+          return of(out);
+        }),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
     );
   }
   
