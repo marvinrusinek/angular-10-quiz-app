@@ -1622,22 +1622,42 @@ export class QuizService implements OnDestroy {
   }
 
   handleQuestionChange(
-    question: any,
-    selectedOptions: any[],
+    question: QuizQuestion | null,
+    selectedOptions: Array<string | number>,
     options: Option[]
   ): void {
-    // Logic to update options based on the question
-    if (question) {
-      options = question.options;
-      this.resetAll();
+    const baseOptions = Array.isArray(options) && options.length
+      ? options
+      : Array.isArray(question?.options)
+        ? question!.options
+        : [];
+
+    if (!baseOptions.length) {
+      console.warn('[handleQuestionChange] No options available for the active question.');
+      this.optionsSubject.next([]);
+      return;
     }
 
-    // Logic to mark options as selected based on selectedOptions array
-    if (selectedOptions) {
-      for (const option of options) {
-        option.selected = selectedOptions.includes(option.value);
-      }
+    const sanitizedOptions = this.sanitizeOptions(baseOptions);
+    const selectedValues = new Set(selectedOptions ?? []);
+
+    const nextOptions = sanitizedOptions.map((option) => {
+      const identifier =
+        option.value ??
+        option.optionId ??
+        option.text;
+    
+      return {
+        ...option,
+        selected: selectedValues.has(identifier)
+      };
+    });
+  
+    if (question) {
+      this.setCurrentQuestion(question);
     }
+  
+    this.setOptions(nextOptions);
   }
 
   validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
