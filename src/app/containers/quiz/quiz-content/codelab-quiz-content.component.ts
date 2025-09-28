@@ -60,6 +60,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
   private overrideSubject = new BehaviorSubject<{idx: number, html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
+  private lastQuestionText = '';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -278,15 +279,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
   
-        const question      = (questionText ?? '').trim();
+        const rawQuestion   = (questionText ?? '').trim();
         const explanation   = (explanationText ?? '').trim();
         const correct       = (correctText ?? '').trim();
         const questionModel = this.quizService.questions?.[currentIndex] ?? null;
-  
+
+        if (rawQuestion) {
+          this.lastQuestionText = rawQuestion;
+        }
+
+        const question = this.lastQuestionText || 'No question available';
+
         const showExplanation =
           state?.mode === 'explanation' &&
           (shouldDisplayExplanation || !!explanation);
-  
+
         if (showExplanation) {
           // If the formatted explanation is already present, emit it.
           if (explanation) return of(explanation);
