@@ -1676,26 +1676,31 @@ export class QuizService implements OnDestroy {
     if (sanitizedQuestionOptions.length) {
       const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
 
+      if (!sanitizedIncomingOptions.length) {
+        return sanitizedQuestionOptions;
+      }
+
       if (
-        sanitizedIncomingOptions.length &&
         !this.optionsBelongToSameQuestion(
           sanitizedQuestionOptions,
           sanitizedIncomingOptions
         )
       ) {
         console.warn(
-          '[handleQuestionChange] Incoming options did not match the active question. Falling back to the question options.',
+          '[handleQuestionChange] Incoming options did not match the active question. Preferring incoming options.',
           {
             question: questionLabel,
             incomingOptions: sanitizedIncomingOptions,
             questionOptions: sanitizedQuestionOptions
           }
         );
+
+        return sanitizedIncomingOptions;
       }
 
       return sanitizedQuestionOptions;
     }
-    
+
     const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
 
     if (!sanitizedIncomingOptions.length) {
@@ -1704,6 +1709,7 @@ export class QuizService implements OnDestroy {
 
     return sanitizedIncomingOptions;
   }
+
 
   private optionsBelongToSameQuestion(
     questionOptions: Option[],
