@@ -835,9 +835,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return false;
     }
 
-    if (left.length !== right.length) {
-      return false;
-    }
+    if (left.length !== right.length) return false;
 
     return left.every((option, index) => {
       const other = right[index];
