@@ -6341,6 +6341,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.markForCheck();
   }
 
+  private updateShouldRenderOptions(options: Option[] | null | undefined): void {
+    const hasRenderableOptions = Array.isArray(options) && options.length > 0;
+
+    if (this.shouldRenderOptions !== hasRenderableOptions) {
+      this.shouldRenderOptions = hasRenderableOptions;
+      this.cdRef.markForCheck();
+    }
+  }
+
   // Centralized, reasoned stop. Only stops when allowed.
   private safeStopTimer(reason: 'completed' | 'timeout' | 'navigate'): void {
     if (this._timerStoppedForQuestion) return;
