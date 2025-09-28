@@ -2222,6 +2222,21 @@ export class QuizService implements OnDestroy {
     this.currentQuestionSubject.next(currentQuestion);
     this.currentQuestion.next(currentQuestion);
 
+    const normalizedOptions = Array.isArray(currentQuestion?.options)
+      ? this.assignOptionIds([...currentQuestion.options])
+      : [];
+
+    if (currentQuestion) {
+      currentQuestion.options = normalizedOptions;
+    }
+
+    if (currentQuestion && normalizedOptions.length > 0) {
+      this.emitQuestionAndOptions(currentQuestion, normalizedOptions);
+    } else {
+      this.nextQuestionSubject.next(currentQuestion);
+      this.nextOptionsSubject.next(normalizedOptions);
+    }
+
     const correctAnswersMap = this.calculateCorrectAnswers(sanitizedQuestions);
     this.correctAnswers = correctAnswersMap;
     this.correctAnswersSubject.next(new Map(correctAnswersMap));
