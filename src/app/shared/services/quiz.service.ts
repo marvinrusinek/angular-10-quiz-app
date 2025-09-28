@@ -1631,15 +1631,21 @@ export class QuizService implements OnDestroy {
       ? question!.options
       : [];
 
+    const previousQuestion = this.currentQuestion.getValue();
+
     const baseOptions = this.resolveOptionsForQuestion(
       questionOptions,
       incomingOptions,
-      question?.questionText ?? null
+      question?.questionText ?? null,
+      previousQuestion?.questionText ?? null
     );
 
     if (!baseOptions.length) {
       console.warn('[handleQuestionChange] No options available for the active question.');
       this.optionsSubject.next([]);
+      this.currentOptionsSubject.next([]);
+      this.nextOptionsSource.next([]);
+      this.nextOptionsSubject.next([]);
       return;
     }
 
@@ -1647,7 +1653,7 @@ export class QuizService implements OnDestroy {
 
     const nextOptions = baseOptions.map((option, index) => {
       const identifier = this.getOptionIdentifier(option, index);
-    
+
       return {
         ...option,
         selected: selectedValues.has(identifier)
@@ -1660,9 +1666,27 @@ export class QuizService implements OnDestroy {
         options: nextOptions
       };
 
-      this.setCurrentQuestion(nextQuestion);
+      this.currentQuestion.next(nextQuestion);
+      this.currentQuestionSource.next(nextQuestion);
+      this.currentQuestionSubject.next(nextQuestion);
+      this.nextQuestionSource.next(nextQuestion);
+      this.nextOptionsSource.next(nextOptions);
+      this.emitQuestionAndOptions(nextQuestion, nextOptions);
+
+      this.data.questionText = nextQuestion.questionText ?? '';
+      this.data.currentOptions = nextOptions;
+      this.data.correctAnswersText = this.buildCorrectAnswerCountLabel(
+        nextQuestion,
+        nextOptions
+      );
+    } else {
+      this.nextQuestionSource.next(null);
+      this.nextQuestionSubject.next(null);
+      this.nextOptionsSource.next([]);
+      this.nextOptionsSubject.next([]);
     }
 
+    this.currentOptionsSubject.next(nextOptions);
     this.setOptions(nextOptions);
   }
 
