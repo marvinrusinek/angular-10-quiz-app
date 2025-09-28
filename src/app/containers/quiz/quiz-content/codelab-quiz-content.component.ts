@@ -785,13 +785,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       });
     }
 
+    const normalizedCorrectCount = Number.isFinite(numberOfCorrectAnswers)
+      ? numberOfCorrectAnswers
+      : 0;
+
+    const totalOptions = Array.isArray(currentOptions)
+      ? currentOptions.length
+      : Array.isArray(currentQuestion?.options)
+        ? currentQuestion.options.length
+        : 0;
+
+    const isMultipleAnswerQuestion =
+      currentQuestion.type === QuestionType.MultipleAnswer ||
+      (Array.isArray(currentQuestion.options)
+        ? currentQuestion.options.filter(option => option.correct).length > 1
+        : false);
+
+    const correctAnswersText =
+      isMultipleAnswerQuestion && normalizedCorrectCount > 0
+        ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            normalizedCorrectCount,
+            totalOptions
+          )
+        : '';
+
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion.questionText,
       explanation: isExplanationDisplayed ? formattedExplanation : '',
-      correctAnswersText: numberOfCorrectAnswers > 0 ? `${numberOfCorrectAnswers} correct answers` : '',
+      correctAnswersText,
       isExplanationDisplayed: isExplanationDisplayed,
       isNavigatingToPrevious: false,
       selectionMessage: ''
