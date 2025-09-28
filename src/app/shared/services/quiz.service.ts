@@ -1633,7 +1633,8 @@ export class QuizService implements OnDestroy {
 
     const baseOptions = this.resolveOptionsForQuestion(
       questionOptions,
-      incomingOptions
+      incomingOptions,
+      question?.questionText ?? null
     );
 
     if (!baseOptions.length) {
@@ -1646,7 +1647,7 @@ export class QuizService implements OnDestroy {
 
     const nextOptions = baseOptions.map((option, index) => {
       const identifier = this.getOptionIdentifier(option, index);
-
+    
       return {
         ...option,
         selected: selectedValues.has(identifier)
@@ -1667,28 +1668,41 @@ export class QuizService implements OnDestroy {
 
   private resolveOptionsForQuestion(
     questionOptions: Option[],
-    incomingOptions: Option[]
+    incomingOptions: Option[],
+    questionLabel: string | null
   ): Option[] {
     const sanitizedQuestionOptions = this.sanitizeOptions(questionOptions ?? []);
-    const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
 
-    if (!sanitizedQuestionOptions.length && !sanitizedIncomingOptions.length) {
-      return [];
-    }
+    if (sanitizedQuestionOptions.length) {
+      const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
 
-    if (!sanitizedQuestionOptions.length) {
-      return sanitizedIncomingOptions;
-    }
+      if (
+        sanitizedIncomingOptions.length &&
+        !this.optionsBelongToSameQuestion(
+          sanitizedQuestionOptions,
+          sanitizedIncomingOptions
+        )
+      ) {
+        console.warn(
+          '[handleQuestionChange] Incoming options did not match the active question. Falling back to the question options.',
+          {
+            question: questionLabel,
+            incomingOptions: sanitizedIncomingOptions,
+            questionOptions: sanitizedQuestionOptions
+          }
+        );
+      }
 
-    if (!sanitizedIncomingOptions.length) {
       return sanitizedQuestionOptions;
     }
+    
+    const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
 
-    if (this.optionsBelongToSameQuestion(sanitizedQuestionOptions, sanitizedIncomingOptions)) {
-      return sanitizedIncomingOptions;
+    if (!sanitizedIncomingOptions.length) {
+      console.warn('[handleQuestionChange] No options were available to resolve.');
     }
 
-    return sanitizedQuestionOptions;
+    return sanitizedIncomingOptions;
   }
 
   private optionsBelongToSameQuestion(
