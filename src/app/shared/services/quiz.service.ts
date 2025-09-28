@@ -542,6 +542,10 @@ export class QuizService implements OnDestroy {
           : idx + 1;
 
       const safeText = (opt?.text ?? '').trim() || `Option ${idx + 1}`;
+      const normalizedHighlight =
+        typeof opt?.highlight === 'boolean' ? opt.highlight : !!opt?.highlight;
+      const normalizedActive =
+        typeof opt?.active === 'boolean' ? opt.active : true;
 
       const sanitized: Option = {
         ...opt,
@@ -550,11 +554,12 @@ export class QuizService implements OnDestroy {
         correct: opt?.correct === true,
         value: typeof opt?.value === 'number' ? opt.value : safeId,
         answer: opt?.answer ?? null,
-        selected: !!opt?.selected,
-        active: opt?.active ?? false,
-        highlight: opt?.highlight ?? false,
-        showIcon: !!opt?.showIcon,
-        showFeedback: opt?.showFeedback ?? false,
+        selected: opt?.selected === true,
+        active: normalizedActive,
+        highlight: normalizedHighlight,
+        showIcon: opt?.showIcon === true,
+        showFeedback:
+          typeof opt?.showFeedback === 'boolean' ? opt.showFeedback : false,
         feedback: (opt?.feedback ?? 'No feedback available').trim(),
         styleClass: opt?.styleClass ?? ''
       };
