@@ -16,6 +16,7 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
+
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
