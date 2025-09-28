@@ -358,7 +358,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private resetUIForNewQuestion(): void {
     this.sharedOptionComponent?.resetUIForNewQuestion();
-    // add any additional resets needed here
+    this.updateShouldRenderOptions([]);
   }
 
   async ngOnInit(): Promise<void> {
