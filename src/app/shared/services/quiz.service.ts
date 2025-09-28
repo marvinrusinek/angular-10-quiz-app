@@ -889,6 +889,7 @@ export class QuizService implements OnDestroy {
               ...option,
               correct: !!option.correct,
               optionId: option.optionId ?? index + 1,
+              displayOrder: index,
             }))
           : [];
 
@@ -911,6 +912,10 @@ export class QuizService implements OnDestroy {
         for (const question of normalizedQuestions) {
           if (question.options?.length) {
             Utils.shuffleArray(question.options);
+            question.options = question.options.map((option, index) => ({
+              ...option,
+              displayOrder: index
+            }));
           }
         }
       }
