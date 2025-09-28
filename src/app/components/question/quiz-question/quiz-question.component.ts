@@ -1054,7 +1054,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.currentQuestion = question;
     this.optionsToDisplay = structuredClone(options);
     this.updateShouldRenderOptions(this.optionsToDisplay);
-    console.timeEnd('[🧬 structuredClone(options)]');
 
     this.explanationToDisplay = explanation?.trim() || '';
 
@@ -1967,9 +1966,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         && instance.optionsToDisplay.length > 0;
 
       if (hasRenderableOptions) {
+        this.updateShouldRenderOptions(instance.optionsToDisplay);
         this.shouldRenderOptions = true;
         this._canRenderFinalOptions = true;
       } else {
+        this.updateShouldRenderOptions(instance.optionsToDisplay);
         console.warn('[⚠️ Skipping render — options not ready]', {
           optionBindings: instance.optionBindings?.length,
           options: instance.optionsToDisplay?.length,
