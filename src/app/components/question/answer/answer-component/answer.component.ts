@@ -100,7 +100,11 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
         // Deep clone incoming options
         const cloned = structuredClone(opts);
-        this.incomingOptions = cloned;
+        const normalized = cloned.map((option, index) => ({
+          ...option,
+          optionId: option.optionId ?? index
+        }));
+        this.incomingOptions = normalized;
 
         //  Clear prior icons and bindings (clean slate)
         this.optionBindings = [];
@@ -108,7 +112,31 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
         // Defer rebuild and update bindings
         Promise.resolve().then(() => {
-          this.rebuildOptionBindings(cloned);  // rebuild and assign
+          // Reset selection-specific state whenever a fresh option set arrives
+          this.selectedOption = null;
+          this.selectedOptions = [];
+          this.selectedOptionIndex = -1;
+          this.showFeedbackForOption = {};
+          this.selectedOptionService.clearSelectedOption();
+
+          // Bump version to force view updates that rely on questionVersion keys
+          this.questionVersion++;
+
+          // Ensure the template (and nested shared option component) receives the
+          // latest shuffled options reference
+          const nextOptions = normalized.map(option => ({ ...option }));
+          this.optionsToDisplay = nextOptions;
+          this.optionBindingsSource = nextOptions.map(option => ({ ...option }));
+
+          // Keep the shared config in sync so downstream bindings see the same options
+          if (this.sharedOptionConfig) {
+            this.sharedOptionConfig = {
+              ...this.sharedOptionConfig,
+              optionsToDisplay: nextOptions.map(option => ({ ...option }))
+            };
+          }
+
+          this.rebuildOptionBindings(this.optionBindingsSource);  // rebuild and assign
           this.renderReady = true;
           this.cdRef.markForCheck(); // trigger OnPush
           console.timeEnd('[📥 AnswerComponent optionsStream$]');
