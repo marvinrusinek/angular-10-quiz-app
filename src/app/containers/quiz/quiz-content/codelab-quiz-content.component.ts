@@ -859,7 +859,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   ): Observable<CombinedQuestionDataType> {
     const { currentQuestion, currentOptions } = currentQuizData;
 
-    if (!this.currentQuestion) {
+    if (!currentQuestion) {
       console.error('No current question found in data:', currentQuizData);
       return of({
         currentQuestion: null,
