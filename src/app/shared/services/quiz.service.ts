@@ -1641,17 +1641,18 @@ export class QuizService implements OnDestroy {
     options: Option[]
   ): void {
     const questionOptions = Array.isArray(question?.options)
-      ? ((question?.options as Option[]) ?? [])
+      ? (question?.options as Option[])
       : [];
     const incomingOptions = Array.isArray(options) ? options : [];
 
-    const resolvedOptions = questionOptions.length
-      ? questionOptions
-      : incomingOptions;
+    const sanitizedIncoming = this.sanitizeOptions(incomingOptions);
+    const sanitizedQuestion = this.sanitizeOptions(questionOptions);
 
-    const sanitizedOptions = this.sanitizeOptions(resolvedOptions ?? []);
+    const baseOptions = sanitizedIncoming.length
+      ? sanitizedIncoming
+      : sanitizedQuestion;
 
-    if (!sanitizedOptions.length) {
+    if (!baseOptions.length) {
       console.warn('[handleQuestionChange] No options available for the active question.');
       this.currentOptionsSubject.next([]);
       this.nextOptionsSource.next([]);
@@ -1674,43 +1675,66 @@ export class QuizService implements OnDestroy {
     const explicitSelections = Array.isArray(selectedOptions)
       ? selectedOptions
       : [];
-    const selectedTokens = new Set(
-      explicitSelections
-        .filter((value) => value !== null && value !== undefined)
-        .map((value) => String(value))
-    );
-    const hasExplicitSelections = selectedTokens.size > 0;
+    const explicitTokens = explicitSelections
+      .filter((value) => value !== null && value !== undefined)
+      .map((value) => String(value));
 
-    const normalizedOptions = sanitizedOptions.map((option, index) => {
+    const storedSelections = Array.isArray((question as any)?.selectedOptions)
+      ? ((question as any).selectedOptions as Option[])
+          .map((opt, idx) => this.getSelectionKey(opt, idx))
+          .filter((value) => value !== null && value !== undefined)
+          .map((value) => String(value))
+      : [];
+
+    const selectionTokens = new Set(
+      [...explicitTokens, ...storedSelections].filter((token) => token !== '')
+    );
+    const hasSelectionTokens = selectionTokens.size > 0;
+
+    const normalizedOptions = baseOptions.map((option, index) => {
       const key = this.getSelectionKey(option, index);
       const token = key != null ? String(key) : '';
-      const isSelected = hasExplicitSelections
-        ? selectedTokens.has(token)
+      const isSelected = hasSelectionTokens
+        ? selectionTokens.has(token)
         : option.selected === true;
+
+      const highlight = isSelected
+        ? true
+        : typeof option.highlight === 'boolean'
+          ? option.highlight
+          : !!option.highlight;
+
+      const active =
+        typeof option.active === 'boolean' ? option.active : true;
 
       return {
         ...option,
         selected: isSelected,
-        highlight: isSelected ? true : option.highlight ?? false,
-        active: isSelected ? true : option.active ?? false
+        highlight,
+        active
       };
     });
 
+    const cloneOptions = (opts: Option[]) => opts.map((opt) => ({ ...opt }));
+
     if (question) {
+      const questionOptions = cloneOptions(normalizedOptions);
       const nextQuestion: QuizQuestion = {
         ...question,
-        options: normalizedOptions
+        options: questionOptions
       };
 
       this.currentQuestion.next(nextQuestion);
       this.currentQuestionSource.next(nextQuestion);
       this.currentQuestionSubject.next(nextQuestion);
       this.nextQuestionSource.next(nextQuestion);
-      this.nextOptionsSource.next(normalizedOptions);
-      this.emitQuestionAndOptions(nextQuestion, normalizedOptions);
+
+      const nextOptions = cloneOptions(normalizedOptions);
+      this.nextOptionsSource.next(nextOptions);
+      this.emitQuestionAndOptions(nextQuestion, cloneOptions(normalizedOptions));
 
       this.data.questionText = nextQuestion.questionText ?? '';
-      this.data.currentOptions = normalizedOptions;
+      this.data.currentOptions = cloneOptions(normalizedOptions);
       this.data.correctAnswersText = this.buildCorrectAnswerCountLabel(
         nextQuestion,
         normalizedOptions
@@ -1721,16 +1745,17 @@ export class QuizService implements OnDestroy {
       this.nextOptionsSource.next([]);
       this.nextOptionsSubject.next([]);
       this.data.questionText = '';
-      this.data.currentOptions = normalizedOptions;
+      this.data.currentOptions = cloneOptions(normalizedOptions);
       this.data.correctAnswersText = '';
     }
 
-    this.currentOptionsSubject.next(normalizedOptions);
+    this.currentOptionsSubject.next(cloneOptions(normalizedOptions));
 
     if (normalizedOptions.length) {
-      this.setOptions(normalizedOptions);
+      this.setOptions(cloneOptions(normalizedOptions));
     }
   }
+        
 
   private getSelectionKey(option: Option, fallbackIndex: number): string | number {
     if (!option) return fallbackIndex;
