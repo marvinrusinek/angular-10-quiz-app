@@ -7,6 +7,7 @@ import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
 import { Option } from '../../../shared/models/Option.model';
 import { QuestionType } from '../../../shared/models/question-type.enum';
+import { QuestionPayload } from '../../../shared/models/QuestionPayload.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
@@ -170,11 +171,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(({ currentQuestion, currentOptions }) => {
         const questionText = currentQuestion?.questionText?.trim() ?? 'No question available';
         const options = currentOptions ?? [];
+        const explanationText =
+          currentQuestion?.explanation?.toString().trim() ?? 'No explanation available';
     
         return {
           questionText,
           options,
-          explanation: currentQuestion?.explanation ?? 'No explanation available',
+          explanation: explanationText,
           currentQuestion,
           isNavigatingToPrevious: false,
           isExplanationDisplayed: false,
