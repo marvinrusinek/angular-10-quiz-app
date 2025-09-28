@@ -1636,145 +1636,61 @@ export class QuizService implements OnDestroy {
   }
 
   handleQuestionChange(
-    question: any,
-    selectedOptions: any[],
+    question: QuizQuestion | null,
+    selectedOptions: Array<string | number> | null | undefined,
     options: Option[]
-  ): void {
+  ): {
+    updatedOptions: Option[];  // same reference, mutated
+    nextQuestion: QuizQuestion | null;  // question with updated options
+    questionText: string;  // for UI
+    correctAnswersText: string;  // for UI
+  } {
     // Logic to update options based on the question
-    if (question) {
-      options = question.options;
+    if (question && Array.isArray(question.options)) {
+      // Preserve the SAME array reference the caller passed in
+      options.splice(0, options.length, ...question.options);
       this.resetAll();
     }
 
-    // Logic to mark options as selected based on selectedOptions array
-    if (selectedOptions) {
-      for (const option of options) {
-        option.selected = selectedOptions.includes(option.value);
-      }
-    }
-  }
+    const base = options;  // caller’s array reference
 
-  /* handleQuestionChange(
-    question: QuizQuestion | null,
-    selectedOptions: Array<string | number>,
-    options: Option[]
-  ): void {
-    const questionOptions = Array.isArray(question?.options)
-      ? (question?.options as Option[])
-      : [];
-    const incomingOptions = Array.isArray(options) ? options : [];
-
-    const sanitizedIncoming = this.sanitizeOptions(incomingOptions);
-    const sanitizedQuestion = this.sanitizeOptions(questionOptions);
-
-    const baseOptions = sanitizedIncoming.length
-      ? sanitizedIncoming
-      : sanitizedQuestion;
-
-    if (!baseOptions.length) {
-      console.warn('[handleQuestionChange] No options available for the active question.');
-      this.currentOptionsSubject.next([]);
-      this.nextOptionsSource.next([]);
-      this.nextOptionsSubject.next([]);
-      this.optionsSubject.next([]);
-      if (question) {
-        this.nextQuestionSource.next(question);
-        this.nextQuestionSubject.next(question);
-        this.data.questionText = question.questionText ?? '';
-      } else {
-        this.nextQuestionSource.next(null);
-        this.nextQuestionSubject.next(null);
-        this.data.questionText = '';
-      }
-      this.data.currentOptions = [];
-      this.data.correctAnswersText = '';
-      return;
-    }
-
-    const explicitSelections = Array.isArray(selectedOptions)
-      ? selectedOptions
-      : [];
-    const explicitTokens = explicitSelections
-      .filter((value) => value !== null && value !== undefined)
-      .map((value) => String(value));
-
-    const storedSelections = Array.isArray((question as any)?.selectedOptions)
-      ? ((question as any).selectedOptions as Option[])
-          .map((opt, idx) => this.getSelectionKey(opt, idx))
-          .filter((value) => value !== null && value !== undefined)
-          .map((value) => String(value))
-      : [];
-
-    const selectionTokens = new Set(
-      [...explicitTokens, ...storedSelections].filter((token) => token !== '')
-    );
-    const hasSelectionTokens = selectionTokens.size > 0;
-
-    const normalizedOptions = baseOptions.map((option, index) => {
-      const key = this.getSelectionKey(option, index);
-      const token = key != null ? String(key) : '';
-      const isSelected = hasSelectionTokens
-        ? selectionTokens.has(token)
-        : option.selected === true;
-
-      const highlight = isSelected
-        ? true
-        : typeof option.highlight === 'boolean'
-          ? option.highlight
-          : !!option.highlight;
-
-      const active =
-        typeof option.active === 'boolean' ? option.active : true;
-
+    // Empty state → return empties; caller will handle UI
+    if (!Array.isArray(base) || base.length === 0) {
       return {
-        ...option,
-        selected: isSelected,
-        highlight,
-        active
+        updatedOptions: [],
+        nextQuestion: question ?? null,
+        questionText: question?.questionText ?? '',
+        correctAnswersText: ''
       };
-    });
-
-    const cloneOptions = (opts: Option[]) => opts.map((opt) => ({ ...opt }));
-
-    if (question) {
-      const questionOptions = cloneOptions(normalizedOptions);
-      const nextQuestion: QuizQuestion = {
-        ...question,
-        options: questionOptions
-      };
-
-      this.currentQuestion.next(nextQuestion);
-      this.currentQuestionSource.next(nextQuestion);
-      this.currentQuestionSubject.next(nextQuestion);
-      this.nextQuestionSource.next(nextQuestion);
-
-      const nextOptions = cloneOptions(normalizedOptions);
-      this.nextOptionsSource.next(nextOptions);
-      this.emitQuestionAndOptions(nextQuestion, cloneOptions(normalizedOptions));
-
-      this.data.questionText = nextQuestion.questionText ?? '';
-      this.data.currentOptions = cloneOptions(normalizedOptions);
-      this.data.correctAnswersText = this.buildCorrectAnswerCountLabel(
-        nextQuestion,
-        normalizedOptions
-      );
-    } else {
-      this.nextQuestionSource.next(null);
-      this.nextQuestionSubject.next(null);
-      this.nextOptionsSource.next([]);
-      this.nextOptionsSubject.next([]);
-      this.data.questionText = '';
-      this.data.currentOptions = cloneOptions(normalizedOptions);
-      this.data.correctAnswersText = '';
     }
 
-    this.currentOptionsSubject.next(cloneOptions(normalizedOptions));
+    const selSet = new Set(
+      (Array.isArray(selectedOptions) ? selectedOptions : [])
+        .filter(v => v != null)
+        .map(v => String(v))
+    );
 
-    if (normalizedOptions.length) {
-      this.setOptions(cloneOptions(normalizedOptions));
+    for (const opt of base as any[]) {
+      const valueToken = String(opt?.value ?? '');
+      const idToken    = String(opt?.optionId ?? '');
+
+      const isSelected =
+        selSet.size > 0 && (selSet.has(valueToken) || selSet.has(idToken));
+
+      opt.selected  = isSelected;
+      opt.highlight = isSelected ? true : !!opt.highlight;
+      if (typeof opt.active !== 'boolean') opt.active = true;
     }
-  } */
-        
+
+    const nextQuestion = question ? { ...question, options: base } : null;
+    const questionText = question?.questionText ?? '';
+    const correctAnswersText =
+      nextQuestion && typeof this.buildCorrectAnswerCountLabel === 'function'
+        ? this.buildCorrectAnswerCountLabel(nextQuestion, base)
+        : '';
+
+    return { updatedOptions: base, nextQuestion, questionText, correctAnswersText };
+  }
 
   private getSelectionKey(option: Option, fallbackIndex: number): string | number {
     if (!option) return fallbackIndex;
