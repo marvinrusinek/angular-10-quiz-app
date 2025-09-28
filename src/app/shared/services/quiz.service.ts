@@ -1719,51 +1719,44 @@ export class QuizService implements OnDestroy {
       trimmedLabel.length > 0 && trimmedLabel !== trimmedPreviousLabel;
 
     if (questionChanged) {
-      if (!sanitizedIncomingOptions.length && sanitizedQuestionOptions.length) {
+      if (sanitizedQuestionOptions.length) {
+        return sanitizedQuestionOptions;
+      }
+  
+      if (sanitizedIncomingOptions.length) {
         console.warn(
-          '[handleQuestionChange] Question changed but incoming options were empty. Falling back to question options.',
+          '[handleQuestionChange] Question changed but no options were attached to the question. Using incoming options as a fallback.',
           {
             question: questionLabel,
             previousQuestion: previousQuestionLabel
           }
         );
-        return sanitizedQuestionOptions;
       }
-
+  
       return sanitizedIncomingOptions;
     }
-
-    if (sanitizedQuestionOptions.length) {
+  
+    if (!sanitizedQuestionOptions.length) {
       if (!sanitizedIncomingOptions.length) {
-        return sanitizedQuestionOptions;
+        console.warn('[handleQuestionChange] No options were available to resolve.');
       }
-
-      if (
-        !this.optionsBelongToSameQuestion(
-          sanitizedQuestionOptions,
-          sanitizedIncomingOptions
-        )
-      ) {
-        console.warn(
-          '[handleQuestionChange] Incoming options did not match the active question. Preferring incoming options.',
-          {
-            question: questionLabel,
-            incomingOptions: sanitizedIncomingOptions,
-            questionOptions: sanitizedQuestionOptions
-          }
-        );
-
-        return sanitizedIncomingOptions;
-      }
-
+      return sanitizedIncomingOptions;
+    }
+  
+    if (!sanitizedIncomingOptions.length) {
       return sanitizedQuestionOptions;
     }
-
-    if (!sanitizedIncomingOptions.length) {
-      console.warn('[handleQuestionChange] No options were available to resolve.');
+  
+    if (
+      this.optionsBelongToSameQuestion(
+        sanitizedQuestionOptions,
+        sanitizedIncomingOptions
+      )
+    ) {
+      return sanitizedIncomingOptions;
     }
-
-    return sanitizedIncomingOptions;
+  
+    return sanitizedQuestionOptions;
   }
 
   private buildCorrectAnswerCountLabel(
