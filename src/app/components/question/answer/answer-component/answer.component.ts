@@ -92,12 +92,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       this.type = isMultipleAnswer ? 'multiple' : 'single';
     });
 
-    // displays the unique options to the UI
+    // Displays the unique options to the UI
     this.quizQuestionLoaderService.optionsStream$
       .pipe(takeUntil(this.destroy$))
       .subscribe((opts: Option[]) => {
-        console.time('[📥 AnswerComponent optionsStream$]');
-
         this.incomingOptions = this.normalizeOptions(structuredClone(opts));
 
         //  Clear prior icons and bindings (clean slate)
@@ -112,14 +110,12 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
           this.questionVersion++;
 
           this.applyIncomingOptions(this.incomingOptions, { resetSelection: false });
-
-          console.timeEnd('[📥 AnswerComponent optionsStream$]');
         });
       });
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // let BaseQuestionComponent do its work first
+    // Let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
 
     let shouldMark = false;
@@ -133,13 +129,13 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         if (Array.isArray(next) && next.length) {
           console.log('[📥 AnswerComponent] optionsToDisplay changed:', change);
     
-          // hand SharedOptionComponent its own fresh reference
+          // Hand SharedOptionComponent its own fresh reference
           this.optionBindingsSource = next.map(o => ({ ...o }));
     
-          // respond to updates
+          // Respond to updates
           this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);
     
-          // apply any additional incoming option updates
+          // Apply any additional incoming option updates
           this.applyIncomingOptions(next);
     
           // Wake the OnPush CD cycle
