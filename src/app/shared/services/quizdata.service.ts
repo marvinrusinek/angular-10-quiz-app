@@ -198,6 +198,7 @@ export class QuizDataService implements OnDestroy {
             return {
               ...base,
               optionId : idx + 1,
+              displayOrder: idx,
               correct  : base.correct === true,
               selected : false,
               highlight: false,
@@ -208,7 +209,8 @@ export class QuizDataService implements OnDestroy {
         const resetOptionIds = (options: Option[] = []): Option[] =>
           options.map((option, idx) => ({
             ...option,
-            optionId: idx + 1
+            optionId: idx + 1,
+            displayOrder: idx
           } as Option));
 
         const clonedQuestions = quiz.questions.map((question) => ({
