@@ -161,6 +161,9 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         changes.questionData.currentValue
       );
     }
+
+    // Wake the OnPush CD cycle once
+    if (shouldMark) this.cdRef.markForCheck();
   }
   
   ngAfterViewInit(): void {  
