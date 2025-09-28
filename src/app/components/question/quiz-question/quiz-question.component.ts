@@ -198,6 +198,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     new BehaviorSubject('question');
   private displaySubscriptions: Subscription[] = [];
   private displayModeSubscription: Subscription;
+  private lastOptionsQuestionSignature: string | null = null;
   shouldDisplayExplanation = false;
   isContentAvailable$: Observable<boolean>;
   private isRestoringState = false;
@@ -3766,7 +3767,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return [];
     }
 
-    if (this.optionsToDisplay?.length) {
+    const signature = this.computeQuestionSignature(this.currentQuestion);
+
+    const hasValidOptions =
+      Array.isArray(this.optionsToDisplay) &&
+      this.optionsToDisplay.length === this.currentQuestion.options.length &&
+      this.lastOptionsQuestionSignature === signature;
+
+    if (hasValidOptions) {
       return this.optionsToDisplay;
     }
 
@@ -3781,7 +3789,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
     );
 
+    this.lastOptionsQuestionSignature = signature;
+
     return this.optionsToDisplay;
+  }
+
+  private computeQuestionSignature(question: QuizQuestion): string {
+    const baseText = (question.questionText ?? '').trim();
+    const optionKeys = (question.options ?? []).map((opt, idx) => {
+      const optionId = opt.optionId ?? idx;
+      const text = (opt.text ?? '').trim();
+      const correctness = opt.correct === true ? '1' : '0';
+      return `${optionId}|${text}|${correctness}`;
+    });
+
+    return `${baseText}::${optionKeys.join('||')}`;
   }
 
   public async applyOptionFeedback(selectedOption: Option): Promise<void> {
