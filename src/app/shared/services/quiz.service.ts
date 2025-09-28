@@ -1660,13 +1660,17 @@ export class QuizService implements OnDestroy {
     }
 
     const selectedValues = new Set(selectedOptions ?? []);
+    const hasExplicitSelection = selectedValues.size > 0;
 
     const nextOptions = baseOptions.map((option, index) => {
       const identifier = this.getOptionIdentifier(option, index);
+      const shouldSelect = hasExplicitSelection
+        ? selectedValues.has(identifier)
+        : option.selected === true;
 
       return {
         ...option,
-        selected: selectedValues.has(identifier)
+        selected: shouldSelect
       };
     });
 
