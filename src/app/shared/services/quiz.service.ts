@@ -1727,6 +1727,22 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  private getSelectionKey(option: Option, fallbackIndex: number): string | number {
+    if (!option) return fallbackIndex;
+
+    if (option.value !== undefined && option.value !== null) {
+      return option.value;
+    }
+
+    if (Number.isInteger(option.optionId)) {
+      return option.optionId as number;
+    }
+
+    if (option.text) return option.text;
+
+    return fallbackIndex;
+  }
+
   private resolveOptionsForQuestion(
     questionOptions: Option[],
     incomingOptions: Option[],
