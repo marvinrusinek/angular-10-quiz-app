@@ -1051,9 +1051,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const { question, options, explanation } = payload;
 
-    console.time('[🧬 structuredClone(options)]');
     this.currentQuestion = question;
     this.optionsToDisplay = structuredClone(options);
+    this.updateShouldRenderOptions(this.optionsToDisplay);
     console.timeEnd('[🧬 structuredClone(options)]');
 
     this.explanationToDisplay = explanation?.trim() || '';
