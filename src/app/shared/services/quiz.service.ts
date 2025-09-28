@@ -2141,7 +2141,8 @@ export class QuizService implements OnDestroy {
 
   shuffleAnswers(answers: Option[]): Option[] {
     if (this.shouldShuffle() && answers && answers.length > 0) {
-      return Utils.shuffleArray([...answers]);
+      const shuffled = Utils.shuffleArray([...answers]);
+      return this.normalizeOptionDisplayOrder(shuffled);
     }
     console.log('[shuffleAnswers] Skipping shuffle or no answers available.');
     return answers;
@@ -2642,8 +2643,8 @@ export class QuizService implements OnDestroy {
 
   // Apply a shuffle order (array of source indexes) without touching optionId.
   applyOptionOrder(options: Option[], order: number[]): Option[] {
-    const out = order.map(i => options[i]);
-    return out.map((o, i) => ({ ...o, displayOrder: i }));
+    const out = order.map((i) => options[i]);
+    return this.normalizeOptionDisplayOrder(out);
   }
 
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
@@ -2653,10 +2654,20 @@ export class QuizService implements OnDestroy {
       return [];
     }
 
-    return options.map((option, index) => ({
+    return this.normalizeOptionDisplayOrder(options).map((option, index) => ({
       ...option,
       // Assign optionId only if it's not a valid number
-      optionId: option.optionId ?? index + 1,  // use 1-based index for clarity
+      optionId: option.optionId ?? index + 1  // use 1-based index for clarity
+    }));
+  }
+
+  private normalizeOptionDisplayOrder(options: Option[] = []): Option[] {
+    if (!Array.isArray(options)) {
+      return [];
+    }
+
+    return options.map((option, index) => ({
+      ...option,
       displayOrder: index
     }));
   }
