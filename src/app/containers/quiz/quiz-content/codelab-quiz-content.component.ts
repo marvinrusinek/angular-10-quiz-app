@@ -898,12 +898,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           )
         : '';
 
+    const explanationText = isExplanationDisplayed
+        ? (formattedExplanation?.trim() || currentQuizData.explanation || currentQuestion.explanation || '')
+        : '';
+  
     const combinedQuestionData: CombinedQuestionDataType = {
       currentQuestion: currentQuestion,
       currentOptions: currentOptions,
       options: currentOptions,
       questionText: currentQuestion.questionText,
-      explanation: isExplanationDisplayed ? formattedExplanation : '',
+      explanation: explanationText,
       correctAnswersText,
       isExplanationDisplayed: isExplanationDisplayed,
       isNavigatingToPrevious: false,
