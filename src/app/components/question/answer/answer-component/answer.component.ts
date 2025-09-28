@@ -119,29 +119,34 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.time('🏁 AnswerComponent Init');
-    console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
-
     // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
-
-    console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
   
-    // Parent just handed us a new optionsToDisplay reference
-    /* if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
-      console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
-      // hand SharedOptionComponent its own fresh reference
-      this.optionBindingsSource = this.optionsToDisplay.map(o => ({ ...o }));
-      this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);  // respond to updates
+    if (changes['optionsToDisplay']) {
+      const next: Option[] = changes['optionsToDisplay'].currentValue;
   
-      // Wake the OnPush CD cycle
-      this.cdRef.markForCheck();
-    } */
-    if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
-      console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
-      this.applyIncomingOptions(this.optionsToDisplay);
+      if (Array.isArray(next) && next.length) {
+        console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
+  
+        // hand SharedOptionComponent its own fresh reference
+        this.optionBindingsSource = next.map(o => ({ ...o }));
+  
+        // respond to updates
+        this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);
+  
+        // apply any additional incoming option updates
+        this.applyIncomingOptions(next);
+  
+        // Wake the OnPush CD cycle
+        this.cdRef.markForCheck();
+      } else {
+        this.optionBindingsSource = [];
+        this.optionBindings = [];
+        this.applyIncomingOptions?.([]);
+        this.cdRef.markForCheck();
+      }
     }
-  
+
     // Extra logging
     if (changes.questionData) {
       console.log(
@@ -149,7 +154,6 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
         changes.questionData.currentValue
       );
     }
-    console.timeEnd('🏁 AnswerComponent Init');
   }
   
   ngAfterViewInit(): void {  
