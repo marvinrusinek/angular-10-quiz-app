@@ -3170,57 +3170,113 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   async initializeFirstQuestion(): Promise<void> {
     console.time('[FIRST Q1 INIT]');
     this.resetQuestionDisplayState();
-
+  
     try {
-      // Load questions for the quiz
-      const questions = await firstValueFrom(
-        this.quizDataService.getQuestionsForQuiz(this.quizId)
-      );
-
-      if (questions && questions.length > 0) {
+      // ── Path A: use a pre-resolved QA payload if available ───────────────────
+      const qaPayload = await this.resolveInitialQaPayload();
+  
+      if (qaPayload) {
+        const { question, options, index } = qaPayload;
+  
+        // Hydrate questions[] if it's empty (be tolerant of service shape)
+        try {
+          if (!Array.isArray(this.questions) || this.questions.length === 0) {
+            const raw = await firstValueFrom(
+              this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(take(1))
+            );
+            const qs = Array.isArray(raw) ? raw : ((raw as any)?.questions ?? []);
+            this.questions = Array.isArray(qs) ? qs : [];
+          }
+        } catch (loadError) {
+          console.warn('[initializeFirstQuestion] Failed to hydrate questions array:', loadError);
+          this.questions = [];
+        }
+  
         // Set first question data immediately
-        this.questions = questions;
-        this.currentQuestion = questions[0];
-        this.currentQuestionIndex = 0;
-        this.questionToDisplay = this.currentQuestion.questionText;
-
+        this.currentQuestion = question;
+        this.currentQuestionIndex = Number.isFinite(index) ? (index as number) : 0;
+        this.questionToDisplay = question.questionText?.trim() || 'No question available';
+  
         // Assign optionIds
-        this.currentQuestion.options = this.quizService.assignOptionIds(
-          this.currentQuestion.options
-        );
-        this.optionsToDisplay = this.currentQuestion.options;
-
+        const normalizedOptions = this.quizService.assignOptionIds([...(options ?? [])]);
+        this.optionsToDisplay = normalizedOptions;
+  
         // Ensure options are fully loaded
         await this.ensureOptionsLoaded();
-
+  
         // Check for missing optionIds
-        const missingOptionIds = this.optionsToDisplay.filter(
-          (o) => o.optionId === undefined
-        );
-        if (missingOptionIds.length > 0) {
-          console.error(
-            'Options with undefined optionId found:',
-            missingOptionIds
-          );
+        const missingOptionIdsA = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIdsA.length > 0) {
+          console.error('Options with undefined optionId found:', missingOptionIdsA);
         } else {
           console.log('All options have valid optionIds.');
         }
-
+  
         // Force Angular to recognize the new options
         this.cdRef.detectChanges();
-
+  
         // Call checkIfAnswered() to track answered state
         setTimeout(() => {
           this.checkIfAnswered((areAllCorrectSelected) => {
             this.handleTimer(areAllCorrectSelected);
           });
         }, 150);
-
+  
         // Ensure UI updates properly
         setTimeout(() => {
           this.cdRef.markForCheck();
         }, 200);
-        console.timeEnd("FIRST QUESTION");
+  
+        console.timeEnd('[FIRST Q1 INIT]');
+        return;
+      }
+  
+      // ── Path B: Fallback — fetch questions directly if no QA payload ─────────
+      const raw = await firstValueFrom(
+        this.quizDataService.getQuestionsForQuiz(this.quizId).pipe(take(1))
+      );
+      const questions = Array.isArray(raw) ? raw : ((raw as any)?.questions ?? []);
+  
+      if (Array.isArray(questions) && questions.length > 0) {
+        // Set first question data immediately
+        this.questions = questions;
+        this.currentQuestion = questions[0];
+        this.currentQuestionIndex = 0;
+        this.questionToDisplay = this.currentQuestion.questionText;
+  
+        // Assign optionIds
+        this.currentQuestion.options = this.quizService.assignOptionIds(
+          this.currentQuestion.options
+        );
+        this.optionsToDisplay = this.currentQuestion.options;
+  
+        // Ensure options are fully loaded
+        await this.ensureOptionsLoaded();
+  
+        // Check for missing optionIds
+        const missingOptionIdsB = this.optionsToDisplay.filter(o => o.optionId === undefined);
+        if (missingOptionIdsB.length > 0) {
+          console.error('Options with undefined optionId found:', missingOptionIdsB);
+        } else {
+          console.log('All options have valid optionIds.');
+        }
+  
+        // Force Angular to recognize the new options
+        this.cdRef.detectChanges();
+  
+        // Call checkIfAnswered() to track answered state
+        setTimeout(() => {
+          this.checkIfAnswered((areAllCorrectSelected) => {
+            this.handleTimer(areAllCorrectSelected);
+          });
+        }, 150);
+  
+        // Ensure UI updates properly
+        setTimeout(() => {
+          this.cdRef.markForCheck();
+        }, 200);
+  
+        console.timeEnd('[FIRST Q1 INIT]');
       } else {
         console.warn('No questions available for this quiz.');
         this.handleNoQuestionsAvailable();
@@ -3232,57 +3288,111 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Check if an answer has been selected for the first question.
   checkIfAnswered(callback: (result: boolean) => void = () => {}): void {
-    // Ensure options are available
-    if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
-      console.warn(
-        '[checkIfAnswered] Options not available when checking for answer state.'
-      );
-      callback(false);
-      return;
-    }
-
-    // Validate and normalize options
-    this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
-      ...option,
-      optionId: option.optionId ?? index + 1  // assign a unique ID if missing
-    }));
-
-    // Log undefined optionIds if any
-    const undefinedOptionIds = this.optionsToDisplay.filter(
-      (o) => o.optionId === undefined
-    );
-    if (undefinedOptionIds.length > 0) {
-      console.error(
-        '[checkIfAnswered] Options with undefined optionId found:',
-        undefinedOptionIds
-      );
-      callback(false);  // abort the check since option structure is invalid
-      return;
-    }
-
-    // Check if at least one option is selected
-    const isAnyOptionSelected =
-      this.selectedOptionService.getSelectedOptions().length > 0;
-
-    // Validate that all correct options are selected
     try {
-      const areAllCorrectSelected = this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
-    
+      // Ensure options are available
+      if (!this.optionsToDisplay || this.optionsToDisplay.length === 0) {
+        console.warn('[checkIfAnswered] Options not available when checking for answer state.');
+        callback(false);
+        return;
+      }
+
+      // Validate and normalize options
+      this.optionsToDisplay = this.optionsToDisplay.map((option, index) => ({
+        ...option,
+        optionId: option.optionId ?? index + 1  // assign a unique ID if missing
+      }));
+
+      // Log undefined optionIds if any
+      const undefinedOptionIds = this.optionsToDisplay.filter((o) => o.optionId === undefined);
+      if (undefinedOptionIds.length > 0) {
+        console.error('[checkIfAnswered] Options with undefined optionId found:', undefinedOptionIds);
+        callback(false);  // abort the check since option structure is invalid
+        return;
+      }
+
+      // Check if at least one option is selected
+      const isAnyOptionSelected =
+        Array.isArray(this.optionsToDisplay) && this.optionsToDisplay.some(o => !!o?.selected);
+
+      // Validate that all correct options are selected (use current index + UI snapshot)
+      const idx =
+        typeof this.currentQuestionIndex === 'number'
+          ? this.currentQuestionIndex
+          : (this.quizService?.getCurrentQuestionIndex?.() ?? 0);
+
+      const areAllCorrectSelected =
+        this.selectedOptionService.areAllCorrectAnswersSelectedSync(idx, this.optionsToDisplay);
+
       console.log('[checkIfAnswered] Validation Result:', {
         isAnyOptionSelected,
         areAllCorrectSelected,
+        idx
       });
 
+      // Optional: reflect state into any UI/state services (defensive optional chaining)
+      try { this.quizStateService?.setAnswered?.(isAnyOptionSelected || areAllCorrectSelected); } catch {}
+      try { this.quizStateService?.setAnswerSelected?.(isAnyOptionSelected); } catch {}
+
+      // For single-select, enable Next if something is chosen; for multi-select, require all correct.
+      const enableNext =
+        this.isMultipleAnswer ? areAllCorrectSelected : isAnyOptionSelected;
+
+      try { this.nextButtonStateService?.setNextButtonState?.(enableNext); } catch {}
+
+      // Return result to caller (used by timer logic)
       callback(areAllCorrectSelected);
     } catch (error) {
-      console.error(
-        '[checkIfAnswered] Error checking if all correct answers are selected:',
-        error
-      );
-    
+      console.error('[checkIfAnswered] Error checking if all correct answers are selected:', error);
+      try { this.nextButtonStateService?.setNextButtonState?.(false); } catch {}
       callback(false);  // fallback
     }
   }
+
+  private async resolveInitialQaPayload(): Promise<
+    { question: QuizQuestion; options: Option[]; index: number }
+    | null
+  > {
+    if (
+      this.qaToDisplay?.question?.questionText?.trim() &&
+      Array.isArray(this.qaToDisplay.options) &&
+      this.qaToDisplay.options.length > 0
+    ) {
+      return {
+        question: this.qaToDisplay.question,
+        options: [...this.qaToDisplay.options],
+        index: this.quizService.getCurrentQuestionIndex(),
+      };
+    }
+
+    try {
+      const payload = await firstValueFrom(
+        this.quizStateService.qa$.pipe(
+          filter((qa) =>
+            !!qa?.question?.questionText?.trim() &&
+            Array.isArray(qa.options) &&
+            qa.options.length > 0
+          ),
+          take(1)
+        )
+      );
+
+      if (!payload) {
+        return null;
+      }
+
+      return {
+        question: payload.question,
+        options: [...payload.options],
+        index: payload.index,
+      };
+    } catch (error) {
+      console.warn('[resolveInitialQaPayload] Unable to resolve QA payload:', error);
+      return null;
+    }
+  }
+
+
+
 
   private handleTimer(allCorrectSelected: boolean): void {
     // Stop the timer only after the correct answer(s) have been provided
