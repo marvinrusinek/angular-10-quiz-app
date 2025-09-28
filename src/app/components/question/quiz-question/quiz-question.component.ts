@@ -5874,11 +5874,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ? selectedOptionsChange.currentValue
       : null;
 
-    if (currentQuestionChange && this.currentQuestion) {
-      // If current question has changed and is defined, handle the question change with selected options
-      this.quizService.handleQuestionChange(
-        this.currentQuestion,
-        selectedOptionsValue,
+      if (currentQuestionChange && this.currentQuestion) {
+        // If current question has changed and is defined, handle the question change with selected options
+        this.quizService.handleQuestionChange(
+          this.currentQuestion,
+          selectedOptionsValue,
+          this.options
+        );
+  
+        // Ensure the rendered option list reflects the newly selected question
+        this.refreshOptionsForCurrentQuestion();
+      } else if (selectedOptionsChange) {
+        // Handle only the selected options change if currentQuestion is not defined
+        this.quizService.handleQuestionChange(
+          null,
+          selectedOptionsValue,
         this.options
       );
     } else if (selectedOptionsChange) {
@@ -5892,6 +5902,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
       );
     }
+  }
+
+   // Synchronizes the local option inputs with the currently active question, important for randomization/shuffling
+   private refreshOptionsForCurrentQuestion(): void {
+    if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
+      console.warn('[refreshOptionsForCurrentQuestion] No options found for the current question.');
+      return;
+    }
+
+    const normalizedOptions = this.quizService.assignOptionIds(
+      this.currentQuestion.options.map((option) => ({ ...option }))
+    );
+
+    this.optionsToDisplay = normalizedOptions.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index + 1,
+      selected: false,
+      showIcon: option.showIcon ?? false
+    }));
+
+    // Propagate the updated list through the quiz service so downstream consumers stay in sync.
+    if (this.optionsToDisplay.length > 0) {
+      this.quizService.setOptions(this.optionsToDisplay);
+    }
+
+    this.cdRef.markForCheck();
   }
 
   clearSoundFlagsForCurrentQuestion(index: number): void {
