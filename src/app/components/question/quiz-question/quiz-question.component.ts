@@ -2719,22 +2719,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           return;
         }
 
-        const answerValue = currentQuestion.answer?.[0]?.value;
-        this.correctOptionIndex = options.findIndex(
-          (option) => option.correct === true || option.value === answerValue
-        );
+        const answerValues = (currentQuestion.answer ?? [])
+          .map((answer) => answer?.value)
+          .filter((value): value is Option['value'] => value !== undefined && value !== null);
 
-        this.currentOptions = options.map(
-          (option, index) =>
-            ({
-              text: option.text,
-              correct:
-                option.correct === true || index === this.correctOptionIndex,
-              value: option.value,
-              answer: option.value,
-              selected: false,
-            } as Option)
-        );
+        const resolveCorrect = (option: Option): boolean => {
+          if (option.correct === true) {
+            return true;
+          }
+
+          if (Array.isArray(answerValues) && answerValues.length > 0) {
+            return answerValues.includes(option.value);
+          }
+
+          return false;
+        };
+
+        this.currentOptions = options.map((option) => ({
+          ...option,
+          correct: resolveCorrect(option),
+          selected: false,
+        }));
 
         if (this.shuffleOptions) {
           Utils.shuffleArray(this.currentOptions);
