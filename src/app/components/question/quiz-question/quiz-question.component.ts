@@ -5868,35 +5868,52 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Helper method to handle question and selectedOptions changes
   private handleQuestionAndOptionsChange(
     currentQuestionChange: SimpleChange,
-    selectedOptionsChange: SimpleChange
+    optionsChange: SimpleChange
   ): void {
-    const selectedOptionsValue = selectedOptionsChange
-      ? selectedOptionsChange.currentValue
-      : null;
+    const nextQuestion = (currentQuestionChange
+      ? (currentQuestionChange.currentValue as QuizQuestion)
+      : null) ?? null;
 
-      if (currentQuestionChange && this.currentQuestion) {
-        // If current question has changed and is defined, handle the question change with selected options
-        this.quizService.handleQuestionChange(
-          this.currentQuestion,
-          selectedOptionsValue,
-          this.options
-        );
-  
-        // Ensure the rendered option list reflects the newly selected question
-        this.refreshOptionsForCurrentQuestion();
-      } else if (selectedOptionsChange) {
-        // Handle only the selected options change if currentQuestion is not defined
-        this.quizService.handleQuestionChange(
-          null,
-          selectedOptionsValue,
-        this.options
+    if (nextQuestion) {
+      this.currentQuestion = nextQuestion;
+    }
+
+    const incomingOptions = (optionsChange?.currentValue as Option[]) ??
+      nextQuestion?.options ??
+      currentQuestionChange?.currentValue?.options ??
+      null;
+
+    const effectiveQuestion = nextQuestion ?? this.currentQuestion ?? null;
+    const normalizedOptions = this.refreshOptionsForQuestion(
+      effectiveQuestion,
+      incomingOptions
+    );
+
+    const selectedOptionValues = (effectiveQuestion?.selectedOptions ?? [])
+      .map((opt: any) => {
+        if (opt == null) {
+          return null;
+        }
+
+        if (typeof opt === 'object') {
+          return opt.value ?? opt.optionId ?? opt.text ?? null;
+        }
+
+        return opt;
+      })
+      .filter((value) => value != null);
+
+    if (effectiveQuestion) {
+      this.quizService.handleQuestionChange(
+        effectiveQuestion,
+        selectedOptionValues,
+        normalizedOptions
       );
-    } else if (selectedOptionsChange) {
-      // Handle only the selected options change if currentQuestion is not defined
+    } else if (optionsChange) {
       this.quizService.handleQuestionChange(
         null,
-        selectedOptionsValue,
-        this.options
+        selectedOptionValues,
+        normalizedOptions
       );
       console.warn(
         'QuizQuestionComponent - ngOnChanges - Question is undefined after change.'
@@ -5904,8 +5921,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  // Synchronizes the local option inputs with the currently active question, important for randomization/shuffling
+  private refreshOptionsForQuestion(
+    question: QuizQuestion | null,
+    providedOptions?: Option[] | null
+  ): Option[] {
+    const baseOptions = Array.isArray(providedOptions) && providedOptions.length
+      ? providedOptions
+      : Array.isArray(question?.options)
+        ? question!.options
+        : [];
+
+    if (!baseOptions.length) {
+      console.warn('[refreshOptionsForQuestion] No options found for the current question.');
+      this.optionsToDisplay = [];
+      this.options = [];
+      return [];
+    }
+
+    const normalizedOptions = this.quizService.assignOptionIds(
+      baseOptions.map((option) => ({ ...option }))
+    );
+
+    this.options = normalizedOptions;
+    this.optionsToDisplay = normalizedOptions.map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index + 1,
+      selected: !!option.selected,
+      showIcon: option.showIcon ?? false
+    }));
+
+    // Propagate the updated list through the quiz service so downstream consumers stay in sync.
+    if (this.optionsToDisplay.length > 0) {
+      this.quizService.setOptions(this.optionsToDisplay.map((option) => ({ ...option })));
+    }
+
+    this.cdRef.markForCheck();
+    return normalizedOptions;
+  }
+
    // Synchronizes the local option inputs with the currently active question, important for randomization/shuffling
-   private refreshOptionsForCurrentQuestion(): void {
+   /* private refreshOptionsForCurrentQuestion(): void {
     if (!this.currentQuestion || !Array.isArray(this.currentQuestion.options)) {
       console.warn('[refreshOptionsForCurrentQuestion] No options found for the current question.');
       return;
@@ -5928,7 +5984,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     this.cdRef.markForCheck();
-  }
+  } */
 
   clearSoundFlagsForCurrentQuestion(index: number): void {
     this.soundService.clearPlayedOptionsForQuestion(index);
