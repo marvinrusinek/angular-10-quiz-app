@@ -142,14 +142,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   public localExplanationText = '';
   public showLocalExplanation = false;
 
-  private combinedQuestionDataSubject = new BehaviorSubject<{
-    question: QuizQuestion,
-    options: Option[]
-  } | null>(null);
-  combinedQuestionData$: Observable<{
-    question: QuizQuestion;
-    options: Option[];
-  } | null> = this.combinedQuestionDataSubject.asObservable();
+  private combinedQuestionDataSubject = new BehaviorSubject<QuestionPayload | null>(
+    null
+  );
+  combinedQuestionData$: Observable<QuestionPayload | null> =
+    this.combinedQuestionDataSubject.asObservable();
 
   private correctAnswersTextSource = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
@@ -1751,7 +1748,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         : null,
       Number.isInteger(this.previousIndex)
         ? this.previousIndex
-        : null,
+        : null
     ];
 
     const resolvedIndex = candidateIndices.find(
@@ -1778,7 +1775,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         correct: option.correct ?? false,
         selected: option.selected ?? false,
         active: option.active ?? true,
-        showIcon: option.showIcon ?? false,
+        showIcon: option.showIcon ?? false
       }));
 
     const trimmedQuestionText =
@@ -1789,7 +1786,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.questionData = selectedQuestion;
     this.qaToDisplay = {
       question: selectedQuestion,
-      options: normalizedOptions,
+      options: normalizedOptions
     };
 
     this.questionToDisplay = trimmedQuestionText;
@@ -2693,98 +2690,71 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       options: []
     };
 
-    const createSafeQuestionData = (
-      question: QuizQuestion | null,
-      options: Option[] | null
-    ): { question: QuizQuestion; options: Option[] } => {
-      const safeOptions = Array.isArray(options)
-        ? options.map((option) => ({
-            ...option,
-            correct: option.correct ?? false,
-          }))
-        : [];
-
-      return {
-        question: question ?? fallbackQuestion,
-        options: safeOptions,
-      };
+    const fallbackPayload: QuestionPayload = {
+      question: fallbackQuestion,
+      options: [],
+      explanation: ''
     };
 
-    const safeQuestion$ = this.quizService.nextQuestion$.pipe(
-      tap((val) => console.log('[📤 nextQuestion$ emitted]', val)),
-      map((value) => {
-        if (value === undefined) {
-          console.warn('[⚠️ nextQuestion$ emitted undefined]');
-          return null;
-        }
-        return value;
-      }),
-      distinctUntilChanged()
-    );
-    
-    const safeOptions$ = this.quizService.nextOptions$.pipe(
-      tap((val) => console.log('[📤 nextOptions$ emitted]', val)),
-      map((value) => {
-        if (value === undefined) {
-          console.warn('[⚠️ nextOptions$ emitted undefined]');
-          return [];
-        }
-        return Array.isArray(value)
-          ? value.map((option) => ({
-              ...option,
-              correct: option.correct ?? false,
-            }))
-          : [];
-      }),
-      distinctUntilChanged()
-    );
+    const combinedSub = this.quizService.questionPayload$
+      .pipe(
+        map((payload) => {
+          const baseQuestion = payload?.question ?? fallbackQuestion;
+          const safeOptions = Array.isArray(payload?.options)
+            ? payload.options.map((option) => ({
+                ...option,
+                correct: option.correct ?? false,
+              }))
+            : [];
 
-    const safePreviousQuestion$ = this.quizService.previousQuestion$.pipe(
-      map((value) => {
-        if (value === undefined) {
-          console.warn('[⚠️ previousQuestion$ emitted undefined]');
-          return null;
-        }
-        return value;
-      }),
-      distinctUntilChanged()
-    );
+          const explanation = (
+            payload?.explanation ??
+            baseQuestion.explanation ??
+            ''
+          ).trim();
 
-    const safePreviousOptions$ = this.quizService.previousOptions$.pipe(
-      map((value) => {
-        if (value === undefined) {
-          console.warn('[⚠️ previousOptions$ emitted undefined]');
-          return [];
-        }
-        return Array.isArray(value)
-          ? value.map((option) => ({
-              ...option,
-              correct: option.correct ?? false,
-            }))
-          : [];
-      }),
-      distinctUntilChanged()
-    );
+          const normalizedQuestion: QuizQuestion = {
+            ...baseQuestion,
+            options: safeOptions,
+            explanation,
+          };
 
-    this.combinedQuestionData$ = combineLatest([
-      safeQuestion$,
-      safeOptions$
-    ]).pipe(
-      switchMap(([nextQuestion, nextOptions]) => {
-        const qa = createSafeQuestionData(nextQuestion, nextOptions);
-        
-        console.time('[🚀 Sent QA to QQC]');
-        console.log('[🚀 Sent QA to QQC]', qa);
-    
-        return of(qa);
-      }),
-      tap(data => console.log('[🧪 combinedQuestionData$]', data?.question?.questionText)),
-      catchError((error) => {
-        console.error('[❌ Error in createQuestionData]', error);
-        return of(createSafeQuestionData(null, []));
-      })
-    );    
-  }
+          return {
+            question: normalizedQuestion,
+            options: safeOptions,
+            explanation,
+          } as QuestionPayload;
+        }),
+        catchError((error) => {
+          console.error('[❌ Error in createQuestionData]', error);
+          return of(fallbackPayload);
+        })
+      )
+      .subscribe((payload) => {
+        this.combinedQuestionDataSubject.next(payload);
+
+        this.qaToDisplay = {
+          question: payload.question,
+          options: payload.options,
+        };
+
+        const trimmedQuestionText =
+          payload.question?.questionText?.trim() ?? fallbackQuestion.questionText;
+
+        this.questionToDisplay = trimmedQuestionText;
+        this.questionToDisplaySubject.next(trimmedQuestionText);
+
+        this.explanationToDisplay = payload.explanation ?? '';
+
+        this.question = payload.question;
+        this.currentQuestion = payload.question;
+        this.currentOptions = [...payload.options];
+        this.optionsToDisplay = [...payload.options];
+        this.optionsToDisplay$.next([...payload.options]);
+      });
+
+    this.subscriptions.add(combinedSub);
+  } 
 
   private async getQuestion(): Promise<void | null> {
     try {
