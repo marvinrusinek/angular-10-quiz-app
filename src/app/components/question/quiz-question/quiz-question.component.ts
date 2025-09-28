@@ -53,6 +53,7 @@ export interface FeedbackConfig {
   text?: string  // optional message
 }
 
+
 @Component({
   selector: 'codelab-quiz-question',
   templateUrl: './quiz-question.component.html',
