@@ -87,6 +87,12 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     await this.initializeAnswerConfig();
     this.initializeSharedOptionConfig();
 
+    // Guard against the first render missing its options because the
+    // options stream may not have emitted yet when the template binds.
+    if (this.optionsToDisplay?.length) {
+      this.applyIncomingOptions(this.optionsToDisplay);
+    }
+
     this.quizService.getCurrentQuestion(this.quizService.currentQuestionIndex).subscribe((currentQuestion: QuizQuestion) => {
       const isMultipleAnswer = this.quizQuestionManagerService.isMultipleAnswerQuestion(currentQuestion);
       this.type = isMultipleAnswer ? 'multiple' : 'single';
@@ -198,9 +204,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     const normalized = this.normalizeOptions(options);
     const nextOptions = normalized.map(option => ({ ...option }));
 
-    if (config.resetSelection ?? true) {
-      this.resetSelectionState();
-    }
+    if (config.resetSelection ?? true) this.resetSelectionState();
 
     this.optionsToDisplay = nextOptions;
     this.optionBindingsSource = nextOptions.map(option => ({ ...option }));
