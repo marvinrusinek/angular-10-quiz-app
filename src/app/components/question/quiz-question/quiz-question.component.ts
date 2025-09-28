@@ -2142,6 +2142,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.optionsToDisplay = cloned; // new reference
 
+      this.updateShouldRenderOptions(this.optionsToDisplay);
+
       // Finally update the route index (triggers the key change)
       this.currentQuestionIndex = lockedIndex;
 
