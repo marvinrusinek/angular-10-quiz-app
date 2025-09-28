@@ -1626,11 +1626,15 @@ export class QuizService implements OnDestroy {
     selectedOptions: Array<string | number>,
     options: Option[]
   ): void {
-    const baseOptions = Array.isArray(options) && options.length
-      ? options
-      : Array.isArray(question?.options)
-        ? question!.options
-        : [];
+    const incomingOptions = Array.isArray(options) ? options : [];
+    const questionOptions = Array.isArray(question?.options)
+      ? question!.options
+      : [];
+
+    const baseOptions = this.resolveOptionsForQuestion(
+      questionOptions,
+      incomingOptions
+    );
 
     if (!baseOptions.length) {
       console.warn('[handleQuestionChange] No options available for the active question.');
@@ -1638,26 +1642,95 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    const sanitizedOptions = this.sanitizeOptions(baseOptions);
     const selectedValues = new Set(selectedOptions ?? []);
 
-    const nextOptions = sanitizedOptions.map((option) => {
-      const identifier =
-        option.value ??
-        option.optionId ??
-        option.text;
-    
+    const nextOptions = baseOptions.map((option, index) => {
+      const identifier = this.getOptionIdentifier(option, index);
+
       return {
         ...option,
         selected: selectedValues.has(identifier)
       };
     });
-  
+
     if (question) {
-      this.setCurrentQuestion(question);
+      const nextQuestion: QuizQuestion = {
+        ...question,
+        options: nextOptions
+      };
+
+      this.setCurrentQuestion(nextQuestion);
     }
-  
+
     this.setOptions(nextOptions);
+  }
+
+  private resolveOptionsForQuestion(
+    questionOptions: Option[],
+    incomingOptions: Option[]
+  ): Option[] {
+    const sanitizedQuestionOptions = this.sanitizeOptions(questionOptions ?? []);
+    const sanitizedIncomingOptions = this.sanitizeOptions(incomingOptions ?? []);
+
+    if (!sanitizedQuestionOptions.length && !sanitizedIncomingOptions.length) {
+      return [];
+    }
+
+    if (!sanitizedQuestionOptions.length) {
+      return sanitizedIncomingOptions;
+    }
+
+    if (!sanitizedIncomingOptions.length) {
+      return sanitizedQuestionOptions;
+    }
+
+    if (this.optionsBelongToSameQuestion(sanitizedQuestionOptions, sanitizedIncomingOptions)) {
+      return sanitizedIncomingOptions;
+    }
+
+    return sanitizedQuestionOptions;
+  }
+
+  private optionsBelongToSameQuestion(
+    questionOptions: Option[],
+    incomingOptions: Option[]
+  ): boolean {
+    if (questionOptions.length !== incomingOptions.length) {
+      return false;
+    }
+
+    const questionIdentifiers = questionOptions.map((option, index) =>
+      this.getStableOptionSignature(option, index)
+    );
+
+    const incomingIdentifiers = new Set(
+      incomingOptions.map((option, index) => this.getStableOptionSignature(option, index))
+    );
+
+    return questionIdentifiers.every((identifier) => incomingIdentifiers.has(identifier));
+  }
+
+  private getOptionIdentifier(option: Option, fallbackIndex: number): string | number {
+    if (option == null) {
+      return fallbackIndex;
+    }
+
+    if (option.value != null) {
+      return option.value;
+    }
+
+    if (Number.isInteger(option.optionId)) {
+      return option.optionId as number;
+    }
+
+    return option.text ?? fallbackIndex;
+  }
+
+  private getStableOptionSignature(option: Option, index: number): string {
+    const identifier = this.getOptionIdentifier(option, index);
+    const normalizedText = (option?.text ?? '').trim().toLowerCase();
+
+    return `${identifier}::${normalizedText}`;
   }
 
   validateAnswers(currentQuestionValue: QuizQuestion, answers: any[]): boolean {
