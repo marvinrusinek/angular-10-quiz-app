@@ -155,7 +155,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     }
 
     // Extra logging
-    if (changes.questionData) {
+    if (changes['questionData']) {
       console.log(
         'AnswerComponent - questionData changed:',
         changes.questionData.currentValue
