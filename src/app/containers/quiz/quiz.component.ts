@@ -3477,7 +3477,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       text: option.text ?? 'N/A',
       isCorrect: option.correct ?? false,
       answer: option.answer ?? null,
-      isSelected: false  // always default to unselected
+      isSelected: false,  // always default to unselected
+      displayOrder: option.displayOrder ?? null
     })) as Option[];
 
     if (
@@ -3487,6 +3488,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     ) {
       Utils.shuffleArray(this.options);
     }
+
+    this.options = this.options.map((option, index) => ({
+      ...option,
+      displayOrder: index
+    }));
 
     this.quizService.setOptions(this.options);
   }
