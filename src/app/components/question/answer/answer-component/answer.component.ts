@@ -121,29 +121,36 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // let BaseQuestionComponent do its work first
     await super.ngOnChanges?.(changes);
+
+    let shouldMark = false;
   
     if (changes['optionsToDisplay']) {
+      const change = changes['optionsToDisplay'];
       const next: Option[] = changes['optionsToDisplay'].currentValue;
   
-      if (Array.isArray(next) && next.length) {
-        console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
-  
-        // hand SharedOptionComponent its own fresh reference
-        this.optionBindingsSource = next.map(o => ({ ...o }));
-  
-        // respond to updates
-        this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);
-  
-        // apply any additional incoming option updates
-        this.applyIncomingOptions(next);
-  
-        // Wake the OnPush CD cycle
-        this.cdRef.markForCheck();
+      // If the reference didn't change, skip the work
+      if (change.previousValue !== change.currentValue) {
+        if (Array.isArray(next) && next.length) {
+          console.log('[📥 AnswerComponent] optionsToDisplay changed:', change);
+    
+          // hand SharedOptionComponent its own fresh reference
+          this.optionBindingsSource = next.map(o => ({ ...o }));
+    
+          // respond to updates
+          this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);
+    
+          // apply any additional incoming option updates
+          this.applyIncomingOptions(next);
+    
+          // Wake the OnPush CD cycle
+          this.cdRef.markForCheck();
+        } else {
+          this.optionBindingsSource = [];
+          this.optionBindings = [];
+          this.applyIncomingOptions?.([]); 
+        }
       } else {
-        this.optionBindingsSource = [];
-        this.optionBindings = [];
-        this.applyIncomingOptions?.([]);
-        this.cdRef.markForCheck();
+        shouldMark = true;
       }
     }
 
