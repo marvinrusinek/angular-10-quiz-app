@@ -1776,10 +1776,7 @@ export class QuizService implements OnDestroy {
     }
 
     const correctCount = options.filter((option) => option.correct).length;
-
-    if (!correctCount) {
-      return '';
-    }
+    if (!correctCount) return '';
 
     return correctCount === 1
       ? '1 correct answer'
