@@ -6365,6 +6365,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private applyDisplayOrder(options: Option[] | null | undefined): Option[] {
+    if (!Array.isArray(options)) {
+      return [];
+    }
+
+    return options.map((option, index) => ({
+      ...option,
+      displayOrder: index
+    }));
+  }
+
   // Centralized, reasoned stop. Only stops when allowed.
   private safeStopTimer(reason: 'completed' | 'timeout' | 'navigate'): void {
     if (this._timerStoppedForQuestion) return;
