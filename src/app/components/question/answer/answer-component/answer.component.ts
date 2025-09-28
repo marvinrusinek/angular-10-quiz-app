@@ -116,16 +116,17 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     // Let BaseQuestionComponent do its work first
-    await super.ngOnChanges?.(changes);
+    await super.ngOnChanges?.(changes as any);
 
     let shouldMark = false;
   
     if (changes['optionsToDisplay']) {
       const change = changes['optionsToDisplay'];
-      const next: Option[] = changes['optionsToDisplay'].currentValue;
+      const next = change.currentValue as Option[] | null | undefined;
+      const refChanged = change.previousValue !== change.currentValue;
   
       // If the reference didn't change, skip the work
-      if (change.previousValue !== change.currentValue) {
+      if (refChanged) {
         if (Array.isArray(next) && next.length) {
           console.log('[📥 AnswerComponent] optionsToDisplay changed:', change);
     
@@ -152,10 +153,8 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
     // Extra logging
     if (changes['questionData']) {
-      console.log(
-        'AnswerComponent - questionData changed:',
-        changes.questionData.currentValue
-      );
+      console.log('AnswerComponent - questionData changed:', changes['questionData'].currentValue);
+      shouldMark = true;
     }
 
     // Wake the OnPush CD cycle once
