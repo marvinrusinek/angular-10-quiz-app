@@ -2620,6 +2620,12 @@ export class QuizService implements OnDestroy {
     return !!this.quizId;
   }
 
+  // Apply a shuffle order (array of source indexes) without touching optionId.
+  applyOptionOrder(options: Option[], order: number[]): Option[] {
+    const out = order.map(i => options[i]);
+    return out.map((o, i) => ({ ...o, displayOrder: i }));
+  }
+
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
   assignOptionIds(options: Option[]): Option[] {
     if (!Array.isArray(options)) {
