@@ -1635,72 +1635,96 @@ export class QuizService implements OnDestroy {
     selectedOptions: Array<string | number>,
     options: Option[]
   ): void {
-    const incomingOptions = Array.isArray(options) ? options : [];
     const questionOptions = Array.isArray(question?.options)
-      ? question!.options
+      ? ((question?.options as Option[]) ?? [])
       : [];
+    const incomingOptions = Array.isArray(options) ? options : [];
 
-    const previousQuestion = this.currentQuestion.getValue();
+    const resolvedOptions = questionOptions.length
+      ? questionOptions
+      : incomingOptions;
 
-    const baseOptions = this.resolveOptionsForQuestion(
-      questionOptions,
-      incomingOptions,
-      question?.questionText ?? null,
-      previousQuestion?.questionText ?? null
-    );
+    const sanitizedOptions = this.sanitizeOptions(resolvedOptions ?? []);
 
-    if (!baseOptions.length) {
+    if (!sanitizedOptions.length) {
       console.warn('[handleQuestionChange] No options available for the active question.');
-      this.optionsSubject.next([]);
       this.currentOptionsSubject.next([]);
       this.nextOptionsSource.next([]);
       this.nextOptionsSubject.next([]);
+      this.optionsSubject.next([]);
+      if (question) {
+        this.nextQuestionSource.next(question);
+        this.nextQuestionSubject.next(question);
+        this.data.questionText = question.questionText ?? '';
+      } else {
+        this.nextQuestionSource.next(null);
+        this.nextQuestionSubject.next(null);
+        this.data.questionText = '';
+      }
+      this.data.currentOptions = [];
+      this.data.correctAnswersText = '';
       return;
     }
 
-    const selectedValues = new Set(selectedOptions ?? []);
-    const hasExplicitSelection = selectedValues.size > 0;
+    const explicitSelections = Array.isArray(selectedOptions)
+      ? selectedOptions
+      : [];
+    const selectedTokens = new Set(
+      explicitSelections
+        .filter((value) => value !== null && value !== undefined)
+        .map((value) => String(value))
+    );
+    const hasExplicitSelections = selectedTokens.size > 0;
 
-    const nextOptions = baseOptions.map((option, index) => {
-      const identifier = this.getOptionIdentifier(option, index);
-      const shouldSelect = hasExplicitSelection
-        ? selectedValues.has(identifier)
+    const normalizedOptions = sanitizedOptions.map((option, index) => {
+      const key = this.getSelectionKey(option, index);
+      const token = key != null ? String(key) : '';
+      const isSelected = hasExplicitSelections
+        ? selectedTokens.has(token)
         : option.selected === true;
 
       return {
         ...option,
-        selected: shouldSelect
+        selected: isSelected,
+        highlight: isSelected ? true : option.highlight ?? false,
+        active: isSelected ? true : option.active ?? false
       };
     });
 
     if (question) {
       const nextQuestion: QuizQuestion = {
         ...question,
-        options: nextOptions
+        options: normalizedOptions
       };
 
       this.currentQuestion.next(nextQuestion);
       this.currentQuestionSource.next(nextQuestion);
       this.currentQuestionSubject.next(nextQuestion);
       this.nextQuestionSource.next(nextQuestion);
-      this.nextOptionsSource.next(nextOptions);
-      this.emitQuestionAndOptions(nextQuestion, nextOptions);
+      this.nextOptionsSource.next(normalizedOptions);
+      this.emitQuestionAndOptions(nextQuestion, normalizedOptions);
 
       this.data.questionText = nextQuestion.questionText ?? '';
-      this.data.currentOptions = nextOptions;
+      this.data.currentOptions = normalizedOptions;
       this.data.correctAnswersText = this.buildCorrectAnswerCountLabel(
         nextQuestion,
-        nextOptions
+        normalizedOptions
       );
     } else {
       this.nextQuestionSource.next(null);
       this.nextQuestionSubject.next(null);
       this.nextOptionsSource.next([]);
       this.nextOptionsSubject.next([]);
+      this.data.questionText = '';
+      this.data.currentOptions = normalizedOptions;
+      this.data.correctAnswersText = '';
     }
 
-    this.currentOptionsSubject.next(nextOptions);
-    this.setOptions(nextOptions);
+    this.currentOptionsSubject.next(normalizedOptions);
+
+    if (normalizedOptions.length) {
+      this.setOptions(normalizedOptions);
+    }
   }
 
   private resolveOptionsForQuestion(
