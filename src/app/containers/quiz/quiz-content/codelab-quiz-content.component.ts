@@ -755,7 +755,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-  private combineCurrentQuestionAndOptions(): 
+  /* private combineCurrentQuestionAndOptions(): 
     Observable<{ currentQuestion: QuizQuestion | null, currentOptions: Option[] }> {
     return combineLatest([
       this.quizService.nextQuestion$,
@@ -770,6 +770,85 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of({ currentQuestion: null, currentOptions: [] });
       })
     );
+  } */
+  private combineCurrentQuestionAndOptions():
+    Observable<{ currentQuestion: QuizQuestion | null; currentOptions: Option[]; explanation: string }> {
+    return this.quizService.questionPayload$.pipe(
+      filter((payload: QuestionPayload | null): payload is QuestionPayload => {
+        return (
+          !!payload &&
+          !!payload.question &&
+          Array.isArray(payload.options) &&
+          payload.options.length > 0
+        );
+      }),
+      map((payload) => {
+        const normalizedOptions = payload.options
+          .map((option, index) => ({
+            ...option,
+            optionId: typeof option.optionId === 'number' ? option.optionId : index + 1,
+            displayOrder:
+              typeof option.displayOrder === 'number' ? option.displayOrder : index,
+          }))
+          .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+        const normalizedQuestion: QuizQuestion = {
+          ...payload.question,
+          options: normalizedOptions
+        };
+
+        return {
+          currentQuestion: normalizedQuestion,
+          currentOptions: normalizedOptions,
+          explanation:
+            payload.explanation?.trim() ||
+            payload.question.explanation?.trim() ||
+            ''
+        };
+      }),
+      distinctUntilChanged((prev, curr) => {
+        if (prev.currentQuestion?.questionId !== curr.currentQuestion?.questionId) {
+          return false;
+        }
+
+        if (prev.explanation !== curr.explanation) {
+          return false;
+        }
+
+        return this.haveSameOptionOrder(prev.currentOptions, curr.currentOptions);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      catchError((error) => {
+        console.error('Error in combineCurrentQuestionAndOptions:', error);
+        return of({ currentQuestion: null, currentOptions: [], explanation: '' });
+      })
+    );
+  }
+
+  private haveSameOptionOrder(left: Option[] = [], right: Option[] = []): boolean {
+    if (!Array.isArray(left) || !Array.isArray(right)) {
+      return false;
+    }
+
+    if (left.length !== right.length) {
+      return false;
+    }
+
+    return left.every((option, index) => {
+      const other = right[index];
+      if (!other) {
+        return false;
+      }
+
+      const optionText = (option.text ?? option.answerText ?? '').toString();
+      const otherText = (other.text ?? other.answerText ?? '').toString();
+
+      return (
+        option.optionId === other.optionId &&
+        option.displayOrder === other.displayOrder &&
+        optionText === otherText
+      );
+    });
   }
 
   private calculateCombinedQuestionData(
