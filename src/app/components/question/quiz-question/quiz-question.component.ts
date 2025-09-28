@@ -428,6 +428,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.currentQuestion = payload.question;
           this.optionsToDisplay = payload.options;
           this.explanationToDisplay = payload.explanation ?? '';
+          this.updateShouldRenderOptions(this.optionsToDisplay);
         }),
         tap(() => console.timeEnd('🕒 QQC render'))
       )
