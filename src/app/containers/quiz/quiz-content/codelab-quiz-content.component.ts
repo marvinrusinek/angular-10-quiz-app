@@ -840,8 +840,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return false;
       }
 
-      const optionText = (option.text ?? option.answerText ?? '').toString();
-      const otherText = (other.text ?? other.answerText ?? '').toString();
+      const optionText = (option.text ?? option.text ?? '').toString();
+      const otherText = (other.text ?? other.text ?? '').toString();
 
       return (
         option.optionId === other.optionId &&
