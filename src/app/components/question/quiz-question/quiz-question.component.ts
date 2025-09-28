@@ -2737,15 +2737,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           return false;
         };
 
-        this.currentOptions = options.map((option) => ({
+        this.currentOptions = options.map((option, index) => ({
           ...option,
           correct: resolveCorrect(option),
           selected: false,
+          displayOrder: index
         }));
 
         if (this.shuffleOptions) {
           Utils.shuffleArray(this.currentOptions);
         }
+
+        this.currentOptions = this.applyDisplayOrder(this.currentOptions);
+        this.optionsToDisplay = this.currentOptions.map((option) => ({ ...option }));
+        this.updateShouldRenderOptions(this.optionsToDisplay);
+        this.quizService.nextOptionsSubject.next(
+          this.optionsToDisplay.map((option) => ({ ...option }))
+        );
+        this.cdRef.markForCheck();
       });
   }
 
