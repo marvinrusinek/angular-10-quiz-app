@@ -1962,18 +1962,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.log('[🔁 Bound onOptionClicked to instance]');
       }
 
-      const isReady =
-        Array.isArray(instance.optionBindings) &&
-        instance.optionBindings.length > 0 &&
-        Array.isArray(instance.optionsToDisplay) &&
-        instance.optionsToDisplay.length > 0 &&
-        !!instance.sharedOptionConfig;
+      const hasRenderableOptions = Array.isArray(instance.optionsToDisplay)
+        && instance.optionsToDisplay.length > 0;
 
-      if (isReady) {
+      if (hasRenderableOptions) {
         this.shouldRenderOptions = true;
         this._canRenderFinalOptions = true;
       } else {
-        console.warn('[⚠️ Skipping render — not fully ready]', {
+        console.warn('[⚠️ Skipping render — options not ready]', {
           optionBindings: instance.optionBindings?.length,
           options: instance.optionsToDisplay?.length,
           config: !!instance.sharedOptionConfig,
