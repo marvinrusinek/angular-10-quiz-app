@@ -799,7 +799,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged((prev, curr) => {
         const norm = (s?: string) =>
           (s ?? '')
-            .replace(/<[^>]*>/g, ' ')     // strip HTML
+            .replace(/<[^>]*>/g, ' ')  // strip HTML
             .replace(/&nbsp;/g, ' ')
             .trim()
             .toLowerCase()
