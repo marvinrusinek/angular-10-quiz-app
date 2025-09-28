@@ -98,13 +98,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
       .subscribe((opts: Option[]) => {
         console.time('[📥 AnswerComponent optionsStream$]');
 
-        // Deep clone incoming options
-        const cloned = structuredClone(opts);
-        const normalized = cloned.map((option, index) => ({
-          ...option,
-          optionId: option.optionId ?? index
-        }));
-        this.incomingOptions = normalized;
+        this.incomingOptions = this.normalizeOptions(structuredClone(opts));
 
         //  Clear prior icons and bindings (clean slate)
         this.optionBindings = [];
@@ -112,33 +106,13 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
 
         // Defer rebuild and update bindings
         Promise.resolve().then(() => {
-          // Reset selection-specific state whenever a fresh option set arrives
-          this.selectedOption = null;
-          this.selectedOptions = [];
-          this.selectedOptionIndex = -1;
-          this.showFeedbackForOption = {};
-          this.selectedOptionService.clearSelectedOption();
+          this.resetSelectionState();
 
           // Bump version to force view updates that rely on questionVersion keys
           this.questionVersion++;
 
-          // Ensure the template (and nested shared option component) receives the
-          // latest shuffled options reference
-          const nextOptions = normalized.map(option => ({ ...option }));
-          this.optionsToDisplay = nextOptions;
-          this.optionBindingsSource = nextOptions.map(option => ({ ...option }));
+          this.applyIncomingOptions(this.incomingOptions, { resetSelection: false });
 
-          // Keep the shared config in sync so downstream bindings see the same options
-          if (this.sharedOptionConfig) {
-            this.sharedOptionConfig = {
-              ...this.sharedOptionConfig,
-              optionsToDisplay: nextOptions.map(option => ({ ...option }))
-            };
-          }
-
-          this.rebuildOptionBindings(this.optionBindingsSource);  // rebuild and assign
-          this.renderReady = true;
-          this.cdRef.markForCheck(); // trigger OnPush
           console.timeEnd('[📥 AnswerComponent optionsStream$]');
         });
       });
@@ -154,7 +128,7 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
     console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
   
     // Parent just handed us a new optionsToDisplay reference
-    if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
+    /* if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
       console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
       // hand SharedOptionComponent its own fresh reference
       this.optionBindingsSource = this.optionsToDisplay.map(o => ({ ...o }));
@@ -162,6 +136,10 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   
       // Wake the OnPush CD cycle
       this.cdRef.markForCheck();
+    } */
+    if (changes['optionsToDisplay'] && this.optionsToDisplay?.length) {
+      console.log('[📥 AnswerComponent] optionsToDisplay changed:', changes['optionsToDisplay']);
+      this.applyIncomingOptions(this.optionsToDisplay);
     }
   
     // Extra logging
@@ -190,6 +168,44 @@ export class AnswerComponent extends BaseQuestionComponent implements OnInit, On
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private resetSelectionState(): void {
+    this.selectedOption = null;
+    this.selectedOptions = [];
+    this.selectedOptionIndex = -1;
+    this.showFeedbackForOption = {};
+    this.selectedOptionService.clearSelectedOption();
+  }
+
+  private normalizeOptions(options: Option[]): Option[] {
+    return (options ?? []).map((option, index) => ({
+      ...option,
+      optionId: option.optionId ?? index
+    }));
+  }
+
+  private applyIncomingOptions(options: Option[], config: { resetSelection?: boolean } = {}): void {
+    const normalized = this.normalizeOptions(options);
+    const nextOptions = normalized.map(option => ({ ...option }));
+
+    if (config.resetSelection ?? true) {
+      this.resetSelectionState();
+    }
+
+    this.optionsToDisplay = nextOptions;
+    this.optionBindingsSource = nextOptions.map(option => ({ ...option }));
+
+    if (this.sharedOptionConfig) {
+      this.sharedOptionConfig = {
+        ...this.sharedOptionConfig,
+        optionsToDisplay: nextOptions.map(option => ({ ...option }))
+      };
+    }
+
+    this.optionBindings = this.rebuildOptionBindings(this.optionBindingsSource);
+    this.renderReady = true;
+    this.cdRef.markForCheck();
   }
 
   private handleViewContainerRef(): void {
