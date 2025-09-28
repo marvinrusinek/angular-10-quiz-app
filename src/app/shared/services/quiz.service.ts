@@ -23,6 +23,7 @@ import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.mod
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
 
+
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
   currentQuestionIndex = 0;
