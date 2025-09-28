@@ -49,6 +49,7 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
 
+
 export interface LoadedQuestionData {
   question: QuizQuestion;
   options: Option[];
