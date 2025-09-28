@@ -2789,21 +2789,26 @@ export class QuizService implements OnDestroy {
     }
   }
 
-
   emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
     if (!currentQuestion || !options?.length) {
       console.warn('[emitQuestionAndOptions] Missing or empty data to emit.');
       return;
     }
-  
+
+    const normalizedOptions = this.normalizeOptionDisplayOrder(options);
+
+    if (currentQuestion.options !== normalizedOptions) {
+      currentQuestion.options = normalizedOptions;
+    }
+
     // Emit to individual subjects
     this.nextQuestionSubject.next(currentQuestion);
-    this.nextOptionsSubject.next(options);
-  
+    this.nextOptionsSubject.next(normalizedOptions);
+
     // Emit the combined payload
     this.questionPayloadSubject.next({
       question: currentQuestion,
-      options,
+      options: normalizedOptions,
       explanation: currentQuestion.explanation ?? ''
     });
   
