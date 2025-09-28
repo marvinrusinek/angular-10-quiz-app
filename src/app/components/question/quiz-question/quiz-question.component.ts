@@ -2697,39 +2697,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   setQuestionOptions(): void {
-    this.selectedQuiz
-      .pipe(
-        take(1),
-        filter((quiz) => !!quiz),
-        map((quiz) => quiz.questions[this.currentQuestionIndex])
-      )
-      .subscribe((currentQuestion: QuizQuestion) => {
+    this.quizService
+      .getQuestionByIndex(this.currentQuestionIndex)
+      .pipe(take(1))
+      .subscribe((currentQuestion: QuizQuestion | null) => {
         if (!currentQuestion) {
-          console.error('Question not found');
+          console.error(
+            `[QuizQuestionComponent] Question not found for index ${this.currentQuestionIndex}`
+          );
           return;
         }
 
         this.currentQuestion = currentQuestion;
-        this.currentOptions = currentQuestion.options;
+        const options = currentQuestion.options ?? [];
 
-        const { options, answer } = currentQuestion;
-        const answerValue = answer?.values().next().value;
+        if (!Array.isArray(options) || options.length === 0) {
+          console.error(
+            `[QuizQuestionComponent] No options available for question index ${this.currentQuestionIndex}`
+          );
+          this.currentOptions = [];
+          return;
+        }
+
+        const answerValue = currentQuestion.answer?.[0]?.value;
         this.correctOptionIndex = options.findIndex(
-          (option) => option.value === answerValue
+          (option) => option.correct === true || option.value === answerValue
         );
 
         this.currentOptions = options.map(
           (option, index) =>
             ({
               text: option.text,
-              correct: index === this.correctOptionIndex,
+              correct:
+                option.correct === true || index === this.correctOptionIndex,
               value: option.value,
               answer: option.value,
               selected: false,
             } as Option)
         );
 
-        // Shuffle options only if the shuffleOptions boolean is true
         if (this.shuffleOptions) {
           Utils.shuffleArray(this.currentOptions);
         }
