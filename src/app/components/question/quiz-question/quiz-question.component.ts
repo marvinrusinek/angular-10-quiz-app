@@ -2130,6 +2130,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         selected: false,
       }));
 
+      this.updateShouldRenderOptions(this.optionsToDisplay);
+
       this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
 
       // Hand a brand-new array & bindings to the child
