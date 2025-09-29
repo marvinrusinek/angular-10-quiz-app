@@ -354,23 +354,38 @@ export class QuizDataService implements OnDestroy {
           return null;
         }
 
-        const sanitizeOptions = (options: Option[] = []): Option[] =>
-          this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
-            ...option,
-            correct: option.correct === true,
-            selected: option.selected === true,
-            highlight: option.highlight ?? false,
-            showIcon: option.showIcon ?? false
-          }));
+        const baseClone = this.cloneQuestions([baseQuestion])[0];
+        if (!baseClone) {
+          console.error(`Unable to clone question at index ${questionIndex}`);
+          return null;
+        }
 
-        const sanitizedOptions = sanitizeOptions(baseQuestion.options ?? []);
+        if (!this.quizService.isShuffleEnabled()) {
+          const options = Array.isArray(baseClone.options)
+            ? baseClone.options.map(option => ({ ...option }))
+            : [];
+
+          if (options.length === 0) {
+            console.warn(`No options found for question at index ${questionIndex}`);
+          }
+
+          return [
+            {
+              ...baseClone,
+              options
+            },
+            options.map(option => ({ ...option }))
+          ] as [QuizQuestion, Option[]];
+        }
+
+        const sanitizedOptions = this.sanitizeOptions(baseClone.options ?? []);
         const alignedAnswers = this.quizShuffleService.alignAnswersWithOptions(
-          baseQuestion.answer,
+          baseClone.answer,
           sanitizedOptions
         );
 
         const preparedQuestion: QuizQuestion = {
-          ...baseQuestion,
+          ...baseClone,
           options: sanitizedOptions.map(option => ({ ...option })),
           answer: alignedAnswers
         };
