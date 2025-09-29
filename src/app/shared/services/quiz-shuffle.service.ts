@@ -37,23 +37,36 @@ export class QuizShuffleService {
       return [];
     }
 
+    const normalizeForDisplay = (opts: Option[]): Option[] =>
+      opts.map((option, index) => ({
+        ...option,
+        optionId: index + 1,
+        displayOrder: index,
+        value:
+          option.value ??
+          option.optionId ??
+          (typeof option.text === 'string' && option.text.trim().length > 0
+            ? option.text
+            : index + 1)
+      }));
+
     if (!Array.isArray(order) || order.length !== options.length) {
-      return options.map((option, index) => ({ ...option, displayOrder: index }));
+      return normalizeForDisplay(options.map((option) => ({ ...option })));
     }
 
     const reordered = order
-      .map((sourceIndex, displayIndex) => {
+      .map((sourceIndex) => {
         const option = options[sourceIndex];
         if (!option) return null;
-        return { ...option, displayOrder: displayIndex } as Option;
+        return { ...option } as Option;
       })
       .filter((option): option is Option => option !== null);
 
     if (reordered.length !== options.length) {
-      return options.map((option, index) => ({ ...option, displayOrder: index }));
+      return normalizeForDisplay(options.map((option) => ({ ...option })));
     }
 
-    return reordered;
+    return normalizeForDisplay(reordered);
   }
 
   // Make optionId numeric & stable; idempotent. Prefer 1-based ids for compatibility
