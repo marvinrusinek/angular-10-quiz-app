@@ -369,6 +369,7 @@ export class QuizDataService implements OnDestroy {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         const cachedQuestions = this.quizQuestionCache.get(quizId);
+        const shouldShuffle = this.quizService.isShuffleEnabled();
         let questionsToUse: QuizQuestion[] = [];
 
         if (Array.isArray(cachedQuestions) && cachedQuestions.length > 0) {
@@ -389,7 +390,11 @@ export class QuizDataService implements OnDestroy {
           return null;
         }
 
-        const normalizedQuestion = this.normalizeQuestion(question);
+        // Avoid repeatedly re-sanitizing the same question when shuffling is disabled.
+        const normalizedQuestion = shouldShuffle
+          ? this.normalizeQuestion(question)
+          : this.cloneQuestions([question])[0] ?? this.normalizeQuestion(question);
+        
         const options = normalizedQuestion.options ?? [];
 
         if (options.length === 0) {
