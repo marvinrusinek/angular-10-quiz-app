@@ -23,6 +23,7 @@ export class QuizDataService implements OnDestroy {
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   quizzes$ = this.quizzesSubject.asObservable();
   private quizzes: Quiz[] = [];
+  private readonly baseQuizQuestionCache = new Map<string, QuizQuestion[]>();
   private readonly quizQuestionCache = new Map<string, QuizQuestion[]>();
 
   selectedQuiz$: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
