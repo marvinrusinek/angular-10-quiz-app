@@ -216,10 +216,25 @@ export class QuizDataService implements OnDestroy {
    * Reuses any cached clone for the quiz and re-applies it to the quiz service
    * so downstream consumers receive a consistent question set.
    */
-  prepareQuizSession(quizId: string): Observable<QuizQuestion[]> {
+   prepareQuizSession(quizId: string): Observable<QuizQuestion[]> {
     if (!quizId) {
       console.error('[prepareQuizSession] quizId is required.');
       return of([]);
+    }
+
+    const shouldShuffle = this.quizService.isShuffleEnabled();
+    const baseQuestions = this.baseQuizQuestionCache.get(quizId);
+
+    if (shouldShuffle && Array.isArray(baseQuestions) && baseQuestions.length > 0) {
+      const prepared = this.buildSessionQuestions(quizId, baseQuestions);
+      const sessionReadyQuestions = this.cloneQuestions(prepared);
+      const cacheReadyQuestions = this.cloneQuestions(prepared);
+
+      this.quizQuestionCache.set(quizId, cacheReadyQuestions);
+      this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
+      this.syncSelectedQuizState(quizId, sessionReadyQuestions);
+
+      return of(this.cloneQuestions(sessionReadyQuestions));
     }
 
     const cached = this.quizQuestionCache.get(quizId);
@@ -236,6 +251,61 @@ export class QuizDataService implements OnDestroy {
         return of([]);
       })
     );
+  }
+
+  private createBaseQuestions(quiz: Quiz): QuizQuestion[] {
+    const questions = Array.isArray(quiz?.questions) ? quiz.questions : [];
+    if (!questions.length) {
+      return [];
+    }
+
+    return questions.map((question) => this.normalizeQuestion(question));
+  }
+
+  private buildSessionQuestions(
+    quizId: string,
+    baseQuestions: QuizQuestion[]
+  ): QuizQuestion[] {
+    if (!Array.isArray(baseQuestions) || baseQuestions.length === 0) {
+      return [];
+    }
+
+    const workingSet = this.cloneQuestions(baseQuestions);
+
+    if (this.quizService.isShuffleEnabled()) {
+      this.quizShuffleService.prepareShuffle(quizId, workingSet);
+    } else {
+      this.quizShuffleService.clear(quizId);
+    }
+
+    const prepared = this.quizShuffleService.buildShuffledQuestions(quizId, workingSet);
+
+    return prepared.map((question) => this.normalizeQuestion(question));
+  }
+
+  private normalizeQuestion(question: QuizQuestion): QuizQuestion {
+    const sanitizedOptions = this.sanitizeOptions(question.options ?? []);
+    const alignedAnswers = this.quizShuffleService.alignAnswersWithOptions(
+      question.answer,
+      sanitizedOptions
+    );
+
+    return {
+      ...question,
+      options: sanitizedOptions.map((option) => ({ ...option })),
+      answer: alignedAnswers.map((option) => ({ ...option })),
+      selectedOptions: undefined
+    };
+  }
+
+  private sanitizeOptions(options: Option[] = []): Option[] {
+    return this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
+      ...option,
+      correct: option.correct === true,
+      selected: option.selected === true,
+      highlight: option.highlight ?? false,
+      showIcon: option.showIcon ?? false
+    }));
   }
 
   private cloneQuestions(questions: QuizQuestion[] = []): QuizQuestion[] {
