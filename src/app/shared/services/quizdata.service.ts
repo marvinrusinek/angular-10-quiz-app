@@ -303,16 +303,32 @@ export class QuizDataService implements OnDestroy {
   }
 
   private sanitizeOptions(options: Option[] = []): Option[] {
+    // ensure numeric IDs (idempotent)
     const withIds = this.quizShuffleService.assignOptionIds(options, 1);
-    return withIds.map((option, index) => ({
-      ...option,
-      value: option.value ?? option.text ?? (index + 1),
-      correct: option.correct === true,
-      selected: option.selected === true,
-      highlight: option.highlight ?? false,
-      showIcon: option.showIcon ?? false
-    }));
-  }
+  
+    const toNum = (v: unknown): number | null => {
+      if (typeof v === 'number' && Number.isFinite(v)) return v;
+      const n = Number(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
+  
+    return withIds.map((option, index): Option => {
+      // keep value strictly numeric per Option type
+      const numericValue =
+        toNum(option.value) ??
+        toNum((option as any).text) ??  // in case text is "3"
+        (index + 1);
+  
+      return {
+        ...option,
+        value: numericValue,
+        correct: option.correct === true,
+        selected: option.selected === true,
+        highlight: option.highlight ?? false,
+        showIcon: option.showIcon ?? false,
+      };
+    });
+  }  
 
   private normalizeQuestion(question: QuizQuestion): QuizQuestion {
     const sanitizedOptions = this.sanitizeOptions(question.options ?? []);
