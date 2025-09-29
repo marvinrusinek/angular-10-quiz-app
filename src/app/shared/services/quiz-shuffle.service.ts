@@ -84,9 +84,25 @@ export class QuizShuffleService {
     // Ensure numeric, stable optionId before reordering
     const normalizedOpts = this.assignOptionIds(src.options ?? [], 0);
     const order = state.optionOrder.get(origIdx) ?? [];
-    const reordered = order.map(i => ({ ...normalizedOpts[i], /* displayOrder: i */ }));
 
-    return { ...src, options: reordered };
+    if (!order.length) {
+      // No saved option ordering – fall back to the normalised options
+      return { ...src, options: normalizedOpts.map(opt => ({ ...opt })) };
+    }
+
+    const reordered = order
+      .map((i, displayOrder) => {
+        const option = normalizedOpts[i];
+        return option ? { ...option, displayOrder } : null;
+      })
+      .filter((option): option is Option => option !== null);
+
+    // If we somehow lost options (e.g. stale order), fall back to normalized list
+    const safeOptions = reordered.length === normalizedOpts.length
+      ? reordered
+      : normalizedOpts.map(opt => ({ ...opt }));
+
+    return { ...src, options: safeOptions };
   }
 
   // Persist/recover between reloads. Keep versions simple.
