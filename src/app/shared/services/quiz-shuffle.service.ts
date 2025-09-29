@@ -118,27 +118,55 @@ export class QuizShuffleService {
     if (!src) return null;
 
     // Ensure numeric, stable optionId before reordering
-    const normalizedOpts = this.assignOptionIds(src.options ?? [], 0);
-    const order = state.optionOrder.get(origIdx) ?? [];
+    const normalizedOpts = this.cloneAndNormalizeOptions(src.options ?? []);
+    const order = state.optionOrder.get(origIdx);
+    const safeOptions = this.reorderOptions(normalizedOpts, order);
 
-    if (!order.length) {
-      // No saved option ordering – fall back to the normalised options
-      return { ...src, options: normalizedOpts.map(opt => ({ ...opt })) };
+    return { ...src, options: safeOptions.map(option => ({ ...option })) };
+  }
+
+  public buildShuffledQuestions(
+    quizId: string,
+    questions: QuizQuestion[]
+  ): QuizQuestion[] {
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return [];
     }
 
-    const reordered = order
-      .map((i, displayOrder) => {
-        const option = normalizedOpts[i];
-        return option ? ({ ...option, displayOrder } as Option & { displayOrder: number }) : null;
+    const state = this.shuffleByQuizId.get(quizId);
+    if (!state) {
+      return questions.map((question) => ({
+        ...question,
+        options: this.cloneAndNormalizeOptions(question.options ?? [])
+      }));
+    }
+
+    const displaySet = state.questionOrder
+      .map((originalIndex) => {
+        const source = questions[originalIndex];
+        if (!source) return null;
+
+        const normalizedOptions = this.cloneAndNormalizeOptions(source.options ?? []);
+        const orderedOptions = this.reorderOptions(
+          normalizedOptions,
+          state.optionOrder.get(originalIndex)
+        );
+
+        return {
+          ...source,
+          options: orderedOptions.map((option) => ({ ...option }))
+        } as QuizQuestion;
       })
-      .filter((o): o is Option & { displayOrder: number } => o !== null);
+      .filter((question): question is QuizQuestion => question !== null);
 
-    // If we somehow lost options (e.g. stale order), fall back to normalized list
-    const safeOptions = reordered.length === normalizedOpts.length
-      ? reordered
-      : normalizedOpts.map(opt => ({ ...opt }));
+    if (displaySet.length === 0) {
+      return questions.map((question) => ({
+        ...question,
+        options: this.cloneAndNormalizeOptions(question.options ?? [])
+      }));
+    }
 
-    return { ...src, options: safeOptions };
+    return displaySet;
   }
 
   // Persist/recover between reloads. Keep versions simple.
