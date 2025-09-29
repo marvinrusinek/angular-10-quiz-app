@@ -6,8 +6,8 @@ import { QuizQuestion } from '../../models/QuizQuestion.model';
 import { ShuffleState } from '../../models/ShuffleState.model';
 
 export interface PrepareShuffleOpts {
-  shuffleQuestions?: boolean;
-  shuffleOptions?: boolean;
+  shuffleQuestions?: boolean,
+  shuffleOptions?: boolean
 }
 
 @Injectable({ providedIn: 'root' })
