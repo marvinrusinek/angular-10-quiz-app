@@ -43,13 +43,13 @@ export class QuizShuffleService {
     const { shuffleQuestions = true, shuffleOptions = true } = opts;
 
     const qIdx = questions.map((_, i) => i);
-    const questionOrder = shuffleQuestions ? Utils.shuffle(qIdx) : qIdx;
+    const questionOrder = shuffleQuestions ? Utils.shuffleArray(qIdx) : qIdx;
 
     const optionOrder = new Map<number, number[]>();
     for (const origIdx of questionOrder) {
       const len = questions[origIdx]?.options?.length ?? 0;
       const base = Array.from({ length: len }, (_, i) => i);
-      optionOrder.set(origIdx, shuffleOptions ? Utils.shuffle(base) : base);
+      optionOrder.set(origIdx, shuffleOptions ? Utils.shuffleArray(base) : base);
     }
 
     this.shuffleByQuizId.set(quizId, { questionOrder, optionOrder });
