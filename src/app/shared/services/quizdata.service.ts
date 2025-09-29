@@ -386,41 +386,51 @@ export class QuizDataService implements OnDestroy {
     
     return this.getQuiz(quizId).pipe(
       map(quiz => {
-        const cachedQuestions = this.quizQuestionCache.get(quizId);
-        const shouldShuffle = this.quizService.isShuffleEnabled();
-        let questionsToUse: QuizQuestion[] = [];
+        let questionsToUse = this.quizQuestionCache.get(quizId);
 
-        if (Array.isArray(cachedQuestions) && cachedQuestions.length > 0) {
-          questionsToUse = this.cloneQuestions(cachedQuestions);
-        } else if (Array.isArray(quiz?.questions) && quiz.questions.length > 0) {
-          questionsToUse = (quiz.questions ?? [])
-            .map((question) => this.normalizeQuestion(question));
+        if (!Array.isArray(questionsToUse) || questionsToUse.length === 0) {
+          const base = this.ensureBaseQuestions(quizId, quiz);
+          const sessionQuestions = this.buildSessionQuestions(
+            quizId,
+            base,
+            this.quizService.isShuffleEnabled()
+          );
+
+          this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
+          questionsToUse = sessionQuestions;
         }
 
-        if (questionIndex < 0 || questionIndex >= questionsToUse.length) {
+        if (questionIndex < 0 || !Array.isArray(questionsToUse) || questionIndex >= questionsToUse.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
 
-        const question = questionsToUse[questionIndex];
+        const question = this.cloneQuestion(questionsToUse[questionIndex]);
         if (!question) {
           console.error(`No question found at index ${questionIndex}`);
           return null;
         }
 
-        // Avoid repeatedly re-sanitizing the same question when shuffling is disabled.
-        const normalizedQuestion = shouldShuffle
-          ? this.normalizeQuestion(question)
-          : this.cloneQuestions([question])[0] ?? this.normalizeQuestion(question);
-        
-        const options = normalizedQuestion.options ?? [];
+        const options = (question.options ?? []).map((option) => ({
+          ...option,
+          correct: option.correct === true,
+          selected: option.selected === true,
+          highlight: option.highlight ?? false,
+          showIcon: option.showIcon ?? false
+        }));
+
+        question.options = options.map((option) => ({ ...option }));
+        question.answer = this.quizShuffleService.alignAnswersWithOptions(
+          question.answer,
+          options
+        );
 
         if (options.length === 0) {
           console.warn(`No options found for question at index ${questionIndex}`);
         }
 
         return [
-          normalizedQuestion,
+          question,
           options.map((option) => ({ ...option }))
         ] as [QuizQuestion, Option[]];
       }),
