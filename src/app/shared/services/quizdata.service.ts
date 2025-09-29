@@ -239,10 +239,10 @@ export class QuizDataService implements OnDestroy {
   
         // Cache + wire into session state using isolated clones so later
         // shuffles cannot mutate the stored references.
-        this.quizQuestionCache.set(quizId, preparedQuestions);
-        this.quizService.applySessionQuestions(quizId, preparedQuestions);
-        this.syncSelectedQuizState(quizId, preparedQuestions, quiz);
-  
+        this.quizQuestionCache.set(quizId, cacheReadyQuestions);
+        this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
+        this.syncSelectedQuizState(quizId, sessionReadyQuestions, quiz);
+
         return this.cloneQuestions(sessionReadyQuestions);
       }),
       catchError(error => {
