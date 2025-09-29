@@ -39,13 +39,13 @@ export class QuizShuffleService {
 
     const normalizeForDisplay = (opts: Option[]): Option[] =>
       opts.map((option, index) => {
-        const id = toNum(option.optionId) ?? index + 1;
+        const id = this.toNum(option.optionId) ?? index + 1;
 
         // value must remain a number per your model
         const numericValue =
           typeof option.value === 'number'
             ? option.value
-            : toNum(option.value) ?? id;
+            : this.toNum(option.value) ?? id;
 
         return {
           ...option,
