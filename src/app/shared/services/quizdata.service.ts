@@ -243,7 +243,6 @@ export class QuizDataService implements OnDestroy {
       })
     );
   }
-  
 
   /**
    * Ensure the quiz session questions are available before starting a quiz.
