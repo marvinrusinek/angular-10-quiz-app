@@ -225,10 +225,14 @@ export class QuizDataService implements OnDestroy {
         }
   
         // Ensure options in the final payload are sanitized/normalized
-        preparedQuestions = preparedQuestions.map(q => ({
-          ...q,
-          options: sanitizeOptions(q.options ?? [])
-        }));
+        preparedQuestions = preparedQuestions.map(q => {
+          const sanitizedOptions = sanitizeOptions(q.options ?? []);
+          return {
+            ...q,
+            options: sanitizedOptions,
+            answer: this.quizShuffleService.alignAnswersWithOptions(q.answer, sanitizedOptions)
+          };
+        });
   
         // Cache + wire into session state
         this.quizQuestionCache.set(quizId, preparedQuestions);
