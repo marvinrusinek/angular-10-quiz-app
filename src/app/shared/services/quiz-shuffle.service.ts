@@ -21,16 +21,17 @@ export class QuizShuffleService {
   }
 
   // Make optionId numeric & stable; idempotent. Prefer 0-based to align with indexes.
-  public assignOptionIds(options: Option[], startAt: 0 | 1 = 0): Option[] {
+  public assignOptionIds(options: Option[], startAt: 0 | 1 = 1): Option[] {
     return (options ?? []).map((o, i) => {
       const id = this.toNum((o as any).optionId);
       const stable = id ?? (i + startAt);
       return {
         ...o,
         optionId: stable,
+        displayOrder: i,
         // fallback so selectedOptions.includes(option.value) remains viable
         value: (o as any).value ?? (o as any).text ?? stable
-      };
+      } as Option;
     });
   }
 
