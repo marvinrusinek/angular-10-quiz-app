@@ -9,6 +9,7 @@ import { Option } from '../../shared/models/Option.model';
 import { Quiz } from '../../shared/models/Quiz.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../shared/services/quiz.service';
+import { QuizShuffleService } from '../../shared/services/quiz-shuffle.service';
 import { Utils } from '../../shared/utils/utils';
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +36,7 @@ export class QuizDataService implements OnDestroy {
 
   constructor(
     private quizService: QuizService,
+    private quizShuffleService: QuizShuffleService,
     private http: HttpClient
   ) {
     this.loadQuizzesData();
