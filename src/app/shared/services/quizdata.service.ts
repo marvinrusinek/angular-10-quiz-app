@@ -369,69 +369,37 @@ export class QuizDataService implements OnDestroy {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         const cachedQuestions = this.quizQuestionCache.get(quizId);
-        const sessionQuestions = Array.isArray(this.quizService.questions)
-          ? this.quizService.questions
-          : [];
+        let questionsToUse: QuizQuestion[] = [];
 
-        const normalizedQuestions =
-          (Array.isArray(cachedQuestions) && cachedQuestions.length > 0)
-            ? this.cloneQuestions(cachedQuestions)
-            : (sessionQuestions.length > 0)
-              ? this.cloneQuestions(sessionQuestions)
-              : this.cloneQuestions(quiz?.questions ?? []);
+        if (Array.isArray(cachedQuestions) && cachedQuestions.length > 0) {
+          questionsToUse = this.cloneQuestions(cachedQuestions);
+        } else if (Array.isArray(quiz?.questions) && quiz.questions.length > 0) {
+          questionsToUse = (quiz.questions ?? [])
+            .map((question) => this.normalizeQuestion(question));
+        }
 
-        if (questionIndex < 0 || questionIndex >= normalizedQuestions.length) {
+        if (questionIndex < 0 || questionIndex >= questionsToUse.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
 
-        const baseQuestion = normalizedQuestions[questionIndex];
-        if (!baseQuestion) {
+        const question = questionsToUse[questionIndex];
+        if (!question) {
           console.error(`No question found at index ${questionIndex}`);
           return null;
         }
 
-        const baseClone = this.cloneQuestions([baseQuestion])[0];
-        if (!baseClone) {
-          console.error(`Unable to clone question at index ${questionIndex}`);
-          return null;
-        }
+        const normalizedQuestion = this.normalizeQuestion(question);
+        const options = normalizedQuestion.options ?? [];
 
-        if (!this.quizService.isShuffleEnabled()) {
-          const options = Array.isArray(baseClone.options)
-            ? baseClone.options.map(option => ({ ...option }))
-            : [];
-
-          if (options.length === 0) {
-            console.warn(`No options found for question at index ${questionIndex}`);
-          }
-
-          return [
-            {
-              ...baseClone,
-              options
-            },
-            options.map(option => ({ ...option }))
-          ] as [QuizQuestion, Option[]];
-        }
-
-        const sanitizedOptions = this.sanitizeOptions(baseClone.options ?? []);
-        const alignedAnswers = this.quizShuffleService.alignAnswersWithOptions(
-          baseClone.answer,
-          sanitizedOptions
-        );
-
-        const preparedQuestion: QuizQuestion = {
-          ...baseClone,
-          options: sanitizedOptions.map(option => ({ ...option })),
-          answer: alignedAnswers
-        };
-
-        if (sanitizedOptions.length === 0) {
+        if (options.length === 0) {
           console.warn(`No options found for question at index ${questionIndex}`);
         }
 
-        return [preparedQuestion, sanitizedOptions.map(option => ({ ...option }))] as [QuizQuestion, Option[]];
+        return [
+          normalizedQuestion,
+          options.map((option) => ({ ...option }))
+        ] as [QuizQuestion, Option[]];
       }),
       catchError(error => {
         console.error('Error fetching question and options:', error);
