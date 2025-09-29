@@ -239,7 +239,7 @@ export class QuizDataService implements OnDestroy {
         this.quizService.applySessionQuestions(quizId, preparedQuestions);
         this.syncSelectedQuizState(quizId, preparedQuestions, quiz);
   
-        return preparedQuestions;
+        return this.cloneQuestions(sessionReadyQuestions);
       }),
       catchError(error => {
         console.error('[QuizDataService] getQuestionsForQuiz:', error);
