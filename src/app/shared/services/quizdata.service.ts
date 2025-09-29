@@ -191,17 +191,39 @@ export class QuizDataService implements OnDestroy {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
   
-        const baseQuestions = this.createBaseQuestions(quiz);
-        const preparedQuestions = this.buildSessionQuestions(quizId, baseQuestions);
-
+        // ── Build normalized base questions (clone options per question) ──
+        const baseQuestions: QuizQuestion[] = (quiz.questions ?? [])
+          .map((question) => this.normalizeQuestion(question));
+  
+        // Work on a deep-cloned working set so we never mutate base
+        const workingSet = this.cloneQuestions(baseQuestions);
+        const shouldShuffle = this.quizService.isShuffleEnabled();
+  
+        if (shouldShuffle) {
+          this.quizShuffleService.prepareShuffle(quizId, workingSet);
+        } else {
+          this.quizShuffleService.clear(quizId);
+        }
+  
+        // Build display-ordered questions and re-normalize (ids/flags) post-shuffle
+        const preparedQuestions = this.quizShuffleService
+          .buildShuffledQuestions(quizId, workingSet)
+          .map((question) => this.normalizeQuestion(question));
+  
+        // Final clones for different consumers (session vs cache)
         const sessionReadyQuestions = this.cloneQuestions(preparedQuestions);
-        const cacheReadyQuestions = this.cloneQuestions(preparedQuestions);
-
-        this.baseQuizQuestionCache.set(quizId, this.cloneQuestions(baseQuestions));
+        const cacheReadyQuestions   = this.cloneQuestions(preparedQuestions);
+        const baseCacheQuestions    = this.cloneQuestions(baseQuestions);
+  
+        // Cache: keep both the base (identity order) and the prepared (display order)
+        this.baseQuizQuestionCache.set(quizId, baseCacheQuestions);
         this.quizQuestionCache.set(quizId, cacheReadyQuestions);
+  
+        // Publish to session + sync selection state with the selected quiz
         this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
         this.syncSelectedQuizState(quizId, sessionReadyQuestions, quiz);
-
+  
+        // Return a clean clone for callers
         return this.cloneQuestions(sessionReadyQuestions);
       }),
       catchError(error => {
@@ -210,6 +232,7 @@ export class QuizDataService implements OnDestroy {
       })
     );
   }
+  
 
   /**
    * Ensure the quiz session questions are available before starting a quiz.
@@ -226,9 +249,15 @@ export class QuizDataService implements OnDestroy {
     const baseQuestions = this.baseQuizQuestionCache.get(quizId);
 
     if (shouldShuffle && Array.isArray(baseQuestions) && baseQuestions.length > 0) {
-      const prepared = this.buildSessionQuestions(quizId, baseQuestions);
-      const sessionReadyQuestions = this.cloneQuestions(prepared);
-      const cacheReadyQuestions = this.cloneQuestions(prepared);
+      const workingSet = this.cloneQuestions(baseQuestions);
+      this.quizShuffleService.prepareShuffle(quizId, workingSet);
+
+      const preparedQuestions = this.quizShuffleService
+        .buildShuffledQuestions(quizId, workingSet)
+        .map((question) => this.normalizeQuestion(question));
+
+      const sessionReadyQuestions = this.cloneQuestions(preparedQuestions);
+      const cacheReadyQuestions = this.cloneQuestions(preparedQuestions);
 
       this.quizQuestionCache.set(quizId, cacheReadyQuestions);
       this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
