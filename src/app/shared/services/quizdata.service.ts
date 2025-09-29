@@ -190,59 +190,55 @@ export class QuizDataService implements OnDestroy {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
 
-        // Deep-clone every question and option
-        const assignOptionMeta = (options: Option[] = []): Option[] =>
-          options.map((option, idx) => {
-            const base: Option = typeof structuredClone === 'function'
-              ? structuredClone(option)
-              : { ...option };
-
-            return {
-              ...base,
-              optionId : idx + 1,
-              displayOrder: idx,
-              correct  : base.correct === true,
-              selected : false,
-              highlight: false,
-              showIcon : false
-            } as Option;
-          });
-
-        const resetOptionIds = (options: Option[] = []): Option[] =>
-          options.map((option, idx) => ({
+        const sanitizeOptions = (options: Option[] = []): Option[] =>
+          this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
             ...option,
-            optionId: idx + 1,
-            displayOrder: idx
-          } as Option));
+            correct: option.correct === true,
+            selected: option.selected === true,
+            highlight: option.highlight ?? false,
+            showIcon: option.showIcon ?? false
+          }));
 
-        const clonedQuestions = quiz.questions.map((question) => ({
+        const baseQuestions: QuizQuestion[] = (quiz.questions ?? []).map((question) => ({
           ...question,
-          options: assignOptionMeta(question.options ?? [])
+          options: sanitizeOptions(question.options ?? [])
         }));
 
-        if (this.quizService.isShuffleEnabled()) {
-          Utils.shuffleArray(clonedQuestions);
+        let preparedQuestions: QuizQuestion[] = baseQuestions;
 
-          clonedQuestions.forEach((question) => {
-            if (Array.isArray(question.options) && question.options.length > 1) {
-              const shuffled = Utils.shuffleArray([...(question.options ?? [])]);
-              question.options = resetOptionIds(shuffled);
-            } else {
-              question.options = resetOptionIds(question.options ?? []);
+        if (this.quizService.isShuffleEnabled()) {
+          this.quizShuffleService.prepareShuffle(quizId, baseQuestions);
+          const displayCount = this.quizShuffleService.getDisplayCount(quizId);
+
+          const shuffledQuestions: QuizQuestion[] = [];
+          for (let displayIndex = 0; displayIndex < displayCount; displayIndex++) {
+            const mapped = this.quizShuffleService.getQuestionAtDisplayIndex(
+              quizId,
+              displayIndex,
+              baseQuestions
+            );
+
+            if (!mapped) {
+              continue;
             }
-          });
+
+            const sanitizedOptions = sanitizeOptions(mapped.options ?? []);
+            shuffledQuestions.push({ ...mapped, options: sanitizedOptions });
+          }
+
+          if (shuffledQuestions.length > 0) {
+            preparedQuestions = shuffledQuestions;
+          }
         } else {
-          clonedQuestions.forEach((question) => {
-            question.options = resetOptionIds(question.options ?? []);
-          });
+          this.quizShuffleService.clear(quizId);
         }
 
-        this.quizQuestionCache.set(quizId, clonedQuestions);
+        this.quizQuestionCache.set(quizId, preparedQuestions);
 
-        this.quizService.applySessionQuestions(quizId, clonedQuestions);
-        this.syncSelectedQuizState(quizId, clonedQuestions, quiz);
+        this.quizService.applySessionQuestions(quizId, preparedQuestions);
+        this.syncSelectedQuizState(quizId, preparedQuestions, quiz);
 
-        return clonedQuestions;
+        return preparedQuestions;        
       }),
       catchError(error => {
         console.error('[QuizDataService] getQuestionsForQuiz:', error);
