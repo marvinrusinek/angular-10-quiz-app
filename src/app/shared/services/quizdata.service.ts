@@ -253,7 +253,7 @@ export class QuizDataService implements OnDestroy {
    * Reuses any cached clone for the quiz and re-applies it to the quiz service
    * so downstream consumers receive a consistent question set.
    */
-   prepareQuizSession(quizId: string): Observable<QuizQuestion[]> {
+  prepareQuizSession(quizId: string): Observable<QuizQuestion[]> {
     if (!quizId) {
       console.error('[prepareQuizSession] quizId is required.');
       return of([]);
@@ -276,6 +276,21 @@ export class QuizDataService implements OnDestroy {
   }
 
   private cloneQuestions(questions: QuizQuestion[] = []): QuizQuestion[] {
+    return (questions ?? []).map((question) => ({
+      ...question,
+      options: Array.isArray(question.options)
+        ? question.options.map((option) => ({ ...option }))
+        : [],
+      answer: Array.isArray(question.answer)
+        ? question.answer.map((answer) => ({ ...answer }))
+        : undefined,
+      selectedOptions: Array.isArray(question.selectedOptions)
+        ? question.selectedOptions.map((option) => ({ ...option }))
+        : undefined
+    }));
+  }
+
+  getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
       console.error(`❌ Invalid questionIndex: ${questionIndex}`);
       return of(null);
