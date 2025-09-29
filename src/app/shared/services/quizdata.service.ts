@@ -191,55 +191,13 @@ export class QuizDataService implements OnDestroy {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
   
-        // Normalizer for options after any (re)ordering
-        const sanitizeOptions = (options: Option[] = []): Option[] =>
-          this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
-            ...option,
-            correct: option.correct === true,
-            selected: option.selected === true,
-            highlight: option.highlight ?? false,
-            showIcon: option.showIcon ?? false
-          }));
-  
-        // Deep-clone base questions (options cloned too) – your requested addition
-        const baseQuestions: QuizQuestion[] = (quiz.questions ?? []).map((question) => ({
-          ...question,
-          options: (question.options ?? []).map(option => ({ ...option }))
-        }));
-  
-        let preparedQuestions: QuizQuestion[] = baseQuestions;
-  
-        if (this.quizService.isShuffleEnabled()) {
-          // Prepare & build shuffled set
-          this.quizShuffleService.prepareShuffle(quizId, baseQuestions);
-          preparedQuestions = this.quizShuffleService.buildShuffledQuestions(
-            quizId,
-            baseQuestions
-          );
-        } else {
-          // Clear any prior shuffle state and still build in identity order
-          this.quizShuffleService.clear(quizId);
-          preparedQuestions = this.quizShuffleService.buildShuffledQuestions(
-            quizId,
-            baseQuestions
-          );
-        }
-  
-        // Ensure options in the final payload are sanitized/normalized
-        preparedQuestions = preparedQuestions.map(q => {
-          const sanitizedOptions = sanitizeOptions(q.options ?? []);
-          return {
-            ...q,
-            options: sanitizedOptions,
-            answer: this.quizShuffleService.alignAnswersWithOptions(q.answer, sanitizedOptions)
-          };
-        });
+        const baseQuestions = this.createBaseQuestions(quiz);
+        const preparedQuestions = this.buildSessionQuestions(quizId, baseQuestions);
 
         const sessionReadyQuestions = this.cloneQuestions(preparedQuestions);
         const cacheReadyQuestions = this.cloneQuestions(preparedQuestions);
-  
-        // Cache + wire into session state using isolated clones so later
-        // shuffles cannot mutate the stored references.
+
+        this.baseQuizQuestionCache.set(quizId, this.cloneQuestions(baseQuestions));
         this.quizQuestionCache.set(quizId, cacheReadyQuestions);
         this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
         this.syncSelectedQuizState(quizId, sessionReadyQuestions, quiz);
