@@ -14,6 +14,26 @@ export interface PrepareShuffleOpts {
 export class QuizShuffleService {
   private shuffleByQuizId = new Map<string, ShuffleState>();
 
+  import { Injectable } from '@angular/core';␍␊
+␍␊
+import { Option } from '../../models/Option.model';␍␊
+import { QuizQuestion } from '../../models/QuizQuestion.model';␍␊
+import { ShuffleState } from '../../models/ShuffleState.model';␍␊
+import { Injectable } from '@angular/core';␊
+␊
+import { Option } from '../../models/Option.model';␊
+import { QuizQuestion } from '../../models/QuizQuestion.model';␊
+import { ShuffleState } from '../../models/ShuffleState.model';␊
+
+export interface PrepareShuffleOpts {
+  shuffleQuestions?: boolean,
+  shuffleOptions?: boolean
+}
+
+@Injectable({ providedIn: 'root' })
+export class QuizShuffleService {
+  private shuffleByQuizId = new Map<string, ShuffleState>();
+
   private toNum(v: unknown): number | null {
     if (typeof v === 'number' && Number.isFinite(v)) return v;
     const n = Number(String(v));
@@ -21,6 +41,62 @@ export class QuizShuffleService {
   }
 
   // Make optionId numeric & stable; idempotent. Prefer 0-based to align with indexes.
+  public assignOptionIds(options: Option[], startAt: 0 | 1 = 0): Option[] {
+    return (options ?? []).map((o, i) => {
+      const id = this.toNum((o as any).optionId);
+      const stable = id ?? (i + startAt);
+      return {
+        ...o,
+        optionId: stable,
+        // fallback so selectedOptions.includes(option.value) remains viable
+        value: (o as any).value ?? (o as any).text ?? stable
+      };
+    });
+  }
+  private toNum(v: unknown): number | null {
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    const n = Number(String(v));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  private cloneAndNormalizeOptions(options: Option[] = []): Option[] {
+    const withIds = this.assignOptionIds(options, 1);
+    return withIds.map((option, index) => ({
+      ...option,
+      displayOrder: index,
+      correct: option.correct === true,
+      selected: option.selected === true,
+      highlight: option.highlight ?? false,
+      showIcon: option.showIcon ?? false
+    }));
+  }
+
+  private reorderOptions(options: Option[], order?: number[]): Option[] {
+    if (!Array.isArray(options) || options.length === 0) {
+      return [];
+    }
+
+    if (!Array.isArray(order) || order.length !== options.length) {
+      return options.map((option, index) => ({ ...option, displayOrder: index }));
+    }
+
+    const reordered = order
+      .map((sourceIndex, displayIndex) => {
+        const option = options[sourceIndex];
+        if (!option) return null;
+        return { ...option, displayOrder: displayIndex } as Option;
+      })
+      .filter((option): option is Option => option !== null);
+
+    if (reordered.length !== options.length) {
+      return options.map((option, index) => ({ ...option, displayOrder: index }));
+    }
+
+    return reordered;
+  }
+
+  // Make optionId numeric & stable; idempotent. Prefer 1-based ids for compatibility
+  // with existing quiz logic while always normalising the display order.
   public assignOptionIds(options: Option[], startAt: 0 | 1 = 1): Option[] {
     return (options ?? []).map((o, i) => {
       const id = this.toNum((o as any).optionId);
@@ -28,7 +104,6 @@ export class QuizShuffleService {
       return {
         ...o,
         optionId: stable,
-        displayOrder: i,
         // fallback so selectedOptions.includes(option.value) remains viable
         value: (o as any).value ?? (o as any).text ?? stable
       } as Option;
