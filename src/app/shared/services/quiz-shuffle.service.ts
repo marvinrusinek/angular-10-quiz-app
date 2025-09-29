@@ -249,16 +249,21 @@ export class QuizShuffleService {
 
         return {
           ...source,
-          options: orderedOptions.map((option) => ({ ...option }))
+          options: orderedOptions.map((option) => ({ ...option })),
+          answer: this.alignAnswersWithOptions(source.answer, orderedOptions)
         } as QuizQuestion;
       })
       .filter((question): question is QuizQuestion => question !== null);
 
     if (displaySet.length === 0) {
-      return questions.map((question) => ({
-        ...question,
-        options: this.cloneAndNormalizeOptions(question.options ?? [])
-      }));
+      return questions.map((question) => {
+        const normalizedOptions = this.cloneAndNormalizeOptions(question.options ?? []);
+        return {
+          ...question,
+          options: normalizedOptions.map((option) => ({ ...option })),
+          answer: this.alignAnswersWithOptions(question.answer, normalizedOptions)
+        };
+      });
     }
 
     return displaySet;
