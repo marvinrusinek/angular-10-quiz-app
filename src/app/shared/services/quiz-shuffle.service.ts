@@ -38,17 +38,22 @@ export class QuizShuffleService {
     }
 
     const normalizeForDisplay = (opts: Option[]): Option[] =>
-      opts.map((option, index) => ({
-        ...option,
-        optionId: index + 1,
-        displayOrder: index,
-        value:
-          option.value ??
-          option.optionId ??
-          (typeof option.text === 'string' && option.text.trim().length > 0
-            ? option.text
-            : index + 1)
-      }));
+      opts.map((option, index) => {
+        const id = toNum(option.optionId) ?? index + 1;
+
+        // value must remain a number per your model
+        const numericValue =
+          typeof option.value === 'number'
+            ? option.value
+            : toNum(option.value) ?? id;
+
+        return {
+          ...option,
+          optionId: id,
+          displayOrder: index,  // if this isn't in Option, you can keep it as an extension or drop it
+          value: numericValue   // <= always number
+        } as Option;            // if displayOrder isn't in Option, use a local type if you need it
+      });
 
     if (!Array.isArray(order) || order.length !== options.length) {
       return normalizeForDisplay(options.map((option) => ({ ...option })));
