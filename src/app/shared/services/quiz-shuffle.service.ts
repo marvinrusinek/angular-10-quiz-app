@@ -74,6 +74,79 @@ export class QuizShuffleService {
     return normalizeForDisplay(reordered);
   }
 
+  private normalizeAnswerReference(answer: Option | null | undefined, options: Option[]): Option | null {
+    if (!answer) {
+      return null;
+    }
+
+    const byId = this.toNum(answer.optionId);
+    if (byId != null) {
+      const matchById = options.find((option) => this.toNum(option.optionId) === byId);
+      if (matchById) {
+        return matchById;
+      }
+    }
+
+    const byValue = this.toNum(answer.value);
+    if (byValue != null) {
+      const matchByValue = options.find((option) => this.toNum(option.value) === byValue);
+      if (matchByValue) {
+        return matchByValue;
+      }
+    }
+
+    const normalizedText = (answer.text ?? '').trim().toLowerCase();
+    if (normalizedText) {
+      const matchByText = options.find(
+        (option) => (option.text ?? '').trim().toLowerCase() === normalizedText
+      );
+      if (matchByText) {
+        return matchByText;
+      }
+    }
+
+    return null;
+  }
+
+  public alignAnswersWithOptions(
+    rawAnswers: Option[] | undefined,
+    options: Option[] = []
+  ): Option[] {
+    const normalizedOptions = Array.isArray(options) ? options : [];
+    if (normalizedOptions.length === 0) {
+      return [];
+    }
+
+    const answers = Array.isArray(rawAnswers) ? rawAnswers : [];
+    const aligned = answers
+      .map((answer) => this.normalizeAnswerReference(answer, normalizedOptions))
+      .filter((option): option is Option => option != null);
+
+    if (aligned.length > 0) {
+      const seen = new Set<number>();
+      return aligned
+        .filter((option) => {
+          const id = this.toNum(option.optionId);
+          if (id == null) {
+            return true;
+          }
+          if (seen.has(id)) {
+            return false;
+          }
+          seen.add(id);
+          return true;
+        })
+        .map((option) => ({ ...option }));
+    }
+
+    const fallback = normalizedOptions.filter((option) => option.correct);
+    if (fallback.length > 0) {
+      return fallback.map((option) => ({ ...option }));
+    }
+
+    return [];
+  }
+
   // Make optionId numeric & stable; idempotent. Prefer 1-based ids for compatibility
   // with existing quiz logic while always normalising the display order.
   public assignOptionIds(options: Option[], startAt: 0 | 1 = 1): Option[] {
