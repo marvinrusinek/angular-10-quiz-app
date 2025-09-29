@@ -1,4 +1,3 @@
-// quiz-shuffle.service.ts
 import { Injectable } from '@angular/core';
 
 import { Option } from '../../models/Option.model';
@@ -34,7 +33,7 @@ export class QuizShuffleService {
     });
   }
 
-  // Call once starting a quiz session (after you fetched questions).
+  // Call once starting a quiz session (after fetching questions)
   public prepareShuffle(
     quizId: string,
     questions: QuizQuestion[],
