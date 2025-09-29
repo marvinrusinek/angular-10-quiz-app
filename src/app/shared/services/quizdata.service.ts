@@ -233,8 +233,12 @@ export class QuizDataService implements OnDestroy {
             answer: this.quizShuffleService.alignAnswersWithOptions(q.answer, sanitizedOptions)
           };
         });
+
+        const sessionReadyQuestions = this.cloneQuestions(preparedQuestions);
+        const cacheReadyQuestions = this.cloneQuestions(preparedQuestions);
   
-        // Cache + wire into session state
+        // Cache + wire into session state using isolated clones so later
+        // shuffles cannot mutate the stored references.
         this.quizQuestionCache.set(quizId, preparedQuestions);
         this.quizService.applySessionQuestions(quizId, preparedQuestions);
         this.syncSelectedQuizState(quizId, preparedQuestions, quiz);
