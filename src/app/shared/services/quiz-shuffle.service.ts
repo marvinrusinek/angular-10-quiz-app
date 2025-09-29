@@ -1,14 +1,14 @@
 // quiz-shuffle.service.ts
 import { Injectable } from '@angular/core';
-import { ShuffleState } from './quiz-shuffle.types';
+
+import { Option } from '../../models/Option.model';
+import { QuizQuestion } from '../../models/QuizQuestion.model';
+import { ShuffleState } from '../../models/ShuffleState.model';
 
 export interface PrepareShuffleOpts {
   shuffleQuestions?: boolean;
   shuffleOptions?: boolean;
 }
-
-export interface QuizQuestion { questionText: string; options: Option[]; /* add your fields */ }
-export interface Option { optionId?: number | string; value?: any; text?: string; /* add your fields */ }
 
 @Injectable({ providedIn: 'root' })
 export class QuizShuffleService {
@@ -29,7 +29,7 @@ export class QuizShuffleService {
         ...o,
         optionId: stable,
         // fallback so selectedOptions.includes(option.value) remains viable
-        value: (o as any).value ?? (o as any).text ?? stable,
+        value: (o as any).value ?? (o as any).text ?? stable
       };
     });
   }
@@ -80,7 +80,7 @@ export class QuizShuffleService {
     const src = allQuestions[origIdx];
     if (!src) return null;
 
-    // ensure numeric, stable optionId before reordering
+    // Ensure numeric, stable optionId before reordering
     const normalizedOpts = this.assignOptionIds(src.options ?? [], 0);
     const order = state.optionOrder.get(origIdx) ?? [];
     const reordered = order.map(i => ({ ...normalizedOpts[i], /* displayOrder: i */ }));
