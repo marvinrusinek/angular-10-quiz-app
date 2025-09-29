@@ -303,26 +303,54 @@ export class QuizDataService implements OnDestroy {
     return this.getQuiz(quizId).pipe(
       map(quiz => {
         const cachedQuestions = this.quizQuestionCache.get(quizId);
-        const questionsToUse = cachedQuestions ?? quiz?.questions ?? [];
+        const sessionQuestions = Array.isArray(this.quizService.questions)
+          ? this.quizService.questions
+          : [];
 
-        if (questionIndex < 0 || questionIndex >= questionsToUse.length) {
+        const normalizedQuestions =
+          (Array.isArray(cachedQuestions) && cachedQuestions.length > 0)
+            ? this.cloneQuestions(cachedQuestions)
+            : (sessionQuestions.length > 0)
+              ? this.cloneQuestions(sessionQuestions)
+              : this.cloneQuestions(quiz?.questions ?? []);
+
+        if (questionIndex < 0 || questionIndex >= normalizedQuestions.length) {
           console.error(`Question index ${questionIndex} out of bounds`);
           return null;
         }
 
-        const question = questionsToUse[questionIndex];
-        if (!question) {
+        const baseQuestion = normalizedQuestions[questionIndex];
+        if (!baseQuestion) {
           console.error(`No question found at index ${questionIndex}`);
           return null;
         }
 
-        // Check for undefined options and handle accordingly
-        const options = question.options ?? [];
-        if (options.length === 0) {
+        const sanitizeOptions = (options: Option[] = []): Option[] =>
+          this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
+            ...option,
+            correct: option.correct === true,
+            selected: option.selected === true,
+            highlight: option.highlight ?? false,
+            showIcon: option.showIcon ?? false
+          }));
+
+        const sanitizedOptions = sanitizeOptions(baseQuestion.options ?? []);
+        const alignedAnswers = this.quizShuffleService.alignAnswersWithOptions(
+          baseQuestion.answer,
+          sanitizedOptions
+        );
+
+        const preparedQuestion: QuizQuestion = {
+          ...baseQuestion,
+          options: sanitizedOptions.map(option => ({ ...option })),
+          answer: alignedAnswers
+        };
+
+        if (sanitizedOptions.length === 0) {
           console.warn(`No options found for question at index ${questionIndex}`);
         }
 
-        return [question, options] as [QuizQuestion, Option[]];
+        return [preparedQuestion, sanitizedOptions.map(option => ({ ...option }))] as [QuizQuestion, Option[]];
       }),
       catchError(error => {
         console.error('Error fetching question and options:', error);
