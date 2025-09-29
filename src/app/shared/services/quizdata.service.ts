@@ -229,22 +229,19 @@ export class QuizDataService implements OnDestroy {
     const shouldShuffle = this.quizService.isShuffleEnabled();
     const baseQuestions = this.baseQuizQuestionCache.get(quizId);
 
-    if (shouldShuffle && Array.isArray(baseQuestions) && baseQuestions.length > 0) {
-      const workingSet = this.cloneQuestions(baseQuestions);
-      this.quizShuffleService.prepareShuffle(quizId, workingSet);
+    if (Array.isArray(baseQuestions) && baseQuestions.length > 0) {
+      const sessionQuestions = this.buildSessionQuestions(
+        quizId,
+        baseQuestions,
+        shouldShuffle
+      );
 
-      const preparedQuestions = this.quizShuffleService
-        .buildShuffledQuestions(quizId, workingSet)
-        .map((question) => this.normalizeQuestion(question));
+      this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
+      const sessionClone = this.cloneQuestions(sessionQuestions);
+      this.quizService.applySessionQuestions(quizId, sessionClone);
+      this.syncSelectedQuizState(quizId, sessionClone);
 
-      const sessionReadyQuestions = this.cloneQuestions(preparedQuestions);
-      const cacheReadyQuestions = this.cloneQuestions(preparedQuestions);
-
-      this.quizQuestionCache.set(quizId, cacheReadyQuestions);
-      this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
-      this.syncSelectedQuizState(quizId, sessionReadyQuestions);
-
-      return of(this.cloneQuestions(sessionReadyQuestions));
+      return of(this.cloneQuestions(sessionClone));
     }
 
     const cached = this.quizQuestionCache.get(quizId);
@@ -255,13 +252,29 @@ export class QuizDataService implements OnDestroy {
       return of(this.cloneQuestions(sessionReadyQuestions));
     }
 
-    return this.getQuestionsForQuiz(quizId).pipe(
+    return this.getQuiz(quizId).pipe(
+      map((quiz) => {
+        const base = this.ensureBaseQuestions(quizId, quiz);
+        const sessionQuestions = this.buildSessionQuestions(
+          quizId,
+          base,
+          shouldShuffle
+        );
+
+        this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
+        const sessionClone = this.cloneQuestions(sessionQuestions);
+        this.quizService.applySessionQuestions(quizId, sessionClone);
+        this.syncSelectedQuizState(quizId, sessionClone, quiz);
+
+        return this.cloneQuestions(sessionClone);
+      }),
       catchError((error: Error) => {
         console.error('[prepareQuizSession] Failed to fetch questions:', error);
         return of([]);
       })
     );
   }
+
 
   private createBaseQuestions(quiz: Quiz): QuizQuestion[] {
     const questions = Array.isArray(quiz?.questions) ? quiz.questions : [];
