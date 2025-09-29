@@ -293,28 +293,26 @@ export class QuizDataService implements OnDestroy {
 
   private buildSessionQuestions(
     quizId: string,
-    baseQuestions: QuizQuestion[]
+    baseQuestions: QuizQuestion[],
+    shouldShuffle: boolean
   ): QuizQuestion[] {
-    if (!Array.isArray(baseQuestions) || baseQuestions.length === 0) {
-      return [];
-    }
-
     const workingSet = this.cloneQuestions(baseQuestions);
 
-    if (this.quizService.isShuffleEnabled()) {
+    if (shouldShuffle) {
       this.quizShuffleService.prepareShuffle(quizId, workingSet);
-    } else {
-      this.quizShuffleService.clear(quizId);
+      const shuffled = this.quizShuffleService.buildShuffledQuestions(quizId, workingSet);
+      return this.cloneQuestions(shuffled);
     }
 
-    const prepared = this.quizShuffleService.buildShuffledQuestions(quizId, workingSet);
-
-    return prepared.map((question) => this.normalizeQuestion(question));
+    this.quizShuffleService.clear(quizId);
+    return workingSet;
   }
 
   private sanitizeOptions(options: Option[] = []): Option[] {
-    return this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
+    const withIds = this.quizShuffleService.assignOptionIds(options, 1);
+    return withIds.map((option, index) => ({
       ...option,
+      value: option.value ?? option.text ?? (index + 1),
       correct: option.correct === true,
       selected: option.selected === true,
       highlight: option.highlight ?? false,
@@ -358,6 +356,32 @@ export class QuizDataService implements OnDestroy {
         ? [...question.selectedOptionIds]
         : undefined
     }));
+  }
+
+  private cloneQuestion(question: QuizQuestion | undefined | null): QuizQuestion | null {
+    if (!question) {
+      return null;
+    }
+
+    return this.cloneQuestions([question])[0] ?? null;
+  }
+
+  private ensureBaseQuestions(
+    quizId: string,
+    quiz: Quiz | null
+  ): QuizQuestion[] {
+    const cached = this.baseQuizQuestionCache.get(quizId);
+    if (Array.isArray(cached) && cached.length > 0) {
+      return this.cloneQuestions(cached);
+    }
+
+    const normalized = (quiz?.questions ?? [])
+      .map((question) => this.normalizeQuestion(question));
+
+    const normalizedClone = this.cloneQuestions(normalized);
+    this.baseQuizQuestionCache.set(quizId, this.cloneQuestions(normalizedClone));
+
+    return normalizedClone;
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): Observable<[QuizQuestion, Option[]] | null> {
