@@ -283,6 +283,16 @@ export class QuizDataService implements OnDestroy {
     return prepared.map((question) => this.normalizeQuestion(question));
   }
 
+  private sanitizeOptions(options: Option[] = []): Option[] {
+    return this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
+      ...option,
+      correct: option.correct === true,
+      selected: option.selected === true,
+      highlight: option.highlight ?? false,
+      showIcon: option.showIcon ?? false
+    }));
+  }
+
   private normalizeQuestion(question: QuizQuestion): QuizQuestion {
     const sanitizedOptions = this.sanitizeOptions(question.options ?? []);
     const alignedAnswers = this.quizShuffleService.alignAnswersWithOptions(
@@ -294,18 +304,13 @@ export class QuizDataService implements OnDestroy {
       ...question,
       options: sanitizedOptions.map((option) => ({ ...option })),
       answer: alignedAnswers.map((option) => ({ ...option })),
-      selectedOptions: undefined
+      selectedOptions: Array.isArray(question.selectedOptions)
+        ? question.selectedOptions.map((option) => ({ ...option }))
+        : undefined,
+      selectedOptionIds: Array.isArray(question.selectedOptionIds)
+        ? [...question.selectedOptionIds]
+        : undefined
     };
-  }
-
-  private sanitizeOptions(options: Option[] = []): Option[] {
-    return this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
-      ...option,
-      correct: option.correct === true,
-      selected: option.selected === true,
-      highlight: option.highlight ?? false,
-      showIcon: option.showIcon ?? false
-    }));
   }
 
   private cloneQuestions(questions: QuizQuestion[] = []): QuizQuestion[] {
@@ -319,6 +324,9 @@ export class QuizDataService implements OnDestroy {
         : undefined,
       selectedOptions: Array.isArray(question.selectedOptions)
         ? question.selectedOptions.map((option) => ({ ...option }))
+        : undefined,
+      selectedOptionIds: Array.isArray(question.selectedOptionIds)
+        ? [...question.selectedOptionIds]
         : undefined
     }));
   }
