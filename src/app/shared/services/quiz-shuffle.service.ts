@@ -226,10 +226,14 @@ export class QuizShuffleService {
 
     const state = this.shuffleByQuizId.get(quizId);
     if (!state) {
-      return questions.map((question) => ({
-        ...question,
-        options: this.cloneAndNormalizeOptions(question.options ?? [])
-      }));
+      return questions.map((question) => {
+        const normalizedOptions = this.cloneAndNormalizeOptions(question.options ?? []);
+        return {
+          ...question,
+          options: normalizedOptions.map((option) => ({ ...option })),
+          answer: this.alignAnswersWithOptions(question.answer, normalizedOptions)
+        };
+      });
     }
 
     const displaySet = state.questionOrder
