@@ -189,7 +189,8 @@ export class QuizDataService implements OnDestroy {
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
-
+  
+        // Normalizer for options after any (re)ordering
         const sanitizeOptions = (options: Option[] = []): Option[] =>
           this.quizShuffleService.assignOptionIds(options, 1).map((option) => ({
             ...option,
@@ -198,55 +199,51 @@ export class QuizDataService implements OnDestroy {
             highlight: option.highlight ?? false,
             showIcon: option.showIcon ?? false
           }));
-
+  
+        // Deep-clone base questions (options cloned too) – your requested addition
         const baseQuestions: QuizQuestion[] = (quiz.questions ?? []).map((question) => ({
           ...question,
-          options: sanitizeOptions(question.options ?? [])
+          options: (question.options ?? []).map(option => ({ ...option }))
         }));
-
+  
         let preparedQuestions: QuizQuestion[] = baseQuestions;
-
+  
         if (this.quizService.isShuffleEnabled()) {
+          // Prepare & build shuffled set
           this.quizShuffleService.prepareShuffle(quizId, baseQuestions);
-          const displayCount = this.quizShuffleService.getDisplayCount(quizId);
-
-          const shuffledQuestions: QuizQuestion[] = [];
-          for (let displayIndex = 0; displayIndex < displayCount; displayIndex++) {
-            const mapped = this.quizShuffleService.getQuestionAtDisplayIndex(
-              quizId,
-              displayIndex,
-              baseQuestions
-            );
-
-            if (!mapped) {
-              continue;
-            }
-
-            const sanitizedOptions = sanitizeOptions(mapped.options ?? []);
-            shuffledQuestions.push({ ...mapped, options: sanitizedOptions });
-          }
-
-          if (shuffledQuestions.length > 0) {
-            preparedQuestions = shuffledQuestions;
-          }
+          preparedQuestions = this.quizShuffleService.buildShuffledQuestions(
+            quizId,
+            baseQuestions
+          );
         } else {
+          // Clear any prior shuffle state and still build in identity order
           this.quizShuffleService.clear(quizId);
+          preparedQuestions = this.quizShuffleService.buildShuffledQuestions(
+            quizId,
+            baseQuestions
+          );
         }
-
+  
+        // Ensure options in the final payload are sanitized/normalized
+        preparedQuestions = preparedQuestions.map(q => ({
+          ...q,
+          options: sanitizeOptions(q.options ?? [])
+        }));
+  
+        // Cache + wire into session state
         this.quizQuestionCache.set(quizId, preparedQuestions);
-
         this.quizService.applySessionQuestions(quizId, preparedQuestions);
         this.syncSelectedQuizState(quizId, preparedQuestions, quiz);
-
-        return preparedQuestions;        
+  
+        return preparedQuestions;
       }),
       catchError(error => {
         console.error('[QuizDataService] getQuestionsForQuiz:', error);
-        // Rethrow so upstream callers see the failure
         return throwError(() => error);
       })
     );
   }
+  
 
   /**
    * Ensure the quiz session questions are available before starting a quiz.
