@@ -93,9 +93,9 @@ export class QuizShuffleService {
     const reordered = order
       .map((i, displayOrder) => {
         const option = normalizedOpts[i];
-        return option ? { ...option, displayOrder } : null;
+        return option ? ({ ...option, displayOrder } as Option & { displayOrder: number }) : null;
       })
-      .filter((option): option is Option => option !== null);
+      .filter((o): o is Option & { displayOrder: number } => o !== null);
 
     // If we somehow lost options (e.g. stale order), fall back to normalized list
     const safeOptions = reordered.length === normalizedOpts.length
