@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { Option } from '../../models/Option.model';
-import { QuizQuestion } from '../../models/QuizQuestion.model';
-import { ShuffleState } from '../../models/ShuffleState.model';
+import { Option } from '../../shared/models/Option.model';
+import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+import { ShuffleState } from '../../shared/models/ShuffleState.model';
 
 export interface PrepareShuffleOpts {
   shuffleQuestions?: boolean,
