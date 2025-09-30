@@ -245,6 +245,8 @@ export class QuizNavigationService {
         });
       return !!moved;
     }
+
+    this.resetExplanationAndState();
   
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
