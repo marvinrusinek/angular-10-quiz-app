@@ -63,6 +63,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private overrideSubject = new BehaviorSubject<{idx: number, html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
   private lastQuestionText = '';
+  private lastRenderedQuestionKey: string | null = null;
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -274,7 +275,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
+      this.explanationTextService.explanationText$.pipe(startWith('')),
       this.questionToDisplay$.pipe(startWith('')),
       this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
@@ -282,7 +283,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-  
+
         const rawQuestion   = (questionText ?? '').trim();
         const explanation   = (explanationText ?? '').trim();
         const correct       = (correctText ?? '').trim();
@@ -291,24 +292,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fallbackFromModel = (questionModel?.questionText ?? '').trim()
           || (this.questions?.[currentIndex]?.questionText ?? '').trim();
 
-        const candidateSource = rawQuestion || this.lastQuestionText || fallbackFromModel;
+        const candidateSource = rawQuestion || fallbackFromModel || this.lastQuestionText;
         const candidateQuestion = (candidateSource ?? '').toString().trim();
+        const question = candidateQuestion || 'No question available';
 
         if (candidateQuestion) {
           this.lastQuestionText = candidateQuestion;
         }
 
-        const question = candidateQuestion || 'No question available';
+        const correctMarkup = correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
+
+        const numericIndex =
+          typeof currentIndex === 'number' && Number.isFinite(currentIndex)
+            ? currentIndex
+            : -1;
+        const questionKey = `${numericIndex}::${question}`;
+        const finalize = (text: string) => {
+          this.lastRenderedQuestionKey = questionKey;
+          return text;
+        };
+
+        const isNewQuestion = questionKey !== this.lastRenderedQuestionKey;
+
+        if (isNewQuestion) {
+          return of(finalize(correctMarkup));
+        }
 
         const showExplanation =
           state?.mode === 'explanation' &&
           (shouldDisplayExplanation || !!explanation);
 
         if (showExplanation) {
-          // If the formatted explanation is already present, emit it.
-          if (explanation) return of(explanation);
-  
-          // Otherwise, try to load formatted explanation once.
+          if (explanation) {
+            return of(finalize(explanation));
+          }
+
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -316,35 +336,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               map((s: string | null | undefined) => (s ?? '').trim()),
               switchMap((trimmed) => {
                 if (trimmed) return of(trimmed);
-  
-                // Service cache fallback
+
                 const svcRaw = (
                   this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
                 ).toString().trim();
                 if (svcRaw) return of(svcRaw);
-  
-                // Model fallback
+
                 const rawSource = questionModel
                   ? questionModel.explanation
                   : this.questions?.[currentIndex]?.explanation;
                 const modelRaw = (rawSource ?? '').toString().trim();
                 if (modelRaw) return of(modelRaw);
-  
-                // Final fallback
-                return of('Explanation not available.');
-              })
-            );
-          }
 
-          // Otherwise show question (and correct count if present)
-          const out = correct
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
-  
-          return of(out);
-        }),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
+                return of('Explanation not available.');
+              }),
+              map((text) => finalize(text))
+            );
+        }
+
+        return of(finalize(correctMarkup));
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
   
