@@ -457,9 +457,7 @@ export class QuizNavigationService {
 
   private resetExplanationAndState(): void {
     // Immediately reset explanation-related state to avoid stale data
-    this.explanationTextService.unlockExplanation();
-    this.explanationTextService.setExplanationText('');
-    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.forceResetBetweenQuestions();
     this.quizStateService.setDisplayState({ mode: 'question', answered: false });
 
     // Clear the old Q&A state before starting navigation
