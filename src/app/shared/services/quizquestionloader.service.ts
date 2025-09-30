@@ -679,6 +679,13 @@ export class QuizQuestionLoaderService {
     this.question = null;
     this.currentQuestion = null;
     this.optionsToDisplay = [];
+    this.resetQuestionDisplayState();
+    this.questionTextSubject.next('');
+    this.questionToDisplay$.next('');
+    this.optionsStream$.next([]);
+    this.explanationTextSubject.next('');
+    this.questionPayloadReadySource.next(false);
+    this.questionPayload = null;
 
     // Reset question component state only if method exists
     if (this.quizQuestionComponent) {
