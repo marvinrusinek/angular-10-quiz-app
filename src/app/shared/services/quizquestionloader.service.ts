@@ -337,8 +337,9 @@ export class QuizQuestionLoaderService {
     this.isLoading = true;
 
     // Explanation / selection messages
+    this.explanationTextService.unlockExplanation();
     this.explanationTextService.resetExplanationState();
-    // 🧹 Clear only — don’t recompute baseline here.
+    // Clear only — don’t recompute baseline here.
     this.resetComplete = false;
 
     // Force a small delay so the DOM can repaint
