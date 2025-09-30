@@ -550,17 +550,24 @@ export class QuizQuestionLoaderService {
     // ── ORIGINAL ASYNC PATH  ────────────────────────────────────
     try {
       // Fetch and validate question text
-      const questionText = await firstValueFrom(
-        this.quizService.getQuestionTextForIndex(questionIndex)
+      const resolvedQuestion = await firstValueFrom(
+        this.quizService.getResolvedQuestionByIndex(questionIndex)
       );
-      if (!questionText?.trim()) {
-        throw new Error(`Invalid question text for index ${questionIndex}`);
-      }
-      const trimmedText = questionText.trim();
 
-      // Fetch and validate options
-      const options = await this.quizService.getOptions(questionIndex);
-      if (!Array.isArray(options) || options.length === 0) {
+      if (!resolvedQuestion || !resolvedQuestion.questionText?.trim()) {
+        throw new Error(`Invalid question payload for index ${questionIndex}`);
+      }
+
+      const trimmedText = resolvedQuestion.questionText.trim();
+
+      const options = Array.isArray(resolvedQuestion.options)
+        ? resolvedQuestion.options.map((option, idx) => ({
+            ...option,
+            optionId: option.optionId ?? idx,
+          }))
+        : [];
+
+      if (!options.length) {
         throw new Error(`No options found for Q${questionIndex}`);
       }
 
