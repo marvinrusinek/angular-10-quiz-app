@@ -3132,20 +3132,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  @@ -2210,54 +2210,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
-            '[restoreSelectedOptions] ❌ Option not found in optionsToDisplay:',
-            option
-          );
-        }
-      });
-    } catch (error) {
-      console.error(
-        '[restoreSelectedOptions] ❌ Error parsing selected options:',
-        error
-      );
-    }
-  }
-
   private resetFeedbackState(): void {
     this.showFeedback = false;
     this.showFeedbackForOption = {};
@@ -3158,10 +3144,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
-  updateQuestionDisplayForShuffledQuestions(): void {
+  /* updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
       this.questions[this.currentQuestionIndex].questionText;
-  }
+  } */
   updateQuestionDisplayForShuffledQuestions(): void {
     void this.updateQuestionDisplay(this.currentQuestionIndex);
   }
@@ -3216,9 +3202,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.quizStateService.createDefaultQuestionState();
   }
 
-  // REMOVE!!␍␊
-  private initializeQuizState(): void {␍␊
-  // REMOVE!!␊
   private initializeQuizState(): void {␊
     // Call findQuizByQuizId and subscribe to the observable to get the quiz data
     this.quizService.findQuizByQuizId(this.quizId).subscribe({
