@@ -338,7 +338,7 @@ export class QuizQuestionLoaderService {
 
     // Explanation / selection messages
     this.explanationTextService.unlockExplanation();
-    this.explanationTextService.resetExplanationState();
+    this.explanationTextService.forceResetBetweenQuestions();
     // Clear only — don’t recompute baseline here.
     this.resetComplete = false;
 
@@ -697,12 +697,7 @@ export class QuizQuestionLoaderService {
 
     // Clear selected options tracking
     this.selectedOptionService.clearOptions();
-
-    if (!this.explanationTextService.isExplanationLocked()) {
-      this.explanationTextService.resetExplanationState();
-    } else {
-      console.log('[resetUI] 🛡️ Skipping explanation reset — lock is active.');
-    }
+    this.explanationTextService.forceResetBetweenQuestions();
   }
 
   public resetQuestionState(index: number = this.currentQuestionIndex): void {
