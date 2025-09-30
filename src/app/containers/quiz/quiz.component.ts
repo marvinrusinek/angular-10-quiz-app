@@ -3881,6 +3881,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.quizStateService.setAnswered(true);
         this.selectedOptionService.setAnswered(true, true);
       }
+
+      this.quizStateService.setDisplayState({
+        mode: isAnswered ? 'explanation' : 'question',
+        answered: isAnswered
+      });
   
       // Parallel fetch for question and options
       console.time('⏳ Parallel fetch: question + options');
@@ -4049,32 +4054,32 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return false;
     }
   }
-  
 
   private async fetchQuestionDetails(
     questionIndex: number
   ): Promise<QuizQuestion> {
     try {
-      // Fetch and validate question text
-      const questionText = await firstValueFrom(
-        this.quizService.getQuestionTextForIndex(questionIndex)
+      const resolvedQuestion = await firstValueFrom(
+        this.quizService.getResolvedQuestionByIndex(questionIndex)
       );
-      if (
-        !questionText ||
-        typeof questionText !== 'string' ||
-        !questionText.trim()
-      ) {
+
+      if (!resolvedQuestion || !resolvedQuestion.questionText?.trim()) {
         console.error(
-          `[❌ Q${questionIndex}] Missing or invalid question text`
+          `[❌ Q${questionIndex}] Missing or invalid question payload`
         );
-        throw new Error(`Invalid question text for index ${questionIndex}`);
+        throw new Error(`Invalid question payload for index ${questionIndex}`);
       }
 
-      const trimmedText = questionText.trim();
+      const trimmedText = resolvedQuestion.questionText.trim();
 
-      // Fetch and validate options
-      const options = await this.quizService.getNextOptions(questionIndex);
-      if (!Array.isArray(options) || options.length === 0) {
+      const options = Array.isArray(resolvedQuestion.options)
+        ? resolvedQuestion.options.map((option, idx) => ({
+            ...option,
+            optionId: option.optionId ?? idx,
+          }))
+        : [];
+
+      if (!options.length) {
         console.error(`[❌ Q${questionIndex}] No valid options`);
         throw new Error(`No options found for Q${questionIndex}`);
       }
