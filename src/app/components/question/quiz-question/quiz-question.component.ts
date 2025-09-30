@@ -4685,13 +4685,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.options = [];
     this.feedbackText = '';
 
-    // Reset the local display state as well as the shared observable so that
-    // consumers never render the previous explanation while the next question
-    // is loading. The previous implementation only mutated the local object
-    // which meant the BehaviourSubject retained the last "explanation" value.
-    // That caused the UI to briefly flash the explanation when navigating to a
-    // new question and also prevented the next question from rendering because
-    // downstream logic believed the explanation view was still active.
     this.displayState = { mode: 'question', answered: false };
     this.displayStateSubject.next(this.displayState);
     this.displayStateChange.emit(this.displayState);
