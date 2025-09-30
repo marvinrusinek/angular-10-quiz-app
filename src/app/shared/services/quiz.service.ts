@@ -1399,29 +1399,24 @@ export class QuizService implements OnDestroy {
 
   getNextOptions(currentQuestionIndex: number): Promise<Option[] | undefined> {
     return firstValueFrom(
-      this.getCurrentQuiz().pipe(
-        map((currentQuiz: Quiz | undefined): Option[] | undefined => {
-          if (
-            currentQuiz &&
-            Array.isArray(currentQuiz.questions) &&
-            currentQuestionIndex >= 0 &&
-            currentQuestionIndex < currentQuiz.questions.length
-          ) {
-            const currentOptions =
-              currentQuiz.questions[currentQuestionIndex].options;
-
-            // Broadcast the current options
-            this.nextOptionsSource.next(currentOptions);
-            this.nextOptionsSubject.next(currentOptions);
-
-            return currentOptions;
+      this.getResolvedQuestionByIndex(currentQuestionIndex).pipe(
+        map((question): Option[] | undefined => {
+          if (!question || !Array.isArray(question.options)) {
+            this.nextOptionsSource.next(null);
+            this.nextOptionsSubject.next(null);
+            return undefined;
           }
 
-          // Broadcast null when index is invalid
+          const cloned = question.options.map((option) => ({ ...option }));
+          this.nextOptionsSource.next(cloned);
+          this.nextOptionsSubject.next(cloned);
+          return cloned;
+        }),
+        catchError((error) => {
+          console.error('[getNextOptions] ❌ Failed to resolve options:', error);
           this.nextOptionsSource.next(null);
           this.nextOptionsSubject.next(null);
-
-          return undefined;
+          return of(undefined);
         })
       )
     );
