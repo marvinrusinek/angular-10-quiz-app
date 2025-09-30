@@ -262,8 +262,7 @@ export class QuizQuestionLoaderService {
 
   // Ensure quizId comes from the route and clear cache on change
   private ensureRouteQuizId(): boolean {
-    const routeId =
-      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    const routeId = this.readRouteParam('quizId') ?? this.quizService.quizId;
     if (!routeId) {
       console.error('[Loader] No quizId');
       return false;
