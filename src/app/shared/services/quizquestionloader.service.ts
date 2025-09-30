@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 import { firstValueFrom, lastValueFrom } from '../../shared/utils/rxjs-compat';
@@ -357,8 +357,7 @@ export class QuizQuestionLoaderService {
     index: number
   ): Promise<{ q: QuizQuestion | null; opts: Option[] }> {
     // Which quiz is in the URL right now?
-    const quizId =
-      this.router.routerState.snapshot.root.firstChild?.params['quizId'];
+    const quizId = this.readRouteParam('quizId') ?? this.activeQuizId ?? this.quizService.quizId;
     if (!quizId) {
       console.error('[Loader] ❌ No quizId in route');
       return { q: null, opts: [] };
