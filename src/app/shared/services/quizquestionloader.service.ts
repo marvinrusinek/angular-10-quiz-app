@@ -318,8 +318,8 @@ export class QuizQuestionLoaderService {
   // Do all the big UI resets
   // Clears forms, timers, messages, and child-component state so the
   // next question starts with a clean slate.  Call before fetching data.
+  // Parent-level reset
   private async resetUiForNewQuestion(index: number): Promise<void> {
-    // Parent-level reset
     this.resetQuestionState(index);
 
     // Child component reset
@@ -329,6 +329,13 @@ export class QuizQuestionLoaderService {
 
     // Blank out the QA streams so the view flashes “loading…”
     this.clearQA();
+    this.resetQuestionDisplayState();
+    this.questionTextSubject.next('');
+    this.questionToDisplay$.next('');
+    this.optionsStream$.next([]);
+    this.explanationTextSubject.next('');
+    this.questionPayloadReadySource.next(false);
+    this.questionPayload = null;
 
     // Per-question flags
     this.questionTextLoaded = false;
@@ -697,7 +704,7 @@ export class QuizQuestionLoaderService {
 
     // Clear selected options tracking
     this.selectedOptionService.clearOptions();
-    
+
     this.explanationTextService.forceResetBetweenQuestions();
   }
 
