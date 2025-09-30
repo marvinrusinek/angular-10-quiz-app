@@ -108,12 +108,12 @@ export class QuizNavigationService {
   }
 
   public async advanceToNextQuestion(): Promise<boolean> {
-    this.resetExplanationAndState();
+    // this.resetExplanationAndState();
     return await this.navigateWithOffset(1);  // defer navigation until state is clean
   }
   
   public async advanceToPreviousQuestion(): Promise<boolean> {
-    this.resetExplanationAndState();
+    // this.resetExplanationAndState();
     return await this.navigateWithOffset(-1);  // defer navigation until state is clean
   }
 
