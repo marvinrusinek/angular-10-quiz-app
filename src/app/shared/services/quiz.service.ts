@@ -473,7 +473,10 @@ export class QuizService implements OnDestroy {
       }),
       tap((options) => this.currentOptionsSubject.next(options)),
       catchError((error) => {
-        console.error(`Error fetching options for question index ${index}:`, error);
+        console.error(
+          `Error fetching options for question index ${index}:`,
+          error
+        );
         return of([]);
       })
     );
@@ -870,9 +873,7 @@ export class QuizService implements OnDestroy {
     const quizId = this.resolveActiveQuizId();
 
     if (!quizId) {
-      console.warn(
-        `[getResolvedQuestionByIndex] ⚠️ Unable to resolve quizId for index ${index}.`
-      );
+      console.warn(`[getResolvedQuestionByIndex] ⚠️ Unable to resolve quizId for index ${index}.`);
       return of(null);
     }
 
