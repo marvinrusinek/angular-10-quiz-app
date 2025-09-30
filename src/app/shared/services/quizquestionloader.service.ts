@@ -697,6 +697,7 @@ export class QuizQuestionLoaderService {
 
     // Clear selected options tracking
     this.selectedOptionService.clearOptions();
+    
     this.explanationTextService.forceResetBetweenQuestions();
   }
 
