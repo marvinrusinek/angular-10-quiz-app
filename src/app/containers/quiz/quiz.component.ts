@@ -2232,9 +2232,12 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
 
-  updateQuestionDisplayForShuffledQuestions(): void {
+  /* updateQuestionDisplayForShuffledQuestions(): void {
     this.questionToDisplay =
       this.questions[this.currentQuestionIndex].questionText;
+  } */
+  updateQuestionDisplayForShuffledQuestions(): void {
+    void this.updateQuestionDisplay(this.currentQuestionIndex);
   }
 
   getQuestionAndOptions(quizId: string, questionIndex: number): void {
@@ -3087,31 +3090,106 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
 
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
-    // Reset `questionTextLoaded` to `false` before loading a new question
     this.questionTextLoaded = false;
 
-    // Ensure questions array is loaded
-    while (!Array.isArray(this.questions) || this.questions.length === 0) {
-      console.warn(
-        'Questions array is not initialized or empty. Loading questions...'
+    try {
+      const payload = await firstValueFrom(
+        this.quizService
+          .getQuestionPayloadForIndex(questionIndex)
+          .pipe(take(1))
       );
-      await this.loadQuizData();  // ensure questions are loaded
-      await new Promise((resolve) => setTimeout(resolve, 500));  // small delay before rechecking
-    }
 
-    if (questionIndex >= 0 && questionIndex < this.questions.length) {
-      const selectedQuestion = this.questions[questionIndex];
-
-      this.questionTextLoaded = false;  // reset to false before updating
-
-      this.questionToDisplay = selectedQuestion.questionText;
-      this.optionsToDisplay = selectedQuestion.options;
-
-      // Set `questionTextLoaded` to `true` once the question and options are set
+      this.applyQuestionPayloadToDisplay(payload, questionIndex);
+    } catch (error) {
+      console.error(
+        `[updateQuestionDisplay] Failed to resolve payload for index ${questionIndex}:`,
+        error
+      );
+      this.applyQuestionPayloadToDisplay(null, questionIndex);
+    } finally {
       this.questionTextLoaded = true;
-    } else {
-      console.warn(`Invalid question index: ${questionIndex}.`);
     }
+  }
+
+  private applyQuestionPayloadToDisplay(
+    payload: QuestionPayload | null,
+    questionIndex: number
+  ): void {
+    if (!payload?.question) {
+      this.questionToDisplay = 'No question available';
+      this.questionToDisplaySubject.next('No question available');
+      this.optionsToDisplay = [];
+      this.optionsToDisplay$.next([]);
+      this.options = [];
+      this.currentOptions = [];
+
+      if (this.quizQuestionComponent) {
+        this.quizQuestionComponent.optionsToDisplay = [];
+      }
+
+      this.resetDisplayStateForQuestion(questionIndex);
+      return;
+    }
+
+    const trimmedQuestionText =
+      payload.question.questionText?.trim() || 'No question available';
+
+    const normalizedOptions = (payload.options ?? []).map((option, index) => ({
+      ...option,
+      optionId:
+        typeof option.optionId === 'number' ? option.optionId : index + 1,
+      displayOrder:
+        typeof option.displayOrder === 'number' ? option.displayOrder : index,
+    }));
+
+    this.question = payload.question;
+    this.currentQuestion = payload.question;
+    this.questionToDisplay = trimmedQuestionText;
+    this.questionToDisplaySubject.next(trimmedQuestionText);
+
+    this.optionsToDisplay = [...normalizedOptions];
+    this.optionsToDisplay$.next([...normalizedOptions]);
+    this.options = [...normalizedOptions];
+    this.currentOptions = [...normalizedOptions];
+
+    if (this.quizQuestionComponent) {
+      this.quizQuestionComponent.optionsToDisplay = [...normalizedOptions];
+    }
+
+    if (Array.isArray(this.questions)) {
+      this.questions[questionIndex] = {
+        ...payload.question,
+        options: [...normalizedOptions],
+      };
+    }
+
+    this.resetDisplayStateForQuestion(questionIndex);
+  }
+
+  private resetDisplayStateForQuestion(questionIndex: number): void {
+    if (!this.quizId) {
+      return;
+    }
+
+    const questionState = this.quizStateService.getQuestionState(
+      this.quizId,
+      questionIndex
+    );
+
+    if (questionState?.isAnswered) {
+      return;
+    }
+
+    this.showExplanation = false;
+    this.displayExplanation = false;
+    this.explanationToDisplay = '';
+    this.explanationVisibleLocal = false;
+    this.explanationTextLocal = '';
+
+    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setExplanationText('');
   }
 
   private async updateQuestionStateAndExplanation(
