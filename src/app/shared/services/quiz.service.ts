@@ -447,6 +447,14 @@ export class QuizService implements OnDestroy {
 
   // Return a sanitized array of options for the given question index.
   getOptions(index: number): Observable<Option[]> {
+    const fromSession = this.getSessionQuestionAt(index);
+
+    if (fromSession?.options?.length) {
+      const normalized = this.cloneOptions(this.sanitizeOptions(fromSession.options));
+      this.currentOptionsSubject.next(normalized);
+      return of(normalized);
+    }
+
     return this.getCurrentQuestionByIndex(this.quizId, index).pipe(
       // 🆕  Trace whether the quiz data was actually loaded
       tap((question) => {
@@ -456,24 +464,46 @@ export class QuizService implements OnDestroy {
         );
       }),
       map((question) => {
-        // 🆕  Guard: if no question or options → log and return []
         if (!question || !Array.isArray(question.options)) {
           console.warn(`[getOptions ⚠️] Q${index} has no options; returning []`);
           return [];
         }
 
-        // Existing logic – sanitize structure
-        return this.sanitizeOptions(question.options);
+        return this.cloneOptions(this.sanitizeOptions(question.options));
       }),
+      tap((options) => this.currentOptionsSubject.next(options)),
       catchError((error) => {
         console.error(
           `Error fetching options for question index ${index}:`,
           error
         );
-        // Keep the observable alive with an empty array fallback
         return of([]);
       })
     );
+  }
+
+  private getSessionQuestionAt(index: number): QuizQuestion | null {
+    const sources: Array<QuizQuestion[] | null | undefined> = [
+      this.questionsSubject.getValue(),
+      this.shuffledQuestions,
+      this.questions,
+      this.activeQuiz?.questions,
+      this.selectedQuiz?.questions
+    ];
+
+    for (const list of sources) {
+      if (!Array.isArray(list) || !list[index]) {
+        continue;
+      }
+
+      return list[index];
+    }
+
+    return null;
+  }
+
+  private cloneOptions(options: Option[] = []): Option[] {
+    return options.map((option) => ({ ...option }));
   }
 
   /* sanitizeOptions(options: Option[]): Option[] {
