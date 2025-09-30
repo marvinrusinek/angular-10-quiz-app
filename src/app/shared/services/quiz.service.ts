@@ -2725,6 +2725,11 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndexSource.next(0);
     this.currentQuestionIndexSubject.next(0);
 
+    this.shuffledQuestions = [];
+    this.questions = [];
+    this.questionsList = [];
+    this.questionsSubject.next([]);
+
     this.currentQuestionSource.next(null);
     this.currentQuestion.next(null);
     this.currentQuestionSubject.next(null);
