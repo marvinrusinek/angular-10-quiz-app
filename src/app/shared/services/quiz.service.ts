@@ -2903,4 +2903,13 @@ export class QuizService implements OnDestroy {
   requestPreReset(index: number): void {
     this._preReset$.next(index);
   }
+
+  private resolveActiveQuizId(): string | null {
+    return (
+      this.quizId ||
+      this.activeQuiz?.quizId ||
+      this.selectedQuiz?.quizId ||
+      null
+    );
+  }
 }
