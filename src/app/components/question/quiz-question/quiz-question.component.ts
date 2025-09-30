@@ -4692,8 +4692,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.displayMode = 'question';
     this.displayMode$.next('question');
 
-    // Ensure all local flags that control the explanation view are reset so
-    // that the next question starts from a clean slate.
     this.forceQuestionDisplay = true;
     this.readyForExplanationDisplay = false;
     this.isExplanationReady = false;
