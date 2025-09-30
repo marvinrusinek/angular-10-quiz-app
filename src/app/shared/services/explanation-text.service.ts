@@ -507,12 +507,21 @@ export class ExplanationTextService {
   }
 
   resetExplanationState(): void {
+    this.unlockExplanation();
+
+    this.latestExplanation = '';
+    this.currentQuestionExplanation = null;
+
+    this.explanationTextSubject.next('');
+    this.explanationText$.next('');
     this.formattedExplanationSubject.next('');
+
     this.explanationTexts = {};
-  
+
     this.shouldDisplayExplanationSource.next(false);
     this.isExplanationTextDisplayedSource.next(false);
-  }  
+    this.resetCompleteSubject.next(false);
+  }
 
   resetProcessedQuestionsState(): void {
     this.processedQuestions = new Set<string>();
