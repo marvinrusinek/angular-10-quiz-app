@@ -4097,6 +4097,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
       }
 
+      if (
+        (!explanation || explanation === 'No explanation available') &&
+        resolvedQuestion.explanation?.trim()
+      ) {
+        explanation = resolvedQuestion.explanation.trim();
+      }
+
       // Determine question type
       const correctCount = options.filter((opt) => opt.correct).length;
       const type =
