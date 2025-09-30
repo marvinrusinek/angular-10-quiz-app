@@ -301,6 +301,21 @@ export class QuizQuestionLoaderService {
     return ok;
   }
 
+  private readRouteParam(param: string): string | null {
+    let snapshot: ActivatedRouteSnapshot | null =
+      this.router.routerState.snapshot.root;
+
+    while (snapshot) {
+      const value = snapshot.paramMap?.get(param);
+      if (value != null) {
+        return value;
+      }
+      snapshot = snapshot.firstChild ?? null;
+    }
+
+    return null;
+  }
+
   // Do all the big UI resets
   // Clears forms, timers, messages, and child-component state so the
   // next question starts with a clean slate.  Call before fetching data.
