@@ -4684,8 +4684,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.selectedOption = null;
     this.options = [];
     this.feedbackText = '';
+
+    // Reset the local display state as well as the shared observable so that
+    // consumers never render the previous explanation while the next question
+    // is loading. The previous implementation only mutated the local object
+    // which meant the BehaviourSubject retained the last "explanation" value.
+    // That caused the UI to briefly flash the explanation when navigating to a
+    // new question and also prevented the next question from rendering because
+    // downstream logic believed the explanation view was still active.
     this.displayState = { mode: 'question', answered: false };
+    this.displayStateSubject.next(this.displayState);
+    this.displayStateChange.emit(this.displayState);
+
+    this.displayMode = 'question';
+    this.displayMode$.next('question');
+
+    // Ensure all local flags that control the explanation view are reset so
+    // that the next question starts from a clean slate.
+    this.forceQuestionDisplay = true;
+    this.readyForExplanationDisplay = false;
+    this.isExplanationReady = false;
+    this.isExplanationLocked = false;
     this.explanationLocked = false;
+    this.explanationVisible = false;
+    this.displayExplanation = false;
+    this.shouldDisplayExplanation = false;
+    this.isExplanationTextDisplayed = false;
 
     // Reset explanation
     this.explanationToDisplay = '';
@@ -4695,7 +4719,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setResetComplete(false);
     this.explanationTextService.unlockExplanation();
     this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
     this.showExplanationChange.emit(false);
+
+    // Clear the currently rendered question/option references so that child
+    // components (such as <app-answer>) do not keep stale options while the
+    // next question is being fetched.
+    this.questionToDisplay = '';
+    this.updateShouldRenderOptions([]);
+    this.shouldRenderOptions = false;
+    this.finalRenderReadySubject.next(false);
+    this.renderReadySubject.next(false);
 
     // Reset feedback
     setTimeout(() => {
