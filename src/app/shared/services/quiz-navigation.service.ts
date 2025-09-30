@@ -175,8 +175,26 @@ export class QuizNavigationService {
       if (n < 0) n = 0;
       return n;
     };
-  
-    let currentIndex = readIndexFromSnapshot();   // 0-based
+
+    const currentIndexFromService = (() => {
+      try {
+        const idx = this.quizService.getCurrentQuestionIndex?.();
+        return Number.isInteger(idx) && idx >= 0 ? idx : null;
+      } catch (err) {
+        console.warn('[⚠️ currentIndexFromService] Fallback to router snapshot:', err);
+        return null;
+      }
+    })();
+
+    const snapshotIndex = readIndexFromSnapshot();
+
+    let currentIndex = snapshotIndex;
+    if (currentIndexFromService !== null) {
+      currentIndex = offset >= 0
+        ? Math.max(currentIndexFromService, snapshotIndex)
+        : Math.min(currentIndexFromService, snapshotIndex);
+    }
+
     const targetIndex = currentIndex + offset;    // 0-based
   
     // Block if going out of bounds
