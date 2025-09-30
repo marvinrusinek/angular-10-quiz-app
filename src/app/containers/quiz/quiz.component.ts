@@ -3089,8 +3089,242 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     });
   }
 
+  private prepareForQuestionChange(questionIndex: number): void {
+    const state = this.quizId
+      ? this.quizStateService.getQuestionState(this.quizId, questionIndex)
+      : undefined;
+    const shouldResetExplanation = !state?.isAnswered && !state?.explanationDisplayed;
+
+    this.showExplanation = false;
+    this.displayExplanation = false;
+    this.explanationVisibleLocal = false;
+    this.explanationTextLocal = '';
+    this.explanationToDisplay = '';
+
+    if (shouldResetExplanation) {
+      this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setExplanationText('');
+    }
+  }
+
   async updateQuestionDisplay(questionIndex: number): Promise<void> {
     this.questionTextLoaded = false;
+    this.prepareForQuestionChange(questionIndex);
+
+    try {
+      const payload = await firstValueFrom(
+        this.quizService
+          .getQuestionPayloadForIndex(questionIndex)
+          .pipe(take(1))
+      );
+
+      this.applyQuestionPayloadToDisplay(payload, questionIndex);
+    } catch (error) {
+      console.error(
+        `[updateQuestionDisplay] Failed to resolve payload for index ${questionIndex}:`,
+        error
+      );
+      this.applyQuestionPayloadToDisplay(null, questionIndex);
+    } finally {
+      this.questionTextLoaded = true;
+    }
+  }
+
+  @@ -2210,54 +2210,53 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
+            '[restoreSelectedOptions] ❌ Option not found in optionsToDisplay:',
+            option
+          );
+        }
+      });
+    } catch (error) {
+      console.error(
+        '[restoreSelectedOptions] ❌ Error parsing selected options:',
+        error
+      );
+    }
+  }
+
+  private resetFeedbackState(): void {
+    this.showFeedback = false;
+    this.showFeedbackForOption = {};
+    this.optionsToDisplay.forEach((option) => {
+      option.feedback = '';
+      option.showIcon = false;
+      option.selected = false;  // reset selection before reapplying
+    });
+    this.cdRef.detectChanges();
+  }
+  /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
+
+  updateQuestionDisplayForShuffledQuestions(): void {
+    this.questionToDisplay =
+      this.questions[this.currentQuestionIndex].questionText;
+  }
+  updateQuestionDisplayForShuffledQuestions(): void {
+    void this.updateQuestionDisplay(this.currentQuestionIndex);
+  }
+
+  getQuestionAndOptions(quizId: string, questionIndex: number): void {
+    if (!quizId || quizId.trim() === '') {
+      console.error('❌ quizId is missing or empty');
+      return;
+    }
+
+    if (
+      typeof questionIndex !== 'number' ||
+      isNaN(questionIndex) ||
+      questionIndex < 0
+    ) {
+      console.error(`❌ Invalid questionIndex: ${questionIndex}`);
+      return;
+    }
+
+    // Fetch the question and options using the QuizDataService
+    this.questionAndOptionsSubscription = this.quizDataService
+      .getQuestionAndOptions(quizId, questionIndex)
+      .subscribe({
+        next: ([question, options]) => {
+          // Update component state or variables to reflect the new question and options
+          this.question = question;
+          this.options = options;
+        },
+@@ -3000,52 +2999,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
+      !Array.isArray(selectedQuiz.questions) ||
+      selectedQuiz.questions.length === 0
+    ) {
+      console.error(
+        `Quiz data is invalid or not loaded for Quiz ID ${this.quizId}`
+      );
+      return;
+    }
+
+    if (
+      !this.quizService.isValidQuestionIndex(
+        questionIndex,
+        selectedQuiz.questions
+      )
+    ) {
+      console.error(
+        `Invalid question index: ${questionIndex} for Quiz ID ${this.quizId}`
+      );
+      return;
+    }
+
+    // Initialize the quiz state for the current question
+    this.quizStateService.createDefaultQuestionState();
+  }
+
+  // REMOVE!!␍␊
+  private initializeQuizState(): void {␍␊
+  // REMOVE!!␊
+  private initializeQuizState(): void {␊
+    // Call findQuizByQuizId and subscribe to the observable to get the quiz data
+    this.quizService.findQuizByQuizId(this.quizId).subscribe({
+      next: (currentQuiz) => {
+        // Validate the quiz object
+        if (!currentQuiz) {
+          console.error(`Quiz not found: Quiz ID ${this.quizId}`);
+          return;
+        }
+
+        // Check if the questions property exists, is an array, and is not empty
+        if (
+          !Array.isArray(currentQuiz.questions) ||
+          currentQuiz.questions.length === 0
+        ) {
+          console.error(
+            `Questions data is invalid or not loaded for Quiz ID ${this.quizId}`
+          );
+          return;
+        }
+
+        // Assign selectedQuiz before proceeding (must be done before update)
+        this.selectedQuiz = currentQuiz;
+        console.log('[🧪 selectedQuiz.questions]', this.selectedQuiz.questions);
+
+        // Ensure the currentQuestionIndex is valid for the currentQuiz's questions array
+@@ -3062,79 +3061,175 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
+        }
+
+        // Retrieve the current question using the valid index
+        const currentQuestion =
+          currentQuiz.questions[this.currentQuestionIndex];
+
+        // Check if the currentQuestion is defined before proceeding
+        if (!currentQuestion) {
+          console.error(
+            `Current question is undefined: Quiz ID ${this.quizId}, Question Index ${this.currentQuestionIndex}`
+          );
+          return;
+        }
+
+        // Proceed to update the UI for the new question if all checks pass
+        setTimeout(() => {
+          this.quizInitializationService.updateQuizUIForNewQuestion(
+            currentQuestion
+          );
+        }, 0);
+      },
+      error: (error) => {
+        console.error(`Error retrieving quiz: ${error.message}`);
+      },
+    });
+  }
+
+  async updateQuestionDisplay(questionIndex: number): Promise<void> {
+    // Reset `questionTextLoaded` to `false` before loading a new question
+    this.questionTextLoaded = false;
+
+    // Ensure questions array is loaded
+    while (!Array.isArray(this.questions) || this.questions.length === 0) {
+      console.warn(
+        'Questions array is not initialized or empty. Loading questions...'
+      );
+      await this.loadQuizData();  // ensure questions are loaded
+      await new Promise((resolve) => setTimeout(resolve, 500));  // small delay before rechecking
+    }
+
+    if (questionIndex >= 0 && questionIndex < this.questions.length) {
+      const selectedQuestion = this.questions[questionIndex];
+
+      this.questionTextLoaded = false;  // reset to false before updating
+
+      this.questionToDisplay = selectedQuestion.questionText;
+      this.optionsToDisplay = selectedQuestion.options;
+
+      // Set `questionTextLoaded` to `true` once the question and options are set
+      this.questionTextLoaded = true;
+    } else {
+      console.warn(`Invalid question index: ${questionIndex}.`);
+    }
+  }
+  }
+
+  private prepareForQuestionChange(questionIndex: number): void {
+    const state = this.quizId
+      ? this.quizStateService.getQuestionState(this.quizId, questionIndex)
+      : undefined;
+    const shouldResetExplanation = !state?.isAnswered && !state?.explanationDisplayed;
+
+    this.showExplanation = false;
+    this.displayExplanation = false;
+    this.explanationVisibleLocal = false;
+    this.explanationTextLocal = '';
+    this.explanationToDisplay = '';
+
+    if (shouldResetExplanation) {
+      this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setExplanationText('');
+    }
+  }
+
+  async updateQuestionDisplay(questionIndex: number): Promise<void> {
+    this.questionTextLoaded = false;
+    this.prepareForQuestionChange(questionIndex);
 
     try {
       const payload = await firstValueFrom(
