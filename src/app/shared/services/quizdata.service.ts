@@ -226,6 +226,14 @@ export class QuizDataService implements OnDestroy {
       return of([]);
     }
 
+    const cached = this.quizQuestionCache.get(quizId);
+    if (Array.isArray(cached) && cached.length > 0) {
+      const sessionReadyQuestions = this.cloneQuestions(cached);
+      this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
+      this.syncSelectedQuizState(quizId, sessionReadyQuestions);
+      return of(this.cloneQuestions(sessionReadyQuestions));
+    }
+
     const shouldShuffle = this.quizService.isShuffleEnabled();
     const baseQuestions = this.baseQuizQuestionCache.get(quizId);
 
@@ -242,14 +250,6 @@ export class QuizDataService implements OnDestroy {
       this.syncSelectedQuizState(quizId, sessionClone);
 
       return of(this.cloneQuestions(sessionClone));
-    }
-
-    const cached = this.quizQuestionCache.get(quizId);
-    if (Array.isArray(cached) && cached.length > 0) {
-      const sessionReadyQuestions = this.cloneQuestions(cached);
-      this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
-      this.syncSelectedQuizState(quizId, sessionReadyQuestions);
-      return of(this.cloneQuestions(sessionReadyQuestions));
     }
 
     return this.getQuiz(quizId).pipe(
