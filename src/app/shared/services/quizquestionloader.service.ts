@@ -584,6 +584,10 @@ export class QuizQuestionLoaderService {
         console.warn(`[⚠️ Q${questionIndex}] Explanations not initialized`);
       }
 
+      if (!explanation && resolvedQuestion.explanation) {
+        explanation = resolvedQuestion.explanation.trim();
+      }
+
       // Determine question type
       const correctCount = options.filter((opt) => opt.correct).length;
       const type =
