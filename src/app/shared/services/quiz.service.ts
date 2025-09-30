@@ -861,19 +861,22 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionTextForIndex(index: number): Observable<string | undefined> {
-    return this.getCurrentQuiz().pipe(
-      map((currentQuiz) => {
-        if (
-          currentQuiz &&
-          currentQuiz.questions &&
-          index >= 0 &&
-          index < currentQuiz.questions.length
-        ) {
-          return currentQuiz.questions[index].questionText;
-        }
-        return undefined;
-      })
+    return this.getResolvedQuestionByIndex(index).pipe(
+      map((question) => question?.questionText ?? undefined)
     );
+  }
+
+  getResolvedQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    const quizId = this.resolveActiveQuizId();
+
+    if (!quizId) {
+      console.warn(
+        `[getResolvedQuestionByIndex] ⚠️ Unable to resolve quizId for index ${index}.`
+      );
+      return of(null);
+    }
+
+    return this.getCurrentQuestionByIndex(quizId, index).pipe(take(1));
   }
 
   async fetchQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
