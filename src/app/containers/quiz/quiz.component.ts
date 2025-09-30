@@ -4307,9 +4307,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private async acquireAndNavigateToQuestion(
-    questionIndex: number
-  ): Promise<void> {
+  private async acquireAndNavigateToQuestion(questionIndex: number):
+    Promise<void> {
     try {
       const currentBadgeNumber = this.quizService.getCurrentBadgeNumber();
       if (currentBadgeNumber !== questionIndex) {
@@ -4320,11 +4319,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
       this.resetUI();
 
-      if (!this.explanationTextService.isExplanationLocked()) {
-        this.explanationTextService.resetStateBetweenQuestions();
-      } else {
-        console.warn('[🛡️ resetUIAndNavigate] Blocked reset — explanation is locked.');
-      }
+      this.explanationTextService.unlockExplanation();
+      this.explanationTextService.resetStateBetweenQuestions();
 
       this.optionsToDisplay = [];
       this.currentQuestion = null;
