@@ -4722,20 +4722,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
 
-    const raw = (question.explanation || 'No explanation available').trim();
+    const rawExpl = (question.explanation || 'No explanation available').trim();
 
     // Get the formatted explanation text string (unwrap the Observable)
     let formatted = this.explanationTextService.getFormattedSync(qIdx);
     if (!formatted) {
-      const correctIndices = question.options
-        .filter(o => o.correct)
-        .map(o => o.optionId);
+      const correctIndices = question.options.filter(o => o.correct).map(o => o.optionId);
 
-      formatted = this.explanationTextService.formatExplanation(
-        question,
-        correctIndices,
-        raw
-      );
+      formatted = this.explanationTextService.formatExplanation(question, correctIndices, rawExpl);
       this.explanationTextService.setExplanationTextForQuestionIndex(qIdx, formatted);
     }
 
