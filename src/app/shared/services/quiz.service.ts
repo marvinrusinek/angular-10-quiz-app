@@ -868,6 +868,37 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  getQuestionPayloadForIndex(index: number): Observable<QuestionPayload | null> {
+    return this.getResolvedQuestionByIndex(index).pipe(
+      map((question) => {
+        if (!question) {
+          return null;
+        }
+
+        const sanitizedOptions = this.assignOptionIds(
+          [...this.sanitizeOptions(question.options ?? [])]
+        );
+        const normalizedQuestion: QuizQuestion = {
+          ...question,
+          options: this.cloneOptions(sanitizedOptions),
+        };
+
+        return {
+          question: normalizedQuestion,
+          options: this.cloneOptions(normalizedQuestion.options ?? []),
+          explanation: (normalizedQuestion.explanation ?? '').toString().trim(),
+        } as QuestionPayload;
+      }),
+      catchError((error) => {
+        console.error(
+          `[getQuestionPayloadForIndex] Failed to resolve payload for index ${index}:`,
+          error
+        );
+        return of(null);
+      })
+    );
+  }
+
   getResolvedQuestionByIndex(index: number): Observable<QuizQuestion | null> {
     const quizId = this.resolveActiveQuizId();
 
