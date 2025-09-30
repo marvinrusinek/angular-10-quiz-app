@@ -73,7 +73,23 @@ export class ExplanationTextService {
 
   public isExplanationLocked(): boolean {
     return this.explanationLocked;
-  }  
+  }
+
+  public forceResetBetweenQuestions(): void {
+    this.unlockExplanation();
+
+    this.latestExplanation = '';
+    this.currentQuestionExplanation = null;
+    this.explanationTexts = {};
+
+    this.explanationTextSubject.next('');
+    this.explanationText$.next('');
+    this.formattedExplanationSubject.next('');
+
+    this.shouldDisplayExplanationSource.next(false);
+    this.isExplanationTextDisplayedSource.next(false);
+    this.resetCompleteSubject.next(false);
+  }
 
   public setExplanationText(explanation: string | null): void {
     const trimmed = (explanation ?? '').trim();
