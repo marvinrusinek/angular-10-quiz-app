@@ -571,13 +571,11 @@ export class QuizQuestionLoaderService {
         throw new Error(`No options found for Q${questionIndex}`);
       }
 
-      // Fetch explanation (if service ready)
+      // Fetch explanation (if the service is ready)
       let explanation = 'No explanation available';
       if (this.explanationTextService.explanationsInitialized) {
         const fetched = await firstValueFrom(
-          this.explanationTextService.getFormattedExplanationTextForQuestion(
-            questionIndex
-          )
+          this.explanationTextService.getFormattedExplanationTextForQuestion(questionIndex)
         );
         explanation = fetched?.trim() || explanation;
       } else {
