@@ -473,10 +473,7 @@ export class QuizService implements OnDestroy {
       }),
       tap((options) => this.currentOptionsSubject.next(options)),
       catchError((error) => {
-        console.error(
-          `Error fetching options for question index ${index}:`,
-          error
-        );
+        console.error(`Error fetching options for question index ${index}:`, error);
         return of([]);
       })
     );
@@ -492,9 +489,7 @@ export class QuizService implements OnDestroy {
     ];
 
     for (const list of sources) {
-      if (!Array.isArray(list) || !list[index]) {
-        continue;
-      }
+      if (!Array.isArray(list) || !list[index]) continue;
 
       return list[index];
     }
