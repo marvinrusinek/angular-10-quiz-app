@@ -2228,6 +2228,7 @@ export class QuizService implements OnDestroy {
     this.shuffledQuestions = sanitizedQuestions;
     this.questions = sanitizedQuestions;
     this.questionsList = sanitizedQuestions;
+    this.questionsSubject.next(sanitizedQuestions);
 
     this.totalQuestions = sanitizedQuestions.length;
     this.totalQuestionsSubject.next(this.totalQuestions);
