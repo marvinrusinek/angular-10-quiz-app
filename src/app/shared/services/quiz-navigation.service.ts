@@ -211,31 +211,20 @@ export class QuizNavigationService {
       return false;
     }
   
-    const effectiveQuizId = this.quizId || this.quizService.quizId || this.getQuizId();
+    const effectiveQuizId = this.resolveEffectiveQuizId();
     if (!effectiveQuizId) {
       console.error('[❌ No quizId available]');
       return false;
     }
-  
-    // Fetch the quiz metadata that matches the current route
-    const currentQuiz: Quiz | null = await firstValueFrom(
-      this.quizDataService.getQuiz(effectiveQuizId).pipe(
-        filter((q): q is Quiz => !!q && Array.isArray(q.questions) && q.questions.length > 0),
-        take(1),
-        catchError(err => {
-          console.error('[❌ getQuiz error]', err);
-          return of(null);
-        })
-      )
-    );
-  
-    if (!effectiveQuizId || !currentQuiz) {
-      console.error('[❌ Invalid quiz or navigation parameters]', { targetIndex, effectiveQuizId });
+
+    const totalQuestions = await this.resolveTotalQuestions(effectiveQuizId);
+    if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
+      console.error('[❌ Unable to resolve total question count]', { effectiveQuizId });
       return false;
     }
-  
+
     // Early Exit: already beyond last question, navigate to /results
-    const lastIndex = currentQuiz.questions.length - 1;
+    const lastIndex = totalQuestions - 1;
     if (targetIndex > lastIndex) {
       const moved = await this.ngZone
         .run(() => this.router.navigate(['/results', effectiveQuizId]))
@@ -246,25 +235,24 @@ export class QuizNavigationService {
       return !!moved;
     }
 
-    this.resetExplanationAndState();
-  
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
-  
+
     if (offset < 0) {
       this.quizService.setIsNavigatingToPrevious(true);
     }
-  
+
     try {
       this.quizQuestionLoaderService.resetUI();
-  
+
       const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
         console.error('[❌ navigateToQuestion error]', err);
         return false;
       });
-  
+
       if (navSuccess) {
+        this.resetExplanationAndState();
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
 
