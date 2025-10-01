@@ -431,6 +431,9 @@ export class QuizQuestionLoaderService {
     index: number,
     explanation: string
   ): void {
+    const isAnswered = this.selectedOptionService.isQuestionAnswered(index);
+    const explanationForPayload = isAnswered ? explanation : '';
+
     // Streams for the template
     this.optionsStream$.next([...options]);
     this.qaSubject.next({
@@ -438,18 +441,19 @@ export class QuizQuestionLoaderService {
       index,
       heading: question.questionText.trim(),
       options: [...options],
-      explanation,
+      explanation: explanationForPayload,
       question,
       selectionMessage: this.selectionMessageService.getCurrentMessage(),
     });
 
     // State shared across services/components
-    this.setQuestionDetails(question.questionText.trim(), options, explanation);
+    this.setQuestionDetails(
+      question.questionText.trim(),
+      options,
+      explanationForPayload
+    );
     this.currentQuestionIndex = index;
-    this.explanationToDisplay = explanation;
-    this.questionPayload = { question, options, explanation };
     this.shouldRenderQuestionComponent = true;
-    this.questionPayloadReadySource.next(true);
 
     // Push into QuizService and QuizStateService
     this.quizService.setCurrentQuestion(question);
