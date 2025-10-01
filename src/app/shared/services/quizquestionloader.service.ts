@@ -434,23 +434,29 @@ export class QuizQuestionLoaderService {
   ): void {
     const isAnswered = this.selectedOptionService.isQuestionAnswered(index);
     const explanationForPayload = isAnswered ? explanation : '';
+    const optionsForPayload = [...options];
+    const questionForPayload: QuizQuestion = {
+      ...question,
+      options: optionsForPayload,
+      explanation: explanationForPayload,
+    };
 
     // Streams for the template
-    this.optionsStream$.next([...options]);
+    this.optionsStream$.next(optionsForPayload);
     this.qaSubject.next({
       quizId: this.quizService.quizId,
       index,
       heading: question.questionText.trim(),
-      options: [...options],
+      options: optionsForPayload,
       explanation: explanationForPayload,
-      question,
+      question: questionForPayload,
       selectionMessage: this.selectionMessageService.getCurrentMessage(),
     });
 
     // State shared across services/components
     this.setQuestionDetails(
       question.questionText.trim(),
-      options,
+      optionsForPayload,
       explanationForPayload
     );
     this.currentQuestionIndex = index;
