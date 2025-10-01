@@ -279,6 +279,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
       this.questionVersion++;
   
+      // If the previous question forced every option disabled (e.g. after
+      // showing feedback on completion), make sure that guard is cleared before
+      // the restart/new question renders so Q1 is interactive again.
+      this.clearForceDisableAllOptions();
+  
       this.fullyResetRows();
   
       this.selectedOptionHistory = [];
