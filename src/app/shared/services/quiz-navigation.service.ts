@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, map, take } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { Option } from '../models/Option.model';
@@ -529,12 +529,14 @@ export class QuizNavigationService {
   }
 
   private waitForUrl(url: string): Promise<string> {
+    const targetUrl = this.normalizeUrl(url);
+
     return new Promise<string>((resolve, reject) => {
       const subscription = this.router.events.subscribe({
         next: (event) => {
           if (event instanceof NavigationEnd) {
-            const finalUrl = event.urlAfterRedirects || event.url;
-            if (finalUrl === url) {
+            const finalUrl = this.normalizeUrl(event.urlAfterRedirects || event.url);
+            if (finalUrl === targetUrl) {
               subscription.unsubscribe();
               resolve(finalUrl);
             }
@@ -542,7 +544,8 @@ export class QuizNavigationService {
           }
 
           if (event instanceof NavigationCancel) {
-            if (event.url === url) {
+            const cancelledUrl = this.normalizeUrl(event.url);
+            if (cancelledUrl === targetUrl) {
               subscription.unsubscribe();
               reject(new Error(`Navigation to ${url} was cancelled.`));
             }
@@ -550,7 +553,8 @@ export class QuizNavigationService {
           }
 
           if (event instanceof NavigationError) {
-            if (event.url === url) {
+            const failedUrl = this.normalizeUrl(event.url);
+            if (failedUrl === targetUrl) {
               subscription.unsubscribe();
               reject(event.error ?? new Error(`Navigation to ${url} failed.`));
             }
@@ -562,6 +566,19 @@ export class QuizNavigationService {
         },
       });
     });
+  }
+
+  private normalizeUrl(url: string): string {
+    if (!url) {
+      return '';
+    }
+
+    try {
+      const serialized = this.router.serializeUrl(this.router.parseUrl(url));
+      return serialized.startsWith('/') ? serialized : `/${serialized}`;
+    } catch {
+      return url.startsWith('/') ? url : `/${url}`;
+    }
   }
 
   private readQuizIdFromRouterSnapshot(): string | null {
