@@ -63,6 +63,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private currentIndex = -1;
   private lastQuestionText = '';
   private lastRenderedQuestionKey: string | null = null;
+  private lastRenderedMarkup = '';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -310,6 +311,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionKey = `${numericIndex}::${question}`;
         const finalize = (text: string) => {
           this.lastRenderedQuestionKey = questionKey;
+          this.lastRenderedMarkup = text;
           return text;
         };
 
@@ -355,14 +357,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               }),
               map((text) => finalize(text))
             );
-        }
+          }
 
-        return of(finalize(correctMarkup));
-      }),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  }
+          if (state.mode === 'explanation') {
+            const fallback = this.lastRenderedMarkup || correctMarkup;
+            return of(fallback);
+          }
+    
+          // Default: show question + correct count markup
+          return of(finalize(correctMarkup));
+        }),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+    }
   
   
   private emitContentAvailableState(): void {
