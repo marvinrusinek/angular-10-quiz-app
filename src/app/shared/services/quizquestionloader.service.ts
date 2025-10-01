@@ -474,12 +474,18 @@ export class QuizQuestionLoaderService {
       false
     );
     this.quizStateService.emitQA(
-      question,
-      options,
+      questionForPayload,
+      optionsForPayload,
       selMsg,
       this.quizService.quizId!,
       index
     );
+
+    this.quizService.questionPayloadSubject.next({
+      question: questionForPayload,
+      options: optionsForPayload,
+      explanation: explanationForPayload
+    });
   }
 
   // Explanation, timers, flags – original logic lifted verbatim
