@@ -329,6 +329,7 @@ export class QuizQuestionLoaderService {
 
     // Blank out the QA streams so the view flashes “loading…”
     this.clearQA();
+    this.quizService.questionPayloadSubject.next(null);
     this.resetQuestionDisplayState();
     this.questionTextSubject.next('');
     this.questionToDisplay$.next('');
