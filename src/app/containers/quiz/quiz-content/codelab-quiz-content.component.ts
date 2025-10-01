@@ -64,6 +64,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastQuestionText = '';
   private lastRenderedQuestionKey: string | null = null;
   private lastRenderedMarkup = '';
+  private lastExplanationKey: string | null = null;
+  private lastExplanationMarkup = '';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -309,20 +311,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             ? currentIndex
             : -1;
         const questionKey = `${numericIndex}::${question}`;
-        const finalize = (text: string) => {
+        const recordQuestionMarkup = (text: string) => {
           this.lastRenderedQuestionKey = questionKey;
           this.lastRenderedMarkup = text;
+          return text;
+        };
+
+        const recordExplanationMarkup = (text: string) => {
+          this.lastRenderedQuestionKey = questionKey;
+          this.lastRenderedMarkup = text;
+          this.lastExplanationKey = questionKey;
+          this.lastExplanationMarkup = text;
           return text;
         };
 
         const isNewQuestion = questionKey !== this.lastRenderedQuestionKey;
 
         if (isNewQuestion) {
+          this.lastExplanationKey = null;
+          this.lastExplanationMarkup = '';
           if (state.mode !== 'question' || state.answered) {
             this.quizStateService.setDisplayState({ mode: 'question', answered: false });
           }
           this.explanationTextService.setShouldDisplayExplanation(false);
-          return of(finalize(correctMarkup));
+          return of(recordQuestionMarkup(correctMarkup));
         }
 
         const showExplanation =
