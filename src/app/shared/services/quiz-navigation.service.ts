@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, filter, first, map, take } from 'rxjs/operators';
+import { catchError, filter, map, take } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { Option } from '../models/Option.model';
