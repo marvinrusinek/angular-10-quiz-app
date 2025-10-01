@@ -408,10 +408,12 @@ export class QuizNavigationService {
 
   public resolveEffectiveQuizId(quizIdOverride?: string): string | null {
     if (quizIdOverride) {
+      this.quizId = quizIdOverride;
       return quizIdOverride;
     }
 
     if (this.quizService.quizId) {
+      this.quizId = this.quizService.quizId;
       return this.quizService.quizId;
     }
 
@@ -419,9 +421,18 @@ export class QuizNavigationService {
       return this.quizId;
     }
 
+    const routeQuizId = this.readQuizIdFromRouterSnapshot();
+    if (routeQuizId) {
+      this.quizId = routeQuizId;
+      this.quizService.setQuizId(routeQuizId);
+      return routeQuizId;
+    }
+
     try {
       const stored = localStorage.getItem('quizId');
       if (stored) {
+        this.quizId = stored;
+        this.quizService.setQuizId(stored);
         return stored;
       }
     } catch {
