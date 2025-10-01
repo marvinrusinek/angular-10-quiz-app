@@ -524,7 +524,60 @@ export class QuizNavigationService {
     );
   }
 
-  private getQuizId(): string | null {
-    return this.quizId || null;
+  private readQuizIdFromRouterSnapshot(): string | null {
+    const direct = this.activatedRoute.snapshot.paramMap.get('quizId');
+    if (direct) {
+      return direct;
+    }
+
+    let snapshot = this.router.routerState.snapshot.root;
+    while (snapshot) {
+      const value = snapshot.paramMap?.get('quizId');
+      if (value) {
+        return value;
+      }
+      snapshot = snapshot.firstChild ?? null;
+    }
+
+    return null;
+  }
+
+  private async resolveTotalQuestions(quizId: string): Promise<number> {
+    const loaderCount = this.quizQuestionLoaderService.totalQuestions;
+    if (Number.isFinite(loaderCount) && loaderCount > 0) {
+      return loaderCount;
+    }
+
+    const cachedArrayCount = this.quizQuestionLoaderService.questionsArray?.length ?? 0;
+    if (cachedArrayCount > 0) {
+      this.quizQuestionLoaderService.totalQuestions = cachedArrayCount;
+      return cachedArrayCount;
+    }
+
+    try {
+      const cachedCount = await firstValueFrom(
+        this.quizService.totalQuestions$.pipe(take(1))
+      );
+      if (Number.isFinite(cachedCount) && cachedCount > 0) {
+        return cachedCount;
+      }
+    } catch {
+      // ignore and fall through to fetch
+    }
+
+    try {
+      const fetchedCount = await firstValueFrom(
+        this.quizService.getTotalQuestionsCount(quizId).pipe(take(1))
+      );
+      if (Number.isFinite(fetchedCount) && fetchedCount > 0) {
+        this.quizQuestionLoaderService.totalQuestions = fetchedCount;
+        this.quizService.setTotalQuestions(fetchedCount);
+        return fetchedCount;
+      }
+    } catch (error) {
+      console.error('[❌ resolveTotalQuestions] Failed to fetch count', { quizId, error });
+    }
+
+    return 0;
   }
 }
