@@ -293,7 +293,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
   
-      // DO NOT reset optionBindings here — they already came in via Input
       this.processOptionBindings();
   
       this.cdRef.detectChanges();
