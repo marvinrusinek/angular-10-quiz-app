@@ -529,14 +529,39 @@ export class QuizNavigationService {
   }
 
   private waitForUrl(url: string): Promise<string> {
-    return firstValueFrom(
-      this.router.events.pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        map(e => e.urlAfterRedirects || e.url),
-        filter(u => u === url),
-        take(1)
-      )
-    );
+    return new Promise<string>((resolve, reject) => {
+      const subscription = this.router.events.subscribe({
+        next: (event) => {
+          if (event instanceof NavigationEnd) {
+            const finalUrl = event.urlAfterRedirects || event.url;
+            if (finalUrl === url) {
+              subscription.unsubscribe();
+              resolve(finalUrl);
+            }
+            return;
+          }
+
+          if (event instanceof NavigationCancel) {
+            if (event.url === url) {
+              subscription.unsubscribe();
+              reject(new Error(`Navigation to ${url} was cancelled.`));
+            }
+            return;
+          }
+
+          if (event instanceof NavigationError) {
+            if (event.url === url) {
+              subscription.unsubscribe();
+              reject(event.error ?? new Error(`Navigation to ${url} failed.`));
+            }
+          }
+        },
+        error: (err) => {
+          subscription.unsubscribe();
+          reject(err);
+        },
+      });
+    });
   }
 
   private readQuizIdFromRouterSnapshot(): string | null {
