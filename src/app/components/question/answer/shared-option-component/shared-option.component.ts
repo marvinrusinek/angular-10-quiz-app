@@ -2531,9 +2531,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     this.generateOptionBindings();
     this.cdRef.markForCheck();
-
-    console.log('[APPLY UI] optionsToDisplay state:', 
-    this.optionsToDisplay.map(o => ({id:o.optionId, showIcon:o.showIcon})));
   }
 
   public syncAndPaintAll(): void {
