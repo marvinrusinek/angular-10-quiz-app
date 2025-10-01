@@ -661,17 +661,18 @@ export class QuizQuestionLoaderService {
     // Ensure options are a valid array
     this.optionsToDisplay = Array.isArray(options) ? options : [];
 
-    // Set explanation fallback
-    this.explanationToDisplay =
-      explanationText?.trim() || 'No explanation available';
+    const trimmedExplanation =
+      typeof explanationText === 'string' ? explanationText.trim() : '';
+    this.explanationToDisplay = trimmedExplanation;
 
     // Emit latest values to any subscribers (template/UI)
     this.questionTextSubject.next(this.questionToDisplay);
     this.explanationTextSubject.next(this.explanationToDisplay);
 
     if (
-      !this.explanationToDisplay ||
-      this.explanationToDisplay === 'No explanation available'
+      typeof explanationText === 'string' &&
+      explanationText.trim() === '' &&
+      explanationText.length > 0
     ) {
       console.warn('[setQuestionDetails] ⚠️ Explanation fallback triggered');
     }
