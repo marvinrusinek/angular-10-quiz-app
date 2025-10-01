@@ -84,53 +84,6 @@ export class QuizInitializationService {
     this.destroy$.complete();
   }
 
-  /* public async initializeQuiz(): Promise<void> {
-    if (this.alreadyInitialized) {
-      console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
-      return;
-    }
-    this.alreadyInitialized = true;
-
-    this.prepareQuizSession();
-    this.initializeQuizDependencies();
-    this.initializeQuizBasedOnRouteParams();
-
-    const initialIndex = 1;
-    this.quizService.setCurrentQuestionIndex(initialIndex);
-
-    const firstQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(initialIndex));
-    if (firstQuestion) {
-      this.quizService.setCurrentQuestion(firstQuestion);
-    } else {
-      console.warn(`[⚠️ No question found at index ${initialIndex}]`);
-    }
-  } */
-  /* public async initializeQuiz(): Promise<void> {
-    if (this.alreadyInitialized) {
-      console.warn('[🛑 QuizInitializationService] Already initialized. Skipping...');
-      return;
-    }
-    this.alreadyInitialized = true;
-  
-    const quizId = this.activatedRoute.snapshot.paramMap.get('quizId');
-    const questionIndex = Number(this.activatedRoute.snapshot.paramMap.get('questionIndex')) || 1;
-  
-    const resolvedQuiz = this.activatedRoute.snapshot.data['quizData'];
-    if (!resolvedQuiz) {
-      console.error('[❌ Quiz Init] No quiz data found in resolver.');
-      this.router.navigate(['/select']);
-      return;
-    }
-  
-    this.quizService.setActiveQuiz(resolvedQuiz);
-    this.quizService.setCurrentQuestionIndex(questionIndex - 1);
-    this.explanationTextService.initializeExplanationTexts(
-      resolvedQuiz.questions.map(q => q.explanation)
-    );
-  
-    const currentQuestion = await firstValueFrom(this.quizService.getQuestionByIndex(questionIndex - 1));
-    this.quizService.setCurrentQuestion(currentQuestion);
-  } */
   public async initializeQuiz(): Promise<void> {
     if (this.alreadyInitialized) {
       console.warn(
