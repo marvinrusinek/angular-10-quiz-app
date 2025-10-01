@@ -337,15 +337,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return of(recordQuestionMarkup(correctMarkup));
         }
 
-        const showExplanation =
-          state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || !!explanation);
+        const inExplanationMode = state?.mode === 'explanation';
 
-        if (showExplanation) {
+        if (inExplanationMode) {
           if (explanation) {
             return of(recordExplanationMarkup(explanation));
           }
-  
+
+          if (this.lastExplanationKey === questionKey && this.lastExplanationMarkup) {
+            return of(this.lastExplanationMarkup);
+          }
+
+          const resolveFallback = () => {
+            const cached = (
+              this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
+            )
+              .toString()
+              .trim();
+            if (cached) {
+              return cached;
+            }
+
+            const rawSource = questionModel
+              ? questionModel.explanation
+              : this.questions?.[currentIndex]?.explanation;
+
+            return (rawSource ?? '').toString().trim();
+          };
+
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -354,36 +373,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               switchMap((trimmed) => {
                 if (trimmed) return of(trimmed);
 
-                const svcRaw = (
-                  this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
-                ).toString().trim();
-                if (svcRaw) return of(svcRaw);
-
-                const rawSource = questionModel
-                  ? questionModel.explanation
-                  : this.questions?.[currentIndex]?.explanation;
-                const modelRaw = (rawSource ?? '').toString().trim();
-                if (modelRaw) return of(modelRaw);
+                const fallback = resolveFallback();
+                if (fallback) return of(fallback);
 
                 return of('Explanation not available.');
               }),
-              map((text) => recordExplanationMarkup(text))
+              map((text) => {
+                const resolved = text?.trim() || 'Explanation not available.';
+                return recordExplanationMarkup(resolved);
+              }),
+              startWith(this.lastExplanationMarkup || 'Loading explanation…')
             );
-          }
+        }
 
-          if (state.mode === 'explanation') {
-            const cachedExplanation =
-              this.lastExplanationKey === questionKey ? this.lastExplanationMarkup : '';
-            const fallback = cachedExplanation || this.lastRenderedMarkup || correctMarkup;
-            return of(fallback);
-          }
-
-          return of(recordQuestionMarkup(correctMarkup));
-        }),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
-    }
+        return of(recordQuestionMarkup(correctMarkup));
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  }
   
   
   private emitContentAvailableState(): void {
