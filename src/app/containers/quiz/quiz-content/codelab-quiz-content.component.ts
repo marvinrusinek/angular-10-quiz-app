@@ -343,9 +343,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (showExplanation) {
           if (explanation) {
-            return of(finalize(explanation));
+            return of(recordExplanationMarkup(explanation));
           }
-
+  
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -367,17 +367,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
                 return of('Explanation not available.');
               }),
-              map((text) => finalize(text))
+              map((text) => recordExplanationMarkup(text))
             );
           }
 
           if (state.mode === 'explanation') {
-            const fallback = this.lastRenderedMarkup || correctMarkup;
+            const cachedExplanation =
+              this.lastExplanationKey === questionKey ? this.lastExplanationMarkup : '';
+            const fallback = cachedExplanation || this.lastRenderedMarkup || correctMarkup;
             return of(fallback);
           }
-    
-          // Default: show question + correct count markup
-          return of(finalize(correctMarkup));
+
+          return of(recordQuestionMarkup(correctMarkup));
         }),
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
