@@ -2365,9 +2365,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         reason,
       });
     }
-  
-    console.time('[📌 markRenderReady]');
-    console.timeEnd('[⏱️ Total Render Cycle]');
   }  
 
   trackByOptionId(index: number, binding: OptionBindings): number {
