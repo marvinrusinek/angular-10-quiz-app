@@ -36,7 +36,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     checked: boolean,
     wasReselected?: boolean
   }>();
-  @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean; }>();
+  @Output() optionSelected = new EventEmitter<{ option: SelectedOption, index: number, checked: boolean }>();
   @Output() reselectionDetected = new EventEmitter<boolean>();
   @Output() explanationUpdate = new EventEmitter<number>();
   @Output() renderReadyChange = new EventEmitter<boolean>();
@@ -51,10 +51,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Input() showFeedback = false;
   @Input() shouldResetBackground = false;
   @Input() highlightCorrectAfterIncorrect: boolean;
-  @Input() quizQuestionComponentOnOptionClicked!: (
-    option: SelectedOption,
-    index: number
-  ) => void;
+  @Input() quizQuestionComponentOnOptionClicked!: (option: SelectedOption, index: number) => void;
   @Input() optionBindings: OptionBindings[] = [];
   @Input() selectedOptionId: number | null = null;
   @Input() selectedOptionIndex: number | null = null;
@@ -246,8 +243,6 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('[🔥 ngOnChanges fired]', changes);
-  
     const shouldRegenerate =
       (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
