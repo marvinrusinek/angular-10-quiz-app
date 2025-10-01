@@ -375,9 +375,23 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   // Push the newly‐clicked option into history, then synchronize every binding’s
   // visual state (selected, highlight, icon, feedback) in one synchronous pass.
-  private updateSelections(selectedId: number): void {
+  private updateSelections(rawSelectedId: number | string): void {
+    const parsedId =
+      typeof rawSelectedId === 'string'
+        ? Number.parseInt(rawSelectedId, 10)
+        : rawSelectedId;
+
+    if (!Number.isFinite(parsedId)) {
+      console.warn('[SharedOptionComponent] Ignoring non-numeric selection id', {
+        rawSelectedId,
+      });
+      return;
+    }
+
     // Ignore the synthetic “-1 repaint” that runs right after question load
-    if (selectedId === -1) return;
+    if (parsedId === -1) return;
+
+    const selectedId = parsedId;
 
     // Remember every id that has ever been clicked in this question
     if (!this.selectedOptionHistory.includes(selectedId)) {
