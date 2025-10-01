@@ -149,7 +149,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // React to form-control changes, capturing id into updateSelections which highlights any option that has been chosen
     this.form.get('selectedOptionId')!.valueChanges
       .pipe(distinctUntilChanged())
-      .subscribe((id: number) => this.updateSelections(id));
+      .subscribe((id: number | string) => this.updateSelections(id));
   }
 
   ngOnInit(): void {
