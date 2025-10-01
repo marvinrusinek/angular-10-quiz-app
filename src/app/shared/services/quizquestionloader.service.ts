@@ -526,13 +526,19 @@ export class QuizQuestionLoaderService {
     this.currentQuestionIndex = idx;
     this.explanationToDisplay = explanationText;
 
-    this.questionPayload = {
-      question: { ...q, options: opts },
-      options: opts,
+    const payloadForBroadcast: QuestionPayload = {
+      question: {
+        ...q,
+        options: [...opts],
+        explanation: explanationText,
+      },
+      options: [...opts],
       explanation: explanationText,
     };
+    this.questionPayload = payloadForBroadcast;
     this.shouldRenderQuestionComponent = true;
     this.questionPayloadReadySource.next(true);
+    this.quizService.questionPayloadSubject.next(payloadForBroadcast);
 
     this.quizService.setCurrentQuestion({ ...q, options: opts });
     this.quizService.setCurrentQuestionIndex(idx);
