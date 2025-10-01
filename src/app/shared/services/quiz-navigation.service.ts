@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, filter, map, take } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
@@ -329,24 +329,39 @@ export class QuizNavigationService {
         return false;
       }
   
+      const waitForRoute = this.waitForUrl(routeUrl);
       const reloadSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
-      if (reloadSuccess) {
-        await this.waitForUrl(routeUrl);  // ensure route change completed
+      if (!reloadSuccess) {
+        waitForRoute.catch(() => undefined);
+        return false;
       }
-  
-      return reloadSuccess;
+
+      try {
+        await waitForRoute;  // ensure route change completed
+        return true;
+      } catch (err) {
+        console.error('[❌ Forced reload waitForUrl error]', err);
+        return false;
+      }
     }
   
     // Normal navigation case
     try {
+      const waitForRoute = this.waitForUrl(routeUrl);
       const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
       if (!navSuccess) {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
+        waitForRoute.catch(() => undefined);
         return false;
       }
-  
-      await this.waitForUrl(routeUrl);
-      return true;
+
+      try {
+        await waitForRoute;
+        return true;
+      } catch (err) {
+        console.error('[❌ waitForUrl error]', err);
+        return false;
+      }
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
