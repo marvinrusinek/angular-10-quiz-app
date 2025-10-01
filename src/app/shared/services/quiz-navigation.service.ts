@@ -195,7 +195,7 @@ export class QuizNavigationService {
         : Math.min(currentIndexFromService, snapshotIndex);
     }
 
-    const targetIndex = currentIndex + offset;    // 0-based
+    const targetIndex = currentIndex + offset;  // 0-based
   
     // Block if going out of bounds
     if (targetIndex < 0) {
