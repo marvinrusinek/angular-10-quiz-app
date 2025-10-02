@@ -86,6 +86,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Remember the index and clear any old override
     this.currentIndex = idx;
     this.overrideSubject.next({ idx, html: '' });
+    this.resetExplanationView();
     this.cdRef.markForCheck();
   }
 
@@ -176,6 +177,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
 
     this.displayState$ = this.quizStateService.displayState$;
+
+    this.resetExplanationView();
 
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.explanationText$.next('');
@@ -268,6 +271,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Clear out old explanation
       this.currentIndex = this.questionIndex;
       this.overrideSubject.next({ idx: this.currentIndex, html: '' });
+      this.resetExplanationView();
       this.explanationText = '';
       this.explanationTextLocal = '';
       this.explanationVisible = false;
@@ -285,6 +289,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.pendingExplanationRequests.forEach((subscription) => subscription.unsubscribe());
     this.pendingExplanationRequests.clear();
     this.combinedTextSubject.complete();
+  }
+
+  private resetExplanationView(): void {
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setExplanationText('');
   }
 
   // Combine the streams that decide what codelab-quiz-content shows
