@@ -365,6 +365,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (questionChanged) {
           // A brand-new question should always render its question text first.
           this.renderModeByKey.set(viewState.key, 'question');
+          this.awaitingQuestionBaseline = true;
         }
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
@@ -380,16 +381,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const wantsExplanationAutomatically = !questionChanged && shouldDisplayExplanation && questionAnswered;
         const manualExplanation = this._showExplanation && !questionChanged;
 
+        const allowExplanationTransition = !this.awaitingQuestionBaseline;
+
+        if (!questionChanged && this.awaitingQuestionBaseline) {
+          // We have already rendered the baseline question text for the new
+          // item, so future passes can evaluate explanation logic normally.
+          this.awaitingQuestionBaseline = false;
+        }
+
         let effectiveMode: 'question' | 'explanation' = 'question';
-        if (
-          !questionChanged &&
-          explanationAvailable &&
-          questionAnswered &&
-          (cachedMode === 'explanation' || wantsExplanationFromDisplay || wantsExplanationAutomatically || manualExplanation)
-        ) {
-          effectiveMode = 'explanation';
-        } else if (!questionChanged && !questionAnswered && manualExplanation && explanationAvailable) {
-          effectiveMode = 'explanation';
+        if (allowExplanationTransition) {
+          if (
+            !questionChanged &&
+            explanationAvailable &&
+            questionAnswered &&
+            (cachedMode === 'explanation' || wantsExplanationFromDisplay || wantsExplanationAutomatically || manualExplanation)
+          ) {
+            effectiveMode = 'explanation';
+          } else if (!questionChanged && !questionAnswered && manualExplanation && explanationAvailable) {
+            effectiveMode = 'explanation';
+          }
         }
 
         if (effectiveMode === 'explanation' && !explanationAvailable) {
@@ -411,8 +422,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.cdRef.markForCheck();
       });
   }
-
-
 
 
   private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
