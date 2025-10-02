@@ -76,6 +76,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private pendingExplanationRequests = new Map<string, Subscription>();
   private latestViewState: QuestionViewState | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
+  private awaitingQuestionBaseline = false;
   private readonly explanationLoadingText = 'Loading explanation…';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
@@ -360,6 +361,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (questionChanged) {
           this.latestViewState = viewState;
           this.latestDisplayMode = 'question';
+          this.awaitingQuestionBaseline = true;
 
           if (this._showExplanation) {
             this._showExplanation = false;
@@ -379,6 +381,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const manualExplanation = sameQuestion && this._showExplanation;
         const wantsExplanation = sameQuestion && displayState.mode === 'explanation' && displayState.answered;
         const autoExplanation = sameQuestion && shouldDisplayExplanation && explanationAvailable && displayState.answered;
+
+        if (this.awaitingQuestionBaseline) {
+          const baselineReached = displayState.mode === 'question' && !displayState.answered;
+
+          if (baselineReached) {
+            this.awaitingQuestionBaseline = false;
+          } else if (!manualExplanation) {
+            wantsExplanation = false;
+            autoExplanation = false;
+          }
+        }
+
+        if (manualExplanation && this.awaitingQuestionBaseline) {
+          this.awaitingQuestionBaseline = false;
+        }
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
           && displayState.mode === 'question';
