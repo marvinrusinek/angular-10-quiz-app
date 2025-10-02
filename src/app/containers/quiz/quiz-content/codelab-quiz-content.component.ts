@@ -470,6 +470,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return true;
     }
 
+    const lastRendered = (this.lastExplanationMarkupByKey.get(state.key) ?? '').toString().trim();
+    if (lastRendered) {
+      return true;
+    }
+
     const fallback = (state.fallbackExplanation ?? '').toString().trim();
     return !!fallback;
   }
