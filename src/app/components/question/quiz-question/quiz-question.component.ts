@@ -4729,15 +4729,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.explanationTextService.setIsExplanationTextDisplayed(false);
     this.showExplanationChange.emit(false);
 
-    // Clear the currently rendered question/option references so that child
-    // components (such as <app-answer>) do not keep stale options while the
-    // next question is being fetched.
-    this.questionToDisplay = '';
-    this.updateShouldRenderOptions([]);
-    this.shouldRenderOptions = false;
+    if (!preserveVisualState) {
+      // Clear the currently rendered question/option references so that child
+      // components (such as <app-answer>) do not keep stale options while the
+      // next question is being fetched.
+      this.questionToDisplay = '';
+      this.updateShouldRenderOptions([]);
+      this.shouldRenderOptions = false;
+    }
+
     this.finalRenderReadySubject.next(false);
     this.renderReadySubject.next(false);
-
+    
     // Reset feedback
     setTimeout(() => {
       if (this.sharedOptionComponent) {
