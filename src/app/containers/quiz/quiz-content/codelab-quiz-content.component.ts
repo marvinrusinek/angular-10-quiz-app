@@ -880,6 +880,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           options: normalizedOptions
         };
 
+        this.currentQuestion$.next(normalizedQuestion);
+        this.currentOptions$.next(normalizedOptions);
+
         return {
           currentQuestion: normalizedQuestion,
           currentOptions: normalizedOptions,
