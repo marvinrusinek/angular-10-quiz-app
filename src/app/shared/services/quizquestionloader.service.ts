@@ -362,10 +362,10 @@ export class QuizQuestionLoaderService {
 
     // Child component reset
     if (this.quizQuestionComponent) {
-      await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
+      await this.quizQuestionComponent.resetQuestionStateBeforeNavigation({
+        preserveVisualState: canReuseCachedQuestion,
+      });
     }
-
-    const canReuseCachedQuestion = this.canServeQuestionFromCache(index);
 
     this.quizService.questionPayloadSubject.next(null);
     this.questionPayloadReadySource.next(false);
