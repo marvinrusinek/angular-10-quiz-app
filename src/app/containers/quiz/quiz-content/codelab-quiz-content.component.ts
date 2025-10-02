@@ -87,6 +87,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.currentIndex = idx;
     this.overrideSubject.next({ idx, html: '' });
     this.resetExplanationView();
+    if (this._showExplanation) {
+      this._showExplanation = false;
+    }
     this.cdRef.markForCheck();
   }
 
