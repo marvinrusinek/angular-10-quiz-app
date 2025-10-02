@@ -73,6 +73,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private overrideSubject = new BehaviorSubject<{idx: number, html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
   private explanationCache = new Map<string, string>();
+  private lastExplanationMarkupByKey = new Map<string, string>();
   private pendingExplanationRequests = new Map<string, Subscription>();
   private latestViewState: QuestionViewState | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
