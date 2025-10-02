@@ -1126,6 +1126,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private resolveExplanationMarkup(state: QuestionViewState, rawExplanation: string | null | undefined): string {
+    const formatted = (this.explanationTextService.getFormattedSync(state.index) ?? '').toString().trim();
+    if (formatted) {
+      this.explanationCache.set(state.key, formatted);
+      return formatted;
+    }
+
     const trimmed = (rawExplanation ?? '').toString().trim();
     if (trimmed) {
       this.explanationCache.set(state.key, trimmed);
