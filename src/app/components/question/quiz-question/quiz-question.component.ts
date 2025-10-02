@@ -4712,42 +4712,47 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async resetQuestionStateBeforeNavigation(options?: {
     preserveVisualState?: boolean;
+    preserveExplanation?: boolean;
   }): Promise<void> {
     const preserveVisualState = options?.preserveVisualState ?? false;
+    const preserveExplanation = options?.preserveExplanation ?? false;
 
     // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
     this.options = [];
-    this.feedbackText = '';
 
-    this.displayState = { mode: 'question', answered: false };
-    this.displayStateSubject.next(this.displayState);
-    this.displayStateChange.emit(this.displayState);
+    if (!preserveExplanation) {
+      this.feedbackText = '';
 
-    this.displayMode = 'question';
-    this.displayMode$.next('question');
+      this.displayState = { mode: 'question', answered: false };
+      this.displayStateSubject.next(this.displayState);
+      this.displayStateChange.emit(this.displayState);
 
-    this.forceQuestionDisplay = true;
-    this.readyForExplanationDisplay = false;
-    this.isExplanationReady = false;
-    this.isExplanationLocked = false;
-    this.explanationLocked = false;
-    this.explanationVisible = false;
-    this.displayExplanation = false;
-    this.shouldDisplayExplanation = false;
-    this.isExplanationTextDisplayed = false;
+      this.displayMode = 'question';
+      this.displayMode$.next('question');
 
-    // Reset explanation
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange.emit('');
-    this.explanationTextService.explanationText$.next('');
-    this.explanationTextService.updateFormattedExplanation('');
-    this.explanationTextService.setResetComplete(false);
-    this.explanationTextService.unlockExplanation();
-    this.explanationTextService.setShouldDisplayExplanation(false);
-    this.explanationTextService.setIsExplanationTextDisplayed(false);
-    this.showExplanationChange.emit(false);
+      this.forceQuestionDisplay = true;
+      this.readyForExplanationDisplay = false;
+      this.isExplanationReady = false;
+      this.isExplanationLocked = false;
+      this.explanationLocked = false;
+      this.explanationVisible = false;
+      this.displayExplanation = false;
+      this.shouldDisplayExplanation = false;
+      this.isExplanationTextDisplayed = false;
+
+      // Reset explanation
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange.emit('');
+      this.explanationTextService.explanationText$.next('');
+      this.explanationTextService.updateFormattedExplanation('');
+      this.explanationTextService.setResetComplete(false);
+      this.explanationTextService.unlockExplanation();
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+      this.showExplanationChange.emit(false);
+    }
 
     if (!preserveVisualState) {
       // Clear the currently rendered question/option references so that child
