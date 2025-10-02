@@ -329,6 +329,12 @@ export class QuizQuestionLoaderService {
   }
 
   private canServeQuestionFromCache(index: number): boolean {
+    const activeQuizId = this.activeQuizId ?? this.quizService.quizId ?? null;
+
+    if (activeQuizId && this.quizService.hasCachedQuestion(activeQuizId, index)) {
+      return true;
+    }
+
     if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
       return false;
     }
