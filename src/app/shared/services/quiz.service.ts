@@ -807,6 +807,24 @@ export class QuizService implements OnDestroy {
     );
   }
 
+  hasCachedQuestion(quizId: string, questionIndex: number): boolean {
+    if (!quizId || !Number.isInteger(questionIndex) || questionIndex < 0) {
+      return false;
+    }
+
+    const cached = this.resolveSessionQuestion(quizId, questionIndex);
+
+    if (!cached) {
+      return false;
+    }
+
+    const options = Array.isArray(cached.options) ? cached.options : [];
+    const hasQuestionText =
+      typeof cached.questionText === 'string' && cached.questionText.trim().length > 0;
+
+    return options.length > 0 && hasQuestionText;
+  }
+
   private resolveSessionQuestion(
     quizId: string,
     questionIndex: number
