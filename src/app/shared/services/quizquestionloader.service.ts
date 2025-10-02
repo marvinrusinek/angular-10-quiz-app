@@ -315,6 +315,23 @@ export class QuizQuestionLoaderService {
     return null;
   }
 
+  private canServeQuestionFromCache(index: number): boolean {
+    if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
+      return false;
+    }
+
+    if (!Number.isInteger(index) || index < 0 || index >= this.questionsArray.length) {
+      return false;
+    }
+
+    const question = this.questionsArray[index];
+    if (!question) {
+      return false;
+    }
+
+    return Array.isArray(question.options) && question.options.length > 0;
+  }
+
   // Do all the big UI resets
   // Clears forms, timers, messages, and child-component state so the
   // next question starts with a clean slate.  Call before fetching data.
@@ -327,22 +344,31 @@ export class QuizQuestionLoaderService {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation();
     }
 
-    // Blank out the QA streams so the view flashes “loading…”
-    this.clearQA();
+    const canReuseCachedQuestion = this.canServeQuestionFromCache(index);
+
     this.quizService.questionPayloadSubject.next(null);
-    this.resetQuestionDisplayState();
-    this.questionTextSubject.next('');
-    this.questionToDisplay$.next('');
-    this.optionsStream$.next([]);
-    this.explanationTextSubject.next('');
     this.questionPayloadReadySource.next(false);
     this.questionPayload = null;
+    this.isLoading = true;
+
+    if (!canReuseCachedQuestion) {
+      // Blank out the QA streams only when we can't re-use cached content.
+      // This prevents the question/answers panel from flashing when the
+      // next question is already available locally.
+      this.clearQA();
+      this.resetQuestionDisplayState();
+      this.questionTextSubject.next('');
+      this.questionToDisplay$.next('');
+      this.optionsStream$.next([]);
+      this.explanationTextSubject.next('');
+    }
 
     // Per-question flags
     this.questionTextLoaded = false;
     this.hasOptionsLoaded = false;
-    this.shouldRenderOptions = false;
-    this.isLoading = true;
+    if (!canReuseCachedQuestion) {
+      this.shouldRenderOptions = false;
+    }
 
     // Explanation / selection messages
     this.explanationTextService.unlockExplanation();
@@ -350,8 +376,10 @@ export class QuizQuestionLoaderService {
     // Clear only — don’t recompute baseline here.
     this.resetComplete = false;
 
-    // Force a small delay so the DOM can repaint
-    await new Promise((res) => setTimeout(res, 30));
+    // Force a small delay so the DOM can repaint when we clear the view.
+    if (!canReuseCachedQuestion) {
+      await new Promise((res) => setTimeout(res, 30));
+    }
 
     // If the previous question was answered, update guards
     if (this.selectedOptionService.isQuestionAnswered(index)) {
