@@ -106,19 +106,6 @@ export class QuizQuestionLoaderService {
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
-      // ───── Reset visual/UI state before rendering ─────
-      this.hasContentLoaded = false;
-      this.hasOptionsLoaded = false;
-      this.shouldRenderOptions = false;
-      this.isLoading = true;
-      this.isQuestionDisplayed = false;
-      this.isNextButtonEnabled = false;
-
-      // ───── Reset any previous data ─────
-      this.optionsToDisplay = [];
-      this.explanationToDisplay = '';
-      this.questionData = null;
-
       // ───── Validate quizId before proceeding ─────
       const quizId = this.quizService.getCurrentQuizId();
       if (!quizId) {
@@ -126,6 +113,28 @@ export class QuizQuestionLoaderService {
           `[QuizQuestionLoaderService] ❌ No quiz ID available. Cannot load question contents.`
         );
         return;
+      }
+
+      const hasCachedQuestion = this.quizService.hasCachedQuestion(
+        quizId,
+        questionIndex
+      );
+
+      // ───── Reset visual/UI state before rendering ─────
+      if (!hasCachedQuestion) {
+        this.hasContentLoaded = false;
+        this.hasOptionsLoaded = false;
+        this.shouldRenderOptions = false;
+        this.isLoading = true;
+        this.isQuestionDisplayed = false;
+        this.isNextButtonEnabled = false;
+
+        // ───── Reset any previous data ─────
+        this.optionsToDisplay = [];
+        this.explanationToDisplay = '';
+        this.questionData = null;
+      } else {
+        this.isLoading = false;
       }
 
       // ───── Attempt to fetch question, options, and explanation in parallel ─────
