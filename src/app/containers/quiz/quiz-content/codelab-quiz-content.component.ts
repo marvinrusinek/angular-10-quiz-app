@@ -359,6 +359,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const previousKey = this.latestViewState?.key ?? null;
         const questionChanged = previousKey !== viewState.key;
 
+        if (questionChanged && previousKey) {
+          this.lastExplanationMarkupByKey.delete(previousKey);
+        }
+
         if (questionChanged && this._showExplanation) {
           this._showExplanation = false;
         }
@@ -408,9 +412,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           effectiveMode = 'question';
         }
 
-        const nextMarkup = effectiveMode === 'explanation'
-          ? resolvedExplanation
-          : viewState.markup;
+        let nextMarkup = viewState.markup;
+
+        if (effectiveMode === 'explanation') {
+          if (explanationAvailable) {
+            const normalizedExplanation = (resolvedExplanation ?? '').toString().trim();
+            if (normalizedExplanation) {
+              this.lastExplanationMarkupByKey.set(viewState.key, normalizedExplanation);
+              nextMarkup = normalizedExplanation;
+            } else {
+              const cachedExplanation = this.lastExplanationMarkupByKey.get(viewState.key);
+              if (cachedExplanation) {
+                nextMarkup = cachedExplanation;
+              } else {
+                effectiveMode = 'question';
+                nextMarkup = viewState.markup;
+              }
+            }
+          } else {
+            const cachedExplanation = this.lastExplanationMarkupByKey.get(viewState.key);
+            if (cachedExplanation) {
+              nextMarkup = cachedExplanation;
+            } else {
+              effectiveMode = 'question';
+              nextMarkup = viewState.markup;
+            }
+          }
+        }
 
         this.renderModeByKey.set(viewState.key, effectiveMode);
         this.latestViewState = viewState;
