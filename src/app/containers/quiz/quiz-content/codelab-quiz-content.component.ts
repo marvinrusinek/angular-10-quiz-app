@@ -77,6 +77,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private latestViewState: QuestionViewState | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
   private awaitingQuestionBaseline = false;
+  private renderModeByKey = new Map<string, 'question' | 'explanation'>();
   private readonly explanationLoadingText = 'Loading explanation…';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
@@ -378,29 +379,46 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           && questionAnswered
           && explanationAvailable;
 
-        const hideRequested = displayState.mode === 'question'
-          && (!questionAnswered || !explanationAvailable)
-          && !manualExplanation
-          && !shouldDisplayExplanation;
-        const keepExplanation = sameQuestion
-          && this.latestDisplayMode === 'explanation'
-          && !hideRequested
-          && explanationAvailable
-          && questionAnswered;
-
-        let effectiveMode: 'question' | 'explanation' = 'question';
-        let nextMarkup = viewState.markup;
+        const lastMode = this.renderModeByKey.get(viewState.key) ?? 'question';
+        let effectiveMode: 'question' | 'explanation' = lastMode;
+        let nextMarkup = effectiveMode === 'explanation' ? resolvedExplanation : viewState.markup;
 
         if (questionChanged) {
-          if (stateAnswered && (manualExplanation || wantsExplanation || autoExplanation)) {
-            effectiveMode = 'explanation';
-            nextMarkup = resolvedExplanation;
-          }
-        } else if (manualExplanation || wantsExplanation || autoExplanation || keepExplanation) {
-          effectiveMode = 'explanation';
-          nextMarkup = resolvedExplanation;
+          effectiveMode = 'question';
+          nextMarkup = viewState.markup;
         }
 
+        if (questionAnswered && lastMode === 'explanation' && explanationAvailable) {
+          effectiveMode = 'explanation';
+          nextMarkup = resolvedExplanation;
+        } else if (manualExplanation) {
+          effectiveMode = 'explanation';
+          nextMarkup = resolvedExplanation;
+        } else if (questionAnswered) {
+          if ((wantsExplanation || autoExplanation) && explanationAvailable) {
+            effectiveMode = 'explanation';
+            nextMarkup = resolvedExplanation;
+          } else if (displayState.mode === 'question' && lastMode !== 'explanation') {
+            effectiveMode = 'question';
+            nextMarkup = viewState.markup;
+          }
+        } else {
+          if (!manualExplanation) {
+            effectiveMode = 'question';
+            nextMarkup = viewState.markup;
+          }
+        }
+
+        if (effectiveMode === 'explanation' && !explanationAvailable) {
+          if (questionAnswered && lastMode === 'explanation') {
+            nextMarkup = resolvedExplanation;
+          } else {
+            effectiveMode = 'question';
+            nextMarkup = viewState.markup;
+          }
+        }
+
+        this.renderModeByKey.set(viewState.key, effectiveMode);
         this.latestViewState = viewState;
         this.latestDisplayMode = effectiveMode;
 
@@ -411,6 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.cdRef.markForCheck();
       });
   }
+
 
 
   private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
