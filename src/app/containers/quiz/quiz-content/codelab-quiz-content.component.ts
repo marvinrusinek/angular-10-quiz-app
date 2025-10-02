@@ -1144,6 +1144,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private ensureExplanationLoaded(state: QuestionViewState, fallback: string): void {
+    const formatted = (this.explanationTextService.getFormattedSync(state.index) ?? '').toString().trim();
+    if (formatted) {
+      this.explanationCache.set(state.key, formatted);
+      return;
+    }
+
     if (this.pendingExplanationRequests.has(state.key)) {
       return;
     }
