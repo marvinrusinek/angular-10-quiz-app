@@ -358,43 +358,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionChanged = previousKey !== viewState.key;
         const sameQuestion = !questionChanged;
 
-        if (questionChanged) {
-          this.latestViewState = viewState;
-          this.latestDisplayMode = 'question';
-
-          if (this._showExplanation) {
-            this._showExplanation = false;
-          }
-
-          if (this.combinedTextSubject.getValue() !== viewState.markup) {
-            this.combinedTextSubject.next(viewState.markup);
-          }
-
-          this.cdRef.markForCheck();
-          return;
+        if (questionChanged && this._showExplanation) {
+          this._showExplanation = false;
         }
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
         const stateAnswered = !!questionState?.isAnswered;
-        const questionAnswered = stateAnswered || displayState.answered;
+        const displayAnswered = sameQuestion && !!displayState.answered;
+        const questionAnswered = stateAnswered || displayAnswered;
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
-        const manualExplanation = sameQuestion && this._showExplanation && explanationAvailable;
-        const wantsExplanation = sameQuestion
-          && displayState.mode === 'explanation'
+        const manualExplanation = this._showExplanation && explanationAvailable;
+        const wantsExplanation = displayState.mode === 'explanation'
           && questionAnswered
           && explanationAvailable;
-        const autoExplanation = sameQuestion
-          && shouldDisplayExplanation
-          && explanationAvailable
-          && questionAnswered;
+        const autoExplanation = shouldDisplayExplanation
+          && questionAnswered
+          && explanationAvailable;
 
-        const hideRequested = !wantsExplanation
-          && !shouldDisplayExplanation
-          && displayState.mode === 'question'
-          && !questionAnswered;
+        const hideRequested = displayState.mode === 'question'
+          && (!questionAnswered || !explanationAvailable)
+          && !manualExplanation
+          && !shouldDisplayExplanation;
         const keepExplanation = sameQuestion
           && this.latestDisplayMode === 'explanation'
           && !hideRequested
@@ -404,7 +391,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         let effectiveMode: 'question' | 'explanation' = 'question';
         let nextMarkup = viewState.markup;
 
-        if (manualExplanation || wantsExplanation || autoExplanation || keepExplanation) {
+        if (questionChanged) {
+          if (stateAnswered && (manualExplanation || wantsExplanation || autoExplanation)) {
+            effectiveMode = 'explanation';
+            nextMarkup = resolvedExplanation;
+          }
+        } else if (manualExplanation || wantsExplanation || autoExplanation || keepExplanation) {
           effectiveMode = 'explanation';
           nextMarkup = resolvedExplanation;
         }
