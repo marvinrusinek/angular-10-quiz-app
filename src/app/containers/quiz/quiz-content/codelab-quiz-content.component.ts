@@ -282,6 +282,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.correctAnswersDisplaySubject.complete();
     this.currentQuestionSubscription?.unsubscribe();
     this.formattedExplanationSubscription?.unsubscribe();
+    this.pendingExplanationRequests.forEach((subscription) => subscription.unsubscribe());
+    this.pendingExplanationRequests.clear();
+    this.combinedTextSubject.complete();
   }
 
   // Combine the streams that decide what codelab-quiz-content shows
