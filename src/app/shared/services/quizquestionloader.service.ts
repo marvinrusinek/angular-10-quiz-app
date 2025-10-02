@@ -355,6 +355,8 @@ export class QuizQuestionLoaderService {
   // Clears forms, timers, messages, and child-component state so the
   // next question starts with a clean slate. Call before fetching data.
   private async resetUiForNewQuestion(index: number): Promise<void> {
+    const canReuseCachedQuestion = this.canServeQuestionFromCache(index);
+
     // Parent-level reset
     this.resetQuestionState(index);
 
