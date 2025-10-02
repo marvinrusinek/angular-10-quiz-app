@@ -357,7 +357,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
         const wantsExplanation = displayState.mode === 'explanation' || this._showExplanation;
-        const autoExplanation = shouldDisplayExplanation && explanationAvailable;
+        const autoExplanation = shouldDisplayExplanation && explanationAvailable && displayState.answered;
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
           && displayState.mode === 'question';
