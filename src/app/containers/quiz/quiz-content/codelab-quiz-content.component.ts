@@ -328,25 +328,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       )),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    const explanationView$ = combineLatest([
-      questionViewState$,
-      this.explanationTextService.explanationText$.pipe(startWith(''))
-    ]).pipe(
-      switchMap(([state, explanationText]) => this.resolveExplanationText(state, explanationText)),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    this.combinedText$ = combineLatest([
+    combineLatest([
       displayState$,
       questionViewState$,
-      explanationView$
-    ]).pipe(
-      map(([state, questionState, explanationMarkup]) =>
-        state.mode === 'explanation' ? explanationMarkup : questionState.markup
-      ),
-      tap(() => this.cdRef.markForCheck()),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+      this.explanationTextService.explanationText$.pipe(startWith(''))
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([displayState, viewState, explanationText]) => {
+        this.latestViewState = viewState;
+        this.latestDisplayMode = displayState.mode;
+
+        if (displayState.mode === 'explanation') {
+          const resolved = this.resolveExplanationMarkup(viewState, explanationText);
+          this.combinedTextSubject.next(resolved);
+        } else {
+          this.combinedTextSubject.next(viewState.markup);
+        }
+
+        this.cdRef.markForCheck();
+      });
   }
 
   /*       const correctMarkup = correct
