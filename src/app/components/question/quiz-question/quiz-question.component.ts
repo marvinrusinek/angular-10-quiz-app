@@ -4784,6 +4784,115 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
+  private captureExplanationSnapshot(
+    index: number,
+    preserveVisualState: boolean
+  ): {
+    shouldRestore: boolean;
+    explanationText: string;
+    questionState?: QuestionState;
+  } {
+    if (!preserveVisualState) {
+      return { shouldRestore: false, explanationText: '' };
+    }
+
+    const rawExplanation = (this.explanationToDisplay ?? '').trim();
+    const latestExplanation = (this.explanationTextService.getLatestExplanation() ?? '')
+      .toString()
+      .trim();
+    const serviceExplanation = (this.explanationTextService.explanationText$.getValue() ?? '')
+      .toString()
+      .trim();
+    const explanationText = rawExplanation || latestExplanation || serviceExplanation;
+
+    if (!explanationText) {
+      return { shouldRestore: false, explanationText: '' };
+    }
+
+    const activeQuizId =
+      [this.quizId, this.quizService.getCurrentQuizId(), this.quizService.quizId]
+        .find((id) => typeof id === 'string' && id.trim().length > 0) ?? null;
+
+    const questionState = activeQuizId
+      ? this.quizStateService.getQuestionState(activeQuizId, index)
+      : undefined;
+
+    const answered = Boolean(
+      questionState?.isAnswered ||
+        this.selectedOptionService.isAnsweredSubject.getValue() ||
+        this.isAnswered ||
+        this.displayState?.answered
+    );
+
+    const explanationVisible = Boolean(
+      this.displayMode$.getValue() === 'explanation' ||
+        this.displayState?.mode === 'explanation' ||
+        this.shouldDisplayExplanation ||
+        this.explanationVisible ||
+        this.displayExplanation ||
+        this.explanationTextService.shouldDisplayExplanationSource.getValue() ||
+        questionState?.explanationDisplayed
+    );
+
+    return {
+      shouldRestore:
+        preserveVisualState &&
+        answered &&
+        explanationVisible &&
+        explanationText.length > 0,
+      explanationText,
+      questionState,
+    };
+  }
+
+  private restoreExplanationAfterReset(args: {
+    questionIndex: number;
+    explanationText: string;
+    questionState?: QuestionState;
+  }): void {
+    const normalized = (args.explanationText ?? '').trim();
+    if (!normalized) {
+      return;
+    }
+
+    this.explanationToDisplay = normalized;
+    this.explanationToDisplayChange.emit(normalized);
+    this.explanationTextService.setExplanationText(normalized);
+    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setResetComplete(true);
+    this.explanationTextService.lockExplanation();
+
+    this.displayMode = 'explanation';
+    this.displayMode$.next('explanation');
+
+    this.displayState = { mode: 'explanation', answered: true };
+    this.displayStateSubject.next(this.displayState);
+    this.displayStateChange.emit(this.displayState);
+
+    this.forceQuestionDisplay = false;
+    this.readyForExplanationDisplay = true;
+    this.isExplanationReady = true;
+    this.isExplanationLocked = false;
+    this.explanationLocked = true;
+    this.explanationVisible = true;
+    this.displayExplanation = true;
+    this.shouldDisplayExplanation = true;
+    this.isExplanationTextDisplayed = true;
+
+    this.showExplanationChange.emit(true);
+
+    const quizId =
+      [this.quizId, this.quizService.getCurrentQuizId(), this.quizService.quizId]
+        .find((id) => typeof id === 'string' && id.trim().length > 0) ?? null;
+
+    if (quizId && args.questionState) {
+      args.questionState.isAnswered = true;
+      args.questionState.explanationDisplayed = true;
+      this.quizStateService.setQuestionState(quizId, args.questionIndex, args.questionState);
+    }
+  }
+
   private canRenderQuestionInstantly(index: number): boolean {
     if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
       return false;
