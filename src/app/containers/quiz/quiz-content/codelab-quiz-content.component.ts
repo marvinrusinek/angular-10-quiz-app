@@ -337,118 +337,65 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       )),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    const shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      startWith(false)
+    );
+
     combineLatest([
       displayState$,
       questionViewState$,
-      this.explanationTextService.explanationText$.pipe(startWith(''))
+      this.explanationTextService.explanationText$.pipe(startWith('')),
+      shouldDisplayExplanation$
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([displayState, viewState, explanationText]) => {
-        this.latestViewState = viewState;
-        this.latestDisplayMode = displayState.mode;
+      .subscribe(([displayState, viewState, explanationText, shouldDisplayExplanation]) => {
+        const previousKey = this.latestViewState?.key ?? null;
+        const sameQuestion = previousKey === viewState.key;
 
-        if (displayState.mode === 'explanation') {
-          const resolved = this.resolveExplanationMarkup(viewState, explanationText);
-          this.combinedTextSubject.next(resolved);
-        } else {
-          this.combinedTextSubject.next(viewState.markup);
+        const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
+        const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
+
+        const wantsExplanation = displayState.mode === 'explanation' || this._showExplanation;
+        const autoExplanation = shouldDisplayExplanation && explanationAvailable;
+        const keepExplanation = sameQuestion
+          && this.latestDisplayMode === 'explanation'
+          && displayState.mode === 'explanation'
+          && explanationAvailable;
+
+        let effectiveMode: 'question' | 'explanation' = 'question';
+        let nextMarkup = viewState.markup;
+
+        if (wantsExplanation || autoExplanation || keepExplanation) {
+          effectiveMode = 'explanation';
+          nextMarkup = resolvedExplanation;
+        }
+
+        this.latestViewState = viewState;
+        this.latestDisplayMode = effectiveMode;
+
+        if (this.combinedTextSubject.getValue() !== nextMarkup) {
+          this.combinedTextSubject.next(nextMarkup);
         }
 
         this.cdRef.markForCheck();
       });
   }
 
-  /*       const correctMarkup = correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
+  private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
+    const direct = (rawExplanation ?? '').toString().trim();
+    if (direct) {
+      return true;
+    }
 
-        const numericIndex =
-          typeof currentIndex === 'number' && Number.isFinite(currentIndex)
-            ? currentIndex
-            : -1;
-        const questionKey = `${numericIndex}::${question}`;
-        const recordQuestionMarkup = (text: string) => {
-          this.lastRenderedQuestionKey = questionKey;
-          this.lastRenderedMarkup = text;
-          return text;
-        };
+    const cached = (this.explanationCache.get(state.key) ?? '').toString().trim();
+    if (cached) {
+      return true;
+    }
 
-        const recordExplanationMarkup = (text: string) => {
-          this.lastRenderedQuestionKey = questionKey;
-          this.lastRenderedMarkup = text;
-          this.lastExplanationKey = questionKey;
-          this.lastExplanationMarkup = text;
-          return text;
-        };
-
-        const isNewQuestion = questionKey !== this.lastRenderedQuestionKey;
-
-        if (isNewQuestion) {
-          this.lastExplanationKey = null;
-          this.lastExplanationMarkup = '';
-          if (state.mode !== 'question' || state.answered) {
-            this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-          }
-          this.explanationTextService.setShouldDisplayExplanation(false);
-          return of(recordQuestionMarkup(correctMarkup));
-        }
-
-        const inExplanationMode = state?.mode === 'explanation';
-
-        if (inExplanationMode) {
-          if (explanation) {
-            return of(recordExplanationMarkup(explanation));
-          }
-
-          if (this.lastExplanationKey === questionKey && this.lastExplanationMarkup) {
-            return of(this.lastExplanationMarkup);
-          }
-
-          const resolveFallback = () => {
-            const cached = (
-              this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
-            )
-              .toString()
-              .trim();
-            if (cached) {
-              return cached;
-            }
-
-            const rawSource = questionModel
-              ? questionModel.explanation
-              : this.questions?.[currentIndex]?.explanation;
-
-            return (rawSource ?? '').toString().trim();
-          };
-
-          return this.explanationTextService
-            .getFormattedExplanationTextForQuestion(currentIndex)
-            .pipe(
-              take(1),
-              map((s: string | null | undefined) => (s ?? '').trim()),
-              switchMap((trimmed) => {
-                if (trimmed) return of(trimmed);
-
-                const fallback = resolveFallback();
-                if (fallback) return of(fallback);
-
-                return of('Explanation not available.');
-              }),
-              map((text) => {
-                const resolved = text?.trim() || 'Explanation not available.';
-                return recordExplanationMarkup(resolved);
-              }),
-              startWith(this.lastExplanationMarkup || 'Loading explanation…')
-            );
-        }
-
-        return of(recordQuestionMarkup(correctMarkup));
-      }),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  } */
-  
+    const fallback = (state.fallbackExplanation ?? '').toString().trim();
+    return !!fallback;
+  }
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
