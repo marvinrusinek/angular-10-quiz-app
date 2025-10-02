@@ -16,6 +16,14 @@ import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
+interface QuestionViewState {
+  index: number;
+  key: string;
+  markup: string;
+  fallbackExplanation: string;
+  question: QuizQuestion | null;
+}
+
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
@@ -61,11 +69,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
   private overrideSubject = new BehaviorSubject<{idx: number, html: string}>({ idx: -1, html: '' });
   private currentIndex = -1;
-  private lastQuestionText = '';
-  private lastRenderedQuestionKey: string | null = null;
-  private lastRenderedMarkup = '';
-  private lastExplanationKey: string | null = null;
-  private lastExplanationMarkup = '';
+  private explanationCache = new Map<string, string>();
+  private readonly explanationLoadingText = 'Loading explanation…';
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -275,34 +280,67 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    this.combinedText$ = combineLatest([
-      this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),
+    const displayState$ = this.displayState$.pipe(
+      startWith({ mode: 'question', answered: false } as const),
+      distinctUntilChanged((prev, curr) => prev.mode === curr.mode && prev.answered === curr.answered)
+    );
+    const currentIndex$ = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged()
+    );
+    const questionPayload$ = this.combineCurrentQuestionAndOptions().pipe(
+      startWith({ currentQuestion: null, currentOptions: [], explanation: '' })
+    );
+    const questionViewState$ = combineLatest([
+      questionPayload$,
+      currentIndex$,
       this.questionToDisplay$.pipe(startWith('')),
-      this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
+      this.correctAnswersText$.pipe(startWith(''))
     ]).pipe(
-      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        this.currentIndex = currentIndex;
+      map(([payload, index, fallbackQuestionText, correctText]) => {
+        const question = payload?.currentQuestion ?? null;
+        const baseText = this.resolveQuestionText(question, fallbackQuestionText);
+        const markup = this.buildQuestionMarkup(baseText, correctText);
+        const key = this.buildQuestionKey(index, question, baseText);
+        const fallbackExplanation = this.resolveFallbackExplanation(payload?.explanation, question);
+        this.currentIndex = index;
+        return {
+          index,
+          key,
+          markup,
+          fallbackExplanation,
+          question
+        } as QuestionViewState;
+      }),
+      distinctUntilChanged((prev, curr) => (
+        prev.key === curr.key &&
+        prev.markup === curr.markup &&
+        prev.fallbackExplanation === curr.fallbackExplanation
+      )),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    const explanationView$ = combineLatest([
+      questionViewState$,
+      this.explanationTextService.explanationText$.pipe(startWith(''))
+    ]).pipe(
+      switchMap(([state, explanationText]) => this.resolveExplanationText(state, explanationText)),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    this.combinedText$ = combineLatest([
+      displayState$,
+      questionViewState$,
+      explanationView$
+    ]).pipe(
+      map(([state, questionState, explanationMarkup]) =>
+        state.mode === 'explanation' ? explanationMarkup : questionState.markup
+      ),
+      tap(() => this.cdRef.markForCheck()),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  }
 
-        const rawQuestion   = (questionText ?? '').trim();
-        const explanation   = (explanationText ?? '').trim();
-        const correct       = (correctText ?? '').trim();
-        const questionModel = this.quizService.questions?.[currentIndex] ?? null;
-
-        const fallbackFromModel = (questionModel?.questionText ?? '').trim()
-          || (this.questions?.[currentIndex]?.questionText ?? '').trim();
-
-        const candidateSource = rawQuestion || fallbackFromModel || this.lastQuestionText;
-        const candidateQuestion = (candidateSource ?? '').toString().trim();
-        const question = candidateQuestion || 'No question available';
-
-        if (candidateQuestion) {
-          this.lastQuestionText = candidateQuestion;
-        }
-
-        const correctMarkup = correct
+  /*       const correctMarkup = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
 
@@ -391,7 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  }
+  } */
   
   
   private emitContentAvailableState(): void {
@@ -1028,5 +1066,85 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of(null);  // default to null in case of error
       })
     );
+  }
+
+  private resolveQuestionText(question: QuizQuestion | null, fallbackText: string): string {
+    const fromQuestion = (question?.questionText ?? '').toString().trim();
+    const fromFallback = (fallbackText ?? '').toString().trim();
+    return fromQuestion || fromFallback || 'No question available';
+  }
+
+  private buildQuestionMarkup(questionText: string, correctText: string): string {
+    const sanitizedQuestion = questionText || 'No question available';
+    const normalizedCorrect = (correctText ?? '').toString().trim();
+
+    if (!normalizedCorrect) {
+      return sanitizedQuestion;
+    }
+
+    return `${sanitizedQuestion} <span class="correct-count">${normalizedCorrect}</span>`;
+  }
+
+  private buildQuestionKey(index: number, question: QuizQuestion | null, fallback: string): string {
+    const normalizedIndex = Number.isFinite(index) ? Number(index) : -1;
+    const source = question?.questionText ?? fallback;
+    const normalizedSource = this.normalizeKeySource(source);
+    return `${normalizedIndex}:${normalizedSource}`;
+  }
+
+  private normalizeKeySource(value: string | null | undefined): string {
+    return (value ?? '')
+      .toString()
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  private resolveFallbackExplanation(rawExplanation: string | null | undefined, question: QuizQuestion | null): string {
+    const fromPayload = (rawExplanation ?? '').toString().trim();
+    if (fromPayload) {
+      return fromPayload;
+    }
+
+    const fromQuestion = (question?.explanation ?? '').toString().trim();
+    return fromQuestion;
+  }
+
+  private resolveExplanationText(state: QuestionViewState, rawExplanation: string | null | undefined): Observable<string> {
+    const trimmed = (rawExplanation ?? '').toString().trim();
+    if (trimmed) {
+      this.explanationCache.set(state.key, trimmed);
+      return of(trimmed);
+    }
+
+    const cached = this.explanationCache.get(state.key);
+    if (cached) {
+      return of(cached);
+    }
+
+    const fallback = (state.fallbackExplanation ?? '').toString().trim();
+    const placeholder = fallback || this.explanationLoadingText;
+
+    const request$ = this.explanationTextService
+      .getFormattedExplanationTextForQuestion(state.index)
+      .pipe(
+        take(1),
+        map((resolved) => (resolved ?? '').toString().trim()),
+        map((resolved) => {
+          const finalText = resolved || fallback || 'Explanation not available.';
+          this.explanationCache.set(state.key, finalText);
+          return finalText;
+        }),
+        catchError((error) => {
+          console.error('[QuizContent] Unable to resolve explanation text:', error);
+          const finalText = fallback || 'Explanation not available.';
+          this.explanationCache.set(state.key, finalText);
+          return of(finalText);
+        })
+      );
+
+    return request$.pipe(startWith(placeholder));
   }
 }
