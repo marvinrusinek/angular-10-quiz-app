@@ -145,8 +145,12 @@ export class QuizQuestionLoaderService {
           explanation: string | null;
         };
 
-        const question$ = this.quizService.getCurrentQuestionByIndex(quizId, questionIndex).pipe(take(1));
-        const options$ = this.quizService.getCurrentOptions(questionIndex).pipe(take(1));
+        const question$ = this.quizService
+          .getCurrentQuestionByIndex(quizId, questionIndex)
+          .pipe(take(1));
+        const options$ = this.quizService
+          .getCurrentOptions(questionIndex)
+          .pipe(take(1));
         const explanation$ = this.explanationTextService.explanationsInitialized
           ? this.explanationTextService
               .getFormattedExplanationTextForQuestion(questionIndex)
