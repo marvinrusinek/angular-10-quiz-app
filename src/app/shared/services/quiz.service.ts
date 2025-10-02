@@ -22,6 +22,7 @@ import { QuizScore } from '../../shared/models/QuizScore.model';
 import { QuizSelectionParams } from '../../shared/models/QuizSelectionParams.model';
 import { Resource } from '../../shared/models/Resource.model';
 import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { QuizShuffleService } from '../../shared/services/quiz-shuffle.service';
 
 @Injectable({ providedIn: 'root' })
 export class QuizService implements OnDestroy {
@@ -215,6 +216,7 @@ export class QuizService implements OnDestroy {
   readonly preReset$ = this._preReset$.asObservable();
 
   constructor(
+    private quizShuffleService: QuizShuffleService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private http: HttpClient
@@ -2853,31 +2855,175 @@ export class QuizService implements OnDestroy {
     }
   }
 
+  private normalizeQuestionText(value: string | null | undefined): string {
+    return (value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  private toNumericId(value: unknown, fallback: number): number {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  private resolveShuffleQuizId(): string | null {
+    return (
+      this.quizId ||
+      this.activeQuiz?.quizId ||
+      this.selectedQuiz?.quizId ||
+      null
+    );
+  }
+
+  private resolveCanonicalQuestion(index: number): QuizQuestion | null {
+    const quizId = this.resolveShuffleQuizId();
+    const source = Array.isArray(this.questions) ? this.questions : [];
+
+    if (!quizId || !source.length) {
+      return null;
+    }
+
+    return this.quizShuffleService.getQuestionAtDisplayIndex(quizId, index, source);
+  }
+
+  private mergeOptionsWithCanonical(
+    question: QuizQuestion,
+    incoming: Option[] = []
+  ): Option[] {
+    const canonical = Array.isArray(question?.options) ? question.options : [];
+
+    if (!canonical.length) {
+      return this.normalizeOptionDisplayOrder(incoming ?? []).map((option, index) => ({
+        ...option,
+        optionId: this.toNumericId(option.optionId, index + 1),
+        displayOrder: index,
+        correct: option.correct === true,
+        selected: option.selected === true,
+        highlight: option.highlight ?? false,
+        showIcon: option.showIcon ?? false
+      }));
+    }
+
+    const textKey = (value: string | null | undefined) =>
+      (value ?? '').trim().toLowerCase();
+
+    const incomingList = Array.isArray(incoming) ? incoming : [];
+    const incomingById = new Map<number, Option>();
+
+    for (const option of incomingList) {
+      const id = this.toNumericId(option?.optionId, NaN);
+      if (Number.isFinite(id)) {
+        incomingById.set(id, option);
+      }
+    }
+
+    return canonical.map((option, index) => {
+      const id = this.toNumericId(option?.optionId, index + 1);
+      const match =
+        incomingById.get(id) ||
+        incomingList.find(
+          (candidate) => textKey(candidate?.text) === textKey(option?.text)
+        );
+
+      const merged: Option = {
+        ...option,
+        optionId: id,
+        displayOrder: index,
+        correct: option.correct === true || match?.correct === true,
+        selected: match?.selected === true || option.selected === true,
+        highlight: match?.highlight ?? option.highlight ?? false,
+        showIcon: match?.showIcon ?? option.showIcon ?? false
+      };
+
+      if (match && 'active' in match) {
+        (merged as any).active = (match as any).active;
+      }
+
+      return merged;
+    });
+  }
+
   emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
-    if (!currentQuestion || !options?.length) {
-      console.warn('[emitQuestionAndOptions] Missing or empty data to emit.');
+    if (!currentQuestion) {
+      console.warn('[emitQuestionAndOptions] Missing question data.');
       return;
     }
 
-    const normalizedOptions = this.normalizeOptionDisplayOrder(options);
+    const rawOptions = Array.isArray(options) ? options : [];
+    const normalizedIndex = Number.isFinite(this.currentQuestionIndex)
+      ? (this.currentQuestionIndex as number)
+      : 0;
 
-    if (currentQuestion.options !== normalizedOptions) {
-      currentQuestion.options = normalizedOptions;
+    const canonical = this.resolveCanonicalQuestion(normalizedIndex);
+    let questionToEmit = currentQuestion;
+    let optionsToUse = rawOptions;
+
+    if (canonical) {
+      const sameQuestion =
+        this.normalizeQuestionText(canonical?.questionText) ===
+        this.normalizeQuestionText(currentQuestion?.questionText);
+
+      if (!sameQuestion) {
+        questionToEmit = {
+          ...canonical,
+          explanation: canonical.explanation ?? currentQuestion.explanation ?? ''
+        };
+        optionsToUse = Array.isArray(canonical.options)
+          ? canonical.options.map((option) => ({ ...option }))
+          : [];
+      } else {
+        questionToEmit = {
+          ...currentQuestion,
+          explanation: canonical.explanation ?? currentQuestion.explanation ?? '',
+          options: Array.isArray(canonical.options)
+            ? canonical.options.map((option) => ({ ...option }))
+            : []
+        };
+      }
+
+      optionsToUse = this.mergeOptionsWithCanonical(questionToEmit, optionsToUse);
+    } else {
+      optionsToUse = this.normalizeOptionDisplayOrder(optionsToUse ?? []).map(
+        (option, index) => ({
+          ...option,
+          optionId: this.toNumericId(option.optionId, index + 1),
+          displayOrder: index,
+          correct: option.correct === true,
+          selected: option.selected === true,
+          highlight: option.highlight ?? false,
+          showIcon: option.showIcon ?? false
+        })
+      );
     }
 
+    if (!optionsToUse.length) {
+      console.warn('[emitQuestionAndOptions] No options available after normalization.');
+      return;
+    }
+
+    currentQuestion.options = optionsToUse.map((option) => ({ ...option }));
+
+    questionToEmit = {
+      ...questionToEmit,
+      options: optionsToUse.map((option) => ({ ...option }))
+    };
+
     // Emit to individual subjects
-    this.nextQuestionSubject.next(currentQuestion);
-    this.nextOptionsSubject.next(normalizedOptions);
+    this.nextQuestionSubject.next(questionToEmit);
+    this.nextOptionsSubject.next(optionsToUse);
 
     // Emit the combined payload
     this.questionPayloadSubject.next({
-      question: currentQuestion,
-      options: normalizedOptions,
-      explanation: currentQuestion.explanation ?? ''
+      question: questionToEmit,
+      options: optionsToUse,
+      explanation: questionToEmit.explanation ?? ''
     });
-  
+
     console.log('[🚀 Emitted question + options + explanation to payload]');
   }
+
 
   // Replace your getter with this minimal version
   public getNumberOfCorrectAnswers(index?: number): number {
