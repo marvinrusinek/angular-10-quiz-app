@@ -4690,7 +4690,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  public async resetQuestionStateBeforeNavigation(): Promise<void> {
+  public async resetQuestionStateBeforeNavigation(options?: {
+    preserveVisualState?: boolean;
+  }): Promise<void> {
+    const preserveVisualState = options?.preserveVisualState ?? false;
+
     // Reset core state
     this.currentQuestion = null;
     this.selectedOption = null;
