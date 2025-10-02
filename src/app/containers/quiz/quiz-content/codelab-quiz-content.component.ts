@@ -1121,6 +1121,62 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return fromQuestion;
   }
 
+  private resolveExplanationMarkup(state: QuestionViewState, rawExplanation: string | null | undefined): string {
+    const trimmed = (rawExplanation ?? '').toString().trim();
+    if (trimmed) {
+      this.explanationCache.set(state.key, trimmed);
+      return trimmed;
+    }
+
+    const cached = this.explanationCache.get(state.key);
+    if (cached) {
+      return cached;
+    }
+
+    const fallback = (state.fallbackExplanation ?? '').toString().trim();
+    const placeholder = fallback || this.explanationLoadingText;
+
+    this.ensureExplanationLoaded(state, fallback);
+
+    return placeholder || this.explanationLoadingText;
+  }
+
+  private ensureExplanationLoaded(state: QuestionViewState, fallback: string): void {
+    if (this.pendingExplanationRequests.has(state.key)) {
+      return;
+    }
+
+    if (!Number.isFinite(state.index) || state.index < 0) {
+      return;
+    }
+
+    const request$ = this.explanationTextService
+      .getFormattedExplanationTextForQuestion(state.index)
+      .pipe(
+        take(1),
+        map((resolved) => (resolved ?? '').toString().trim()),
+        map((resolved) => resolved || fallback || 'Explanation not available.'),
+        catchError((error) => {
+          console.error('[QuizContent] Unable to resolve explanation text:', error);
+          return of(fallback || 'Explanation not available.');
+        })
+      );
+
+    const subscription = request$.subscribe((resolved) => {
+      const finalText = (resolved ?? '').toString().trim() || fallback || 'Explanation not available.';
+      this.explanationCache.set(state.key, finalText);
+
+      if (this.latestDisplayMode === 'explanation' && this.latestViewState?.key === state.key) {
+        this.combinedTextSubject.next(finalText);
+        this.cdRef.markForCheck();
+      }
+
+      this.pendingExplanationRequests.delete(state.key);
+    });
+
+    this.pendingExplanationRequests.set(state.key, subscription);
+  }
+
   private resolveExplanationText(state: QuestionViewState, rawExplanation: string | null | undefined): Observable<string> {
     const trimmed = (rawExplanation ?? '').toString().trim();
     if (trimmed) {
