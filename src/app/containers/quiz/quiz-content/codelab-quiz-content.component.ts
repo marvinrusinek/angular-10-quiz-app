@@ -375,27 +375,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return;
         }
 
+        const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
+        const questionAnswered = !!questionState?.isAnswered;
+
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
-        const manualExplanation = sameQuestion && this._showExplanation;
-        const wantsExplanation = sameQuestion && displayState.mode === 'explanation' && displayState.answered;
-        const autoExplanation = sameQuestion && shouldDisplayExplanation && explanationAvailable && displayState.answered;
+        let manualExplanation = sameQuestion && this._showExplanation;
+        let wantsExplanation = sameQuestion
+          && displayState.mode === 'explanation'
+          && questionAnswered;
+        let autoExplanation = sameQuestion
+          && shouldDisplayExplanation
+          && explanationAvailable
+          && questionAnswered;
 
         if (this.awaitingQuestionBaseline) {
-          const baselineReached = displayState.mode === 'question' && !displayState.answered;
-
-          if (baselineReached) {
+          if (questionAnswered) {
             this.awaitingQuestionBaseline = false;
-          } else if (!manualExplanation) {
-            wantsExplanation = false;
-            autoExplanation = false;
+          } else {
+            const baselineReached = displayState.mode === 'question' && !displayState.answered;
+
+            if (baselineReached) {
+              this.awaitingQuestionBaseline = false;
+            } else if (!manualExplanation) {
+              wantsExplanation = false;
+              autoExplanation = false;
+            }
           }
         }
 
         if (manualExplanation && this.awaitingQuestionBaseline) {
           this.awaitingQuestionBaseline = false;
         }
+
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
           && displayState.mode === 'question';
@@ -403,7 +416,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           && this.latestDisplayMode === 'explanation'
           && !hideRequested
           && explanationAvailable
-          && displayState.answered;
+          && questionAnswered;
 
         let effectiveMode: 'question' | 'explanation' = 'question';
         let nextMarkup = viewState.markup;
