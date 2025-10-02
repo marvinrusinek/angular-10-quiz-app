@@ -1992,7 +1992,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
-    this.resetTexts();  // clean slate before loading new question
     const shouldPreserveVisualState = this.canRenderQuestionInstantly(
       this.currentQuestionIndex
     );
@@ -2002,6 +2001,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       shouldPreserveVisualState
     );
     const shouldKeepExplanationVisible = explanationSnapshot.shouldRestore;
+
+    if (!shouldKeepExplanationVisible) {
+      this.resetTexts();  // clean slate before loading new question
+    }
 
     if (shouldPreserveVisualState) {
       this.isLoading = false;
