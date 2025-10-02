@@ -362,6 +362,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this._showExplanation = false;
         }
 
+        if (questionChanged) {
+          // A brand-new question should always render its question text first.
+          this.renderModeByKey.set(viewState.key, 'question');
+        }
+
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
         const stateAnswered = !!questionState?.isAnswered;
         const displayAnswered = !!displayState.answered && !questionChanged;
@@ -371,18 +376,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
         const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
-        const wantsExplanationFromDisplay = displayState.mode === 'explanation' && questionAnswered;
-        const wantsExplanationAutomatically = shouldDisplayExplanation && questionAnswered;
-        const manualExplanation = this._showExplanation;
+        const wantsExplanationFromDisplay = !questionChanged && displayState.mode === 'explanation' && questionAnswered;
+        const wantsExplanationAutomatically = !questionChanged && shouldDisplayExplanation && questionAnswered;
+        const manualExplanation = this._showExplanation && !questionChanged;
 
         let effectiveMode: 'question' | 'explanation' = 'question';
         if (
+          !questionChanged &&
           explanationAvailable &&
           questionAnswered &&
           (cachedMode === 'explanation' || wantsExplanationFromDisplay || wantsExplanationAutomatically || manualExplanation)
         ) {
           effectiveMode = 'explanation';
-        } else if (!questionAnswered && manualExplanation && explanationAvailable) {
+        } else if (!questionChanged && !questionAnswered && manualExplanation && explanationAvailable) {
           effectiveMode = 'explanation';
         }
 
@@ -405,6 +411,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.cdRef.markForCheck();
       });
   }
+
 
 
 
