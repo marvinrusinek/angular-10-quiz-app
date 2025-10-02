@@ -80,6 +80,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private awaitingQuestionBaseline = false;
   private renderModeByKey = new Map<string, 'question' | 'explanation'>();
   private readonly explanationLoadingText = 'Loading explanation…';
+  private lastQuestionIndexForReset: number | null = null;
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -178,9 +179,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.isExplanationDisplayed = false;
     this.explanationTextService.setIsExplanationTextDisplayed(false);
 
-    this.questionToDisplay$.subscribe(_ => {
-      this.explanationTextService.setShouldDisplayExplanation(false);
-    });
+    if (this.questionToDisplay$) {
+      combineLatest([
+        this.questionToDisplay$.pipe(
+          startWith(''),
+          distinctUntilChanged()
+        ),
+        this.quizService.currentQuestionIndex$.pipe(
+          startWith(this.quizService?.currentQuestionIndex ?? 0)
+        )
+      ])
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(([, index]) => {
+          if (this.lastQuestionIndexForReset !== index) {
+            this.explanationTextService.setShouldDisplayExplanation(false);
+            this.lastQuestionIndexForReset = index;
+          }
+        });
+    }
 
     this.displayState$ = this.quizStateService.displayState$;
 
