@@ -363,14 +363,14 @@ export class QuizQuestionLoaderService {
     // Child component reset
     if (this.quizQuestionComponent) {
       await this.quizQuestionComponent.resetQuestionStateBeforeNavigation({
-        preserveVisualState: canReuseCachedQuestion,
+        preserveVisualState: canReuseCachedQuestion
       });
     }
 
     this.quizService.questionPayloadSubject.next(null);
     this.questionPayloadReadySource.next(false);
     this.questionPayload = null;
-    this.isLoading = true;
+    this.isLoading = !canReuseCachedQuestion;
 
     if (!canReuseCachedQuestion) {
       // Blank out the QA streams only when we can't re-use cached content.
