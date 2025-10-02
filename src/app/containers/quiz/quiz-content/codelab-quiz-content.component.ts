@@ -398,9 +398,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
         const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
-        const wantsExplanationFromDisplay = !questionChanged && displayState.mode === 'explanation' && questionAnswered;
-        const wantsExplanationAutomatically = !questionChanged && shouldDisplayExplanation && questionAnswered;
+        const wantsExplanationFromDisplay = !questionChanged && displayState.mode === 'explanation';
+        const wantsExplanationAutomatically = !questionChanged && shouldDisplayExplanation;
         const manualExplanation = this._showExplanation && !questionChanged;
+        const shouldKeepExplanation = !questionChanged && cachedMode === 'explanation';
 
         const allowExplanationTransition = !this.awaitingQuestionBaseline;
 
@@ -412,14 +413,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         let effectiveMode: 'question' | 'explanation' = 'question';
         if (allowExplanationTransition) {
-          if (
-            !questionChanged &&
+          const wantsExplanation =
             explanationAvailable &&
-            questionAnswered &&
-            (cachedMode === 'explanation' || wantsExplanationFromDisplay || wantsExplanationAutomatically || manualExplanation)
-          ) {
-            effectiveMode = 'explanation';
-          } else if (!questionChanged && !questionAnswered && manualExplanation && explanationAvailable) {
+            (
+              manualExplanation ||
+              wantsExplanationAutomatically ||
+              wantsExplanationFromDisplay ||
+              shouldKeepExplanation ||
+              (questionAnswered && cachedMode === 'explanation')
+            );
+
+          if (!questionChanged && wantsExplanation) {
             effectiveMode = 'explanation';
           }
         }
