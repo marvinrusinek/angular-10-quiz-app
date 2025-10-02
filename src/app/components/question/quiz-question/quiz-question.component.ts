@@ -1993,7 +1993,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
     this.resetTexts();  // clean slate before loading new question
-    this.startLoading();
+    const shouldPreserveVisualState = this.canRenderQuestionInstantly(
+      this.currentQuestionIndex
+    );
+
+    if (shouldPreserveVisualState) {
+      this.isLoading = false;
+      this.quizStateService.setLoading(false);
+      this.quizStateService.setAnswerSelected(false);
+    } else {
+      this.startLoading();
+    }
 
     // Reset selection and button state before processing question
     this.selectedOptionService.clearSelectionsForQuestion(
