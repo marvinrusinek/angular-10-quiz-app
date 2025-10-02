@@ -17,11 +17,11 @@ import { ExplanationTextService } from '../../../shared/services/explanation-tex
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
-  index: number;
-  key: string;
-  markup: string;
-  fallbackExplanation: string;
-  question: QuizQuestion | null;
+  index: number,
+  key: string,
+  markup: string,
+  fallbackExplanation: string,
+  question: QuizQuestion | null
 }
 
 @Component({
@@ -48,7 +48,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() correctAnswersText = '';
   @Input() questionText = '';
   @Input() quizData: CombinedQuestionDataType | null = null;
-  @Input() combinedText$!: Observable<string>;
+  // @Input() combinedText$!: Observable<string>;
+  private combinedTextSubject = new BehaviorSubject<string>('');
+  combinedText$ = this.combinedTextSubject.asObservable();
   @Input() displayState$: Observable<{ mode: 'question' | 'explanation', answered: boolean }>;
   @Input() displayVariables: { question: string, explanation: string };
   @Input() localExplanationText = '';
