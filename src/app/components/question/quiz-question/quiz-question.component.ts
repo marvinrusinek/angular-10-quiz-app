@@ -4740,7 +4740,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     this.finalRenderReadySubject.next(false);
     this.renderReadySubject.next(false);
-    
+
     // Reset feedback
     setTimeout(() => {
       if (this.sharedOptionComponent) {
@@ -4753,7 +4753,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }, 0);
 
     // Small delay to ensure reset completes
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    const resetDelay = preserveVisualState ? 0 : 50;
+    if (resetDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, resetDelay));
+    }
+  }
+
+  private canRenderQuestionInstantly(index: number): boolean {
+    if (!Array.isArray(this.questionsArray) || this.questionsArray.length === 0) {
+      return false;
+    }
+
+    if (!Number.isInteger(index) || index < 0 || index >= this.questionsArray.length) {
+      return false;
+    }
+
+    const candidate = this.questionsArray[index];
+    if (!candidate) {
+      return false;
+    }
+
+    const hasQuestionText =
+      typeof candidate.questionText === 'string' && candidate.questionText.trim().length > 0;
+    const options = Array.isArray(candidate.options) ? candidate.options : [];
+
+    return hasQuestionText && options.length > 0;
   }
 
   private setExplanationFor(idx: number, html: string): void {
