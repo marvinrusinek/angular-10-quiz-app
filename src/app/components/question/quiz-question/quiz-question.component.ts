@@ -2026,7 +2026,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       );
 
       // Reset all relevant UI and quiz state
-      this.resetQuestionStateBeforeNavigation();
+      await this.resetQuestionStateBeforeNavigation({
+        preserveVisualState: shouldPreserveVisualState,
+      });
       this.explanationTextService.resetExplanationState();
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.setIsExplanationTextDisplayed(false);
