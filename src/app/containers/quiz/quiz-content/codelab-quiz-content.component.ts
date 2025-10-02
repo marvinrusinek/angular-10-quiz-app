@@ -357,7 +357,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       .subscribe(([displayState, viewState, explanationText, shouldDisplayExplanation]) => {
         const previousKey = this.latestViewState?.key ?? null;
         const questionChanged = previousKey !== viewState.key;
-        const sameQuestion = !questionChanged;
 
         if (questionChanged && this._showExplanation) {
           this._showExplanation = false;
@@ -365,58 +364,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
         const stateAnswered = !!questionState?.isAnswered;
-        const displayAnswered = sameQuestion && !!displayState.answered;
+        const displayAnswered = !!displayState.answered && !questionChanged;
         const questionAnswered = stateAnswered || displayAnswered;
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
-        const manualExplanation = this._showExplanation && explanationAvailable;
-        const wantsExplanation = displayState.mode === 'explanation'
-          && questionAnswered
-          && explanationAvailable;
-        const autoExplanation = shouldDisplayExplanation
-          && questionAnswered
-          && explanationAvailable;
+        const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
+        const wantsExplanationFromDisplay = displayState.mode === 'explanation' && questionAnswered;
+        const wantsExplanationAutomatically = shouldDisplayExplanation && questionAnswered;
+        const manualExplanation = this._showExplanation;
 
-        const lastMode = this.renderModeByKey.get(viewState.key) ?? 'question';
-        let effectiveMode: 'question' | 'explanation' = lastMode;
-        let nextMarkup = effectiveMode === 'explanation' ? resolvedExplanation : viewState.markup;
-
-        if (questionChanged) {
-          effectiveMode = 'question';
-          nextMarkup = viewState.markup;
-        }
-
-        if (questionAnswered && lastMode === 'explanation' && explanationAvailable) {
+        let effectiveMode: 'question' | 'explanation' = 'question';
+        if (
+          explanationAvailable &&
+          questionAnswered &&
+          (cachedMode === 'explanation' || wantsExplanationFromDisplay || wantsExplanationAutomatically || manualExplanation)
+        ) {
           effectiveMode = 'explanation';
-          nextMarkup = resolvedExplanation;
-        } else if (manualExplanation) {
+        } else if (!questionAnswered && manualExplanation && explanationAvailable) {
           effectiveMode = 'explanation';
-          nextMarkup = resolvedExplanation;
-        } else if (questionAnswered) {
-          if ((wantsExplanation || autoExplanation) && explanationAvailable) {
-            effectiveMode = 'explanation';
-            nextMarkup = resolvedExplanation;
-          } else if (displayState.mode === 'question' && lastMode !== 'explanation') {
-            effectiveMode = 'question';
-            nextMarkup = viewState.markup;
-          }
-        } else {
-          if (!manualExplanation) {
-            effectiveMode = 'question';
-            nextMarkup = viewState.markup;
-          }
         }
 
         if (effectiveMode === 'explanation' && !explanationAvailable) {
-          if (questionAnswered && lastMode === 'explanation') {
-            nextMarkup = resolvedExplanation;
-          } else {
-            effectiveMode = 'question';
-            nextMarkup = viewState.markup;
-          }
+          effectiveMode = 'question';
         }
+
+        const nextMarkup = effectiveMode === 'explanation'
+          ? resolvedExplanation
+          : viewState.markup;
 
         this.renderModeByKey.set(viewState.key, effectiveMode);
         this.latestViewState = viewState;
