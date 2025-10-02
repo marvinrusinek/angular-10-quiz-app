@@ -376,7 +376,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
-        const questionAnswered = !!questionState?.isAnswered;
+        const stateAnswered = !!questionState?.isAnswered;
+        const displayAnswered = displayState.answered && (!this.awaitingQuestionBaseline || stateAnswered);
+        const questionAnswered = stateAnswered || displayAnswered;
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
@@ -394,7 +396,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           if (questionAnswered) {
             this.awaitingQuestionBaseline = false;
           } else {
-            const baselineReached = displayState.mode === 'question' && !displayState.answered;
+            const baselineReached = displayState.mode === 'question' && !questionAnswered;
 
             if (baselineReached) {
               this.awaitingQuestionBaseline = false;
@@ -411,7 +413,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
-          && displayState.mode === 'question';
+          && displayState.mode === 'question'
+          && !questionAnswered;
         const keepExplanation = sameQuestion
           && this.latestDisplayMode === 'explanation'
           && !hideRequested
