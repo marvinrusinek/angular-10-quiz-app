@@ -354,12 +354,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       .pipe(takeUntil(this.destroy$))
       .subscribe(([displayState, viewState, explanationText, shouldDisplayExplanation]) => {
         const previousKey = this.latestViewState?.key ?? null;
-        const sameQuestion = previousKey === viewState.key;
+        const questionChanged = previousKey !== viewState.key;
+        const sameQuestion = !questionChanged;
+
+        if (questionChanged) {
+          this.latestViewState = viewState;
+          this.latestDisplayMode = 'question';
+
+          if (this._showExplanation) {
+            this._showExplanation = false;
+          }
+
+          if (this.combinedTextSubject.getValue() !== viewState.markup) {
+            this.combinedTextSubject.next(viewState.markup);
+          }
+
+          this.cdRef.markForCheck();
+          return;
+        }
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
-        const wantsExplanation = sameQuestion && (displayState.mode === 'explanation' || this._showExplanation);
+        const manualExplanation = sameQuestion && this._showExplanation;
+        const wantsExplanation = sameQuestion && displayState.mode === 'explanation' && displayState.answered;
         const autoExplanation = sameQuestion && shouldDisplayExplanation && explanationAvailable && displayState.answered;
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
@@ -368,12 +386,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           && this.latestDisplayMode === 'explanation'
           && !hideRequested
           && explanationAvailable
-          && (displayState.mode === 'explanation' || displayState.answered);
+          && displayState.answered;
 
         let effectiveMode: 'question' | 'explanation' = 'question';
         let nextMarkup = viewState.markup;
 
-        if (wantsExplanation || autoExplanation || keepExplanation) {
+        if (manualExplanation || wantsExplanation || autoExplanation || keepExplanation) {
           effectiveMode = 'explanation';
           nextMarkup = resolvedExplanation;
         }
