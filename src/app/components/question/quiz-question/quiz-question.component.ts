@@ -1997,6 +1997,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.currentQuestionIndex
     );
 
+    const explanationSnapshot = this.captureExplanationSnapshot(
+      this.currentQuestionIndex,
+      shouldPreserveVisualState
+    );
+    const shouldKeepExplanationVisible = explanationSnapshot.shouldRestore;
+
     if (shouldPreserveVisualState) {
       this.isLoading = false;
       this.quizStateService.setLoading(false);
@@ -2006,11 +2012,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     // Reset selection and button state before processing question
-    this.selectedOptionService.clearSelectionsForQuestion(
-      this.currentQuestionIndex
-    );
-    this.selectedOptionService.setAnswered(false);
-    this.nextButtonStateService.reset();
+    if (!shouldKeepExplanationVisible) {
+      this.selectedOptionService.clearSelectionsForQuestion(
+        this.currentQuestionIndex
+      );
+      this.selectedOptionService.setAnswered(false);
+      this.nextButtonStateService.reset();
+    } else {
+      this.selectedOptionService.setAnswered(true, true);
+      this.nextButtonStateService.setNextButtonState(true);
+    }
 
     try {
       this.selectedOptionId = null;
