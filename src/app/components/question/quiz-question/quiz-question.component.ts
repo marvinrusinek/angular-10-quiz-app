@@ -2061,7 +2061,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.restoreExplanationAfterReset({
           questionIndex: lockedIndex,
           explanationText: explanationSnapshot.explanationText,
-          questionState: explanationSnapshot.questionState,
+          questionState: explanationSnapshot.questionState
         });
       }
   
@@ -4844,7 +4844,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         explanationVisible &&
         explanationText.length > 0,
       explanationText,
-      questionState,
+      questionState
     };
   }
 
