@@ -361,7 +361,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (questionChanged) {
           this.latestViewState = viewState;
           this.latestDisplayMode = 'question';
-          this.awaitingQuestionBaseline = true;
 
           if (this._showExplanation) {
             this._showExplanation = false;
@@ -377,39 +376,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
         const stateAnswered = !!questionState?.isAnswered;
-        const displayAnswered = displayState.answered && (!this.awaitingQuestionBaseline || stateAnswered);
-        const questionAnswered = stateAnswered || displayAnswered;
+        const questionAnswered = stateAnswered || displayState.answered;
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
 
-        let manualExplanation = sameQuestion && this._showExplanation;
-        let wantsExplanation = sameQuestion
+        const manualExplanation = sameQuestion && this._showExplanation && explanationAvailable;
+        const wantsExplanation = sameQuestion
           && displayState.mode === 'explanation'
-          && questionAnswered;
-        let autoExplanation = sameQuestion
+          && questionAnswered
+          && explanationAvailable;
+        const autoExplanation = sameQuestion
           && shouldDisplayExplanation
           && explanationAvailable
           && questionAnswered;
-
-        if (this.awaitingQuestionBaseline) {
-          if (questionAnswered) {
-            this.awaitingQuestionBaseline = false;
-          } else {
-            const baselineReached = displayState.mode === 'question' && !questionAnswered;
-
-            if (baselineReached) {
-              this.awaitingQuestionBaseline = false;
-            } else if (!manualExplanation) {
-              wantsExplanation = false;
-              autoExplanation = false;
-            }
-          }
-        }
-
-        if (manualExplanation && this.awaitingQuestionBaseline) {
-          this.awaitingQuestionBaseline = false;
-        }
 
         const hideRequested = !wantsExplanation
           && !shouldDisplayExplanation
@@ -440,7 +420,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       });
   }
 
+
   private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
+    const formatted = (this.explanationTextService.getFormattedSync(state.index) ?? '').toString().trim();
+    if (formatted) {
+      this.explanationCache.set(state.key, formatted);
+      return true;
+    }
+
     const direct = (rawExplanation ?? '').toString().trim();
     if (direct) {
       return true;
