@@ -2039,20 +2039,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Reset all relevant UI and quiz state
       await this.resetQuestionStateBeforeNavigation({
         preserveVisualState: shouldPreserveVisualState,
+        preserveExplanation: shouldKeepExplanationVisible,
       });
-      this.explanationTextService.resetExplanationState();
-      this.explanationTextService.setExplanationText('');
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
-      this.renderReadySubject.next(false);
-
-      this.displayState = { mode: 'question', answered: false };
-      this.forceQuestionDisplay = true;
-      this.readyForExplanationDisplay = false;
-      this.isExplanationReady = false;
-      this.isExplanationLocked = true;
-      this.currentExplanationText = '';
-      this.feedbackText = '';
-
+      if (!shouldKeepExplanationVisible) {
+        this.explanationTextService.resetExplanationState();
+        this.explanationTextService.setExplanationText('');
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+        this.renderReadySubject.next(false);
+  
+        this.displayState = { mode: 'question', answered: false };
+        this.forceQuestionDisplay = true;
+        this.readyForExplanationDisplay = false;
+        this.isExplanationReady = false;
+        this.isExplanationLocked = true;
+        this.currentExplanationText = '';
+        this.feedbackText = '';
+      } else {
+        this.restoreExplanationAfterReset({
+          questionIndex: lockedIndex,
+          explanationText: explanationSnapshot.explanationText,
+          questionState: explanationSnapshot.questionState,
+        });
+      }
+  
       // Start fresh timer
       this.timerService.startTimer(this.timerService.timePerQuestion, true);
 
