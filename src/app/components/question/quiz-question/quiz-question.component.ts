@@ -5444,6 +5444,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     const resolvedOptionId = this.resolveStableOptionId(option, optionIndex);
 
+    const resolvedOptionId = this.resolveStableOptionId(option, optionIndex);
+
     const selectedOption = {
       ...option,
       optionId: resolvedOptionId,
