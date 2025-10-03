@@ -5019,6 +5019,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     try {
+      const resolvedOptionId = this.resolveStableOptionId(option, optionIndex);
+      option.optionId = resolvedOptionId;
+
       // Toggle option selection state
       option.selected = !option.selected;
 
@@ -5027,7 +5030,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Update selected option service
       this.selectedOptionService.setAnsweredState(true);
-      this.selectedOptionService.updateSelectedOptions(questionIndex, optionIndex, 'add');
+      this.selectedOptionService.updateSelectedOptions(questionIndex, resolvedOptionId, 'add');
 
       // Immediate state synchronization and feedback application
       this.selectedOption = { ...option, correct: option.correct };
@@ -5395,6 +5398,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   } */
   shouldShowIcon(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
+  }
+
+  private resolveStableOptionId(option: Option | null | undefined, fallbackIndex: number): number {
+    const coerce = (value: unknown): number | null => {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+      }
+
+      return null;
+    };
+
+    const direct = coerce(option?.optionId);
+    if (direct !== null) {
+      return direct;
+    }
+
+    const fromValue = coerce((option as any)?.value);
+    if (fromValue !== null) {
+      return fromValue;
+    }
+
+    const fromDisplayOrder = coerce((option as any)?.displayOrder);
+    if (fromDisplayOrder !== null) {
+      return fromDisplayOrder;
+    }
+
+    return Math.max(0, fallbackIndex);
   }
 
   async selectOption(
