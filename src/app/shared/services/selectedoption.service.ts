@@ -435,87 +435,78 @@ export class SelectedOptionService {
       return false;
     }
 
-    const questionIndexHint =
-      (option as SelectedOption)?.questionIndex ??
-      (typeof this.quizService?.currentQuestionIndex === 'number'
-        ? this.quizService.currentQuestionIndex
-        : null);
-
-    return selectedOptions.some(selection =>
-      this.doesSelectionMatchOption(option, selection, questionIndexHint)
-    );
-  }
-
-  private doesSelectionMatchOption(
-    option: Option,
-    selection: SelectedOption,
-    questionIndexHint: number | null
-  ): boolean {
-    if (!selection) {
-      return false;
-    }
-
-    const selectionQuestionIndex = selection.questionIndex;
-
-    if (
-      typeof questionIndexHint === 'number' &&
-      typeof selectionQuestionIndex === 'number' &&
-      selectionQuestionIndex !== questionIndexHint
-    ) {
-      return false;
-    }
-
-    const normalizedOptionId = this.normalizeOptionId(option?.optionId);
-    const normalizedSelectionId = this.normalizeOptionId(selection?.optionId);
-
-    if (normalizedOptionId && normalizedSelectionId) {
-      if (normalizedOptionId === normalizedSelectionId) {
-        return true;
-      }
-    }
-
-    const numericOptionId = this.extractNumericId(option?.optionId);
-    const numericSelectionId = this.extractNumericId(selection?.optionId);
-
-    if (
-      numericOptionId !== null &&
-      numericSelectionId !== null &&
-      numericOptionId === numericSelectionId
-    ) {
-      return true;
-    }
-
-    const normalizedOptionText = this.normalizeStr(option?.text);
-    const normalizedSelectionText = this.normalizeStr(selection?.text);
-
-    if (normalizedOptionText && normalizedSelectionText) {
-      if (normalizedOptionText === normalizedSelectionText) {
-        return true;
-      }
-    }
-
+    const normalizedOptionId = this.normalizeOptionId(option.optionId);
+    const numericOptionId =
+      typeof option.optionId === 'number' && Number.isFinite(option.optionId)
+        ? option.optionId
+        : null;
+    const normalizedOptionText = this.normalizeStr(option.text);
     const normalizedOptionValue = this.normalizeStr((option as any)?.value);
-    const normalizedSelectionValue = this.normalizeStr((selection as any)?.value);
 
-    if (normalizedOptionValue && normalizedSelectionValue) {
-      if (normalizedOptionValue === normalizedSelectionValue) {
+    return selectedOptions.some(selection => {
+      if (!selection) {
+        return false;
+      }
+
+      const normalizedSelectionId = this.normalizeOptionId(selection.optionId);
+      if (
+        normalizedOptionId !== null &&
+        normalizedSelectionId !== null &&
+        normalizedOptionId === normalizedSelectionId
+      ) {
         return true;
       }
-    }
 
-    if (typeof questionIndexHint === 'number') {
-      const canonicalOptionId = this.resolveCanonicalOptionId(
-        questionIndexHint,
-        option?.optionId ?? null,
-        option?.text ?? ''
-      );
+      const numericSelectionId =
+        typeof selection.optionId === 'number' && Number.isFinite(selection.optionId)
+          ? selection.optionId
+          : null;
 
-      if (canonicalOptionId !== null) {
-        return selection.optionId === canonicalOptionId;
+      if (
+        numericOptionId !== null &&
+        numericSelectionId !== null &&
+        numericOptionId === numericSelectionId
+      ) {
+        return true;
       }
-    }
 
-    return false;
+      const normalizedSelectionText = this.normalizeStr(selection.text);
+      if (
+        normalizedOptionText &&
+        normalizedSelectionText &&
+        normalizedOptionText === normalizedSelectionText
+      ) {
+        return true;
+      }
+
+      const normalizedSelectionValue = this.normalizeStr((selection as any)?.value);
+      if (
+        normalizedOptionValue &&
+        normalizedSelectionValue &&
+        normalizedOptionValue === normalizedSelectionValue
+      ) {
+        return true;
+      }
+
+      const selectionQuestionIndex = selection.questionIndex;
+      if (typeof selectionQuestionIndex === 'number') {
+        const canonicalOptionId = this.resolveCanonicalOptionId(
+          selectionQuestionIndex,
+          option.optionId ?? null,
+          option.text ?? ''
+        );
+
+        if (
+          canonicalOptionId !== null &&
+          numericSelectionId !== null &&
+          canonicalOptionId === numericSelectionId
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    });
   }
 
   clearSelectedOption(): void {
