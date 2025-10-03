@@ -429,22 +429,54 @@ export class SelectedOptionService {
       return false;
     }
 
+    const showFeedbackForOption = this.getShowFeedbackForOption();
+    const normalizedOptionId = this.normalizeOptionId(option.optionId);
+    const numericOptionId =
+      typeof option.optionId === 'number' && Number.isFinite(option.optionId)
+        ? option.optionId
+        : null;
+
+    if (
+      normalizedOptionId !== null &&
+      showFeedbackForOption?.[normalizedOptionId]
+    ) {
+      return true;
+    }
+
+    if (
+      numericOptionId !== null &&
+      showFeedbackForOption?.[String(numericOptionId)]
+    ) {
+      return true;
+    }
+
     const selectedOptions = this.getSelectedOptions();
 
     if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
       return false;
     }
 
-    const normalizedOptionId = this.normalizeOptionId(option.optionId);
-    const numericOptionId =
-      typeof option.optionId === 'number' && Number.isFinite(option.optionId)
-        ? option.optionId
-        : null;
+    const optionQuestionIndex =
+      typeof (option as SelectedOption)?.questionIndex === 'number'
+        ? (option as SelectedOption).questionIndex
+        : Number.isInteger(this.quizService?.currentQuestionIndex)
+          ? this.quizService.currentQuestionIndex
+          : null;
+
     const normalizedOptionText = this.normalizeStr(option.text);
     const normalizedOptionValue = this.normalizeStr((option as any)?.value);
 
     return selectedOptions.some(selection => {
       if (!selection) {
+        return false;
+      }
+
+      if (
+        optionQuestionIndex !== null &&
+        selection.questionIndex !== undefined &&
+        selection.questionIndex !== null &&
+        selection.questionIndex !== optionQuestionIndex
+      ) {
         return false;
       }
 
@@ -489,7 +521,10 @@ export class SelectedOptionService {
       }
 
       const selectionQuestionIndex = selection.questionIndex;
-      if (typeof selectionQuestionIndex === 'number') {
+      if (
+        typeof selectionQuestionIndex === 'number' &&
+        (optionQuestionIndex === null || selectionQuestionIndex === optionQuestionIndex)
+      ) {
         const canonicalOptionId = this.resolveCanonicalOptionId(
           selectionQuestionIndex,
           option.optionId ?? null,
