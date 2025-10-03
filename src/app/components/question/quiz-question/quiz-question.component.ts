@@ -5442,12 +5442,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    const resolvedOptionId = this.resolveStableOptionId(option, optionIndex);
+
     const selectedOption = {
       ...option,
-      optionId: optionIndex,
+      optionId: resolvedOptionId,
       questionIndex: this.currentQuestionIndex,
     };
-    this.showFeedbackForOption = { [selectedOption.optionId]: true };
+
+    this.showFeedbackForOption = { [resolvedOptionId]: true };
     this.selectedOptionService.setSelectedOption(selectedOption);
 
     // Build a snapshot that mirrors what the user sees (UI order + flags)
