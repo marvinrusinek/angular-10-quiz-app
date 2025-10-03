@@ -2131,9 +2131,20 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
     const isSelected = this.isSelectedOption(option) ?? false;
-  
-    // Determine whether to show feedback for this option
-    const showFeedback = isSelected && this.showFeedbackForOption[option.optionId];
+
+    const feedbackMap = this.showFeedbackForOption ?? {};
+    const optionKey = option?.optionId ?? idx;
+    const fallbackKey = idx;
+    const showFeedback =
+      !!(
+        isSelected &&
+        (
+          feedbackMap[optionKey] ??
+          feedbackMap[String(optionKey)] ??
+          feedbackMap[fallbackKey] ??
+          feedbackMap[String(fallbackKey)]
+        )
+      );
   
     // Safeguard to ensure options array and question exist
     const options = this.optionsToDisplay ?? [];
