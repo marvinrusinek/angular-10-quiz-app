@@ -32,6 +32,7 @@ export class SelectedOptionService {
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
   private feedbackByQuestion = new Map<number, Record<string, boolean>>();
+  private optionSnapshotByQuestion = new Map<number, Option[]>();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
@@ -332,6 +333,13 @@ export class SelectedOptionService {
       Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
         ? optionsSnapshot
         : options;
+
+    if (Array.isArray(source) && source.length > 0) {
+      this.optionSnapshotByQuestion.set(
+        questionIndex,
+        source.map(option => ({ ...option }))
+      );
+    }
   
     const decodeHtml = (s: string) =>
       s.replace(/&nbsp;/gi, ' ')
