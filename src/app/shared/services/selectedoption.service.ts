@@ -455,71 +455,6 @@ export class SelectedOptionService {
     this.showFeedbackForOptionSubject.next({ ...cached });
   }
 
-  @@ -7,74 +7,82 @@ import { Option } from '../../shared/models/Option.model';
-import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { NextButtonStateService } from '../../shared/services/next-button-state.service';
-import { QuizService } from '../../shared/services/quiz.service';
-
-@Injectable({ providedIn: 'root' })
-export class SelectedOptionService {
-  selectedOption: SelectedOption | SelectedOption[] = null;
-  selectedOptionsMap = new Map<number, SelectedOption[]>();
-  selectedOptionIndices: { [key: number]: number[] } = {};
-
-  selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
-  selectedOption$ = this.selectedOptionSubject.asObservable();
-
-  private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
-  selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
-
-  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
-
-  isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
-  public answered$ = this.isAnswered$;
-
-  private questionTextSubject = new BehaviorSubject<string>('');
-  questionText$ = this.questionTextSubject.asObservable();
-
-  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
-  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
-  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
-  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
-  private feedbackByQuestion = new Map<number, Record<string, boolean>>();
-
-  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-
-  stopTimer$ = new Subject<void>();
-  stopTimerEmitted = false;
-
-  currentQuestionType: QuestionType | null = null;
-  private _lockedByQuestion = new Map<number, Set<string | number>>();
-  private _questionLocks = new Set<number>()
-
-  set isNextButtonEnabled(value: boolean) {
-    this.isNextButtonEnabledSubject.next(value);
-  }
-
-  get isNextButtonEnabled$(): Observable<boolean> {
-    return this.isNextButtonEnabledSubject.asObservable();
-  }
-
-  constructor(
-    private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService
-  ) {}
-  constructor(
-    private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService
-  ) {
-    const index$ = this.quizService?.currentQuestionIndex$;
-    if (index$) {
-      index$
-        .pipe(distinctUntilChanged())
-        .subscribe((index) => this.publishFeedbackForQuestion(index));
-    }
-  }
-
   // Method to update the selected option state
   public async selectOption(
     optionId: number,
@@ -544,8 +479,127 @@ export class SelectedOptionService {
         : options;
   
     const decodeHtml = (s: string) =>
-@@ -384,104 +392,241 @@ export class SelectedOptionService {
-    this.isOptionSelectedSubject.next(combinedSelections.length > 0);
+      s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'");
+    const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
+    const norm = (s: unknown) =>
+      typeof s === 'string'
+        ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
+        : '';
+    const toNum = (v: unknown): number | null => {
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
+      const n = Number(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
+  
+    const key = norm(text);
+    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
+  
+    // Try to find a concrete index in the chosen source by matching text/value/aliases
+    let fallbackIndexFromText = -1;
+    for (let i = 0; i < source.length && fallbackIndexFromText < 0; i++) {
+      const o: any = source[i];
+      for (const f of aliasFields) {
+        if (norm(o?.[f]) === key) { fallbackIndexFromText = i; break; }
+      }
+    }
+  
+    // Also try to resolve by id inside the same source (handle 0, string/number)
+    let indexFromId = -1;
+    for (let i = 0; i < source.length && indexFromId < 0; i++) {
+      const oid = (source[i] as any)?.optionId;
+      if (oid === optionId || String(oid) === String(optionId) || toNum(oid) === toNum(optionId)) {
+        indexFromId = i;
+      }
+    }
+  
+    // ⚠️ IMPORTANT: prefer a concrete index hint (from id or text) over raw text
+    const resolverHint: number | string | undefined =
+      indexFromId >= 0 ? indexFromId :
+      (fallbackIndexFromText >= 0 ? fallbackIndexFromText : text);
+  
+    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
+  
+    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
+    if (canonicalOptionId == null) {
+      if (indexFromId >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot indexFromId', {
+          questionIndex, optionId, text, indexFromId
+        });
+        canonicalOptionId = indexFromId;
+      } else if (fallbackIndexFromText >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
+          questionIndex, optionId, text, fallbackIndexFromText
+        });
+        canonicalOptionId = fallbackIndexFromText;
+      }
+    }
+  
+    if (canonicalOptionId == null) {
+      // Log a compact snapshot to see why it failed.
+      console.error('Unable to determine a canonical optionId for selection', {
+        optionId, questionIndex, text,
+        optionsSnapshot: source.map((o: any, i: number) => ({
+          i, id: o?.optionId, text: o?.text, value: o?.value,
+          label: o?.label, name: o?.name, title: o?.title, displayText: o?.displayText
+        }))
+      });
+      return;
+    }
+  
+    const newSelection: SelectedOption = {
+      optionId: canonicalOptionId,        // numeric id if available, else index
+      questionIndex,
+      text,
+      selected: true,
+      highlight: true,
+      showIcon: true
+    };
+  
+    const currentSelections = this.selectedOptionsMap.get(questionIndex) || [];
+    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(questionIndex, currentSelections);
+    const filteredSelections = canonicalCurrent.filter(
+      s => !(s.optionId === canonicalOptionId && s.questionIndex === questionIndex)
+    );
+    const updatedSelections = [...filteredSelections, newSelection];
+    const committedSelections = this.commitSelections(questionIndex, updatedSelections);
+  
+    if (!Array.isArray(this.selectedOptionIndices[questionIndex])) {
+      this.selectedOptionIndices[questionIndex] = [];
+    }
+    if (!this.selectedOptionIndices[questionIndex].includes(canonicalOptionId)) {
+      this.selectedOptionIndices[questionIndex].push(canonicalOptionId);
+    }
+  
+    this.selectedOptionSubject.next(committedSelections);
+  
+    if (!isMultiSelect) {
+      this.isOptionSelectedSubject.next(true);
+      this.setNextButtonEnabled(true);
+    } else {
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) || [];
+      if (selectedOptions.length === 0) {
+        console.warn('[⚠️ No selected options found for multi-select]');
+        this.setNextButtonEnabled(false);
+        console.log('[⛔ Next Disabled] No options selected for multi-select');
+        return;
+      }
+  
+      const allCorrect = await this.areAllCorrectAnswersSelectedSync(questionIndex);
+      if (allCorrect) {
+        this.setNextButtonEnabled(true);
+        console.log('[✅ Multi-select → all correct options selected → Next enabled]');
+      } else {
+        this.setNextButtonEnabled(false);
+        console.log('[⛔ Multi-select → waiting for more correct selections]');
+      }
+    }
+  
+    console.info('[🧠 selectOption()] Emitted updated selections:', committedSelections);
   }
 
   setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
