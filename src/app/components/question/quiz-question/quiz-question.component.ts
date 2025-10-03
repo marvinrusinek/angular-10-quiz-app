@@ -6482,8 +6482,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const formatted$: Observable<string> = src$.pipe(
           filter((s: unknown): s is string => typeof s === 'string' && s.trim().length > 0),
           map(s => s.trim()),
-          take(1),
-          timeout({ first: timeoutMs })
+          timeout(timeoutMs),    // simple numeric overload
+          take(1)
         );
         try {
           text = await firstValueFrom(formatted$);
