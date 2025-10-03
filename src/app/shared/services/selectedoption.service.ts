@@ -425,22 +425,98 @@ export class SelectedOptionService {
   }
 
   isSelectedOption(option: Option): boolean {
-    const selectedOptions = this.getSelectedOptions();  // Updated to use getSelectedOptions()
-    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
-  
-    // Check if selectedOptions contains the current option
-    if (Array.isArray(selectedOptions)) {
-      // Loop through each selected option and check if the current option is selected
-      return selectedOptions.some(
-        (opt) =>
-          opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]
-      );
+    if (!option) {
+      return false;
     }
-  
-    // If selectedOptions is somehow not an array, log a warning
-    console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
-    return false;  // return false if selectedOptions is invalid
-  }  
+
+    const selectedOptions = this.getSelectedOptions();
+
+    if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+      return false;
+    }
+
+    const questionIndexHint =
+      (option as SelectedOption)?.questionIndex ??
+      (typeof this.quizService?.currentQuestionIndex === 'number'
+        ? this.quizService.currentQuestionIndex
+        : null);
+
+    return selectedOptions.some(selection =>
+      this.doesSelectionMatchOption(option, selection, questionIndexHint)
+    );
+  }
+
+  private doesSelectionMatchOption(
+    option: Option,
+    selection: SelectedOption,
+    questionIndexHint: number | null
+  ): boolean {
+    if (!selection) {
+      return false;
+    }
+
+    const selectionQuestionIndex = selection.questionIndex;
+
+    if (
+      typeof questionIndexHint === 'number' &&
+      typeof selectionQuestionIndex === 'number' &&
+      selectionQuestionIndex !== questionIndexHint
+    ) {
+      return false;
+    }
+
+    const normalizedOptionId = this.normalizeOptionId(option?.optionId);
+    const normalizedSelectionId = this.normalizeOptionId(selection?.optionId);
+
+    if (normalizedOptionId && normalizedSelectionId) {
+      if (normalizedOptionId === normalizedSelectionId) {
+        return true;
+      }
+    }
+
+    const numericOptionId = this.extractNumericId(option?.optionId);
+    const numericSelectionId = this.extractNumericId(selection?.optionId);
+
+    if (
+      numericOptionId !== null &&
+      numericSelectionId !== null &&
+      numericOptionId === numericSelectionId
+    ) {
+      return true;
+    }
+
+    const normalizedOptionText = this.normalizeStr(option?.text);
+    const normalizedSelectionText = this.normalizeStr(selection?.text);
+
+    if (normalizedOptionText && normalizedSelectionText) {
+      if (normalizedOptionText === normalizedSelectionText) {
+        return true;
+      }
+    }
+
+    const normalizedOptionValue = this.normalizeStr((option as any)?.value);
+    const normalizedSelectionValue = this.normalizeStr((selection as any)?.value);
+
+    if (normalizedOptionValue && normalizedSelectionValue) {
+      if (normalizedOptionValue === normalizedSelectionValue) {
+        return true;
+      }
+    }
+
+    if (typeof questionIndexHint === 'number') {
+      const canonicalOptionId = this.resolveCanonicalOptionId(
+        questionIndexHint,
+        option?.optionId ?? null,
+        option?.text ?? ''
+      );
+
+      if (canonicalOptionId !== null) {
+        return selection.optionId === canonicalOptionId;
+      }
+    }
+
+    return false;
+  }
 
   clearSelectedOption(): void {
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
