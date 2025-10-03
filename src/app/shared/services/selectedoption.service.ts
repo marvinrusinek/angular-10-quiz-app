@@ -292,6 +292,34 @@ export class SelectedOptionService {
     return this.showFeedbackForOptionSubject.getValue();
   }
 
+  getFeedbackForQuestion(questionIndex: number): Record<string, boolean> {
+    return { ...(this.feedbackByQuestion.get(questionIndex) ?? {}) };
+  }
+
+  republishFeedbackForQuestion(questionIndex: number): void {
+    const selections = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+    if (!Array.isArray(selections) || selections.length === 0) {
+      this.feedbackByQuestion.delete(questionIndex);
+
+      if (this.quizService?.currentQuestionIndex === questionIndex) {
+        this.showFeedbackForOptionSubject.next({});
+      }
+
+      return;
+    }
+
+    let feedback = this.feedbackByQuestion.get(questionIndex);
+    if (!feedback || Object.keys(feedback).length === 0) {
+      feedback = this.buildFeedbackMap(questionIndex, selections);
+      this.feedbackByQuestion.set(questionIndex, feedback);
+    }
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({ ...feedback });
+    }
+  }
+
   private publishFeedbackForQuestion(index: number | null | undefined): void {
     const resolvedIndex =
       typeof index === 'number' && Number.isInteger(index)
