@@ -5373,7 +5373,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  shouldShowIcon(option: Option): boolean {
+  /* shouldShowIcon(option: Option): boolean {
     const selectedOptions = this.selectedOptionService.getSelectedOptions(); // retrieve all selected options
     const showFeedbackForOption =
       this.selectedOptionService.getShowFeedbackForOption();
@@ -5394,6 +5394,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
 
     return shouldShow;
+  } */
+  shouldShowIcon(option: Option): boolean {
+    return this.selectedOptionService.isSelectedOption(option);
   }
 
   async selectOption(
