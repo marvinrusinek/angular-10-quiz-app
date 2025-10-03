@@ -1545,7 +1545,104 @@ export class SelectedOptionService {
       this.selectedOptionsMap.delete(questionIndex);
     }
 
+    this.syncFeedbackForQuestion(questionIndex, canonicalSelections);
+
     return canonicalSelections;
+  }
+
+  private syncFeedbackForQuestion(
+    questionIndex: number,
+    selections: SelectedOption[]
+  ): void {
+    if (!Array.isArray(selections) || selections.length === 0) {
+      this.feedbackByQuestion.delete(questionIndex);
+
+      if (this.quizService?.currentQuestionIndex === questionIndex) {
+        this.showFeedbackForOptionSubject.next({});
+      }
+      return;
+    }
+
+    const feedbackMap = this.buildFeedbackMap(questionIndex, selections);
+    this.feedbackByQuestion.set(questionIndex, feedbackMap);
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({ ...feedbackMap });
+    }
+  }
+
+  private buildFeedbackMap(
+    questionIndex: number,
+    selections: SelectedOption[]
+  ): Record<string, boolean> {
+    const feedbackMap: Record<string, boolean> = {};
+
+    for (const selection of selections ?? []) {
+      if (!selection) {
+        continue;
+      }
+
+      const keys = this.collectFeedbackKeys(questionIndex, selection);
+      for (const key of keys) {
+        if (key) {
+          feedbackMap[String(key)] = true;
+        }
+      }
+    }
+
+    return feedbackMap;
+  }
+
+  private collectFeedbackKeys(
+    questionIndex: number,
+    selection: SelectedOption
+  ): Array<string | number> {
+    const keys = new Set<string | number>();
+
+    const normalizedSelectionId = this.normalizeOptionId(selection.optionId);
+    if (normalizedSelectionId) {
+      keys.add(normalizedSelectionId);
+    }
+
+    const numericSelectionId = this.extractNumericId(selection.optionId);
+    if (numericSelectionId !== null) {
+      keys.add(numericSelectionId);
+    }
+
+    if (selection.optionId !== undefined && selection.optionId !== null) {
+      keys.add(selection.optionId);
+    }
+
+    const options = this.quizService.questions?.[questionIndex]?.options ?? [];
+    if (options.length > 0) {
+      const resolvedIndex = this.resolveOptionIndexFromSelection(options, selection);
+
+      if (
+        resolvedIndex !== null &&
+        resolvedIndex >= 0 &&
+        resolvedIndex < options.length
+      ) {
+        const option: any = options[resolvedIndex];
+
+        const normalizedOptionId = this.normalizeOptionId(option?.optionId);
+        if (normalizedOptionId) {
+          keys.add(normalizedOptionId);
+        }
+
+        const numericOptionId = this.extractNumericId(option?.optionId);
+        if (numericOptionId !== null) {
+          keys.add(numericOptionId);
+        }
+
+        if (option?.optionId !== undefined && option?.optionId !== null) {
+          keys.add(option.optionId);
+        }
+
+        keys.add(resolvedIndex);
+      }
+    }
+
+    return Array.from(keys);
   }
 
   // Prefer the caller-provided snapshot (already overlaid) and ignore wrongs.
