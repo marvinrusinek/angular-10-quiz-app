@@ -361,6 +361,8 @@ export class SelectedOptionService {
   
     const key = norm(text);
     const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
+
+    const directMatch = this.matchOptionFromSource(source, optionId, text, aliasFields);
   
     // Try to find a concrete index in the chosen source by matching text/value/aliases
     let fallbackIndexFromText = -1;
@@ -383,10 +385,11 @@ export class SelectedOptionService {
     // ⚠️ IMPORTANT: prefer a concrete index hint (from id or text) over raw text
     const resolverHint: number | string | undefined =
       indexFromId >= 0 ? indexFromId :
-      (fallbackIndexFromText >= 0 ? fallbackIndexFromText : text);
-  
+      (fallbackIndexFromText >= 0 ? fallbackIndexFromText :
+        (directMatch?.index ?? text));
+
     let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
-  
+
     // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
     if (canonicalOptionId == null) {
       if (indexFromId >= 0) {
@@ -399,6 +402,16 @@ export class SelectedOptionService {
           questionIndex, optionId, text, fallbackIndexFromText
         });
         canonicalOptionId = fallbackIndexFromText;
+      } else if (directMatch?.option) {
+        const resolved = toNum((directMatch.option as any)?.optionId);
+        if (resolved !== null) {
+          console.warn('[SelectedOptionService] Resolver missed; using matched optionId from snapshot', {
+            questionIndex, optionId, text, resolved
+          });
+          canonicalOptionId = resolved;
+        } else {
+          canonicalOptionId = directMatch.index;
+        }
       }
     }
   
@@ -575,6 +588,7 @@ export class SelectedOptionService {
       // Clear all selected options for multiple-answer questions
       this.selectedOptionsMap.clear();
       this.feedbackByQuestion.clear();
+      this.optionSnapshotByQuestion.clear();
     } else {
       // Clear the single selected option for single-answer questions
       this.selectedOption = null;
@@ -586,8 +600,10 @@ export class SelectedOptionService {
 
       if (activeIndex !== null) {
         this.feedbackByQuestion.delete(activeIndex);
+        this.optionSnapshotByQuestion.delete(activeIndex);
       } else {
         this.feedbackByQuestion.clear();
+        this.optionSnapshotByQuestion.clear();
       }
     }
 
@@ -599,6 +615,7 @@ export class SelectedOptionService {
     this.selectedOptionSubject.next(null);
     this.feedbackByQuestion.clear();
     this.showFeedbackForOptionSubject.next({});
+    this.optionSnapshotByQuestion.clear();
   }
 
   // Observable to get the current option selected state
@@ -634,7 +651,7 @@ export class SelectedOptionService {
     const existingOption = options.find(o => o.optionId === canonicalId);
 
     if (!existingOption) {
-      const canonicalOptions = this.quizService.questions?.[questionIndex]?.options;
+      const canonicalOptions = this.getKnownOptions(questionIndex);
       const resolvedIndex =
         typeof canonicalId === 'number' && canonicalId >= 0
           ? canonicalId
@@ -643,7 +660,7 @@ export class SelectedOptionService {
       const canonicalOption =
         Array.isArray(canonicalOptions) &&
         resolvedIndex >= 0 &&
-        resolvedIndex < canonicalOptions.length
+        resolvedIndex < canonicalOptions.lengt
           ? canonicalOptions[resolvedIndex]
           : undefined;
 
@@ -893,9 +910,7 @@ export class SelectedOptionService {
     questionIndex: number,
     overrides: Option[]
   ): Option[] {
-    const canonicalOptions = Array.isArray(this.quizService.questions?.[questionIndex]?.options)
-      ? this.quizService.questions[questionIndex].options
-      : [];
+    const canonicalOptions = this.getKnownOptions(questionIndex);
 
     const normalizedOverrides = Array.isArray(overrides) ? overrides.filter(Boolean) : [];
     const mapSelections = this.canonicalizeSelectionsForQuestion(
@@ -958,12 +973,15 @@ export class SelectedOptionService {
     const subjectOptions = this.quizService.currentOptions?.getValue?.();
     const dataOptions = this.quizService.data?.currentOptions;
 
+    const snapshotOptions = this.optionSnapshotByQuestion.get(questionIndex);
+
     const candidate = [
       primaryOptions,
       selectedQuizOptions,
       activeQuizOptions,
       subjectOptions,
       dataOptions,
+      snapshotOptions,
     ].find(options => Array.isArray(options) && options.length > 0);
 
     return Array.isArray(candidate)
@@ -1068,11 +1086,13 @@ export class SelectedOptionService {
     }
 
     const candidateOptionSets: Array<Option[] | undefined | null> = [
+      this.quizService.questions?.[questionIndex]?.options,
       this.quizService.selectedQuiz?.questions?.[questionIndex]?.options,
       this.quizService.activeQuiz?.questions?.[questionIndex]?.options,
       this.quizService.correctOptions,
       this.quizService.currentOptions?.getValue?.(),
       this.quizService.data?.currentOptions,
+      this.optionSnapshotByQuestion.get(questionIndex),
     ];
 
     for (const options of candidateOptionSets) {
@@ -1302,6 +1322,82 @@ export class SelectedOptionService {
     return null;
   }
 
+  private matchOptionFromSource(
+    options: Option[],
+    optionId: number | string | null | undefined,
+    text: string,
+    aliasFields: string[]
+  ): { option: Option; index: number } | null {
+    if (!Array.isArray(options) || options.length === 0) {
+      return null;
+    }
+
+    const decodeHtml = (value: string) =>
+      value
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'");
+    const stripTags = (value: string) => value.replace(/<[^>]*>/g, ' ');
+    const normalize = (value: unknown) =>
+      typeof value === 'string'
+        ? stripTags(decodeHtml(value)).trim().toLowerCase().replace(/\s+/g, ' ')
+        : '';
+
+    const targetId = optionId != null ? String(optionId) : null;
+    const targetNumeric = optionId != null ? Number(optionId) : null;
+    const targetText = normalize(text);
+
+    for (let i = 0; i < options.length; i++) {
+      const candidate: any = options[i];
+
+      if (targetId !== null) {
+        const candidateId = candidate?.optionId != null ? String(candidate.optionId) : null;
+        if (candidateId !== null && candidateId === targetId) {
+          return { option: candidate, index: i };
+        }
+
+        const candidateNumeric = candidate?.optionId != null ? Number(candidate.optionId) : null;
+        if (
+          candidateNumeric !== null &&
+          targetNumeric !== null &&
+          Number.isFinite(candidateNumeric) &&
+          Number.isFinite(targetNumeric) &&
+          candidateNumeric === targetNumeric
+        ) {
+          return { option: candidate, index: i };
+        }
+      }
+
+      if (targetText) {
+        for (const field of aliasFields) {
+          const candidateText = normalize(candidate?.[field]);
+          if (candidateText && candidateText === targetText) {
+            return { option: candidate, index: i };
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private getKnownOptions(questionIndex: number): Option[] {
+    const canonical = this.quizService.questions?.[questionIndex]?.options;
+    if (Array.isArray(canonical) && canonical.length > 0) {
+      this.optionSnapshotByQuestion.set(
+        questionIndex,
+        canonical.map(option => ({ ...option }))
+      );
+      return canonical;
+    }
+
+    const snapshot = this.optionSnapshotByQuestion.get(questionIndex);
+    return Array.isArray(snapshot) ? snapshot : [];
+  }
+
   private resolveCanonicalOptionId(
     questionIndex: number,
     rawId: number | string | null | undefined,
@@ -1333,9 +1429,8 @@ export class SelectedOptionService {
       return null;
     };
 
-    const question = this.quizService.questions?.[questionIndex];
-    const options = Array.isArray(question?.options) ? question.options ?? [] : [];
-    if (!question || options.length === 0) {
+    const options = this.getKnownOptions(questionIndex);
+    if (options.length === 0) {
       return parseFallbackNumber();
     }
 
@@ -1536,6 +1631,7 @@ export class SelectedOptionService {
       this.selectedOptionsMap.set(questionIndex, canonicalSelections);
     } else {
       this.selectedOptionsMap.delete(questionIndex);
+      this.optionSnapshotByQuestion.delete(questionIndex);
     }
 
     this.syncFeedbackForQuestion(questionIndex, canonicalSelections);
