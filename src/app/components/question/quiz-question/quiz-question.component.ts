@@ -5463,12 +5463,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.selectedOptionService.overlaySelectedByIdentity?.(canonical, ui) ?? ui ?? canonical;
 
     // Coerce optionId safely (0 is valid)
-    const oidNum = Number(selectedOption.optionId);
-    const safeOptionId = Number.isFinite(oidNum) ? oidNum : 0;
-
     this.selectedOption = selectedOption;
     await this.selectedOptionService.selectOption(
-      safeOptionId as any,
+      resolvedOptionId,
       selectedOption.questionIndex,
       selectedOption.text ?? (selectedOption as any).value ?? '',
       this.isMultipleAnswer,
@@ -5482,7 +5479,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // Update the selected option in the quiz service and mark the question as answered
     this.selectedOptionService.updateSelectedOptions(
       this.currentQuestionIndex,
-      optionIndex,
+      resolvedOptionId,
       'add'
     );
 
