@@ -1221,6 +1221,7 @@ export class SelectedOptionService {
       this.quizService.correctOptions,
       this.quizService.currentOptions?.getValue?.(),
       this.quizService.data?.currentOptions,
+      this.optionSnapshotByQuestion.get(questionIndex)
     ];
 
     for (const options of candidateOptionSets) {
