@@ -31,6 +31,7 @@ export class SelectedOptionService {
 
   private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
   showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+  private feedbackByQuestion = new Map<number, Record<string, boolean>>();
 
   private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
 
