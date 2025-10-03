@@ -5447,7 +5447,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const selectedOption = {
       ...option,
       optionId: resolvedOptionId,
-      questionIndex: this.currentQuestionIndex,
+      questionIndex: this.currentQuestionIndex
     };
 
     this.showFeedbackForOption = { [resolvedOptionId]: true };
@@ -6273,6 +6273,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Per-question next and selections reset done from the child, timer
   public resetPerQuestionState(index: number): void {
     const i0 = this.normalizeIndex(index);
+    const existingSelections =
+      this.selectedOptionService.getSelectedOptionsForQuestion(i0) ?? [];
+    const hasSelections = existingSelections.length > 0;
 
     // ── 0) Stop any in-flight UI work ─────────────────────────
     if (this._pendingRAF != null) {
@@ -6283,7 +6286,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     // ── 1) Unlock & clear per-question selection/locks ─────────
     this.selectedOptionService.resetLocksForQuestion(i0);
-    this.selectedOptionService.clearSelectionsForQuestion(i0);
+    if (!hasSelections) {
+      this.selectedOptionService.clearSelectionsForQuestion(i0);
+    } else {
+      this.selectedOptionService.republishFeedbackForQuestion(i0);
+    }
     this.sharedOptionComponent?.clearForceDisableAllOptions?.();
 
     // Ensure any previous expiry guards are cleared for this question
@@ -6293,26 +6300,46 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // ── 2) Reset disable/feedback maps ─────────────────────────
     this.flashDisabledSet?.clear?.();
     this.feedbackConfigs = {};
-    this.showFeedbackForOption = {};
     this.lastFeedbackOptionId = -1;
+
+    if (hasSelections) {
+      const feedbackMap = this.selectedOptionService.getFeedbackForQuestion(i0);
+      this.showFeedbackForOption = { ...feedbackMap };
+      this.restoreSelectionsAndIconsForQuestion(i0);
+    } else {
+      this.showFeedbackForOption = {};
+    }
 
     // If you’re using per-question numeric keys:
     // try { this._idMap?.delete?.(i0); } catch {}
 
     // ── 3) Explanation & display mode ──────────────────────────
-    this.displayExplanation = false;
-    this.explanationToDisplay = '';
-    this.explanationToDisplayChange?.emit('');
-    this.showExplanationChange?.emit(false);
-    this.explanationOwnerIdx = -1;
+    if (hasSelections) {
+      this.displayExplanation = true;
+      this.showExplanationChange?.emit(true);
+      this.explanationTextService.setShouldDisplayExplanation(true);
+      this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+      this.displayMode = 'explanation';
+      this.displayMode$.next('explanation');
+    } else {
+      this.displayExplanation = false;
+      this.explanationToDisplay = '';
+      this.explanationToDisplayChange?.emit('');
+      this.showExplanationChange?.emit(false);
+      this.explanationOwnerIdx = -1;
 
-    this.explanationTextService.unlockExplanation?.();
-    this.explanationTextService.resetExplanationText();
-    this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.unlockExplanation?.();
+      this.explanationTextService.resetExplanationText();
+      this.explanationTextService.setShouldDisplayExplanation(false);
 
-    this.quizStateService.setDisplayState({ mode: 'question', answered: false });
-    this.quizStateService.setAnswered(false);
-    this.quizStateService.setAnswerSelected(false);
+      this.quizStateService.setDisplayState({ mode: 'question', answered: false });
+      this.quizStateService.setAnswered(false);
+      this.quizStateService.setAnswerSelected(false);
+      this.displayMode = 'question';
+      this.displayMode$.next('question');
+    }
 
     // ── 4) “Fresh question” guard so nothing is disabled on load ─
     this.questionFresh = true;
