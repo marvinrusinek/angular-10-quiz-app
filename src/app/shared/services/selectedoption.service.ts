@@ -53,7 +53,14 @@ export class SelectedOptionService {
   constructor(
     private quizService: QuizService,
     private nextButtonStateService: NextButtonStateService
-  ) {}
+  ) {
+    const index$ = this.quizService?.currentQuestionIndex$;
+    if (index$) {
+      index$
+        .pipe(distinctUntilChanged())
+        .subscribe((index) => this.publishFeedbackForQuestion(index));
+    }
+  }
 
   // Method to update the selected option state
   public async selectOption(
