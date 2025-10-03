@@ -295,8 +295,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Last computed "allCorrect" (used across microtasks/finally)
   private _lastAllCorrect = false;
 
-  private _origStopTimer?: () => void;  // to restore on destroy
-
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
