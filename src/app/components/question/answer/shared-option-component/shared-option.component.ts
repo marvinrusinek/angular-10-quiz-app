@@ -1398,7 +1398,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       directive.option = option;
       directive.isSelected = binding.isSelected || !!option.selected;
       directive.isCorrect = !!option.correct;
-      directive.showFeedback = this.showFeedbackForOption[option.optionId] ?? false;
+      //directive.showFeedback = this.showFeedbackForOption[option.optionId] ?? false;
+      const feedbackMap = this.showFeedbackForOption ?? {};
+      const optionKey = option?.optionId ?? index;
+      directive.showFeedback =
+        !!(
+          feedbackMap[optionKey] ??
+          feedbackMap[String(optionKey)] ??
+          feedbackMap[index] ??
+          feedbackMap[String(index)]
+        );
       directive.highlightCorrectAfterIncorrect = this.highlightCorrectAfterIncorrect;
   
       // Apply highlight and icon state
