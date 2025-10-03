@@ -462,32 +462,17 @@ export class SelectedOptionService {
       return false;
     }
 
-    const showFeedbackForOption = this.getShowFeedbackForOption();
-    const normalizedOptionId = this.normalizeOptionId(option.optionId);
-    const numericOptionId =
-      typeof option.optionId === 'number' && Number.isFinite(option.optionId)
-        ? option.optionId
-        : null;
-
-    if (
-      normalizedOptionId !== null &&
-      showFeedbackForOption?.[normalizedOptionId]
-    ) {
-      return true;
-    }
-
-    if (
-      numericOptionId !== null &&
-      showFeedbackForOption?.[String(numericOptionId)]
-    ) {
-      return true;
-    }
-
     const selectedOptions = this.getSelectedOptions();
 
     if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
       return false;
     }
+
+    const normalizedOptionId = this.normalizeOptionId(option.optionId);
+    const numericOptionId =
+      typeof option.optionId === 'number' && Number.isFinite(option.optionId)
+        ? option.optionId
+        : null;
 
     const optionQuestionIndex =
       typeof (option as SelectedOption)?.questionIndex === 'number'
