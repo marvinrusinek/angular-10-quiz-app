@@ -438,6 +438,227 @@ export class SelectedOptionService {
     return this.showFeedbackForOptionSubject.getValue();
   }
 
+  private publishFeedbackForQuestion(index: number | null | undefined): void {
+    const resolvedIndex =
+      typeof index === 'number' && Number.isInteger(index)
+        ? index
+        : Number.isInteger(this.quizService?.currentQuestionIndex)
+          ? (this.quizService.currentQuestionIndex as number)
+          : null;
+
+    if (resolvedIndex === null) {
+      this.showFeedbackForOptionSubject.next({});
+      return;
+    }
+
+    const cached = this.feedbackByQuestion.get(resolvedIndex) ?? {};
+    this.showFeedbackForOptionSubject.next({ ...cached });
+  }
+
+  @@ -7,74 +7,82 @@ import { Option } from '../../shared/models/Option.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { NextButtonStateService } from '../../shared/services/next-button-state.service';
+import { QuizService } from '../../shared/services/quiz.service';
+
+@Injectable({ providedIn: 'root' })
+export class SelectedOptionService {
+  selectedOption: SelectedOption | SelectedOption[] = null;
+  selectedOptionsMap = new Map<number, SelectedOption[]>();
+  selectedOptionIndices: { [key: number]: number[] } = {};
+
+  selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
+  selectedOption$ = this.selectedOptionSubject.asObservable();
+
+  private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
+  selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
+
+  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
+
+  isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
+  public answered$ = this.isAnswered$;
+
+  private questionTextSubject = new BehaviorSubject<string>('');
+  questionText$ = this.questionTextSubject.asObservable();
+
+  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
+  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
+  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+  private feedbackByQuestion = new Map<number, Record<string, boolean>>();
+
+  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+
+  stopTimer$ = new Subject<void>();
+  stopTimerEmitted = false;
+
+  currentQuestionType: QuestionType | null = null;
+  private _lockedByQuestion = new Map<number, Set<string | number>>();
+  private _questionLocks = new Set<number>()
+
+  set isNextButtonEnabled(value: boolean) {
+    this.isNextButtonEnabledSubject.next(value);
+  }
+
+  get isNextButtonEnabled$(): Observable<boolean> {
+    return this.isNextButtonEnabledSubject.asObservable();
+  }
+
+  constructor(
+    private quizService: QuizService,
+    private nextButtonStateService: NextButtonStateService
+  ) {}
+  constructor(
+    private quizService: QuizService,
+    private nextButtonStateService: NextButtonStateService
+  ) {
+    const index$ = this.quizService?.currentQuestionIndex$;
+    if (index$) {
+      index$
+        .pipe(distinctUntilChanged())
+        .subscribe((index) => this.publishFeedbackForQuestion(index));
+    }
+  }
+
+  // Method to update the selected option state
+  public async selectOption(
+    optionId: number,
+    questionIndex: number,
+    text: string,
+    isMultiSelect: boolean,
+    optionsSnapshot?: Option[]            // ← NEW (optional live snapshot)
+  ): Promise<void> {
+    if (optionId == null || questionIndex == null || !text) {
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
+    }
+  
+    // Resolve a best-effort index from the incoming text across common aliases.
+    const q = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(q?.options) ? q!.options : [];
+  
+    // Prefer the caller-provided snapshot (fresh UI state) if available
+    const source: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : options;
+  
+    const decodeHtml = (s: string) =>
+@@ -384,104 +392,241 @@ export class SelectedOptionService {
+    this.isOptionSelectedSubject.next(combinedSelections.length > 0);
+  }
+
+  setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
+    const committed = this.commitSelections(qIndex, selections);
+    this.selectedOptionSubject.next(committed);
+  }
+
+  getSelectedOptions(): SelectedOption[] {
+    const combined: SelectedOption[] = [];
+  
+    this.selectedOptionsMap.forEach((opts, qIndex) => {
+      if (Array.isArray(opts)) {
+        combined.push(...opts);
+      }
+    });
+  
+    console.log('[📤 getSelectedOptions()] returning', combined);
+    return combined;
+  }  
+
+  getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
+    return this.selectedOptionsMap.get(questionIndex) || [];
+  }
+
+  clearSelectionsForQuestion(questionIndex: number): void {
+    if (this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    }
+  }
+  clearSelectionsForQuestion(questionIndex: number): void {
+    if (this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    }
+
+    this.feedbackByQuestion.delete(questionIndex);
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({});
+    }
+  }
+
+  // Method to get the current option selected state
+  getCurrentOptionSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
+  }
+
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.getValue();
+  }
+
+  isSelectedOption(option: Option): boolean {
+    const selectedOptions = this.getSelectedOptions();  // Updated to use getSelectedOptions()
+    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
+  
+    // Check if selectedOptions contains the current option
+    if (Array.isArray(selectedOptions)) {
+      // Loop through each selected option and check if the current option is selected
+      return selectedOptions.some(
+        (opt) =>
+          opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]
+      );
+    }
+  
+    // If selectedOptions is somehow not an array, log a warning
+    console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
+    return false;  // return false if selectedOptions is invalid
+  }  
+
+  clearSelectedOption(): void {
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Clear all selected options for multiple-answer questions
+      this.selectedOptionsMap.clear();
+    } else {
+      // Clear the single selected option for single-answer questions
+      this.selectedOption = null;
+      this.selectedOptionSubject.next(null);
+    }
+  
+    // Only clear feedback state here — do NOT touch answered state
+    this.showFeedbackForOptionSubject.next({});
+  }  
+
+  clearOptions(): void {
+    this.selectedOptionSubject.next(null);
+    this.showFeedbackForOptionSubject.next({});
+  }
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.getValue();
+  }
+
+  private publishFeedbackForQuestion(index: number | null | undefined): void {
+    const resolvedIndex =
+      typeof index === 'number' && Number.isInteger(index)
+        ? index
+        : Number.isInteger(this.quizService?.currentQuestionIndex)
+          ? (this.quizService.currentQuestionIndex as number)
+          : null;
+
+    if (resolvedIndex === null) {
+      this.showFeedbackForOptionSubject.next({});
+      return;
+    }
+
+    const cached = this.feedbackByQuestion.get(resolvedIndex) ?? {};
+    this.showFeedbackForOptionSubject.next({ ...cached });
+  }
+
   isSelectedOption(option: Option): boolean {
     if (!option) {
       return false;
@@ -562,18 +783,30 @@ export class SelectedOptionService {
     if (this.currentQuestionType === QuestionType.MultipleAnswer) {
       // Clear all selected options for multiple-answer questions
       this.selectedOptionsMap.clear();
+      this.feedbackByQuestion.clear();
     } else {
       // Clear the single selected option for single-answer questions
       this.selectedOption = null;
       this.selectedOptionSubject.next(null);
+
+      const activeIndex = Number.isInteger(this.quizService?.currentQuestionIndex)
+        ? (this.quizService.currentQuestionIndex as number)
+        : null;
+
+      if (activeIndex !== null) {
+        this.feedbackByQuestion.delete(activeIndex);
+      } else {
+        this.feedbackByQuestion.clear();
+      }
     }
-  
+
     // Only clear feedback state here — do NOT touch answered state
     this.showFeedbackForOptionSubject.next({});
-  }  
+  }
 
   clearOptions(): void {
     this.selectedOptionSubject.next(null);
+    this.feedbackByQuestion.clear();
     this.showFeedbackForOptionSubject.next({});
   }
 
