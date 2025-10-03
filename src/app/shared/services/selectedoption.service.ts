@@ -421,6 +421,12 @@ export class SelectedOptionService {
     } else {
       console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
     }
+
+    this.feedbackByQuestion.delete(questionIndex);
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({});
+    }
   }
 
   // Method to get the current option selected state
