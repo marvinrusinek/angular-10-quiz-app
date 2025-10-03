@@ -62,8 +62,6 @@ export class SelectedOptionService {
         .subscribe((index) => this.publishFeedbackForQuestion(index));
     }
   }
-
-  
   
   deselectOption(): void {
     this.selectedOptionSubject.next([]);
@@ -272,7 +270,7 @@ export class SelectedOptionService {
 
   clearSelectionsForQuestion(questionIndex: number): void {
     if (this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      this.selectedOptionsMap.delete(questionIndex);  // removes the entry entirely
       console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
     } else {
       console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
@@ -660,7 +658,7 @@ export class SelectedOptionService {
       const canonicalOption =
         Array.isArray(canonicalOptions) &&
         resolvedIndex >= 0 &&
-        resolvedIndex < canonicalOptions.lengt
+        resolvedIndex < canonicalOptions.length
           ? canonicalOptions[resolvedIndex]
           : undefined;
 
@@ -981,7 +979,7 @@ export class SelectedOptionService {
       activeQuizOptions,
       subjectOptions,
       dataOptions,
-      snapshotOptions,
+      snapshotOptions
     ].find(options => Array.isArray(options) && options.length > 0);
 
     return Array.isArray(candidate)
@@ -1092,7 +1090,7 @@ export class SelectedOptionService {
       this.quizService.correctOptions,
       this.quizService.currentOptions?.getValue?.(),
       this.quizService.data?.currentOptions,
-      this.optionSnapshotByQuestion.get(questionIndex),
+      this.optionSnapshotByQuestion.get(questionIndex)
     ];
 
     for (const options of candidateOptionSets) {
@@ -1543,7 +1541,6 @@ export class SelectedOptionService {
 
     return null;
   }
-       
 
   private extractNumericId(id: unknown): number | null {
     if (typeof id === 'number' && Number.isFinite(id)) {
@@ -1702,7 +1699,7 @@ export class SelectedOptionService {
       keys.add(selection.optionId);
     }
 
-    const options = this.quizService.questions?.[questionIndex]?.options ?? [];
+    const options = this.getKnownOptions(questionIndex);
     if (options.length > 0) {
       const resolvedIndex = this.resolveOptionIndexFromSelection(options, selection);
 
@@ -2091,7 +2088,7 @@ export class SelectedOptionService {
 
   // --- add sync (mutates canonical in-place) ---
   public syncSelectionsToCanonical(questionIndex: number, ui: Option[]): void {
-    const canonical = this.quizService.questions?.[questionIndex]?.options ?? [];
+    const canonical = this.getKnownOptions(questionIndex);
     if (!Array.isArray(canonical) || canonical.length === 0) return;
 
     // Clear previous selected flags (optional; remove if you want "sticky" selections)
