@@ -634,6 +634,10 @@ export class ExplanationTextService {
     this.lastDisplayedSignature = null;
     this.explanationTexts = {};
 
+    this.explanationByContext.clear();
+    this.shouldDisplayByContext.clear();
+    this.displayedByContext.clear();
+
     this.explanationTextSubject.next('');
     this.explanationText$.next('');
     this.formattedExplanationSubject.next('');
@@ -676,7 +680,7 @@ export class ExplanationTextService {
       this.formattedExplanationSubject.next(trimmed);
       const contextKey = this.buildQuestionContextKey(questionIndex);
       this.setExplanationText(trimmed, {
-        context: contextKey,
+        context: contextKey
       });
       const displayOptions = { context: contextKey, force: true } as const;
       this.setShouldDisplayExplanation(true, displayOptions);
@@ -710,5 +714,20 @@ export class ExplanationTextService {
 
   private buildQuestionContextKey(questionIndex: number): string {
     return `${this.defaultContextPrefix}:${Math.max(0, Number(questionIndex) || 0)}`;
+  }
+
+  private normalizeContext(context?: string | null): string {
+    const normalized = (context ?? '').toString().trim();
+    return normalized || this.globalContextKey;
+  }
+
+  private computeContextualFlag(map: Map<string, boolean>): boolean {
+    for (const value of map.values()) {
+      if (value) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
