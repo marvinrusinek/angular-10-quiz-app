@@ -472,6 +472,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               nextMarkup = viewState.markup;
             }
           }
+        } else if (
+          awaitingExplanationContent &&
+          !explanationAvailable &&
+          this.lastExplanationMarkupByKey.has(viewState.key)
+        ) {
+          nextMarkup = this.lastExplanationMarkupByKey.get(viewState.key) ?? nextMarkup;
         }
 
         this.renderModeByKey.set(viewState.key, effectiveMode);
