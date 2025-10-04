@@ -447,7 +447,10 @@ export class ExplanationTextService {
       this.setExplanationText(trimmed, {
         context: this.buildQuestionContextKey(questionIndex),
       });
-      this.setShouldDisplayExplanation(true);
+      this.setShouldDisplayExplanation(true, {
+        context: this.buildQuestionContextKey(questionIndex),
+        force: true
+      });
       this.lockExplanation();
       this.latestExplanation = trimmed;
     } else {
@@ -455,14 +458,31 @@ export class ExplanationTextService {
     }
   }  
 
-  public setIsExplanationTextDisplayed(isDisplayed: boolean): void {
+  public setIsExplanationTextDisplayed(
+    isDisplayed: boolean,
+    options: { force?: boolean; context?: string } = {}
+  ): void {
+    const signature = `${options.context ?? 'global'}:::${isDisplayed}`;
+
+    if (!options.force && signature === this.lastDisplayedSignature) {
+      return;
+    }
+
+    this.lastDisplayedSignature = signature;
     this.isExplanationTextDisplayedSource.next(isDisplayed);
   }
 
-  public setShouldDisplayExplanation(shouldDisplay: boolean): void {
-    const current = this.shouldDisplayExplanationSource.getValue();
-  
-    if (current === shouldDisplay) return;
+  public setShouldDisplayExplanation(
+    shouldDisplay: boolean,
+    options: { force?: boolean; context?: string } = {}
+  ): void {
+    const signature = `${options.context ?? 'global'}:::${shouldDisplay}`;
+
+    if (!options.force && signature === this.lastDisplaySignature) {
+      return;
+    }
+
+    this.lastDisplaySignature = signature;
     this.shouldDisplayExplanationSource.next(shouldDisplay);
   }
   
@@ -526,6 +546,8 @@ export class ExplanationTextService {
     this.latestExplanation = '';
     this.currentQuestionExplanation = null;
     this.lastExplanationSignature = null;
+    this.lastDisplaySignature = null;
+    this.lastDisplayedSignature = null;
 
     this.explanationTextSubject.next('');
     this.explanationText$.next('');
@@ -552,6 +574,8 @@ export class ExplanationTextService {
     this.latestExplanation = '';
     this.currentQuestionExplanation = null;
     this.lastExplanationSignature = null;
+    this.lastDisplaySignature = null;
+    this.lastDisplayedSignature = null;
     this.explanationTexts = {};
 
     this.explanationTextSubject.next('');
@@ -594,12 +618,15 @@ export class ExplanationTextService {
     if (!isSame) {
       this.explanationTexts[questionIndex] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
+      const contextKey = this.buildQuestionContextKey(questionIndex);
       this.setExplanationText(trimmed, {
-        context: this.buildQuestionContextKey(questionIndex)
+        context: contextKey,
       });
-      this.setShouldDisplayExplanation(true);
+      const displayOptions = { context: contextKey, force: true } as const;
+      this.setShouldDisplayExplanation(true, displayOptions);
+      this.setIsExplanationTextDisplayed(true, displayOptions);
       this.lockExplanation();
-  
+
       this.latestExplanation = trimmed;
     } else {
       console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
