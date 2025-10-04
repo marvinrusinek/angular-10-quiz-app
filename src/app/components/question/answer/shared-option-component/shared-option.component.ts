@@ -1643,9 +1643,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return formatted;
     }
 
+    const activeIndex = this.getActiveQuestionIndex() ?? questionIndex;
+
     const matchesCurrentInput =
       typeof this.currentQuestionIndex === 'number' &&
-      this.currentQuestionIndex === questionIndex;
+      this.currentQuestionIndex === activeIndex;
 
     const currentInputExplanation = matchesCurrentInput
       ? this.currentQuestion?.explanation?.trim()
@@ -1656,13 +1658,24 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
 
     const serviceQuestion = this.quizService.currentQuestion?.getValue?.();
-    const activeServiceIndex = this.getActiveQuestionIndex();
-    const serviceMatchesIndex = activeServiceIndex === questionIndex;
-    const serviceExplanation = serviceMatchesIndex
-      ? serviceQuestion?.explanation?.trim()
-      : undefined;
+    if (serviceQuestion?.explanation && activeIndex === questionIndex) {
+      return serviceQuestion.explanation.trim();
+    }
 
-    return serviceExplanation || 'No explanation available';
+    const questionsFromService =
+      (Array.isArray(this.quizService.questions) && this.quizService.questions) ||
+      (Array.isArray((this.quizService as any).questionsArray) && (this.quizService as any).questionsArray) ||
+      (Array.isArray(this.quizService.questionsList) && this.quizService.questionsList) ||
+      [];
+
+    const fallbackQuestion = questionsFromService[activeIndex] ?? questionsFromService[questionIndex];
+    const fallbackExplanation = fallbackQuestion?.explanation?.trim();
+
+    if (fallbackExplanation) {
+      return fallbackExplanation;
+    }
+
+    return 'No explanation available';
   }
 
   private forceHighlightRefresh(optionId: number): void {
