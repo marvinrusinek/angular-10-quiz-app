@@ -402,8 +402,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionChanged = previousKey !== viewState.key;
 
         if (questionChanged && previousKey) {
-          this.lastExplanationMarkupByKey.delete(previousKey);
+          const pending = this.pendingExplanationRequests.get(previousKey);
+          pending?.unsubscribe();
+          this.pendingExplanationRequests.delete(previousKey);
           this.pendingExplanationKeys.delete(previousKey);
+          this.lastExplanationMarkupByKey.delete(previousKey);
+          this.explanationCache.delete(previousKey);
+          this.renderModeByKey.delete(previousKey);
         }
 
         if (questionChanged && this._showExplanation) {
@@ -414,6 +419,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           // A brand-new question should always render its question text first.
           this.renderModeByKey.set(viewState.key, 'question');
           this.awaitingQuestionBaseline = true;
+          this.latestDisplayMode = 'question';
         }
 
         const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
