@@ -570,6 +570,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const fallback = (state.fallbackExplanation ?? '').toString().trim();
     return !!fallback;
   }
+
+  private filterStaleExplanation(
+    rawExplanation: string | null | undefined,
+    context: {
+      questionChanged: boolean;
+      previousResolved: string;
+      previousCached: string;
+      previousFallback: string;
+    }
+  ): string {
+    const incoming = (rawExplanation ?? '').toString();
+
+    if (!context.questionChanged) {
+      return incoming;
+    }
+
+    const trimmedIncoming = incoming.trim();
+    if (!trimmedIncoming) {
+      return '';
+    }
+
+    const normalizedPreviousResolved = (context.previousResolved ?? '').trim();
+    const normalizedPreviousCached = (context.previousCached ?? '').trim();
+    const normalizedPreviousFallback = (context.previousFallback ?? '').trim();
+
+    if (
+      (normalizedPreviousResolved && trimmedIncoming === normalizedPreviousResolved) ||
+      (normalizedPreviousCached && trimmedIncoming === normalizedPreviousCached) ||
+      (normalizedPreviousFallback && trimmedIncoming === normalizedPreviousFallback)
+    ) {
+      return '';
+    }
+
+    return incoming;
+  }
   
   private emitContentAvailableState(): void {
     this.isContentAvailable$
