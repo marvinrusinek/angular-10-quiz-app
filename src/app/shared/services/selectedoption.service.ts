@@ -504,72 +504,6 @@ export class SelectedOptionService {
     console.info('[🧠 selectOption()] Emitted updated selections:', committedSelections);
   }
 
-  @@ -7,158 +7,187 @@ import { Option } from '../../shared/models/Option.model';
-import { SelectedOption } from '../../shared/models/SelectedOption.model';
-import { NextButtonStateService } from '../../shared/services/next-button-state.service';
-import { QuizService } from '../../shared/services/quiz.service';
-
-@Injectable({ providedIn: 'root' })
-export class SelectedOptionService {
-  selectedOption: SelectedOption | SelectedOption[] = null;
-  selectedOptionsMap = new Map<number, SelectedOption[]>();
-  selectedOptionIndices: { [key: number]: number[] } = {};
-
-  selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
-  selectedOption$ = this.selectedOptionSubject.asObservable();
-
-  private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
-  selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
-
-  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
-
-  isAnsweredSubject = new BehaviorSubject<boolean>(false);
-  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
-  public answered$ = this.isAnswered$;
-
-  private questionTextSubject = new BehaviorSubject<string>('');
-  questionText$ = this.questionTextSubject.asObservable();
-
-  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
-  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
-  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
-  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
-  private feedbackByQuestion = new Map<number, Record<string, boolean>>();
-  private optionSnapshotByQuestion = new Map<number, Option[]>();
-
-  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
-
-  stopTimer$ = new Subject<void>();
-  stopTimerEmitted = false;
-
-  currentQuestionType: QuestionType | null = null;
-  private _lockedByQuestion = new Map<number, Set<string | number>>();
-  private _questionLocks = new Set<number>()
-
-  set isNextButtonEnabled(value: boolean) {
-    this.isNextButtonEnabledSubject.next(value);
-  }
-
-  get isNextButtonEnabled$(): Observable<boolean> {
-    return this.isNextButtonEnabledSubject.asObservable();
-  }
-
-  constructor(
-    private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService
-  ) {}
-  constructor(
-    private quizService: QuizService,
-    private nextButtonStateService: NextButtonStateService
-  ) {
-    const index$ = this.quizService?.currentQuestionIndex$;
-    if (index$) {
-      index$
-        .pipe(distinctUntilChanged())
-        .subscribe((index) => this.publishFeedbackForQuestion(index));
-    }
-  }
-
   // Method to update the selected option state
   public async selectOption(
     optionId: number,
@@ -583,7 +517,7 @@ export class SelectedOptionService {
       return;
     }
   
-    // Resolve a best-effort index from the incoming text across common aliases.
+    // Resolve question + base options
     const q = this.quizService.questions?.[questionIndex];
     const options = Array.isArray(q?.options) ? q!.options : [];
   
@@ -592,11 +526,8 @@ export class SelectedOptionService {
       Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
         ? optionsSnapshot
         : options;
-    const source: Option[] =
-      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
-        ? optionsSnapshot
-        : options;
-
+  
+    // Persist a snapshot for diagnostics
     if (Array.isArray(source) && source.length > 0) {
       this.optionSnapshotByQuestion.set(
         questionIndex,
@@ -604,6 +535,7 @@ export class SelectedOptionService {
       );
     }
   
+    // Small helpers
     const decodeHtml = (s: string) =>
       s.replace(/&nbsp;/gi, ' ')
        .replace(/&amp;/gi, '&')
@@ -617,16 +549,16 @@ export class SelectedOptionService {
         ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
         : '';
     const toNum = (v: unknown): number | null => {
-      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // allow 0
       const n = Number(String(v));
       return Number.isFinite(n) ? n : null;
     };
   
     const key = norm(text);
-    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
-    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
-
-    const directMatch = this.matchOptionFromSource(source, optionId, text, aliasFields);
+    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'] as const;
+  
+    // If you have this helper, it returns { option?: Option; index: number } | undefined
+    const directMatch = this.matchOptionFromSource?.(source, optionId, text, aliasFields);
   
     // Try to find a concrete index in the chosen source by matching text/value/aliases
     let fallbackIndexFromText = -1;
@@ -646,36 +578,23 @@ export class SelectedOptionService {
       }
     }
   
-    // ⚠️ IMPORTANT: prefer a concrete index hint (from id or text) over raw text
+    // Prefer a concrete index hint (from id or text) over raw text
     const resolverHint: number | string | undefined =
-      indexFromId >= 0 ? indexFromId :
-      (fallbackIndexFromText >= 0 ? fallbackIndexFromText : text);
+      indexFromId >= 0
+        ? indexFromId
+        : (fallbackIndexFromText >= 0
+            ? fallbackIndexFromText
+            : (directMatch?.index ?? text));
   
-    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
+    let canonicalOptionId = this.resolveCanonicalOptionId?.(questionIndex, optionId, resolverHint);
   
-    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
-    if (canonicalOptionId == null) {
-    const resolverHint: number | string | undefined =
-      indexFromId >= 0 ? indexFromId :
-      (fallbackIndexFromText >= 0 ? fallbackIndexFromText :
-        (directMatch?.index ?? text));
-
-    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
-
-    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
+    // Last-resort fallbacks if resolver failed
     if (canonicalOptionId == null) {
       if (indexFromId >= 0) {
         console.warn('[SelectedOptionService] Resolver missed; using snapshot indexFromId', {
           questionIndex, optionId, text, indexFromId
         });
         canonicalOptionId = indexFromId;
-      } else if (fallbackIndexFromText >= 0) {
-        console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
-          questionIndex, optionId, text, fallbackIndexFromText
-        });
-        canonicalOptionId = fallbackIndexFromText;
-      }
-    }
       } else if (fallbackIndexFromText >= 0) {
         console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
           questionIndex, optionId, text, fallbackIndexFromText
@@ -707,7 +626,7 @@ export class SelectedOptionService {
     }
   
     const newSelection: SelectedOption = {
-      optionId: canonicalOptionId,        // numeric id if available, else index
+      optionId: canonicalOptionId,  // numeric id if available, else index
       questionIndex,
       text,
       selected: true,
@@ -715,12 +634,25 @@ export class SelectedOptionService {
       showIcon: true
     };
   
+    // Merge into current selections
     const currentSelections = this.selectedOptionsMap.get(questionIndex) || [];
-    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(questionIndex, currentSelections);
-    const filteredSelections = canonicalCurrent.filter(
-@@ -384,148 +413,301 @@ export class SelectedOptionService {
+    const canonicalCurrent = this.canonicalizeSelectionsForQuestion?.(questionIndex, currentSelections) ?? currentSelections;
+  
+    let combinedSelections: SelectedOption[];
+    if (isMultiSelect) {
+      // Toggle semantics for multi-select: if exists → remove; else → add
+      const exists = canonicalCurrent.some(s => toNum(s.optionId) === toNum(newSelection.optionId));
+      combinedSelections = exists
+        ? canonicalCurrent.filter(s => toNum(s.optionId) !== toNum(newSelection.optionId))
+        : [...canonicalCurrent, newSelection];
+    } else {
+      // Single-select replaces the list
+      combinedSelections = [newSelection];
+    }
+  
+    this.selectedOptionsMap.set(questionIndex, combinedSelections);
     this.isOptionSelectedSubject.next(combinedSelections.length > 0);
-  }
+  }  
 
   setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
     const committed = this.commitSelections(qIndex, selections);
