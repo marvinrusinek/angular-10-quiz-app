@@ -972,6 +972,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
     this.quizStateService.setQuestionState(this.quizId, qIdx, {
       ...prev,
+      isAnswered: true,
       explanationDisplayed: true,
       explanationText: this.explanationToDisplay
     });
