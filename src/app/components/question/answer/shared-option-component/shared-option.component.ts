@@ -1487,7 +1487,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     console.log(`[📤 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
 
-    this.applyExplanationText(explanationText);
+    this.applyExplanationText(explanationText, questionIndex);
 
     this.scheduleExplanationVerification(questionIndex, explanationText);
   }
@@ -1497,8 +1497,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
     this.explanationTextService.setExplanationText(explanationText, {
       force: true,
-      context: contextKey,
+      context: contextKey
     });
+    const displayOptions = { context: contextKey, force: true } as const;
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.explanationTextService.setIsExplanationTextDisplayed(true);
     this.explanationTextService.setResetComplete(true);
