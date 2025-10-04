@@ -77,6 +77,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private pendingExplanationRequests = new Map<string, Subscription>();
   private pendingExplanationKeys = new Set<string>();
   private latestViewState: QuestionViewState | null = null;
+  private previousExplanationSnapshot: { resolved: string; cached: string; fallback: string } | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
   private awaitingQuestionBaseline = false;
   private renderModeByKey = new Map<string, 'question' | 'explanation'>();
@@ -403,8 +404,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const previousResolvedExplanation = previousKey ? (this.lastExplanationMarkupByKey.get(previousKey) ?? '') : '';
         const previousCachedExplanation = previousKey ? (this.explanationCache.get(previousKey) ?? '') : '';
         const questionChanged = previousKey !== viewState.key;
+        const normalizedPreviousResolved = previousResolvedExplanation.toString().trim();
+        const normalizedPreviousCached = previousCachedExplanation.toString().trim();
+        const normalizedPreviousFallback = (previousViewState?.fallbackExplanation ?? '').toString().trim();
 
         if (questionChanged && previousKey) {
+          this.previousExplanationSnapshot = {
+            resolved: normalizedPreviousResolved,
+            cached: normalizedPreviousCached,
+            fallback: normalizedPreviousFallback
+          };
           const pending = this.pendingExplanationRequests.get(previousKey);
           pending?.unsubscribe();
           this.pendingExplanationRequests.delete(previousKey);
@@ -412,6 +421,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.lastExplanationMarkupByKey.delete(previousKey);
           this.explanationCache.delete(previousKey);
           this.renderModeByKey.delete(previousKey);
+        } else if (questionChanged) {
+          this.previousExplanationSnapshot = null;
         }
 
         if (questionChanged && this._showExplanation) {
@@ -430,17 +441,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const displayAnswered = !!displayState.answered && !questionChanged;
         const questionAnswered = stateAnswered || displayAnswered;
 
-        const normalizedPreviousResolved = previousResolvedExplanation.toString().trim();
-        const normalizedPreviousCached = previousCachedExplanation.toString().trim();
-        const sanitizedExplanationText = this.filterStaleExplanation(
+        
+        const sanitizedExplanation = this.filterStaleExplanation(
           explanationText,
           {
             questionChanged,
             previousResolved: normalizedPreviousResolved,
             previousCached: normalizedPreviousCached,
-            previousFallback: (previousViewState?.fallbackExplanation ?? '').toString().trim()
+            previousFallback: normalizedPreviousFallback,
+            previousQuestionSnapshot: this.previousExplanationSnapshot
           }
         );
+        const sanitizedExplanationText = sanitizedExplanation.value;
+        const explanationWasStale = sanitizedExplanation.staleMatch;
 
         const explanationAvailable = this.hasExplanationContent(viewState, sanitizedExplanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, sanitizedExplanationText);
@@ -502,13 +515,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           if (explanationAvailable) {
             const normalizedExplanation = (resolvedExplanation ?? '').toString().trim();
             if (normalizedExplanation) {
-              this.lastExplanationMarkupByKey.set(viewState.key, normalizedExplanation);
+              if (!explanationWasStale) {
+                this.lastExplanationMarkupByKey.set(viewState.key, normalizedExplanation);
+              }
               nextMarkup = normalizedExplanation;
             } else if (cachedExplanation) {
               nextMarkup = cachedExplanation;
             } else if (fallbackExplanation) {
               nextMarkup = fallbackExplanation;
-              this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+              if (!explanationWasStale) {
+                this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+              }
             } else {
               nextMarkup = this.explanationLoadingText;
             }
@@ -516,7 +533,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             nextMarkup = cachedExplanation;
           } else if (fallbackExplanation) {
             nextMarkup = fallbackExplanation;
-            this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+            if (!explanationWasStale) {
+              this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+            }
           } else if (awaitingExplanationContent) {
             nextMarkup = this.explanationLoadingText;
             this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
