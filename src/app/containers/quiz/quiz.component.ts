@@ -1003,10 +1003,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
     this.cdRef.markForCheck();
     console.log('[PARENT] onOptionSelected → about to enable Next');
-  
-    // Persist per-question “seen” flag
-    const prev = this.quizStateService.getQuestionState(this.quizId, qIdx);
-    this.quizStateService.setQuestionState(this.quizId, qIdx, {
+
+    // Persist per-question “seen” flag␊
+    const prev = this.quizStateService.getQuestionState(this.quizId, normalizedQuestionIndex);
+    this.quizStateService.setQuestionState(this.quizId, normalizedQuestionIndex, {
       ...prev,
       isAnswered: true,
       explanationDisplayed: true,
