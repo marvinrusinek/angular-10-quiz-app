@@ -683,14 +683,6 @@ export class SelectedOptionService {
     } else {
       console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
     }
-  }
-  clearSelectionsForQuestion(questionIndex: number): void {
-    if (this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
-      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
-    } else {
-      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
-    }
 
     this.feedbackByQuestion.delete(questionIndex);
 
