@@ -42,6 +42,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   @Output() renderReadyChange = new EventEmitter<boolean>();
   @Input() currentQuestion: QuizQuestion;
   @Input() currentQuestionIndex!: number;
+  @Input() questionIndex: number | null = null;
   @Input() optionsToDisplay!: Option[];
   @Input() type: 'single' | 'multiple' = 'single';
   @Input() config: SharedOptionConfig;
@@ -128,6 +129,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private resolvedTypeForLock: QuestionType = QuestionType.SingleAnswer;
   private forceDisableAll = false;
   private pendingExplanationIndex = -1;
+  private resolvedQuestionIndex: number | null = null;
 
   onDestroy$ = new Subject<void>();
 
@@ -165,9 +167,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     return Math.floor(candidate);
   }
 
+  private updateResolvedQuestionIndex(candidate: unknown): void {
+    const normalized = this.normalizeQuestionIndex(candidate);
+
+    if (normalized !== null) {
+      this.resolvedQuestionIndex = normalized;
+    }
+  }
+
   private getActiveQuestionIndex(): number | null {
+    if (this.resolvedQuestionIndex !== null) {
+      return this.resolvedQuestionIndex;
+    }
+
+    const inputIndex =
+      this.normalizeQuestionIndex(this.questionIndex) ??
+      this.normalizeQuestionIndex(this.currentQuestionIndex) ??
+      this.normalizeQuestionIndex(this.config?.idx);
+
+    if (inputIndex !== null) {
+      this.resolvedQuestionIndex = inputIndex;
+      return inputIndex;
+    }
+
     const directInput = this.normalizeQuestionIndex(this.currentQuestionIndex);
     if (directInput !== null) {
+      this.resolvedQuestionIndex = directInput;
       return directInput;
     }
 
@@ -177,14 +202,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       );
 
       if (resolved !== null) {
+        this.resolvedQuestionIndex = resolved;
         return resolved;
       }
     }
 
-    return this.normalizeQuestionIndex(this.quizService?.currentQuestionIndex);
+    const fallback = this.normalizeQuestionIndex(this.quizService?.currentQuestionIndex);
+
+    if (fallback !== null) {
+      this.resolvedQuestionIndex = fallback;
+    }
+
+    return fallback;
   }
 
   ngOnInit(): void {
+    this.updateResolvedQuestionIndex(
+      this.questionIndex ??
+      this.currentQuestionIndex ??
+      this.config?.idx ??
+      this.quizService?.currentQuestionIndex
+    );
+    
     // ─── Fallback Rendering ────────────────────────────────────────────────
     setTimeout(() => {
       if (!this.renderReady || !this.optionsToDisplay?.length) {
