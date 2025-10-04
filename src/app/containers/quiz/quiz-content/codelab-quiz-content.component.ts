@@ -398,7 +398,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([displayState, viewState, explanationText, shouldDisplayExplanation]) => {
-        const previousKey = this.latestViewState?.key ?? null;
+        const previousViewState = this.latestViewState;
+        const previousKey = previousViewState?.key ?? null;
+        const previousResolvedExplanation = previousKey ? (this.lastExplanationMarkupByKey.get(previousKey) ?? '') : '';
+        const previousCachedExplanation = previousKey ? (this.explanationCache.get(previousKey) ?? '') : '';
         const questionChanged = previousKey !== viewState.key;
 
         if (questionChanged && previousKey) {
@@ -427,8 +430,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const displayAnswered = !!displayState.answered && !questionChanged;
         const questionAnswered = stateAnswered || displayAnswered;
 
-        const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
-        const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
+        const normalizedPreviousResolved = previousResolvedExplanation.toString().trim();
+        const normalizedPreviousCached = previousCachedExplanation.toString().trim();
+        const sanitizedExplanationText = this.filterStaleExplanation(
+          explanationText,
+          {
+            questionChanged,
+            previousResolved: normalizedPreviousResolved,
+            previousCached: normalizedPreviousCached,
+            previousFallback: (previousViewState?.fallbackExplanation ?? '').toString().trim()
+          }
+        );
+
+        const explanationAvailable = this.hasExplanationContent(viewState, sanitizedExplanationText);
+        const resolvedExplanation = this.resolveExplanationMarkup(viewState, sanitizedExplanationText);
         const cachedExplanation = (this.lastExplanationMarkupByKey.get(viewState.key) ?? '').toString().trim();
         const fallbackExplanation = (viewState.fallbackExplanation ?? '').toString().trim();
         const canRenderExplanation =
