@@ -1482,14 +1482,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private emitExplanation(questionIndex: number): void {
     // Fetch explanation text
-    const entry = this.explanationTextService.formattedExplanations[questionIndex];
-    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    const explanationText = this.resolveExplanationText(questionIndex);
     console.log(`[📤 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
-  
+
     // Emit explanation text
     this.explanationTextService.setExplanationText(explanationText);
-  
-    // Confirm emission
+    this.explanationTextService.setShouldDisplayExplanation(true);
+
+    // Confirm emission␊
     const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
     console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
   
@@ -1507,7 +1507,36 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         });
       });
     });
-  }  
+  }
+
+  private resolveExplanationText(questionIndex: number): string {
+    const formatted = this.explanationTextService
+      .formattedExplanations[questionIndex]?.explanation?.trim();
+
+    if (formatted) {
+      return formatted;
+    }
+
+    const matchesCurrentInput =
+      typeof this.currentQuestionIndex === 'number' &&
+      this.currentQuestionIndex === questionIndex;
+
+    const currentInputExplanation = matchesCurrentInput
+      ? this.currentQuestion?.explanation?.trim()
+      : undefined;
+
+    if (currentInputExplanation) {
+      return currentInputExplanation;
+    }
+
+    const serviceQuestion = this.quizService.currentQuestion?.getValue?.();
+    const serviceMatchesIndex = this.quizService.currentQuestionIndex === questionIndex;
+    const serviceExplanation = serviceMatchesIndex
+      ? serviceQuestion?.explanation?.trim()
+      : undefined;
+
+    return serviceExplanation || 'No explanation available';
+  }
 
   private forceHighlightRefresh(optionId: number): void {
     if (!this.highlightDirectives?.length) {
