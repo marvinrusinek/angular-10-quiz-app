@@ -1461,12 +1461,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log('[✅ Highlighting and Icons Updated]');
   
     // Emit Explanation Text
-    const entry = this.explanationTextService.formattedExplanations[questionIndex];
-    const explanationText = entry?.explanation?.trim() ?? 'No explanation available';
+    const explanationText = this.resolveExplanationText(questionIndex);
     console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
-  
+
     this.explanationTextService.setExplanationText(explanationText);
-  
+    this.explanationTextService.setShouldDisplayExplanation(true);
+
     // Confirm Explanation Emission
     const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
     console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
