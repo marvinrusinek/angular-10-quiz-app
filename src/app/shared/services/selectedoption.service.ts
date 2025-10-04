@@ -504,14 +504,383 @@ export class SelectedOptionService {
     console.info('[🧠 selectOption()] Emitted updated selections:', committedSelections);
   }
 
+  @@ -7,158 +7,187 @@ import { Option } from '../../shared/models/Option.model';
+import { SelectedOption } from '../../shared/models/SelectedOption.model';
+import { NextButtonStateService } from '../../shared/services/next-button-state.service';
+import { QuizService } from '../../shared/services/quiz.service';
+
+@Injectable({ providedIn: 'root' })
+export class SelectedOptionService {
+  selectedOption: SelectedOption | SelectedOption[] = null;
+  selectedOptionsMap = new Map<number, SelectedOption[]>();
+  selectedOptionIndices: { [key: number]: number[] } = {};
+
+  selectedOptionSubject = new BehaviorSubject<SelectedOption[]>([]);
+  selectedOption$ = this.selectedOptionSubject.asObservable();
+
+  private selectedOptionExplanationSource = new BehaviorSubject<string>(null);
+  selectedOptionExplanation$ = this.selectedOptionExplanationSource.asObservable();
+
+  private isOptionSelectedSubject = new BehaviorSubject<boolean>(false);
+
+  isAnsweredSubject = new BehaviorSubject<boolean>(false);
+  isAnswered$: Observable<boolean> = this.isAnsweredSubject.asObservable();
+  public answered$ = this.isAnswered$;
+
+  private questionTextSubject = new BehaviorSubject<string>('');
+  questionText$ = this.questionTextSubject.asObservable();
+
+  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
+  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+  private showFeedbackForOptionSubject = new BehaviorSubject<Record<string, boolean>>({});
+  showFeedbackForOption$ = this.showFeedbackForOptionSubject.asObservable();
+  private feedbackByQuestion = new Map<number, Record<string, boolean>>();
+  private optionSnapshotByQuestion = new Map<number, Option[]>();
+
+  private isNextButtonEnabledSubject = new BehaviorSubject<boolean>(false);
+
+  stopTimer$ = new Subject<void>();
+  stopTimerEmitted = false;
+
+  currentQuestionType: QuestionType | null = null;
+  private _lockedByQuestion = new Map<number, Set<string | number>>();
+  private _questionLocks = new Set<number>()
+
+  set isNextButtonEnabled(value: boolean) {
+    this.isNextButtonEnabledSubject.next(value);
+  }
+
+  get isNextButtonEnabled$(): Observable<boolean> {
+    return this.isNextButtonEnabledSubject.asObservable();
+  }
+
+  constructor(
+    private quizService: QuizService,
+    private nextButtonStateService: NextButtonStateService
+  ) {}
+  constructor(
+    private quizService: QuizService,
+    private nextButtonStateService: NextButtonStateService
+  ) {
+    const index$ = this.quizService?.currentQuestionIndex$;
+    if (index$) {
+      index$
+        .pipe(distinctUntilChanged())
+        .subscribe((index) => this.publishFeedbackForQuestion(index));
+    }
+  }
+
+  // Method to update the selected option state
+  public async selectOption(
+    optionId: number,
+    questionIndex: number,
+    text: string,
+    isMultiSelect: boolean,
+    optionsSnapshot?: Option[]            // ← NEW (optional live snapshot)
+  ): Promise<void> {
+    if (optionId == null || questionIndex == null || !text) {
+      console.error('Invalid data for SelectedOption:', { optionId, questionIndex, text });
+      return;
+    }
+  
+    // Resolve a best-effort index from the incoming text across common aliases.
+    const q = this.quizService.questions?.[questionIndex];
+    const options = Array.isArray(q?.options) ? q!.options : [];
+  
+    // Prefer the caller-provided snapshot (fresh UI state) if available
+    const source: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : options;
+    const source: Option[] =
+      Array.isArray(optionsSnapshot) && optionsSnapshot.length > 0
+        ? optionsSnapshot
+        : options;
+
+    if (Array.isArray(source) && source.length > 0) {
+      this.optionSnapshotByQuestion.set(
+        questionIndex,
+        source.map(option => ({ ...option }))
+      );
+    }
+  
+    const decodeHtml = (s: string) =>
+      s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'");
+    const stripTags = (s: string) => s.replace(/<[^>]*>/g, ' ');
+    const norm = (s: unknown) =>
+      typeof s === 'string'
+        ? stripTags(decodeHtml(s)).trim().toLowerCase().replace(/\s+/g, ' ')
+        : '';
+    const toNum = (v: unknown): number | null => {
+      if (typeof v === 'number' && Number.isFinite(v)) return v; // 0 allowed
+      const n = Number(String(v));
+      return Number.isFinite(n) ? n : null;
+    };
+  
+    const key = norm(text);
+    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
+    const aliasFields = ['text', 'value', 'label', 'name', 'title', 'displayText', 'description', 'html'];
+
+    const directMatch = this.matchOptionFromSource(source, optionId, text, aliasFields);
+  
+    // Try to find a concrete index in the chosen source by matching text/value/aliases
+    let fallbackIndexFromText = -1;
+    for (let i = 0; i < source.length && fallbackIndexFromText < 0; i++) {
+      const o: any = source[i];
+      for (const f of aliasFields) {
+        if (norm(o?.[f]) === key) { fallbackIndexFromText = i; break; }
+      }
+    }
+  
+    // Also try to resolve by id inside the same source (handle 0, string/number)
+    let indexFromId = -1;
+    for (let i = 0; i < source.length && indexFromId < 0; i++) {
+      const oid = (source[i] as any)?.optionId;
+      if (oid === optionId || String(oid) === String(optionId) || toNum(oid) === toNum(optionId)) {
+        indexFromId = i;
+      }
+    }
+  
+    // ⚠️ IMPORTANT: prefer a concrete index hint (from id or text) over raw text
+    const resolverHint: number | string | undefined =
+      indexFromId >= 0 ? indexFromId :
+      (fallbackIndexFromText >= 0 ? fallbackIndexFromText : text);
+  
+    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
+  
+    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
+    if (canonicalOptionId == null) {
+    const resolverHint: number | string | undefined =
+      indexFromId >= 0 ? indexFromId :
+      (fallbackIndexFromText >= 0 ? fallbackIndexFromText :
+        (directMatch?.index ?? text));
+
+    let canonicalOptionId = this.resolveCanonicalOptionId(questionIndex, optionId, resolverHint);
+
+    // Last-resort fallbacks: if resolver failed but we have a concrete index from the source, use it.
+    if (canonicalOptionId == null) {
+      if (indexFromId >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot indexFromId', {
+          questionIndex, optionId, text, indexFromId
+        });
+        canonicalOptionId = indexFromId;
+      } else if (fallbackIndexFromText >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
+          questionIndex, optionId, text, fallbackIndexFromText
+        });
+        canonicalOptionId = fallbackIndexFromText;
+      }
+    }
+      } else if (fallbackIndexFromText >= 0) {
+        console.warn('[SelectedOptionService] Resolver missed; using snapshot fallbackIndexFromText', {
+          questionIndex, optionId, text, fallbackIndexFromText
+        });
+        canonicalOptionId = fallbackIndexFromText;
+      } else if (directMatch?.option) {
+        const resolved = toNum((directMatch.option as any)?.optionId);
+        if (resolved !== null) {
+          console.warn('[SelectedOptionService] Resolver missed; using matched optionId from snapshot', {
+            questionIndex, optionId, text, resolved
+          });
+          canonicalOptionId = resolved;
+        } else {
+          canonicalOptionId = directMatch.index;
+        }
+      }
+    }
+  
+    if (canonicalOptionId == null) {
+      // Log a compact snapshot to see why it failed.
+      console.error('Unable to determine a canonical optionId for selection', {
+        optionId, questionIndex, text,
+        optionsSnapshot: source.map((o: any, i: number) => ({
+          i, id: o?.optionId, text: o?.text, value: o?.value,
+          label: o?.label, name: o?.name, title: o?.title, displayText: o?.displayText
+        }))
+      });
+      return;
+    }
+  
+    const newSelection: SelectedOption = {
+      optionId: canonicalOptionId,        // numeric id if available, else index
+      questionIndex,
+      text,
+      selected: true,
+      highlight: true,
+      showIcon: true
+    };
+  
+    const currentSelections = this.selectedOptionsMap.get(questionIndex) || [];
+    const canonicalCurrent = this.canonicalizeSelectionsForQuestion(questionIndex, currentSelections);
+    const filteredSelections = canonicalCurrent.filter(
+@@ -384,148 +413,301 @@ export class SelectedOptionService {
+    this.isOptionSelectedSubject.next(combinedSelections.length > 0);
+  }
+
+  setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
+    const committed = this.commitSelections(qIndex, selections);
+    this.selectedOptionSubject.next(committed);
+  }
+
+  getSelectedOptions(): SelectedOption[] {
+    const combined: SelectedOption[] = [];
+  
+    this.selectedOptionsMap.forEach((opts, qIndex) => {
+      if (Array.isArray(opts)) {
+        combined.push(...opts);
+      }
+    });
+  
+    console.log('[📤 getSelectedOptions()] returning', combined);
+    return combined;
+  }  
+
+  getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
+    return this.selectedOptionsMap.get(questionIndex) || [];
+  }
+
+  clearSelectionsForQuestion(questionIndex: number): void {
+    if (this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    }
+  }
+  clearSelectionsForQuestion(questionIndex: number): void {
+    if (this.selectedOptionsMap.has(questionIndex)) {
+      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
+      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    }
+
+    this.feedbackByQuestion.delete(questionIndex);
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({});
+    }
+  }
+
+  // Method to get the current option selected state
+  getCurrentOptionSelectedState(): boolean {
+    return this.isOptionSelectedSubject.getValue();
+  }
+
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.getValue();
+  }
+
+  isSelectedOption(option: Option): boolean {
+    const selectedOptions = this.getSelectedOptions();  // Updated to use getSelectedOptions()
+    const showFeedbackForOption = this.getShowFeedbackForOption();  // Get feedback data
+  
+    // Check if selectedOptions contains the current option
+    if (Array.isArray(selectedOptions)) {
+      // Loop through each selected option and check if the current option is selected
+      return selectedOptions.some(
+        (opt) =>
+          opt.optionId === option.optionId && !!showFeedbackForOption[option.optionId]
+      );
+    }
+  
+    // If selectedOptions is somehow not an array, log a warning
+    console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
+    return false;  // return false if selectedOptions is invalid
+  }  
+
+  clearSelectedOption(): void {
+    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
+      // Clear all selected options for multiple-answer questions
+      this.selectedOptionsMap.clear();
+    } else {
+      // Clear the single selected option for single-answer questions
+      this.selectedOption = null;
+      this.selectedOptionSubject.next(null);
+    }
+  
+    // Only clear feedback state here — do NOT touch answered state
+    this.showFeedbackForOptionSubject.next({});
+  }  
+
+  clearOptions(): void {
+    this.selectedOptionSubject.next(null);
+    this.showFeedbackForOptionSubject.next({});
+  }
+  getShowFeedbackForOption(): { [optionId: number]: boolean } {
+    return this.showFeedbackForOptionSubject.getValue();
+  }
+
+  getFeedbackForQuestion(questionIndex: number): Record<string, boolean> {
+    return { ...(this.feedbackByQuestion.get(questionIndex) ?? {}) };
+  }
+
+  republishFeedbackForQuestion(questionIndex: number): void {
+    const selections = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+    if (!Array.isArray(selections) || selections.length === 0) {
+      this.feedbackByQuestion.delete(questionIndex);
+
+      if (this.quizService?.currentQuestionIndex === questionIndex) {
+        this.showFeedbackForOptionSubject.next({});
+      }
+
+      return;
+    }
+
+    let feedback = this.feedbackByQuestion.get(questionIndex);
+    if (!feedback || Object.keys(feedback).length === 0) {
+      feedback = this.buildFeedbackMap(questionIndex, selections);
+      this.feedbackByQuestion.set(questionIndex, feedback);
+    }
+
+    if (this.quizService?.currentQuestionIndex === questionIndex) {
+      this.showFeedbackForOptionSubject.next({ ...feedback });
+    }
+  }
+
+  private publishFeedbackForQuestion(index: number | null | undefined): void {
+    const resolvedIndex =
+      typeof index === 'number' && Number.isInteger(index)
+        ? index
+        : Number.isInteger(this.quizService?.currentQuestionIndex)
+          ? (this.quizService.currentQuestionIndex as number)
+          : null;
+
+    if (resolvedIndex === null) {
+      this.showFeedbackForOptionSubject.next({});
+      return;
+    }
+
+    const cached = this.feedbackByQuestion.get(resolvedIndex) ?? {};
+    this.showFeedbackForOptionSubject.next({ ...cached });
+  }
+
   isSelectedOption(option: Option): boolean {
     if (!option) {
       return false;
     }
 
-    const selectedOptions = this.getSelectedOptions();
+    const preferredQuestionIndex =
+      typeof (option as SelectedOption)?.questionIndex === 'number'
+        ? (option as SelectedOption).questionIndex
+        : Number.isInteger(this.quizService?.currentQuestionIndex)
+          ? (this.quizService!.currentQuestionIndex as number)
+          : null;
 
-    if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+    const candidateQuestionIndices =
+      preferredQuestionIndex !== null
+        ? [preferredQuestionIndex]
+        : this.selectedOptionsMap.size === 1
+          ? Array.from(this.selectedOptionsMap.keys())
+          : [];
+
+    if (candidateQuestionIndices.length === 0) {
       return false;
     }
 
@@ -520,93 +889,80 @@ export class SelectedOptionService {
       typeof option.optionId === 'number' && Number.isFinite(option.optionId)
         ? option.optionId
         : null;
-
-    const optionQuestionIndex =
-      typeof (option as SelectedOption)?.questionIndex === 'number'
-        ? (option as SelectedOption).questionIndex
-        : Number.isInteger(this.quizService?.currentQuestionIndex)
-          ? this.quizService.currentQuestionIndex
-          : null;
-
     const normalizedOptionText = this.normalizeStr(option.text);
     const normalizedOptionValue = this.normalizeStr((option as any)?.value);
 
-    return selectedOptions.some(selection => {
-      if (!selection) {
-        return false;
+    for (const questionIndex of candidateQuestionIndices) {
+      const selectedOptions = this.selectedOptionsMap.get(questionIndex) ?? [];
+
+      if (!Array.isArray(selectedOptions) || selectedOptions.length === 0) {
+        continue;
       }
 
-      if (
-        optionQuestionIndex !== null &&
-        selection.questionIndex !== undefined &&
-        selection.questionIndex !== null &&
-        selection.questionIndex !== optionQuestionIndex
-      ) {
-        return false;
-      }
+      const match = selectedOptions.some(selection => {
+        if (!selection || selection.questionIndex !== questionIndex) {
+          return false;
+        }
 
-      const normalizedSelectionId = this.normalizeOptionId(selection.optionId);
-      if (
-        normalizedOptionId !== null &&
-        normalizedSelectionId !== null &&
-        normalizedOptionId === normalizedSelectionId
-      ) {
-        return true;
-      }
+        const normalizedSelectionId = this.normalizeOptionId(selection.optionId);
+        if (
+          normalizedOptionId !== null &&
+          normalizedSelectionId !== null &&
+          normalizedOptionId === normalizedSelectionId
+        ) {
+          return true;
+        }
 
-      const numericSelectionId =
-        typeof selection.optionId === 'number' && Number.isFinite(selection.optionId)
-          ? selection.optionId
-          : null;
+        const numericSelectionId =
+          typeof selection.optionId === 'number' && Number.isFinite(selection.optionId)
+            ? selection.optionId
+            : null;
 
-      if (
-        numericOptionId !== null &&
-        numericSelectionId !== null &&
-        numericOptionId === numericSelectionId
-      ) {
-        return true;
-      }
+        if (
+          numericOptionId !== null &&
+          numericSelectionId !== null &&
+          numericOptionId === numericSelectionId
+        ) {
+          return true;
+        }
 
-      const normalizedSelectionText = this.normalizeStr(selection.text);
-      if (
-        normalizedOptionText &&
-        normalizedSelectionText &&
-        normalizedOptionText === normalizedSelectionText
-      ) {
-        return true;
-      }
+        const normalizedSelectionText = this.normalizeStr(selection.text);
+        if (
+          normalizedOptionText &&
+          normalizedSelectionText &&
+          normalizedOptionText === normalizedSelectionText
+        ) {
+          return true;
+        }
 
-      const normalizedSelectionValue = this.normalizeStr((selection as any)?.value);
-      if (
-        normalizedOptionValue &&
-        normalizedSelectionValue &&
-        normalizedOptionValue === normalizedSelectionValue
-      ) {
-        return true;
-      }
+        const normalizedSelectionValue = this.normalizeStr((selection as any)?.value);
+        if (
+          normalizedOptionValue &&
+          normalizedSelectionValue &&
+          normalizedOptionValue === normalizedSelectionValue
+        ) {
+          return true;
+        }
 
-      const selectionQuestionIndex = selection.questionIndex;
-      if (
-        typeof selectionQuestionIndex === 'number' &&
-        (optionQuestionIndex === null || selectionQuestionIndex === optionQuestionIndex)
-      ) {
         const canonicalOptionId = this.resolveCanonicalOptionId(
-          selectionQuestionIndex,
+          questionIndex,
           option.optionId ?? null,
           option.text ?? ''
         );
 
-        if (
+        return (
           canonicalOptionId !== null &&
           numericSelectionId !== null &&
           canonicalOptionId === numericSelectionId
-        ) {
-          return true;
-        }
-      }
+        );
+      });
 
-      return false;
-    });
+      if (match) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   clearSelectedOption(): void {
