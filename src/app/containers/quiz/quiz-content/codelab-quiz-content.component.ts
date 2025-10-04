@@ -1265,16 +1265,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         })
       );
 
-    const subscription = request$.subscribe((resolved) => {
-      const finalText = (resolved ?? '').toString().trim() || fallback || 'Explanation not available.';
-      this.explanationCache.set(state.key, finalText);
-
-      if (this.latestDisplayMode === 'explanation' && this.latestViewState?.key === state.key) {
-        this.combinedTextSubject.next(finalText);
-        this.cdRef.markForCheck();
-      }
-
-      this.pendingExplanationRequests.delete(state.key);
+      const subscription = request$.subscribe((resolved) => {
+        const finalText = (resolved ?? '').toString().trim() || fallback || 'Explanation not available.';
+        this.explanationCache.set(state.key, finalText);
+  
+        const isCurrentView = this.latestViewState?.key === state.key;
+        const renderMode = this.renderModeByKey.get(state.key);
+        const hasPendingRequest = this.pendingExplanationKeys.has(state.key);
+        const shouldPromoteExplanation =
+          isCurrentView &&
+          (
+            this.latestDisplayMode === 'explanation' ||
+            renderMode === 'explanation' ||
+            hasPendingRequest
+          );
+  
+        if (shouldPromoteExplanation) {
+          this.renderModeByKey.set(state.key, 'explanation');
+          this.lastExplanationMarkupByKey.set(state.key, finalText);
+          this.combinedTextSubject.next(finalText);
+          this.latestDisplayMode = 'explanation';
+          this.pendingExplanationKeys.delete(state.key);
+          this.cdRef.markForCheck();
+        } else if (!hasPendingRequest) {
+          this.lastExplanationMarkupByKey.set(state.key, finalText);
+        }
+  
+        this.pendingExplanationRequests.delete(state.key);
     });
 
     this.pendingExplanationRequests.set(state.key, subscription);
