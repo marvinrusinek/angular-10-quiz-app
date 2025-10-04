@@ -476,6 +476,8 @@ export class ExplanationTextService {
     if (!isSame) {
       console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
 
+      const contextKey = this.buildQuestionContextKey(questionIndex);
+
       this.explanationTexts[questionIndex] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
       this.setExplanationText(trimmed, {
