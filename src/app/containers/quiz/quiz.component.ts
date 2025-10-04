@@ -1028,7 +1028,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
     // Persist state in sessionStorage
     sessionStorage.setItem('isAnswered', 'true');
-    sessionStorage.setItem(`displayMode_${qIdx}`, 'explanation');
+    sessionStorage.setItem(`displayMode_${normalizedQuestionIndex}`, 'explanation');
     sessionStorage.setItem('displayExplanation', 'true');
   }
 
