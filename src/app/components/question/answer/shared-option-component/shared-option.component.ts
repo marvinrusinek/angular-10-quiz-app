@@ -127,6 +127,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private allCorrectPersistedForLock = false;
   private resolvedTypeForLock: QuestionType = QuestionType.SingleAnswer;
   private forceDisableAll = false;
+  private pendingExplanationIndex = -1;
 
   onDestroy$ = new Subject<void>();
 
@@ -1481,22 +1482,55 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   private emitExplanation(questionIndex: number): void {
-    // Fetch explanation text
     const explanationText = this.resolveExplanationText(questionIndex);
+
+    this.pendingExplanationIndex = questionIndex;
+
     console.log(`[📤 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
 
-    // Emit explanation text
+    this.applyExplanationText(explanationText);
+
+    this.scheduleExplanationVerification(questionIndex, explanationText);
+  }
+
+  private applyExplanationText(explanationText: string): void {
     this.explanationTextService.setExplanationText(explanationText);
     this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.lockExplanation();
+  }
 
-    // Confirm emission␊
-    const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
-    console.log(`[✅ Explanation Text Emitted]: "${emittedText}"`);
-  
-    // Check for mismatch
-    if (explanationText !== emittedText) {
-      console.warn(`[⚠️ Explanation Text Mismatch]: Expected "${explanationText}", but found "${emittedText}"`);
-    }
+  private scheduleExplanationVerification(questionIndex: number, explanationText: string): void {
+    this.ngZone.runOutsideAngular(() => {
+      requestAnimationFrame(() => {
+        const latest = this.explanationTextService.formattedExplanationSubject.getValue();
+
+        if (this.pendingExplanationIndex !== questionIndex) {
+          return;
+        }
+
+        if (latest?.trim() === explanationText.trim()) {
+          this.clearPendingExplanation();
+          return;
+        }
+
+        this.ngZone.run(() => {
+          console.warn('[🔁 Re-applying explanation text after mismatch]', {
+            expected: explanationText,
+            latest,
+            questionIndex
+          });
+
+          this.explanationTextService.unlockExplanation();
+          this.applyExplanationText(explanationText);
+          this.cdRef.markForCheck();
+          this.clearPendingExplanation();
+        });
+      });
+    });
+  }
+
+  private clearPendingExplanation(): void {
+    this.pendingExplanationIndex = -1;
   }
 
   private deferHighlightUpdate(callback: () => void): void {
