@@ -1465,8 +1465,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const explanationText = this.resolveExplanationText(questionIndex);
     console.log(`[📢 Emitting Explanation Text for Q${questionIndex}]: "${explanationText}"`);
 
-    this.explanationTextService.setExplanationText(explanationText);
-    this.explanationTextService.setShouldDisplayExplanation(true);
+    this.applyExplanationText(explanationText, questionIndex);
 
     // Confirm Explanation Emission
     const emittedText = this.explanationTextService.formattedExplanationSubject.getValue();
@@ -1493,10 +1492,25 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.scheduleExplanationVerification(questionIndex, explanationText);
   }
 
-  private applyExplanationText(explanationText: string): void {
-    this.explanationTextService.setExplanationText(explanationText);
+  private applyExplanationText(explanationText: string, questionIndex: number): void {
+    const contextKey = this.buildExplanationContext(questionIndex);
+
+    this.explanationTextService.setExplanationText(explanationText, {
+      force: true,
+      context: contextKey,
+    });
     this.explanationTextService.setShouldDisplayExplanation(true);
+    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setResetComplete(true);
     this.explanationTextService.lockExplanation();
+  }
+
+  private buildExplanationContext(questionIndex: number): string {
+    const normalized = Number.isFinite(questionIndex)
+      ? Math.max(0, Math.floor(questionIndex))
+      : 0;
+
+    return `question:${normalized}`;
   }
 
   private scheduleExplanationVerification(questionIndex: number, explanationText: string): void {
@@ -1521,7 +1535,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           });
 
           this.explanationTextService.unlockExplanation();
-          this.applyExplanationText(explanationText);
+          this.applyExplanationText(explanationText, questionIndex);
           this.cdRef.markForCheck();
           this.clearPendingExplanation();
         });
@@ -1626,7 +1640,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   
     // Update explanation text immediately
-    this.explanationTextService.setExplanationText(explanationText);
+    this.applyExplanationText(explanationText, questionIndex);
     console.log(`[✅ Explanation text set for Q${questionIndex}]`, explanationText);
   }  
 
@@ -1643,7 +1657,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     console.log(`[📤 Explanation text emitted to observable for Q${questionIndex}]`);
   
     // Set explanation text directly in state
-    this.explanationTextService.setExplanationText(explanationText);
+    this.applyExplanationText(explanationText, questionIndex);
     console.log(`[📥 Explanation text set in state for Q${questionIndex}]`);
   
     // Trigger immediate change detection after both actions
