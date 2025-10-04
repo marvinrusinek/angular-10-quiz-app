@@ -441,10 +441,12 @@ export class ExplanationTextService {
   
     if (!isSame) {
       console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
-  
+
       this.explanationTexts[questionIndex] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
+      this.setExplanationText(trimmed, {
+        context: this.buildQuestionContextKey(questionIndex),
+      });
       this.setShouldDisplayExplanation(true);
       this.lockExplanation();
       this.latestExplanation = trimmed;
@@ -471,7 +473,10 @@ export class ExplanationTextService {
     if (shouldShow && currentExplanation) {
       console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
       this.explanationTrigger.next();
-      this.setExplanationText(currentExplanation);
+      this.setExplanationText(currentExplanation, {
+        force: true,
+        context: 'evaluation'
+      });
     } else {
       console.warn('[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
     }
@@ -520,6 +525,7 @@ export class ExplanationTextService {
 
     this.latestExplanation = '';
     this.currentQuestionExplanation = null;
+    this.lastExplanationSignature = null;
 
     this.explanationTextSubject.next('');
     this.explanationText$.next('');
@@ -545,6 +551,7 @@ export class ExplanationTextService {
 
     this.latestExplanation = '';
     this.currentQuestionExplanation = null;
+    this.lastExplanationSignature = null;
     this.explanationTexts = {};
 
     this.explanationTextSubject.next('');
@@ -587,7 +594,9 @@ export class ExplanationTextService {
     if (!isSame) {
       this.explanationTexts[questionIndex] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed);
+      this.setExplanationText(trimmed, {
+        context: this.buildQuestionContextKey(questionIndex)
+      });
       this.setShouldDisplayExplanation(true);
       this.lockExplanation();
   
@@ -614,5 +623,9 @@ export class ExplanationTextService {
   
   public pushFormatted(text: string): void {
     this.formattedExplanationSubject.next((text ?? '').toString().trim());
+  }
+
+  private buildQuestionContextKey(questionIndex: number): string {
+    return `${this.defaultContextPrefix}:${Math.max(0, Number(questionIndex) || 0)}`;
   }
 }
