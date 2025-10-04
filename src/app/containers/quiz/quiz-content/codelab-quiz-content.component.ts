@@ -357,7 +357,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           normalizedPayload !== '' &&
           normalizedPayload === normalizedPrevious;
 
-        const question = expectedQuestion ?? (payloadLooksStale ? null : questionFromPayload);
+        const normalizedExpected = expectedQuestion
+          ? this.normalizeKeySource(expectedQuestion.questionText)
+          : '';
+        const expectedLooksStale = !!previousView &&
+          previousView.index !== index &&
+          !!normalizedExpected &&
+          normalizedExpected === normalizedPrevious;
+
+        const question = !expectedLooksStale
+          ? expectedQuestion ?? (payloadLooksStale ? null : questionFromPayload)
+          : (!payloadLooksStale ? questionFromPayload : null);
 
         const normalizedFallbackQuestion = this.normalizeKeySource(fallbackQuestionText);
         const normalizedPreviousMarkup = previousView?.markup
