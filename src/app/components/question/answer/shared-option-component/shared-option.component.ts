@@ -251,9 +251,14 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       (changes['config'] && this.config != null) ||
       (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number');
   
-    if (changes['currentQuestionIndex']) {
-      console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
-    }
+      if (changes['currentQuestionIndex']) {
+        console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
+  
+        if (!changes['currentQuestionIndex'].firstChange) {
+          this.flashDisabledSet.clear();
+          this.cdRef.markForCheck();
+        }
+      }
   
     if (shouldRegenerate) {
       this.hydrateOptionsFromSelectionState();
