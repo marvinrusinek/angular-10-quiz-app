@@ -478,28 +478,64 @@ export class ExplanationTextService {
     isDisplayed: boolean,
     options: { force?: boolean; context?: string } = {}
   ): void {
+    const contextKey = this.normalizeContext(options.context);
     const signature = `${options.context ?? 'global'}:::${isDisplayed}`;
 
-    if (!options.force && signature === this.lastDisplayedSignature) {
-      return;
+    if (!options.force) {
+      const previous = this.displayedByContext.get(contextKey);
+      if (previous === isDisplayed && signature === this.lastDisplayedSignature) {
+        return;
+      }
+    }
+
+    if (isDisplayed) {
+      this.displayedByContext.set(contextKey, true);
+    } else if (contextKey === this.globalContextKey) {
+      this.displayedByContext.clear();
+    } else {
+      this.displayedByContext.delete(contextKey);
     }
 
     this.lastDisplayedSignature = signature;
-    this.isExplanationTextDisplayedSource.next(isDisplayed);
+    const aggregated = this.computeContextualFlag(this.displayedByContext);
+
+    if (!options.force && aggregated === this.isExplanationTextDisplayedSource.getValue()) {
+      return;
+    }
+
+    this.isExplanationTextDisplayedSource.next(aggregated);
   }
 
   public setShouldDisplayExplanation(
     shouldDisplay: boolean,
     options: { force?: boolean; context?: string } = {}
   ): void {
+    const contextKey = this.normalizeContext(options.context);
     const signature = `${options.context ?? 'global'}:::${shouldDisplay}`;
 
-    if (!options.force && signature === this.lastDisplaySignature) {
-      return;
+    if (!options.force) {
+      const previous = this.shouldDisplayByContext.get(contextKey);
+      if (previous === shouldDisplay && signature === this.lastDisplaySignature) {
+        return;
+      }
+    }
+
+    if (shouldDisplay) {
+      this.shouldDisplayByContext.set(contextKey, true);
+    } else if (contextKey === this.globalContextKey) {
+      this.shouldDisplayByContext.clear();
+    } else {
+      this.shouldDisplayByContext.delete(contextKey);
     }
 
     this.lastDisplaySignature = signature;
-    this.shouldDisplayExplanationSource.next(shouldDisplay);
+    const aggregated = this.computeContextualFlag(this.shouldDisplayByContext);
+
+    if (!options.force && aggregated === this.shouldDisplayExplanationSource.getValue()) {
+      return;
+    }
+
+    this.shouldDisplayExplanationSource.next(aggregated);
   }
   
   public triggerExplanationEvaluation(): void {
@@ -564,6 +600,10 @@ export class ExplanationTextService {
     this.lastExplanationSignature = null;
     this.lastDisplaySignature = null;
     this.lastDisplayedSignature = null;
+
+    this.explanationByContext.clear();
+    this.shouldDisplayByContext.clear();
+    this.displayedByContext.clear();
 
     this.explanationTextSubject.next('');
     this.explanationText$.next('');
