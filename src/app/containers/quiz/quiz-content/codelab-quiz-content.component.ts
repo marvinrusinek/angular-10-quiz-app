@@ -75,6 +75,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private explanationCache = new Map<string, string>();
   private lastExplanationMarkupByKey = new Map<string, string>();
   private pendingExplanationRequests = new Map<string, Subscription>();
+  private pendingExplanationKeys = new Set<string>();
   private latestViewState: QuestionViewState | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
   private awaitingQuestionBaseline = false;
@@ -377,6 +378,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (questionChanged && previousKey) {
           this.lastExplanationMarkupByKey.delete(previousKey);
+          this.pendingExplanationKeys.delete(previousKey);
         }
 
         if (questionChanged && this._showExplanation) {
@@ -411,6 +413,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           (hasActiveExplanationRequest || displayState.mode === 'explanation');
 
         const allowExplanationTransition = !this.awaitingQuestionBaseline;
+
+        const awaitingExplanationContent = hasActiveExplanationRequest && !explanationAvailable;
+        if (awaitingExplanationContent) {
+          this.pendingExplanationKeys.add(viewState.key);
+        } else if (questionChanged || explanationAvailable) {
+          this.pendingExplanationKeys.delete(viewState.key);
+        }
 
         if (!questionChanged && this.awaitingQuestionBaseline) {
           // We have already rendered the baseline question text for the new
