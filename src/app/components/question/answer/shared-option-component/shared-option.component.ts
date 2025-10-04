@@ -1500,8 +1500,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       context: contextKey
     });
     const displayOptions = { context: contextKey, force: true } as const;
-    this.explanationTextService.setShouldDisplayExplanation(true);
-    this.explanationTextService.setIsExplanationTextDisplayed(true);
+    this.explanationTextService.setShouldDisplayExplanation(true, displayOptions);
+    this.explanationTextService.setIsExplanationTextDisplayed(true, displayOptions);
     this.explanationTextService.setResetComplete(true);
     this.explanationTextService.lockExplanation();
   }
