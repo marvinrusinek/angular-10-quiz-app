@@ -596,7 +596,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           // Updating other fields in the same frame
           const answered =
             !!question.selectedOptionIds?.length ||
-            !!question.answer?.length;
+            !!question.selectedOptions?.length;
     
           this.questionToDisplaySubject.next(
             (question.questionText ?? '').trim() ||
