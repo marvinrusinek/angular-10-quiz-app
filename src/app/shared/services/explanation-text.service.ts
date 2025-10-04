@@ -48,6 +48,7 @@ export class ExplanationTextService {
   latestExplanation = '';
   explanationsInitialized = false;
   private explanationLocked = false;
+  private lockedContext: string | null = null;
   private lastExplanationSignature: string | null = null;
   private lastDisplaySignature: string | null = null;
   private lastDisplayedSignature: string | null = null;
@@ -72,12 +73,14 @@ export class ExplanationTextService {
     return question.explanation || 'No explanation available';
   }
 
-  public lockExplanation(): void {
+  public lockExplanation(context?: string): void {
     this.explanationLocked = true;
+    this.lockedContext = this.normalizeContext(context);
   }
 
   public unlockExplanation(): void {
     this.explanationLocked = false;
+    this.lockedContext = null;
   }
 
   public isExplanationLocked(): boolean {
@@ -89,12 +92,27 @@ export class ExplanationTextService {
     options: { force?: boolean; context?: string } = {}
   ): void {
     const trimmed = (explanation ?? '').trim();
-    const contextKey = options.context ?? null;
-    const signature = `${contextKey ?? ''}:::${trimmed}`;
+    const contextKey = this.normalizeContext(options.context);
+    const signature = `${contextKey}:::${trimmed}`;
 
-    if (!options.force && this.explanationLocked && trimmed === '') {
-      console.warn('[🛡️ Blocked reset: explanation is locked]');
-      return;
+    if (!options.force && this.explanationLocked) {
+      const lockedContext = this.lockedContext ?? this.globalContextKey;
+      const contextsMatch =
+        lockedContext === this.globalContextKey ||
+        contextKey === this.globalContextKey ||
+        lockedContext === contextKey;
+
+      if (!contextsMatch) {
+        console.warn(
+          `[🛡️ Blocked explanation update for ${contextKey} while locked to ${lockedContext}]`
+        );
+        return;
+      }
+
+      if (trimmed === '') {
+        console.warn('[🛡️ Blocked reset: explanation is locked]');
+        return;
+      }
     }
 
     if (!options.force) {
