@@ -2106,6 +2106,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   resetExplanationText(): void {
     this.explanationToDisplay = '';
+    this.showExplanation = false;
+
+    // Ensure the shared explanation state is fully cleared before the next
+    // question renders so we don't momentarily show the previous
+    // explanation (which caused the flicker and stale text issues reported
+    // for Q1/Q2 transitions).
+    this.explanationTextService.unlockExplanation();
+    this.explanationTextService.setExplanationText('', { force: true });
+    this.explanationTextService.setShouldDisplayExplanation(false, {
+      force: true,
+    });
+    this.explanationTextService.setIsExplanationTextDisplayed(false, {
+      force: true,
+    });
   }
 
   // This function loads the question corresponding to the provided index.
