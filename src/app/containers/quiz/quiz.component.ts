@@ -963,17 +963,37 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       return;
     }
     this.lastLoggedIndex = event.index;
-  
+
     // Show the explanation on first click
-    const qIdx = this.currentQuestionIndex;
-    this.showExplanationForQuestion(qIdx);
-    const options = await firstValueFrom(this.quizService.getOptions(this.currentQuestionIndex));
+    const emittedQuestionIndex = event?.option?.questionIndex;
+    const normalizedQuestionIndex =
+      Number.isInteger(emittedQuestionIndex) && (emittedQuestionIndex as number) >= 0
+        ? (emittedQuestionIndex as number)
+        : this.currentQuestionIndex;
+
+    if (!Number.isInteger(normalizedQuestionIndex) || normalizedQuestionIndex < 0) {
+      console.warn('[⚠️ Invalid question index for explanation]', {
+        emittedQuestionIndex,
+        currentQuestionIndex: this.currentQuestionIndex
+      });
+      return;
+    }
+
+    this.showExplanationForQuestion(normalizedQuestionIndex);
+    await firstValueFrom(
+      this.quizService.getOptions(normalizedQuestionIndex)
+    );
     let isAnswered: boolean = false;
 
-    if (this.currentQuestion?.type === QuestionType.MultipleAnswer) {
-      isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelectedSync(this.currentQuestionIndex);
+    const questionForIndex =
+      this.questionsArray?.[normalizedQuestionIndex] ??
+      this.quiz?.questions?.[normalizedQuestionIndex] ??
+      (this.currentQuestionIndex === normalizedQuestionIndex ? this.currentQuestion : null);
+
+    if (questionForIndex?.type === QuestionType.MultipleAnswer) {
+      isAnswered = await this.selectedOptionService.areAllCorrectAnswersSelectedSync(normalizedQuestionIndex);
     } else {
-      isAnswered = this.selectedOptionService.isQuestionAnswered(this.currentQuestionIndex);
+      isAnswered = this.selectedOptionService.isQuestionAnswered(normalizedQuestionIndex);
     }
     // Mark as answered and enable Next
     if (isAnswered) {
