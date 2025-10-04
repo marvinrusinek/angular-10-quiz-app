@@ -43,6 +43,8 @@ export class ExplanationTextService {
   latestExplanation = '';
   explanationsInitialized = false;
   private explanationLocked = false;
+  private lastExplanationSignature: string | null = null;
+  private readonly defaultContextPrefix = 'question';
 
   constructor() {}
 
@@ -75,20 +77,27 @@ export class ExplanationTextService {
     return this.explanationLocked;
   }
 
-  public setExplanationText(explanation: string | null): void {
+  public setExplanationText(
+    explanation: string | null,
+    options: { force?: boolean; context?: string } = {}
+  ): void {
     const trimmed = (explanation ?? '').trim();
-    const already = this.latestExplanation?.trim();
-  
-    if (this.explanationLocked && trimmed === '') {
+    const contextKey = options.context ?? null;
+    const signature = `${contextKey ?? ''}:::${trimmed}`;
+
+    if (!options.force && this.explanationLocked && trimmed === '') {
       console.warn('[🛡️ Blocked reset: explanation is locked]');
       return;
     }
-  
-    if (trimmed === already) {
-      console.log('[🛡️ Prevented duplicate emit]');
+
+    if (!options.force && signature === this.lastExplanationSignature) {
+      console.log(
+        `[🛡️ Prevented duplicate emit${contextKey ? ` for ${contextKey}` : ''}]`
+      );
       return;
     }
-  
+
+    this.lastExplanationSignature = signature;
     this.latestExplanation = trimmed;
     this.explanationText$.next(trimmed);
     this.formattedExplanationSubject.next(trimmed);
