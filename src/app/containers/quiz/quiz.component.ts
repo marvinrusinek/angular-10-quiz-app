@@ -638,7 +638,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             'No question available'
           );
 
-          if (answered) {
+          const shouldRestoreExplanation =
+            answered && !!questionState?.explanationDisplayed;
+
+          if (shouldRestoreExplanation) {
             const explanationFromState = typeof questionState?.explanationText === 'string'
               ? questionState.explanationText.trim()
               : '';
@@ -653,6 +656,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               this.quizStateService.setDisplayState({
                 mode: 'explanation',
                 answered: true
+              });
+            });
+          } else {
+            this.explanationTextService.setShouldDisplayExplanation(false);
+            queueMicrotask(() => {
+              this.quizStateService.setDisplayState({
+                mode: 'question',
+                answered
               });
             });
           }
