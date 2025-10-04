@@ -597,32 +597,46 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       previousResolved: string;
       previousCached: string;
       previousFallback: string;
+      previousQuestionSnapshot: { resolved: string; cached: string; fallback: string } | null;
     }
-  ): string {
+  ): { value: string; staleMatch: boolean } {
     const incoming = (rawExplanation ?? '').toString();
-
-    if (!context.questionChanged) {
-      return incoming;
-    }
 
     const trimmedIncoming = incoming.trim();
     if (!trimmedIncoming) {
-      return '';
+      return { value: '', staleMatch: false };
     }
 
     const normalizedPreviousResolved = (context.previousResolved ?? '').trim();
     const normalizedPreviousCached = (context.previousCached ?? '').trim();
     const normalizedPreviousFallback = (context.previousFallback ?? '').trim();
+    const matchesPreviousQuestion = (candidate: string) => !!candidate && trimmedIncoming === candidate;
 
-    if (
-      (normalizedPreviousResolved && trimmedIncoming === normalizedPreviousResolved) ||
-      (normalizedPreviousCached && trimmedIncoming === normalizedPreviousCached) ||
-      (normalizedPreviousFallback && trimmedIncoming === normalizedPreviousFallback)
-    ) {
-      return '';
+    let staleMatch = false;
+
+    if (context.questionChanged) {
+      staleMatch =
+        matchesPreviousQuestion(normalizedPreviousResolved) ||
+        matchesPreviousQuestion(normalizedPreviousCached) ||
+        matchesPreviousQuestion(normalizedPreviousFallback);
     }
 
-    return incoming;
+    if (!staleMatch && context.previousQuestionSnapshot) {
+      const snapshot = context.previousQuestionSnapshot;
+      const snapshotResolved = (snapshot.resolved ?? '').toString().trim();
+      const snapshotCached = (snapshot.cached ?? '').toString().trim();
+      const snapshotFallback = (snapshot.fallback ?? '').toString().trim();
+      staleMatch =
+        matchesPreviousQuestion(snapshotResolved) ||
+        matchesPreviousQuestion(snapshotCached) ||
+        matchesPreviousQuestion(snapshotFallback);
+    }
+
+    if (staleMatch) {
+      return { value: '', staleMatch: true };
+    }
+
+    return { value: incoming, staleMatch: false };
   }
   
   private emitContentAvailableState(): void {
