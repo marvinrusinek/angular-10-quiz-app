@@ -594,15 +594,43 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           this.selectionMessage = selectionMessage;
     
           // Updating other fields in the same frame
+          const currentIndex =
+            Number.isFinite(this.currentQuestionIndex) && this.currentQuestionIndex >= 0
+              ? this.currentQuestionIndex
+              : this.quizService?.currentQuestionIndex ?? 0;
+
+          const selectedViaService =
+            this.selectedOptionService?.selectedOptionsMap?.get(currentIndex) ?? [];
+
+          const hasSelectedIds = Array.isArray(question.selectedOptionIds)
+            ? question.selectedOptionIds.length > 0
+            : false;
+
+          const hasSelectedOptions = Array.isArray(question.selectedOptions)
+            ? question.selectedOptions.some((opt: any) =>
+                opt?.selected === true ||
+                opt?.wasSelected === true ||
+                opt?.userSelected === true
+              )
+            : false;
+
+          const questionState =
+            this.quizId && Number.isFinite(currentIndex)
+              ? this.quizStateService.getQuestionState(this.quizId, currentIndex)
+              : null;
+
           const answered =
-            !!question.selectedOptionIds?.length ||
-            !!question.selectedOptions?.length;
-    
+            hasSelectedIds ||
+            hasSelectedOptions ||
+            (Array.isArray(selectedViaService) && selectedViaService.length > 0) ||
+            !!questionState?.isAnswered ||
+            !!questionState?.explanationDisplayed;
+
           this.questionToDisplaySubject.next(
             (question.questionText ?? '').trim() ||
             'No question available'
           );
-    
+
           if (answered) {
             this.explanationTextService.explanationText$.next(
               question.explanation?.trim() ?? ''
