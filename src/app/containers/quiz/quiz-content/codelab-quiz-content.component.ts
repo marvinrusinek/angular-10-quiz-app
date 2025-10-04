@@ -339,11 +339,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.correctAnswersText$.pipe(startWith(''))
     ]).pipe(
       map(([payload, index, fallbackQuestionText, correctText]) => {
-        const question = payload?.currentQuestion ?? null;
-        const baseText = this.resolveQuestionText(question, fallbackQuestionText);
+        const questionFromPayload = payload?.currentQuestion ?? null;
+        const expectedQuestion = Array.isArray(this.questions) && index >= 0
+          ? this.questions[index] ?? null
+          : null;
+
+        const previousView = this.latestViewState;
+        const normalizedPrevious = previousView?.question
+          ? this.normalizeKeySource(previousView.question.questionText)
+          : '';
+        const normalizedPayload = questionFromPayload
+          ? this.normalizeKeySource(questionFromPayload.questionText)
+          : '';
+        const payloadLooksStale = !!previousView &&
+          previousView.index !== index &&
+          normalizedPayload !== '' &&
+          normalizedPayload === normalizedPrevious;
+
+        const question = expectedQuestion ?? (payloadLooksStale ? null : questionFromPayload);
+
+        const derivedQuestionText =
+          expectedQuestion?.questionText ??
+          (!payloadLooksStale ? questionFromPayload?.questionText : undefined) ??
+          fallbackQuestionText;
+
+        const baseText = this.resolveQuestionText(question, derivedQuestionText);
         const markup = this.buildQuestionMarkup(baseText, correctText);
+        const fallbackExplanationSource = expectedQuestion?.explanation ?? (payloadLooksStale ? '' : payload?.explanation);
+        const fallbackExplanation = this.resolveFallbackExplanation(fallbackExplanationSource, question);
         const key = this.buildQuestionKey(index, question, baseText);
-        const fallbackExplanation = this.resolveFallbackExplanation(payload?.explanation, question);
+
         this.currentIndex = index;
         return {
           index,
