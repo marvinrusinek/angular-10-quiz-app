@@ -474,8 +474,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           !!fallbackExplanation;
 
         const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
-        const wantsExplanationFromDisplay = !questionChanged && displayState.mode === 'explanation';
-        const wantsExplanationAutomatically = !questionChanged && shouldDisplayExplanation;
+        const wantsExplanationFromDisplay =
+          !questionChanged &&
+          effectiveDisplayMode === 'explanation' &&
+          questionAnswered;
+        const wantsExplanationAutomatically =
+          !questionChanged &&
+          effectiveShouldDisplay &&
+          questionAnswered;
         const manualExplanation = this._showExplanation && !questionChanged;
         const hasActiveExplanationRequest =
           manualExplanation ||
@@ -484,7 +490,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const shouldKeepExplanation =
           !questionChanged &&
           cachedMode === 'explanation' &&
-          (hasActiveExplanationRequest || displayState.mode === 'explanation');
+          (hasActiveExplanationRequest || effectiveDisplayMode === 'explanation');
 
         const allowExplanationTransition = !this.awaitingQuestionBaseline;
 
@@ -506,7 +512,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const wantsExplanation =
             hasActiveExplanationRequest ||
             shouldKeepExplanation ||
-            (questionAnswered && displayState.mode === 'explanation');
+            (questionAnswered && effectiveDisplayMode === 'explanation');
 
           if (!questionChanged && wantsExplanation && canRenderExplanation) {
             effectiveMode = 'explanation';
