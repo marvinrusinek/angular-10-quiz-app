@@ -359,10 +359,51 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const question = expectedQuestion ?? (payloadLooksStale ? null : questionFromPayload);
 
+        const normalizedFallbackQuestion = this.normalizeKeySource(fallbackQuestionText);
+        const normalizedPreviousMarkup = previousView?.markup
+          ? this.normalizeKeySource(previousView.markup)
+          : '';
+        const previousFallbackExplanation = previousView?.fallbackExplanation ?? '';
+        const normalizedPreviousFallback = previousFallbackExplanation
+          ? this.normalizeKeySource(previousFallbackExplanation)
+          : '';
+        const previousExplanationKey = previousView?.key ?? null;
+        const previousRenderedExplanation = previousExplanationKey
+          ? (this.lastExplanationMarkupByKey.get(previousExplanationKey) ?? '')
+          : '';
+        const normalizedPreviousRenderedExplanation = previousRenderedExplanation
+          ? this.normalizeKeySource(previousRenderedExplanation)
+          : '';
+        const snapshot = this.previousExplanationSnapshot;
+        const normalizedSnapshotResolved = snapshot?.resolved
+          ? this.normalizeKeySource(snapshot.resolved)
+          : '';
+        const normalizedSnapshotCached = snapshot?.cached
+          ? this.normalizeKeySource(snapshot.cached)
+          : '';
+        const normalizedSnapshotFallback = snapshot?.fallback
+          ? this.normalizeKeySource(snapshot.fallback)
+          : '';
+
+        let sanitizedFallbackQuestionText = fallbackQuestionText;
+
+        const fallbackLooksStale = previousView?.index !== index && !!normalizedFallbackQuestion && (
+          normalizedFallbackQuestion === normalizedPreviousMarkup ||
+          normalizedFallbackQuestion === normalizedPreviousFallback ||
+          normalizedFallbackQuestion === normalizedPreviousRenderedExplanation ||
+          normalizedFallbackQuestion === normalizedSnapshotResolved ||
+          normalizedFallbackQuestion === normalizedSnapshotCached ||
+          normalizedFallbackQuestion === normalizedSnapshotFallback
+        );
+
+        if (fallbackLooksStale) {
+          sanitizedFallbackQuestionText = '';
+        }
+
         const derivedQuestionText =
           expectedQuestion?.questionText ??
           (!payloadLooksStale ? questionFromPayload?.questionText : undefined) ??
-          fallbackQuestionText;
+          sanitizedFallbackQuestionText;
 
         const baseText = this.resolveQuestionText(question, derivedQuestionText);
         const markup = this.buildQuestionMarkup(baseText, correctText);
