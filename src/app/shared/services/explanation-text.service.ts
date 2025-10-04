@@ -604,7 +604,29 @@ export class ExplanationTextService {
   }
 
   resetExplanationText(): void {
-    this.isExplanationDisplayedSource.next(false);  // set to false when explanation is hidden
+    // Clear the latest cached explanation details so a fresh explanation can
+    // be emitted for the next question interaction.
+    this.latestExplanation = '';
+    this.currentQuestionExplanation = null;
+    this.lastExplanationSignature = null;
+    this.lastDisplaySignature = null;
+    this.lastDisplayedSignature = null;
+
+    // Ensure all contextual caches are cleared so no stale explanation text
+    // is considered “active” for a new question.
+    this.explanationByContext.clear();
+    this.shouldDisplayByContext.clear();
+    this.displayedByContext.clear();
+
+    // Force reset the shared explanation streams so downstream subscribers do
+    // not momentarily render the previous question’s explanation.
+    this.setExplanationText('', { force: true });
+    this.explanationTextSubject.next('');
+    this.setShouldDisplayExplanation(false, { force: true });
+    this.setIsExplanationTextDisplayed(false, { force: true });
+
+    // Mark the explanation as hidden for the current cycle.
+    this.isExplanationDisplayedSource.next(false);
   }
 
   resetStateBetweenQuestions(): void {
