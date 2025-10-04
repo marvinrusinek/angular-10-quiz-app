@@ -843,7 +843,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       this.formattedExplanation$.pipe(
         map(value => value ?? ''),
-        distinctUntilChanged()
+        withLatestFrom(this.quizService.currentQuestionIndex$),
+        map(([text, index]) => ({ text, index })),
+        distinctUntilChanged((prev, curr) =>
+          prev.text === curr.text && prev.index === curr.index
+        ),
+        map(({ text }) => text)
       )
     ]).pipe(
       switchMap(([currentQuizData, numberOfCorrectAnswers, isExplanationDisplayed, formattedExplanation]) => {
