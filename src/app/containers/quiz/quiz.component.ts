@@ -618,15 +618,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               ? this.quizStateService.getQuestionState(this.quizId, resolvedIndex)
               : null;
 
-          const hasStoredIds =
-            Array.isArray(question.selectedOptionIds) &&
-            question.selectedOptionIds.length > 0 &&
-            !!questionState?.isAnswered;
-
           const answered =
             hasServiceSelections ||
             hasSelectedOptions ||
-            hasStoredIds ||
             !!questionState?.isAnswered ||
             !!questionState?.explanationDisplayed;
 
@@ -941,7 +935,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   ): Promise<void> {
     console.log("MY LOG OOS");
     // Guards and de-duplication
-    if (!isUserAction || !this.resetComplete) return;
+    if (
+      !isUserAction ||
+      (!this.resetComplete && !this.hasOptionsLoaded)
+    ) {
+      return;
+    }
+
     if (event.index === this.lastLoggedIndex) {
       console.warn('[🟡 Skipping duplicate event]', event);
       return;
