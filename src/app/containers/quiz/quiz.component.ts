@@ -618,11 +618,20 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               ? this.quizStateService.getQuestionState(this.quizId, resolvedIndex)
               : null;
 
-          const answered =
-            hasServiceSelections ||
-            hasSelectedOptions ||
+          const answeredViaState =
             !!questionState?.isAnswered ||
             !!questionState?.explanationDisplayed;
+
+          const persistedSelectionsCount = Array.isArray(questionState?.selectedOptions)
+            ? questionState.selectedOptions.length
+            : 0;
+
+          const hasHydratedSelections = hasSelectedOptions && persistedSelectionsCount > 0;
+
+          const answered =
+            hasServiceSelections ||
+            answeredViaState ||
+            hasHydratedSelections;
 
           this.questionToDisplaySubject.next(
             (question.questionText ?? '').trim() ||
@@ -630,8 +639,15 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           );
 
           if (answered) {
+            const explanationFromState = typeof questionState?.explanationText === 'string'
+              ? questionState.explanationText.trim()
+              : '';
+
+            const explanationToPush =
+              question.explanation?.trim() || explanationFromState || '';
+
             this.explanationTextService.explanationText$.next(
-              question.explanation?.trim() ?? ''
+              explanationToPush
             );
             queueMicrotask(() => {
               this.quizStateService.setDisplayState({
