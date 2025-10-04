@@ -441,14 +441,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           });
         }
 
-        const questionState = this.quizStateService.getQuestionState(this.quizId, viewState.index);
+        const questionState = this.quizStateService.getQuestionState(
+          this.quizId,
+          viewState.index
+        );
         const stateAnswered = !!questionState?.isAnswered;
-        const displayAnswered = !!displayState.answered && !questionChanged;
+        const displayAnswered =
+          stateAnswered && !!displayState.answered && !questionChanged;
         const questionAnswered = stateAnswered || displayAnswered;
 
-        const effectiveDisplayMode = questionChanged ? 'question' : displayState.mode;
-        const effectiveExplanationText = questionChanged ? '' : explanationText;
-        const effectiveShouldDisplay = questionChanged ? false : shouldDisplayExplanation;
+        const effectiveDisplayMode =
+          questionChanged || !questionAnswered
+            ? 'question'
+            : displayState.mode;
+        const effectiveExplanationText = questionChanged
+          ? ''
+          : explanationText;
+        const effectiveShouldDisplay =
+          questionChanged || !questionAnswered
+            ? false
+            : shouldDisplayExplanation;
 
         const sanitizedExplanation = this.filterStaleExplanation(
           effectiveExplanationText,
