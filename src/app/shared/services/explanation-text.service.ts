@@ -13,12 +13,17 @@ export class ExplanationTextService {
 
   explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
-  
+
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   formattedExplanationSubject = new BehaviorSubject<string | null>(null);
   formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
   private formattedExplanationByQuestionText = new Map<string, string>();
+
+  private readonly globalContextKey = 'global';
+  private explanationByContext = new Map<string, string>();
+  private shouldDisplayByContext = new Map<string, boolean>();
+  private displayedByContext = new Map<string, boolean>();
 
   private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
   explanationsUpdated$ = this.explanationsUpdated.asObservable();
@@ -44,6 +49,8 @@ export class ExplanationTextService {
   explanationsInitialized = false;
   private explanationLocked = false;
   private lastExplanationSignature: string | null = null;
+  private lastDisplaySignature: string | null = null;
+  private lastDisplayedSignature: string | null = null;
   private readonly defaultContextPrefix = 'question';
 
   constructor() {}
@@ -90,11 +97,20 @@ export class ExplanationTextService {
       return;
     }
 
-    if (!options.force && signature === this.lastExplanationSignature) {
-      console.log(
-        `[🛡️ Prevented duplicate emit${contextKey ? ` for ${contextKey}` : ''}]`
-      );
-      return;
+    if (!options.force) {
+      const previous = this.explanationByContext.get(contextKey) ?? '';
+      if (previous === trimmed && signature === this.lastExplanationSignature) {
+        console.log(
+          `[🛡️ Prevented duplicate emit${contextKey !== this.globalContextKey ? ` for ${contextKey}` : ''}]`
+        );
+        return;
+      }
+    }
+
+    if (trimmed) {
+      this.explanationByContext.set(contextKey, trimmed);
+    } else {
+      this.explanationByContext.delete(contextKey);
     }
 
     this.lastExplanationSignature = signature;
