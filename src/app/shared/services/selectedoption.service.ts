@@ -652,52 +652,6 @@ export class SelectedOptionService {
   
     this.selectedOptionsMap.set(questionIndex, combinedSelections);
     this.isOptionSelectedSubject.next(combinedSelections.length > 0);
-  }  
-
-  setSelectionsForQuestion(qIndex: number, selections: SelectedOption[]): void {
-    const committed = this.commitSelections(qIndex, selections);
-    this.selectedOptionSubject.next(committed);
-  }
-
-  getSelectedOptions(): SelectedOption[] {
-    const combined: SelectedOption[] = [];
-  
-    this.selectedOptionsMap.forEach((opts, qIndex) => {
-      if (Array.isArray(opts)) {
-        combined.push(...opts);
-      }
-    });
-  
-    console.log('[📤 getSelectedOptions()] returning', combined);
-    return combined;
-  }  
-
-  getSelectedOptionsForQuestion(questionIndex: number): SelectedOption[] {
-    return this.selectedOptionsMap.get(questionIndex) || [];
-  }
-
-  clearSelectionsForQuestion(questionIndex: number): void {
-    if (this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.delete(questionIndex); // removes the entry entirely
-      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
-    } else {
-      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
-    }
-
-    this.feedbackByQuestion.delete(questionIndex);
-
-    if (this.quizService?.currentQuestionIndex === questionIndex) {
-      this.showFeedbackForOptionSubject.next({});
-    }
-  }
-
-  // Method to get the current option selected state
-  getCurrentOptionSelectedState(): boolean {
-    return this.isOptionSelectedSubject.getValue();
-  }
-
-  getShowFeedbackForOption(): { [optionId: number]: boolean } {
-    return this.showFeedbackForOptionSubject.getValue();
   }
 
   isSelectedOption(option: Option): boolean {
@@ -716,73 +670,6 @@ export class SelectedOptionService {
     // If selectedOptions is somehow not an array, log a warning
     console.warn('[isSelectedOption] selectedOptions is not an array:', selectedOptions);
     return false;  // return false if selectedOptions is invalid
-  }  
-
-  clearSelectedOption(): void {
-    if (this.currentQuestionType === QuestionType.MultipleAnswer) {
-      // Clear all selected options for multiple-answer questions
-      this.selectedOptionsMap.clear();
-    } else {
-      // Clear the single selected option for single-answer questions
-      this.selectedOption = null;
-      this.selectedOptionSubject.next(null);
-    }
-  
-    // Only clear feedback state here — do NOT touch answered state
-    this.showFeedbackForOptionSubject.next({});
-  }  
-
-  clearOptions(): void {
-    this.selectedOptionSubject.next(null);
-    this.showFeedbackForOptionSubject.next({});
-  }
-  getShowFeedbackForOption(): { [optionId: number]: boolean } {
-    return this.showFeedbackForOptionSubject.getValue();
-  }
-
-  getFeedbackForQuestion(questionIndex: number): Record<string, boolean> {
-    return { ...(this.feedbackByQuestion.get(questionIndex) ?? {}) };
-  }
-
-  republishFeedbackForQuestion(questionIndex: number): void {
-    const selections = this.selectedOptionsMap.get(questionIndex) ?? [];
-
-    if (!Array.isArray(selections) || selections.length === 0) {
-      this.feedbackByQuestion.delete(questionIndex);
-
-      if (this.quizService?.currentQuestionIndex === questionIndex) {
-        this.showFeedbackForOptionSubject.next({});
-      }
-
-      return;
-    }
-
-    let feedback = this.feedbackByQuestion.get(questionIndex);
-    if (!feedback || Object.keys(feedback).length === 0) {
-      feedback = this.buildFeedbackMap(questionIndex, selections);
-      this.feedbackByQuestion.set(questionIndex, feedback);
-    }
-
-    if (this.quizService?.currentQuestionIndex === questionIndex) {
-      this.showFeedbackForOptionSubject.next({ ...feedback });
-    }
-  }
-
-  private publishFeedbackForQuestion(index: number | null | undefined): void {
-    const resolvedIndex =
-      typeof index === 'number' && Number.isInteger(index)
-        ? index
-        : Number.isInteger(this.quizService?.currentQuestionIndex)
-          ? (this.quizService.currentQuestionIndex as number)
-          : null;
-
-    if (resolvedIndex === null) {
-      this.showFeedbackForOptionSubject.next({});
-      return;
-    }
-
-    const cached = this.feedbackByQuestion.get(resolvedIndex) ?? {};
-    this.showFeedbackForOptionSubject.next({ ...cached });
   }
 
   isSelectedOption(option: Option): boolean {
