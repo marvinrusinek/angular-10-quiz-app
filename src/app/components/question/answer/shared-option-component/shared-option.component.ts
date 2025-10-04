@@ -153,6 +153,37 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       .subscribe((id: number | string) => this.updateSelections(id));
   }
 
+  private normalizeQuestionIndex(candidate: unknown): number | null {
+    if (typeof candidate !== 'number' || !Number.isFinite(candidate)) {
+      return null;
+    }
+
+    if (candidate < 0) {
+      return 0;
+    }
+
+    return Math.floor(candidate);
+  }
+
+  private getActiveQuestionIndex(): number | null {
+    const directInput = this.normalizeQuestionIndex(this.currentQuestionIndex);
+    if (directInput !== null) {
+      return directInput;
+    }
+
+    if (typeof this.quizService?.getCurrentQuestionIndex === 'function') {
+      const resolved = this.normalizeQuestionIndex(
+        this.quizService.getCurrentQuestionIndex()
+      );
+
+      if (resolved !== null) {
+        return resolved;
+      }
+    }
+
+    return this.normalizeQuestionIndex(this.quizService?.currentQuestionIndex);
+  }
+
   ngOnInit(): void {
     // ─── Fallback Rendering ────────────────────────────────────────────────
     setTimeout(() => {
