@@ -268,9 +268,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.ensureOptionIds();
   
     // ─── Feedback Logic ────────────────────────────────────────────────────
+    const initialQuestionIndex = this.getActiveQuestionIndex() ?? 0;
     this.generateFeedbackConfig(
       this.selectedOption as SelectedOption,
-      this.quizService.currentQuestionIndex
+      initialQuestionIndex
     );
   }
 
@@ -595,7 +596,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
 
     const optionId = optionBinding.option.optionId;
-    const questionIndex = this.quizService.getCurrentQuestionIndex();
+    const questionIndex = this.getActiveQuestionIndex() ?? 0;
   
     // Check selected state before anything mutates it
     const wasPreviouslySelected = this.soundService.hasPlayed(questionIndex, optionId);
@@ -657,7 +658,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     const enrichedOption: SelectedOption = {
       ...clonedOption,
-      questionIndex: this.quizService.getCurrentQuestionIndex()
+      questionIndex: this.getActiveQuestionIndex() ?? 0
     };
 
     this.optionClicked.emit({
@@ -988,10 +989,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return this.currentQuestion.type;
     }
 
-    const candidateIndex =
-      typeof this.currentQuestionIndex === 'number'
-        ? this.currentQuestionIndex
-        : this.quizService?.getCurrentQuestionIndex?.();
+    const candidateIndex = this.getActiveQuestionIndex();
 
     if (typeof candidateIndex === 'number') {
       const question = this.quizService.questions?.[candidateIndex];
@@ -1031,10 +1029,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     const allCorrectSelectedLocally = correctBindings.length > 0
       && correctBindings.every(b => b.isSelected);
 
-    const candidateIndex =
-      typeof this.currentQuestionIndex === 'number'
-        ? this.currentQuestionIndex
-        : this.quizService?.getCurrentQuestionIndex?.();
+    const candidateIndex = this.getActiveQuestionIndex();
 
     const allCorrectPersisted =
       typeof candidateIndex === 'number'
@@ -1107,11 +1102,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   public areAllCorrectAnswersSelected(): boolean {
-    const index = typeof this.currentQuestionIndex === 'number'
-      ? this.currentQuestionIndex
-      : typeof this.quizService.currentQuestionIndex === 'number'
-        ? this.quizService.currentQuestionIndex
-        : undefined;
+    const index = this.getActiveQuestionIndex();
 
     if (typeof index !== 'number') {
       return false;
@@ -1139,7 +1130,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     index: number,
     event: MatCheckboxChange | MatRadioChange
   ): void {
-    const currentIndex = this.quizService.getCurrentQuestionIndex();
+    const currentIndex = this.getActiveQuestionIndex() ?? 0;
     
     if (this.lastFeedbackQuestionIndex !== currentIndex) {
       this.feedbackConfigs = {};
@@ -1319,6 +1310,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.highlightDirectives?.forEach(d => d.updateHighlight());
   
     // Sync explanation
+    const questionIndex = this.getActiveQuestionIndex() ?? 0;
     this.emitExplanation(this.quizService.currentQuestionIndex)
 
     // Final UI change detection
@@ -1418,7 +1410,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return;
     }
 
-    const questionIndex = this.quizService.getCurrentQuestionIndex();
+    const questionIndex = this.getActiveQuestionIndex() ?? 0;
   
     this.highlightDirectives.forEach((directive, index) => {
       const binding = this.optionBindings[index];
@@ -1610,7 +1602,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
 
     const serviceQuestion = this.quizService.currentQuestion?.getValue?.();
-    const serviceMatchesIndex = this.quizService.currentQuestionIndex === questionIndex;
+    const activeServiceIndex = this.getActiveQuestionIndex();
+    const serviceMatchesIndex = activeServiceIndex === questionIndex;
     const serviceExplanation = serviceMatchesIndex
       ? serviceQuestion?.explanation?.trim()
       : undefined;
@@ -1741,10 +1734,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (!hydratedOption) {
       console.warn(`[⚠️ Feedback] No hydrated option found at index ${index}`);
     } else {
+      const activeQuestionIndex = this.getActiveQuestionIndex() ?? 0;
       const selectedHydratedOption: SelectedOption = {
         ...hydratedOption,
         selected: true,
-        questionIndex: this.quizService.currentQuestionIndex ?? 0
+        questionIndex: activeQuestionIndex
       };
   
       // Ensure feedbackConfigs exists and assign the new config
@@ -1752,10 +1746,11 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.feedbackConfigs[index] = this.generateFeedbackConfig(selectedHydratedOption, index);
     }
 
+    const emittedQuestionIndex = this.getActiveQuestionIndex() ?? 0;
     this.optionSelected.emit({
       option: {
         ...option,
-        questionIndex: this.quizService.getCurrentQuestionIndex()
+        questionIndex: emittedQuestionIndex
       },
       index,
       checked: true
@@ -1846,7 +1841,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     if (!option) return;
   
     // Confirm feedback function is triggered
-    const currentQuestionIndex = this.quizService.getCurrentQuestionIndex();
+    const currentQuestionIndex = this.getActiveQuestionIndex() ?? 0;
     console.log('[🚨 Feedback Fired]', { currentQuestionIndex });
     this.lastFeedbackOptionMap[currentQuestionIndex] = optionId;
   
@@ -2089,7 +2084,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
   
   /* public generateOptionBindings(): void { 
-    const currentIndex = this.quizService.currentQuestionIndex;
+    const currentIndex = this.getActiveQuestionIndex() ?? 0;
     console.log('[📍 currentIndex]', );
     // Pull selected state for current question
     const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) || [];
@@ -2152,7 +2147,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   } */
   public generateOptionBindings(): void {
     // ─── Track performance / debug ─────────────────────────────
-    const currentIndex = this.quizService.currentQuestionIndex;
+    const currentIndex = this.getActiveQuestionIndex() ?? 0;
     console.log('[📍 currentIndex]', currentIndex);
   
     // ─── 1) Pull selected state for current question ────────────
@@ -2289,7 +2284,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   initializeOptionBindings(): void {
     console.time('[🔧 initializeOptionBindings]');
     console.log('[🚀 initializeOptionBindings STARTED]');
-    console.log('[SOC] init bindings', this.quizService.currentQuestionIndex);
+    console.log('[SOC] init bindings', this.getActiveQuestionIndex());
   
     try {
       if (this.optionBindingsInitialized) {
@@ -2319,7 +2314,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private processOptionBindings(): void {
     console.time('[⚙️ processOptionBindings]');
-    const qIdx = this.quizService.currentQuestionIndex;
+    const qIdx = this.getActiveQuestionIndex() ?? 0;
     const options = this.optionsToDisplay ?? [];
   
     // Pre-checks
