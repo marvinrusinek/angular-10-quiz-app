@@ -398,6 +398,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const explanationAvailable = this.hasExplanationContent(viewState, explanationText);
         const resolvedExplanation = this.resolveExplanationMarkup(viewState, explanationText);
+        const cachedExplanation = (this.lastExplanationMarkupByKey.get(viewState.key) ?? '').toString().trim();
+        const fallbackExplanation = (viewState.fallbackExplanation ?? '').toString().trim();
+        const canRenderExplanation =
+          explanationAvailable ||
+          !!cachedExplanation ||
+          !!(this.explanationCache.get(viewState.key) ?? '').toString().trim() ||
+          !!fallbackExplanation;
 
         const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
         const wantsExplanationFromDisplay = !questionChanged && displayState.mode === 'explanation';
@@ -430,20 +437,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         let effectiveMode: 'question' | 'explanation' = 'question';
         if (allowExplanationTransition) {
           const wantsExplanation =
-            explanationAvailable &&
-            (
-              hasActiveExplanationRequest ||
-              shouldKeepExplanation ||
-              (questionAnswered && displayState.mode === 'explanation')
-            );
+            hasActiveExplanationRequest ||
+            shouldKeepExplanation ||
+            (questionAnswered && displayState.mode === 'explanation');
 
-          if (!questionChanged && wantsExplanation) {
+          if (!questionChanged && wantsExplanation && canRenderExplanation) {
             effectiveMode = 'explanation';
           }
         }
 
         if (effectiveMode === 'explanation' && !explanationAvailable) {
-          effectiveMode = 'question';
+          this.renderModeByKey.set(viewState.key, 'explanation');
         }
 
         let nextMarkup = viewState.markup;
@@ -454,23 +458,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             if (normalizedExplanation) {
               this.lastExplanationMarkupByKey.set(viewState.key, normalizedExplanation);
               nextMarkup = normalizedExplanation;
-            } else {
-              const cachedExplanation = this.lastExplanationMarkupByKey.get(viewState.key);
-              if (cachedExplanation) {
-                nextMarkup = cachedExplanation;
-              } else {
-                effectiveMode = 'question';
-                nextMarkup = viewState.markup;
-              }
-            }
-          } else {
-            const cachedExplanation = this.lastExplanationMarkupByKey.get(viewState.key);
-            if (cachedExplanation) {
+            } else if (cachedExplanation) {
               nextMarkup = cachedExplanation;
+            } else if (fallbackExplanation) {
+              nextMarkup = fallbackExplanation;
+              this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
             } else {
-              effectiveMode = 'question';
-              nextMarkup = viewState.markup;
+              nextMarkup = this.explanationLoadingText;
             }
+          } else if (cachedExplanation) {
+            nextMarkup = cachedExplanation;
+          } else if (fallbackExplanation) {
+            nextMarkup = fallbackExplanation;
+            this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+          } else if (awaitingExplanationContent) {
+            nextMarkup = this.explanationLoadingText;
+            this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
+          } else {
+            effectiveMode = 'question';
+            nextMarkup = viewState.markup;
           }
         } else if (
           awaitingExplanationContent &&
