@@ -2135,10 +2135,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.unlockExplanation();
     this.explanationTextService.setExplanationText('', { force: true });
     this.explanationTextService.setShouldDisplayExplanation(false, {
-      force: true,
+      force: true
     });
     this.explanationTextService.setIsExplanationTextDisplayed(false, {
-      force: true,
+      force: true
     });
   }
 
@@ -4946,10 +4946,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   public showExplanationForQuestion(qIdx: number): void {
     // Grab the exact question raw text
-    const question = this.questionsArray[qIdx];
+    const question =
+      this.questionsArray?.[qIdx] ??
+      this.quiz?.questions?.[qIdx] ??
+      (this.currentQuestionIndex === qIdx ? this.currentQuestion : null);
+
     if (!question) {
       console.warn(`[⚠️] No question found for index ${qIdx}`);
       this.explanationToDisplay = '<span class="muted">No explanation available</span>';
+      this.explanationTextService.setExplanationText(this.explanationToDisplay);
+      this.explanationTextService.setShouldDisplayExplanation(true);
       return;
     }
 
