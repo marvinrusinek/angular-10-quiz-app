@@ -586,43 +586,47 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         ),
         takeUntil(this.destroy$)
       )
-      .subscribe(({ question, options, selectionMessage }) => {
+      .subscribe(({ question, options, selectionMessage, index }) => {
         // Defer the view‐model update until the browser’s next repaint
         requestAnimationFrame(() => {
           // Set both question and options together
           this.qaToDisplay      = { question, options };
           this.selectionMessage = selectionMessage;
-    
+
           // Updating other fields in the same frame
-          const currentIndex =
-            Number.isFinite(this.currentQuestionIndex) && this.currentQuestionIndex >= 0
+          const resolvedIndex = Number.isFinite(index)
+            ? (index as number)
+            : Number.isFinite(this.currentQuestionIndex) && this.currentQuestionIndex >= 0
               ? this.currentQuestionIndex
               : this.quizService?.currentQuestionIndex ?? 0;
 
           const selectedViaService =
-            this.selectedOptionService?.selectedOptionsMap?.get(currentIndex) ?? [];
+            this.selectedOptionService?.selectedOptionsMap?.get(resolvedIndex) ?? [];
 
-          const hasSelectedIds = Array.isArray(question.selectedOptionIds)
-            ? question.selectedOptionIds.length > 0
+          const hasServiceSelections = Array.isArray(selectedViaService)
+            ? selectedViaService.length > 0
             : false;
 
           const hasSelectedOptions = Array.isArray(question.selectedOptions)
             ? question.selectedOptions.some((opt: any) =>
-                opt?.selected === true ||
-                opt?.wasSelected === true ||
-                opt?.userSelected === true
+                opt?.selected === true
               )
             : false;
 
           const questionState =
-            this.quizId && Number.isFinite(currentIndex)
-              ? this.quizStateService.getQuestionState(this.quizId, currentIndex)
+            this.quizId && Number.isFinite(resolvedIndex)
+              ? this.quizStateService.getQuestionState(this.quizId, resolvedIndex)
               : null;
 
+          const hasStoredIds =
+            Array.isArray(question.selectedOptionIds) &&
+            question.selectedOptionIds.length > 0 &&
+            !!questionState?.isAnswered;
+
           const answered =
-            hasSelectedIds ||
+            hasServiceSelections ||
             hasSelectedOptions ||
-            (Array.isArray(selectedViaService) && selectedViaService.length > 0) ||
+            hasStoredIds ||
             !!questionState?.isAnswered ||
             !!questionState?.explanationDisplayed;
 
