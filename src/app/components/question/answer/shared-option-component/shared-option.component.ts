@@ -223,7 +223,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.config?.idx ??
       this.quizService?.currentQuestionIndex
     );
-    
+
     // ─── Fallback Rendering ────────────────────────────────────────────────
     setTimeout(() => {
       if (!this.renderReady || !this.optionsToDisplay?.length) {
@@ -315,13 +315,28 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    if (changes['questionIndex']) {
+      this.resolvedQuestionIndex = null;
+      this.updateResolvedQuestionIndex(changes['questionIndex'].currentValue);
+    }
+
+    if (changes['currentQuestionIndex']) {
+      this.resolvedQuestionIndex = null;
+      this.updateResolvedQuestionIndex(changes['currentQuestionIndex'].currentValue);
+    }
+
+    if (changes['config']?.currentValue?.idx !== undefined) {
+      this.updateResolvedQuestionIndex(changes['config'].currentValue.idx);
+    }
+
     const shouldRegenerate =
       (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
         this.optionsToDisplay.length > 0 &&
         this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
       (changes['config'] && this.config != null) ||
-      (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number');
+      (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number') ||
+      (changes['questionIndex'] && typeof changes['questionIndex'].currentValue === 'number')
   
       if (changes['currentQuestionIndex']) {
         console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
