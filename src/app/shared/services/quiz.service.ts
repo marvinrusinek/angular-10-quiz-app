@@ -2954,153 +2954,86 @@ export class QuizService implements OnDestroy {
     currentQuestion?: QuizQuestion | null
   ): QuizQuestion | null {
     const quizId = this.resolveShuffleQuizId();
-    if (!quizId) {
-      return null;
-    }
-
+    if (!quizId) return null;
+  
     const canonical = this.canonicalQuestionsByQuiz.get(quizId) ?? [];
     const source = Array.isArray(this.questions) ? this.questions : [];
     const hasCanonical = canonical.length > 0;
     const shuffleActive = this.shouldShuffle();
-
+  
     const cloneCandidate = (
       question: QuizQuestion | null | undefined,
       reason: string
     ): QuizQuestion | null => {
-      if (!question) {
-        return null;
-      }
-
+      if (!question) return null;
+  
       const clone = this.cloneQuestionForSession(question);
-      if (!clone) {
-        return null;
-      }
-
+      if (!clone) return null;
+  
       if (currentQuestion) {
         const incomingText = this.normalizeQuestionText(clone.questionText);
-        const currentText = this.normalizeQuestionText(
-          currentQuestion.questionText
-        );
-
+        const currentText  = this.normalizeQuestionText(currentQuestion.questionText);
         if (incomingText && currentText && incomingText !== currentText) {
-          console.debug(
-            '[resolveCanonicalQuestion] Replacing mismatched question text',
-            { reason, currentText, incomingText, index }
-          );
+          console.debug('[resolveCanonicalQuestion] Replacing mismatched question text', {
+            reason, currentText, incomingText, index
+          });
         }
       }
-
       return clone;
     };
-
+  
     if (shuffleActive) {
       const base = hasCanonical ? canonical : source;
       if (!Array.isArray(base) || base.length === 0) {
         return cloneCandidate(currentQuestion, 'shuffle-no-base');
       }
-
+  
       if (hasCanonical) {
-        const originalIndex = this.quizShuffleService.toOriginalIndex(
-          quizId,
-          index
-        );
-
-        if (
-          typeof originalIndex === 'number' &&
-          originalIndex >= 0 &&
-          originalIndex < canonical.length
-        ) {
-          const canonicalClone = cloneCandidate(
-            canonical[originalIndex],
-            'canonical-original-index'
-          );
-
-          if (canonicalClone) {
-            return canonicalClone;
-          }
+        const originalIndex = this.quizShuffleService.toOriginalIndex(quizId, index);
+        if (Number.isInteger(originalIndex) && originalIndex >= 0 && originalIndex < canonical.length) {
+          const canonicalClone = cloneCandidate(canonical[originalIndex], 'canonical-original-index');
+          if (canonicalClone) return canonicalClone;
         }
       }
-
-      const fromShuffle = this.quizShuffleService.getQuestionAtDisplayIndex(
-        quizId,
-        index,
-        base
-      );
-
-      const shuffleClone = cloneCandidate(
-        fromShuffle,
-        'shuffle-display-index'
-      );
-      if (shuffleClone) {
-        return shuffleClone;
-      }
-
+  
+      const fromShuffle = this.quizShuffleService.getQuestionAtDisplayIndex(quizId, index, base);
+      const shuffleClone = cloneCandidate(fromShuffle, 'shuffle-display-index');
+      if (shuffleClone) return shuffleClone;
+  
       const baseClone = cloneCandidate(base[index], 'shuffle-base-index');
-      if (baseClone) {
-        return baseClone;
+      if (baseClone) return baseClone;
+  
+      // Post-shuffle fallbacks
+      if (hasCanonical) {
+        const canonicalClone = cloneCandidate(canonical[index], 'canonical-index');
+        if (canonicalClone) return canonicalClone;
       }
-    } else {
-      const sourceClone = cloneCandidate(source[index], 'source-index');
-      if (sourceClone) {
-        return sourceClone;
-      }
-      return null;
-    }
-
-    if (hasCanonical) {
-      const canonicalClone = cloneCandidate(
-        canonical[index],
-        'canonical-index'
-      );
-      if (canonicalClone) {
-        return canonicalClone;
-      }
-    }
-
-    if (currentQuestion) {
-      const currentKey = this.normalizeQuestionText(
-        currentQuestion.questionText
-      );
-
-      if (currentKey) {
-        const textIndex = this.canonicalQuestionIndexByText.get(quizId);
-        const mappedIndex = textIndex?.get(currentKey);
-
-        if (
-          typeof mappedIndex === 'number' &&
-          mappedIndex >= 0 &&
-          mappedIndex < canonical.length
-        ) {
-          const mappedClone = cloneCandidate(
-            canonical[mappedIndex],
-            'canonical-text-index'
-          );
-
-          if (mappedClone) {
-            return mappedClone;
+  
+      if (currentQuestion) {
+        const currentKey = this.normalizeQuestionText(currentQuestion.questionText);
+        if (currentKey) {
+          const textIndexMap = this.canonicalQuestionIndexByText.get(quizId);
+          const mappedIndex = textIndexMap?.get(currentKey);
+          if (Number.isInteger(mappedIndex) && mappedIndex! >= 0 && mappedIndex! < canonical.length) {
+            const mappedClone = cloneCandidate(canonical[mappedIndex!], 'canonical-text-index');
+            if (mappedClone) return mappedClone;
           }
-        }
-
-        const fallbackMatch = canonical.find((question) =>
-          this.normalizeQuestionText(question?.questionText) === currentKey
-        );
-
-        const fallbackClone = cloneCandidate(
-          fallbackMatch,
-          'canonical-text-scan'
-        );
-
-        if (fallbackClone) {
-          return fallbackClone;
+  
+          const fallbackMatch = canonical.find(q =>
+            this.normalizeQuestionText(q?.questionText) === currentKey
+          );
+          const fallbackClone = cloneCandidate(fallbackMatch, 'canonical-text-scan');
+          if (fallbackClone) return fallbackClone;
         }
       }
+  
+      return cloneCandidate(currentQuestion ?? source[index] ?? null, 'current-fallback');
     }
-
-    return cloneCandidate(
-      currentQuestion ?? source[index] ?? null,
-      'current-fallback'
-    );
-  }
+  
+    // Non-shuffle path
+    const sourceClone = cloneCandidate(source[index], 'source-index');
+    return sourceClone ?? null;
+  }  
 
   private mergeOptionsWithCanonical(
     question: QuizQuestion,
