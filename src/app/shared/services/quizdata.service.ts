@@ -194,6 +194,11 @@ export class QuizDataService implements OnDestroy {
         // ── Build normalized base questions (clone options per question) ──
         const baseQuestions: QuizQuestion[] = (quiz.questions ?? [])
           .map((question) => this.normalizeQuestion(question));
+        this.baseQuizQuestionCache.set(
+          quizId,
+          this.cloneQuestions(baseQuestions)
+        );
+        this.quizService.setCanonicalQuestions(quizId, baseQuestions);
         const shouldShuffle = this.quizService.isShuffleEnabled();
         const sessionQuestions = this.buildSessionQuestions(
           quizId,
