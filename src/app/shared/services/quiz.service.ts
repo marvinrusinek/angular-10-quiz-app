@@ -3201,12 +3201,15 @@ export class QuizService implements OnDestroy {
       return;
     }
 
-    currentQuestion.options = optionsToUse.map((option) => ({ ...option }));
-
-    questionToEmit = {
+    const normalizedOptions = optionsToUse.map((option) => ({ ...option }));
+    const normalizedQuestion = {
       ...questionToEmit,
-      options: optionsToUse.map((option) => ({ ...option }))
+      options: normalizedOptions
     };
+
+    Object.assign(currentQuestion, normalizedQuestion);
+    questionToEmit = normalizedQuestion;
+    optionsToUse = normalizedOptions;
 
     // Emit to individual subjects
     this.nextQuestionSubject.next(questionToEmit);
