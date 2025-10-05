@@ -122,6 +122,7 @@ export class QuizService implements OnDestroy {
   private readonly shuffleEnabledSubject = new BehaviorSubject<boolean>(false);
   checkedShuffle$ = this.shuffleEnabledSubject.asObservable();
   private shuffledQuestions: QuizQuestion[] = [];
+  private canonicalQuestionsByQuiz = new Map<string, QuizQuestion[]>();
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -2139,6 +2140,7 @@ export class QuizService implements OnDestroy {
         }),
         tap((questions) => {
           if (questions && questions.length > 0) {
+            this.setCanonicalQuestions(quizId, questions);
             console.log(
               '[fetchAndShuffleQuestions] Questions before shuffle:',
               questions
@@ -2253,6 +2255,38 @@ export class QuizService implements OnDestroy {
       ...deepClone,
       options: normalizedOptions
     };
+  }
+
+  setCanonicalQuestions(
+    quizId: string,
+    questions: QuizQuestion[] | null | undefined
+  ): void {
+    if (!quizId) {
+      console.warn('[setCanonicalQuestions] quizId missing.');
+      return;
+    }
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      this.canonicalQuestionsByQuiz.delete(quizId);
+      return;
+    }
+
+    const sanitized = questions
+      .map((question) => this.cloneQuestionForSession(question))
+      .filter((question): question is QuizQuestion => !!question)
+      .map((question) => ({
+        ...question,
+        options: Array.isArray(question.options)
+          ? question.options.map((option) => ({ ...option }))
+          : []
+      }));
+
+    if (sanitized.length === 0) {
+      this.canonicalQuestionsByQuiz.delete(quizId);
+      return;
+    }
+
+    this.canonicalQuestionsByQuiz.set(quizId, sanitized);
   }
 
   applySessionQuestions(quizId: string, questions: QuizQuestion[]): void {
@@ -2897,13 +2931,39 @@ export class QuizService implements OnDestroy {
 
   private resolveCanonicalQuestion(index: number): QuizQuestion | null {
     const quizId = this.resolveShuffleQuizId();
-    const source = Array.isArray(this.questions) ? this.questions : [];
-
-    if (!quizId || !source.length) {
+    if (!quizId) {
       return null;
     }
 
-    return this.quizShuffleService.getQuestionAtDisplayIndex(quizId, index, source);
+    const canonical = this.canonicalQuestionsByQuiz.get(quizId);
+    const source = Array.isArray(this.questions) ? this.questions : [];
+    const hasCanonical = Array.isArray(canonical) && canonical.length > 0;
+    const shuffleActive = this.shouldShuffle();
+
+    if (shuffleActive) {
+      const base = hasCanonical ? canonical : source;
+      if (!Array.isArray(base) || base.length === 0) {
+        return null;
+      }
+
+      const fromShuffle = this.quizShuffleService.getQuestionAtDisplayIndex(
+        quizId,
+        index,
+        base
+      );
+
+      if (fromShuffle) {
+        return fromShuffle;
+      }
+
+      return base[index] ?? null;
+    }
+
+    if (source.length > 0) {
+      return source[index] ?? null;
+    }
+
+    return hasCanonical ? canonical[index] ?? null : null;
   }
 
   private mergeOptionsWithCanonical(
