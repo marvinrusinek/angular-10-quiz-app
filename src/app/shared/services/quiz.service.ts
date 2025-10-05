@@ -123,6 +123,7 @@ export class QuizService implements OnDestroy {
   checkedShuffle$ = this.shuffleEnabledSubject.asObservable();
   private shuffledQuestions: QuizQuestion[] = [];
   private canonicalQuestionsByQuiz = new Map<string, QuizQuestion[]>();
+  private canonicalQuestionIndexByText = new Map<string, Map<string, number>>();
 
   currentAnswer = '';
   nextQuestionText = '';
@@ -2268,6 +2269,7 @@ export class QuizService implements OnDestroy {
 
     if (!Array.isArray(questions) || questions.length === 0) {
       this.canonicalQuestionsByQuiz.delete(quizId);
+      this.canonicalQuestionIndexByText.delete(quizId);
       return;
     }
 
@@ -2283,10 +2285,24 @@ export class QuizService implements OnDestroy {
 
     if (sanitized.length === 0) {
       this.canonicalQuestionsByQuiz.delete(quizId);
+      this.canonicalQuestionIndexByText.delete(quizId);
       return;
     }
 
+    const textIndex = new Map<string, number>();
+    sanitized.forEach((question, idx) => {
+      const key = this.normalizeQuestionText(question?.questionText);
+      if (!key) {
+        return;
+      }
+
+      if (!textIndex.has(key)) {
+        textIndex.set(key, idx);
+      }
+    });
+
     this.canonicalQuestionsByQuiz.set(quizId, sanitized);
+    this.canonicalQuestionIndexByText.set(quizId, textIndex);
   }
 
   applySessionQuestions(quizId: string, questions: QuizQuestion[]): void {
