@@ -2342,7 +2342,11 @@ export class QuizService implements OnDestroy {
     }
 
     if (currentQuestion && normalizedOptions.length > 0) {
-      this.emitQuestionAndOptions(currentQuestion, normalizedOptions);
+      this.emitQuestionAndOptions(
+        currentQuestion,
+        normalizedOptions,
+        this.currentQuestionIndex
+      );
     } else {
       this.nextQuestionSubject.next(currentQuestion);
       this.nextOptionsSubject.next(normalizedOptions);
@@ -3072,16 +3076,22 @@ export class QuizService implements OnDestroy {
     });
   }
 
-  emitQuestionAndOptions(currentQuestion: QuizQuestion, options: Option[]): void {
+  emitQuestionAndOptions(
+    currentQuestion: QuizQuestion,
+    options: Option[],
+    indexOverride?: number
+  ): void {
     if (!currentQuestion) {
       console.warn('[emitQuestionAndOptions] Missing question data.');
       return;
     }
 
     const rawOptions = Array.isArray(options) ? options : [];
-    const normalizedIndex = Number.isFinite(this.currentQuestionIndex)
-      ? (this.currentQuestionIndex as number)
-      : 0;
+    const normalizedIndex = Number.isFinite(indexOverride as number)
+      ? Math.max(0, Math.trunc(indexOverride as number))
+      : Number.isFinite(this.currentQuestionIndex)
+        ? Math.max(0, Math.trunc(this.currentQuestionIndex as number))
+        : 0;
 
     const canonical = this.resolveCanonicalQuestion(normalizedIndex);
     let questionToEmit = currentQuestion;
