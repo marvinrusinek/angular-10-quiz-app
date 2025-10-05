@@ -373,50 +373,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
-      this.questionToDisplay$.pipe(startWith('')),
-      this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+      this.explanationTextService.explanationText$.pipe(startWith('')),              // keep global stream (per your request)
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // ensure baseline
+      this.correctAnswersText$.pipe(startWith('')),                                  // count for multi-answer
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // keep global gate (per your request)
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      // Defer & coalesce synchronous micro-bursts from upstream sources
-      observeOn(asyncScheduler),
-      auditTime(0),
+      // Do NOT defer yet; decide path synchronously
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-  
+
         const rawQuestion   = (questionText ?? '').trim();
         const explanation   = (explanationText ?? '').trim();
         const correct       = (correctText ?? '').trim();
-        const questionModel = this.quizService.questions?.[currentIndex] ?? null;
 
-        const fallbackFromModel = (questionModel?.questionText ?? '').trim()
-          || (this.questions?.[currentIndex]?.questionText ?? '').trim();
+        // Model fallback for question text
+        const qm = this.quizService.questions?.[currentIndex] ?? null;
+        const fallbackFromModel =
+          (qm?.questionText ?? '').trim() ||
+          (this.questions?.[currentIndex]?.questionText ?? '').trim();
 
-        const candidateSource = rawQuestion || this.lastQuestionText || fallbackFromModel;
+        const candidateSource   = rawQuestion || this.lastQuestionText || fallbackFromModel;
         const candidateQuestion = (candidateSource ?? '').toString().trim();
 
-        if (candidateQuestion) {
-          this.lastQuestionText = candidateQuestion;
-        }
+        if (candidateQuestion) this.lastQuestionText = candidateQuestion;
 
         const question = candidateQuestion || this.questionLoadingText || 'No question available';
 
-        const showExplanation =
-          state?.mode === 'explanation' &&
-          (shouldDisplayExplanation || !!explanation);
+        // Relax: show explanation if either the UI mode is 'explanation' OR the gate says show
+        const wantsExplanation =
+          state?.mode === 'explanation' || shouldDisplayExplanation;
 
-        if (showExplanation) {
-          // If the formatted explanation is already present, emit it.
+        if (wantsExplanation) {
+          // If we already have formatted explanation, use it immediately
           if (explanation) {
-            return of(explanation).pipe(
-              // Defer & coalesce this single emission to avoid racing with baseline paint
-              observeOn(asyncScheduler),
-              auditTime(0)
-            );
+            return of(explanation);
           }
-  
-          // Otherwise, try to load formatted explanation once.
+
+          // Otherwise, fetch once, then use service/map/model fallbacks
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -424,40 +418,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               map((s: string | null | undefined) => (s ?? '').trim()),
               switchMap((trimmed) => {
                 if (trimmed) return of(trimmed);
-  
+
                 // Service cache fallback
                 const svcRaw = (
                   this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
                 ).toString().trim();
                 if (svcRaw) return of(svcRaw);
-  
+
                 // Model fallback
-                const rawSource = questionModel
-                  ? questionModel.explanation
-                  : this.questions?.[currentIndex]?.explanation;
-                const modelRaw = (rawSource ?? '').toString().trim();
+                const rawSource = qm ? qm.explanation : this.questions?.[currentIndex]?.explanation;
+                const modelRaw  = (rawSource ?? '').toString().trim();
                 if (modelRaw) return of(modelRaw);
-  
+
                 // Final fallback
                 return of('Explanation not available.');
-              }),
-              // Defer & coalesce the explanation resolution path
-              observeOn(asyncScheduler),
-              auditTime(0)
+              })
             );
-          }
+        }
 
-          // Otherwise show question (and correct count if present)
-          const out = correct
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
-  
-          return of(out);
-        }),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
+        // Otherwise show QUESTION (append correct-count for multi-answer UI)
+        const out = correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
+
+        return of(out);
+      }),
+
+      // Coalesce ONCE at the end so baseline + explanation don’t ping-pong
+      observeOn(asyncScheduler),
+      auditTime(0),
+
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-  } 
+  }
+
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
