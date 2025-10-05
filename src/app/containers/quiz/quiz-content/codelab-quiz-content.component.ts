@@ -515,7 +515,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           candidateSources.push({ question: questionFromPayload, text: questionFromPayload.questionText ?? '' });
         }
 
-        if (sanitizedFallbackQuestionText) {
+        if (!questionChanged && sanitizedFallbackQuestionText) {
           candidateSources.push({ question: null, text: sanitizedFallbackQuestionText });
         }
 
@@ -792,6 +792,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.renderModeByKey.set(viewState.key, effectiveMode);
         this.latestViewState = viewState;
         this.latestDisplayMode = effectiveMode;
+
+        if (questionChanged && !viewState.question) {
+          const normalizedNextMarkup = this.normalizeKeySource(nextMarkup);
+          if (normalizedNextMarkup) {
+            const staleCandidates = [
+              previousViewState?.markup ?? '',
+              previousViewState?.fallbackExplanation ?? '',
+              previousViewState?.question?.questionText ?? '',
+              normalizedPreviousResolved,
+              normalizedPreviousCached,
+              normalizedPreviousFallback,
+              this.previousExplanationSnapshot?.resolved ?? '',
+              this.previousExplanationSnapshot?.cached ?? '',
+              this.previousExplanationSnapshot?.fallback ?? '',
+              this.combinedTextSubject.getValue()
+            ]
+              .map((candidate) =>
+                typeof candidate === 'string'
+                  ? this.normalizeKeySource(candidate)
+                  : ''
+              )
+              .filter((candidate) => !!candidate);
+
+            if (staleCandidates.includes(normalizedNextMarkup)) {
+              nextMarkup = this.questionLoadingText;
+            }
+          }
+        }
 
         if (this.combinedTextSubject.getValue() !== nextMarkup) {
           this.combinedTextSubject.next(nextMarkup);
