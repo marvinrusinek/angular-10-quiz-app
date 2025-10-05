@@ -373,13 +373,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),              // keep global stream (per your request)
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // ensure baseline
-      this.correctAnswersText$.pipe(startWith('')),                                  // count for multi-answer
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // keep global gate (per your request)
+      this.explanationTextService.explanationText$.pipe(startWith('')),  // keep global stream
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),  // ensure baseline
+      this.correctAnswersText$.pipe(startWith('')),  // count for multi-answer
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // keep global gate
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      // Do NOT defer yet; decide path synchronously
+      // Do not defer yet; decide path synchronously
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
 
