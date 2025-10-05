@@ -3646,10 +3646,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     });
 
     // Notify any other listeners
-    this.explanationTextService.emitExplanationIfNeeded(
+    this.explanationTextService.emitExplanationIfNeeded({
       explanationText,
-      questionIndex
-    );
+      questionIndex,
+      question: this.questions?.[questionIndex]
+    });
 
     // Finally drive the UI locally
     this.explanationText = explanationText;
