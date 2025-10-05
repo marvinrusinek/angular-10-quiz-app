@@ -513,35 +513,91 @@ export class ExplanationTextService {
     return of(explanations);
   }
 
-  emitExplanationIfNeeded(rawExplanation: string, questionIndex: number): void {
-    const trimmed = rawExplanation?.trim();
+  
+  // Emits a formatted explanation for a given question index
+  public emitExplanationIfNeeded({
+    explanationText,
+    questionIndex,
+    // Optional strict check
+    questionText,
+    expectedQuestionText,
+    // Optional: pass the full question if you want storeFormattedExplanation() to reformat
+    question
+  }: {
+    explanationText: string | null | undefined;
+    questionIndex: number;
+    questionText?: string;          // actual current question text
+    expectedQuestionText?: string;  // expected text from caller; if provided, must match
+    question?: QuizQuestion;        // optional; used by storeFormattedExplanation()
+  }): void {
+
+    const trimmed = (explanationText ?? '').trim();
+
+    // Skip empty/defaults
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.log('[⏭️ Skipping empty or default explanation]');
+      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
       return;
     }
-  
-    const latest = this.explanationTexts[questionIndex];
-    const isSame = latest === trimmed;
-  
-    if (!isSame) {
-      console.log(`[📤 Emitting explanation for Q${questionIndex}]:`, trimmed);
 
-      const contextKey = this.buildQuestionContextKey(questionIndex);
-
-      this.explanationTexts[questionIndex] = trimmed;
-      this.formattedExplanationSubject.next(trimmed);
-      this.setExplanationText(trimmed, {
-        context: this.buildQuestionContextKey(questionIndex),
-      });
-      this.setShouldDisplayExplanation(true, {
-        context: this.buildQuestionContextKey(questionIndex),
-        force: true
-      });
-      this.lockExplanation();
-      this.latestExplanation = trimmed;
-    } else {
-      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
+    // Strict mode (only when expectedQuestionText is provided)
+    if (typeof expectedQuestionText === 'string') {
+      if ((questionText ?? '') !== expectedQuestionText) {
+        console.warn(`[❌ Skipping explanation emit for Q${questionIndex}] Mismatched text.`);
+        console.warn(`Expected: "${expectedQuestionText}"`);
+        console.warn(`Received: "${questionText ?? ''}"`);
+        return;
+      }
     }
+
+    // Coalesce duplicates against last emitted raw explanation per index
+    const latestRaw = this.explanationTexts[questionIndex];
+    const isSame = latestRaw === trimmed;
+    if (isSame) {
+      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
+      return;
+    }
+
+    // --- CRITICAL: update per-index cache FIRST so the UI's "safe global" filter accepts it ---
+    // If you want to preserve your reformatting logic, prefer storeFormattedExplanation;
+    // otherwise set the bare cache directly.
+    try {
+      if (question) {
+        // Will call your formatExplanation(...) internally and keep maps in sync
+        this.storeFormattedExplanation(questionIndex, trimmed, question);
+      } else {
+        // Minimal cache write when no QuizQuestion is available
+        this.formattedExplanations[questionIndex] = {
+          questionIndex,
+          explanation: trimmed
+        };
+        this.explanationsUpdated.next(this.formattedExplanations);
+      }
+    } catch (e) {
+      console.warn(`[⚠️ storeFormattedExplanation failed for Q${questionIndex}]`, e);
+      // Fallback to direct cache
+      this.formattedExplanations[questionIndex] = { questionIndex, explanation: trimmed };
+      this.explanationsUpdated.next(this.formattedExplanations);
+    }
+
+    // Keep your legacy per-index raw cache
+    this.explanationTexts[questionIndex] = trimmed;
+
+    // Update the per-index live channel so index-scoped subscribers get it immediately
+    // (these are the methods you added earlier)
+    this.emitFormatted?.(questionIndex, trimmed);
+    this.setGate?.(questionIndex, true);
+
+    // --- Now emit to the global streams (UI filter will now accept this for current index) ---
+    const contextKey = this.buildQuestionContextKey(questionIndex);
+    this.formattedExplanationSubject.next(trimmed);
+    this.setExplanationText(trimmed, { context: contextKey }); // do not force unless you must
+    const displayOptions = { context: contextKey, force: true } as const;
+    this.setShouldDisplayExplanation(true, displayOptions);
+    this.setIsExplanationTextDisplayed?.(true, displayOptions);
+
+    // Optional: lock to avoid concurrent stomps
+    this.lockExplanation();
+    this.latestExplanation = trimmed;
   }  
 
   public setIsExplanationTextDisplayed(
@@ -737,52 +793,6 @@ export class ExplanationTextService {
     this.shouldDisplayExplanationSource.next(false);
     this.isExplanationTextDisplayedSource.next(false);
     this.resetCompleteSubject.next(false);
-  }
-
-  emitExplanationIfNeededStrict({
-    explanationText,
-    questionIndex,
-    questionText,
-    expectedQuestionText
-  }: {
-    explanationText: string;
-    questionIndex: number;
-    questionText: string;              // from the locked current question
-    expectedQuestionText: string;      // from the component calling this
-  }): void {
-    const trimmed = explanationText?.trim();
-    if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
-      return;
-    }
-  
-    // Compare directly without needing external services
-    if (questionText !== expectedQuestionText) {
-      console.warn(`[❌ Skipping explanation emit for Q${questionIndex}] Mismatched text.`);
-      console.warn(`Expected: "${expectedQuestionText}"`);
-      console.warn(`Received: "${questionText}"`);
-      return;
-    }
-  
-    const latest = this.explanationTexts[questionIndex];
-    const isSame = latest === trimmed;
-  
-    if (!isSame) {
-      this.explanationTexts[questionIndex] = trimmed;
-      this.formattedExplanationSubject.next(trimmed);
-      const contextKey = this.buildQuestionContextKey(questionIndex);
-      this.setExplanationText(trimmed, {
-        context: contextKey
-      });
-      const displayOptions = { context: contextKey, force: true } as const;
-      this.setShouldDisplayExplanation(true, displayOptions);
-      this.setIsExplanationTextDisplayed(true, displayOptions);
-      this.lockExplanation();
-
-      this.latestExplanation = trimmed;
-    } else {
-      console.log(`[🛑 Skipping redundant emit for Q${questionIndex}]`);
-    }
   }
 
   public shouldEmitExplanation(
