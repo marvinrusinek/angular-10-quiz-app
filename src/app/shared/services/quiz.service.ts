@@ -2963,38 +2963,40 @@ export class QuizService implements OnDestroy {
     const hasCanonical = canonical.length > 0;
     const shuffleActive = this.shouldShuffle();
 
-    const ensureMatch = (candidate: QuizQuestion | null): QuizQuestion | null => {
-      if (!candidate) {
-        return null;
-      }
-
-      if (!currentQuestion) {
-        return candidate;
-      }
-
-      const candidateText = this.normalizeQuestionText(candidate?.questionText);
-      const currentText = this.normalizeQuestionText(
-        currentQuestion?.questionText
-      );
-
-      return candidateText === currentText ? candidate : null;
-    };
-
-    const cloneIfValid = (
-      question: QuizQuestion | null | undefined
+    const cloneCandidate = (
+      question: QuizQuestion | null | undefined,
+      reason: string
     ): QuizQuestion | null => {
       if (!question) {
         return null;
       }
 
       const clone = this.cloneQuestionForSession(question);
-      return ensureMatch(clone);
+      if (!clone) {
+        return null;
+      }
+
+      if (currentQuestion) {
+        const incomingText = this.normalizeQuestionText(clone.questionText);
+        const currentText = this.normalizeQuestionText(
+          currentQuestion.questionText
+        );
+
+        if (incomingText && currentText && incomingText !== currentText) {
+          console.debug(
+            '[resolveCanonicalQuestion] Replacing mismatched question text',
+            { reason, currentText, incomingText, index }
+          );
+        }
+      }
+
+      return clone;
     };
 
     if (shuffleActive) {
       const base = hasCanonical ? canonical : source;
       if (!Array.isArray(base) || base.length === 0) {
-        return cloneIfValid(currentQuestion);
+        return cloneCandidate(currentQuestion, 'shuffle-no-base');
       }
 
       if (hasCanonical) {
@@ -3008,10 +3010,13 @@ export class QuizService implements OnDestroy {
           originalIndex >= 0 &&
           originalIndex < canonical.length
         ) {
-          const canonicalQuestion = canonical[originalIndex];
-          const clone = cloneIfValid(canonicalQuestion);
-          if (clone) {
-            return clone;
+          const canonicalClone = cloneCandidate(
+            canonical[originalIndex],
+            'canonical-original-index'
+          );
+
+          if (canonicalClone) {
+            return canonicalClone;
           }
         }
       }
@@ -3022,17 +3027,20 @@ export class QuizService implements OnDestroy {
         base
       );
 
-      const shuffleClone = cloneIfValid(fromShuffle);
+      const shuffleClone = cloneCandidate(
+        fromShuffle,
+        'shuffle-display-index'
+      );
       if (shuffleClone) {
         return shuffleClone;
       }
 
-      const fallbackClone = cloneIfValid(base[index] ?? null);
-      if (fallbackClone) {
-        return fallbackClone;
+      const baseClone = cloneCandidate(base[index], 'shuffle-base-index');
+      if (baseClone) {
+        return baseClone;
       }
     } else {
-      const sourceClone = cloneIfValid(source[index] ?? null);
+      const sourceClone = cloneCandidate(source[index], 'source-index');
       if (sourceClone) {
         return sourceClone;
       }
@@ -3040,41 +3048,53 @@ export class QuizService implements OnDestroy {
     }
 
     if (hasCanonical) {
-      const canonicalClone = cloneIfValid(canonical[index] ?? null);
+      const canonicalClone = cloneCandidate(
+        canonical[index],
+        'canonical-index'
+      );
       if (canonicalClone) {
         return canonicalClone;
       }
     }
 
-    if (hasCanonical && currentQuestion) {
+    if (currentQuestion) {
       const currentKey = this.normalizeQuestionText(
-        currentQuestion?.questionText
+        currentQuestion.questionText
       );
 
-      const textIndex = this.canonicalQuestionIndexByText.get(quizId);
-      const mappedIndex = currentKey ? textIndex?.get(currentKey) : undefined;
-
-      if (typeof mappedIndex === 'number' && mappedIndex >= 0) {
-        const mappedClone = cloneIfValid(canonical[mappedIndex]);
-        if (mappedClone) {
-          return mappedClone;
-        }
-      }
-
       if (currentKey) {
-        const fallbackMatch = canonical.find((question) => {
-          const canonicalKey = this.normalizeQuestionText(question?.questionText);
-          return canonicalKey && canonicalKey === currentKey;
-        });
+        const textIndex = this.canonicalQuestionIndexByText.get(quizId);
+        const mappedIndex = textIndex?.get(currentKey);
 
-        const fallbackClone = cloneIfValid(fallbackMatch);
+        if (
+          typeof mappedIndex === 'number' &&
+          mappedIndex >= 0 &&
+          mappedIndex < canonical.length
+        ) {
+          const mappedClone = cloneCandidate(
+            canonical[mappedIndex],
+            'canonical-text-index'
+          );
+
+          if (mappedClone) {
+            return mappedClone;
+          }
+        }
+
+        const fallbackMatch = canonical.find((question) =>
+          this.normalizeQuestionText(question?.questionText) === currentKey
+        );
+
+        const fallbackClone = cloneCandidate(
+          fallbackMatch,
+          'canonical-text-scan'
+        );
+
         if (fallbackClone) {
           return fallbackClone;
         }
       }
     }
-
-    return cloneIfValid(currentQuestion ?? source[index] ?? null);
   }
 
   private mergeOptionsWithCanonical(
