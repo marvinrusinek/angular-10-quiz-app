@@ -2958,9 +2958,9 @@ export class QuizService implements OnDestroy {
       return null;
     }
 
-    const canonical = this.canonicalQuestionsByQuiz.get(quizId);
+    const canonical = this.canonicalQuestionsByQuiz.get(quizId) ?? [];
     const source = Array.isArray(this.questions) ? this.questions : [];
-    const hasCanonical = Array.isArray(canonical) && canonical.length > 0;
+    const hasCanonical = canonical.length > 0;
     const shuffleActive = this.shouldShuffle();
 
     const ensureMatch = (candidate: QuizQuestion | null): QuizQuestion | null => {
