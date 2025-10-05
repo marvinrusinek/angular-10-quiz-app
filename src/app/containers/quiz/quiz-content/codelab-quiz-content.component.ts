@@ -386,31 +386,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-
+  
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
           this.lastQuestionText = '';
         }
-
+  
         const globalExpl = this._n(explanationText);
         const correct    = this._n(correctText);
         const rawQ       = this._n(questionText);
-
+  
         // canonical question for current index
         const qm = this.quizService.questions?.[currentIndex] ?? null;
         const fallbackQ = this._n(qm?.questionText) || this._n(this.questions?.[currentIndex]?.questionText);
         const candidate = rawQ || this.lastQuestionText || fallbackQ;
         if (candidate) this.lastQuestionText = candidate;
-
+  
         const question = candidate || this.questionLoadingText || 'No question available';
-
+  
         // fast-path: only accept global explanation if it provably belongs to THIS index
         const svcExpl = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-        const safeGlobalExpl = (globalExpl && svcExpl && globalExpl === svcExpl) ? globalExpl : '';
-
+  
+        // 🔒 NEW: also require the global emission to (1) have been emitted for THIS index per signature,
+        // and (2) match the per-index raw cache for THIS index to avoid cross-talk.
+        const perIndexRaw   = this._n(this.explanationTextService?.explanationTexts?.[currentIndex]);
+        const lastGlobalIdx = this.explanationTextService.getLastGlobalExplanationIndex?.() ?? null;
+  
+        const globalExplMatchesCurrent =
+          lastGlobalIdx === currentIndex &&
+          !!globalExpl &&
+          globalExpl === svcExpl &&
+          (!!perIndexRaw ? globalExpl === perIndexRaw : true); // if raw cache exists, it must match too
+  
+        const safeGlobalExpl = globalExplMatchesCurrent ? globalExpl : '';
+  
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
-
+  
         if (wantsExplanation && !indexChanged) {
           // 1) If we have a safe global for THIS index, use it immediately.
           if (safeGlobalExpl) {
@@ -419,37 +431,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               : safeGlobalExpl;
             return of(explOut);
           }
-
+  
           // 2) Otherwise, ALWAYS fetch formatted explanation for THIS index once, then fall back.
           return this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
             take(1),
             map(s => this._n(s)),
             switchMap(trimmed => {
               if (trimmed) return of(trimmed);
-
+  
               // Service cache fallback (this index)
               const svcRaw = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
               if (svcRaw) return of(svcRaw);
-
+  
               // Model fallback (this index)
               const modelRaw = this._n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
               if (modelRaw) return of(modelRaw);
-
+  
               // Absolute last fallback
               return of('Explanation not available.');
             }),
             map(txt => correct ? `${txt} <span class="correct-count">${correct}</span>` : txt)
           );
         }
-
+  
         // QUESTION path (with correct-count)
         const out = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-
+  
         return of(out);
       }),
-
+  
       // coalesce once at the end; keeps baseline first and avoids ping-pong
       observeOn(asyncScheduler),
       auditTime(0),
@@ -457,9 +469,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-
-
-  
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(

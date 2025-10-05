@@ -894,4 +894,22 @@ export class ExplanationTextService {
     this.emitFormatted(index, null);
     this.setGate(index, false);
   }
+
+
+  // Returns the index (number) that the last global explanation emission belonged to, or null.
+  public getLastGlobalExplanationIndex(): number | null {
+    // lastExplanationSignature looks like: "question:3:::Some text..."
+    const sig = this.lastExplanationSignature ?? '';
+    // Fast path
+    const i = sig.indexOf('question:');
+    if (i === -1) return null;
+
+    // Extract between 'question:' and the next ':::'
+    const after = sig.slice(i + 'question:'.length);
+    const j = after.indexOf(':::');
+    const idxStr = (j >= 0 ? after.slice(0, j) : after).trim();
+
+    const idx = Number(idxStr);
+    return Number.isInteger(idx) && idx >= 0 ? idx : null;
+  }
 }
