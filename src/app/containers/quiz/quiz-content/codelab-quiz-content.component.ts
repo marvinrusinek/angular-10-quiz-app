@@ -87,6 +87,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private staleFallbackIndices = new Set<number>();
 
   private lastQuestionText = '';
+  private _renderLastIndex = -1;
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -373,19 +374,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),  // keep global stream
+      this.explanationTextService.explanationText$.pipe(startWith('')),  // global (kept)
       this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),  // ensure baseline
-      this.correctAnswersText$.pipe(startWith('')),  // count for multi-answer
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // keep global gate
+      this.correctAnswersText$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // global (kept)
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      // Do not defer yet; decide path synchronously
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
 
-        const rawQuestion   = (questionText ?? '').trim();
-        const explanation   = (explanationText ?? '').trim();
-        const correct       = (correctText ?? '').trim();
+        // ── Guard A: detect index change and suppress any stale explanation this tick
+        const indexChanged = this._renderLastIndex !== currentIndex;
+        if (indexChanged) this._renderLastIndex = currentIndex;
+
+        const rawQuestion = (questionText ?? '').trim();
+        const globalExpl  = (explanationText ?? '').trim();
+        const correct     = (correctText ?? '').trim();
 
         // Model fallback for question text
         const qm = this.quizService.questions?.[currentIndex] ?? null;
@@ -395,22 +399,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const candidateSource   = rawQuestion || this.lastQuestionText || fallbackFromModel;
         const candidateQuestion = (candidateSource ?? '').toString().trim();
-
         if (candidateQuestion) this.lastQuestionText = candidateQuestion;
 
         const question = candidateQuestion || this.questionLoadingText || 'No question available';
 
-        // Relax: show explanation if either the UI mode is 'explanation' OR the gate says show
-        const wantsExplanation =
-          state?.mode === 'explanation' || shouldDisplayExplanation;
+        // ── Guard B: accept global explanation only if it belongs to *this* index
+        const svcCurrentExpl = (this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? '')
+          .toString().trim();
+        const globalExplMatchesCurrent = !!globalExpl && globalExpl === svcCurrentExpl;
 
-        if (wantsExplanation) {
-          // If we already have formatted explanation, use it immediately
-          if (explanation) {
-            return of(explanation);
+        // Decide whether we want explanation this cycle (same as your logic, slightly relaxed)
+        const wantsExplanation = (state?.mode === 'explanation') || shouldDisplayExplanation;
+
+        if (wantsExplanation && !indexChanged) {
+          // If we already have an explanation and it matches current index, render it now
+          if (globalExplMatchesCurrent) {
+            const explOut = correct
+              ? `${globalExpl} <span class="correct-count">${correct}</span>`
+              : globalExpl;
+            return of(explOut);
           }
 
-          // Otherwise, fetch once, then use service/map/model fallbacks
+          // Otherwise fetch formatted explanation for THIS index, with your fallbacks
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -419,7 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               switchMap((trimmed) => {
                 if (trimmed) return of(trimmed);
 
-                // Service cache fallback
+                // Service cache fallback (current index)
                 const svcRaw = (
                   this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
                 ).toString().trim();
@@ -432,11 +442,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
                 // Final fallback
                 return of('Explanation not available.');
+              }),
+              map((txt) => {
+                // keep your correct-count badge if you want it visible with explanations too
+                return correct ? `${txt} <span class="correct-count">${correct}</span>` : txt;
               })
             );
         }
 
-        // Otherwise show QUESTION (append correct-count for multi-answer UI)
+        // Show QUESTION path (append correct-count for multi-answer)
         const out = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
@@ -444,7 +458,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of(out);
       }),
 
-      // Coalesce ONCE at the end so baseline + explanation don’t ping-pong
+      // Coalesce once at the end to avoid ping-pong between sources
       observeOn(asyncScheduler),
       auditTime(0),
 
@@ -452,6 +466,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
 
 
   private questionTextForIndex$(index: number): Observable<string> {
