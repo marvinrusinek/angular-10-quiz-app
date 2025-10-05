@@ -225,7 +225,7 @@ export class ExplanationTextService {
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
   
-      // ⬇Clear per-index stream/gate
+      // Clear per-index stream/gate
       this.emitFormatted(questionIndex, null);
       this.setGate(questionIndex, false);
   
@@ -236,7 +236,7 @@ export class ExplanationTextService {
       return of(FALLBACK);
     }
   
-    // Happy path: update legacy subject only if changed (coalesce duplicates)
+    // Update legacy subject only if changed (coalesce duplicates)
     const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
     if (last !== explanation) this.formattedExplanationSubject.next(explanation);
   
