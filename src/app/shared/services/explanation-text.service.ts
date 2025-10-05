@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, shareReplay, startWith } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
+
+export interface ExplanationEvent {
+  index: number,
+  text: string | null
+}
 
 @Injectable({ providedIn: 'root' })
 export class ExplanationTextService {
@@ -53,6 +58,10 @@ export class ExplanationTextService {
   private lastDisplaySignature: string | null = null;
   private lastDisplayedSignature: string | null = null;
   private readonly defaultContextPrefix = 'question';
+
+  private readonly _events$ = new Subject<ExplanationEvent>();
+  private readonly _currentIndex$ = new BehaviorSubject<number>(0);
+  private readonly _gateByIndex = new Map<number, BehaviorSubject<boolean>>();
 
   constructor() {}
 
@@ -771,5 +780,26 @@ export class ExplanationTextService {
     }
 
     return false;
+  }
+
+  // Tell service which index is "current" (optional helper for components)
+  public setCurrentIndex(i: number): void {
+    if (Number.isInteger(i)) this._currentIndex$.next(i);
+  }
+
+  // Emit formatted (or clear with null) for a specific index
+  public emitFormatted(index: number, text: string | null): void {
+    this._events$.next({ index, text });
+  }
+
+  // Read explanation bound to a specific index
+  public explanationForIndex$(index: number): Observable<string | null> {
+    return this._events$.pipe(
+      filter(ev => ev.index === index),
+      map(ev => ev.text),
+      startWith(null),
+      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   }
 }
