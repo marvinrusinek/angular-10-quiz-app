@@ -168,6 +168,9 @@ export class ExplanationTextService {
     if (previous !== trimmed) {
       this.explanationTexts[index] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
+
+      this.emitFormatted(index, trimmed || null);
+      this.setGate(index, !!trimmed);
     }
   }
 
