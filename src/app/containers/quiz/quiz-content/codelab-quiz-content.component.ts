@@ -346,6 +346,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : null;
 
         const previousView = this.latestViewState;
+        const questionChanged = previousView?.index !== index;
         const normalizedPrevious = previousView?.question
           ? this.normalizeKeySource(previousView.question.questionText)
           : '';
@@ -400,18 +401,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         let sanitizedFallbackQuestionText = fallbackQuestionText;
 
-        const fallbackLooksStale = previousView?.index !== index && !!normalizedFallbackQuestion && (
-          normalizedFallbackQuestion === normalizedPreviousMarkup ||
-          normalizedFallbackQuestion === normalizedPreviousFallback ||
-          normalizedFallbackQuestion === normalizedPreviousRenderedExplanation ||
-          normalizedFallbackQuestion === normalizedSnapshotResolved ||
-          normalizedFallbackQuestion === normalizedSnapshotCached ||
-          normalizedFallbackQuestion === normalizedSnapshotFallback ||
-          normalizedFallbackQuestion === normalizedPreviousQuestionText
-        );
+        if (questionChanged) {
+          const staleComparisons = [
+            normalizedPreviousMarkup,
+            normalizedPreviousFallback,
+            normalizedPreviousRenderedExplanation,
+            normalizedSnapshotResolved,
+            normalizedSnapshotCached,
+            normalizedSnapshotFallback,
+            normalizedPreviousQuestionText
+          ].filter(Boolean);
 
-        if (fallbackLooksStale) {
-          sanitizedFallbackQuestionText = '';
+          if (normalizedFallbackQuestion && staleComparisons.includes(normalizedFallbackQuestion)) {
+            sanitizedFallbackQuestionText = '';
+          }
+
+          // If we already know the fallback is stale for a brand-new index,
+          // avoid carrying it forward as a candidate entirely so that we wait
+          // for the real payload instead of flashing the previous question.
+          if (previousView?.index !== index) {
+            sanitizedFallbackQuestionText = '';
+          }
         }
 
         const derivedQuestionText =
