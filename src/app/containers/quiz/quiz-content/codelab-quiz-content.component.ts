@@ -406,7 +406,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           normalizedFallbackQuestion === normalizedPreviousRenderedExplanation ||
           normalizedFallbackQuestion === normalizedSnapshotResolved ||
           normalizedFallbackQuestion === normalizedSnapshotCached ||
-          normalizedFallbackQuestion === normalizedSnapshotFallback
+          normalizedFallbackQuestion === normalizedSnapshotFallback ||
+          normalizedFallbackQuestion === normalizedPreviousQuestionText
         );
 
         if (fallbackLooksStale) {
