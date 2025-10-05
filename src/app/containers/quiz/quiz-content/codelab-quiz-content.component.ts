@@ -379,6 +379,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
+      // Defer & coalesce synchronous micro-bursts from upstream sources
+      observeOn(asyncScheduler),
+      auditTime(0),
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
   
@@ -397,7 +400,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.lastQuestionText = candidateQuestion;
         }
 
-        const question = candidateQuestion || 'No question available';
+        const question = candidateQuestion || this.questionLoadingText || 'No question available';
 
         const showExplanation =
           state?.mode === 'explanation' &&
@@ -405,7 +408,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         if (showExplanation) {
           // If the formatted explanation is already present, emit it.
-          if (explanation) return of(explanation);
+          if (explanation) {
+            return of(explanation).pipe(
+              // Defer & coalesce this single emission to avoid racing with baseline paint
+              observeOn(asyncScheduler),
+              auditTime(0)
+            );
+          }
   
           // Otherwise, try to load formatted explanation once.
           return this.explanationTextService
@@ -431,7 +440,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
                 // Final fallback
                 return of('Explanation not available.');
-              })
+              }),
+              // Defer & coalesce the explanation resolution path
+              observeOn(asyncScheduler),
+              auditTime(0)
             );
           }
 
