@@ -424,16 +424,60 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         }
 
-        const derivedQuestionText =
-          expectedQuestion?.questionText ??
-          (!payloadLooksStale ? questionFromPayload?.questionText : undefined) ??
-          sanitizedFallbackQuestionText;
+        const staleTextSet = questionChanged
+          ? new Set(
+              [
+                normalizedPreviousMarkup,
+                normalizedPreviousFallback,
+                normalizedPreviousRenderedExplanation,
+                normalizedSnapshotResolved,
+                normalizedSnapshotCached,
+                normalizedSnapshotFallback,
+                normalizedPreviousQuestionText
+              ].filter(Boolean)
+            )
+          : null;
 
-        const baseText = this.resolveQuestionText(question, derivedQuestionText);
+        const candidateSources: Array<{ question: QuizQuestion | null; text: string }> = [];
+
+        if (!expectedLooksStale && expectedQuestion) {
+          candidateSources.push({ question: expectedQuestion, text: expectedQuestion.questionText ?? '' });
+        }
+
+        if (!payloadLooksStale && questionFromPayload) {
+          candidateSources.push({ question: questionFromPayload, text: questionFromPayload.questionText ?? '' });
+        }
+
+        if (sanitizedFallbackQuestionText) {
+          candidateSources.push({ question: null, text: sanitizedFallbackQuestionText });
+        }
+
+        let derivedQuestion: QuizQuestion | null = null;
+        let derivedQuestionText = '';
+
+        for (const candidate of candidateSources) {
+          const normalizedCandidate = this.normalizeKeySource(candidate.text);
+          if (!normalizedCandidate) {
+            continue;
+          }
+
+          if (!staleTextSet || !staleTextSet.has(normalizedCandidate)) {
+            derivedQuestion = candidate.question;
+            derivedQuestionText = candidate.text;
+            break;
+          }
+        }
+
+        if (!derivedQuestion && !derivedQuestionText && questionChanged && questionFromPayload && !payloadLooksStale) {
+          derivedQuestion = questionFromPayload;
+          derivedQuestionText = questionFromPayload.questionText ?? '';
+        }
+
+        const baseText = this.resolveQuestionText(derivedQuestion, derivedQuestionText);
         const markup = this.buildQuestionMarkup(baseText, correctText);
         const fallbackExplanationSource = expectedQuestion?.explanation ?? (payloadLooksStale ? '' : payload?.explanation);
-        const fallbackExplanation = this.resolveFallbackExplanation(fallbackExplanationSource, question);
-        const key = this.buildQuestionKey(index, question, baseText);
+        const fallbackExplanation = this.resolveFallbackExplanation(fallbackExplanationSource, derivedQuestion);
+        const key = this.buildQuestionKey(index, derivedQuestion, baseText);
 
         this.currentIndex = index;
         return {
@@ -441,7 +485,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           key,
           markup,
           fallbackExplanation,
-          question
+          question: derivedQuestion
         } as QuestionViewState;
       }),
       distinctUntilChanged((prev, curr) => (
