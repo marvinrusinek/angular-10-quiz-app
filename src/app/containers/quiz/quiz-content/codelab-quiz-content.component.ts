@@ -544,6 +544,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           derivedQuestionText = questionFromPayload.questionText ?? '';
         }
 
+        const normalizedDerived = this.normalizeKeySource(derivedQuestionText);
+        if (
+          questionChanged &&
+          !!normalizedDerived &&
+          staleTextSet?.has(normalizedDerived)
+        ) {
+          derivedQuestion = null;
+          derivedQuestionText = '';
+        }
+
         if (!derivedQuestion && !derivedQuestionText && questionChanged) {
           derivedQuestionText = this.questionLoadingText;
         }
