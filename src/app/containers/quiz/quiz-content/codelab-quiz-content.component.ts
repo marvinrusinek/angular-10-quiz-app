@@ -385,11 +385,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        // track current index
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
-          this.lastQuestionText = '';               // prevent carry-over of previous question
+          this.lastQuestionText = ''; // prevent carry-over of previous question
         }
 
         const correct = this._n(correctText);
@@ -406,33 +405,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
 
-        // ---- EXPLANATION DECISION (deferred): only after baseline
+        // ---- EXPLANATION DECISION: only after baseline
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
-
-        // Build a per-index "safe global" for THIS idx only
-        const safeGlobalExplForIdx = (() => {
-          const globalExpl  = this._n(explanationText);
-          const svcExpl     = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-          const perIndexRaw = this._n(this.explanationTextService?.explanationTexts?.[currentIndex]);
-          const lastIdx     = this.explanationTextService.getLastGlobalExplanationIndex?.() ?? null;
-
-          // Accept only if: emitted for THIS index, and matches both formatted + raw per-index caches
-          const matches =
-            lastIdx === currentIndex &&
-            !!globalExpl &&
-            globalExpl === svcExpl &&
-            (!!perIndexRaw ? globalExpl === perIndexRaw : true);
-
-          return matches ? globalExpl : '';
-        })();
 
         if (!wantsExplanation || indexChanged) {
           // show baseline and stop here
           return of(baseline);
         }
 
-        // If a safe global exists for THIS index, use it; otherwise fetch THIS index's explanation
-        const explanation$ = safeGlobalExplForIdx
+        // fast-path: accept global explanation only if it provably belongs to THIS index
+        const globalExpl  = this._n(explanationText);
+        const svcExpl     = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+        const perIndexRaw = this._n(this.explanationTextService?.explanationTexts?.[currentIndex]);
+        const lastIdx     = this.explanationTextService.getLastGlobalExplanationIndex?.() ?? null;
+
+        const safeGlobalExplForIdx =
+          lastIdx === currentIndex &&
+          !!globalExpl &&
+          globalExpl === svcExpl &&
+          (!!perIndexRaw ? globalExpl === perIndexRaw : true)
+            ? globalExpl
+            : '';
+
+        // Build a "first valid explanation" stream:
+        //  - use safe global immediately if valid for this index
+        //  - otherwise fetch for THIS index, then service cache, then model, then a neutral message
+        const firstValidExplanation$ = (safeGlobalExplForIdx
           ? of(safeGlobalExplForIdx)
           : this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
               take(1),
@@ -450,24 +448,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
                 return of('Explanation not available.');
               })
-            );
+            )
+        ).pipe(
+          // ensure we only proceed with a non-empty string
+          map(txt => this._n(txt)),
+          filter(txt => !!txt),
+          take(1)
+        );
 
         // Return baseline first, then explanation (deferred/coalesced)
         return concat(
           of(baseline),
-          explanation$.pipe(
+          firstValidExplanation$.pipe(
             map(txt => correct ? `${txt} <span class="correct-count">${correct}</span>` : txt),
             observeOn(asyncScheduler),
             auditTime(0)
           )
-        ).pipe(
-          // prefer the second emission when it arrives, otherwise baseline remains
-          // (distinctUntilChanged is applied later)
-          shareReplay({ bufferSize: 1, refCount: true })
-        );
+        ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
       }),
 
-      // Coalesce once at the end; keeps baseline first and avoids ping-pong
+      // coalesce once at the end; keeps baseline first and avoids ping-pong
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
