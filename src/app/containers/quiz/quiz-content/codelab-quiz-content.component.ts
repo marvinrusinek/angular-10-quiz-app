@@ -596,12 +596,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const previousKey = previousViewState?.key ?? null;
         const previousResolvedExplanation = previousKey ? (this.lastExplanationMarkupByKey.get(previousKey) ?? '') : '';
         const previousCachedExplanation = previousKey ? (this.explanationCache.get(previousKey) ?? '') : '';
-        const questionChanged = previousKey !== viewState.key;
+        const indexChanged = previousViewState?.index !== viewState.index;
+        const keyChanged = previousKey !== viewState.key;
+        const baselineTransition = !indexChanged && this.awaitingQuestionBaseline && keyChanged;
+        const questionChanged = indexChanged || baselineTransition;
         const normalizedPreviousResolved = previousResolvedExplanation.toString().trim();
         const normalizedPreviousCached = previousCachedExplanation.toString().trim();
         const normalizedPreviousFallback = (previousViewState?.fallbackExplanation ?? '').toString().trim();
 
-        if (questionChanged && previousKey) {
+        if (indexChanged && previousKey) {
           this.previousExplanationSnapshot = {
             resolved: normalizedPreviousResolved,
             cached: normalizedPreviousCached,
@@ -614,15 +617,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.lastExplanationMarkupByKey.delete(previousKey);
           this.explanationCache.delete(previousKey);
           this.renderModeByKey.delete(previousKey);
-        } else if (questionChanged) {
+        } else if (indexChanged) {
           this.previousExplanationSnapshot = null;
+        } else if (baselineTransition && previousKey) {
+          const pending = this.pendingExplanationRequests.get(previousKey);
+          pending?.unsubscribe();
+          this.pendingExplanationRequests.delete(previousKey);
+          this.pendingExplanationKeys.delete(previousKey);
+          this.lastExplanationMarkupByKey.delete(previousKey);
+          this.explanationCache.delete(previousKey);
+          this.renderModeByKey.delete(previousKey);
         }
 
         if (questionChanged && this._showExplanation) {
           this._showExplanation = false;
         }
 
-        if (questionChanged) {
+        if (indexChanged) {
           // A brand-new question should always render its question text first.
           this.renderModeByKey.set(viewState.key, 'question');
           this.awaitingQuestionBaseline = true;
