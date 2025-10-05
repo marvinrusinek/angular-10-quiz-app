@@ -371,146 +371,93 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
+  // Helper to normalize strings for comparison
+  private _n(s: string | null | undefined): string { return (s ?? '').toString().trim(); }
+
   // Combine the streams that decide what codelab-quiz-content shows
-  // imports required at top:
-// import { asyncScheduler, combineLatest, concat, of } from 'rxjs';
-// import { map, switchMap, withLatestFrom, filter, startWith, take, distinctUntilChanged, shareReplay, observeOn, auditTime } from 'rxjs/operators';
-
-// Helper to normalize strings for comparison
-private _n(s: string | null | undefined): string { return (s ?? '').toString().trim(); }
-
   private getCombinedDisplayTextStream(): void {
-    // 1) Derive a “safe” global explanation that only passes if it matches the current index cache
-    const currentIndex$ = this.quizService.currentQuestionIndex$.pipe(
-      startWith(this.currentQuestionIndexValue ?? 0),
-      distinctUntilChanged()
-    );
-
-    const safeGlobalExpl$ = this.explanationTextService.explanationText$.pipe(
-      startWith(''),
-      withLatestFrom(currentIndex$),
-      map(([txt, idx]) => {
-        const globalExpl = this._n(txt);
-        const svcExpl = this._n(this.explanationTextService?.formattedExplanations?.[idx]?.explanation);
-        // accept only if service has a non-empty formatted explanation for THIS index and it equals the global text
-        return (globalExpl && svcExpl && globalExpl === svcExpl) ? globalExpl : '';
-      }),
-      // coalesce jitter from the global stream
-      observeOn(asyncScheduler),
-      auditTime(0),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-
-    // 2) Build the render stream
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      safeGlobalExpl$,                                                          // 👈 filtered global explanation
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),
+      this.explanationTextService.explanationText$.pipe(startWith('')),              // global (kept)
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // baseline
       this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-      currentIndex$                                                             // 👈 use the derived index$
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // global (kept)
+      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      switchMap(([state, safeGlobalExpl, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        // detect index change
+      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+        this.currentIndex = currentIndex;
+
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
           this.lastQuestionText = '';
-          this._acceptedExplByIndex.delete(currentIndex);
         }
 
-        const correct = this._n(correctText);
+        const globalExpl = this._n(explanationText);
+        const correct    = this._n(correctText);
+        const rawQ       = this._n(questionText);
+
+        // canonical question for current index
         const qm = this.quizService.questions?.[currentIndex] ?? null;
+        const fallbackQ = this._n(qm?.questionText) || this._n(this.questions?.[currentIndex]?.questionText);
+        const candidate = rawQ || this.lastQuestionText || fallbackQ;
+        if (candidate) this.lastQuestionText = candidate;
 
-        // Synchronous baseline question (one-shot)
-        const baseline$ = of(null).pipe(
-          take(1),
-          map(() => {
-            const rawQ = this._n(questionText);
-            const fallbackFromModel =
-              this._n(qm?.questionText) || this._n(this.questions?.[currentIndex]?.questionText);
-            const candidate = rawQ || this.lastQuestionText || fallbackFromModel;
-            if (candidate) this.lastQuestionText = candidate;
+        const question = candidate || this.questionLoadingText || 'No question available';
 
-            const question = candidate || this.questionLoadingText || 'No question available';
-            return correct ? `${question} <span class="correct-count">${correct}</span>` : question;
-          })
-        );
+        // fast-path: only accept global explanation if it provably belongs to THIS index
+        const svcExpl = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+        const safeGlobalExpl = (globalExpl && svcExpl && globalExpl === svcExpl) ? globalExpl : '';
 
-        // Live stream (deferred/coalesced)
-        const live$ = of(null).pipe(
-          switchMap(() => {
-            const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
+        const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
 
-            // Respect the “first frame” rule: after an index change, show baseline first
-            if (!wantsExplanation || indexChanged) {
-              return of<string>('');
-            }
+        if (wantsExplanation && !indexChanged) {
+          // 1) If we have a safe global for THIS index, use it immediately.
+          if (safeGlobalExpl) {
+            const explOut = correct
+              ? `${safeGlobalExpl} <span class="correct-count">${correct}</span>`
+              : safeGlobalExpl;
+            return of(explOut);
+          }
 
-            // Already accepted for this index? use it
-            const locked = this._acceptedExplByIndex.get(currentIndex);
-            if (locked) {
-              return of(correct ? `${locked} <span class="correct-count">${correct}</span>` : locked);
-            }
+          // 2) Otherwise, ALWAYS fetch formatted explanation for THIS index once, then fall back.
+          return this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
+            take(1),
+            map(s => this._n(s)),
+            switchMap(trimmed => {
+              if (trimmed) return of(trimmed);
 
-            // If the filtered global matches current index, accept & use
-            if (safeGlobalExpl) {
-              this._acceptedExplByIndex.set(currentIndex, safeGlobalExpl);
-              return of(correct ? `${safeGlobalExpl} <span class="correct-count">${correct}</span>` : safeGlobalExpl);
-            }
+              // Service cache fallback (this index)
+              const svcRaw = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+              if (svcRaw) return of(svcRaw);
 
-            // Otherwise fetch once for THIS index, then fall back (service cache → model → neutral)
-            return this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
-              take(1),
-              map(s => this._n(s)),
-              switchMap(trimmed => {
-                if (trimmed) return of(trimmed);
+              // Model fallback (this index)
+              const modelRaw = this._n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
+              if (modelRaw) return of(modelRaw);
 
-                const svcRaw = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-                if (svcRaw) return of(svcRaw);
+              // Absolute last fallback
+              return of('Explanation not available.');
+            }),
+            map(txt => correct ? `${txt} <span class="correct-count">${correct}</span>` : txt)
+          );
+        }
 
-                const modelRaw = this._n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
-                if (modelRaw) return of(modelRaw);
+        // QUESTION path (with correct-count)
+        const out = correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
 
-                return of('Explanation not available.');
-              }),
-              map(txt => {
-                if (txt) this._acceptedExplByIndex.set(currentIndex, txt);
-                return correct ? `${txt} <span class="correct-count">${correct}</span>` : txt;
-              })
-            );
-          }),
-          // defer & coalesce only the live stream so baseline paints first
-          observeOn(asyncScheduler),
-          auditTime(0)
-        );
-
-        // Emit baseline immediately, then the live update
-        return concat(
-          baseline$,
-          live$.pipe(
-            // choose live if non-empty, else keep baseline (handled in subscriber below)
-            map(v => ({ live: this._n(v) }))
-          )
-        ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+        return of(out);
       }),
-      // Final coalescer
+
+      // coalesce once at the end; keeps baseline first and avoids ping-pong
       observeOn(asyncScheduler),
       auditTime(0),
-      // Render selection: prefer live when present, otherwise baseline (done here to avoid extra DOM churn)
-      switchMap((frame: any) => {
-        if (typeof frame === 'string') {
-          // baseline string from baseline$
-          return of(frame);
-        }
-        // frame from live$: if live text exists, use it; else do nothing (baseline already emitted)
-        return frame && frame.live ? of(frame.live) : of<string>(); // empty emission keeps prior value
-      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
 
   
 
