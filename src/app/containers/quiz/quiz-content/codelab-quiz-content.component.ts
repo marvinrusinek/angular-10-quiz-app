@@ -373,6 +373,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const normalizedPreviousMarkup = previousView?.markup
           ? this.normalizeKeySource(previousView.markup)
           : '';
+        const normalizedPreviousQuestionText = previousView?.question?.questionText
+          ? this.normalizeKeySource(previousView.question.questionText)
+          : '';
         const previousFallbackExplanation = previousView?.fallbackExplanation ?? '';
         const normalizedPreviousFallback = previousFallbackExplanation
           ? this.normalizeKeySource(previousFallbackExplanation)
