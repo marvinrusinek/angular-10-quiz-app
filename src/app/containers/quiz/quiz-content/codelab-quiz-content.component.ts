@@ -1285,7 +1285,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             .replace(/\s+/g, ' ');
 
         const questionKey = (q: QuizQuestion | null | undefined, idx?: number) => {
-          // Prefer a stable id if it exists in your model; fallback to normalized text + index
+          // Prefer a stable id if it exists in the model; fallback to normalized text and index
           const textKey = norm(q?.questionText);
           return `${textKey}#${Number.isFinite(idx) ? idx : -1}`;
         };
