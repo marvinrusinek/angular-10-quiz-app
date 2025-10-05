@@ -708,9 +708,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           cachedMode === 'explanation' &&
           (hasActiveExplanationRequest || effectiveDisplayMode === 'explanation');
 
-        if (questionChanged) {
+        if (indexChanged) {
           this.renderModeByKey.set(viewState.key, 'question');
-          this.awaitingQuestionBaseline = false;
           this.latestViewState = viewState;
           this.latestDisplayMode = 'question';
 
