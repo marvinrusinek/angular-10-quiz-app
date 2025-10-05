@@ -2960,7 +2960,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 1) Reveal feedback for ALL options now (so ❌/✔ show even if we disable next)
       this.revealFeedbackForAllOptions(canonicalOpts);
-
+  
       // 2) Apply one-shot locks using NUMERIC optionId
       try {
         const clickedIdNum = Number(evtOpt?.optionId ?? NaN);
@@ -2968,7 +2968,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Always “spend” the clicked option so it can’t be re-clicked
           this.selectedOptionService.lockOption(i0, clickedIdNum);
         }
-
+  
         if (q?.type === QuestionType.SingleAnswer) {
           if (evtOpt?.correct) {
             // Correct click → freeze the whole group
@@ -3044,32 +3044,54 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.nextButtonStateService.setNextButtonState(allCorrect);
         this.quizStateService.setAnswered(allCorrect);
         this.quizStateService.setAnswerSelected(allCorrect);
-
+  
         // Only stop the timer when the question is actually finished correctly
         if (allCorrect) {
           this.safeStopTimer('completed');
         }
-
-        // NEW: for multi-answer, optionally submit when complete
+  
+        // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
         if ((q?.type === QuestionType.MultipleAnswer) && allCorrect && typeof (this as any).onSubmitMultiple === 'function') {
           if (!this._submittingMulti) {
             this._submittingMulti = true;
-            Promise.resolve((this as any).onSubmitMultiple())
-              .finally(() => { this._submittingMulti = false; });
+            (async () => {
+              try { await (this as any).onSubmitMultiple(); }
+              finally { this._submittingMulti = false; }
+            })();
           }
         }
-      });
+  
+        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
+        const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
+        if (canEmitNow) {
+          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+          const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
+          const formatted   = this.explanationTextService.formatExplanation(q as any, correctIdxs, rawExpl).trim();
+  
+          // per-index FIRST
+          try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch {}
+          try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
+          try { this.explanationTextService.setGate?.(i0, true); } catch {}
+  
+          // flip intent + UI mode
+          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+  
+          // global with explicit context
+          this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
+        }
+      }); // <-- closes queueMicrotask
   
       // Update explanation and highlighting (RAF for smoother update)
       this._pendingRAF = requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
-
+  
         // Decide if we should emit explanation now:
         // - SingleAnswer: on click
         // - MultipleAnswer: only when allCorrect became true
         const canEmitExplanation =
-        q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
-
+          q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
+  
         if (canEmitExplanation) {
           // Build formatted explanation
           const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
@@ -3105,25 +3127,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.explanationTextService.setShouldDisplayExplanation(false);
           this.displayExplanation = false;
           this.showExplanationChange?.emit(false);
-
+  
           const cached = this._formattedByIndex.get(i0);
           const rawTrue = (q?.explanation ?? '').trim();
           const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
           this.setExplanationFor(i0, txt);
-      }
-  
-        /* this.explanationTextService.setShouldDisplayExplanation(true);
-        this.displayExplanation = true;
-        this.showExplanationChange?.emit(true);
-  
-        const cached = this._formattedByIndex.get(i0);
-        const rawTrue = (q?.explanation ?? '').trim();
-        const txt =
-          cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
-  
-        this.setExplanationFor(i0, txt);
-        this.explanationToDisplay = txt;
-        this.explanationToDisplayChange.emit(txt); */
+        }
   
         const selOptsSet = new Set(
           (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
@@ -3138,33 +3147,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
   
       // Post-click tasks: feedback, core selection, marking, refresh
-      requestAnimationFrame(async () => {
+      requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
   
-        try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
-        this.feedbackText = await this.generateFeedbackText(q);
-        await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
-        this.handleCoreSelection(event);
-        if (evtOpt) this.markBindingSelected(evtOpt);
-        this.refreshFeedbackFor(evtOpt ?? undefined);
+        (async () => {
+          try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
+          this.feedbackText = await this.generateFeedbackText(q);
+          await this.postClickTasks(evtOpt ?? undefined, evtIdx, true, false);
+          this.handleCoreSelection(event);
+          if (evtOpt) this.markBindingSelected(evtOpt);
+          this.refreshFeedbackFor(evtOpt ?? undefined);
+        })().catch(() => { /* swallow to avoid unhandled rejection in RAF */ });
       });
+  
     } finally {
       queueMicrotask(() => {
         this._clickGate = false;
-    
+  
         // Release sticky baseline regardless
         this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
-    
+  
         // Only mark complete when it really is:
         // - Single-answer: clicked option is correct
         // - Multi-answer: your existing isAnswered (all correct selected)
         const selectionComplete =
           q?.type === QuestionType.SingleAnswer ? !!evtOpt?.correct : this._lastAllCorrect;
-    
+  
         this.selectionMessageService.setSelectionMessage(selectionComplete);
       });
     }
   }
+  
 
   onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
