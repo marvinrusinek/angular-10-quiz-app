@@ -88,6 +88,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private lastQuestionText = '';
   private _renderLastIndex = -1;
+  private _acceptedExplByIndex = new Map<number, string>();
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -382,44 +383,61 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
-
+  
         // Guard A: on index change, ignore any global explanation this tick
         const indexChanged = this._renderLastIndex !== currentIndex;
-        if (indexChanged) this._renderLastIndex = currentIndex;
-
+        if (indexChanged) {
+          this._renderLastIndex = currentIndex;
+          // prevent carry-over of previous question text and accepted explanation
+          this.lastQuestionText = '';
+          this._acceptedExplByIndex.delete(currentIndex);
+        }
+  
         const rawQuestion = (questionText ?? '').trim();
         const globalExpl  = (explanationText ?? '').trim();
         const correct     = (correctText ?? '').trim();
-
+  
         // Canonical question fallback for current index
         const qm = this.quizService.questions?.[currentIndex] ?? null;
         const fallbackFromModel =
           (qm?.questionText ?? '').trim() ||
           (this.questions?.[currentIndex]?.questionText ?? '').trim();
-
+  
         const candidateSource   = rawQuestion || this.lastQuestionText || fallbackFromModel;
         const candidateQuestion = (candidateSource ?? '').toString().trim();
         if (candidateQuestion) this.lastQuestionText = candidateQuestion;
-
+  
         const question = candidateQuestion || this.questionLoadingText || 'No question available';
-
+  
         // Guard B: accept global explanation only if it matches the current index’s formatted cache
         const svcCurrentExpl = (this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? '')
           .toString().trim();
-        const globalExplMatchesCurrent = !!globalExpl && globalExpl === svcCurrentExpl;
-
+        const globalExplMatchesCurrent = !!globalExpl && !!svcCurrentExpl && globalExpl === svcCurrentExpl;
+  
+        // If we already accepted an explanation for this index, always use it (prevents any later override)
+        const lockedExpl = this._acceptedExplByIndex.get(currentIndex) ?? '';
+  
         const wantsExplanation = (state?.mode === 'explanation') || shouldDisplayExplanation;
-
+  
         if (wantsExplanation && !indexChanged) {
-          // Prefer the *current index* explanation: use global only if it *belongs* to this index
+          // 1) If we already locked one, use it.
+          if (lockedExpl) {
+            const explOut = correct
+              ? `${lockedExpl} <span class="correct-count">${correct}</span>`
+              : lockedExpl;
+            return of(explOut);
+          }
+  
+          // 2) If the global text provably belongs to this index, accept and lock it.
           if (globalExplMatchesCurrent) {
+            this._acceptedExplByIndex.set(currentIndex, globalExpl);
             const explOut = correct
               ? `${globalExpl} <span class="correct-count">${correct}</span>`
               : globalExpl;
             return of(explOut);
           }
-
-          // Otherwise fetch the formatted explanation for THIS index, then your fallbacks
+  
+          // 3) Otherwise, fetch once for THIS index and lock the first non-empty result (with fallbacks)
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
@@ -427,32 +445,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               map((s: string | null | undefined) => (s ?? '').trim()),
               switchMap((trimmed) => {
                 if (trimmed) return of(trimmed);
-
+  
                 // Service cache fallback (current index)
                 const svcRaw = (
                   this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
                 ).toString().trim();
                 if (svcRaw) return of(svcRaw);
-
+  
                 // Model fallback (current index)
                 const rawSource = qm ? qm.explanation : this.questions?.[currentIndex]?.explanation;
                 const modelRaw  = (rawSource ?? '').toString().trim();
                 if (modelRaw) return of(modelRaw);
-
+  
                 return of('Explanation not available.');
               }),
-              map(txt => correct ? `${txt} <span class="correct-count">${correct}</span>` : txt)
+              map(txt => {
+                const locked = txt || '';
+                if (locked) this._acceptedExplByIndex.set(currentIndex, locked);
+                return correct ? `${locked || 'Explanation not available.'} <span class="correct-count">${correct}</span>`
+                               : (locked || 'Explanation not available.');
+              })
             );
         }
-
+  
         // QUESTION path (append correct-count for multi-answer pre-selection)
         const out = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-
+  
         return of(out);
       }),
-
+  
       // Coalesce once at the end so baseline and explanation don’t ping-pong
       observeOn(asyncScheduler),
       auditTime(0),
@@ -460,6 +483,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
