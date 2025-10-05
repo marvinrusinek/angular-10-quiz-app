@@ -1320,7 +1320,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.quizService.setActiveQuiz(quiz);
       this.quizService.setCurrentQuestionIndex(safeIndex);
       this.quizService.updateBadgeText(safeIndex + 1, quiz.questions.length);
-      this.quizService.emitQuestionAndOptions(hydratedQuestion, hydratedOptions);
+      this.quizService.emitQuestionAndOptions(
+        hydratedQuestion,
+        hydratedOptions,
+        safeIndex
+      );
       this.cdRef.markForCheck();
     } catch (error) {
       console.error('[ensureInitialQuestionFromRoute] ❌ Failed to load quiz/question from route.', error);
@@ -1916,7 +1920,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (normalizedOptions.length > 0) {
       const clonedOptions = normalizedOptions.map((option) => ({ ...option }));
       this.quizService.setOptions(clonedOptions);
-      this.quizService.emitQuestionAndOptions(selectedQuestion, clonedOptions);
+      this.quizService.emitQuestionAndOptions(
+        selectedQuestion,
+        clonedOptions,
+        normalizedIndex
+      );
     }
   }
 
@@ -4215,7 +4223,11 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       this.optionsToDisplay = structuredClone(clonedOptions);
   
       // Emit Q+A before any rendering logic kicks in
-      this.quizService.emitQuestionAndOptions(this.currentQuestion, clonedOptions);
+      this.quizService.emitQuestionAndOptions(
+        this.currentQuestion,
+        clonedOptions,
+        questionIndex
+      );
   
       console.time('[3️⃣ Component assignment]');
   
