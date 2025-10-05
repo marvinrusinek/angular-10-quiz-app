@@ -2230,7 +2230,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.questionAndOptionsReady.emit();
         this.quizService.emitQuestionAndOptions(
           this.currentQuestion,
-          this.optionsToDisplay
+          this.optionsToDisplay,
+          this.currentQuestionIndex
         );
         console.log('[📤 QQC] Emitted questionAndOptionsReady event');
       }
