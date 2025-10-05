@@ -408,13 +408,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const normalizedExpected = expectedQuestion
           ? this.normalizeKeySource(expectedQuestion.questionText)
           : '';
-        const expectedLooksStale = !!previousView &&
-          previousView.index !== index &&
-          !!normalizedExpected &&
-          normalizedExpected === normalizedPrevious;
 
-        const question = !expectedLooksStale
-          ? expectedQuestion ?? (payloadLooksStale ? null : questionFromPayload)
+        const question = expectedQuestion?.questionText?.toString().trim()
+          ? expectedQuestion
           : (!payloadLooksStale ? questionFromPayload : null);
 
         const normalizedFallbackQuestion = this.normalizeKeySource(fallbackQuestionText);
@@ -507,7 +503,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const candidateSources: Array<{ question: QuizQuestion | null; text: string }> = [];
 
-        if (!expectedLooksStale && expectedQuestion) {
+        if (expectedQuestion?.questionText) {
           candidateSources.push({ question: expectedQuestion, text: expectedQuestion.questionText ?? '' });
         }
 
