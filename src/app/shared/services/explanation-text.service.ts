@@ -62,6 +62,7 @@ export class ExplanationTextService {
   private readonly _events$ = new Subject<ExplanationEvent>();
   private readonly _currentIndex$ = new BehaviorSubject<number>(0);
   private readonly _gateByIndex = new Map<number, BehaviorSubject<boolean>>();
+  private readonly _lastByIndex = new Map<number, string | null>();
 
   constructor() {}
 
@@ -829,7 +830,11 @@ export class ExplanationTextService {
 
   // Emit formatted (or clear with null) for a specific index
   public emitFormatted(index: number, text: string | null): void {
-    this._events$.next({ index, text });
+    const trimmed = (text ?? '').trim() || null;
+    const last = this._lastByIndex.get(index) ?? null;
+    if (last === trimmed) return;               // coalesce duplicate emits
+    this._lastByIndex.set(index, trimmed);
+    this._events$.next({ index, text: trimmed });
   }
 
   // Read explanation bound to a specific index
@@ -838,7 +843,7 @@ export class ExplanationTextService {
       filter(ev => ev.index === index),
       map(ev => ev.text),
       startWith(null),
-      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+      distinctUntilChanged((a, b) => (a ?? '') === (b ?? '')),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
@@ -865,7 +870,9 @@ export class ExplanationTextService {
 
   // Convenience: compute + emit + open gate for index
   public showForIndex(index: number, question: QuizQuestion | null | undefined): string | null {
-    const formatted = this.formatExplanation(question as any, this.getCorrectOptionIndices(question as any), (question as any)?.explanation?.trim() || 'Explanation not provided');
+    const raw = question?.explanation?.trim() || 'Explanation not provided';
+    const indices = this.getCorrectOptionIndices(question as any);
+    const formatted = this.formatExplanation(question as any, indices, raw);
     const trimmed = (formatted ?? '').trim() || null;
     this.emitFormatted(index, trimmed);
     this.setGate(index, !!trimmed);
