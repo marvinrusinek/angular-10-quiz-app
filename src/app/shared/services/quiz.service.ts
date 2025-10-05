@@ -2946,6 +2946,27 @@ export class QuizService implements OnDestroy {
         return null;
       }
 
+      if (hasCanonical) {
+        const originalIndex = this.quizShuffleService.toOriginalIndex(
+          quizId,
+          index
+        );
+
+        if (
+          typeof originalIndex === 'number' &&
+          originalIndex >= 0 &&
+          originalIndex < canonical.length
+        ) {
+          const canonicalQuestion = canonical[originalIndex];
+          if (canonicalQuestion) {
+            const clone = this.cloneQuestionForSession(canonicalQuestion);
+            if (clone) {
+              return clone;
+            }
+          }
+        }
+      }
+
       const fromShuffle = this.quizShuffleService.getQuestionAtDisplayIndex(
         quizId,
         index,
@@ -2953,17 +2974,45 @@ export class QuizService implements OnDestroy {
       );
 
       if (fromShuffle) {
-        return fromShuffle;
+        const clone = this.cloneQuestionForSession(fromShuffle);
+        if (clone) {
+          return clone;
+        }
       }
 
-      return base[index] ?? null;
+      const fallback = base[index] ?? null;
+      if (fallback) {
+        const clone = this.cloneQuestionForSession(fallback);
+        if (clone) {
+          return clone;
+        }
+      }
+      return null;
     }
 
     if (source.length > 0) {
-      return source[index] ?? null;
+      const fallback = source[index] ?? null;
+      if (fallback) {
+        const clone = this.cloneQuestionForSession(fallback);
+        if (clone) {
+          return clone;
+        }
+      }
+      return null;
     }
 
-    return hasCanonical ? canonical[index] ?? null : null;
+    if (hasCanonical) {
+      const fallback = canonical[index] ?? null;
+      if (fallback) {
+        const clone = this.cloneQuestionForSession(fallback);
+        if (clone) {
+          return clone;
+        }
+      }
+      return null;
+    }
+
+    return null;
   }
 
   private mergeOptionsWithCanonical(
