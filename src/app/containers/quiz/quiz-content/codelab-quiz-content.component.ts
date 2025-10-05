@@ -731,7 +731,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.pendingExplanationKeys.delete(viewState.key);
         }
 
-        if (!questionChanged && this.awaitingQuestionBaseline) {
+        if (baselineTransition) {
+          this.awaitingQuestionBaseline = false;
+        } else if (!questionChanged && this.awaitingQuestionBaseline) {
           // We have already rendered the baseline question text for the new
           // item, so future passes can evaluate explanation logic normally.
           this.awaitingQuestionBaseline = false;
