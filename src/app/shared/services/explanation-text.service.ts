@@ -802,4 +802,39 @@ export class ExplanationTextService {
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
+  // Read gate bound to a specific index
+  public gateForIndex$(index: number): Observable<boolean> {
+    let bs = this._gateByIndex.get(index);
+    if (!bs) {
+      bs = new BehaviorSubject<boolean>(false);
+      this._gateByIndex.set(index, bs);
+    }
+    return bs.asObservable().pipe(distinctUntilChanged(), shareReplay(1));
+  }
+
+  // Set gate for a specific index
+  public setGate(index: number, show: boolean): void {
+    let bs = this._gateByIndex.get(index);
+    if (!bs) {
+      bs = new BehaviorSubject<boolean>(false);
+      this._gateByIndex.set(index, bs);
+    }
+    bs.next(!!show);
+  }
+
+  // Convenience: compute + emit + open gate for index
+  public showForIndex(index: number, question: QuizQuestion | null | undefined): string | null {
+    const formatted = this.formatExplanation(question as any, this.getCorrectOptionIndices(question as any), (question as any)?.explanation?.trim() || 'Explanation not provided');
+    const trimmed = (formatted ?? '').trim() || null;
+    this.emitFormatted(index, trimmed);
+    this.setGate(index, !!trimmed);
+    return trimmed;
+  }
+
+  // Convenience: clear explanation + close gate for index
+  public hideForIndex(index: number): void {
+    this.emitFormatted(index, null);
+    this.setGate(index, false);
+  }
 }
