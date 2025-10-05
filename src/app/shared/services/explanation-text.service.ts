@@ -208,6 +208,9 @@ export class ExplanationTextService {
     }
   
     this.formattedExplanationSubject.next(explanation);
+    this.emitFormatted(questionIndex, explanation || null);
+    this.setGate(questionIndex, !!explanation);
+    
     return of(explanation);
   }
 
