@@ -82,6 +82,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private awaitingQuestionBaseline = false;
   private renderModeByKey = new Map<string, 'question' | 'explanation'>();
   private readonly explanationLoadingText = 'Loading explanation…';
+  private readonly questionLoadingText = 'Loading question…';
   private lastQuestionIndexForReset: number | null = null;
   private staleFallbackIndices = new Set<number>();
 
@@ -93,6 +94,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Remember the index and clear any old override
     this.currentIndex = idx;
     this.overrideSubject.next({ idx, html: '' });
+    this.clearCachedQuestionArtifacts(idx);
     this.resetExplanationView();
     if (this._showExplanation) {
       this._showExplanation = false;
@@ -321,6 +323,50 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.explanationTextService.setExplanationText('');
   }
 
+  private clearCachedQuestionArtifacts(index: number): void {
+    const normalizedIndex = Number.isFinite(index) ? Number(index) : -1;
+    const keyPrefix = `${normalizedIndex}:`;
+
+    const pruneMap = <T>(store: Map<string, T>, onRemove?: (value: T, key: string) => void) => {
+      for (const key of Array.from(store.keys())) {
+        if (key.startsWith(keyPrefix)) {
+          const value = store.get(key);
+          if (onRemove && value !== undefined) {
+            onRemove(value, key);
+          }
+          store.delete(key);
+        }
+      }
+    };
+
+    pruneMap(this.explanationCache);
+    pruneMap(this.lastExplanationMarkupByKey);
+    pruneMap(this.renderModeByKey);
+    pruneMap(this.pendingExplanationRequests, (subscription) => {
+      subscription?.unsubscribe();
+    });
+
+    for (const key of Array.from(this.pendingExplanationKeys)) {
+      if (key.startsWith(keyPrefix)) {
+        this.pendingExplanationKeys.delete(key);
+      }
+    }
+
+    if (this.latestViewState?.index === index) {
+      this.latestViewState = null;
+    }
+
+    this.previousExplanationSnapshot = null;
+    this.latestDisplayMode = 'question';
+    this.awaitingQuestionBaseline = false;
+    this.staleFallbackIndices.delete(index);
+
+    const placeholder = this.questionLoadingText;
+    if (this.combinedTextSubject.getValue() !== placeholder) {
+      this.combinedTextSubject.next(placeholder);
+    }
+  }
+
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
     const displayState$ = this.displayState$.pipe(
@@ -498,10 +544,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           derivedQuestionText = questionFromPayload.questionText ?? '';
         }
 
+        if (!derivedQuestion && !derivedQuestionText && questionChanged) {
+          derivedQuestionText = this.questionLoadingText;
+        }
+
         const baseText = this.resolveQuestionText(derivedQuestion, derivedQuestionText);
         const markup = this.buildQuestionMarkup(baseText, correctText);
+
         const fallbackExplanationSource = expectedQuestion?.explanation ?? (payloadLooksStale ? '' : payload?.explanation);
-        const fallbackExplanation = this.resolveFallbackExplanation(fallbackExplanationSource, derivedQuestion);
+        const fallbackExplanation = questionChanged
+          ? ''
+          : this.resolveFallbackExplanation(fallbackExplanationSource, derivedQuestion);
         const key = this.buildQuestionKey(index, derivedQuestion, baseText);
 
         this.currentIndex = index;
