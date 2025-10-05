@@ -83,6 +83,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private renderModeByKey = new Map<string, 'question' | 'explanation'>();
   private readonly explanationLoadingText = 'Loading explanation…';
   private lastQuestionIndexForReset: number | null = null;
+  private staleFallbackIndices = new Set<number>();
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
@@ -399,8 +400,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? this.normalizeKeySource(snapshot.fallback)
           : '';
 
+        const fallbackMatchesPrevious = !!normalizedFallbackQuestion && (
+          normalizedFallbackQuestion === normalizedPreviousQuestionText ||
+          normalizedFallbackQuestion === normalizedPreviousMarkup ||
+          normalizedFallbackQuestion === normalizedPreviousRenderedExplanation
+        );
+  
+        if (questionChanged && fallbackMatchesPrevious) {
+          this.staleFallbackIndices.add(index);
+        } else if (
+          this.staleFallbackIndices.has(index) &&
+          normalizedFallbackQuestion &&
+          !fallbackMatchesPrevious
+        ) {
+          this.staleFallbackIndices.delete(index);
+        }
+  
         let sanitizedFallbackQuestionText = fallbackQuestionText;
-
+  
+        if (this.staleFallbackIndices.has(index)) {
+          sanitizedFallbackQuestionText = '';
+        }
+  
         if (questionChanged) {
           const staleComparisons = [
             normalizedPreviousMarkup,
@@ -466,6 +487,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             derivedQuestionText = candidate.text;
             break;
           }
+        }
+
+        if (derivedQuestion) {
+          this.staleFallbackIndices.delete(index);
         }
 
         if (!derivedQuestion && !derivedQuestionText && questionChanged && questionFromPayload && !payloadLooksStale) {
