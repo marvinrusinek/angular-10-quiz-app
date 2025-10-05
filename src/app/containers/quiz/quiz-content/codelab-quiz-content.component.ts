@@ -369,58 +369,81 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    const currentIndex$ = this.quizService.currentQuestionIndex$.pipe(
-      startWith(this.currentQuestionIndexValue ?? 0),
-      distinctUntilChanged()
+    this.combinedText$ = combineLatest([
+      this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
+      this.explanationTextService.explanationText$.pipe(startWith('')),  // seed immediately
+      this.questionToDisplay$.pipe(startWith('')),
+      this.correctAnswersText$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
+    ]).pipe(
+      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+        this.currentIndex = currentIndex;
+  
+        const rawQuestion   = (questionText ?? '').trim();
+        const explanation   = (explanationText ?? '').trim();
+        const correct       = (correctText ?? '').trim();
+        const questionModel = this.quizService.questions?.[currentIndex] ?? null;
+
+        const fallbackFromModel = (questionModel?.questionText ?? '').trim()
+          || (this.questions?.[currentIndex]?.questionText ?? '').trim();
+
+        const candidateSource = rawQuestion || this.lastQuestionText || fallbackFromModel;
+        const candidateQuestion = (candidateSource ?? '').toString().trim();
+
+        if (candidateQuestion) {
+          this.lastQuestionText = candidateQuestion;
+        }
+
+        const question = candidateQuestion || 'No question available';
+
+        const showExplanation =
+          state?.mode === 'explanation' &&
+          (shouldDisplayExplanation || !!explanation);
+
+        if (showExplanation) {
+          // If the formatted explanation is already present, emit it.
+          if (explanation) return of(explanation);
+  
+          // Otherwise, try to load formatted explanation once.
+          return this.explanationTextService
+            .getFormattedExplanationTextForQuestion(currentIndex)
+            .pipe(
+              take(1),
+              map((s: string | null | undefined) => (s ?? '').trim()),
+              switchMap((trimmed) => {
+                if (trimmed) return of(trimmed);
+  
+                // Service cache fallback
+                const svcRaw = (
+                  this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? ''
+                ).toString().trim();
+                if (svcRaw) return of(svcRaw);
+  
+                // Model fallback
+                const rawSource = questionModel
+                  ? questionModel.explanation
+                  : this.questions?.[currentIndex]?.explanation;
+                const modelRaw = (rawSource ?? '').toString().trim();
+                if (modelRaw) return of(modelRaw);
+  
+                // Final fallback
+                return of('Explanation not available.');
+              })
+            );
+          }
+
+          // Otherwise show question (and correct count if present)
+          const out = correct
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+  
+          return of(out);
+        }),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
     );
-  
-    const render$ = currentIndex$.pipe(
-      map(idx => { this.explanationTextService.setCurrentIndex(idx); return idx; }),
-      switchMap(idx => {
-        // 1) Synchronous BASELINE: paint the question once, immediately.
-        const baseline$ = this.questionTextForIndex$(idx).pipe(
-          take(1),
-          map(qText => this.buildQuestionMarkup((qText ?? '').trim() || this.questionLoadingText, '')),
-          // distinct so we don’t re-paint the same baseline twice
-          distinctUntilChanged()
-        );
-  
-        // 2) LIVE stream: explanation/gate updates (deferred/coalesced).
-        const live$ = combineLatest([
-          // keep question text live in case it updates (optional)
-          this.questionTextForIndex$(idx).pipe(startWith(this.questionLoadingText)),
-          this.explanationTextService.explanationForIndex$(idx).pipe(startWith(null)),
-          this.explanationTextService.gateForIndex$(idx).pipe(startWith(false)),
-          this.correctAnswersText$.pipe(startWith(''))
-        ]).pipe(
-          map(([qText, expl, showExpl, correctText]) => {
-            const base = (qText ?? '').trim() || this.questionLoadingText;
-            const e = (expl ?? '').trim();
-            const display = (showExpl && e) ? e : base;
-            return this.buildQuestionMarkup(display, correctText);
-          }),
-          // IMPORTANT: defer/coalesce ONLY the live stream
-          observeOn(asyncScheduler),
-          auditTime(0),
-          distinctUntilChanged()
-        );
-  
-        // 3) Emit baseline immediately, then hand over to live updates.
-        return concat(baseline$, live$).pipe(
-          // Don’t spam identical strings
-          distinctUntilChanged(),
-          shareReplay({ bufferSize: 1, refCount: true })
-        );
-      })
-    );
-  
-    render$.pipe(takeUntil(this.destroy$)).subscribe(markup => {
-      if (this.combinedTextSubject.getValue() !== markup) {
-        this.combinedTextSubject.next(markup);
-      }
-      this.cdRef.markForCheck();
-    });
-  }  
+  } 
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
