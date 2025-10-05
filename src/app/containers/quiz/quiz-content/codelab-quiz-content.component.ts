@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable, of, Subject, Subscription } from 'rxjs';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -369,472 +369,68 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    const displayState$ = this.displayState$.pipe(
-      startWith({ mode: 'question', answered: false } as const),
-      distinctUntilChanged((prev, curr) => prev.mode === curr.mode && prev.answered === curr.answered)
-    );
     const currentIndex$ = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       distinctUntilChanged()
     );
-    const questionPayload$ = this.combineCurrentQuestionAndOptions().pipe(
-      startWith({ currentQuestion: null, currentOptions: [], explanation: '' })
-    );
-    const questionViewState$ = combineLatest([
-      questionPayload$,
-      currentIndex$,
-      this.questionToDisplay$.pipe(startWith('')),
-      this.correctAnswersText$.pipe(startWith(''))
-    ]).pipe(
-      map(([payload, index, fallbackQuestionText, correctText]) => {
-        const questionFromPayload = payload?.currentQuestion ?? null;
-        const expectedQuestion = Array.isArray(this.questions) && index >= 0
-          ? this.questions[index] ?? null
-          : null;
-
-        const previousView = this.latestViewState;
-        const questionChanged = previousView?.index !== index;
-        const normalizedPrevious = previousView?.question
-          ? this.normalizeKeySource(previousView.question.questionText)
-          : '';
-        const normalizedPayload = questionFromPayload
-          ? this.normalizeKeySource(questionFromPayload.questionText)
-          : '';
-        const payloadLooksStale = !!previousView &&
-          previousView.index !== index &&
-          normalizedPayload !== '' &&
-          normalizedPayload === normalizedPrevious;
-
-        const normalizedExpected = expectedQuestion
-          ? this.normalizeKeySource(expectedQuestion.questionText)
-          : '';
-
-        const question = expectedQuestion?.questionText?.toString().trim()
-          ? expectedQuestion
-          : (!payloadLooksStale ? questionFromPayload : null);
-
-        const normalizedFallbackQuestion = this.normalizeKeySource(fallbackQuestionText);
-        const normalizedPreviousMarkup = previousView?.markup
-          ? this.normalizeKeySource(previousView.markup)
-          : '';
-        const normalizedPreviousQuestionText = previousView?.question?.questionText
-          ? this.normalizeKeySource(previousView.question.questionText)
-          : '';
-        const previousFallbackExplanation = previousView?.fallbackExplanation ?? '';
-        const normalizedPreviousFallback = previousFallbackExplanation
-          ? this.normalizeKeySource(previousFallbackExplanation)
-          : '';
-        const previousExplanationKey = previousView?.key ?? null;
-        const previousRenderedExplanation = previousExplanationKey
-          ? (this.lastExplanationMarkupByKey.get(previousExplanationKey) ?? '')
-          : '';
-        const normalizedPreviousRenderedExplanation = previousRenderedExplanation
-          ? this.normalizeKeySource(previousRenderedExplanation)
-          : '';
-        const snapshot = this.previousExplanationSnapshot;
-        const normalizedSnapshotResolved = snapshot?.resolved
-          ? this.normalizeKeySource(snapshot.resolved)
-          : '';
-        const normalizedSnapshotCached = snapshot?.cached
-          ? this.normalizeKeySource(snapshot.cached)
-          : '';
-        const normalizedSnapshotFallback = snapshot?.fallback
-          ? this.normalizeKeySource(snapshot.fallback)
-          : '';
-
-        const fallbackMatchesPrevious = !!normalizedFallbackQuestion && (
-          normalizedFallbackQuestion === normalizedPreviousQuestionText ||
-          normalizedFallbackQuestion === normalizedPreviousMarkup ||
-          normalizedFallbackQuestion === normalizedPreviousRenderedExplanation
+  
+    const render$ = currentIndex$.pipe(
+      map(idx => { this.explanationTextService.setCurrentIndex(idx); return idx; }),
+      switchMap(idx => {
+        // 1) Synchronous BASELINE: paint the question once, immediately.
+        const baseline$ = this.questionTextForIndex$(idx).pipe(
+          take(1),
+          map(qText => this.buildQuestionMarkup((qText ?? '').trim() || this.questionLoadingText, '')),
+          // distinct so we don’t re-paint the same baseline twice
+          distinctUntilChanged()
         );
   
-        if (questionChanged && fallbackMatchesPrevious) {
-          this.staleFallbackIndices.add(index);
-        } else if (
-          this.staleFallbackIndices.has(index) &&
-          normalizedFallbackQuestion &&
-          !fallbackMatchesPrevious
-        ) {
-          this.staleFallbackIndices.delete(index);
-        }
-  
-        let sanitizedFallbackQuestionText = fallbackQuestionText;
-  
-        if (this.staleFallbackIndices.has(index)) {
-          sanitizedFallbackQuestionText = '';
-        }
-  
-        if (questionChanged) {
-          const staleComparisons = [
-            normalizedPreviousMarkup,
-            normalizedPreviousFallback,
-            normalizedPreviousRenderedExplanation,
-            normalizedSnapshotResolved,
-            normalizedSnapshotCached,
-            normalizedSnapshotFallback,
-            normalizedPreviousQuestionText
-          ].filter(Boolean);
-
-          if (normalizedFallbackQuestion && staleComparisons.includes(normalizedFallbackQuestion)) {
-            sanitizedFallbackQuestionText = '';
-          }
-
-          // If we already know the fallback is stale for a brand-new index,
-          // avoid carrying it forward as a candidate entirely so that we wait
-          // for the real payload instead of flashing the previous question.
-          if (previousView?.index !== index) {
-            sanitizedFallbackQuestionText = '';
-          }
-        }
-
-        const staleTextSet = questionChanged
-          ? new Set(
-              [
-                normalizedPreviousMarkup,
-                normalizedPreviousFallback,
-                normalizedPreviousRenderedExplanation,
-                normalizedSnapshotResolved,
-                normalizedSnapshotCached,
-                normalizedSnapshotFallback,
-                normalizedPreviousQuestionText
-              ].filter(Boolean)
-            )
-          : null;
-
-        const candidateSources: Array<{ question: QuizQuestion | null; text: string }> = [];
-
-        if (expectedQuestion?.questionText) {
-          candidateSources.push({ question: expectedQuestion, text: expectedQuestion.questionText ?? '' });
-        }
-
-        if (!payloadLooksStale && questionFromPayload) {
-          candidateSources.push({ question: questionFromPayload, text: questionFromPayload.questionText ?? '' });
-        }
-
-        if (!questionChanged && sanitizedFallbackQuestionText) {
-          candidateSources.push({ question: null, text: sanitizedFallbackQuestionText });
-        }
-
-        let derivedQuestion: QuizQuestion | null = null;
-        let derivedQuestionText = '';
-
-        for (const candidate of candidateSources) {
-          const normalizedCandidate = this.normalizeKeySource(candidate.text);
-          if (!normalizedCandidate) {
-            continue;
-          }
-
-          if (!staleTextSet || !staleTextSet.has(normalizedCandidate)) {
-            derivedQuestion = candidate.question;
-            derivedQuestionText = candidate.text;
-            break;
-          }
-        }
-
-        if (derivedQuestion) {
-          this.staleFallbackIndices.delete(index);
-        }
-
-        if (!derivedQuestion && !derivedQuestionText && questionChanged && questionFromPayload && !payloadLooksStale) {
-          derivedQuestion = questionFromPayload;
-          derivedQuestionText = questionFromPayload.questionText ?? '';
-        }
-
-        const normalizedDerived = this.normalizeKeySource(derivedQuestionText);
-        if (
-          questionChanged &&
-          !!normalizedDerived &&
-          staleTextSet?.has(normalizedDerived)
-        ) {
-          derivedQuestion = null;
-          derivedQuestionText = '';
-        }
-
-        if (!derivedQuestion && !derivedQuestionText && questionChanged) {
-          derivedQuestionText = this.questionLoadingText;
-        }
-
-        const baseText = this.resolveQuestionText(derivedQuestion, derivedQuestionText);
-        const markup = this.buildQuestionMarkup(baseText, correctText);
-
-        const fallbackExplanationSource = expectedQuestion?.explanation ?? (payloadLooksStale ? '' : payload?.explanation);
-        const fallbackExplanation = questionChanged
-          ? ''
-          : this.resolveFallbackExplanation(fallbackExplanationSource, derivedQuestion);
-        const key = this.buildQuestionKey(index, derivedQuestion, baseText);
-
-        this.currentIndex = index;
-        return {
-          index,
-          key,
-          markup,
-          fallbackExplanation,
-          question: derivedQuestion
-        } as QuestionViewState;
-      }),
-      distinctUntilChanged((prev, curr) => (
-        prev.key === curr.key &&
-        prev.markup === curr.markup &&
-        prev.fallbackExplanation === curr.fallbackExplanation
-      )),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-
-    const shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      startWith(false)
-    );
-
-    combineLatest([
-      displayState$,
-      questionViewState$,
-      this.explanationTextService.explanationText$.pipe(startWith('')),
-      shouldDisplayExplanation$
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([displayState, viewState, explanationText, shouldDisplayExplanation]) => {
-        const previousViewState = this.latestViewState;
-        const previousKey = previousViewState?.key ?? null;
-        const previousResolvedExplanation = previousKey ? (this.lastExplanationMarkupByKey.get(previousKey) ?? '') : '';
-        const previousCachedExplanation = previousKey ? (this.explanationCache.get(previousKey) ?? '') : '';
-        const indexChanged = previousViewState?.index !== viewState.index;
-        const keyChanged = previousKey !== viewState.key;
-        const baselineTransition = !indexChanged && this.awaitingQuestionBaseline && keyChanged;
-        const questionChanged = indexChanged || baselineTransition;
-        const normalizedPreviousResolved = previousResolvedExplanation.toString().trim();
-        const normalizedPreviousCached = previousCachedExplanation.toString().trim();
-        const normalizedPreviousFallback = (previousViewState?.fallbackExplanation ?? '').toString().trim();
-
-        if (indexChanged && previousKey) {
-          this.previousExplanationSnapshot = {
-            resolved: normalizedPreviousResolved,
-            cached: normalizedPreviousCached,
-            fallback: normalizedPreviousFallback
-          };
-          const pending = this.pendingExplanationRequests.get(previousKey);
-          pending?.unsubscribe();
-          this.pendingExplanationRequests.delete(previousKey);
-          this.pendingExplanationKeys.delete(previousKey);
-          this.lastExplanationMarkupByKey.delete(previousKey);
-          this.explanationCache.delete(previousKey);
-          this.renderModeByKey.delete(previousKey);
-        } else if (indexChanged) {
-          this.previousExplanationSnapshot = null;
-        } else if (baselineTransition && previousKey) {
-          const pending = this.pendingExplanationRequests.get(previousKey);
-          pending?.unsubscribe();
-          this.pendingExplanationRequests.delete(previousKey);
-          this.pendingExplanationKeys.delete(previousKey);
-          this.lastExplanationMarkupByKey.delete(previousKey);
-          this.explanationCache.delete(previousKey);
-          this.renderModeByKey.delete(previousKey);
-        }
-
-        if (questionChanged && this._showExplanation) {
-          this._showExplanation = false;
-        }
-
-        if (indexChanged) {
-          // A brand-new question should always render its question text first.
-          this.renderModeByKey.set(viewState.key, 'question');
-          this.awaitingQuestionBaseline = true;
-          this.latestDisplayMode = 'question';
-
-          queueMicrotask(() => {
-            this.explanationTextService.resetExplanationText();
-            this.explanationTextService.unlockExplanation();
-          });
-        }
-
-        const questionState = this.quizStateService.getQuestionState(
-          this.quizId,
-          viewState.index
+        // 2) LIVE stream: explanation/gate updates (deferred/coalesced).
+        const live$ = combineLatest([
+          // keep question text live in case it updates (optional)
+          this.questionTextForIndex$(idx).pipe(startWith(this.questionLoadingText)),
+          this.explanationTextService.explanationForIndex$(idx).pipe(startWith(null)),
+          this.explanationTextService.gateForIndex$(idx).pipe(startWith(false)),
+          this.correctAnswersText$.pipe(startWith(''))
+        ]).pipe(
+          map(([qText, expl, showExpl, correctText]) => {
+            const base = (qText ?? '').trim() || this.questionLoadingText;
+            const e = (expl ?? '').trim();
+            const display = (showExpl && e) ? e : base;
+            return this.buildQuestionMarkup(display, correctText);
+          }),
+          // IMPORTANT: defer/coalesce ONLY the live stream
+          observeOn(asyncScheduler),
+          auditTime(0),
+          distinctUntilChanged()
         );
-        const stateAnswered = !!questionState?.isAnswered;
-        const displayAnswered =
-          stateAnswered && !!displayState.answered && !questionChanged;
-        const questionAnswered = stateAnswered || displayAnswered;
-
-        const effectiveDisplayMode =
-          questionChanged || !questionAnswered
-            ? 'question'
-            : displayState.mode;
-        const effectiveExplanationText = questionChanged
-          ? ''
-          : explanationText;
-        const effectiveShouldDisplay =
-          questionChanged || !questionAnswered
-            ? false
-            : shouldDisplayExplanation;
-
-        const sanitizedExplanation = this.filterStaleExplanation(
-          effectiveExplanationText,
-          {
-            questionChanged,
-            previousResolved: normalizedPreviousResolved,
-            previousCached: normalizedPreviousCached,
-            previousFallback: normalizedPreviousFallback,
-            previousQuestionSnapshot: this.previousExplanationSnapshot
-          }
+  
+        // 3) Emit baseline immediately, then hand over to live updates.
+        return concat(baseline$, live$).pipe(
+          // Don’t spam identical strings
+          distinctUntilChanged(),
+          shareReplay({ bufferSize: 1, refCount: true })
         );
-        const sanitizedExplanationText = sanitizedExplanation.value;
-        const explanationWasStale = sanitizedExplanation.staleMatch;
+      })
+    );
+  
+    render$.pipe(takeUntil(this.destroy$)).subscribe(markup => {
+      if (this.combinedTextSubject.getValue() !== markup) {
+        this.combinedTextSubject.next(markup);
+      }
+      this.cdRef.markForCheck();
+    });
+  }  
 
-        const explanationAvailable = this.hasExplanationContent(viewState, sanitizedExplanationText);
-        const resolvedExplanation = this.resolveExplanationMarkup(viewState, sanitizedExplanationText);
-        const cachedExplanation = (this.lastExplanationMarkupByKey.get(viewState.key) ?? '').toString().trim();
-        const fallbackExplanation = (viewState.fallbackExplanation ?? '').toString().trim();
-        const canRenderExplanation =
-          explanationAvailable ||
-          !!cachedExplanation ||
-          !!(this.explanationCache.get(viewState.key) ?? '').toString().trim() ||
-          !!fallbackExplanation;
-
-        const cachedMode = this.renderModeByKey.get(viewState.key) ?? 'question';
-        const wantsExplanationFromDisplay =
-          !questionChanged &&
-          effectiveDisplayMode === 'explanation' &&
-          questionAnswered;
-        const wantsExplanationAutomatically =
-          !questionChanged &&
-          effectiveShouldDisplay &&
-          questionAnswered;
-        const manualExplanation = this._showExplanation && !questionChanged;
-        const hasActiveExplanationRequest =
-          manualExplanation ||
-          wantsExplanationAutomatically ||
-          wantsExplanationFromDisplay;
-        const shouldKeepExplanation =
-          !questionChanged &&
-          cachedMode === 'explanation' &&
-          (hasActiveExplanationRequest || effectiveDisplayMode === 'explanation');
-
-        if (indexChanged) {
-          this.renderModeByKey.set(viewState.key, 'question');
-          this.latestViewState = viewState;
-          this.latestDisplayMode = 'question';
-
-          const baselineMarkup = viewState.markup;
-          if (this.combinedTextSubject.getValue() !== baselineMarkup) {
-            this.combinedTextSubject.next(baselineMarkup);
-          }
-
-          this.cdRef.markForCheck();
-          return;
-        }
-
-        const allowExplanationTransition = !this.awaitingQuestionBaseline;
-
-        const awaitingExplanationContent = hasActiveExplanationRequest && !explanationAvailable;
-        if (awaitingExplanationContent) {
-          this.pendingExplanationKeys.add(viewState.key);
-        } else if (questionChanged || explanationAvailable) {
-          this.pendingExplanationKeys.delete(viewState.key);
-        }
-
-        if (baselineTransition) {
-          this.awaitingQuestionBaseline = false;
-        } else if (!questionChanged && this.awaitingQuestionBaseline) {
-          // We have already rendered the baseline question text for the new
-          // item, so future passes can evaluate explanation logic normally.
-          this.awaitingQuestionBaseline = false;
-        }
-
-        let effectiveMode: 'question' | 'explanation' = 'question';
-        if (allowExplanationTransition) {
-          const wantsExplanation =
-            hasActiveExplanationRequest ||
-            shouldKeepExplanation ||
-            (questionAnswered && effectiveDisplayMode === 'explanation');
-
-          if (!questionChanged && wantsExplanation && canRenderExplanation) {
-            effectiveMode = 'explanation';
-          }
-        }
-
-        if (effectiveMode === 'explanation' && !explanationAvailable) {
-          this.renderModeByKey.set(viewState.key, 'explanation');
-        }
-
-        let nextMarkup = viewState.markup;
-
-        if (effectiveMode === 'explanation') {
-          if (explanationAvailable) {
-            const normalizedExplanation = (resolvedExplanation ?? '').toString().trim();
-            if (normalizedExplanation) {
-              if (!explanationWasStale) {
-                this.lastExplanationMarkupByKey.set(viewState.key, normalizedExplanation);
-              }
-              nextMarkup = normalizedExplanation;
-            } else if (cachedExplanation) {
-              nextMarkup = cachedExplanation;
-            } else if (fallbackExplanation) {
-              nextMarkup = fallbackExplanation;
-              if (!explanationWasStale) {
-                this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
-              }
-            } else {
-              nextMarkup = this.explanationLoadingText;
-            }
-          } else if (cachedExplanation) {
-            nextMarkup = cachedExplanation;
-          } else if (fallbackExplanation) {
-            nextMarkup = fallbackExplanation;
-            if (!explanationWasStale) {
-              this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
-            }
-          } else if (awaitingExplanationContent) {
-            nextMarkup = this.explanationLoadingText;
-            this.lastExplanationMarkupByKey.set(viewState.key, nextMarkup);
-          } else {
-            effectiveMode = 'question';
-            nextMarkup = viewState.markup;
-          }
-        } else if (
-          awaitingExplanationContent &&
-          !explanationAvailable &&
-          this.lastExplanationMarkupByKey.has(viewState.key)
-        ) {
-          nextMarkup = this.lastExplanationMarkupByKey.get(viewState.key) ?? nextMarkup;
-        }
-
-        this.renderModeByKey.set(viewState.key, effectiveMode);
-        this.latestViewState = viewState;
-        this.latestDisplayMode = effectiveMode;
-
-        if (questionChanged && !viewState.question) {
-          const normalizedNextMarkup = this.normalizeKeySource(nextMarkup);
-          if (normalizedNextMarkup) {
-            const staleCandidates = [
-              previousViewState?.markup ?? '',
-              previousViewState?.fallbackExplanation ?? '',
-              previousViewState?.question?.questionText ?? '',
-              normalizedPreviousResolved,
-              normalizedPreviousCached,
-              normalizedPreviousFallback,
-              this.previousExplanationSnapshot?.resolved ?? '',
-              this.previousExplanationSnapshot?.cached ?? '',
-              this.previousExplanationSnapshot?.fallback ?? '',
-              this.combinedTextSubject.getValue()
-            ]
-              .map((candidate) =>
-                typeof candidate === 'string'
-                  ? this.normalizeKeySource(candidate)
-                  : ''
-              )
-              .filter((candidate) => !!candidate);
-
-            if (staleCandidates.includes(normalizedNextMarkup)) {
-              nextMarkup = this.questionLoadingText;
-            }
-          }
-        }
-
-        if (this.combinedTextSubject.getValue() !== nextMarkup) {
-          this.combinedTextSubject.next(nextMarkup);
-        }
-
-        this.cdRef.markForCheck();
-      });
+  private questionTextForIndex$(index: number): Observable<string> {
+    const src = this.quizService.getQuestionByIndex(index);
+    const obs = (src && typeof (src as any).subscribe === 'function')
+      ? (src as Observable<any>)
+      : from(src as Promise<any>);
+  
+    return obs.pipe(
+      map(q => (q?.questionText ?? '').toString().trim())
+    );
   }
 
 
