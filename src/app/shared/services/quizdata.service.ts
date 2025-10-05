@@ -232,6 +232,10 @@ export class QuizDataService implements OnDestroy {
     }
 
     const cached = this.quizQuestionCache.get(quizId);
+    const baseForCanonical = this.baseQuizQuestionCache.get(quizId);
+    if (Array.isArray(baseForCanonical) && baseForCanonical.length > 0) {
+      this.quizService.setCanonicalQuestions(quizId, baseForCanonical);
+    }
     if (Array.isArray(cached) && cached.length > 0) {
       const sessionReadyQuestions = this.cloneQuestions(cached);
       this.quizService.applySessionQuestions(quizId, sessionReadyQuestions);
@@ -251,6 +255,7 @@ export class QuizDataService implements OnDestroy {
 
       this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
       const sessionClone = this.cloneQuestions(sessionQuestions);
+      this.quizService.setCanonicalQuestions(quizId, baseQuestions);
       this.quizService.applySessionQuestions(quizId, sessionClone);
       this.syncSelectedQuizState(quizId, sessionClone);
 
@@ -268,6 +273,7 @@ export class QuizDataService implements OnDestroy {
 
         this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
         const sessionClone = this.cloneQuestions(sessionQuestions);
+        this.quizService.setCanonicalQuestions(quizId, base);
         this.quizService.applySessionQuestions(quizId, sessionClone);
         this.syncSelectedQuizState(quizId, sessionClone, quiz);
 
@@ -387,6 +393,7 @@ export class QuizDataService implements OnDestroy {
   ): QuizQuestion[] {
     const cached = this.baseQuizQuestionCache.get(quizId);
     if (Array.isArray(cached) && cached.length > 0) {
+      this.quizService.setCanonicalQuestions(quizId, cached);
       return this.cloneQuestions(cached);
     }
 
@@ -395,6 +402,7 @@ export class QuizDataService implements OnDestroy {
 
     const normalizedClone = this.cloneQuestions(normalized);
     this.baseQuizQuestionCache.set(quizId, this.cloneQuestions(normalizedClone));
+    this.quizService.setCanonicalQuestions(quizId, normalizedClone);
 
     return normalizedClone;
   }
