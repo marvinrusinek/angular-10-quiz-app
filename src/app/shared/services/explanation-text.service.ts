@@ -185,10 +185,22 @@ export class ExplanationTextService {
   }
   
   public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+    const FALLBACK = 'No explanation available';
+  
+    // Guard invalid index; also clear indexed channel so no stale explanation paints.
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
       console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
-      this.formattedExplanationSubject.next('No explanation available');
-      return of('No explanation available');
+  
+      // ⬇Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
+      const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
+      this.emitFormatted(idx, null);
+      this.setGate(idx, false);
+  
+      // Coalesce duplicate emits to the legacy subject
+      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
+      if (last !== FALLBACK) this.formattedExplanationSubject.next(FALLBACK);
+  
+      return of(FALLBACK);
     }
   
     const entry = this.formattedExplanations[questionIndex];
@@ -196,23 +208,45 @@ export class ExplanationTextService {
     if (!entry) {
       console.error(`[❌ Q${questionIndex} not found in formattedExplanations`, entry);
       console.log('🧾 All formattedExplanations:', this.formattedExplanations);
-      this.formattedExplanationSubject.next('No explanation available');
-      return of('No explanation available');
+  
+      // Clear per-index stream/gate
+      this.emitFormatted(questionIndex, null);
+      this.setGate(questionIndex, false);
+  
+      // Coalesce duplicate emits
+      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
+      if (last !== FALLBACK) this.formattedExplanationSubject.next(FALLBACK);
+  
+      return of(FALLBACK);
     }
   
-    const explanation = entry.explanation?.trim();
+    const explanation = (entry.explanation ?? '').trim();
+  
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-      this.formattedExplanationSubject.next('No explanation available');
-      return of('No explanation available');
+  
+      // ⬇Clear per-index stream/gate
+      this.emitFormatted(questionIndex, null);
+      this.setGate(questionIndex, false);
+  
+      // Coalesce duplicate emits
+      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
+      if (last !== FALLBACK) this.formattedExplanationSubject.next(FALLBACK);
+  
+      return of(FALLBACK);
     }
   
-    this.formattedExplanationSubject.next(explanation);
-    this.emitFormatted(questionIndex, explanation || null);
-    this.setGate(questionIndex, !!explanation);
-    
+    // Happy path: update legacy subject only if changed (coalesce duplicates)
+    const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
+    if (last !== explanation) this.formattedExplanationSubject.next(explanation);
+  
+    // Drive the index-scoped channel and open the gate
+    this.emitFormatted(questionIndex, explanation);
+    this.setGate(questionIndex, true);
+  
     return of(explanation);
   }
+  
 
   getFormattedExplanationByQuestion(
     question: QuizQuestion | null | undefined,
