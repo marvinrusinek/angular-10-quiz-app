@@ -1208,9 +1208,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private combineCurrentQuestionAndOptions():
-    Observable<{ currentQuestion: QuizQuestion | null; currentOptions: Option[]; explanation: string }> {
+    Observable<{ currentQuestion: QuizQuestion | null; currentOptions: Option[]; explanation: string; currentIndex: number }> {
     return this.quizService.questionPayload$.pipe(
-      filter((payload: QuestionPayload | null): payload is QuestionPayload => {
+      withLatestFrom(this.quizService.currentQuestionIndex$),
+      filter((value: [QuestionPayload | null, number]): value is [QuestionPayload, number] => {
+        const [payload] = value;
         return (
           !!payload &&
           !!payload.question &&
@@ -1218,13 +1220,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           payload.options.length > 0
         );
       }),
-      map((payload) => {
+      map(([payload, index]) => ({
+        payload,
+        index: Number.isFinite(index) ? index : (this.currentIndex >= 0 ? this.currentIndex : 0)
+      })),
+      filter(({ payload, index }) => {
+        const expected = Array.isArray(this.questions) && index >= 0
+          ? this.questions[index] ?? null
+          : null;
+
+        if (!expected) {
+          return true;
+        }
+
+        const normalizedExpected = this.normalizeKeySource(expected.questionText);
+        const normalizedIncoming = this.normalizeKeySource(payload.question?.questionText);
+
+        if (normalizedExpected && normalizedIncoming && normalizedExpected !== normalizedIncoming) {
+          console.warn('[combineCurrentQuestionAndOptions] Skipping stale payload for index', {
+            index,
+            normalizedExpected,
+            normalizedIncoming
+          });
+          return false;
+        }
+
+        return true;
+      }),
+      map(({ payload, index }) => {
         const normalizedOptions = payload.options
-          .map((option, index) => ({
+          .map((option, optionIndex) => ({
             ...option,
-            optionId: typeof option.optionId === 'number' ? option.optionId : index + 1,
+            optionId: typeof option.optionId === 'number' ? option.optionId : optionIndex + 1,
             displayOrder:
-              typeof option.displayOrder === 'number' ? option.displayOrder : index,
+              typeof option.displayOrder === 'number' ? option.displayOrder : optionIndex,
           }))
           .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
@@ -1242,7 +1271,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           explanation:
             payload.explanation?.trim() ||
             payload.question.explanation?.trim() ||
-            ''
+            '',
+          currentIndex: index
         };
       }),
       distinctUntilChanged((prev, curr) => {
@@ -1261,8 +1291,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         };
 
         const sameQuestion =
-          questionKey(prev.currentQuestion, (prev as any).currentIndex) ===
-          questionKey(curr.currentQuestion, (curr as any).currentIndex);
+          questionKey(prev.currentQuestion, prev.currentIndex) ===
+          questionKey(curr.currentQuestion, curr.currentIndex);
         if (!sameQuestion) return false;
 
         if (prev.explanation !== curr.explanation) {
@@ -1274,7 +1304,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true }),
       catchError((error) => {
         console.error('Error in combineCurrentQuestionAndOptions:', error);
-        return of({ currentQuestion: null, currentOptions: [], explanation: '' });
+        return of({ currentQuestion: null, currentOptions: [], explanation: '', currentIndex: -1 });
       })
     );
   }
