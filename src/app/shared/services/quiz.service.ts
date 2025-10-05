@@ -2949,7 +2949,10 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  private resolveCanonicalQuestion(index: number): QuizQuestion | null {
+  private resolveCanonicalQuestion(
+    index: number,
+    currentQuestion?: QuizQuestion | null
+  ): QuizQuestion | null {
     const quizId = this.resolveShuffleQuizId();
     if (!quizId) {
       return null;
@@ -2960,10 +2963,38 @@ export class QuizService implements OnDestroy {
     const hasCanonical = Array.isArray(canonical) && canonical.length > 0;
     const shuffleActive = this.shouldShuffle();
 
+    const ensureMatch = (candidate: QuizQuestion | null): QuizQuestion | null => {
+      if (!candidate) {
+        return null;
+      }
+
+      if (!currentQuestion) {
+        return candidate;
+      }
+
+      const candidateText = this.normalizeQuestionText(candidate?.questionText);
+      const currentText = this.normalizeQuestionText(
+        currentQuestion?.questionText
+      );
+
+      return candidateText === currentText ? candidate : null;
+    };
+
+    const cloneIfValid = (
+      question: QuizQuestion | null | undefined
+    ): QuizQuestion | null => {
+      if (!question) {
+        return null;
+      }
+
+      const clone = this.cloneQuestionForSession(question);
+      return ensureMatch(clone);
+    };
+
     if (shuffleActive) {
       const base = hasCanonical ? canonical : source;
       if (!Array.isArray(base) || base.length === 0) {
-        return null;
+        return cloneIfValid(currentQuestion);
       }
 
       if (hasCanonical) {
@@ -2978,11 +3009,9 @@ export class QuizService implements OnDestroy {
           originalIndex < canonical.length
         ) {
           const canonicalQuestion = canonical[originalIndex];
-          if (canonicalQuestion) {
-            const clone = this.cloneQuestionForSession(canonicalQuestion);
-            if (clone) {
-              return clone;
-            }
+          const clone = cloneIfValid(canonicalQuestion);
+          if (clone) {
+            return clone;
           }
         }
       }
@@ -2993,46 +3022,59 @@ export class QuizService implements OnDestroy {
         base
       );
 
-      if (fromShuffle) {
-        const clone = this.cloneQuestionForSession(fromShuffle);
-        if (clone) {
-          return clone;
-        }
+      const shuffleClone = cloneIfValid(fromShuffle);
+      if (shuffleClone) {
+        return shuffleClone;
       }
 
-      const fallback = base[index] ?? null;
-      if (fallback) {
-        const clone = this.cloneQuestionForSession(fallback);
-        if (clone) {
-          return clone;
-        }
+      const fallbackClone = cloneIfValid(base[index] ?? null);
+      if (fallbackClone) {
+        return fallbackClone;
       }
-      return null;
-    }
-
-    if (source.length > 0) {
-      const fallback = source[index] ?? null;
-      if (fallback) {
-        const clone = this.cloneQuestionForSession(fallback);
-        if (clone) {
-          return clone;
-        }
+    } else {
+      const sourceClone = cloneIfValid(source[index] ?? null);
+      if (sourceClone) {
+        return sourceClone;
       }
       return null;
     }
 
     if (hasCanonical) {
-      const fallback = canonical[index] ?? null;
-      if (fallback) {
-        const clone = this.cloneQuestionForSession(fallback);
-        if (clone) {
-          return clone;
-        }
+      const canonicalClone = cloneIfValid(canonical[index] ?? null);
+      if (canonicalClone) {
+        return canonicalClone;
       }
-      return null;
     }
 
-    return null;
+    if (hasCanonical && currentQuestion) {
+      const currentKey = this.normalizeQuestionText(
+        currentQuestion?.questionText
+      );
+
+      const textIndex = this.canonicalQuestionIndexByText.get(quizId);
+      const mappedIndex = currentKey ? textIndex?.get(currentKey) : undefined;
+
+      if (typeof mappedIndex === 'number' && mappedIndex >= 0) {
+        const mappedClone = cloneIfValid(canonical[mappedIndex]);
+        if (mappedClone) {
+          return mappedClone;
+        }
+      }
+
+      if (currentKey) {
+        const fallbackMatch = canonical.find((question) => {
+          const canonicalKey = this.normalizeQuestionText(question?.questionText);
+          return canonicalKey && canonicalKey === currentKey;
+        });
+
+        const fallbackClone = cloneIfValid(fallbackMatch);
+        if (fallbackClone) {
+          return fallbackClone;
+        }
+      }
+    }
+
+    return cloneIfValid(currentQuestion ?? source[index] ?? null);
   }
 
   private mergeOptionsWithCanonical(
@@ -3109,7 +3151,10 @@ export class QuizService implements OnDestroy {
         ? Math.max(0, Math.trunc(this.currentQuestionIndex as number))
         : 0;
 
-    const canonical = this.resolveCanonicalQuestion(normalizedIndex);
+    const canonical = this.resolveCanonicalQuestion(
+      normalizedIndex,
+      currentQuestion
+    );
     let questionToEmit = currentQuestion;
     let optionsToUse = rawOptions;
 
