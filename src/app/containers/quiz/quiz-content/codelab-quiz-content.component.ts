@@ -559,6 +559,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           cachedMode === 'explanation' &&
           (hasActiveExplanationRequest || effectiveDisplayMode === 'explanation');
 
+        if (questionChanged) {
+          this.renderModeByKey.set(viewState.key, 'question');
+          this.awaitingQuestionBaseline = false;
+          this.latestViewState = viewState;
+          this.latestDisplayMode = 'question';
+
+          const baselineMarkup = viewState.markup;
+          if (this.combinedTextSubject.getValue() !== baselineMarkup) {
+            this.combinedTextSubject.next(baselineMarkup);
+          }
+
+          this.cdRef.markForCheck();
+          return;
+        }
+
         const allowExplanationTransition = !this.awaitingQuestionBaseline;
 
         const awaitingExplanationContent = hasActiveExplanationRequest && !explanationAvailable;
