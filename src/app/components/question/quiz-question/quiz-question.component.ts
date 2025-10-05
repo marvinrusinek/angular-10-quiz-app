@@ -295,6 +295,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   // Last computed "allCorrect" (used across microtasks/finally)
   private _lastAllCorrect = false;
 
+  private _submittingMulti = false;  // prevents re-entry
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -3047,13 +3049,70 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (allCorrect) {
           this.safeStopTimer('completed');
         }
+
+        // NEW: for multi-answer, optionally submit when complete
+        if ((q?.type === QuestionType.MultipleAnswer) && allCorrect && typeof (this as any).onSubmitMultiple === 'function') {
+          if (!this._submittingMulti) {
+            this._submittingMulti = true;
+            Promise.resolve((this as any).onSubmitMultiple())
+              .finally(() => { this._submittingMulti = false; });
+          }
+        }
       });
   
       // Update explanation and highlighting (RAF for smoother update)
       this._pendingRAF = requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
+
+        // Decide if we should emit explanation now:
+        // - SingleAnswer: on click
+        // - MultipleAnswer: only when allCorrect became true
+        const canEmitExplanation =
+        q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
+
+        if (canEmitExplanation) {
+          // Build formatted explanation
+          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+          const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
+          const formatted   = this.explanationTextService.formatExplanation(q as any, correctIdxs, rawExpl).trim();
   
-        this.explanationTextService.setShouldDisplayExplanation(true);
+          // NEW: per-index cache FIRST so renderer accepts it immediately
+          try {
+            this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any);
+          } catch { /* fall through */ }
+  
+          // NEW: index-scoped live channel + gate (if you wired these)
+          try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
+          try { this.explanationTextService.setGate?.(i0, true); } catch {}
+  
+          // NEW: flip global intent and emit global (context carries index)
+          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+          this.displayExplanation = true;
+          this.showExplanationChange?.emit(true);
+          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+  
+          this.explanationTextService.setExplanationText(formatted, {
+            context: `question:${i0}`,
+            force: true
+          });
+  
+          // Keep your local bindings in sync
+          this.setExplanationFor(i0, formatted);
+          this.explanationToDisplay = formatted;
+          this.explanationToDisplayChange.emit(formatted);
+        } else {
+          // leave baseline question visible
+          this.explanationTextService.setShouldDisplayExplanation(false);
+          this.displayExplanation = false;
+          this.showExplanationChange?.emit(false);
+
+          const cached = this._formattedByIndex.get(i0);
+          const rawTrue = (q?.explanation ?? '').trim();
+          const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+          this.setExplanationFor(i0, txt);
+      }
+  
+        /* this.explanationTextService.setShouldDisplayExplanation(true);
         this.displayExplanation = true;
         this.showExplanationChange?.emit(true);
   
@@ -3064,7 +3123,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
         this.setExplanationFor(i0, txt);
         this.explanationToDisplay = txt;
-        this.explanationToDisplayChange.emit(txt);
+        this.explanationToDisplayChange.emit(txt); */
   
         const selOptsSet = new Set(
           (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
@@ -3106,6 +3165,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+
+  onSubmitMultiple(): void {
+    const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
+    const q   = this.quizService.questions?.[idx];
+    if (!q) { return; }
+  
+    const correct    = this.explanationTextService.getCorrectOptionIndices(q);
+    const raw        = (q.explanation ?? '').trim() || 'Explanation not provided';
+    const formatted  = this.explanationTextService.formatExplanation(q, correct, raw).trim();
+  
+    this.explanationTextService.storeFormattedExplanation(idx, formatted, q);
+    this.explanationTextService.emitFormatted?.(idx, formatted);
+    this.explanationTextService.setGate?.(idx, true);
+  
+    this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+    this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+  
+    this.explanationTextService.setExplanationText(formatted, { context: `question:${idx}`, force: true });
+  }  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
