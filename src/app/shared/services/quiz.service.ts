@@ -3095,6 +3095,11 @@ export class QuizService implements OnDestroy {
         }
       }
     }
+
+    return cloneCandidate(
+      currentQuestion ?? source[index] ?? null,
+      'current-fallback'
+    );
   }
 
   private mergeOptionsWithCanonical(
