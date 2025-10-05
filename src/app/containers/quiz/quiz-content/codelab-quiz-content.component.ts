@@ -423,16 +423,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }  
 
   private questionTextForIndex$(index: number): Observable<string> {
-    const src = this.quizService.getQuestionByIndex(index);
-    const obs = (src && typeof (src as any).subscribe === 'function')
-      ? (src as Observable<any>)
-      : from(src as Promise<any>);
-  
-    return obs.pipe(
+    return this.quizService.getQuestionByIndex(index).pipe(
       map(q => (q?.questionText ?? '').toString().trim())
     );
   }
-
 
   private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
     const formatted = (this.explanationTextService.getFormattedSync(state.index) ?? '').toString().trim();
