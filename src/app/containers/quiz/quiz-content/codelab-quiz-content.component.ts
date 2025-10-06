@@ -377,34 +377,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    const index$ = this.quizService.currentQuestionIndex$.pipe(
-      startWith(this.currentQuestionIndexValue ?? 0),
-      distinctUntilChanged()
-    );
+    const index$: Observable<number> =
+      this.quizService.currentQuestionIndex$.pipe(
+        startWith(this.currentQuestionIndexValue ?? 0),
+        map(n => Number.isFinite(n as any) ? Number(n) : 0),
+        distinctUntilChanged()
+      );
 
-    const display$ = this.displayState$.pipe(
-      startWith<DisplayState>({ mode: 'question', answered: false }),
-      distinctUntilChanged((a, b) => a.mode === b.mode && !!a.answered === !!b.answered)
-    );
+    const display$: Observable<DisplayState> =
+      this.displayState$.pipe(
+        startWith<DisplayState>({ mode: 'question', answered: false }),
+        distinctUntilChanged((a, b) => a.mode === b.mode && !!a.answered === !!b.answered)
+      );
 
-    // Keep your existing global intent stream — we’ll AND it into the decision
-    const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      startWith(false)
-    );
+    const baselineQuestion$: Observable<string> =
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || ''));
+
+    const correctText$: Observable<string> =
+      this.correctAnswersText$.pipe(startWith(''));
+
+    const shouldShow$: Observable<boolean> =
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false));
 
     const perIndexExplanation$ = index$.pipe(
       switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null)))
     );
-
+  
     const perIndexGate$ = index$.pipe(
       switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
     );
-
-    const baselineQuestion$ = this.questionToDisplay$.pipe(
-      startWith(this.questionLoadingText || '')
-    );
-
-    const correctText$ = this.correctAnswersText$.pipe(startWith(''));
 
     this.combinedText$ = combineLatest([
       index$,
