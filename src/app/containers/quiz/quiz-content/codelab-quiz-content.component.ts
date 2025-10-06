@@ -372,9 +372,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     }
   }
 
-  // Helper to normalize strings for comparison
-  private _n(s: string | null | undefined): string { return (s ?? '').toString().trim(); }
-
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
     const index$: Observable<number> =
@@ -421,54 +418,64 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
 
     this.combinedText$ = combineLatest([
-      index$,
-      display$,
-      shouldShow$,
-      baselineQuestion$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$
-    ]).pipe(
-      map(([idx, display, shouldShow, qText, correctText, explByIndex, gate]) => {
-        // Narrow the union: guarantee a DisplayState shape
-        const ds = (display as DisplayState) ?? { mode: 'question', answered: false };
-    
-        // ---- Question baseline (unchanged) ----
-        const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
-        const modelQ = (qm?.questionText ?? '').toString().trim();
-        const incomingQ = (qText ?? '').toString().trim();
-        const chosenQ = incomingQ || this.lastQuestionText || modelQ;
-        const question = chosenQ || this.questionLoadingText || 'No question available';
-        if (chosenQ) this.lastQuestionText = chosenQ;
-    
-        // ---- Explanation decision (STRICT) ----
-        const explanation = (explByIndex ?? '').toString().trim();
-        const wantsExplanation =
-          ds.mode === 'explanation' &&    // UI is in explanation mode
-          !!ds.answered &&                // you’ve actually answered
-          !!shouldShow &&                 // your intent flag says show
-          !!gate &&                       // the per-index gate is open
-          !!explanation;                  // and we have a string to show
-    
-        if (wantsExplanation) {
+        index$,
+        display$,
+        shouldShow$,
+        baselineQuestion$,
+        correctText$,
+        perIndexExplanation$,
+        perIndexGate$
+      ]).pipe(
+        map(([
+          idx,
+          display,
+          shouldShow,
+          qText,
+          correctText,
+          explByIndex,
+          gate
+        ]: [
+          number,
+          DisplayState,
+          boolean,
+          string,
+          string,
+          string | null,
+          boolean
+        ]) => {
+          // --- baseline question (unchanged logic) ---
+          const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+          const modelQ = (qm?.questionText ?? '').toString().trim();
+          const incomingQ = (qText ?? '').toString().trim();
+          const chosenQ = incomingQ || this.lastQuestionText || modelQ;
+          const question = chosenQ || this.questionLoadingText || 'No question available';
+          if (chosenQ) this.lastQuestionText = chosenQ;
+      
+          // --- explanation decision (unchanged logic) ---
+          const explanation = (explByIndex ?? '').toString().trim();
+          const wantsExplanation =
+            display.mode === 'explanation' &&
+            !!display.answered &&
+            !!shouldShow &&
+            !!gate &&
+            !!explanation;
+      
+          if (wantsExplanation) {
+            return correctText
+              ? `${explanation} <span class="correct-count">${correctText}</span>`
+              : explanation;
+          }
+      
           return correctText
-            ? `${explanation} <span class="correct-count">${correctText}</span>`
-            : explanation;
-        }
-    
-        return correctText
-          ? `${question} <span class="correct-count">${correctText}</span>`
-          : question;
-      }),
-    
-      // keep your coalescing and caching operators
-      observeOn(asyncScheduler),
-      auditTime(0),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+            ? `${question} <span class="correct-count">${correctText}</span>`
+            : question;
+        }),
+        observeOn(asyncScheduler),
+        auditTime(0),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-
   
   
   
