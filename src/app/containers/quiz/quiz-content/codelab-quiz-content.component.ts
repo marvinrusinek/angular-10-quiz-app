@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, combineLatest, concat, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -399,13 +399,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false));
 
-    const perIndexExplanation$ = index$.pipe(
-      switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null)))
-    );
-  
-    const perIndexGate$ = index$.pipe(
-      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
-    );
+    const perIndexExplanation$: Observable<string | null> =
+      index$.pipe(
+        switchMap(i =>
+          concat(
+            of<string | null>(null),
+            this.explanationTextService.byIndex$(i)
+          )
+        )
+      );
+    
+    // per-index gate stream (seed = false)
+    const perIndexGate$: Observable<boolean> =
+      index$.pipe(
+        switchMap(i =>
+          concat(
+            of<boolean>(false),
+            this.explanationTextService.gate$(i)
+          )
+        )
+      );
 
     this.combinedText$ = combineLatest([
       index$,
