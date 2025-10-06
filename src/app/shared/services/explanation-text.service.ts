@@ -198,7 +198,7 @@ export class ExplanationTextService {
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
       console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
   
-      // ⬇ Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
+      // Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
       const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
       try { this.emitFormatted(idx, null); } catch {}
       try { this.setGate(idx, false); } catch {}
@@ -233,17 +233,12 @@ export class ExplanationTextService {
       return of(FALLBACK);
     }
   
-    // Update legacy subject only if changed (coalesce duplicates) — but only with real text
-    const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
-    if (last !== explanation) this.formattedExplanationSubject.next(explanation);
-  
-    // Drive the index-scoped channel and open the gate
+    // Drive only the index-scoped channel (no global .next here)
     try { this.emitFormatted(questionIndex, explanation); } catch {}
     try { this.setGate(questionIndex, true); } catch {}
   
     return of(explanation);
   }
-  
 
   getFormattedExplanationByQuestion(
     question: QuizQuestion | null | undefined,
