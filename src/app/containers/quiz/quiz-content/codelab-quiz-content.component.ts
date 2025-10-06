@@ -441,23 +441,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Helper to resolve a canonical question string for an index without stale fallback
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
-      const model = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
-      const modelText = (model?.questionText ?? '').toString().trim();
-      // Prefer the model’s text; only use baseline if we have nothing model-side
-      return modelText || (baseline || this.questionLoadingText || 'No question available');
+      const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+      const model = (q?.questionText ?? '').toString().trim();
+      const base  = (baseline ?? '').toString().trim();
+      return model || base || this.questionLoadingText || 'Loading…';
     };
 
     // Combine everything in a *single* place
-    this.combinedText$ = combineLatest({
-      idx: index$,
-      display: display$,
-      shouldShow: shouldShow$,
-      baseline: baselineText$,
-      correct: correctText$,
-      explanation: perIndexExplanation$,
-      gate: perIndexGate$
-    }).pipe(
-      map(({ idx, display, shouldShow, baseline, correct, explanation, gate }) => {
+    this.combinedText$ = combineLatest([
+      index$,
+      display$,
+      shouldShow$,
+      baselineText$,
+      correctText$,
+      perIndexExplanation$,
+      perIndexGate$
+    ] as [
+      Observable<number>,
+      Observable<DisplayState>,
+      Observable<boolean>,
+      Observable<string>,
+      Observable<string>,
+      Observable<string | null>,
+      Observable<boolean>
+    ]).pipe(
+      map(([
+        idx,
+        display,
+        shouldShow,
+        baseline,
+        correct,
+        explanation,
+        gate
+      ]: [number, DisplayState, boolean, string, string, string | null, boolean]) => {
+    
         const question = canonicalQuestionFor(idx, baseline);
     
         const wantsExplanation =
@@ -473,9 +490,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
-      // microtask boundary → coalesce same-tick flips
-      observeOn(asyncScheduler),
-      auditTime(0),
+      observeOn(asyncScheduler), // schedule UI flip on microtask boundary
+      auditTime(0),              // coalesce same-tick flutters
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
