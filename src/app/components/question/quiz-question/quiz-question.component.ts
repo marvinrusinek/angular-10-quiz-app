@@ -50,7 +50,7 @@ export interface FeedbackConfig {
   showFeedback: boolean,
   icon?: string,
   isCorrect?: boolean,
-  text?: string  // optional message
+  text?: string
 }
 
 @Component({
