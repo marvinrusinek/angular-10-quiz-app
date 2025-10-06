@@ -3075,17 +3075,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const lastForIndex = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').trim();
           if (lastForIndex !== formattedBase) {
             // per-index FIRST
-            try { this.explanationTextService.storeFormattedExplanation(i0, formattedBase, q as any); } catch {}
-            try { this.explanationTextService.emitFormatted?.(i0, formattedBase); } catch {}
-            try { this.explanationTextService.setGate?.(i0, true); } catch {}
+            this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any);
+            this.explanationTextService.emitFormatted(i0, formatted);
+            this.explanationTextService.setGate(i0, true);
           }
 
           // flip intent + UI mode (no global text)
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
           this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-
-          // ❌ REMOVE (this caused cross-index flashing)
-          // this.explanationTextService.setExplanationText(formattedBase, { context: `question:${i0}`, force: true });
 
           // mark as displayed + set local bindings immediately (single, non-duplicated block)
           this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
