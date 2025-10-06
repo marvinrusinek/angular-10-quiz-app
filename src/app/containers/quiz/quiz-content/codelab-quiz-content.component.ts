@@ -378,89 +378,83 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
   
-    // 1) Current index (stable, seeded)
-    const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
-      startWith(this.currentQuestionIndexValue ?? 0),
-      map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    // Current index, stable
+    const index$: Observable<number> =
+      this.quizService.currentQuestionIndex$.pipe(
+        startWith(this.currentQuestionIndexValue ?? 0),
+        map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   
-    // 2) Guard index changes: close old index, pre-close new index, reset intent
-    let _lastIdx = -1;
-    const guardedIndex$: Observable<number> = index$.pipe(
-      tap(i => {
-        if (_lastIdx !== -1 && _lastIdx !== i) {
-          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
-          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-        }
-        // Pre-close the NEW index before anything renders
-        try { this.explanationTextService.setGate(i, false); } catch {}
-        try { this.explanationTextService.emitFormatted(i, null); } catch {}
-        // Reset global intent to question (no explanation until we explicitly open it)
-        try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        _lastIdx = i;
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    // 3) One-tick freeze after index change: true immediately, false next microtask
-    const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(() => concat(of(true), of(false).pipe(observeOn(asyncScheduler)))),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    // 4) Display state (typed & coalesced)
-    const display$: Observable<DisplayState> = (this.displayState$ as Observable<DisplayState | any>).pipe(
+    // Display state (mode/answered)
+    const display$: Observable<DisplayState> = (this.displayState$ as Observable<any>).pipe(
       map(v => {
         const s = (v ?? {}) as Partial<DisplayState>;
-        const mode: DisplayState['mode'] = s?.mode === 'explanation' ? 'explanation' : 'question';
-        const answered = typeof s?.answered === 'boolean' ? s.answered : false;
-        return { mode, answered } as DisplayState;
+        const mode: DisplayState['mode'] = s.mode === 'explanation' ? 'explanation' : 'question';
+        const answered = !!s.answered;
+        return { mode, answered };
       }),
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 5) Global "should show" flag
-    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      map(Boolean),
-      startWith(false),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    // Global intent only
+    const shouldShow$: Observable<boolean> =
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        map(Boolean),
+        startWith(false),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   
-    // 6) Baseline question text candidate
-    const baselineText$: Observable<string> = this.questionToDisplay$.pipe(
-      startWith(this.questionLoadingText || ''),
-      map(s => (s ?? '').toString().trim()),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    // Baseline question text candidate
+    const baselineText$: Observable<string> =
+      this.questionToDisplay$.pipe(
+        startWith(this.questionLoadingText || ''),
+        map(s => (s ?? '').toString().trim()),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   
-    // 7) Correct-count badge text
-    const correctText$: Observable<string> = this.correctAnswersText$.pipe(
-      startWith(''),
-      map(s => (s ?? '').toString().trim()),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    // Correct-count badge text
+    const correctText$: Observable<string> =
+      this.correctAnswersText$.pipe(
+        startWith(''),
+        map(s => (s ?? '').toString().trim()),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   
-    // 8) Per-index explanation / gate — seed so first post-freeze render is question text
-    const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i => concat(of<string | null>(null), this.explanationTextService.byIndex$(i))),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
+    // Gate per index
+    const perIndexGate$: Observable<boolean> = index$.pipe(
       switchMap(i => concat(of(false), this.explanationTextService.gate$(i))),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 9) Canonical question resolver for an index (no stale fallback)
+    // ====== PATCH 1: Safe per-index explanation (reject stale/cross-index) ======
+    const perIndexExplanation$: Observable<string | null> = index$.pipe(
+      switchMap(i =>
+        // seed with null so first paint for a new index is always the question baseline
+        concat(
+          of<string | null>(null),
+          this.explanationTextService.byIndex$(i).pipe(
+            map(text => {
+              const t = (text ?? '').toString().trim();
+              const expected = (this.explanationTextService?.formattedExplanations?.[i]?.explanation ?? '')
+                .toString().trim();
+              // accept only if it matches the formatted explanation for THIS index
+              return t && expected && t === expected ? t : null;
+            })
+          )
+        )
+      ),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // Helper to resolve a canonical question string for an index without stale fallback
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
       const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
       const model = (q?.questionText ?? '').toString().trim();
@@ -468,44 +462,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return model || base || this.questionLoadingText || 'Loading…';
     };
   
-    // 10) Combine everything (typed tuple)
+    // Combine everything in a *single* place
     this.combinedText$ = combineLatest<
-      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-    >([
-      guardedIndex$,         // 0: number
-      display$,              // 1: DisplayState
-      shouldShow$,           // 2: boolean
-      baselineText$,         // 3: string
-      correctText$,          // 4: string
-      perIndexExplanation$,  // 5: string | null
-      perIndexGate$,         // 6: boolean
-      indexFreeze$           // 7: boolean
-    ]).pipe(
-      // ⛔ Do not render anything while frozen; first paint occurs only after freeze clears
-      filter(([,,,,,,, frozen]) => frozen === false),
-  
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+      [number, DisplayState, boolean, string, string, string | null, boolean]
+    >([ index$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$ ]).pipe(
+      map(([ idx, display, shouldShow, baseline, correct, explanation, gate ]) => {
         const question = canonicalQuestionFor(idx, baseline);
   
-        // Only allow explanation when *everything* aligns for THIS index
-        const hasExplanation = !!(explanation && (explanation as string).trim());
+        // ====== PATCH 2: Only show explanation when we have a SAFE one for THIS index ======
+        const hasSafeExplanation = !!(explanation && (explanation as string).trim());
         const wantsExplanation =
           display.mode === 'explanation' &&
-          !!display.answered &&
-          !!shouldShow &&
-          !!gate &&
-          hasExplanation;
+          display.answered &&
+          shouldShow &&
+          gate &&
+          hasSafeExplanation;
   
         const body = wantsExplanation ? (explanation as string).trim() : question;
-        return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
-      }),
   
-      observeOn(asyncScheduler),  // flip on microtask boundary
-      auditTime(0),               // coalesce same-tick flutters
+        return correct
+          ? `${body} <span class="correct-count">${correct}</span>`
+          : body;
+      }),
+      // coalesce microtask ping-pong
+      observeOn(asyncScheduler),
+      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
   
   
   
