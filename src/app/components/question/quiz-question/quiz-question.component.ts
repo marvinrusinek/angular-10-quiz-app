@@ -3121,9 +3121,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
           // flip intent + UI mode (idempotent)
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+
+          // global with explicit context
+          this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
+          this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
+
           this.displayExplanation = true;
           this.showExplanationChange?.emit(true);
-          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
   
           // only emit global if it actually changed
           if (!alreadySame) {
