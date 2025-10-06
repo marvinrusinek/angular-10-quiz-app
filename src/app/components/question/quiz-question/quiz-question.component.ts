@@ -3064,33 +3064,41 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (canEmitNow) {
           const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
           const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
-          const formatted   = this.explanationTextService.formatExplanation(q as any, correctIdxs, rawExpl).trim();
-      
-          // per-index FIRST
-          try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch {}
-          try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
-          try { this.explanationTextService.setGate?.(i0, true); } catch {}
-      
-          // flip intent + UI mode
+
+          // ⬇️ guard: avoid "Option 1 is correct because Option 1 is correct because ..."
+          const alreadyPrefixed = /^\s*Option(s)?\s+\d/.test(rawExpl);
+          const formattedBase   = alreadyPrefixed ? rawExpl : this.explanationTextService
+            .formatExplanation(q as any, correctIdxs, rawExpl)
+            .trim();
+
+          // ⬇️ guard: coalesce work if it’s unchanged for this index
+          const lastForIndex = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').trim();
+          if (lastForIndex !== formattedBase) {
+            // per-index FIRST
+            try { this.explanationTextService.storeFormattedExplanation(i0, formattedBase, q as any); } catch {}
+            try { this.explanationTextService.emitFormatted?.(i0, formattedBase); } catch {}
+            try { this.explanationTextService.setGate?.(i0, true); } catch {}
+          }
+
+          // flip intent + UI mode (no global text)
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
           this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-      
-          // global with explicit context
-          this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
-      
-          // NEW: mark as displayed + set local bindings immediately (single, non-duplicated block)
+
+          // ❌ REMOVE (this caused cross-index flashing)
+          // this.explanationTextService.setExplanationText(formattedBase, { context: `question:${i0}`, force: true });
+
+          // mark as displayed + set local bindings immediately (single, non-duplicated block)
           this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
           this.displayExplanation = true;
-      
-          this.setExplanationFor(i0, formatted);
-          this.explanationToDisplay = formatted;
-          this.explanationToDisplayChange.emit(formatted);
-        }
-      }); // <-- closes queueMicrotask
 
-      // Update explanation and highlighting (RAF for smoother update)
-      this._pendingRAF = requestAnimationFrame(() => {
-        if (this._skipNextAsyncUpdates) return;
+          this.setExplanationFor(i0, formattedBase);
+          this.explanationToDisplay = formattedBase;
+          this.explanationToDisplayChange.emit(formattedBase);
+        }
+
+        // Update explanation and highlighting (RAF for smoother update)
+        this._pendingRAF = requestAnimationFrame(() => {
+          if (this._skipNextAsyncUpdates) return;
       
         // Decide if we should emit explanation now:
         // - SingleAnswer: on click
@@ -3154,12 +3162,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
           this.setExplanationFor(i0, txt);
         }
-      
-        const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
-            getStableId(o)
-          )
-        );
+      });
+
         this.updateOptionHighlighting(selOptsSet);
         this.refreshFeedbackFor(evtOpt ?? undefined);
       
