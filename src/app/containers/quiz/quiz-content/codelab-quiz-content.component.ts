@@ -375,80 +375,97 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
+    const idx$ = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged()
+    );
+
+    // 🔒 Explanation source is now *per-current-index* only.
+    const explForIndex$ = idx$.pipe(
+      switchMap(i =>
+        this.explanationTextService.byIndex$(i).pipe(
+          // always seed with null so the baseline question shows first on index change
+          startWith<string | null>(null),
+          distinctUntilChanged()
+        )
+      )
+    );
+
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),              // kept for compatibility, but ignored
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // baseline
-      this.correctAnswersText$.pipe(startWith('')),                                  // may be boolean; guarded
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // intent flag
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),
+      this.correctAnswersText$.pipe(startWith('')),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+      idx$,
+      explForIndex$
     ]).pipe(
-      // One switch per tick so we can further switch to the per-index stream below
-      switchMap(([state, _globalExplIgnored, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        const norm = (v: any) => (v ?? '').toString().trim();
-  
-        // Track index changes + clear lastQuestionText so we don’t leak prior text forward
-        const indexChanged = this._renderLastIndex !== currentIndex;
-        if (indexChanged) {
-          this._renderLastIndex = currentIndex;
-          this.lastQuestionText = '';
-        }
-  
-        // Build the question baseline for THIS index
-        const qm        = this.quizService.questions?.[currentIndex] ?? null;
-        const rawQ      = norm(questionText);
-        const fallbackQ = norm(qm?.questionText) || norm(this.questions?.[currentIndex]?.questionText);
-        const candidate = rawQ || this.lastQuestionText || fallbackQ;
-        if (candidate) this.lastQuestionText = candidate;
-  
-        const question = candidate || this.questionLoadingText || 'No question available';
-  
-        // Guard non-string correctText so we never render "false"
-        const correctStr   = typeof correctText === 'string' ? correctText.trim() : '';
-        const correctBadge = correctStr ? ` <span class="correct-count">${correctStr}</span>` : '';
-  
+      switchMap(([state, questionText, correctText, shouldDisplayExplanation, currentIndex, indexedExpl]) => {
+        this.currentIndex = currentIndex;
+
+        // Canonical question for the current index (unchanged)
+        const rawQ   = (questionText ?? '').trim();
+        const qm     = this.quizService.questions?.[currentIndex] ?? null;
+        const modelQ = (qm?.questionText ?? '').trim()
+                    || (this.questions?.[currentIndex]?.questionText ?? '').trim();
+
+        const candidateSource   = rawQ || this.lastQuestionText || modelQ;
+        const candidateQuestion = (candidateSource ?? '').toString().trim();
+        if (candidateQuestion) this.lastQuestionText = candidateQuestion;
+
+        const question = candidateQuestion || this.questionLoadingText || 'No question available';
+
+        // We want explanation only if UI is in explanation mode (your existing rule)…
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
-  
-        // If we aren't showing explanation or the index just changed, show baseline question
-        if (!wantsExplanation || indexChanged) {
-          return of(question + correctBadge);
-        }
-  
-        // 🔑 Only read the CURRENT INDEX’s per-index stream. Never read global explanation.
-        // Start with null so we keep the question baseline until a valid explanation arrives.
-        return this.explanationTextService.formattedFor$(currentIndex).pipe(
-          startWith<string | null>(null),
-  
-          // Map per-index emissions to what we render. Null/empty ⇒ keep baseline.
-          map((idxText) => {
-            const svcExpl = norm(
-              idxText ??
-              this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation
+
+        if (wantsExplanation) {
+          // …and only if the *current index* has an explanation ready.
+          const expl = (indexedExpl ?? '').toString().trim();
+          if (expl) {
+            const out = (correctText || '').trim()
+              ? `${expl} <span class="correct-count">${(correctText || '').trim()}</span>`
+              : expl;
+            return of(out);
+          }
+
+          // No indexed text yet → try one-shot load from your service cache for THIS index.
+          return this.explanationTextService
+            .getFormattedExplanationTextForQuestion(currentIndex)
+            .pipe(
+              take(1),
+              map(s => (s ?? '').trim()),
+              map(txt => {
+                if (!txt) {
+                  // fallbacks bound to CURRENT index only
+                  const svcRaw = (this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? '').toString().trim();
+                  const modelRaw = (qm?.explanation ?? this.questions?.[currentIndex]?.explanation ?? '').toString().trim();
+                  const resolved = svcRaw || modelRaw || 'Explanation not available.';
+                  return (correctText || '').trim()
+                    ? `${resolved} <span class="correct-count">${(correctText || '').trim()}</span>`
+                    : resolved;
+                }
+                return (correctText || '').trim()
+                  ? `${txt} <span class="correct-count">${(correctText || '').trim()}</span>`
+                  : txt;
+              })
             );
-  
-            if (svcExpl) {
-              return svcExpl + correctBadge;
-            }
-  
-            // Optional scoped model fallback if you truly want it:
-            const modelRaw = norm(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
-            if (modelRaw) {
-              return modelRaw + correctBadge;
-            }
-  
-            // Nothing ready for this index → keep question baseline (no “not found” flash)
-            return question + correctBadge;
-          })
-        );
+        }
+
+        // QUESTION path (with correct-count as you had)
+        const out = (correctText || '').trim()
+          ? `${question} <span class="correct-count">${(correctText || '').trim()}</span>`
+          : question;
+        return of(out);
       }),
-  
-      // Tail coalescing: render once at microtask boundary and dedupe identical strings
+
+      // Microtask-bundle to avoid ping-pong between baseline and explanation
       observeOn(asyncScheduler),
       auditTime(0),
+
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
   
   
   
