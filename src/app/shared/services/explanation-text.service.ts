@@ -343,17 +343,26 @@ export class ExplanationTextService {
     // Explanation fallback if missing or blank
     const rawExplanation = question?.explanation?.trim() || 'Explanation not provided';
   
-    // Format explanation
-    const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, rawExplanation);
+    // Idempotency detector (same as in formatExplanation)
+    const alreadyFormattedRe =
+      /^(?:option|options)\s+\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?\s+(?:is|are)\s+correct\s+because\s+/i;
   
-    // Store and sync
-    this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
-    this.syncFormattedExplanationState(questionIndex, formattedExplanation);
-    this.updateFormattedExplanation(formattedExplanation);
+    // Format explanation (only if not already formatted)
+    const correctOptionIndices = this.getCorrectOptionIndices(question);
+    const formattedExplanation = alreadyFormattedRe.test(rawExplanation)
+      ? rawExplanation
+      : this.formatExplanation(question, correctOptionIndices, rawExplanation);
+  
+    // Store and sync (but coalesce to avoid redundant emits)
+    const prev = this.formattedExplanations[questionIndex]?.explanation?.trim() || '';
+    if (prev !== formattedExplanation) {
+      this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
+      this.syncFormattedExplanationState(questionIndex, formattedExplanation);
+      this.updateFormattedExplanation(formattedExplanation);
+    }
   
     // Prevent duplicate processing
-    const questionKey = JSON.stringify(question);
+    const questionKey = question?.questionText ?? JSON.stringify({ i: questionIndex });
     this.processedQuestions.add(questionKey);
   
     return of({
@@ -470,6 +479,18 @@ export class ExplanationTextService {
     correctOptionIndices: number[] | null | undefined,
     explanation: string
   ): string {
+    // Idempotency: if already in "Option(s) ... correct because ..." form, return as-is.
+    const alreadyFormattedRe =
+      /^(?:option|options)\s+\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?\s+(?:is|are)\s+correct\s+because\s+/i;
+  
+    const e = (explanation ?? '').trim();
+    if (!e) return '';
+  
+    if (alreadyFormattedRe.test(e)) {
+      // Already formatted elsewhere; do not re-wrap (prevents "Option 1 is correct because Option 1 is correct because...")
+      return e;
+    }
+  
     // Normalize incoming indices (may be null/undefined/empty on timeout)
     let indices: number[] = Array.isArray(correctOptionIndices)
       ? correctOptionIndices.slice()
@@ -482,15 +503,19 @@ export class ExplanationTextService {
           if (!opt?.correct) {
             return -1;
           }
-
-          const displayIndex = typeof opt.displayOrder === 'number'
-            ? opt.displayOrder
-            : i;
-
-          return displayIndex + 1;
-        })  // +1 so text says “Option 2” etc.
+          const hasValidDisplayOrder =
+            typeof opt.displayOrder === 'number' &&
+            Number.isFinite(opt.displayOrder) &&
+            opt.displayOrder >= 0;
+  
+          const displayIndex = hasValidDisplayOrder ? opt.displayOrder : i;
+          return displayIndex + 1; // +1 so text says “Option 2” etc.
+        })
         .filter((n) => n > 0);
     }
+  
+    // ✅ Stabilize: dedupe + sort so multi-answer phrasing is consistent
+    indices = Array.from(new Set(indices)).sort((a, b) => a - b);
   
     // Multi-answer
     if (indices.length > 1) {
@@ -501,18 +526,18 @@ export class ExplanationTextService {
           ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
           : indices.join(' and ');
   
-      return `Options ${optionsText} are correct because ${explanation}`;
+      return `Options ${optionsText} are correct because ${e}`;
     }
   
     // Single-answer
     if (indices.length === 1) {
       question.type = QuestionType.SingleAnswer;
-      return `Option ${indices[0]} is correct because ${explanation}`;
+      return `Option ${indices[0]} is correct because ${e}`;
     }
   
     // Zero derived indices → just return the explanation (no scolding)
-    return (explanation ?? '').trim();
-  }  
+    return e;
+  }
 
   private syncFormattedExplanationState(
     questionIndex: number, formattedExplanation: string): void {
