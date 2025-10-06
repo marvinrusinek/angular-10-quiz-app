@@ -3079,6 +3079,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
           // global with explicit context
           this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
+  
+          // ⬇️ NEW: keep local bindings in sync immediately (no 1-frame wait)
+          this.setExplanationFor(i0, formatted);
+          this.explanationToDisplay = formatted;
+          this.explanationToDisplayChange.emit(formatted);
         }
       }); // <-- closes queueMicrotask
   
@@ -3098,27 +3103,34 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
           const formatted   = this.explanationTextService.formatExplanation(q as any, correctIdxs, rawExpl).trim();
   
-          // NEW: per-index cache FIRST so renderer accepts it immediately
-          try {
-            this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any);
-          } catch { /* fall through */ }
+          // ⬇️ NEW: coalesce — skip heavy emits if we already have the same formatted text for this index
+          const alreadySame =
+            (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
+              .toString().trim() === formatted;
   
-          // NEW: index-scoped live channel + gate (if you wired these)
-          try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
-          try { this.explanationTextService.setGate?.(i0, true); } catch {}
+          if (!alreadySame) {
+            // per-index cache FIRST so renderer accepts it immediately
+            try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch { /* fall through */ }
+            // index-scoped live channel + gate (if you wired these)
+            try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
+            try { this.explanationTextService.setGate?.(i0, true); } catch {}
+          }
   
-          // NEW: flip global intent and emit global (context carries index)
+          // flip intent + UI mode (idempotent)
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
           this.displayExplanation = true;
           this.showExplanationChange?.emit(true);
           this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
   
-          this.explanationTextService.setExplanationText(formatted, {
-            context: `question:${i0}`,
-            force: true
-          });
+          // only emit global if it actually changed
+          if (!alreadySame) {
+            this.explanationTextService.setExplanationText(formatted, {
+              context: `question:${i0}`,
+              force: true
+            });
+          }
   
-          // Keep your local bindings in sync
+          // Keep your local bindings in sync (cheap, idempotent)
           this.setExplanationFor(i0, formatted);
           this.explanationToDisplay = formatted;
           this.explanationToDisplayChange.emit(formatted);
@@ -3177,6 +3189,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
+  
   
 
   onSubmitMultiple(): void {
