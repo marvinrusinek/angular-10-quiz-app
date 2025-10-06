@@ -3062,35 +3062,35 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
         const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
         if (canEmitNow) {
-          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
-          const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
-
-          // Guard: avoid "Option 1 is correct because Option 1 is correct because ..."
-          const alreadyPrefixed = /^\s*Option(s)?\s+\d/.test(rawExpl);
-          const formattedBase   = alreadyPrefixed ? rawExpl : this.explanationTextService
-            .formatExplanation(q as any, correctIdxs, rawExpl)
-            .trim();
-
-          // Guard: coalesce work if it’s unchanged for this index
-          const lastForIndex = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').trim();
-          if (lastForIndex !== formattedBase) {
-            // per-index FIRST
-            this.explanationTextService.storeFormattedExplanation(i0, formattedBase, q as any);
-            this.explanationTextService.emitFormatted(i0, formattedBase);
-            this.explanationTextService.setGate(i0, true);
+          const expectedText = (this.questions?.[i0]?.questionText ?? '').trim();
+          const actualText   = (q?.questionText ?? '').trim();
+        
+          // Only if the question matches this index (prevents cross-index leaks)
+          if (expectedText && actualText && expectedText === actualText) {
+            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+            const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
+            const formatted   = this.explanationTextService
+              .formatExplanation(q as any, correctIdxs, rawExpl)
+              .trim();
+        
+            // Per-index cache + gate + emit (idempotent/coalesced inside service)
+            try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch {}
+            try { this.explanationTextService.emitFormatted(i0, formatted); } catch {}
+            try { this.explanationTextService.setGate(i0, true); } catch {}
+        
+            // Intent only (no global text payload)
+            this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+        
+            // Keep local bindings in sync immediately
+            this.setExplanationFor(i0, formatted);
+            this.explanationToDisplay = formatted;
+            this.explanationToDisplayChange.emit(formatted);
+          } else {
+            // Mismatch → don’t show anything; ensure this index is closed
+            try { this.explanationTextService.emitFormatted(i0, null); } catch {}
+            try { this.explanationTextService.setGate(i0, false); } catch {}
           }
-
-          // Flip intent + UI mode (no global text)
-          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-
-          // Mark as displayed + set local bindings immediately (single, non-duplicated block)
-          this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
-          this.displayExplanation = true;
-
-          this.setExplanationFor(i0, formattedBase);
-          this.explanationToDisplay = formattedBase;
-          this.explanationToDisplayChange.emit(formattedBase);
         }
 
         // Update explanation and highlighting (RAF for smoother update)
