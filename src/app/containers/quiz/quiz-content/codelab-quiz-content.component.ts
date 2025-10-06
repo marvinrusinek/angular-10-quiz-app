@@ -374,88 +374,119 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
+    // Current index, stable
     const index$: Observable<number> =
       this.quizService.currentQuestionIndex$.pipe(
-        startWith(this.currentQuestionIndexValue ?? 0),
-        map(n => Number.isFinite(n as any) ? Number(n) : 0),
+        // seed with the current value you already track
+        // (if undefined, fall back to 0)
+        switchMap(() => of(this.currentQuestionIndexValue ?? 0)),
         distinctUntilChanged()
       );
 
+    // Display state (mode/answered) — keep your semantics
+    type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
     const display$: Observable<DisplayState> =
       this.displayState$.pipe(
-        startWith<DisplayState>({ mode: 'question', answered: false }),
-        distinctUntilChanged((a, b) => a.mode === b.mode && !!a.answered === !!b.answered)
+        // seed
+        switchMap(v => of((v as DisplayState) ?? { mode: 'question', answered: false })),
+        // coalesce identical states
+        distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
       );
 
-    const baselineQuestion$: Observable<string> =
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || ''));
-
-    const correctText$: Observable<string> =
-      this.correctAnswersText$.pipe(startWith(''));
-
+    // Global *intent* only (not the global text!)
     const shouldShow$: Observable<boolean> =
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false));
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        switchMap(v => of(!!v)),
+        distinctUntilChanged()
+      );
 
+    // Baseline question text candidate
+    const baselineText$: Observable<string> =
+      this.questionToDisplay$.pipe(
+        // do NOT seed with previous strings that might belong to another index
+        switchMap(v => of((v ?? '').toString().trim())),
+        distinctUntilChanged()
+      );
+
+    // Correct-count badge text
+    const correctText$: Observable<string> =
+      this.correctAnswersText$.pipe(
+        switchMap(v => of((v ?? '').toString().trim())),
+        distinctUntilChanged()
+      );
+
+    // Per-index explanation (+ gate), strictly keyed by the *current* index
     const perIndexExplanation$: Observable<string | null> =
       index$.pipe(
         switchMap(i =>
           concat(
-            of<string | null>(null),
-            this.explanationTextService.byIndex$(i)
-          )
-        )
-      );
-    
-    // per-index gate stream (seed = false)
-    const perIndexGate$: Observable<boolean> =
-      index$.pipe(
-        switchMap(i =>
-          concat(
-            of<boolean>(false),
-            this.explanationTextService.gate$(i)
+            of<string | null>(null),                       // seed null
+            this.explanationTextService.byIndex$(i)        // live index-scoped stream
           )
         )
       );
 
+    const perIndexGate$: Observable<boolean> =
+      index$.pipe(
+        switchMap(i =>
+          concat(
+            of<boolean>(false),                            // seed closed
+            this.explanationTextService.gate$(i)           // live gate for the index
+          )
+        )
+      );
+
+    // Helper to resolve a canonical question string for an index without stale fallback
+    const canonicalQuestionFor = (idx: number, baseline: string): string => {
+      const model = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+      const modelText = (model?.questionText ?? '').toString().trim();
+      // Prefer the model’s text; only use baseline if we have nothing model-side
+      return modelText || (baseline || this.questionLoadingText || 'No question available');
+    };
+
+    // Combine everything in a *single* place
     this.combinedText$ = combineLatest([
-        index$, display$, shouldShow$, baselineQuestion$, correctText$, perIndexExplanation$, perIndexGate$
-      ]).pipe(
-        map(([idx, display, shouldShow, qText, correctText, explByIndex, gate]: [
-          number, DisplayState, boolean, string, string, string | null, boolean
-        ]) => {
-          // --- baseline question (unchanged logic) ---
-          const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
-          const modelQ = (qm?.questionText ?? '').toString().trim();
-          const incomingQ = (qText ?? '').toString().trim();
-          const chosenQ = incomingQ || this.lastQuestionText || modelQ;
-          const question = chosenQ || this.questionLoadingText || 'No question available';
-          if (chosenQ) this.lastQuestionText = chosenQ;
-      
-          // --- explanation decision (unchanged logic) ---
-          const explanation = (explByIndex ?? '').toString().trim();
-          const wantsExplanation =
-            display.mode === 'explanation' &&
-            !!display.answered &&
-            !!shouldShow &&
-            !!gate &&
-            !!explanation;
-      
-          if (wantsExplanation) {
-            return correctText
-              ? `${explanation} <span class="correct-count">${correctText}</span>`
-              : explanation;
-          }
-      
-          return correctText
-            ? `${question} <span class="correct-count">${correctText}</span>`
-            : question;
-        }),
-        observeOn(asyncScheduler),
-        auditTime(0),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
+      index$,
+      display$,
+      shouldShow$,
+      baselineText$,
+      correctText$,
+      perIndexExplanation$,
+      perIndexGate$
+    ]).pipe(
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+        // Strictly resolve the question text for THIS index
+        const question = canonicalQuestionFor(idx, baseline);
+
+        // Show explanation only when all conditions are met for THIS index
+        const wantsExplanation =
+          display.mode === 'explanation' &&   // UI in explanation mode
+          !!display.answered &&               // question actually answered
+          !!shouldShow &&                     // global intent wants to show
+          !!gate &&                           // index gate is open for THIS idx
+          !!(explanation && explanation.trim());
+
+        // Choose what to render
+        const body = wantsExplanation
+          ? (explanation as string).trim()
+          : question;
+
+        // Append correct-count when present (works for both paths)
+        return correct
+          ? `${body} <span class="correct-count">${correct}</span>`
+          : body;
+      }),
+
+      // Coalesce micro-bursts so we don’t ping-pong between question/explanation in the same tick
+      observeOn(asyncScheduler),
+      auditTime(0),
+
+      // Don’t emit identical markup twice
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
