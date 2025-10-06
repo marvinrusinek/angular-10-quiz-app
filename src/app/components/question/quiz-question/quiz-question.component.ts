@@ -3037,19 +3037,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             ? selectedCorrectCount === correctOpts.length &&
               selOptsSet.size === correctOpts.length
             : !!evtOpt?.correct;
-  
+      
         // Persist for use in finally and stop guard
         this._lastAllCorrect = allCorrect;
         
         this.nextButtonStateService.setNextButtonState(allCorrect);
         this.quizStateService.setAnswered(allCorrect);
         this.quizStateService.setAnswerSelected(allCorrect);
-  
+      
         // Only stop the timer when the question is actually finished correctly
         if (allCorrect) {
           this.safeStopTimer('completed');
         }
-  
+      
         // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
         if ((q?.type === QuestionType.MultipleAnswer) && allCorrect && typeof (this as any).onSubmitMultiple === 'function') {
           if (!this._submittingMulti) {
@@ -3060,41 +3060,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             })();
           }
         }
-  
+      
         // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
         const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
         if (canEmitNow) {
           const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
           const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
           const formatted   = this.explanationTextService.formatExplanation(q as any, correctIdxs, rawExpl).trim();
-  
+      
           // per-index FIRST
           try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch {}
           try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
           try { this.explanationTextService.setGate?.(i0, true); } catch {}
-  
+      
           // flip intent + UI mode
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
           this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-  
+      
           // global with explicit context
           this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
-
-          // mark as displayed + set local bindings immediately
+      
+          // NEW: mark as displayed + set local bindings immediately (single, non-duplicated block)
           this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
-          this.displayExplanation = true;
-
-          this.setExplanationFor(i0, formatted);
-          this.explanationToDisplay = formatted;
-          this.explanationToDisplayChange.emit(formatted);
-  
-          // ⬇️ NEW: keep local bindings in sync immediately (no 1-frame wait)
+          this._showExplanation = true; // if your renderer also honors this manual toggle
+      
           this.setExplanationFor(i0, formatted);
           this.explanationToDisplay = formatted;
           this.explanationToDisplayChange.emit(formatted);
         }
       }); // <-- closes queueMicrotask
-  
+
       // Update explanation and highlighting (RAF for smoother update)
       this._pendingRAF = requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
