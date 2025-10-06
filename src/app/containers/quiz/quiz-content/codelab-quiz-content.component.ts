@@ -379,89 +379,97 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
       this.explanationTextService.explanationText$.pipe(startWith('')),              // global (kept)
       this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // baseline
-      this.correctAnswersText$.pipe(startWith('')),                                  // may emit boolean -> guard below
+      this.correctAnswersText$.pipe(startWith('')),
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // global (kept)
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
   
-        // Guard: on index change, ignore any global explanation this tick
+        // Guard A: on index change, ignore any global explanation this tick
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
           this.lastQuestionText = '';
         }
   
-        const _n = (s: any) => (s ?? '').toString().trim();
+        const _n = (v: any) => (v ?? '').toString().trim();
   
-        // ✅ Only keep correct info if it's a non-empty string. Otherwise empty.
-        const correctStr = typeof correctText === 'string' ? correctText.trim() : '';
+        // ✅ Only treat correct-text as a badge if it’s a non-empty string
+        const correctStr   = typeof correctText === 'string' ? correctText.trim() : '';
         const correctBadge = correctStr ? ` <span class="correct-count">${correctStr}</span>` : '';
   
         const globalExpl = _n(explanationText);
         const rawQ       = _n(questionText);
   
-        // canonical question for current index
+        // Canonical question fallback for current index
         const qm = this.quizService.questions?.[currentIndex] ?? null;
-        const fallbackQ = _n(qm?.questionText) || _n(this.questions?.[currentIndex]?.questionText);
-        const candidate = rawQ || this.lastQuestionText || fallbackQ;
-        if (candidate) this.lastQuestionText = candidate;
+        const fallbackFromModel = _n(qm?.questionText) || _n(this.questions?.[currentIndex]?.questionText);
   
-        const question = candidate || this.questionLoadingText || 'No question available';
+        const candidateSource   = rawQ || this.lastQuestionText || fallbackFromModel;
+        const candidateQuestion = _n(candidateSource);
+        if (candidateQuestion) this.lastQuestionText = candidateQuestion;
   
-        // fast-path: only accept global explanation if it provably belongs to THIS index
-        const svcExpl = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-        const safeGlobalExpl = (globalExpl && svcExpl && globalExpl === svcExpl) ? globalExpl : '';
+        const question = candidateQuestion || this.questionLoadingText || 'No question available';
+  
+        // Guard B: accept global explanation only if it matches the current index’s formatted cache
+        const svcCurrentExpl = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+        const globalExplMatchesCurrent = !!globalExpl && !!svcCurrentExpl && globalExpl === svcCurrentExpl;
   
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
   
         if (wantsExplanation && !indexChanged) {
-          // 1) Use the cached explanation for this index if present
-          if (svcExpl) {
-            return of(svcExpl + correctBadge);
+          // 1) If service cache already has THIS index, use it.
+          if (svcCurrentExpl) {
+            return of(svcCurrentExpl + correctBadge);
           }
   
-          // 2) If global matches this index's cache (race), use it
-          if (safeGlobalExpl) {
-            return of(safeGlobalExpl + correctBadge);
+          // 2) If the global equals THIS index’s cache (race window), use it.
+          if (globalExplMatchesCurrent) {
+            return of(globalExpl + correctBadge);
           }
   
-          // 3) Otherwise, fetch for THIS index once, then fall back to question (no placeholder)
-          return this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
-            take(1),
-            map((s: string | null | undefined) => _n(s)),
-            switchMap((trimmed) => {
-              if (trimmed) return of(trimmed + correctBadge);
+          // 3) Otherwise fetch for THIS index once, then **stay on question** (no placeholder).
+          return this.explanationTextService
+            .getFormattedExplanationTextForQuestion(currentIndex)
+            .pipe(
+              take(1),
+              map((s: string | null | undefined) => _n(s)),
+              switchMap((trimmed) => {
+                // Ignore placeholder-y fallbacks; only render non-empty text
+                if (trimmed && trimmed !== 'No explanation available' && trimmed !== 'Explanation not provided') {
+                  return of(trimmed + correctBadge);
+                }
   
-              // re-check cache in case it filled
-              const latestSvc = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-              if (latestSvc) return of(latestSvc + correctBadge);
+                // Re-check cache just in case it filled while we were awaiting
+                const latestSvc = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+                if (latestSvc) return of(latestSvc + correctBadge);
   
-              // model fallback for THIS index
-              const modelRaw = _n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
-              if (modelRaw) return of(modelRaw + correctBadge);
+                // Model fallback (still scoped to this index). If empty → keep question.
+                const modelRaw = _n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
+                if (modelRaw) return of(modelRaw + correctBadge);
   
-              // keep the question (avoid “not found” flash)
-              return of(question + correctBadge);
-            })
-          );
+                // Keep question baseline to avoid any “not found” flash
+                return of(question + correctBadge);
+              })
+            );
         }
   
-        // QUESTION path (append correct-count only if we actually have a string)
+        // QUESTION path (append correct-count if present)
         return of(question + correctBadge);
       }),
   
-      // Coalesce once at the tail to avoid ping-pong in a tick
+      // Coalesce once at the tail to avoid ping-pong within a tick
       observeOn(asyncScheduler),
       auditTime(0),
   
-      // stricter equality avoids micro-flips on whitespace
+      // Stricter equality to avoid micro-flips on whitespace
       distinctUntilChanged((a, b) => a === b),
   
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
   
   
 
