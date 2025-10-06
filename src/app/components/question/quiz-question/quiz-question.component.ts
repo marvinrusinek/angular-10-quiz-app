@@ -3079,6 +3079,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
           // global with explicit context
           this.explanationTextService.setExplanationText(formatted, { context: `question:${i0}`, force: true });
+
+          // mark as displayed + set local bindings immediately
+          this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
+          this._showExplanation = true;
+
+          this.setExplanationFor(i0, formatted);
+          this.explanationToDisplay = formatted;
+          this.explanationToDisplayChange.emit(formatted);
   
           // ⬇️ NEW: keep local bindings in sync immediately (no 1-frame wait)
           this.setExplanationFor(i0, formatted);
