@@ -67,6 +67,9 @@ export class ExplanationTextService {
   private _lastEmittedByIndex = new Map<number, string | null>();
   private _byIndex = new Map<number, BehaviorSubject<string | null>>();
 
+  private _lastEmitIndex = new BehaviorSubject<number | null>(null);
+  public  lastEmitIndex$ = this._lastEmitIndex.asObservable();
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -873,28 +876,25 @@ export class ExplanationTextService {
 
   // Emit formatted (or clear with null) for a specific index
   public emitFormatted(index: number, value: string | null): void {
-    // Normalize index and coerce value to a trimmed-or-null string
     const idx = Math.max(0, Number(index) || 0);
-    const trimmed = ((value ?? '') as string).trim() || null;
+    const trimmed = (value ?? '').toString().trim() || null;
   
     // Coalesce duplicate emits per index
-    const last = this._lastByIndex.get(idx) ?? null;
+    const last = this._lastByIndex?.get(idx) ?? null;
     if (last === trimmed) return;
   
-    // Update last-seen cache
-    this._lastByIndex.set(idx, trimmed);
-  
-    // Ensure per-index subject exists and emit (index-scoped stream for the renderer)
+    // Ensure per-index subject exists
     if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
+    if (!this._lastByIndex) this._lastByIndex = new Map<number, string | null>();
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
+  
+    this._lastByIndex.set(idx, trimmed);
     this._byIndex.get(idx)!.next(trimmed);
   
-    // Preserve existing event-bus behavior for any legacy listeners
-    try {
-      this._events$?.next({ index: idx, text: trimmed });
-    } catch { /* optional */ }
+    // Tag which index produced the latest explanation
+    this._lastEmitIndex.next(trimmed ? idx : null);
   }
 
   // Returns the index (number) that the last global explanation emission belonged to, or null.
