@@ -374,103 +374,107 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    // Current index, seeded and stable
+    // Current index, stable
     const index$: Observable<number> =
       this.quizService.currentQuestionIndex$.pipe(
-        startWith(this.currentQuestionIndexValue ?? 0),
+        // seed with the current value tracked (if undefined, fall back to 0)
+        switchMap(() => of(this.currentQuestionIndexValue ?? 0)),
         distinctUntilChanged()
       );
-  
-    // Display state (mode/answered), seeded
-    const display$: Observable<DisplayState> =
-      this.displayState$.pipe(
-        startWith({ mode: 'question', answered: false } as const),
-        distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
-      );
-  
-    // Global "should show explanation" intent, seeded
+
+    // Display state (mode/answered)
+    const display$: Observable<DisplayState> = this.displayState$.pipe(
+      startWith({ mode: 'question', answered: false } as DisplayState),
+      map((v: any): DisplayState => {
+        const rawMode = v?.mode;
+        const mode: 'question' | 'explanation' =
+          rawMode === 'explanation' ? 'explanation' : 'question';
+        const answered = !!v?.answered;
+        return { mode, answered };
+      }),
+      distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
+    );
+
+    // Global intent only
     const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(
-        startWith(false),
+        switchMap(v => of(!!v)),
         distinctUntilChanged()
       );
-  
+
     // Baseline question text candidate
     const baselineText$: Observable<string> =
       this.questionToDisplay$.pipe(
-        startWith(this.questionLoadingText || ''),
-        map(s => (s ?? '').toString().trim()),
+        // do NOT seed with previous strings that might belong to another index
+        switchMap(v => of((v ?? '').toString().trim())),
         distinctUntilChanged()
       );
-  
+
     // Correct-count badge text
     const correctText$: Observable<string> =
       this.correctAnswersText$.pipe(
-        startWith(''),
-        map(s => (s ?? '').toString().trim()),
+        switchMap(v => of((v ?? '').toString().trim())),
         distinctUntilChanged()
       );
-  
-    // --- HARDENED PER-INDEX EXPLANATION PIPE ---
-    // Explanation is *only* visible when the *same index's* gate is open.
-    // Until the gate opens, we surface `null` so no stale text can leak.
-    const explanationReady$: Observable<string | null> =
+
+    // Per-index explanation (+ gate), strictly keyed by the current index
+    const perIndexExplanation$: Observable<string | null> =
       index$.pipe(
         switchMap(i =>
-          combineLatest([
-            defer(() => this.explanationTextService.byIndex$(i)).pipe(startWith<string | null>(null)),
-            defer(() => this.explanationTextService.gate$(i)).pipe(startWith(false)),
-          ]).pipe(
-            map(([txt, gate]) => (gate ? ((txt ?? '').toString().trim() || null) : null)),
-            distinctUntilChanged()
+          concat(
+            of<string | null>(null),
+            defer(() => this.explanationTextService.byIndex$(i))
           )
         )
       );
-  
-    // Helper: canonical question text for an index (model → baseline → loading)
+
+    const perIndexGate$: Observable<boolean> =
+      index$.pipe(
+        switchMap(i =>
+          concat(
+            of(false),
+            defer(() => this.explanationTextService.gate$(i))
+          )
+        )
+      );
+
+    // Helper to resolve a canonical question string for an index without stale fallback
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
-      const model =
-        (this.quizService?.questions?.[idx]?.questionText ??
-         this.questions?.[idx]?.questionText ??
-         '').toString().trim();
+      const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+      const model = (q?.questionText ?? '').toString().trim();
       const base  = (baseline ?? '').toString().trim();
       return model || base || this.questionLoadingText || 'Loading…';
     };
-  
+
     // Combine everything in a *single* place
     this.combinedText$ = combineLatest([
-      index$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      explanationReady$, // <- use the gate-bound explanation
+      index$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$ ] as [
+      Observable<number>, Observable<DisplayState>, Observable<boolean>, Observable<string>, Observable<string>,
+      Observable<string | null>, Observable<boolean>
     ]).pipe(
-      map(([idx, display, shouldShow, baseline, correct, explanation]) => {
-        // Always resolve the question text for THIS index first
-        const question = canonicalQuestionFor(idx as number, baseline as string);
-  
-        // Only flip to explanation when everything is truly ready
+      map(([ idx, display, shouldShow, baseline, correct, explanation, gate ]:
+         [ number, DisplayState, boolean, string, string, string | null, boolean] ) => {
+        const question = canonicalQuestionFor(idx, baseline);
+    
         const wantsExplanation =
-          (display as DisplayState).mode === 'explanation' &&
-          (display as DisplayState).answered &&
-          !!shouldShow &&
-          !!explanation; // already gate-checked above
-  
-        const body = wantsExplanation ? (explanation as string) : question;
-  
-        return (correct as string)
+          display.mode === 'explanation' &&
+          display.answered &&
+          shouldShow &&
+          gate &&
+          !!(explanation && explanation.trim());
+    
+        const body = wantsExplanation ? (explanation as string).trim() : question;
+    
+        return correct
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
-      // coalesce same-tick races (navigation + explanation unlock)
-      observeOn(asyncScheduler),
-      auditTime(0),
+      observeOn(asyncScheduler),  // schedule UI flip on microtask boundary
+      auditTime(0),               // coalesce same-tick flutters
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
