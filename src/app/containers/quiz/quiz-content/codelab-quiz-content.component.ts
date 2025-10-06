@@ -376,128 +376,131 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    let _lastIdx = -1;
-
-    const guardedIndex$ = this.quizService.currentQuestionIndex$.pipe(
+    type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
+  
+    // 1) Current index (stable, seeded)
+    const index$ = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
-      distinctUntilChanged(),
-      tap((i) => {
-        // 1) Close the previous index entirely
+      map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
+      distinctUntilChanged()
+    );
+  
+    // 2) Guard on index changes: close old index, pre-close new index, reset intent
+    let _lastIdx = -1;
+    const guardedIndex$ = index$.pipe(
+      tap(i => {
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
         }
-
-        // 2) Hard reset the NEW index before any render (prevents FET flash)
+        // Pre-close the NEW index before any render
         try { this.explanationTextService.setGate(i, false); } catch {}
         try { this.explanationTextService.emitFormatted(i, null); } catch {}
-
-        // 3) Reset global intent for the new index (stay in question mode)
+        // Reset global intent to question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-
         _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
+    // 3) One-tick freeze after index change: only allow question text
+    const indexFreeze$ = guardedIndex$.pipe(
+      switchMap(() =>
+        // true now (freeze), flips to false next microtask
+        concat(of(true), of(false).pipe(observeOn(asyncScheduler)))
+      ),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // 4) Display state
     const display$: Observable<DisplayState> = this.displayState$.pipe(
-      startWith<DisplayState>({ mode: 'question', answered: false }),
       map(v => {
-        const m = (v as any)?.mode;
-        const a = (v as any)?.answered;
-        return (m === 'question' || m === 'explanation')
-          ? ({ mode: m, answered: !!a } as DisplayState)
+        const s = (v as any) ?? { mode: 'question', answered: false };
+        return (s.mode === 'explanation' || s.mode === 'question')
+          ? (s as DisplayState)
           : ({ mode: 'question', answered: false } as DisplayState);
       }),
-      distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
+      distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
+    // 5) Global intent only
     const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      startWith(false),
       map(Boolean),
-      distinctUntilChanged()
+      startWith(false),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
+    // 6) Baseline question text candidate
     const baselineText$: Observable<string> = this.questionToDisplay$.pipe(
       startWith(this.questionLoadingText || ''),
       map(s => (s ?? '').toString().trim()),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
+    // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
       startWith(''),
       map(s => (s ?? '').toString().trim()),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
+    // 8) Per-index explanation/gate — always seed so first paint is question text
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i =>
-        // always seed with null, THEN subscribe to the index-scoped stream
-        concat(of<string | null>(null), this.explanationTextService.byIndex$(i))
-      ),
-      distinctUntilChanged()
+      switchMap(i => concat(of<string | null>(null), this.explanationTextService.byIndex$(i))),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
+  
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i =>
-        // always seed with false, THEN the index-scoped gate
-        concat(of(false), this.explanationTextService.gate$(i))
-      ),
-      distinctUntilChanged()
-    );    
-    
-    // one-tick freeze after index changes so the question baseline wins for that tick
-    const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(() => concat(of(true), of(false))) // true then false next microtask
+      switchMap(i => concat(of(false), this.explanationTextService.gate$(i))),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
-    
-    // 3) Helper: canonical question for an index
+  
+    // 9) Canonical question resolver (no stale fallback)
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
       const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
       const model = (q?.questionText ?? '').toString().trim();
       const base  = (baseline ?? '').toString().trim();
       return model || base || this.questionLoadingText || 'Loading…';
     };
-    
-    // 4) Strongly-typed combineLatest (tuple)
-    this.combinedText$ = combineLatest<
-      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-    >([
-      guardedIndex$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$,
-      indexFreeze$
+  
+    // 10) Combine everything
+    this.combinedText$ = combineLatest([
+      guardedIndex$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
       map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
-        const question = canonicalQuestionFor(idx, baseline);
-    
-        // During the freeze tick after an index change, force question text (no flashes)
-        if (frozen) {
+        const question = canonicalQuestionFor(idx as number, baseline as string);
+  
+        // While frozen after an index change → force question text (no FET)
+        if (frozen === true) {
           return correct ? `${question} <span class="correct-count">${correct}</span>` : question;
         }
-    
-        const exp = (explanation ?? '').toString().trim();
+  
+        // Only swap to explanation when *everything* aligns for THIS index
+        const hasExplanation = !!(explanation && (explanation as string).trim());
         const wantsExplanation =
           display.mode === 'explanation' &&
           !!display.answered &&
           !!shouldShow &&
           !!gate &&
-          !!exp;
-    
-        const body = wantsExplanation ? exp : question;
-    
+          hasExplanation;
+  
+        const body = wantsExplanation ? (explanation as string).trim() : question;
         return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
       }),
-      observeOn(asyncScheduler),
-      auditTime(0),
+      observeOn(asyncScheduler),   // flip on microtask boundary
+      auditTime(0),                // coalesce same-tick flutters
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
