@@ -874,27 +874,28 @@ export class ExplanationTextService {
     );
   }
 
-  // Emit formatted (or clear with null) for a specific index
-  public emitFormatted(index: number, value: string | null): void {
+  // Per-index observable (null when nothing valid yet).
+  public formattedFor$(index: number): Observable<string | null> {
     const idx = Math.max(0, Number(index) || 0);
-    const trimmed = (value ?? '').toString().trim() || null;
-  
-    // Coalesce duplicate emits per index
-    const last = this._lastByIndex?.get(idx) ?? null;
-    if (last === trimmed) return;
-  
-    // Ensure per-index subject exists
-    if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
-    if (!this._lastByIndex) this._lastByIndex = new Map<number, string | null>();
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
-  
+    return this._byIndex.get(idx)!.asObservable();
+  }
+
+  // Emit per-index formatted text; coalesces duplicates.
+  public emitFormatted(index: number, value: string | null): void {
+    const idx = Math.max(0, Number(index) || 0);
+    const trimmed = (value ?? '').toString().trim() || null;
+
+    const last = this._lastByIndex.get(idx) ?? null;
+    if (last === trimmed) return; // coalesce
+
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
     this._lastByIndex.set(idx, trimmed);
     this._byIndex.get(idx)!.next(trimmed);
-  
-    // Tag which index produced the latest explanation
-    this._lastEmitIndex.next(trimmed ? idx : null);
   }
 
   // Returns the index (number) that the last global explanation emission belonged to, or null.
