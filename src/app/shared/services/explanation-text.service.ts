@@ -84,6 +84,7 @@ export class ExplanationTextService {
   public lastEmitIndex$ = this._lastEmitIndex.asObservable();
 
   private _events$ = new Subject<{ index: number; text: string | null }>();
+  private _gate = new Map<number, BehaviorSubject<boolean>>();
 
   constructor() {}
 
@@ -1031,6 +1032,12 @@ export class ExplanationTextService {
 
     const idx = Number(idxStr);
     return Number.isInteger(idx) && idx >= 0 ? idx : null;
+  }
+
+  public gate$(index: number): Observable<boolean> {
+    const i = Math.max(0, Number(index) || 0);
+    if (!this._gate.has(i)) this._gate.set(i, new BehaviorSubject<boolean>(false));
+    return this._gate.get(i)!.asObservable();
   }
 
   // Set gate for a specific index
