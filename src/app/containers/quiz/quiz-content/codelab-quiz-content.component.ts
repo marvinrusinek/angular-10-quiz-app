@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { asyncScheduler, BehaviorSubject, combineLatest, concat, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -421,16 +421,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const perIndexExplanation$: Observable<string | null> =
       index$.pipe(
         switchMap(i =>
-          defer(() => this.explanationTextService.byIndex$(i))
-            .pipe(startWith<string | null>(null))
+          concat(
+            of<string | null>(null),
+            defer(() => this.explanationTextService.byIndex$(i))
+          )
         )
       );
 
     const perIndexGate$: Observable<boolean> =
       index$.pipe(
         switchMap(i =>
-          defer(() => this.explanationTextService.gate$(i))
-            .pipe(startWith(false))
+          concat(
+            of(false),
+            defer(() => this.explanationTextService.gate$(i))
+          )
         )
       );
 
