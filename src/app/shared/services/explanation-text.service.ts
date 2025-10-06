@@ -65,6 +65,7 @@ export class ExplanationTextService {
   private readonly _lastByIndex = new Map<number, string | null>();
 
   private _lastEmittedByIndex = new Map<number, string | null>();
+  private _byIndex = new Map<number, BehaviorSubject<string | null>>();
 
   constructor() {}
 
@@ -860,25 +861,6 @@ export class ExplanationTextService {
     this.resetCompleteSubject.next(false);
   }
 
-  public shouldEmitExplanation(
-    lockedIndex: number,
-    lockedText: string,
-    currentIndex: number,
-    currentText: string,
-    lockedTimestamp: number,
-    latestTimestamp: number
-  ): boolean {
-    return (
-      lockedIndex === currentIndex &&
-      lockedText === currentText &&
-      lockedTimestamp === latestTimestamp
-    );
-  }
-  
-  public pushFormatted(text: string): void {
-    this.formattedExplanationSubject.next((text ?? '').toString().trim());
-  }
-
   private buildQuestionContextKey(questionIndex: number): string {
     return `${this.defaultContextPrefix}:${Math.max(0, Number(questionIndex) || 0)}`;
   }
@@ -898,68 +880,41 @@ export class ExplanationTextService {
     return false;
   }
 
-  // Tell service which index is "current" (optional helper for components)
-  public setCurrentIndex(i: number): void {
-    if (Number.isInteger(i)) this._currentIndex$.next(i);
-  }
-
-  // Emit formatted (or clear with null) for a specific index
-  public emitFormatted(index: number, text: string | null): void {
-    const trimmed = (text ?? '').trim() || null;
-    const last = this._lastByIndex.get(index) ?? null;
-    if (last === trimmed) return;               // coalesce duplicate emits
-    this._lastByIndex.set(index, trimmed);
-    this._events$.next({ index, text: trimmed });
-  }
-
-  // Read explanation bound to a specific index
-  public explanationForIndex$(index: number): Observable<string | null> {
-    return this._events$.pipe(
-      filter(ev => ev.index === index),
-      map(ev => ev.text),
-      startWith(null),
-      distinctUntilChanged((a, b) => (a ?? '') === (b ?? '')),
-      shareReplay({ bufferSize: 1, refCount: true })
+  public getFormattedStreamFor(index: number): Observable<string | null> {
+    const idx = Math.max(0, Number(index) || 0);
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
+    return this._byIndex.get(idx)!.asObservable().pipe(
+      distinctUntilChanged()
     );
   }
 
-  // Read gate bound to a specific index
-  public gateForIndex$(index: number): Observable<boolean> {
-    let bs = this._gateByIndex.get(index);
-    if (!bs) {
-      bs = new BehaviorSubject<boolean>(false);
-      this._gateByIndex.set(index, bs);
+  // Emit formatted (or clear with null) for a specific index
+  public emitFormatted(index: number, value: string | null): void {
+    // Normalize index and coerce value to a trimmed-or-null string
+    const idx = Math.max(0, Number(index) || 0);
+    const trimmed = ((value ?? '') as string).trim() || null;
+  
+    // Coalesce duplicate emits per index
+    const last = this._lastByIndex.get(idx) ?? null;
+    if (last === trimmed) return;
+  
+    // Update last-seen cache
+    this._lastByIndex.set(idx, trimmed);
+  
+    // Ensure per-index subject exists and emit (index-scoped stream for the renderer)
+    if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
-    return bs.asObservable().pipe(distinctUntilChanged(), shareReplay(1));
+    this._byIndex.get(idx)!.next(trimmed);
+  
+    // Preserve existing event-bus behavior for any legacy listeners
+    try {
+      this._events$?.next({ index: idx, text: trimmed });
+    } catch { /* noop: legacy bus optional */ }
   }
-
-  // Set gate for a specific index
-  public setGate(index: number, show: boolean): void {
-    let bs = this._gateByIndex.get(index);
-    if (!bs) {
-      bs = new BehaviorSubject<boolean>(false);
-      this._gateByIndex.set(index, bs);
-    }
-    bs.next(!!show);
-  }
-
-  // Convenience: compute + emit + open gate for index
-  public showForIndex(index: number, question: QuizQuestion | null | undefined): string | null {
-    const raw = question?.explanation?.trim() || 'Explanation not provided';
-    const indices = this.getCorrectOptionIndices(question as any);
-    const formatted = this.formatExplanation(question as any, indices, raw);
-    const trimmed = (formatted ?? '').trim() || null;
-    this.emitFormatted(index, trimmed);
-    this.setGate(index, !!trimmed);
-    return trimmed;
-  }
-
-  // Convenience: clear explanation + close gate for index
-  public hideForIndex(index: number): void {
-    this.emitFormatted(index, null);
-    this.setGate(index, false);
-  }
-
 
   // Returns the index (number) that the last global explanation emission belonged to, or null.
   public getLastGlobalExplanationIndex(): number | null {
@@ -976,5 +931,15 @@ export class ExplanationTextService {
 
     const idx = Number(idxStr);
     return Number.isInteger(idx) && idx >= 0 ? idx : null;
+  }
+
+  // Set gate for a specific index
+  public setGate(index: number, show: boolean): void {
+    let bs = this._gateByIndex.get(index);
+    if (!bs) {
+      bs = new BehaviorSubject<boolean>(false);
+      this._gateByIndex.set(index, bs);
+    }
+    bs.next(!!show);
   }
 }
