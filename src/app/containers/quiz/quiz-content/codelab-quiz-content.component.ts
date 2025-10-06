@@ -376,18 +376,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    const guardedIndex$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
+    let _lastIdx = -1;
+
+    const guardedIndex$ = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       distinctUntilChanged(),
-      tap(i => {
-        if (typeof this._lastIdx === 'number' && this._lastIdx !== i) {
-          try { this.explanationTextService.setGate(this._lastIdx, false); } catch {}
-          try { this.explanationTextService.emitFormatted(this._lastIdx, null); } catch {}
+      tap((i) => {
+        // 1) Close the previous index entirely
+        if (_lastIdx !== -1 && _lastIdx !== i) {
+          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
+          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
         }
+
+        // 2) Hard reset the NEW index before any render (prevents FET flash)
+        try { this.explanationTextService.setGate(i, false); } catch {}
+        try { this.explanationTextService.emitFormatted(i, null); } catch {}
+
+        // 3) Reset global intent for the new index (stay in question mode)
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        this._showExplanation = false;
-        this.explanationToDisplay = '';
-        this._lastIdx = i;
+
+        _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -424,13 +432,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
       switchMap(i =>
-        this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null))
-      )
+        // always seed with null, THEN subscribe to the index-scoped stream
+        concat(of<string | null>(null), this.explanationTextService.byIndex$(i))
+      ),
+      distinctUntilChanged()
     );
     
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
-    );
+      switchMap(i =>
+        // always seed with false, THEN the index-scoped gate
+        concat(of(false), this.explanationTextService.gate$(i))
+      ),
+      distinctUntilChanged()
+    );    
     
     // one-tick freeze after index changes so the question baseline wins for that tick
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
