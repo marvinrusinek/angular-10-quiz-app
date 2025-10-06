@@ -3099,70 +3099,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Update explanation and highlighting (RAF for smoother update)
         this._pendingRAF = requestAnimationFrame(() => {
           if (this._skipNextAsyncUpdates) return;
-      
-        // Decide if we should emit explanation now:
-        // - SingleAnswer: on click
-        // - MultipleAnswer: only when allCorrect became true
-        const canEmitExplanation =
-          q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
-      
-        if (canEmitExplanation) {
-          // ✅ NEW (Step 1): canonicalize the question for THIS index to avoid stale Q1 leaking into Q2
-          const canonicalQ   = this.quizService.questions?.[i0] ?? q;
-          const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
-          const incomingText = (q?.questionText ?? '').toString().trim();
-          const useQ         = (expectedText && expectedText === incomingText) ? q : canonicalQ;
-      
-          // Build formatted explanation (from canonical question only)
-          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(useQ as any);
-          const rawExpl     = (useQ?.explanation ?? '').trim() || 'Explanation not provided';
-          const formatted   = this.explanationTextService.formatExplanation(useQ as any, correctIdxs, rawExpl).trim();
-      
-          // ⬇️ NEW: coalesce — skip heavy emits if we already have the same formatted text for this index
-          const alreadySame =
-            (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
-              .toString().trim() === formatted;
-      
-          if (!alreadySame) {
-            // per-index cache FIRST so renderer accepts it immediately
-            try { this.explanationTextService.storeFormattedExplanation(i0, formatted, useQ as any); } catch { /* fall through */ }
-            // index-scoped live channel + gate (if you wired these)
-            try { this.explanationTextService.emitFormatted?.(i0, formatted); } catch {}
-            try { this.explanationTextService.setGate?.(i0, true); } catch {}
+        
+          // Decide if we should emit explanation now:
+          // - SingleAnswer: on click
+          // - MultipleAnswer: only when allCorrect became true
+          const canEmitExplanation =
+            q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
+        
+          if (canEmitExplanation) {
+            // ✅ NEW (Step 1): canonicalize the question for THIS index to avoid stale Q1 leaking into Q2
+            const canonicalQ   = this.quizService.questions?.[i0] ?? q;
+            const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
+            const incomingText = (q?.questionText ?? '').toString().trim();
+            const useQ         = (expectedText && expectedText === incomingText) ? q : canonicalQ;
+        
+            // Build formatted explanation (from canonical question only)
+            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(useQ as any);
+            const rawExpl     = (useQ?.explanation ?? '').trim() || 'Explanation not provided';
+            const formatted   = this.explanationTextService
+              .formatExplanation(useQ as any, correctIdxs, rawExpl)
+              .trim();
+        
+            // ⬇️ PURE UI: no service writes here (no storeFormattedExplanation / emitFormatted / setGate /
+            // setShouldDisplayExplanation / setIsExplanationTextDisplayed / setExplanationText).
+            // Only local component state/bindings to avoid cross-index bleed or ping-pong.
+        
+            this.displayExplanation = true;
+            this.showExplanationChange?.emit(true);
+        
+            // Keep your local bindings in sync (cheap, idempotent)
+            this.setExplanationFor(i0, formatted);
+            this.explanationToDisplay = formatted;
+            this.explanationToDisplayChange.emit(formatted);
+          } else {
+            // leave baseline question visible
+            // ⬇️ PURE UI: do not toggle any global service flags here
+            this.displayExplanation = false;
+            this.showExplanationChange?.emit(false);
+        
+            const cached = this._formattedByIndex.get(i0);
+            const rawTrue = (q?.explanation ?? '').trim();
+            const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+            this.setExplanationFor(i0, txt);
           }
-      
-          // flip intent + UI mode (idempotent)
-          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-          this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-          this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
-      
-          this.displayExplanation = true;
-          this.showExplanationChange?.emit(true);
-      
-          // only emit global if it actually changed
-          if (!alreadySame) {
-            this.explanationTextService.setExplanationText(formatted, {
-              context: `question:${i0}`,
-              force: true
-            });
-          }
-      
-          // Keep your local bindings in sync (cheap, idempotent)
-          this.setExplanationFor(i0, formatted);
-          this.explanationToDisplay = formatted;
-          this.explanationToDisplayChange.emit(formatted);
-        } else {
-          // leave baseline question visible
-          this.explanationTextService.setShouldDisplayExplanation(false);
-          this.displayExplanation = false;
-          this.showExplanationChange?.emit(false);
-      
-          const cached = this._formattedByIndex.get(i0);
-          const rawTrue = (q?.explanation ?? '').trim();
-          const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
-          this.setExplanationFor(i0, txt);
-        }
-      });
+        
+          // UI polish (no service writes)
+          const selOptsSet = new Set(
+            (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+              .map(o => this.selectionMessageService.stableKey(o as any))
+          );
+          this.updateOptionHighlighting(selOptsSet);
+          this.refreshFeedbackFor(evtOpt ?? undefined);
+        
+          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
+        });        
 
         this.updateOptionHighlighting(selOptsSet);
         this.refreshFeedbackFor(evtOpt ?? undefined);
