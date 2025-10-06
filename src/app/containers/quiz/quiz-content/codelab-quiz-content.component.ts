@@ -418,30 +418,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
 
     this.combinedText$ = combineLatest([
-        index$,
-        display$,
-        shouldShow$,
-        baselineQuestion$,
-        correctText$,
-        perIndexExplanation$,
-        perIndexGate$
+        index$, display$, shouldShow$, baselineQuestion$, correctText$, perIndexExplanation$, perIndexGate$
       ]).pipe(
-        map(([
-          idx,
-          display,
-          shouldShow,
-          qText,
-          correctText,
-          explByIndex,
-          gate
-        ]: [
-          number,
-          DisplayState,
-          boolean,
-          string,
-          string,
-          string | null,
-          boolean
+        map(([idx, display, shouldShow, qText, correctText, explByIndex, gate]: [
+          number, DisplayState, boolean, string, string, string | null, boolean
         ]) => {
           // --- baseline question (unchanged logic) ---
           const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
@@ -476,9 +456,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
-  
-  
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
