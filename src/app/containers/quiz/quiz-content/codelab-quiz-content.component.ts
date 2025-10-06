@@ -421,20 +421,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const perIndexExplanation$: Observable<string | null> =
       index$.pipe(
         switchMap(i =>
-          concat(
-            of<string | null>(null),                       // seed null
-            this.explanationTextService.byIndex$(i)        // live index-scoped stream
-          )
+          defer(() => this.explanationTextService.byIndex$(i))
+            .pipe(startWith<string | null>(null))
         )
       );
 
     const perIndexGate$: Observable<boolean> =
       index$.pipe(
         switchMap(i =>
-          concat(
-            of<boolean>(false),                            // seed closed
-            this.explanationTextService.gate$(i)           // live gate for the index
-          )
+          defer(() => this.explanationTextService.gate$(i))
+            .pipe(startWith(false))
         )
       );
 
