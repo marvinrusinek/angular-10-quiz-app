@@ -390,46 +390,61 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           try { this.explanationTextService.emitFormatted(lastIdx, null); } catch {}
         }
         lastIdx = i;
-      })
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 3) Display state (seeded)
+    // 3) Freeze explanation for the first microtask after index changes
+    //    This avoids a stale explanation flashing as we switch questions.
+    const indexFreeze$ = guardedIndex$.pipe(
+      switchMap(() => concat(of(true), of(false).pipe(observeOn(asyncScheduler)))),
+      // emits: true immediately (freeze), then false next microtask (unfreeze)
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // 4) Display state (seeded)
     const display$ = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as const),
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
     );
   
-    // 4) Global “intent to show explanation” (seeded)
+    // 5) Global “intent to show explanation” (seeded)
     const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
       startWith(false),
       distinctUntilChanged()
     );
   
-    // 5) Baseline question text candidate (seeded)
+    // 6) Baseline question text candidate (seeded)
     const baselineText$ = this.questionToDisplay$.pipe(
       startWith(this.questionLoadingText || ''),
       map(s => (s ?? '').toString().trim()),
       distinctUntilChanged()
     );
   
-    // 6) Correct-count badge text (seeded)
+    // 7) Correct-count badge text (seeded)
     const correctText$ = this.correctAnswersText$.pipe(
       startWith(''),
       map(s => (s ?? '').toString().trim()),
       distinctUntilChanged()
     );
   
-    // 7) Per-index explanation text, gated, strictly scoped to current index
-    const explanationReady$ = guardedIndex$.pipe(
-      switchMap(i =>
-        combineLatest([
-          this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null)),
-          this.explanationTextService.gate$(i).pipe(startWith(false)),
-        ]).pipe(
-          map(([txt, gate]) => (gate ? ((txt ?? '').toString().trim() || null) : null)),
-          distinctUntilChanged()
-        )
-      )
+    // 8) Explanation *strictly for the current index* using the event bus to bind index→text
+    //    _events$ must emit: { index: number, text: string | null }
+    const expForThisIndex$ = combineLatest([
+      guardedIndex$,
+      // start with a null event, then live events
+      concat(of<{index:number; text:string|null}>({ index: -1, text: null }), this.explanationTextService._events$)
+    ]).pipe(
+      map(([i, ev]) => (ev.index === i ? (ev.text ?? null) : null)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // 9) Per-index gate (seeded to false), still required to control reveal
+    const gateForThisIndex$ = guardedIndex$.pipe(
+      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
   
     // Helper: canonical question for an index (model → baseline → loading)
@@ -442,20 +457,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return model || base || this.questionLoadingText || 'Loading…';
     };
   
-    // 8) Combine → render
+    // 10) Combine → render
     this.combinedText$ = combineLatest([
-      guardedIndex$, display$, shouldShow$, baselineText$, correctText$, explanationReady$
+      guardedIndex$,              // number
+      display$,                   // {mode, answered}
+      shouldShow$,                // boolean
+      baselineText$,              // string
+      correctText$,               // string
+      expForThisIndex$,           // string | null (already index-matched)
+      gateForThisIndex$,          // boolean
+      indexFreeze$                // boolean (true during first tick after index change)
     ]).pipe(
-      map(([idx, display, shouldShow, baseline, correct, explanation]) => {
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
         const question = canonicalQuestionFor(idx as number, baseline as string);
   
-        const wantsExplanation =
-          (display as {mode:'question'|'explanation';answered:boolean}).mode === 'explanation' &&
-          (display as {mode:'question'|'explanation';answered:boolean}).answered &&
-          !!shouldShow &&
-          !!explanation; // already gate-checked
+        // If we're in the freeze window, force question text (no explanation yet).
+        if (frozen) {
+          return (correct as string)
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+        }
   
-        const body = wantsExplanation ? (explanation as string) : question;
+        const wantsExplanation =
+          display.mode === 'explanation' &&
+          display.answered &&
+          !!shouldShow &&
+          !!gate &&
+          !!(explanation && (explanation as string).trim());
+  
+        const body = wantsExplanation ? (explanation as string).trim() : question;
   
         return (correct as string)
           ? `${body} <span class="correct-count">${correct}</span>`
@@ -467,8 +497,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
-  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
