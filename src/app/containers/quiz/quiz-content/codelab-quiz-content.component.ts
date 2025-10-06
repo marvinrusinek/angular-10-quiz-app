@@ -476,88 +476,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   }
 
-
-  private questionTextForIndex$(index: number): Observable<string> {
-    return this.quizService.getQuestionByIndex(index).pipe(
-      map(q => (q?.questionText ?? '').toString().trim())
-    );
-  }
-
-  private hasExplanationContent(state: QuestionViewState, rawExplanation: string | null | undefined): boolean {
-    const formatted = (this.explanationTextService.getFormattedSync(state.index) ?? '').toString().trim();
-    if (formatted) {
-      this.explanationCache.set(state.key, formatted);
-      return true;
-    }
-
-    const direct = (rawExplanation ?? '').toString().trim();
-    if (direct) {
-      return true;
-    }
-
-    const cached = (this.explanationCache.get(state.key) ?? '').toString().trim();
-    if (cached) {
-      return true;
-    }
-
-    const lastRendered = (this.lastExplanationMarkupByKey.get(state.key) ?? '').toString().trim();
-    if (lastRendered) {
-      return true;
-    }
-
-    const fallback = (state.fallbackExplanation ?? '').toString().trim();
-    return !!fallback;
-  }
-
-  private filterStaleExplanation(
-    rawExplanation: string | null | undefined,
-    context: {
-      questionChanged: boolean;
-      previousResolved: string;
-      previousCached: string;
-      previousFallback: string;
-      previousQuestionSnapshot: { resolved: string; cached: string; fallback: string } | null;
-    }
-  ): { value: string; staleMatch: boolean } {
-    const incoming = (rawExplanation ?? '').toString();
-
-    const trimmedIncoming = incoming.trim();
-    if (!trimmedIncoming) {
-      return { value: '', staleMatch: false };
-    }
-
-    const normalizedPreviousResolved = (context.previousResolved ?? '').trim();
-    const normalizedPreviousCached = (context.previousCached ?? '').trim();
-    const normalizedPreviousFallback = (context.previousFallback ?? '').trim();
-    const matchesPreviousQuestion = (candidate: string) => !!candidate && trimmedIncoming === candidate;
-
-    let staleMatch = false;
-
-    if (context.questionChanged) {
-      staleMatch =
-        matchesPreviousQuestion(normalizedPreviousResolved) ||
-        matchesPreviousQuestion(normalizedPreviousCached) ||
-        matchesPreviousQuestion(normalizedPreviousFallback);
-    }
-
-    if (!staleMatch && context.previousQuestionSnapshot) {
-      const snapshot = context.previousQuestionSnapshot;
-      const snapshotResolved = (snapshot.resolved ?? '').toString().trim();
-      const snapshotCached = (snapshot.cached ?? '').toString().trim();
-      const snapshotFallback = (snapshot.fallback ?? '').toString().trim();
-      staleMatch =
-        matchesPreviousQuestion(snapshotResolved) ||
-        matchesPreviousQuestion(snapshotCached) ||
-        matchesPreviousQuestion(snapshotFallback);
-    }
-
-    if (staleMatch) {
-      return { value: '', staleMatch: true };
-    }
-
-    return { value: incoming, staleMatch: false };
-  }
-  
   private emitContentAvailableState(): void {
     this.isContentAvailable$
       .pipe(takeUntil(this.destroy$))
@@ -1230,30 +1148,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of(null);  // default to null in case of error
       })
     );
-  }
-
-  private resolveQuestionText(question: QuizQuestion | null, fallbackText: string): string {
-    const fromQuestion = (question?.questionText ?? '').toString().trim();
-    const fromFallback = (fallbackText ?? '').toString().trim();
-    return fromQuestion || fromFallback || 'No question available';
-  }
-
-  private buildQuestionMarkup(questionText: string, correctText: string): string {
-    const sanitizedQuestion = questionText || 'No question available';
-    const normalizedCorrect = (correctText ?? '').toString().trim();
-
-    if (!normalizedCorrect) {
-      return sanitizedQuestion;
-    }
-
-    return `${sanitizedQuestion} <span class="correct-count">${normalizedCorrect}</span>`;
-  }
-
-  private buildQuestionKey(index: number, question: QuizQuestion | null, fallback: string): string {
-    const normalizedIndex = Number.isFinite(index) ? Number(index) : -1;
-    const source = question?.questionText ?? fallback;
-    const normalizedSource = this.normalizeKeySource(source);
-    return `${normalizedIndex}:${normalizedSource}`;
   }
 
   private normalizeKeySource(value: string | null | undefined): string {
