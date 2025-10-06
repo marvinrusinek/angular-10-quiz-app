@@ -445,21 +445,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 8) Gate for current index (seed false, AND with un-frozen state later)
-    const perIndexGateRaw$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i => concat(of(false), this.explanationTextService.gate$(i))),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    // 9) SAFE per-index explanation:
-    //    - seed null so first post-freeze render is question text
-    //    - accept cache line for current index
-    //    - accept only events whose .index === current index
+    // 8) Per-index explanation / gate
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
       switchMap(i =>
         merge(
-          of<string | null>(null),  // seed
+          // seed: guarantees first post-index-change render is the question text
+          of<string | null>(null),
+
+          // cached line for this index (ok to keep, already index-scoped)
           this.explanationTextService.byIndex$(i).pipe(
             map(t => {
               const s = (t ?? '').toString().trim();
@@ -467,16 +460,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             }),
             distinctUntilChanged()
           ),
-          // Event-sourced path: only accept payloads tagged for THIS index
+
+          // ⬅️ only accept live events tagged for THIS index; ignore everything else
           this.explanationTextService._events$.pipe(
-            filter(e => e?.index === i),
-            map(e => (e?.text ?? '').toString().trim() || null),
+            filter(e => !!e && e.index === i),
+            map(e => {
+              const s = (e.text ?? '').toString().trim();
+              return s || null;
+            }),
             distinctUntilChanged()
           )
         )
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
+      switchMap(i => concat(of(false), this.explanationTextService.gate$(i))),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
   
     // 10) Canonical question resolver for an index
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
@@ -489,7 +493,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 11) Combine everything
     this.combinedText$ = combineLatest([
       guardedIndex$, display$, shouldShow$, baselineText$, correctText$,
-      perIndexExplanation$, perIndexGateRaw$, indexFreeze$
+      perIndexExplanation$, perIndexGate$, indexFreeze$
     ] as const).pipe(
       // While frozen, render only baseline (prevents any first-frame explanation flash)
       filter(([, , , , , , , frozen]) => frozen === false),
