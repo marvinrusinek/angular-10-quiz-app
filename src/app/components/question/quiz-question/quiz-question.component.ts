@@ -3065,26 +3065,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
           const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
 
-          // ⬇️ guard: avoid "Option 1 is correct because Option 1 is correct because ..."
+          // Guard: avoid "Option 1 is correct because Option 1 is correct because ..."
           const alreadyPrefixed = /^\s*Option(s)?\s+\d/.test(rawExpl);
           const formattedBase   = alreadyPrefixed ? rawExpl : this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
 
-          // ⬇️ guard: coalesce work if it’s unchanged for this index
+          // Guard: coalesce work if it’s unchanged for this index
           const lastForIndex = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').trim();
           if (lastForIndex !== formattedBase) {
             // per-index FIRST
-            this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any);
-            this.explanationTextService.emitFormatted(i0, formatted);
+            this.explanationTextService.storeFormattedExplanation(i0, formattedBase, q as any);
+            this.explanationTextService.emitFormatted(i0, formattedBase);
             this.explanationTextService.setGate(i0, true);
           }
 
-          // flip intent + UI mode (no global text)
+          // Flip intent + UI mode (no global text)
           this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
           this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
 
-          // mark as displayed + set local bindings immediately (single, non-duplicated block)
+          // Mark as displayed + set local bindings immediately (single, non-duplicated block)
           this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
           this.displayExplanation = true;
 
