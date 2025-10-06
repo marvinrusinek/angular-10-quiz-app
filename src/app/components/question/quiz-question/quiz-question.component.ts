@@ -48,8 +48,8 @@ type FeedbackKey = number | string;
 
 export interface FeedbackConfig {
   showFeedback: boolean,
-  icon?: string,
   isCorrect?: boolean,
+  icon?: string,
   text?: string
 }
 
