@@ -377,13 +377,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Current index, stable
     const index$: Observable<number> =
       this.quizService.currentQuestionIndex$.pipe(
-        // seed with the current value you already track
-        // (if undefined, fall back to 0)
+        // seed with the current value tracked (if undefined, fall back to 0)
         switchMap(() => of(this.currentQuestionIndexValue ?? 0)),
         distinctUntilChanged()
       );
 
-    // Display state (mode/answered) — keep your semantics
+    // Display state (mode/answered)
     const display$: Observable<DisplayState> = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as DisplayState),
       map((v: any): DisplayState => {
@@ -396,7 +395,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
     );
 
-    // Global *intent* only (not the global text!)
+    // Global intent only
     const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         switchMap(v => of(!!v)),
@@ -418,7 +417,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         distinctUntilChanged()
       );
 
-    // Per-index explanation (+ gate), strictly keyed by the *current* index
+    // Per-index explanation (+ gate), strictly keyed by the current index
     const perIndexExplanation$: Observable<string | null> =
       index$.pipe(
         switchMap(i =>
@@ -449,32 +448,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Combine everything in a *single* place
     this.combinedText$ = combineLatest([
-      index$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$
-    ] as [
-      Observable<number>,
-      Observable<DisplayState>,
-      Observable<boolean>,
-      Observable<string>,
-      Observable<string>,
-      Observable<string | null>,
-      Observable<boolean>
+      index$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$ ] as [
+      Observable<number>, Observable<DisplayState>, Observable<boolean>, Observable<string>, Observable<string>,
+      Observable<string | null>, Observable<boolean>
     ]).pipe(
-      map(([
-        idx,
-        display,
-        shouldShow,
-        baseline,
-        correct,
-        explanation,
-        gate
-      ]: [number, DisplayState, boolean, string, string, string | null, boolean]) => {
-    
+      map(([ idx, display, shouldShow, baseline, correct, explanation, gate ]:
+         [ number, DisplayState, boolean, string, string, string | null, boolean] ) => {
         const question = canonicalQuestionFor(idx, baseline);
     
         const wantsExplanation =
@@ -490,8 +469,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
-      observeOn(asyncScheduler), // schedule UI flip on microtask boundary
-      auditTime(0),              // coalesce same-tick flutters
+      observeOn(asyncScheduler),  // schedule UI flip on microtask boundary
+      auditTime(0),               // coalesce same-tick flutters
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
