@@ -384,14 +384,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
 
     // Display state (mode/answered) — keep your semantics
-    type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
-    const display$: Observable<DisplayState> =
-      this.displayState$.pipe(
-        // seed
-        switchMap(v => of((v as DisplayState) ?? { mode: 'question', answered: false })),
-        // coalesce identical states
-        distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
-      );
+    const display$: Observable<DisplayState> = this.displayState$.pipe(
+      startWith({ mode: 'question', answered: false } as DisplayState),
+      map((v: any): DisplayState => {
+        const rawMode = v?.mode;
+        const mode: 'question' | 'explanation' =
+          rawMode === 'explanation' ? 'explanation' : 'question';
+        const answered = !!v?.answered;
+        return { mode, answered };
+      }),
+      distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
+    );
 
     // Global *intent* only (not the global text!)
     const shouldShow$: Observable<boolean> =
@@ -445,43 +448,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     };
 
     // Combine everything in a *single* place
-    this.combinedText$ = combineLatest([
-      index$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$
-    ]).pipe(
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        // Strictly resolve the question text for THIS index
+    this.combinedText$ = combineLatest({
+      idx: index$,
+      display: display$,
+      shouldShow: shouldShow$,
+      baseline: baselineText$,
+      correct: correctText$,
+      explanation: perIndexExplanation$,
+      gate: perIndexGate$
+    }).pipe(
+      map(({ idx, display, shouldShow, baseline, correct, explanation, gate }) => {
         const question = canonicalQuestionFor(idx, baseline);
-
-        // Show explanation only when all conditions are met for THIS index
+    
         const wantsExplanation =
-          display.mode === 'explanation' &&   // UI in explanation mode
-          !!display.answered &&               // question actually answered
-          !!shouldShow &&                     // global intent wants to show
-          !!gate &&                           // index gate is open for THIS idx
+          display.mode === 'explanation' &&
+          display.answered &&
+          shouldShow &&
+          gate &&
           !!(explanation && explanation.trim());
-
-        // Choose what to render
-        const body = wantsExplanation
-          ? (explanation as string).trim()
-          : question;
-
-        // Append correct-count when present (works for both paths)
+    
+        const body = wantsExplanation ? (explanation as string).trim() : question;
+    
         return correct
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
-
-      // Coalesce micro-bursts so we don’t ping-pong between question/explanation in the same tick
+      // microtask boundary → coalesce same-tick flips
       observeOn(asyncScheduler),
       auditTime(0),
-
-      // Don’t emit identical markup twice
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
