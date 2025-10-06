@@ -913,7 +913,7 @@ export class ExplanationTextService {
     // Preserve existing event-bus behavior for any legacy listeners
     try {
       this._events$?.next({ index: idx, text: trimmed });
-    } catch { /* noop: legacy bus optional */ }
+    } catch { /* optional */ }
   }
 
   // Returns the index (number) that the last global explanation emission belonged to, or null.
