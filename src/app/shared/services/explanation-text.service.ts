@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, map, shareReplay, startWith } from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  filter,
+  map,
+  shareReplay,
+  startWith,
+} from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 export interface ExplanationEvent {
-  index: number,
-  text: string | null
+  index: number;
+  text: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,13 +22,16 @@ export class ExplanationTextService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanation$ = this.explanationTextSubject.asObservable();
 
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
+    string | null
+  >('');
   explanationTexts: Record<number, string> = {};
 
   formattedExplanations: Record<number, FormattedExplanation> = {};
   formattedExplanations$: BehaviorSubject<string | null>[] = [];
   formattedExplanationSubject = new BehaviorSubject<string | null>(null);
-  formattedExplanation$: Observable<string> = this.formattedExplanationSubject.asObservable();
+  formattedExplanation$: Observable<string> =
+    this.formattedExplanationSubject.asObservable();
   private formattedExplanationByQuestionText = new Map<string, string>();
 
   private readonly globalContextKey = 'global';
@@ -30,17 +39,21 @@ export class ExplanationTextService {
   private shouldDisplayByContext = new Map<string, boolean>();
   private displayedByContext = new Map<string, boolean>();
 
-  private explanationsUpdated = new BehaviorSubject<Record<number, FormattedExplanation>>(this.formattedExplanations);
+  private explanationsUpdated = new BehaviorSubject<
+    Record<number, FormattedExplanation>
+  >(this.formattedExplanations);
   explanationsUpdated$ = this.explanationsUpdated.asObservable();
 
   isExplanationTextDisplayedSource = new BehaviorSubject<boolean>(false);
-  isExplanationTextDisplayed$ = this.isExplanationTextDisplayedSource.asObservable();
+  isExplanationTextDisplayed$ =
+    this.isExplanationTextDisplayedSource.asObservable();
 
   private isExplanationDisplayedSource = new BehaviorSubject<boolean>(false);
   isExplanationDisplayed$ = this.isExplanationDisplayedSource.asObservable();
 
   shouldDisplayExplanationSource = new BehaviorSubject<boolean>(false);
-  shouldDisplayExplanation$ = this.shouldDisplayExplanationSource.asObservable();
+  shouldDisplayExplanation$ =
+    this.shouldDisplayExplanationSource.asObservable();
 
   private explanationTrigger = new Subject<void>();
   explanationTrigger$ = this.explanationTrigger.asObservable();
@@ -59,16 +72,18 @@ export class ExplanationTextService {
   private lastDisplayedSignature: string | null = null;
   private readonly defaultContextPrefix = 'question';
 
-  private readonly _events$ = new Subject<ExplanationEvent>();
+  // private readonly _events$ = new Subject<ExplanationEvent>();
   private readonly _currentIndex$ = new BehaviorSubject<number>(0);
   private readonly _gateByIndex = new Map<number, BehaviorSubject<boolean>>();
-  private readonly _lastByIndex = new Map<number, string | null>();
 
   private _lastEmittedByIndex = new Map<number, string | null>();
   private _byIndex = new Map<number, BehaviorSubject<string | null>>();
+  private _lastByIndex = new Map<number, string | null>();
 
   private _lastEmitIndex = new BehaviorSubject<number | null>(null);
-  public  lastEmitIndex$ = this._lastEmitIndex.asObservable();
+  public lastEmitIndex$ = this._lastEmitIndex.asObservable();
+
+  private _events$ = new Subject<{ index: number; text: string | null }>();
 
   constructor() {}
 
@@ -135,7 +150,9 @@ export class ExplanationTextService {
       const previous = this.explanationByContext.get(contextKey) ?? '';
       if (previous === trimmed && signature === this.lastExplanationSignature) {
         console.log(
-          `[🛡️ Prevented duplicate emit${contextKey !== this.globalContextKey ? ` for ${contextKey}` : ''}]`
+          `[🛡️ Prevented duplicate emit${
+            contextKey !== this.globalContextKey ? ` for ${contextKey}` : ''
+          }]`
         );
         return;
       }
@@ -161,17 +178,19 @@ export class ExplanationTextService {
   setFormattedExplanationText(explanation: string): void {
     const trimmed = (explanation ?? '').trim();
     this.formattedExplanationSubject.next(trimmed);
-  }  
+  }
 
   setExplanationTextForQuestionIndex(index: number, explanation: string): void {
     if (index < 0) {
-      console.warn(`Invalid index: ${index}, must be greater than or equal to 0`);
+      console.warn(
+        `Invalid index: ${index}, must be greater than or equal to 0`
+      );
       return;
     }
-  
+
     const trimmed = (explanation ?? '').trim();
     const previous = this.explanationTexts[index];
-  
+
     if (previous !== trimmed) {
       this.explanationTexts[index] = trimmed;
       this.formattedExplanationSubject.next(trimmed);
@@ -190,53 +209,77 @@ export class ExplanationTextService {
 
     return of(explanationObject.explanation);
   }
-  
-  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+
+  public getFormattedExplanationTextForQuestion(
+    questionIndex: number
+  ): Observable<string> {
     const FALLBACK = 'No explanation available';
-  
+
     // Guard invalid index; also clear indexed channel so no stale explanation paints.
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
-      console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
-  
+      console.error(
+        `[❌ Invalid questionIndex — must be a number]:`,
+        questionIndex
+      );
+
       // Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
       const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
-      try { this.emitFormatted(idx, null); } catch {}
-      try { this.setGate(idx, false); } catch {}
-  
+      try {
+        this.emitFormatted(idx, null);
+      } catch {}
+      try {
+        this.setGate(idx, false);
+      } catch {}
+
       // ⬇ DO NOT push fallback text into global/legacy subjects (prevents flashing)
       return of(FALLBACK);
     }
-  
+
     const entry = this.formattedExplanations[questionIndex];
-  
+
     if (!entry) {
-      console.error(`[❌ Q${questionIndex} not found in formattedExplanations`, entry);
+      console.error(
+        `[❌ Q${questionIndex} not found in formattedExplanations`,
+        entry
+      );
       console.log('🧾 All formattedExplanations:', this.formattedExplanations);
-  
+
       // Clear per-index stream/gate
-      try { this.emitFormatted(questionIndex, null); } catch {}
-      try { this.setGate(questionIndex, false); } catch {}
-  
+      try {
+        this.emitFormatted(questionIndex, null);
+      } catch {}
+      try {
+        this.setGate(questionIndex, false);
+      } catch {}
+
       // No side-effects into global subject here; return fallback to caller only.
       return of(FALLBACK);
     }
-  
+
     const explanation = (entry.explanation ?? '').trim();
-  
+
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
-  
+
       // Clear per-index stream/gate, no global string emits
-      try { this.emitFormatted(questionIndex, null); } catch {}
-      try { this.setGate(questionIndex, false); } catch {}
-  
+      try {
+        this.emitFormatted(questionIndex, null);
+      } catch {}
+      try {
+        this.setGate(questionIndex, false);
+      } catch {}
+
       return of(FALLBACK);
     }
-  
+
     // Drive only the index-scoped channel (no global .next here)
-    try { this.emitFormatted(questionIndex, explanation); } catch {}
-    try { this.setGate(questionIndex, true); } catch {}
-  
+    try {
+      this.emitFormatted(questionIndex, explanation);
+    } catch {}
+    try {
+      this.setGate(questionIndex, true);
+    } catch {}
+
     return of(explanation);
   }
 
@@ -251,9 +294,13 @@ export class ExplanationTextService {
       return null;
     }
 
-    const indexedKey = this.buildQuestionKey(question.questionText, fallbackIndex);
+    const indexedKey = this.buildQuestionKey(
+      question.questionText,
+      fallbackIndex
+    );
     if (indexedKey) {
-      const indexedMatch = this.formattedExplanationByQuestionText.get(indexedKey);
+      const indexedMatch =
+        this.formattedExplanationByQuestionText.get(indexedKey);
       if (indexedMatch) {
         return indexedMatch;
       }
@@ -283,8 +330,10 @@ export class ExplanationTextService {
     }
   }
 
-  initializeFormattedExplanations(explanations: { questionIndex: number; explanation: string }[]): void {
-    this.formattedExplanations = {};  // clear existing data
+  initializeFormattedExplanations(
+    explanations: { questionIndex: number; explanation: string }[]
+  ): void {
+    this.formattedExplanations = {}; // clear existing data
     this.formattedExplanationByQuestionText.clear();
 
     if (!Array.isArray(explanations) || explanations.length === 0) {
@@ -294,15 +343,26 @@ export class ExplanationTextService {
 
     for (const { questionIndex, explanation } of explanations) {
       if (typeof questionIndex !== 'number' || questionIndex < 0) {
-        console.warn(`Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`);
+        console.warn(
+          `Invalid questionIndex: ${questionIndex}. It should be a non-negative number.`
+        );
         continue;
       }
-    
+
       if (typeof explanation !== 'string' || !explanation.trim()) {
-        console.warn(`Invalid or empty explanation for questionIndex ${questionIndex}:`, explanation);
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: 'No explanation available' };
+        console.warn(
+          `Invalid or empty explanation for questionIndex ${questionIndex}:`,
+          explanation
+        );
+        this.formattedExplanations[questionIndex] = {
+          questionIndex,
+          explanation: 'No explanation available',
+        };
       } else {
-        this.formattedExplanations[questionIndex] = { questionIndex, explanation: explanation.trim() };
+        this.formattedExplanations[questionIndex] = {
+          questionIndex,
+          explanation: explanation.trim(),
+        };
       }
     }
 
@@ -316,38 +376,47 @@ export class ExplanationTextService {
   ): Observable<{ questionIndex: number; explanation: string }> {
     // Early exit for invalid or stale questions
     if (!this.isQuestionValid(question)) {
-      console.warn(`[⏩ Skipping invalid or stale question at index ${questionIndex}]`);
+      console.warn(
+        `[⏩ Skipping invalid or stale question at index ${questionIndex}]`
+      );
       return of({ questionIndex, explanation: '' });
     }
-  
+
     // Explanation fallback if missing or blank
-    const rawExplanation = question?.explanation?.trim() || 'Explanation not provided';
-  
+    const rawExplanation =
+      question?.explanation?.trim() || 'Explanation not provided';
+
     // Idempotency detector (same as in formatExplanation)
     const alreadyFormattedRe =
       /^(?:option|options)\s+\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?\s+(?:is|are)\s+correct\s+because\s+/i;
-  
+
     // Format explanation (only if not already formatted)
     const correctOptionIndices = this.getCorrectOptionIndices(question);
     const formattedExplanation = alreadyFormattedRe.test(rawExplanation)
       ? rawExplanation
       : this.formatExplanation(question, correctOptionIndices, rawExplanation);
-  
+
     // Store and sync (but coalesce to avoid redundant emits)
-    const prev = this.formattedExplanations[questionIndex]?.explanation?.trim() || '';
+    const prev =
+      this.formattedExplanations[questionIndex]?.explanation?.trim() || '';
     if (prev !== formattedExplanation) {
-      this.storeFormattedExplanation(questionIndex, formattedExplanation, question);
+      this.storeFormattedExplanation(
+        questionIndex,
+        formattedExplanation,
+        question
+      );
       this.syncFormattedExplanationState(questionIndex, formattedExplanation);
       this.updateFormattedExplanation(formattedExplanation);
     }
-  
+
     // Prevent duplicate processing
-    const questionKey = question?.questionText ?? JSON.stringify({ i: questionIndex });
+    const questionKey =
+      question?.questionText ?? JSON.stringify({ i: questionIndex });
     this.processedQuestions.add(questionKey);
-  
+
     return of({
       questionIndex,
-      explanation: formattedExplanation
+      explanation: formattedExplanation,
     });
   }
 
@@ -358,27 +427,41 @@ export class ExplanationTextService {
     this.formattedExplanationSubject.next(trimmed);
   }
 
-  storeFormattedExplanation(index: number, explanation: string, question: QuizQuestion): void {
+  storeFormattedExplanation(
+    index: number,
+    explanation: string,
+    question: QuizQuestion
+  ): void {
     if (index < 0) {
-      console.error(`Invalid index: ${index}, must be greater than or equal to 0`);
+      console.error(
+        `Invalid index: ${index}, must be greater than or equal to 0`
+      );
       return;
     }
 
-    if (!explanation || explanation.trim() === "") {
+    if (!explanation || explanation.trim() === '') {
       console.error(`Invalid explanation: "${explanation}"`);
       return;
     }
 
     const sanitizedExplanation = explanation.trim();
     const correctOptionIndices = this.getCorrectOptionIndices(question);
-    const formattedExplanation = this.formatExplanation(question, correctOptionIndices, sanitizedExplanation);
+    const formattedExplanation = this.formatExplanation(
+      question,
+      correctOptionIndices,
+      sanitizedExplanation
+    );
 
     this.formattedExplanations[index] = {
       questionIndex: index,
-      explanation: formattedExplanation
+      explanation: formattedExplanation,
     };
 
-    this.storeFormattedExplanationForQuestion(question, index, formattedExplanation);
+    this.storeFormattedExplanationForQuestion(
+      question,
+      index,
+      formattedExplanation
+    );
 
     this.explanationsUpdated.next(this.formattedExplanations);
   }
@@ -426,10 +509,10 @@ export class ExplanationTextService {
   } */
   getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
-      console.error("Invalid question or options:", question);
+      console.error('Invalid question or options:', question);
       return [];
     }
-  
+
     // Normalize each option to a display position:
     // - use displayOrder when it’s a finite, non-negative number
     // - else fall back to its natural index
@@ -438,21 +521,20 @@ export class ExplanationTextService {
     const indices = question.options
       .map((option, idx) => {
         if (!option?.correct) return null;
-  
+
         const hasValidDisplayOrder =
           typeof option.displayOrder === 'number' &&
           Number.isFinite(option.displayOrder) &&
           option.displayOrder >= 0;
-  
+
         const zeroBasedPos = hasValidDisplayOrder ? option.displayOrder : idx;
         return zeroBasedPos + 1; // 1-based for "Option N"
       })
       .filter((n): n is number => n !== null);
-  
+
     // Dedupe + sort for a stable, readable "Options 1 and 2" string
     return Array.from(new Set(indices)).sort((a, b) => a - b);
   }
-  
 
   formatExplanation(
     question: QuizQuestion,
@@ -462,20 +544,20 @@ export class ExplanationTextService {
     // Idempotency: if already in "Option(s) ... correct because ..." form, return as-is.
     const alreadyFormattedRe =
       /^(?:option|options)\s+\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?\s+(?:is|are)\s+correct\s+because\s+/i;
-  
+
     const e = (explanation ?? '').trim();
     if (!e) return '';
-  
+
     if (alreadyFormattedRe.test(e)) {
       // Already formatted elsewhere; do not re-wrap (prevents "Option 1 is correct because Option 1 is correct because...")
       return e;
     }
-  
+
     // Normalize incoming indices (may be null/undefined/empty on timeout)
     let indices: number[] = Array.isArray(correctOptionIndices)
       ? correctOptionIndices.slice()
       : [];
-  
+
     // Fallback: derive from the question’s own option flags (use 1-based for display to match typical copy)
     if (indices.length === 0 && Array.isArray(question?.options)) {
       indices = question.options
@@ -487,57 +569,65 @@ export class ExplanationTextService {
             typeof opt.displayOrder === 'number' &&
             Number.isFinite(opt.displayOrder) &&
             opt.displayOrder >= 0;
-  
+
           const displayIndex = hasValidDisplayOrder ? opt.displayOrder : i;
           return displayIndex + 1; // +1 so text says “Option 2” etc.
         })
         .filter((n) => n > 0);
     }
-  
+
     // ✅ Stabilize: dedupe + sort so multi-answer phrasing is consistent
     indices = Array.from(new Set(indices)).sort((a, b) => a - b);
-  
+
     // Multi-answer
     if (indices.length > 1) {
       question.type = QuestionType.MultipleAnswer;
-  
+
       const optionsText =
         indices.length > 2
           ? `${indices.slice(0, -1).join(', ')} and ${indices.slice(-1)}`
           : indices.join(' and ');
-  
+
       return `Options ${optionsText} are correct because ${e}`;
     }
-  
+
     // Single-answer
     if (indices.length === 1) {
       question.type = QuestionType.SingleAnswer;
       return `Option ${indices[0]} is correct because ${e}`;
     }
-  
+
     // Zero derived indices → just return the explanation (no scolding)
     return e;
   }
 
   private syncFormattedExplanationState(
-    questionIndex: number, formattedExplanation: string): void {
+    questionIndex: number,
+    formattedExplanation: string
+  ): void {
     if (!this.formattedExplanations$[questionIndex]) {
       // Initialize the BehaviorSubject if it doesn't exist at the specified index
-      this.formattedExplanations$[questionIndex] = new BehaviorSubject<string | null>(null);
+      this.formattedExplanations$[questionIndex] = new BehaviorSubject<
+        string | null
+      >(null);
     }
-  
+
     // Access the BehaviorSubject at the specified questionIndex
     const subjectAtIndex = this.formattedExplanations$[questionIndex];
-  
+
     if (subjectAtIndex) {
       subjectAtIndex.next(formattedExplanation);
-      
+
       // Update the formattedExplanations array
-      const formattedExplanationObj: FormattedExplanation = 
-        { questionIndex, explanation: formattedExplanation };
+      const formattedExplanationObj: FormattedExplanation = {
+        questionIndex,
+        explanation: formattedExplanation,
+      };
       this.formattedExplanations[questionIndex] = formattedExplanationObj;
     } else {
-      console.error(`No element at index ${questionIndex} in formattedExplanations$`);
+      console.error(
+        `No element at index ${questionIndex} in formattedExplanations$`
+      );
     }
   }
 
@@ -545,20 +635,20 @@ export class ExplanationTextService {
     if (!this.explanationsInitialized) {
       return of('No explanation available');
     }
-  
+
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
-      map((explanationText: string) =>
-        explanationText?.trim() || 'No explanation available'
+      map(
+        (explanationText: string) =>
+          explanationText?.trim() || 'No explanation available'
       )
     );
-  }  
+  }
 
   getFormattedExplanations(): Observable<FormattedExplanation[]> {
     const explanations = Object.values(this.formattedExplanations);
     return of(explanations);
   }
 
-  
   // Emits a formatted explanation for a given question index
   public emitExplanationIfNeeded({
     explanationText,
@@ -567,27 +657,30 @@ export class ExplanationTextService {
     questionText,
     expectedQuestionText,
     // Optional: pass the full question if you want storeFormattedExplanation() to reformat
-    question
+    question,
   }: {
     explanationText: string | null | undefined;
     questionIndex: number;
-    questionText?: string;          // actual current question text
-    expectedQuestionText?: string;  // expected text from caller; if provided, must match
-    question?: QuizQuestion;        // optional; used by storeFormattedExplanation()
+    questionText?: string; // actual current question text
+    expectedQuestionText?: string; // expected text from caller; if provided, must match
+    question?: QuizQuestion; // optional; used by storeFormattedExplanation()
   }): void {
-
     const trimmed = (explanationText ?? '').trim();
 
     // Skip empty/defaults
     if (!trimmed || trimmed.toLowerCase() === 'no explanation available') {
-      console.warn(`[⏭️ Skipping empty/default explanation for Q${questionIndex}]`);
+      console.warn(
+        `[⏭️ Skipping empty/default explanation for Q${questionIndex}]`
+      );
       return;
     }
 
     // Strict mode (only when expectedQuestionText is provided)
     if (typeof expectedQuestionText === 'string') {
       if ((questionText ?? '') !== expectedQuestionText) {
-        console.warn(`[❌ Skipping explanation emit for Q${questionIndex}] Mismatched text.`);
+        console.warn(
+          `[❌ Skipping explanation emit for Q${questionIndex}] Mismatched text.`
+        );
         console.warn(`Expected: "${expectedQuestionText}"`);
         console.warn(`Received: "${questionText ?? ''}"`);
         return;
@@ -613,14 +706,20 @@ export class ExplanationTextService {
         // Minimal cache write when no QuizQuestion is available
         this.formattedExplanations[questionIndex] = {
           questionIndex,
-          explanation: trimmed
+          explanation: trimmed,
         };
         this.explanationsUpdated.next(this.formattedExplanations);
       }
     } catch (e) {
-      console.warn(`[⚠️ storeFormattedExplanation failed for Q${questionIndex}]`, e);
+      console.warn(
+        `[⚠️ storeFormattedExplanation failed for Q${questionIndex}]`,
+        e
+      );
       // Fallback to direct cache
-      this.formattedExplanations[questionIndex] = { questionIndex, explanation: trimmed };
+      this.formattedExplanations[questionIndex] = {
+        questionIndex,
+        explanation: trimmed,
+      };
       this.explanationsUpdated.next(this.formattedExplanations);
     }
 
@@ -643,7 +742,7 @@ export class ExplanationTextService {
     // Optional: lock to avoid concurrent stomps
     this.lockExplanation();
     this.latestExplanation = trimmed;
-  }  
+  }
 
   public setIsExplanationTextDisplayed(
     isDisplayed: boolean,
@@ -654,7 +753,10 @@ export class ExplanationTextService {
 
     if (!options.force) {
       const previous = this.displayedByContext.get(contextKey);
-      if (previous === isDisplayed && signature === this.lastDisplayedSignature) {
+      if (
+        previous === isDisplayed &&
+        signature === this.lastDisplayedSignature
+      ) {
         return;
       }
     }
@@ -670,7 +772,10 @@ export class ExplanationTextService {
     this.lastDisplayedSignature = signature;
     const aggregated = this.computeContextualFlag(this.displayedByContext);
 
-    if (!options.force && aggregated === this.isExplanationTextDisplayedSource.getValue()) {
+    if (
+      !options.force &&
+      aggregated === this.isExplanationTextDisplayedSource.getValue()
+    ) {
       return;
     }
 
@@ -686,7 +791,10 @@ export class ExplanationTextService {
 
     if (!options.force) {
       const previous = this.shouldDisplayByContext.get(contextKey);
-      if (previous === shouldDisplay && signature === this.lastDisplaySignature) {
+      if (
+        previous === shouldDisplay &&
+        signature === this.lastDisplaySignature
+      ) {
         return;
       }
     }
@@ -702,28 +810,35 @@ export class ExplanationTextService {
     this.lastDisplaySignature = signature;
     const aggregated = this.computeContextualFlag(this.shouldDisplayByContext);
 
-    if (!options.force && aggregated === this.shouldDisplayExplanationSource.getValue()) {
+    if (
+      !options.force &&
+      aggregated === this.shouldDisplayExplanationSource.getValue()
+    ) {
       return;
     }
 
     this.shouldDisplayExplanationSource.next(aggregated);
   }
-  
+
   public triggerExplanationEvaluation(): void {
-    const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
+    const currentExplanation = this.formattedExplanationSubject
+      .getValue()
+      ?.trim();
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
-  
+
     if (shouldShow && currentExplanation) {
       console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
       this.explanationTrigger.next();
       this.setExplanationText(currentExplanation, {
         force: true,
-        context: 'evaluation'
+        context: 'evaluation',
       });
     } else {
-      console.warn('[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
+      console.warn(
+        '[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag'
+      );
     }
-    
+
     console.log('[✅ Change Detection Applied after Explanation Evaluation]');
   }
 
@@ -740,14 +855,17 @@ export class ExplanationTextService {
       return null;
     }
 
-    const indexPart = typeof index === 'number' && index >= 0 ? `|${index}` : '';
+    const indexPart =
+      typeof index === 'number' && index >= 0 ? `|${index}` : '';
     return `${normalizedText}${indexPart}`;
   }
 
   private isQuestionValid(question: QuizQuestion): boolean {
-    return question && 
-           question.questionText && 
-           !this.processedQuestions.has(question.questionText);
+    return (
+      question &&
+      question.questionText &&
+      !this.processedQuestions.has(question.questionText)
+    );
   }
 
   setCurrentQuestionExplanation(explanation: string): void {
@@ -841,7 +959,10 @@ export class ExplanationTextService {
   }
 
   private buildQuestionContextKey(questionIndex: number): string {
-    return `${this.defaultContextPrefix}:${Math.max(0, Number(questionIndex) || 0)}`;
+    return `${this.defaultContextPrefix}:${Math.max(
+      0,
+      Number(questionIndex) || 0
+    )}`;
   }
 
   private normalizeContext(context?: string | null): string {
@@ -864,9 +985,7 @@ export class ExplanationTextService {
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
-    return this._byIndex.get(idx)!.asObservable().pipe(
-      distinctUntilChanged()
-    );
+    return this._byIndex.get(idx)!.asObservable().pipe(distinctUntilChanged());
   }
 
   // Per-index observable (null when nothing valid yet).
@@ -882,15 +1001,19 @@ export class ExplanationTextService {
   public emitFormatted(index: number, value: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
     const trimmed = (value ?? '').toString().trim() || null;
-
+  
     const last = this._lastByIndex.get(idx) ?? null;
-    if (last === trimmed) return; // coalesce
-
+    if (last === trimmed) return;  // coalesce duplicate emits
+  
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
+  
     this._lastByIndex.set(idx, trimmed);
     this._byIndex.get(idx)!.next(trimmed);
+  
+    // Broadcast single event for anyone listening (optional)
+    this._events$.next({ index: idx, text: trimmed });
   }
 
   // Returns the index (number) that the last global explanation emission belonged to, or null.
@@ -918,5 +1041,14 @@ export class ExplanationTextService {
       this._gateByIndex.set(index, bs);
     }
     bs.next(!!show);
+  }
+
+  // Stable, index-scoped getter (no global writes)
+  public byIndex$(index: number): Observable<string | null> {
+    const idx = Math.max(0, Number(index) || 0);
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
+    return this._byIndex.get(idx)!.asObservable();
   }
 }
