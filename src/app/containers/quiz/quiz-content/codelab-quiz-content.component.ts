@@ -375,105 +375,81 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
+    const currentIndex$ = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged()
+    );
+  
+    // Track previous index so we can clear it on change
+    const indexWithPrev$ = currentIndex$.pipe(
+      pairwise(),                       // [prev, curr]
+      startWith([this.currentQuestionIndexValue ?? 0, this.currentQuestionIndexValue ?? 0] as [number, number])
+    );
+  
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),              // global (kept but ignored unless it matches index)
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // baseline
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),
       this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // global (kept)
-      this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+      indexWithPrev$,
     ]).pipe(
-      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
-        this.currentIndex = currentIndex;
+      switchMap(([state, questionText, correctText, shouldDisplayExplanation, [prevIndex, currIndex]]) => {
+        this.currentIndex = currIndex;
   
-        // detect index change — when it changes, we do baseline first
-        const indexChanged = this._renderLastIndex !== currentIndex;
+        const indexChanged = prevIndex !== currIndex;
         if (indexChanged) {
-          this._renderLastIndex = currentIndex;
+          // 🔒 Hard clear the *previous* and the *current* per-index streams;
+          // prevents one-frame reuse of old explanation.
+          this.explanationTextService.emitFormatted(prevIndex, null);
+          this.explanationTextService.emitFormatted(currIndex, null);
           this.lastQuestionText = '';
         }
   
-        const correct    = (correctText ?? '').trim();
-        const rawQ       = (questionText ?? '').trim();
+        const correct = (correctText ?? '').trim();
+        const rawQ    = (questionText ?? '').trim();
   
         // canonical question for current index
-        const qm = this.quizService.questions?.[currentIndex] ?? null;
+        const qm = this.quizService.questions?.[currIndex] ?? null;
         const fallbackQ =
           (qm?.questionText ?? '').trim() ||
-          (this.questions?.[currentIndex]?.questionText ?? '').trim();
+          (this.questions?.[currIndex]?.questionText ?? '').trim();
   
         const candidate = rawQ || this.lastQuestionText || fallbackQ;
         if (candidate) this.lastQuestionText = candidate;
   
         const question = candidate || this.questionLoadingText || 'No question available';
   
-        // 🔒 Per-index formatted cache (authoritative)
-        const svcExplForIndex = (this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? '')
-          .toString().trim();
-  
-        // We keep the global stream for wiring, but only accept it if it EXACTLY equals the per-index cache.
-        const globalExpl = (explanationText ?? '').trim();
-        const globalExplMatchesCurrent = !!globalExpl && !!svcExplForIndex && (globalExpl === svcExplForIndex);
-  
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
   
-        // RULE 1: On index change → render baseline question only (no placeholders, no global).
+        // Baseline on index change
         if (indexChanged) {
           const outQ = correct ? `${question} <span class="correct-count">${correct}</span>` : question;
           return of(outQ);
         }
   
-        // RULE 2: If user wants explanation, render ONLY when it's for THIS index.
-        if (wantsExplanation) {
-          // Prefer per-index cached explanation
-          if (svcExplForIndex) {
-            const outExpl = correct
-              ? `${svcExplForIndex} <span class="correct-count">${correct}</span>`
-              : svcExplForIndex;
-            return of(outExpl);
-          }
-  
-          // Otherwise accept global only if it matches the per-index cache (rare race)
-          if (globalExplMatchesCurrent) {
-            const outExpl = correct
-              ? `${globalExpl} <span class="correct-count">${correct}</span>`
-              : globalExpl;
-            return of(outExpl);
-          }
-  
-          // As a last chance, fetch exactly once for THIS index (no “not available” placeholder)
-          return this.explanationTextService
-            .getFormattedExplanationTextForQuestion(currentIndex)  // returns string | null after your Step A fix
-            .pipe(
-              take(1),
-              map(v => (v ?? '').trim()),
-              map(txt => {
-                if (!txt) {
-                  // no explanation yet → keep showing question (prevents “Explanation not found” flash)
-                  return correct
-                    ? `${question} <span class="correct-count">${correct}</span>`
-                    : question;
-                }
-                return correct ? `${txt} <span class="correct-count">${correct}</span>` : txt;
-              })
-            );
-        }
-  
-        // QUESTION path (append correct-count if present)
-        const out = correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
-  
-        return of(out);
+        // Pull the per-index stream only AFTER we handled baseline/index change
+        return this.explanationTextService.getFormattedStreamFor(currIndex).pipe(
+          startWith(null),
+          take(1), // we recompute on every outer emission anyway
+          map((indexScopedExpl) => {
+            const expl = (indexScopedExpl ?? '').toString().trim();
+            if (wantsExplanation && expl) {
+              return correct ? `${expl} <span class="correct-count">${correct}</span>` : expl;
+            }
+            // No explanation (yet) → keep question (no placeholder → no flash)
+            return correct ? `${question} <span class="correct-count">${correct}</span>` : question;
+          })
+        );
       }),
   
-      // coalesce once at the end; keeps baseline-first and avoids ping-pong
+      // Coalesce at the tail to avoid ping-pong within a tick
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
   private questionTextForIndex$(index: number): Observable<string> {
     return this.quizService.getQuestionByIndex(index).pipe(
