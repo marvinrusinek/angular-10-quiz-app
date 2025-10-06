@@ -84,6 +84,7 @@ export class ExplanationTextService {
   public lastEmitIndex$ = this._lastEmitIndex.asObservable();
 
   public _events$ = new Subject<{ index: number; text: string | null }>();
+  public readonly events$ = this._events$.asObservable();
   private _gate = new Map<number, BehaviorSubject<boolean>>();
 
   constructor() {}
@@ -981,86 +982,89 @@ export class ExplanationTextService {
     return false;
   }
 
-  public getFormattedStreamFor(index: number): Observable<string | null> {
-    const idx = Math.max(0, Number(index) || 0);
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-    return this._byIndex.get(idx)!.asObservable().pipe(distinctUntilChanged());
-  }
-
-  // Per-index observable (null when nothing valid yet).
-  public formattedFor$(index: number): Observable<string | null> {
-    const idx = Math.max(0, Number(index) || 0);
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-    return this._byIndex.get(idx)!.asObservable();
-  }
-
-  // Emit per-index formatted text; coalesces duplicates.
-  public emitFormatted(index: number, value: string | null): void {
-    const idx = Math.max(0, Number(index) || 0);
-    const trimmed = (value ?? '').toString().trim() || null;
-  
-    const last = this._lastByIndex.get(idx) ?? null;
-    if (last === trimmed) return;  // coalesce duplicate emits
-  
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-  
-    this._lastByIndex.set(idx, trimmed);
-    this._byIndex.get(idx)!.next(trimmed);
-  
-    // Broadcast single event for anyone listening (optional)
-    this._events$.next({ index: idx, text: trimmed });
-  }
-
-  // Returns the index (number) that the last global explanation emission belonged to, or null.
-  public getLastGlobalExplanationIndex(): number | null {
-    // lastExplanationSignature looks like: "question:3:::Some text..."
-    const sig = this.lastExplanationSignature ?? '';
-    // Fast path
-    const i = sig.indexOf('question:');
-    if (i === -1) return null;
-
-    // Extract between 'question:' and the next ':::'
-    const after = sig.slice(i + 'question:'.length);
-    const j = after.indexOf(':::');
-    const idxStr = (j >= 0 ? after.slice(0, j) : after).trim();
-
-    const idx = Number(idxStr);
-    return Number.isInteger(idx) && idx >= 0 ? idx : null;
-  }
-
-  public gate$(index: number): Observable<boolean> {
-    const i = Math.max(0, Number(index) || 0);
-    if (!this._gate.has(i)) {
-      this._gate.set(i, new BehaviorSubject<boolean>(false));
-    }
-    return this._gate.get(i)!.asObservable();
-  }
-
-  // Set gate for a specific index (coalesce duplicate values)
-  public setGate(index: number, show: boolean): void {
-    const i = Math.max(0, Number(index) || 0);
-    if (!this._gate.has(i)) {
-      this._gate.set(i, new BehaviorSubject<boolean>(false));
-    }
-    const bs = this._gate.get(i)!;
-    const next = !!show;
-    if (bs.getValue() !== next) {
-      bs.next(next);
-    }
-  }
-
-  // Stable, index-scoped getter (no global writes)
+  // ---- Canonical per-index observable (null when nothing valid yet)
   public byIndex$(index: number): Observable<string | null> {
     const idx = Math.max(0, Number(index) || 0);
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
-    return this._byIndex.get(idx)!.asObservable();
+    // distinctUntilChanged here reduces UI churn
+    return this._byIndex.get(idx)!.asObservable().pipe(distinctUntilChanged());
   }
+
+  // Back-compat aliases (optional): keep calls working but funnel to byIndex$
+  public getFormattedStreamFor(index: number): Observable<string | null> {
+    return this.byIndex$(index);
+  }
+  public formattedFor$(index: number): Observable<string | null> {
+    return this.byIndex$(index);
+  }
+
+  // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
+  public emitFormatted(index: number, value: string | null): void {
+    const idx = Math.max(0, Number(index) || 0);
+    const trimmed = (value ?? '').toString().trim() || null;
+
+    const last = this._lastByIndex.get(idx) ?? null;
+    if (last === trimmed) return; // coalesce duplicate emits
+
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
+
+    this._lastByIndex.set(idx, trimmed);
+    this._byIndex.get(idx)!.next(trimmed);
+
+    // Single, index-scoped event for anyone listening
+    this._events$.next({ index: idx, text: trimmed });
+  }
+
+  // ---- Per-index gate
+  public gate$(index: number): Observable<boolean> {
+    const idx = Math.max(0, Number(index) || 0);
+    if (!this._gate.has(idx)) {
+      this._gate.set(idx, new BehaviorSubject<boolean>(false));
+    }
+    return this._gate.get(idx)!.asObservable().pipe(distinctUntilChanged());
+  }
+
+  public setGate(index: number, show: boolean): void {
+    const idx = Math.max(0, Number(index) || 0);
+    if (!this._gate.has(idx)) {
+      this._gate.set(idx, new BehaviorSubject<boolean>(false));
+    }
+    const bs = this._gate.get(idx)!;
+    const next = !!show;
+    if (bs.getValue() !== next) bs.next(next); // coalesce
+  }
+
+  // ---- Hard reset one index (use when leaving an index)
+  public clearIndex(index: number): void {
+    const idx = Math.max(0, Number(index) || 0);
+
+    this._lastByIndex.set(idx, null);
+
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
+    this._byIndex.get(idx)!.next(null);
+
+    if (!this._gate.has(idx)) {
+      this._gate.set(idx, new BehaviorSubject<boolean>(false));
+    }
+    this._gate.get(idx)!.next(false);
+  }
+
+  // (Optional) If you still need this helper, keep it; otherwise remove to reduce surface area
+  public getLastGlobalExplanationIndex(): number | null {
+    const sig = this.lastExplanationSignature ?? '';
+    const i = sig.indexOf('question:');
+    if (i === -1) return null;
+    const after = sig.slice(i + 'question:'.length);
+    const j = after.indexOf(':::');
+    const idxStr = (j >= 0 ? after.slice(0, j) : after).trim();
+    const idx = Number(idxStr);
+    return Number.isInteger(idx) && idx >= 0 ? idx : null;
+  }
+
 }
