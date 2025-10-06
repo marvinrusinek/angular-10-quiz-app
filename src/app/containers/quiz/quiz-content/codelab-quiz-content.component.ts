@@ -385,88 +385,68 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
       switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+        this.currentIndex = currentIndex;
+  
+        // index-change guard: reset lastQuestionText so we don’t carry old baseline
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
-          this.lastQuestionText = ''; // prevent carry-over of previous question
+          this.lastQuestionText = '';
         }
-
-        const correct = this._n(correctText);
-        const rawQ    = this._n(questionText);
-        const qm      = this.quizService.questions?.[currentIndex] ?? null;
-
-        // ---- BASELINE (sync): render the question immediately for the new index
-        const fallbackQ = this._n(qm?.questionText) || this._n(this.questions?.[currentIndex]?.questionText);
+  
+        const globalExpl = (explanationText ?? '').trim();
+        const correct    = (correctText ?? '').trim();
+        const rawQ       = (questionText ?? '').trim();
+  
+        // canonical question for current index
+        const qm = this.quizService.questions?.[currentIndex] ?? null;
+        const fallbackQ =
+          (qm?.questionText ?? '').trim() ||
+          (this.questions?.[currentIndex]?.questionText ?? '').trim();
         const candidate = rawQ || this.lastQuestionText || fallbackQ;
         if (candidate) this.lastQuestionText = candidate;
-
+  
         const question = candidate || this.questionLoadingText || 'No question available';
-        const baseline = correct
+  
+        // fast-path: only accept global explanation if it provably belongs to THIS index
+        const svcExplForIndex = (this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation ?? '')
+          .toString().trim();
+        const globalExplMatchesCurrent = !!globalExpl && !!svcExplForIndex && (globalExpl === svcExplForIndex);
+  
+        const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
+  
+        if (wantsExplanation) {
+          // 1) prefer the per-index formatted cache (synchronous, no race)
+          let chosen = svcExplForIndex;
+  
+          // 2) otherwise accept the global only if it matches this index’s cache
+          if (!chosen && globalExplMatchesCurrent) {
+            chosen = globalExpl;
+          }
+  
+          // 3) otherwise fall back to the model explanation for THIS index
+          if (!chosen) {
+            const modelRaw =
+              (qm?.explanation ?? this.questions?.[currentIndex]?.explanation ?? '')
+                .toString().trim();
+            chosen = modelRaw || 'Explanation not available.';
+          }
+  
+          const outExpl = correct
+            ? `${chosen} <span class="correct-count">${correct}</span>`
+            : chosen;
+  
+          return of(outExpl);
+        }
+  
+        // QUESTION path (with correct-count)
+        const out = correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-
-        // ---- EXPLANATION DECISION: only after baseline
-        const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
-
-        if (!wantsExplanation || indexChanged) {
-          // show baseline and stop here
-          return of(baseline);
-        }
-
-        // fast-path: accept global explanation only if it provably belongs to THIS index
-        const globalExpl  = this._n(explanationText);
-        const svcExpl     = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-        const perIndexRaw = this._n(this.explanationTextService?.explanationTexts?.[currentIndex]);
-        const lastIdx     = this.explanationTextService.getLastGlobalExplanationIndex?.() ?? null;
-
-        const safeGlobalExplForIdx =
-          lastIdx === currentIndex &&
-          !!globalExpl &&
-          globalExpl === svcExpl &&
-          (!!perIndexRaw ? globalExpl === perIndexRaw : true)
-            ? globalExpl
-            : '';
-
-        // Build a "first valid explanation" stream:
-        //  - use safe global immediately if valid for this index
-        //  - otherwise fetch for THIS index, then service cache, then model, then a neutral message
-        const firstValidExplanation$ = (safeGlobalExplForIdx
-          ? of(safeGlobalExplForIdx)
-          : this.explanationTextService.getFormattedExplanationTextForQuestion(currentIndex).pipe(
-              take(1),
-              map(s => this._n(s)),
-              switchMap(trimmed => {
-                if (trimmed) return of(trimmed);
-
-                // Service cache fallback (this index)
-                const svcRaw = this._n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-                if (svcRaw) return of(svcRaw);
-
-                // Model fallback (this index)
-                const modelRaw = this._n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
-                if (modelRaw) return of(modelRaw);
-
-                return of('Explanation not available.');
-              })
-            )
-        ).pipe(
-          // ensure we only proceed with a non-empty string
-          map(txt => this._n(txt)),
-          filter(txt => !!txt),
-          take(1)
-        );
-
-        // Return baseline first, then explanation (deferred/coalesced)
-        return concat(
-          of(baseline),
-          firstValidExplanation$.pipe(
-            map(txt => correct ? `${txt} <span class="correct-count">${correct}</span>` : txt),
-            observeOn(asyncScheduler),
-            auditTime(0)
-          )
-        ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+  
+        return of(out);
       }),
-
+  
       // coalesce once at the end; keeps baseline first and avoids ping-pong
       observeOn(asyncScheduler),
       auditTime(0),
@@ -474,6 +454,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+  
 
 
   private questionTextForIndex$(index: number): Observable<string> {
