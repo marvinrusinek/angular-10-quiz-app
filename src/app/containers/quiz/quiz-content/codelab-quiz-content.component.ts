@@ -459,36 +459,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    // Per-index EXPLANATION stream (null on first tick, then the real value)
-    const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap((i) =>
-        concat(
-          of<string | null>(null), // seed so first paint is always question text
-          defer(() => this.explanationTextService.byIndex$(i)).pipe(
-            map(v => {
-              const t = (v ?? '').toString().trim();
-              return t ? t : null;
-            }),
-            distinctUntilChanged()
-          )
-        )
-      ),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    const perIndexExplanation$: Observable<string | null> =
+      guardedIndex$.pipe(
+        switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string|null>(null)))
+      );
 
-    // Per-index GATE stream (false on first tick, then the real gate state)
-    const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap((i) =>
-        concat(
-          of(false), // seed closed to prevent Q1/Q2 cross-bleed
-          defer(() => this.explanationTextService.gate$(i)).pipe(
-            map(Boolean),
-            distinctUntilChanged()
-          )
-        )
-      ),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    const perIndexGate$: Observable<boolean> =
+      guardedIndex$.pipe(
+        switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
+      );
   
     // Helper: canonical question for an index (model → baseline → loading)
     const canonicalQuestionFor = (idx: number, baseline: string): string => {

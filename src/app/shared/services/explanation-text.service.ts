@@ -83,7 +83,7 @@ export class ExplanationTextService {
   private _lastEmitIndex = new BehaviorSubject<number | null>(null);
   public lastEmitIndex$ = this._lastEmitIndex.asObservable();
 
-  private _events$ = new Subject<{ index: number; text: string | null }>();
+  public _events$ = new Subject<{ index: number; text: string | null }>();
   private _gate = new Map<number, BehaviorSubject<boolean>>();
 
   constructor() {}
