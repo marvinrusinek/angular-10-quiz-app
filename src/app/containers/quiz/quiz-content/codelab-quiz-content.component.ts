@@ -377,95 +377,72 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     this.combinedText$ = combineLatest([
       this.displayState$.pipe(startWith({ mode: 'question', answered: false } as const)),
-      this.explanationTextService.explanationText$.pipe(startWith('')),              // global (kept)
+      this.explanationTextService.explanationText$.pipe(startWith('')),              // kept for wiring, ignored
       this.questionToDisplay$.pipe(startWith(this.questionLoadingText || '')),       // baseline
-      this.correctAnswersText$.pipe(startWith('')),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // global (kept)
+      this.correctAnswersText$.pipe(startWith('')),                                  // may be boolean -> guarded
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),  // intent
       this.quizService.currentQuestionIndex$.pipe(startWith(this.currentQuestionIndexValue ?? 0))
     ]).pipe(
-      switchMap(([state, explanationText, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
+      switchMap(([state, _globalExpl, questionText, correctText, shouldDisplayExplanation, currentIndex]) => {
         this.currentIndex = currentIndex;
   
-        // Guard A: on index change, ignore any global explanation this tick
         const indexChanged = this._renderLastIndex !== currentIndex;
         if (indexChanged) {
           this._renderLastIndex = currentIndex;
           this.lastQuestionText = '';
         }
   
-        const _n = (v: any) => (v ?? '').toString().trim();
+        const norm = (v: any) => (v ?? '').toString().trim();
   
-        // ✅ Only treat correct-text as a badge if it’s a non-empty string
+        // Only show badge if it's a non-empty string (prevents "false")
         const correctStr   = typeof correctText === 'string' ? correctText.trim() : '';
         const correctBadge = correctStr ? ` <span class="correct-count">${correctStr}</span>` : '';
   
-        const globalExpl = _n(explanationText);
-        const rawQ       = _n(questionText);
+        const rawQ = norm(questionText);
   
-        // Canonical question fallback for current index
+        // Canonical question for current index
         const qm = this.quizService.questions?.[currentIndex] ?? null;
-        const fallbackFromModel = _n(qm?.questionText) || _n(this.questions?.[currentIndex]?.questionText);
+        const fallbackQ = norm(qm?.questionText) || norm(this.questions?.[currentIndex]?.questionText);
   
-        const candidateSource   = rawQ || this.lastQuestionText || fallbackFromModel;
-        const candidateQuestion = _n(candidateSource);
-        if (candidateQuestion) this.lastQuestionText = candidateQuestion;
+        const candidate = rawQ || this.lastQuestionText || fallbackQ;
+        if (candidate) this.lastQuestionText = candidate;
   
-        const question = candidateQuestion || this.questionLoadingText || 'No question available';
-  
-        // Guard B: accept global explanation only if it matches the current index’s formatted cache
-        const svcCurrentExpl = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-        const globalExplMatchesCurrent = !!globalExpl && !!svcCurrentExpl && globalExpl === svcCurrentExpl;
+        const question = candidate || this.questionLoadingText || 'No question available';
   
         const wantsExplanation = (state?.mode === 'explanation') || !!shouldDisplayExplanation;
   
         if (wantsExplanation && !indexChanged) {
-          // 1) If service cache already has THIS index, use it.
-          if (svcCurrentExpl) {
-            return of(svcCurrentExpl + correctBadge);
-          }
+          // Only use the CURRENT INDEX explanation (service cache → getter → model)
+          const svcExpl = norm(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
+          if (svcExpl) return of(svcExpl + correctBadge);
   
-          // 2) If the global equals THIS index’s cache (race window), use it.
-          if (globalExplMatchesCurrent) {
-            return of(globalExpl + correctBadge);
-          }
-  
-          // 3) Otherwise fetch for THIS index once, then **stay on question** (no placeholder).
           return this.explanationTextService
             .getFormattedExplanationTextForQuestion(currentIndex)
             .pipe(
               take(1),
-              map((s: string | null | undefined) => _n(s)),
+              map((s: string | null | undefined) => norm(s)),
               switchMap((trimmed) => {
-                // Ignore placeholder-y fallbacks; only render non-empty text
                 if (trimmed && trimmed !== 'No explanation available' && trimmed !== 'Explanation not provided') {
                   return of(trimmed + correctBadge);
                 }
-  
-                // Re-check cache just in case it filled while we were awaiting
-                const latestSvc = _n(this.explanationTextService?.formattedExplanations?.[currentIndex]?.explanation);
-                if (latestSvc) return of(latestSvc + correctBadge);
-  
-                // Model fallback (still scoped to this index). If empty → keep question.
-                const modelRaw = _n(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
+                // scoped model fallback
+                const modelRaw = norm(qm?.explanation ?? this.questions?.[currentIndex]?.explanation);
                 if (modelRaw) return of(modelRaw + correctBadge);
   
-                // Keep question baseline to avoid any “not found” flash
+                // stay on question (no placeholder flash)
                 return of(question + correctBadge);
               })
             );
         }
   
-        // QUESTION path (append correct-count if present)
+        // QUESTION path (append badge when applicable)
         return of(question + correctBadge);
       }),
   
-      // Coalesce once at the tail to avoid ping-pong within a tick
+      // tail coalescing: render once per macrotask
       observeOn(asyncScheduler),
       auditTime(0),
-  
-      // Stricter equality to avoid micro-flips on whitespace
-      distinctUntilChanged((a, b) => a === b),
-  
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
