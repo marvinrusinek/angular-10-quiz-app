@@ -24,6 +24,8 @@ interface QuestionViewState {
   question: QuizQuestion | null
 }
 
+type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
+
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
@@ -381,7 +383,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     const display$ = this.displayState$.pipe(
-      startWith({ mode: 'question', answered: false } as const),
+      startWith<DisplayState>({ mode: 'question', answered: false }),
       distinctUntilChanged((a, b) => a.mode === b.mode && !!a.answered === !!b.answered)
     );
 
@@ -414,40 +416,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       perIndexGate$
     ]).pipe(
       map(([idx, display, shouldShow, qText, correctText, explByIndex, gate]) => {
-        // ---- Question baseline (stable, index-scoped) ----
+        // Narrow the union: guarantee a DisplayState shape
+        const ds = (display as DisplayState) ?? { mode: 'question', answered: false };
+    
+        // ---- Question baseline (unchanged) ----
         const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
         const modelQ = (qm?.questionText ?? '').toString().trim();
         const incomingQ = (qText ?? '').toString().trim();
-
         const chosenQ = incomingQ || this.lastQuestionText || modelQ;
         const question = chosenQ || this.questionLoadingText || 'No question available';
         if (chosenQ) this.lastQuestionText = chosenQ;
-
+    
         // ---- Explanation decision (STRICT) ----
         const explanation = (explByIndex ?? '').toString().trim();
         const wantsExplanation =
-          display.mode === 'explanation' &&               // UI is in explanation mode
-          !!display.answered &&                           // you’ve actually answered
-          !!shouldShow &&                                 // your intent flag says show
-          !!gate &&                                       // the per-index gate is open
-          !!explanation;                                  // and we have a string to show
-
+          ds.mode === 'explanation' &&    // UI is in explanation mode
+          !!ds.answered &&                // you’ve actually answered
+          !!shouldShow &&                 // your intent flag says show
+          !!gate &&                       // the per-index gate is open
+          !!explanation;                  // and we have a string to show
+    
         if (wantsExplanation) {
           return correctText
             ? `${explanation} <span class="correct-count">${correctText}</span>`
             : explanation;
         }
-
-        // Default: show the question baseline (prevents early explanation paint on Q1)
+    
         return correctText
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
       }),
-
-      // Coalesce same-tick emissions (index change + seeds) to kill flicker
+    
+      // keep your coalescing and caching operators
       observeOn(asyncScheduler),
       auditTime(0),
-
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
