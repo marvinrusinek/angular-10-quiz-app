@@ -384,20 +384,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 2) Close prior index gate and clear its text immediately on index change
     let _lastIdx = -1;
-    const guardedIndex$ = index$.pipe(
+
+    // Index stream with a guard that resets explanation state on navigation
+    const guardedIndex$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged(),
       tap(i => {
-        if (_lastIdx !== -1 && _lastIdx !== i) {
-          // Close the previous index entirely
+        // Close the previous index (gate false + clear per-index value)
+        if (typeof _lastIdx === 'number' && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
         }
 
-        // Always reset UI intent for the NEW index before anything renders
+        // Reset global intent + local UI flags for the NEW index
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        try { this.displayStateSubject?.next({ mode: 'question', answered: false } as const); } catch {}
-
-        // Also clear the multi-answer badge when landing on a new question
-        try { this.correctAnswersTextSubject?.next(''); } catch {}
+        this._showExplanation = false;
+        this.explanationToDisplay = '';
 
         _lastIdx = i;
       }),
