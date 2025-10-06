@@ -375,77 +375,80 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    // Stable current index stream
     const index$ = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       distinctUntilChanged()
     );
 
-    // Display state (question|explanation + answered flag)
     const display$ = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as const),
       distinctUntilChanged((a, b) => a.mode === b.mode && !!a.answered === !!b.answered)
     );
 
-    // Per-index formatted explanation (index-scoped, **no global writes**)
+    // Keep your existing global intent stream — we’ll AND it into the decision
+    const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      startWith(false)
+    );
+
     const perIndexExplanation$ = index$.pipe(
       switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null)))
     );
 
-    // Per-index gate (only show explanation when gate is true)
     const perIndexGate$ = index$.pipe(
       switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
     );
 
-    // Baseline question text + live “correct answers” text
     const baselineQuestion$ = this.questionToDisplay$.pipe(
       startWith(this.questionLoadingText || '')
     );
-    const correctText$ = this.correctAnswersText$.pipe(
-      startWith('')
-    );
+
+    const correctText$ = this.correctAnswersText$.pipe(startWith(''));
 
     this.combinedText$ = combineLatest([
       index$,
       display$,
+      shouldShow$,
       baselineQuestion$,
       correctText$,
       perIndexExplanation$,
       perIndexGate$
     ]).pipe(
-      map(([idx, display, qText, correctText, explByIndex, gate]) => {
-        // --- Canonical question for current index (prevents Q1 leaking into Q2) ---
+      map(([idx, display, shouldShow, qText, correctText, explByIndex, gate]) => {
+        // ---- Question baseline (stable, index-scoped) ----
         const qm = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
-        const fallbackQ = (qm?.questionText ?? '').toString().trim();
-        const rawQ = (qText ?? '').toString().trim();
-        const candidateQ = rawQ || this.lastQuestionText || fallbackQ;
-        const question = candidateQ || this.questionLoadingText || 'No question available';
-        if (candidateQ) this.lastQuestionText = candidateQ;
+        const modelQ = (qm?.questionText ?? '').toString().trim();
+        const incomingQ = (qText ?? '').toString().trim();
 
-        // --- Index-scoped formatted explanation + gate ---
+        const chosenQ = incomingQ || this.lastQuestionText || modelQ;
+        const question = chosenQ || this.questionLoadingText || 'No question available';
+        if (chosenQ) this.lastQuestionText = chosenQ;
+
+        // ---- Explanation decision (STRICT) ----
         const explanation = (explByIndex ?? '').toString().trim();
-        const showExplanation = !!gate && !!explanation;
+        const wantsExplanation =
+          display.mode === 'explanation' &&               // UI is in explanation mode
+          !!display.answered &&                           // you’ve actually answered
+          !!shouldShow &&                                 // your intent flag says show
+          !!gate &&                                       // the per-index gate is open
+          !!explanation;                                  // and we have a string to show
 
-        if (showExplanation) {
+        if (wantsExplanation) {
           return correctText
             ? `${explanation} <span class="correct-count">${correctText}</span>`
             : explanation;
         }
 
-        // Default to showing question baseline (with correct count when applicable)
+        // Default: show the question baseline (prevents early explanation paint on Q1)
         return correctText
           ? `${question} <span class="correct-count">${correctText}</span>`
           : question;
       }),
 
-      // Coalesce micro-bursts (index change + baseline + explanation) into one paint
+      // Coalesce same-tick emissions (index change + seeds) to kill flicker
       observeOn(asyncScheduler),
       auditTime(0),
 
-      // Avoid repainting identical markup
       distinctUntilChanged(),
-
-      // Keep the last emission for late subscribers
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
