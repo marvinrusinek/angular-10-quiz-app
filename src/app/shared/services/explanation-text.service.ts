@@ -404,7 +404,7 @@ export class ExplanationTextService {
     }
   }
 
-  getCorrectOptionIndices(question: QuizQuestion): number[] {
+  /* getCorrectOptionIndices(question: QuizQuestion): number[] {
     if (!question || !Array.isArray(question.options)) {
       console.error("Invalid question or options:", question);
       return [];
@@ -423,7 +423,36 @@ export class ExplanationTextService {
         return displayIndex + 1;
       })
       .filter((index): index is number => index !== null);
+  } */
+  getCorrectOptionIndices(question: QuizQuestion): number[] {
+    if (!question || !Array.isArray(question.options)) {
+      console.error("Invalid question or options:", question);
+      return [];
+    }
+  
+    // Normalize each option to a display position:
+    // - use displayOrder when it’s a finite, non-negative number
+    // - else fall back to its natural index
+    // Then convert to 1-based for human-facing text,
+    // dedupe, and sort for stable multi-answer phrasing.
+    const indices = question.options
+      .map((option, idx) => {
+        if (!option?.correct) return null;
+  
+        const hasValidDisplayOrder =
+          typeof option.displayOrder === 'number' &&
+          Number.isFinite(option.displayOrder) &&
+          option.displayOrder >= 0;
+  
+        const zeroBasedPos = hasValidDisplayOrder ? option.displayOrder : idx;
+        return zeroBasedPos + 1; // 1-based for "Option N"
+      })
+      .filter((n): n is number => n !== null);
+  
+    // Dedupe + sort for a stable, readable "Options 1 and 2" string
+    return Array.from(new Set(indices)).sort((a, b) => a - b);
   }
+  
 
   formatExplanation(
     question: QuizQuestion,
