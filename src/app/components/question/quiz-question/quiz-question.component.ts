@@ -3082,7 +3082,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
           // mark as displayed + set local bindings immediately
           this.explanationTextService.setIsExplanationTextDisplayed(true, { force: true, context: `question:${i0}` });
-          this._showExplanation = true;
+          this.displayExplanation = true;
 
           this.setExplanationFor(i0, formatted);
           this.explanationToDisplay = formatted;
