@@ -188,23 +188,20 @@ export class ExplanationTextService {
     return of(explanationObject.explanation);
   }
   
-  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string | null> {
-    const FALLBACK = 'No explanation available'; // retained for logs only, never emitted to UI
+  public getFormattedExplanationTextForQuestion(questionIndex: number): Observable<string> {
+    const FALLBACK = 'No explanation available';
   
     // Guard invalid index; also clear indexed channel so no stale explanation paints.
     if (typeof questionIndex !== 'number' || isNaN(questionIndex)) {
       console.error(`[❌ Invalid questionIndex — must be a number]:`, questionIndex);
   
-      // ⬇Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
+      // ⬇ Clear per-index stream/gate (coerce to a safe index to avoid NaN keys)
       const idx = Number.isInteger(questionIndex) ? questionIndex : 0;
-      try { this.emitFormatted?.(idx, null); } catch {}
-      try { this.setGate?.(idx, false); } catch {}
+      try { this.emitFormatted(idx, null); } catch {}
+      try { this.setGate(idx, false); } catch {}
   
-      // Do NOT push FALLBACK into the subject; keep UI on question (no flash)
-      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
-      if (last) this.formattedExplanationSubject.next('');
-  
-      return of(null);
+      // ⬇ DO NOT push fallback text into global/legacy subjects (prevents flashing)
+      return of(FALLBACK);
     }
   
     const entry = this.formattedExplanations[questionIndex];
@@ -214,14 +211,11 @@ export class ExplanationTextService {
       console.log('🧾 All formattedExplanations:', this.formattedExplanations);
   
       // Clear per-index stream/gate
-      try { this.emitFormatted?.(questionIndex, null); } catch {}
-      try { this.setGate?.(questionIndex, false); } catch {}
+      try { this.emitFormatted(questionIndex, null); } catch {}
+      try { this.setGate(questionIndex, false); } catch {}
   
-      // Do NOT emit placeholder; keep question text visible (no flash)
-      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
-      if (last) this.formattedExplanationSubject.next('');
-  
-      return of(null);
+      // No side-effects into global subject here; return fallback to caller only.
+      return of(FALLBACK);
     }
   
     const explanation = (entry.explanation ?? '').trim();
@@ -229,37 +223,24 @@ export class ExplanationTextService {
     if (!explanation) {
       console.warn(`[⚠️ No valid explanation for Q${questionIndex}]`);
   
-      // Clear per-index stream/gate
-      try { this.emitFormatted?.(questionIndex, null); } catch {}
-      try { this.setGate?.(questionIndex, false); } catch {}
+      // Clear per-index stream/gate, no global string emits
+      try { this.emitFormatted(questionIndex, null); } catch {}
+      try { this.setGate(questionIndex, false); } catch {}
   
-      // Do NOT emit placeholder; keep question text visible (no flash)
-      const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
-      if (last) this.formattedExplanationSubject.next('');
-  
-      return of(null);
+      return of(FALLBACK);
     }
   
-    // Coalesce duplicate emits (per index)
-    const lastIdxVal = this._lastEmittedByIndex.get(questionIndex) ?? null;
-    if (lastIdxVal === explanation) {
-      // keep BehaviorSubject in sync for late subscribers
-      this.formattedExplanationSubject.next(explanation);
-      return of(explanation);
-    }
-  
-    this._lastEmittedByIndex.set(questionIndex, explanation);
-  
-    // Drive the index-scoped channel and open the gate
-    try { this.emitFormatted?.(questionIndex, explanation); } catch {}
-    try { this.setGate?.(questionIndex, true); } catch {}
-  
-    // Update legacy subject only if changed (coalesce duplicates)
+    // Update legacy subject only if changed (coalesce duplicates) — but only with real text
     const last = (this.formattedExplanationSubject.getValue() ?? '').trim();
     if (last !== explanation) this.formattedExplanationSubject.next(explanation);
   
+    // Drive the index-scoped channel and open the gate
+    try { this.emitFormatted(questionIndex, explanation); } catch {}
+    try { this.setGate(questionIndex, true); } catch {}
+  
     return of(explanation);
   }
+  
 
   getFormattedExplanationByQuestion(
     question: QuizQuestion | null | undefined,
