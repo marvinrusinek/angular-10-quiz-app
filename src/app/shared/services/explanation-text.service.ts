@@ -1036,18 +1036,23 @@ export class ExplanationTextService {
 
   public gate$(index: number): Observable<boolean> {
     const i = Math.max(0, Number(index) || 0);
-    if (!this._gate.has(i)) this._gate.set(i, new BehaviorSubject<boolean>(false));
+    if (!this._gate.has(i)) {
+      this._gate.set(i, new BehaviorSubject<boolean>(false));
+    }
     return this._gate.get(i)!.asObservable();
   }
 
-  // Set gate for a specific index
+  // Set gate for a specific index (coalesce duplicate values)
   public setGate(index: number, show: boolean): void {
-    let bs = this._gateByIndex.get(index);
-    if (!bs) {
-      bs = new BehaviorSubject<boolean>(false);
-      this._gateByIndex.set(index, bs);
+    const i = Math.max(0, Number(index) || 0);
+    if (!this._gate.has(i)) {
+      this._gate.set(i, new BehaviorSubject<boolean>(false));
     }
-    bs.next(!!show);
+    const bs = this._gate.get(i)!;
+    const next = !!show;
+    if (bs.getValue() !== next) {
+      bs.next(next);
+    }
   }
 
   // Stable, index-scoped getter (no global writes)
