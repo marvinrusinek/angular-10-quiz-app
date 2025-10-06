@@ -91,6 +91,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private _renderLastIndex = -1;
   private _acceptedExplByIndex = new Map<number, string>();
 
+  private _lastIdx = -1;
+
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
   }
@@ -374,131 +376,105 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Combine the streams that decide what codelab-quiz-content shows
   private getCombinedDisplayTextStream(): void {
-    // 1) Real, changing index$ (seed with current value)
-    const index$: Observable<number> =
-      this.quizService.currentQuestionIndex$.pipe(
-        startWith(this.currentQuestionIndexValue ?? 0),
-        map(i => (Number.isFinite(i as any) ? Number(i) : 0)),
-        distinctUntilChanged()
-      );
-  
-    // 2) Close prior index gate and clear its text immediately on index change
-    let _lastIdx = -1;
-
-    // Index stream with a guard that resets explanation state on navigation
     const guardedIndex$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       distinctUntilChanged(),
       tap(i => {
-        // Close the previous index (gate false + clear per-index value)
-        if (typeof _lastIdx === 'number' && _lastIdx !== i) {
-          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
-          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
+        if (typeof this._lastIdx === 'number' && this._lastIdx !== i) {
+          try { this.explanationTextService.setGate(this._lastIdx, false); } catch {}
+          try { this.explanationTextService.emitFormatted(this._lastIdx, null); } catch {}
         }
-
-        // Reset global intent + local UI flags for the NEW index
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         this._showExplanation = false;
         this.explanationToDisplay = '';
-
-        _lastIdx = i;
+        this._lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
-    // 3) Freeze explanation for the first microtask after index changes
-    //    This avoids a stale explanation flashing as we switch questions.
-    const indexFreeze$ = guardedIndex$.pipe(
-      switchMap(() => concat(of(true), of(false).pipe(observeOn(asyncScheduler)))),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
     
-  
-    // 4) Display state (seeded)
-    const display$ = this.displayState$.pipe(
-      startWith({ mode: 'question', answered: false } as const),
+    const display$: Observable<DisplayState> = this.displayState$.pipe(
+      startWith<DisplayState>({ mode: 'question', answered: false }),
+      map(v => {
+        const m = (v as any)?.mode;
+        const a = (v as any)?.answered;
+        return (m === 'question' || m === 'explanation')
+          ? ({ mode: m, answered: !!a } as DisplayState)
+          : ({ mode: 'question', answered: false } as DisplayState);
+      }),
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered)
     );
-  
-    // 5) Global “intent to show explanation” (seeded)
-    const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
+    
+    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
       startWith(false),
+      map(Boolean),
       distinctUntilChanged()
     );
-  
-    // 6) Baseline question text candidate (seeded)
-    const baselineText$ = this.questionToDisplay$.pipe(
+    
+    const baselineText$: Observable<string> = this.questionToDisplay$.pipe(
       startWith(this.questionLoadingText || ''),
       map(s => (s ?? '').toString().trim()),
       distinctUntilChanged()
     );
-  
-    // 7) Correct-count badge text (seeded)
-    const correctText$ = this.correctAnswersText$.pipe(
+    
+    const correctText$: Observable<string> = this.correctAnswersText$.pipe(
       startWith(''),
       map(s => (s ?? '').toString().trim()),
       distinctUntilChanged()
     );
-  
-    // 8) Explanation *strictly for the current index* using the event bus to bind index→text
-    //    _events$ must emit: { index: number, text: string | null }
-    const expForThisIndex$ = combineLatest([
-      guardedIndex$,
-      // start with a null event, then live events
-      concat(of<{index:number; text:string|null}>({ index: -1, text: null }), this.explanationTextService._events$)
-    ]).pipe(
-      map(([i, ev]) => (ev.index === i ? (ev.text ?? null) : null)),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+    
+    const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
+      switchMap(i =>
+        this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null))
+      )
     );
-  
-    // 9) Per-index gate (seeded to false), still required to control reveal
-    const gateForThisIndex$ = guardedIndex$.pipe(
-      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+    
+    const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
+      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
     );
-
-    const perIndexExplanation$: Observable<string | null> =
-      guardedIndex$.pipe(
-        switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string|null>(null)))
-      );
-
-    const perIndexGate$: Observable<boolean> =
-      guardedIndex$.pipe(
-        switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false)))
-      );
-  
-    // Helper: canonical question for an index (model → baseline → loading)
+    
+    // one-tick freeze after index changes so the question baseline wins for that tick
+    const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
+      switchMap(() => concat(of(true), of(false))) // true then false next microtask
+    );
+    
+    // 3) Helper: canonical question for an index
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
-      const model =
-        (this.quizService?.questions?.[idx]?.questionText ??
-         this.questions?.[idx]?.questionText ??
-         '').toString().trim();
+      const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+      const model = (q?.questionText ?? '').toString().trim();
       const base  = (baseline ?? '').toString().trim();
       return model || base || this.questionLoadingText || 'Loading…';
     };
-  
-    // 10) Combine → render
-    this.combinedText$ = combineLatest([
-      guardedIndex$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$, indexFreeze$
+    
+    // 4) Strongly-typed combineLatest (tuple)
+    this.combinedText$ = combineLatest<
+      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+    >([
+      guardedIndex$,
+      display$,
+      shouldShow$,
+      baselineText$,
+      correctText$,
+      perIndexExplanation$,
+      perIndexGate$,
+      indexFreeze$
     ]).pipe(
-      map(([ idx, display, shouldShow, baseline, correct, explanation, gate, frozen ]) => {
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
         const question = canonicalQuestionFor(idx, baseline);
     
-        // ⛔ During the freeze tick after an index change, force question text (no flashes)
+        // During the freeze tick after an index change, force question text (no flashes)
         if (frozen) {
           return correct ? `${question} <span class="correct-count">${correct}</span>` : question;
         }
     
+        const exp = (explanation ?? '').toString().trim();
         const wantsExplanation =
           display.mode === 'explanation' &&
-          display.answered &&
+          !!display.answered &&
           !!shouldShow &&
           !!gate &&
-          !!(explanation && (explanation as string).trim());
+          !!exp;
     
-        const body = wantsExplanation ? (explanation as string).trim() : question;
+        const body = wantsExplanation ? exp : question;
     
         return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
       }),
