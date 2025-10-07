@@ -88,7 +88,7 @@ export class ExplanationTextService {
   private _gate = new Map<number, BehaviorSubject<boolean>>();
 
   private _lastGlobalExplanationIndex: number | null = null;
-  private _activeIndex: number | null = null;
+  public _activeIndex: number | null = null;
 
   constructor() {}
 

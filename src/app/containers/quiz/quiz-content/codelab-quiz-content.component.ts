@@ -510,27 +510,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       // never render while frozen → first paint after index switch is always the question
       filter(([, , , , , , , frozen]) => frozen === false),
-
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(idx, baseline);
-
-        const hasExplanation = !!(explanation && (explanation as string).trim());
-        // NEW: verify the last global emission (if any) is for THIS idx
-        const belongsToIdx =
-          (this.explanationTextService.getLastGlobalExplanationIndex?.() ?? idx) === idx;
-
+        const question = canonicalQuestionFor(Number(idx), baseline);
+      
+        // Grab the active explanation index from the service
+        const activeIndex = this.explanationTextService._activeIndex ?? -1;
+      
+        // Only treat this explanation as valid if it belongs to the same active index
+        const isCurrent = activeIndex === idx;
+        const hasExplanation = isCurrent && !!(explanation && explanation.trim());
+      
         const wantsExplanation =
           display.mode === 'explanation' &&
-          !!display.answered &&
-          !!shouldShow &&
-          !!gate &&
-          hasExplanation &&
-          belongsToIdx; // <— hard guard
-
-        const body = wantsExplanation ? (explanation as string).trim() : question;
-        return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
-      }),
-
+          display.answered &&
+          shouldShow &&
+          gate &&
+          hasExplanation;
+      
+        const body = wantsExplanation ? explanation!.trim() : question;
+        return correct
+          ? `${body} <span class="correct-count">${correct}</span>`
+          : body;
+      }),      
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
