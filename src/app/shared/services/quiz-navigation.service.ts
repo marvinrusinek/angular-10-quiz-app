@@ -327,12 +327,20 @@ export class QuizNavigationService {
     try {
       // Reset Next button and progress counter
       this.nextButtonStateService.setNextButtonState(false);
+    
+      // Defer the correct-answer counter reset slightly
+      // (lets the next question text render before badge resets)
       setTimeout(() => {
-        try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
+        try { 
+          this.quizService.correctAnswersCountSubject?.next(0); 
+        } catch (err) {
+          console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
+        }
       }, 60);
+    
     } catch (err) {
       console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
-    }
+    }    
   
     // Clean up locks for the question we're leaving
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
