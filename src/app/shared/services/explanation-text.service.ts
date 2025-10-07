@@ -1084,17 +1084,22 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close every other gate and explanation completely
+    // Close all other gates and clear text to prevent cross-index bleed
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
-        try { this._byIndex.get(k)?.next(null); } catch {}
-        this._lastByIndex.set(k, null);
+      }
+    }
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
       }
     }
   
-    // Open only this index
+    // Track active index
     this._activeIndex = idx;
+  
+    // Store + emit for this index only
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
