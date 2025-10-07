@@ -289,7 +289,7 @@ export class QuizNavigationService {
     }
   }
 
-  public async navigateToQuestion(index: number): Promise<boolean> { 
+  public async navigateToQuestion(index: number): Promise<boolean> {  
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -305,36 +305,40 @@ export class QuizNavigationService {
   
     // Clean up before rendering next question
     try {
-      // Close only OTHER indices — keep current slot intact to avoid wiping Q1 on init
-      this.explanationTextService.closeOthersExcept(index);
-    } catch {}
+      // Close all other indices but keep the one we’re navigating to open
+      if (typeof index === 'number') {
+        this.explanationTextService.closeOthersExcept(index);
+      } else {
+        this.explanationTextService.closeAll();
+      }
+    } catch (err) {
+      console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept failed:', err);
+    }
   
     try {
-      // Reset only the PREVIOUS question’s option state (prevents inherited highlights)
+      // Reset only the PREVIOUS question’s options (avoids inherited highlights)
       if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex !== index) {
         this.selectedOptionService.resetOptionState(currentIndex);
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
+    }
   
     try {
       // Reset Next button and progress counter
       this.nextButtonStateService.setNextButtonState(false);
-    } catch {}
-  
-    try {
-      // Reset count tracker (was .correctAnswersCountSubject)
       this.quizService.correctAnswersCountSubject?.next(0);
-    } catch {}
+    } catch (err) {
+      console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
+    }
   
     // Clean up locks for the question we're leaving
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
-    
+  
     // Prep timer guards for the incoming question
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // ────────────────────────────────
-    // 🧭 Route handling logic
-    // ────────────────────────────────
+    // Route handling logic
     if (currentIndex === index && currentUrl === routeUrl) {
       console.warn('[⚠️ Already on route – forcing reload]', {
         currentIndex,
@@ -362,7 +366,7 @@ export class QuizNavigationService {
       }
   
       try {
-        await waitForRoute;  // ensure route change completed
+        await waitForRoute; // ensure route change completed
         return true;
       } catch (err) {
         console.error('[❌ Forced reload waitForUrl error]', err);
@@ -374,6 +378,7 @@ export class QuizNavigationService {
     try {
       const waitForRoute = this.waitForUrl(routeUrl);
       const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
+  
       if (!navSuccess) {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         waitForRoute.catch(() => undefined);
