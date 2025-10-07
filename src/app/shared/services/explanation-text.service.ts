@@ -1084,29 +1084,25 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Fully clear other indices
+    // Close all other gates and explanation streams immediately
     for (const [k, gate$] of this._gate.entries()) {
-      if (k !== idx) {
-        try { gate$.next(false); } catch {}
-      }
+      if (k !== idx) { try { gate$.next(false); } catch {} }
     }
     for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
+      if (k !== idx) { try { subj.next(null); } catch {} }
     }
   
-    // Reset trackers before setting the new one
-    this._activeIndex = idx;
-    this._lastByIndex.clear();
-    this._lastByIndex.set(idx, formatted ?? null);
+    // Schedule open on microtask boundary → avoids same-tick “flash”
+    queueMicrotask(() => {
+      this._activeIndex = idx;
   
-    // Now store + emit for this index only
-    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-    try { this.emitFormatted(idx, formatted); } catch {}
-    try { this.setGate(idx, true); } catch {}
+      // Cache and emit formatted text for this index
+      try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
+      try { this.emitFormatted(idx, formatted); } catch {}
+      try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] 🧭 openExclusive → idx=${idx}, text="${formatted}"`);
+      console.debug(`[ETS] 🟢 openExclusive(${idx}) → gate open`);
+    });
   }  
 
   public closeOthersExcept(index: number): void {
