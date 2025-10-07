@@ -418,12 +418,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 🔒 Freeze period between question transitions
     // 🔒 Two-phase freeze: debounce + delayed unfreeze
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
-      debounceTime(50), // coalesce rapid clicks / route changes
       switchMap(() =>
-        concat(
-          of(true),  // phase 1 — immediately freeze during teardown
-          timer(250).pipe(mapTo(false))  // phase 2 — allow new index to open
-        )
+        concat(of(true), timer(100).pipe(mapTo(false)))  // wait 100ms before unfreeze
       ),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
