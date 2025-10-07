@@ -3090,7 +3090,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             : allCorrect || justCompleted;
 
         if (canEmitNow) {
-          queueMicrotask(() => {
+          requestAnimationFrame(() => {
             try { this.explanationTextService.closeAll(); } catch {}
 
             // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
