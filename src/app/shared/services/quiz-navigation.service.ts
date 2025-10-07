@@ -303,52 +303,56 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
   
-    // Clean up before rendering next question
-    try {
-      // Close all other indices but keep the one we’re navigating to open
-      if (typeof index === 'number') {
-        this.explanationTextService.closeOthersExcept(index);
-      } else {
-        this.explanationTextService.closeAll();
-      }
-    } catch (err) {
-      console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept failed:', err);
-    }
-  
-    try {
-      // Reset only the PREVIOUS question’s options (avoids inherited highlights)
-      if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex !== index) {
-        this.selectedOptionService.resetOptionState(currentIndex);
-      }
-    } catch (err) {
-      console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
-    }
-  
-    try {
-      // Reset Next button and progress counter
-      this.nextButtonStateService.setNextButtonState(false);
-    
-      // Defer the correct-answer counter reset slightly
-      // (lets the next question text render before badge resets)
-      setTimeout(() => {
-        try { 
-          this.quizService.correctAnswersCountSubject?.next(0); 
-        } catch (err) {
-          console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
+    // ────────────────────────────────
+    // 🧹 Cleanup block (deferred slightly)
+    // ────────────────────────────────
+    setTimeout(() => {
+      try {
+        // Close all other indices but keep the one we’re navigating to open
+        if (typeof index === 'number') {
+          this.explanationTextService.closeOthersExcept(index);
+        } else {
+          this.explanationTextService.closeAll();
         }
-      }, 60);
-    
-    } catch (err) {
-      console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
-    }    
+      } catch (err) {
+        console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept failed:', err);
+      }
   
-    // Clean up locks for the question we're leaving
+      try {
+        // Reset only the PREVIOUS question’s options (avoids inherited highlights)
+        if (typeof currentIndex === 'number' && currentIndex >= 0 && currentIndex !== index) {
+          this.selectedOptionService.resetOptionState(currentIndex);
+        }
+      } catch (err) {
+        console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
+      }
+  
+      try {
+        // Reset Next button and progress counter
+        this.nextButtonStateService.setNextButtonState(false);
+  
+        // Defer the correct-answer counter reset slightly again (extra guard)
+        setTimeout(() => {
+          try { 
+            this.quizService.correctAnswersCountSubject?.next(0); 
+          } catch (err) {
+            console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
+          }
+        }, 30);
+      } catch (err) {
+        console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
+      }
+    }, 60);
+  
+    // ────────────────────────────────
+    // 🔒 Lock & timer prep
+    // ────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
-  
-    // Prep timer guards for the incoming question
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // Route handling logic
+    // ────────────────────────────────
+    // 🧭 Route handling logic
+    // ────────────────────────────────
     if (currentIndex === index && currentUrl === routeUrl) {
       console.warn('[⚠️ Already on route – forcing reload]', {
         currentIndex,
@@ -358,9 +362,7 @@ export class QuizNavigationService {
   
       // Navigate to dummy route first, then back to trigger full reload
       const dummySuccess = await this.ngZone.run(() =>
-        this.router.navigateByUrl('/', {
-          skipLocationChange: true,
-        })
+        this.router.navigateByUrl('/', { skipLocationChange: true })
       );
   
       if (!dummySuccess) {
@@ -384,7 +386,9 @@ export class QuizNavigationService {
       }
     }
   
-    // Normal navigation case
+    // ────────────────────────────────
+    // 🧭 Normal navigation case
+    // ────────────────────────────────
     try {
       const waitForRoute = this.waitForUrl(routeUrl);
       const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
@@ -406,7 +410,7 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }
+  }  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
