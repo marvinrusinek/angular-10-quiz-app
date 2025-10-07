@@ -388,33 +388,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // 2) Guard index changes: close old index, pre-close new index, reset intent, clear selection
+    // 2) Guard index changes: close old index, pre-close new index, reset intent
     let _lastIdx = -1;
-    const guardedIndex$ = index$.pipe(
+    const guardedIndex$: Observable<number> = index$.pipe(
       tap(i => {
         if (_lastIdx !== -1 && _lastIdx !== i) {
-          // close previous index completely
+          // Close previous index completely
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-          // also clear previous selection snapshot so the first option doesn't show as selected
-          try { this.selectedOptionService?.clearIndex?.(_lastIdx); } catch {}
+
+          // Optional: clear previous index selection snapshot (only if you add it; see #3)
+          try { (this.selectedOptionService as any)?.clearIndex?.(_lastIdx); } catch {}
         }
-  
-        // pre-close NEW index before anything renders
+
+        // ⬇ Hard reset local/intent state for the NEW index (no unknown fields referenced)
+        try { this._showExplanation = false; } catch {}
+        try { this.lastQuestionText = ''; } catch {}
+
+        // Pre-close NEW index before anything renders
         try { this.explanationTextService.setGate(i, false); } catch {}
         try { this.explanationTextService.emitFormatted(i, null); } catch {}
-        // reset intent to "question"
+
+        // Reset global intent to “question”
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-  
-        // make sure local option arrays are visually unselected
-        try {
-          (this.optionsToDisplay as Option[] | undefined)?.forEach(o => (o.selected = false));
-        } catch {}
-  
+
         _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     // 3) Freeze: true immediately after index change, then false on next microtask
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(() => concat(of(true), of(false).pipe(observeOn(asyncScheduler)))),
