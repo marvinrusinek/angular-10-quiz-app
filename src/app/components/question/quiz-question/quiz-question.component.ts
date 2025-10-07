@@ -3076,9 +3076,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const actualText   = (q?.questionText ?? '').trim();
 
           // Fallback for first question initialization (Q1 sometimes lacks baseline)
-          if (!expectedText || expectedText !== actualText) {
-            canonicalQ.questionText = actualText;
-          }
+          if ((!expectedText || expectedText !== actualText) && canonicalQ) {
+            // Defensive fallback for first question initialization (prevents undefined access)
+            try {
+              (canonicalQ as any).questionText = actualText;
+            } catch {
+              // swallow — just in case the structure is immutable or proxied
+            }
+          }          
 
           // Only if the question matches this index (prevents cross-index leaks)
           if (expectedText && actualText && expectedText === actualText) {
