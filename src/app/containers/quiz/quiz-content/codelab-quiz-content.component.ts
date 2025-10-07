@@ -502,26 +502,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       // never render while frozen → first paint after index switch is always the question
       filter(([, , , , , , , frozen]) => frozen === false),
+
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
-      
+
+        // ────────────────────────────────────────────────
+        // 🧩 Strict active-index guard
+        // ────────────────────────────────────────────────
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
-      
+
+        // Explanation is valid ONLY if:
+        //   1. It's the active index (no cross-index bleed)
+        //   2. The gate for that index is open
+        //   3. The text is non-empty
         const validExplanation =
-          isCurrent && gate && explanation && explanation.trim().length > 0;
-      
+          isCurrent &&
+          !!gate &&
+          typeof explanation === 'string' &&
+          explanation.trim().length > 0;
+
+        // Decide what should show
         const wantsExplanation =
-          display.mode === 'explanation' &&
-          display.answered &&
-          shouldShow &&
+          display?.mode === 'explanation' &&
+          !!display?.answered &&
+          !!shouldShow &&
           validExplanation;
-      
+
+        // Final display text (FET or question text)
         const body = wantsExplanation ? explanation.trim() : question;
-        return correct
+
+        // Attach “# of correct answers” badge only for multi-answer
+        const hasCorrectText =
+          typeof correct === 'string' && correct.trim().length > 0;
+        return hasCorrectText
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
+
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
