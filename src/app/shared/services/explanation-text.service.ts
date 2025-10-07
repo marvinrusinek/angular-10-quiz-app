@@ -1084,23 +1084,34 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // 🔒 Close other gates (but don't destroy their stored explanations)
-    for (const [k, gate$] of this._gate.entries()) {
+    // Close all other gates and clear text to prevent cross-index bleed
+    for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
-        try { gate$.next(false); } catch {}
+        try { bs.next(false); } catch {}
+      }
+    }
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
       }
     }
   
-    // Track current active index
+    // Track active index
     this._activeIndex = idx;
   
-    // ✅ Set this question’s formatted explanation & open its gate
+    // ⛔ Hard reset text for this index before re-emitting (prevents race from stale cache)
+    try {
+      this._byIndex.get(idx)?.next(null);
+      this.setGate(idx, false);
+    } catch {}
+  
+    // Store + emit fresh formatted text for this index only
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] 🟢 Opened exclusive explanation for Q${idx}`);
-  }  
+    console.log(`[ETS] 🔓 openExclusive for Q${idx} → ${formatted?.slice(0, 60)}`);
+  }
 
   public closeOthersExcept(index: number, opts?: { preserveText?: boolean }): void {
     const idx = Math.max(0, Number(index) || 0);
