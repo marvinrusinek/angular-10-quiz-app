@@ -3070,10 +3070,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // NEW: Emit explanation intent + cache NOW (don't wait for RAF)        
         const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
         if (canEmitNow) {
-          // ✅ Canonicalize the question strictly for THIS index (prevents cross-index leaks)
-          const canonicalQ   = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
-          const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
-          const actualText   = (q?.questionText ?? '').toString().trim();
+          // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
+          const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+          const expectedText = (canonicalQ?.questionText ?? '').trim();
+          const actualText   = (q?.questionText ?? '').trim();
+
+          // Fallback for first question initialization (Q1 sometimes lacks baseline)
+          if (!expectedText || expectedText !== actualText) {
+            canonicalQ.questionText = actualText;
+          }
 
           // Only if the question matches this index (prevents cross-index leaks)
           if (expectedText && actualText && expectedText === actualText) {
