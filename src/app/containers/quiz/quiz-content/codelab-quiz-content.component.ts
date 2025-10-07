@@ -514,34 +514,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
       
-        // Only allow explanation if its gate is open and belongs to this index
-        const activeIndex = this.explanationTextService._activeIndex ?? -1;
-        const isCurrent   = activeIndex === idx;
-        const hasExplanation = isCurrent && !!(explanation && explanation.trim());
+        // guard explanation validity — only when gate is open AND belongs to active index
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const hasExplanation =
+          gate && activeIdx === idx && !!(explanation && explanation.trim());
       
+        // allow explanation only if display state + intent all line up
         const wantsExplanation =
           display.mode === 'explanation' &&
-          display.answered &&
-          shouldShow &&
-          gate &&
+          !!display.answered &&
+          !!shouldShow &&
           hasExplanation;
       
-        // Pick what to display
-        const body = wantsExplanation ? explanation!.trim() : question;
+        const body = wantsExplanation ? (explanation as string).trim() : question;
       
-        // Badge logic (shows only for multiple-answer questions)
-        const qType = this.quizService.questions?.[Number(idx)]?.type;
-        const showBadge =
-          qType === QuestionType.MultipleAnswer &&
-          typeof correct === 'string' &&
-          correct.trim().length > 0;
+        // 🟩 Always attach the badge for multiple-answer questions
+        const badge = correct
+          ? `<span class="correct-count">${correct}</span>`
+          : '';
       
-        const finalText = showBadge
-          ? `${body} <span class="correct-count">${correct}</span>`
-          : body;
-      
-        return finalText;
-      }),      
+        return `${body} ${badge}`.trim();
+      }),            
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
