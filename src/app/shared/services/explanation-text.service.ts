@@ -1017,6 +1017,9 @@ export class ExplanationTextService {
     this._lastByIndex.set(idx, trimmed);
     this._byIndex.get(idx)!.next(trimmed);
 
+    // Record which index most recently produced a visible explanation
+    this._lastGlobalExplanationIndex = trimmed ? idx : this._lastGlobalExplanationIndex;
+
     // Single, index-scoped event for anyone listening
     this._events$.next({ index: idx, text: trimmed });
   }
