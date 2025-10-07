@@ -452,8 +452,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
-      startWith(''),
       map(s => (s ?? '').toString().trim()),
+      startWith(''),  // ensure first emission exists
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -513,11 +513,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
       
-        // Grab the active explanation index from the service
+        // Only allow explanation if its gate is open and belongs to this index
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
-      
-        // Only treat this explanation as valid if it belongs to the same active index
-        const isCurrent = activeIndex === idx;
+        const isCurrent   = activeIndex === idx;
         const hasExplanation = isCurrent && !!(explanation && explanation.trim());
       
         const wantsExplanation =
@@ -527,21 +525,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           gate &&
           hasExplanation;
       
+        // Pick what to display
         const body = wantsExplanation ? explanation!.trim() : question;
-
-        // Ensure correct badge only for multi-answer questions
+      
+        // Badge logic (shows only for multiple-answer questions)
         const qType = this.quizService.questions?.[Number(idx)]?.type;
         const showBadge =
           qType === QuestionType.MultipleAnswer &&
           typeof correct === 'string' &&
           correct.trim().length > 0;
-          
-        // Final render string (question or explanation + badge if applicable)
+      
         const finalText = showBadge
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
-          
-        return finalText;          
+      
+        return finalText;
       }),      
       observeOn(asyncScheduler),
       auditTime(0),
