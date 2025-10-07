@@ -3090,7 +3090,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             : allCorrect || justCompleted;
 
         if (canEmitNow) {
-          requestAnimationFrame(() => {
+          // Delay closeAll slightly so indexFreeze$ finishes before reopening explanation
+          setTimeout(() => {
             try { this.explanationTextService.closeAll(); } catch {}
 
             // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
@@ -3117,14 +3118,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 .trim();
 
               // Optional coalesce: skip heavy updates if already same
-              const lastForIdx = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
-                .toString().trim();
-              const isDuplicate = lastForIdx === formatted;
+              //const lastForIdx = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
+              //  .toString().trim();
+              //const isDuplicate = lastForIdx === formatted;
 
               // ✅ Emit for this index only (no early double call)
-              if (!isDuplicate) {
-                try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
-              }
+              //if (!isDuplicate) {
+              try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+              //}
 
               // Intent only (no global text payload)
               this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
