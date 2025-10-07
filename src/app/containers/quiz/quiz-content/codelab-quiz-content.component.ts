@@ -459,37 +459,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // 8) Per-index explanation / gate — seed so first post-freeze render is question text
-    // 8) Per-index streams (guarded; null/false until the new index opens)
+    // 8) Per-index streams (guarded; null/false until the new index opens), seed each stream with its last known value (prevents “Explanation not found”)
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i =>
-        // defer ensures the subscription to the new index starts AFTER old gates close
-        defer(() =>
-          concat(
-            // immediate null to clear any previous FET paint
-            of<string | null>(null),
-            // small defer avoids same-tick bleed from prior index
-            this.explanationTextService.byIndex$(i).pipe(
-              debounceTime(16),          // one frame delay ≈ 1 tick
-              distinctUntilChanged()
-            )
-          )
-        )
-      ),
+      switchMap(i => {
+        const last = this.explanationTextService?.formattedExplanations?.[i]?.explanation ?? null;
+        return concat(of<string | null>(last), this.explanationTextService.byIndex$(i));
+      }),
+      auditTime(0),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i =>
-        defer(() =>
-          concat(
-            of(false),
-            this.explanationTextService.gate$(i).pipe(
-              debounceTime(16),
-              distinctUntilChanged()
-            )
-          )
-        )
-      ),
+      switchMap(i => {
+        const last = !!this.explanationTextService._gate.get(i)?.getValue?.();
+        return concat(of(last), this.explanationTextService.gate$(i));
+      }),
+      auditTime(0),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
