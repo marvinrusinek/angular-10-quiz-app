@@ -484,35 +484,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.combinedText$ = combineLatest<
       [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
     >([
-      guardedIndex$,       // 0
-      display$,            // 1
-      shouldShow$,         // 2
-      baselineText$,       // 3
-      correctText$,        // 4
-      perIndexExplanation$,// 5
-      perIndexGate$,       // 6
-      indexFreeze$         // 7
+      guardedIndex$, display$, shouldShow$, baselineText$, correctText$,
+      perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
       // never render while frozen → first paint after index switch is always the question
       filter(([, , , , , , , frozen]) => frozen === false),
-  
+
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
-  
+
         const hasExplanation = !!(explanation && (explanation as string).trim());
+        // NEW: verify the last global emission (if any) is for THIS idx
+        const belongsToIdx =
+          (this.explanationTextService.getLastGlobalExplanationIndex?.() ?? idx) === idx;
+
         const wantsExplanation =
           display.mode === 'explanation' &&
           !!display.answered &&
           !!shouldShow &&
           !!gate &&
-          hasExplanation;
-  
+          hasExplanation &&
+          belongsToIdx; // <— hard guard
+
         const body = wantsExplanation ? (explanation as string).trim() : question;
         return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
       }),
-  
-      observeOn(asyncScheduler),  // flip on microtask boundary
-      auditTime(0),               // coalesce same-tick flutters
+
+      observeOn(asyncScheduler),
+      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
