@@ -87,6 +87,8 @@ export class ExplanationTextService {
   public readonly events$ = this._events$.asObservable();
   private _gate = new Map<number, BehaviorSubject<boolean>>();
 
+  private _lastGlobalExplanationIndex: number | null = null;
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -1057,6 +1059,9 @@ export class ExplanationTextService {
 
   // (Optional) If you still need this helper, keep it; otherwise remove to reduce surface area
   public getLastGlobalExplanationIndex(): number | null {
+    // Prefer the explicit numeric tracker (set by emitFormatted)
+    if (this._lastGlobalExplanationIndex !== null) return this._lastGlobalExplanationIndex;
+
     const sig = this.lastExplanationSignature ?? '';
     const i = sig.indexOf('question:');
     if (i === -1) return null;
@@ -1066,5 +1071,4 @@ export class ExplanationTextService {
     const idx = Number(idxStr);
     return Number.isInteger(idx) && idx >= 0 ? idx : null;
   }
-
 }
