@@ -3076,7 +3076,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { this.explanationTextService.closeOthersExcept(i0, { preserveText: true }); } catch {}
         
         // Now open this question’s explanation gate
-        try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+        const formattedExpl = this.explanationTextService
+          .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
+          .trim();
+        try { this.explanationTextService.openExclusive(i0, formattedExpl); } catch {}
         
         // Decide whether this click should trigger a new explanation.
         const canEmitNow =
