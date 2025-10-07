@@ -502,42 +502,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       guardedIndex$, display$, shouldShow$, baselineText$, correctText$,
       perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
-      // never render while frozen → first paint after index switch is always the question
+      // ✅ 1) Prevent render while frozen — question paint first
       filter(([, , , , , , , frozen]) => frozen === false),
+
+      // ✅ 2) One-frame debounce to let closeAll()/openExclusive settle
+      debounceTime(50),
 
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
 
-        // ────────────────────────────────────────────────
-        // 🧩 Strict active-index guard
-        // ────────────────────────────────────────────────
+        // ✅ Track the currently active explanation index
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
 
-        // Explanation is valid ONLY if:
-        //   1. It's the active index (no cross-index bleed)
-        //   2. The gate for that index is open
-        //   3. The text is non-empty
-        const validExplanation =
-          isCurrent &&
-          !!gate &&
-          typeof explanation === 'string' &&
-          explanation.trim().length > 0;
+        // ✅ Only consider explanation valid if it's for this index AND gate is open
+        const hasExplanation = isCurrent && gate && !!(explanation && explanation.trim());
 
-        // Decide what should show
         const wantsExplanation =
-          display?.mode === 'explanation' &&
-          !!display?.answered &&
-          !!shouldShow &&
-          validExplanation;
+          display.mode === 'explanation' &&
+          display.answered &&
+          shouldShow &&
+          hasExplanation;
 
-        // Final display text (FET or question text)
         const body = wantsExplanation ? explanation.trim() : question;
-
-        // Attach “# of correct answers” badge only for multi-answer
-        const hasCorrectText =
-          typeof correct === 'string' && correct.trim().length > 0;
-        return hasCorrectText
+        return correct
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
