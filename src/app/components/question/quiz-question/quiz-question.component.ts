@@ -3084,15 +3084,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
               .trim();
 
-            // ⛔ Optional coalesce: skip heavy updates if we already have the same text stored for this index
+            // Optional coalesce: skip heavy updates if we already have the same text stored for this index
             const lastForIdx  = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
               .toString().trim();
             const isDuplicate = lastForIdx === formatted;
 
-            // Per-index cache + emit + open gate (service-side emits are already coalesced)
-            try { if (!isDuplicate) this.explanationTextService.storeFormattedExplanation(i0, formatted, canonicalQ as any); } catch {}
-            try { if (!isDuplicate) this.explanationTextService.emitFormatted(i0, formatted); } catch {}
-            try { this.explanationTextService.setGate(i0, true); } catch {}
+            // Open exclusive gate and emit for this index only
+            try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
 
             // Intent only (no global text payload)
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
@@ -3234,10 +3232,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const rawExpl     = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted   = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // Cache + emit formatted text only for this index
-    try { this.explanationTextService.storeFormattedExplanation(idx, formatted, q); } catch {}
-    try { this.explanationTextService.emitFormatted(idx, formatted); } catch {}
-    try { this.explanationTextService.setGate(idx, true); } catch {}
+    // Open exclusive gate for this question only
+    try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
   
     // Show explanation mode + mark question as answered
     this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
