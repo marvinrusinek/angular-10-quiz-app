@@ -395,21 +395,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-          try { (this.selectedOptionService as any)?.clearIndex?.(_lastIdx); } catch {}
+      
+          // 🔥 NEW: hard clear any option highlighting or icons
+          try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
-  
-        try { this._showExplanation = false; } catch {}
-        try { this.lastQuestionText = ''; } catch {}
-  
+      
+        // Reset per-index explanation and global state
         try { this.explanationTextService.setGate(i, false); } catch {}
         try { this.explanationTextService.emitFormatted(i, null); } catch {}
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        if (this.explanationTextService.getLastGlobalExplanationIndex() === _lastIdx) {
-          (this.explanationTextService as any)._lastGlobalExplanationIndex = null;
-        }
-  
+      
+        // 🔥 NEW: also reset local highlight flags for fresh render
+        try { this.displayExplanation = false; } catch {}
+        try { this.lastQuestionText = ''; } catch {}
+      
         _lastIdx = i;
-      }),
+      }),      
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
