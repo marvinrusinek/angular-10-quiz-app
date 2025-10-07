@@ -415,17 +415,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // 3) Freeze: true immediately after index change, then false on next microtask
+    // 🔒 Freeze period between question transitions
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(() =>
         concat(
-          of(true),
-          // wait 75ms before unfreezing → ensures Q2 baseline text renders cleanly
-          timer(75).pipe(mapTo(false))
+          of(true),  // immediately freeze during index change
+          // Extend unfreeze delay: 150–200 ms ensures closeAll / openExclusive complete cleanly
+          timer(180).pipe(mapTo(false))
         )
       ),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
   
     // 4) Display state (typed & coalesced)
     const display$: Observable<DisplayState> = this.displayState$.pipe(
