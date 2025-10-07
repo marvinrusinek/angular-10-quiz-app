@@ -3072,8 +3072,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const justCompleted =
           q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
 
+        // Always clear all gates before deciding to emit a new explanation.
+        try { this.explanationTextService.closeAll(); } catch {}
+        // Decide whether this click should trigger a new explanation.
         const canEmitNow =
-          q?.type === QuestionType.SingleAnswer || justCompleted;
+          q?.type === QuestionType.SingleAnswer
+            ? true
+            : allCorrect || justCompleted;
         if (canEmitNow) {
           // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
           const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
