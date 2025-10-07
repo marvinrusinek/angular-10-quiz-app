@@ -1117,22 +1117,23 @@ export class ExplanationTextService {
     console.log(`[ETS] 🔓 Opened exclusive gate for Q${idx} with text:`, formatted);
   }
   
-
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
+  
     for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
         try { gate$.next(false); } catch {}
       }
     }
+  
     for (const [k, subj] of this._byIndex.entries()) {
       if (k !== idx) {
         try { subj.next(null); } catch {}
       }
     }
-    // Keep the active index untouched
-    this._activeIndex = idx;
-  }  
+  
+    console.log(`[ETS] 🧹 Closed all except index ${idx}`);
+  }
 
   public closeAll(): void {
     try {
