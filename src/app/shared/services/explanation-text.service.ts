@@ -1103,5 +1103,19 @@ export class ExplanationTextService {
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
-  }  
+  }
+
+  public closeOthersExcept(index: number): void {
+    const idx = Math.max(0, Number(index) || 0);
+    for (const [k, bs] of this._gate.entries()) {
+      if (k !== idx) {
+        try { bs.next(false); } catch {}
+      }
+    }
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
+      }
+    }
+  }
 }
