@@ -1080,7 +1080,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates instantly (prevents cross-index bleed)
+    // Atomically close *all* other active indices before setting this one
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
@@ -1088,18 +1088,21 @@ export class ExplanationTextService {
       }
     }
   
-    // Close any previously active index explicitly
-    if (this._activeIndex !== null && this._activeIndex !== idx) {
-      try { this.setGate(this._activeIndex, false); } catch {}
-      try { this.emitFormatted(this._activeIndex, null); } catch {}
-    }
-  
-    // Mark this one as active
+    // Set this as the *only* active index
     this._activeIndex = idx;
   
-    // Store + emit for this index only (coalesced internally)
-    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-    try { this.emitFormatted(idx, formatted); } catch {}
-    try { this.setGate(idx, true); } catch {}
+    // Explicitly clear any previous "global" formattedExplanationSubject
+    try { this.formattedExplanationSubject?.next(''); } catch {}
+  
+    // Store + emit for this index only
+    if (formatted && formatted.trim()) {
+      try { this.storeFormattedExplanation(idx, formatted.trim(), null); } catch {}
+      try { this.emitFormatted(idx, formatted.trim()); } catch {}
+      try { this.setGate(idx, true); } catch {}
+    } else {
+      // If no valid text, close this gate too
+      try { this.emitFormatted(idx, null); } catch {}
+      try { this.setGate(idx, false); } catch {}
+    }
   }  
 }
