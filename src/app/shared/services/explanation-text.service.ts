@@ -257,8 +257,7 @@ export class ExplanationTextService {
         this.setGate(questionIndex, false);
       } catch {}
 
-      // No side-effects into global subject here; return fallback to caller only.
-      return of(FALLBACK);
+      return of(null);
     }
 
     const explanation = (entry.explanation ?? '').trim();
