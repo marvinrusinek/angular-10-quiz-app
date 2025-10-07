@@ -3100,6 +3100,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const isDuplicate = lastForIdx === formatted;
 
             // Open exclusive gate and emit for this index only
+            queueMicrotask(() => {
+              try { this.explanationTextService.closeOthersExcept(i0); } catch {}
+            });
             try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
 
             // Intent only (no global text payload)
@@ -3243,6 +3246,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted   = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     // Open exclusive gate for this question only
+    queueMicrotask(() => {
+      try { this.explanationTextService.closeOthersExcept(i0); } catch {}
+    });
     try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
   
     // Show explanation mode + mark question as answered
