@@ -1083,7 +1083,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other indices instantly
+    // Close all other gates and text synchronously
     for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
         try { gate$.next(false); } catch {}
@@ -1095,16 +1095,14 @@ export class ExplanationTextService {
       }
     }
   
-    // ✅ Track active index BEFORE opening
     this._activeIndex = idx;
   
-    // ✅ Now emit & open
-    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
+    // Emit & gate ON immediately
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
   
-    console.log(`[openExclusive] 🔓 Opened exclusive index ${idx}`);
-  }  
+    console.log(`[ETS] ✅ openExclusive → index ${idx}, text length=${(formatted ?? '').length}`);
+  }
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
