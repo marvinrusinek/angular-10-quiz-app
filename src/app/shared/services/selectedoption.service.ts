@@ -1934,23 +1934,47 @@ export class SelectedOptionService {
     console.log('[🧼 Selection state fully reset]');
   }
 
-  public resetOptionState(questionIndex: number): void {
+  public resetOptionState(questionIndex?: number): void {
     try {
-      const opts = this.selectedOptionsMap.get(questionIndex);
-      if (!opts) return;
+      // ────────────── RESET SPECIFIC QUESTION ──────────────
+      if (typeof questionIndex === 'number') {
+        const opts = this.selectedOptionsMap.get(questionIndex);
+        if (!opts) {
+          console.log(`[SelectedOptionService] ℹ️ No options found for question ${questionIndex}`);
+          return;
+        }
   
-      const cleared = opts.map(o => ({
-        ...o,
-        selected: false,
-        showIcon: false,
-        highlight: false
-      }));
+        const cleared = opts.map(o => ({
+          ...o,
+          selected: false,
+          showIcon: false,
+          highlight: false
+        }));
   
-      this.selectedOptionsMap.set(questionIndex, cleared);
+        this.selectedOptionsMap.set(questionIndex, cleared);
+        console.log(`[SelectedOptionService] 🔄 Reset options for question ${questionIndex}`);
+        return;
+      }
+  
+      // ────────────── GLOBAL RESET ──────────────
+      if (this.selectedOptionsMap && this.selectedOptionsMap.size > 0) {
+        for (const [idx, opts] of this.selectedOptionsMap.entries()) {
+          const cleared = (opts ?? []).map(o => ({
+            ...o,
+            selected: false,
+            showIcon: false,
+            highlight: false
+          }));
+          this.selectedOptionsMap.set(idx, cleared);
+        }
+        console.log('[SelectedOptionService] 🔄 Reset options for ALL questions');
+      } else {
+        console.log('[SelectedOptionService] ℹ️ No options to reset globally');
+      }
     } catch (err) {
-      console.warn(`[resetOptionState] failed for index ${questionIndex}`, err);
+      console.warn('[SelectedOptionService] ⚠️ resetOptionState failed:', err);
     }
-  }
+  }  
   
   private getDefaultOptions(): Option[] {
     const defaultOptions = Array(4)
