@@ -378,7 +378,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): void {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
   
-    // 1) Current index (seeded, stable)
+    // Current index (seeded + stable)
     const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
@@ -386,46 +386,42 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 2) On index change, pre-close the new index and clear the old one
+    // When the index changes, we 1) close old gate, 2) clear per-index text, 3) reset intent
     let _lastIdx = -1;
     const guardedIndex$ = index$.pipe(
       tap(i => {
-        // Close the previous index entirely
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
         }
-        // Pre-close the NEW index before anything renders
         try { this.explanationTextService.setGate(i, false); } catch {}
         try { this.explanationTextService.emitFormatted(i, null); } catch {}
-        // Reset global intent to question (no explanation until we open it)
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 3) One microtask freeze on index changes → prevents any late Q1 explanation from painting on Q2
+    // One microtask "freeze" after index flip: prevents any explanation paint on the first tick
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(() => concat(of(true), of(false).pipe(observeOn(asyncScheduler)))),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 4) Display state (typed & coalesced)
+    // Display state (typed)
     const display$: Observable<DisplayState> = this.displayState$.pipe(
       map(v => {
         const s = (v as any) ?? {};
-        const mode: 'question' | 'explanation' =
-          s.mode === 'explanation' ? 'explanation' : 'question';
+        const mode = s.mode === 'explanation' ? 'explanation' : 'question';
         const answered = typeof s.answered === 'boolean' ? s.answered : false;
-        return { mode, answered };
+        return { mode, answered } as DisplayState;
       }),
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 5) Global “should show explanation” flag
+    // Global “should show explanation” intent
     const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
       map(Boolean),
       startWith(false),
@@ -433,7 +429,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 6) Baseline question text
+    // Baseline question candidate (seeded)
     const baselineText$: Observable<string> = this.questionToDisplay$.pipe(
       startWith(this.questionLoadingText || ''),
       map(s => (s ?? '').toString().trim()),
@@ -441,7 +437,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 7) Correct-count badge text
+    // Correct-count badge (seeded)
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
       startWith(''),
       map(s => (s ?? '').toString().trim()),
@@ -449,7 +445,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 8) Per-index explanation/gate strictly keyed to the current index (seeded each time)
+    // Per-index explanation + gate, strictly keyed by *guarded* index, seeded to null/false
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
       switchMap(i => concat(of<string | null>(null), this.explanationTextService.byIndex$(i))),
       distinctUntilChanged(),
@@ -462,7 +458,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 9) Canonical question resolver (no stale fallback)
+    // Canonical question for an index (never pull from another index)
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
       const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
       const model = (q?.questionText ?? '').toString().trim();
@@ -470,42 +466,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return model || base || this.questionLoadingText || 'Loading…';
     };
   
-    // 10) Combine — with strict guards and one-tick freeze
+    // Final combined stream (single place where UI text is chosen)
     this.combinedText$ = combineLatest([
-      guardedIndex$,          // number
-      display$,               // DisplayState
-      shouldShow$,            // boolean
-      baselineText$,          // string
-      correctText$,           // string
-      perIndexExplanation$,   // string|null
-      perIndexGate$,          // boolean
-      indexFreeze$            // boolean
+      guardedIndex$, display$, shouldShow$, baselineText$, correctText$, perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
-      // Skip the frozen tick entirely → first paint after index change is always the question baseline
+      // Don’t render during the one-tick freeze after index change
       filter(([, , , , , , , frozen]) => frozen === false),
   
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx as number, baseline as string);
   
-        // Extra guard: only accept explanations that were last emitted for THIS index
-        const lastIdx = this.explanationTextService.getLastGlobalExplanationIndex?.() ?? idx;
-        const explanationIsForThisIndex = lastIdx === (idx as number);
-  
+        // Only show explanation if EVERYTHING for THIS index lines up
         const hasExplanation = !!(explanation && (explanation as string).trim());
         const wantsExplanation =
-          display.mode === 'explanation' &&
-          !!display.answered &&
-          !!shouldShow &&
-          !!gate &&
-          hasExplanation &&
-          explanationIsForThisIndex;
+          (display as DisplayState).mode === 'explanation' &&
+          !!(display as DisplayState).answered &&
+          !!(shouldShow as boolean) &&
+          !!(gate as boolean) &&
+          hasExplanation;
   
         const body = wantsExplanation ? (explanation as string).trim() : question;
-        return correct ? `${body} <span class="correct-count">${correct}</span>` : body;
+  
+        return (correct as string)
+          ? `${body} <span class="correct-count">${correct}</span>`
+          : body;
       }),
   
-      observeOn(asyncScheduler),  // UI flip on microtask boundary
-      auditTime(0),               // coalesce same-tick flutters
+      observeOn(asyncScheduler),   // flip on microtask boundary
+      auditTime(0),                // coalesce same-tick flutters
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
