@@ -1083,28 +1083,24 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates and clear text to prevent cross-index bleed
-    for (const [k, bs] of this._gate.entries()) {
-      if (k !== idx) {
-        try { bs.next(false); } catch {}
-      }
+    // Close everything first
+    for (const [k, gate$] of this._gate.entries()) {
+      try { gate$.next(false); } catch {}
     }
     for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
+      try { subj.next(null); } catch {}
     }
   
-    // 🔒 NEW: purge last-value cache for all other indices (prevents FET from Q1 showing in Q2)
-    for (const k of this._lastByIndex.keys()) {
-      if (k !== idx) this._lastByIndex.delete(k);
-    }
-  
+    // Reset all internal trackers
     this._activeIndex = idx;
+    this._lastByIndex.clear();
   
+    // ✅ Open this index fresh
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
+  
+    console.log(`[ETS] 🔓 openExclusive → active index = ${idx}`);
   }  
 
   public closeOthersExcept(index: number): void {
