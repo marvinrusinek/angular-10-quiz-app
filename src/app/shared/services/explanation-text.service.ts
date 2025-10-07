@@ -993,6 +993,7 @@ export class ExplanationTextService {
     }
   
     return this._byIndex.get(idx)!.pipe(
+      // 👇 Hold previous value for its own index; null out others only when a new one opens
       map(text => (this._activeIndex === idx ? text : null)),
       distinctUntilChanged()
     );
