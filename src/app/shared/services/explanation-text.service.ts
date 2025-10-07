@@ -1083,7 +1083,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // 🔒 Close all other gates and explanation text
+    // 1️⃣ Close all other gates and explanation streams
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
@@ -1095,20 +1095,28 @@ export class ExplanationTextService {
       }
     }
   
-    // 🧹 Also clear last-known cache for other indices
-    for (const k of this._lastByIndex.keys()) {
-      if (k !== idx) this._lastByIndex.delete(k);
-    }
-  
-    // 🔘 Set active index and push only *this* explanation
+    // 2️⃣ Update active index
     this._activeIndex = idx;
+  
+    // 3️⃣ Store formatted explanation *for this index only*
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-    try { this.emitFormatted(idx, formatted); } catch {}
+  
+    // 4️⃣ Emit formatted text only for this index
+    try {
+      const subj = this._byIndex.get(idx);
+      if (!subj) {
+        this._byIndex.set(idx, new BehaviorSubject<string | null>(formatted));
+      } else {
+        subj.next(formatted);
+      }
+    } catch {}
+  
+    // 5️⃣ Open this gate
     try { this.setGate(idx, true); } catch {}
   
-    // Optional debug
-    console.log(`[ETS] openExclusive → Active=${idx}, Text=${(formatted ?? '').slice(0, 40)}`);
-  }  
+    console.log(`[ETS] 🔓 Opened exclusive gate for Q${idx} with text:`, formatted);
+  }
+  
 
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
