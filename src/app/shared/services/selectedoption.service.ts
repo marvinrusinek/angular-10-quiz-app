@@ -1932,7 +1932,25 @@ export class SelectedOptionService {
     this.showFeedbackForOptionSubject.next({});
     this.isOptionSelectedSubject.next(false);  
     console.log('[🧼 Selection state fully reset]');
-  }  
+  }
+
+  public resetOptionState(questionIndex: number): void {
+    try {
+      const opts = this.selectedOptionsMap.get(questionIndex);
+      if (!opts) return;
+  
+      const cleared = opts.map(o => ({
+        ...o,
+        selected: false,
+        showIcon: false,
+        highlight: false
+      }));
+  
+      this.selectedOptionsMap.set(questionIndex, cleared);
+    } catch (err) {
+      console.warn(`[resetOptionState] failed for index ${questionIndex}`, err);
+    }
+  }
   
   private getDefaultOptions(): Option[] {
     const defaultOptions = Array(4)
