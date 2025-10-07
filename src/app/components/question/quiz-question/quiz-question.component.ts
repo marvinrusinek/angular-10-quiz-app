@@ -3223,8 +3223,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     }
   }
-  
-  
 
   onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
