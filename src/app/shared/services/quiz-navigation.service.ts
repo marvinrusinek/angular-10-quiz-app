@@ -327,7 +327,9 @@ export class QuizNavigationService {
     try {
       // Reset Next button and progress counter
       this.nextButtonStateService.setNextButtonState(false);
-      this.quizService.correctAnswersCountSubject?.next(0);
+      setTimeout(() => {
+        try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
+      }, 60);
     } catch (err) {
       console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
     }
