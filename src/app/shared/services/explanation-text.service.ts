@@ -1083,17 +1083,10 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Prevent re-entrant overlap
-    if (this._activeIndex === idx) {
-      try { this.emitFormatted(idx, formatted); } catch {}
-      try { this.setGate(idx, true); } catch {}
-      return;
-    }
-  
-    // Close all other gates/texts in one atomic sweep
-    for (const [k, gate$] of this._gate.entries()) {
+    // 🔒 Close all other gates and explanation text
+    for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
-        try { gate$.next(false); } catch {}
+        try { bs.next(false); } catch {}
       }
     }
     for (const [k, subj] of this._byIndex.entries()) {
@@ -1102,20 +1095,20 @@ export class ExplanationTextService {
       }
     }
   
-    // Track active index
-    this._activeIndex = idx;
-  
-    // Emit both together (atomic pair)
-    try {
-      this.emitFormatted(idx, formatted);
-      this.setGate(idx, true);
-    } catch (err) {
-      console.warn('[openExclusive] ⚠️ failed to emit:', err);
+    // 🧹 Also clear last-known cache for other indices
+    for (const k of this._lastByIndex.keys()) {
+      if (k !== idx) this._lastByIndex.delete(k);
     }
   
-    // Debug tracking
-    console.log(`[ExplanationTextService] ✅ openExclusive → index ${idx}`);
-  }
+    // 🔘 Set active index and push only *this* explanation
+    this._activeIndex = idx;
+    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
+    try { this.emitFormatted(idx, formatted); } catch {}
+    try { this.setGate(idx, true); } catch {}
+  
+    // Optional debug
+    console.log(`[ETS] openExclusive → Active=${idx}, Text=${(formatted ?? '').slice(0, 40)}`);
+  }  
 
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
