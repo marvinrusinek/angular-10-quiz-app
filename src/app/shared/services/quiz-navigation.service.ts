@@ -312,9 +312,9 @@ export class QuizNavigationService {
     // ────────────────────────────────
     setTimeout(() => {
       try {
-        // Close all OTHER indices, but keep the one we're navigating TO open.
+        // 🔒 Close all OTHER indices, but NEVER the one we’re navigating TO.
         if (typeof index === 'number' && index >= 0) {
-          // Run microtask to ensure freeze/observables settle first
+          // Run microtask so indexFreeze$ can settle before cleanup executes
           queueMicrotask(() => {
             try {
               this.explanationTextService.closeOthersExcept(index);
@@ -323,21 +323,20 @@ export class QuizNavigationService {
             }
           });
         } else {
-          // Fallback: close everything if index is invalid
-          this.explanationTextService.closeAll();
+          // Fallback: if index invalid, close everything safely
+          try { this.explanationTextService.closeAll(); } catch {}
         }
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept outer failed:', err);
       }
-
+    
       try {
-        // Reset only the PREVIOUS question’s options (avoids inherited highlights)
+        // 🧹 Reset PREVIOUS question’s options only (prevents inherited highlights)
         if (
           typeof currentIndex === 'number' &&
           currentIndex >= 0 &&
           currentIndex !== index
         ) {
-          // Use a slight microtask delay to avoid racing with new question render
           queueMicrotask(() => {
             try {
               this.selectedOptionService.resetOptionState(currentIndex);
@@ -349,24 +348,23 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ resetOptionState outer failed:', err);
       }
-
+    
       try {
-        // Reset Next button and progress counter
+        // 🔁 Reset Next button and correct-answer counter after render stabilizes
         this.nextButtonStateService.setNextButtonState(false);
-
-        // Defer correct-answer counter reset to allow text render to complete
+    
+        // Delay counter reset slightly (lets next Q text + #correct badge paint first)
         setTimeout(() => {
           try {
             this.quizService.correctAnswersCountSubject?.next(0);
           } catch (err) {
             console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
           }
-        }, 80);
+        }, 120);
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
       }
-    }, 100); // ← Delay cleanup slightly (100 ms) so indexFreeze$ finishes first
-
+    }, 100); // ⏳ Delay cleanup 100ms so indexFreeze$ completes before gates reset
 
     // ────────────────────────────────
     // 🔒 Lock & timer prep
