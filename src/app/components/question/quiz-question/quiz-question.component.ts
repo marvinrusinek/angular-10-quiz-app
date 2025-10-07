@@ -3247,7 +3247,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // Open exclusive gate for this question only
     queueMicrotask(() => {
-      try { this.explanationTextService.closeOthersExcept(i0); } catch {}
+      try { this.explanationTextService.closeOthersExcept(idx); } catch {}
     });
     try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
   
