@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, skip, switchMap, take, takeUntil, tap, timeout } from 'rxjs/operators';
-import { MatCheckbox } from '@angular/material/checkfbox';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioButton } from '@angular/material/radio';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -3082,80 +3082,79 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const formattedExpl = this.explanationTextService
           .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
           .trim();
-        try { this.explanationTextService.openExclusive(i0, formattedExpl); } catch {}
         
         // Decide whether this click should trigger a new explanation.
         const canEmitNow =
           q?.type === QuestionType.SingleAnswer
             ? true
             : allCorrect || justCompleted;
+
         if (canEmitNow) {
           queueMicrotask(() => {
             try { this.explanationTextService.closeAll(); } catch {}
-            try { this.explanationTextService.openExclusive(i0, formattedExpl); } catch {}
-          });
-          // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
-          const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
-          const expectedText = (canonicalQ?.questionText ?? '').trim();
-          const actualText   = (q?.questionText ?? '').trim();
 
-          // Fallback for first question initialization (Q1 sometimes lacks baseline)
-          if ((!expectedText || expectedText !== actualText) && canonicalQ) {
-            // Defensive fallback for first question initialization (prevents undefined access)
-            try {
-              (canonicalQ as any).questionText = actualText;
-            } catch {
-              // swallow — just in case the structure is immutable or proxied
-            }
-          }          
+            // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
+            const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+            const expectedText = (canonicalQ?.questionText ?? '').trim();
+            const actualText   = (q?.questionText ?? '').trim();
 
-          // Only if the question matches this index (prevents cross-index leaks)
-          if (expectedText && actualText && expectedText === actualText) {
-            // Build formatted explanation from the canonical question
-            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
-            const rawExpl     = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
-            const formatted   = this.explanationTextService
-              .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
-              .trim();
-
-            // Optional coalesce: skip heavy updates if we already have the same text stored for this index
-            const lastForIdx  = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
-              .toString().trim();
-            const isDuplicate = lastForIdx === formatted;
-
-            // Open exclusive gate and emit for this index only
-            try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
-
-            // Intent only (no global text payload)
-            this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-
-            // Keep local bindings in sync immediately (no one-frame lag)
-            try {
-              const fn: any = (this as any).setExplanationFor;
-              if (typeof fn === 'function') {
-                // Support either signature: (idx, text) or (text)
-                fn.length >= 2 ? fn.call(this, i0, formatted) : fn.call(this, formatted);
-              } else if (this._formattedByIndex instanceof Map) {
-                // Fallback local cache if you don’t expose setExplanationFor
-                this._formattedByIndex.set(i0, formatted);
+            // Fallback for first question initialization (Q1 sometimes lacks baseline)
+            if ((!expectedText || expectedText !== actualText) && canonicalQ) {
+              try {
+                (canonicalQ as any).questionText = actualText;
+              } catch {
+                // swallow — just in case the structure is immutable or proxied
               }
-            } catch {}
+            }
 
-            try {
-              this.explanationToDisplay = formatted;
-              this.explanationToDisplayChange?.emit(formatted);
-            } catch {}
-            this.displayExplanation = true;
+            // Only if the question matches this index (prevents cross-index leaks)
+            if (expectedText && actualText && expectedText === actualText) {
+              // Build formatted explanation from the canonical question
+              const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
+              const rawExpl     = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
+              const formatted   = this.explanationTextService
+                .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
+                .trim();
 
-          } else {
-            // Mismatch → don’t show anything; ensure THIS index is closed & cleared
-            try { this.explanationTextService.emitFormatted(i0, null); } catch {}
-            try { this.explanationTextService.setGate(i0, false); } catch {}
+              // Optional coalesce: skip heavy updates if already same
+              const lastForIdx = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
+                .toString().trim();
+              const isDuplicate = lastForIdx === formatted;
 
-            // Also keep local state consistent with “question mode”
-            this.displayExplanation = false;
-          }
+              // ✅ Emit for this index only (no early double call)
+              if (!isDuplicate) {
+                try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+              }
+
+              // Intent only (no global text payload)
+              this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+              this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+
+              // Keep local bindings in sync immediately (no one-frame lag)
+              try {
+                const fn: any = (this as any).setExplanationFor;
+                if (typeof fn === 'function') {
+                  fn.length >= 2 ? fn.call(this, i0, formatted) : fn.call(this, formatted);
+                } else if (this._formattedByIndex instanceof Map) {
+                  this._formattedByIndex.set(i0, formatted);
+                }
+              } catch {}
+
+              try {
+                this.explanationToDisplay = formatted;
+                this.explanationToDisplayChange?.emit(formatted);
+              } catch {}
+
+              this.displayExplanation = true;
+            } else {
+              // Mismatch → don’t show anything; ensure THIS index is closed & cleared
+              try { this.explanationTextService.emitFormatted(i0, null); } catch {}
+              try { this.explanationTextService.setGate(i0, false); } catch {}
+
+              // Keep local state consistent with “question mode”
+              this.displayExplanation = false;
+            }
+          });
         }
 
         // Update explanation and highlighting (RAF for smoother update)
