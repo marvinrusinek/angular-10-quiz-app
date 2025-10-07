@@ -3090,9 +3090,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             : allCorrect || justCompleted;
 
         if (canEmitNow) {
-          // Delay closeAll slightly so indexFreeze$ finishes before reopening explanation
+          // Delay cleanup slightly so indexFreeze$ finishes before reopening explanation
           setTimeout(() => {
-            try { this.explanationTextService.closeAll(); } catch {}
+            try {
+              // 🔒 Close all *other* indices only (prevents cross-index leaks like Q1→Q2)
+              this.explanationTextService.closeOthersExcept(i0);
+            } catch {}
 
             // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
             const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
