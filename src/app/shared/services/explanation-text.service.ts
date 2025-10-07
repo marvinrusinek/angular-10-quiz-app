@@ -1083,10 +1083,10 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // 1️⃣ Close all other gates and explanation streams
-    for (const [k, bs] of this._gate.entries()) {
+    // Close all other indices instantly
+    for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
-        try { bs.next(false); } catch {}
+        try { gate$.next(false); } catch {}
       }
     }
     for (const [k, subj] of this._byIndex.entries()) {
@@ -1095,27 +1095,16 @@ export class ExplanationTextService {
       }
     }
   
-    // 2️⃣ Update active index
+    // ✅ Track active index BEFORE opening
     this._activeIndex = idx;
   
-    // 3️⃣ Store formatted explanation *for this index only*
+    // ✅ Now emit & open
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-  
-    // 4️⃣ Emit formatted text only for this index
-    try {
-      const subj = this._byIndex.get(idx);
-      if (!subj) {
-        this._byIndex.set(idx, new BehaviorSubject<string | null>(formatted));
-      } else {
-        subj.next(formatted);
-      }
-    } catch {}
-  
-    // 5️⃣ Open this gate
+    try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] 🔓 Opened exclusive gate for Q${idx} with text:`, formatted);
-  }
+    console.log(`[openExclusive] 🔓 Opened exclusive index ${idx}`);
+  }  
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
