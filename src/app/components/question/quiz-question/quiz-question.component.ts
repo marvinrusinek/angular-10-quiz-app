@@ -3062,36 +3062,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
         const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
         if (canEmitNow) {
-          const expectedText = (this.questions?.[i0]?.questionText ?? '').trim();
-          const actualText   = (q?.questionText ?? '').trim();
-        
+          // ✅ Canonicalize the question strictly for THIS index (prevents cross-index leaks)
+          const canonicalQ   = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+          const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
+          const actualText   = (q?.questionText ?? '').toString().trim();
+
           // Only if the question matches this index (prevents cross-index leaks)
           if (expectedText && actualText && expectedText === actualText) {
-            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
-            const rawExpl     = (q?.explanation ?? '').trim() || 'Explanation not provided';
+            // Build formatted explanation from the canonical question
+            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
+            const rawExpl     = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
             const formatted   = this.explanationTextService
-              .formatExplanation(q as any, correctIdxs, rawExpl)
+              .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
               .trim();
-        
-            // Per-index cache + gate + emit (idempotent/coalesced inside service)
-            try { this.explanationTextService.storeFormattedExplanation(i0, formatted, q as any); } catch {}
-            try { this.explanationTextService.emitFormatted(i0, formatted); } catch {}
+
+            // ⛔ Optional coalesce: skip heavy updates if we already have the same text stored for this index
+            const lastForIdx  = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
+              .toString().trim();
+            const isDuplicate = lastForIdx === formatted;
+
+            // Per-index cache + emit + open gate (service-side emits are already coalesced)
+            try { if (!isDuplicate) this.explanationTextService.storeFormattedExplanation(i0, formatted, canonicalQ as any); } catch {}
+            try { if (!isDuplicate) this.explanationTextService.emitFormatted(i0, formatted); } catch {}
             try { this.explanationTextService.setGate(i0, true); } catch {}
-        
+
             // Intent only (no global text payload)
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
             this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-        
-            // Keep local bindings in sync immediately
-            this.setExplanationFor(i0, formatted);
-            this.explanationToDisplay = formatted;
-            this.explanationToDisplayChange.emit(formatted);
+
+            // Keep local bindings in sync immediately (no one-frame lag)
+            try {
+              const fn: any = (this as any).setExplanationFor;
+              if (typeof fn === 'function') {
+                // Support either signature: (idx, text) or (text)
+                fn.length >= 2 ? fn.call(this, i0, formatted) : fn.call(this, formatted);
+              } else if (this._formattedByIndex instanceof Map) {
+                // Fallback local cache if you don’t expose setExplanationFor
+                this._formattedByIndex.set(i0, formatted);
+              }
+            } catch {}
+
+            try {
+              this.explanationToDisplay = formatted;
+              this.explanationToDisplayChange?.emit(formatted);
+            } catch {}
+            this.displayExplanation = true;
+
           } else {
-            // Mismatch → don’t show anything; ensure this index is closed
+            // Mismatch → don’t show anything; ensure THIS index is closed & cleared
             try { this.explanationTextService.emitFormatted(i0, null); } catch {}
             try { this.explanationTextService.setGate(i0, false); } catch {}
+
+            // Also keep local state consistent with “question mode”
+            this.displayExplanation = false;
           }
         }
+
 
         // Update explanation and highlighting (RAF for smoother update)
         this._pendingRAF = requestAnimationFrame(() => {
