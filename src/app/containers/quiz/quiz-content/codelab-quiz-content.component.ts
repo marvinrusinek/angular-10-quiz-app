@@ -416,12 +416,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 3) Freeze: true immediately after index change, then false on next microtask
     // 🔒 Freeze period between question transitions
+    // 🔒 Two-phase freeze: debounce + delayed unfreeze
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
+      debounceTime(50), // coalesce rapid clicks / route changes
       switchMap(() =>
         concat(
-          of(true),  // immediately freeze during index change
-          // Extend unfreeze delay: 150–200 ms ensures closeAll / openExclusive complete cleanly
-          timer(180).pipe(mapTo(false))
+          of(true),  // phase 1 — immediately freeze during teardown
+          timer(250).pipe(mapTo(false))  // phase 2 — allow new index to open
         )
       ),
       distinctUntilChanged(),
