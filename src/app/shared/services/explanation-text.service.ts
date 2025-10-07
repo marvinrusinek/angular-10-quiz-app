@@ -1084,25 +1084,19 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all *other* indices but never touch the active one mid-emit
+    // Close every other gate and explanation completely
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
         try { this._byIndex.get(k)?.next(null); } catch {}
+        this._lastByIndex.set(k, null);
       }
     }
   
-    // Atomically activate this one
+    // Open only this index
     this._activeIndex = idx;
-  
-    // Emit formatted text only if non-empty
-    const safeText = (formatted ?? '').trim() || null;
-    if (safeText) {
-      try { this.storeFormattedExplanation(idx, safeText, null); } catch {}
-      try { this.emitFormatted(idx, safeText); } catch {}
-      try { this.setGate(idx, true); } catch {}
-    } else {
-      try { this.setGate(idx, false); } catch {}
-    }
+    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
+    try { this.emitFormatted(idx, formatted); } catch {}
+    try { this.setGate(idx, true); } catch {}
   }  
 }
