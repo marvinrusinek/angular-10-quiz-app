@@ -1083,7 +1083,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Atomically close *all* other active indices before setting this one
+    // Close all *other* indices but never touch the active one mid-emit
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
@@ -1091,20 +1091,16 @@ export class ExplanationTextService {
       }
     }
   
-    // Set this as the *only* active index
+    // Atomically activate this one
     this._activeIndex = idx;
   
-    // Explicitly clear any previous "global" formattedExplanationSubject
-    try { this.formattedExplanationSubject?.next(''); } catch {}
-  
-    // Store + emit for this index only
-    if (formatted && formatted.trim()) {
-      try { this.storeFormattedExplanation(idx, formatted.trim(), null); } catch {}
-      try { this.emitFormatted(idx, formatted.trim()); } catch {}
+    // Emit formatted text only if non-empty
+    const safeText = (formatted ?? '').trim() || null;
+    if (safeText) {
+      try { this.storeFormattedExplanation(idx, safeText, null); } catch {}
+      try { this.emitFormatted(idx, safeText); } catch {}
       try { this.setGate(idx, true); } catch {}
     } else {
-      // If no valid text, close this gate too
-      try { this.emitFormatted(idx, null); } catch {}
       try { this.setGate(idx, false); } catch {}
     }
   }  
