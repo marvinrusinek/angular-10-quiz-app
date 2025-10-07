@@ -406,7 +406,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
       
         // 🔥 NEW: also reset local highlight flags for fresh render
-        try { this.displayExplanation = false; } catch {}
+        try { this._showExplanation = false; } catch {}
         try { this.lastQuestionText = ''; } catch {}
       
         _lastIdx = i;
