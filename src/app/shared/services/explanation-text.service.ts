@@ -85,7 +85,7 @@ export class ExplanationTextService {
 
   public _events$ = new Subject<{ index: number; text: string | null }>();
   public readonly events$ = this._events$.asObservable();
-  private _gate = new Map<number, BehaviorSubject<boolean>>();
+  public _gate = new Map<number, BehaviorSubject<boolean>>();
 
   private _lastGlobalExplanationIndex: number | null = null;
   public _activeIndex: number | null = null;
