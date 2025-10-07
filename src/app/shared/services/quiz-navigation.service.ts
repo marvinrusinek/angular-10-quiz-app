@@ -338,11 +338,11 @@ export class QuizNavigationService {
           } catch (err) {
             console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
           }
-        }, 30);
+        }, 60);
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
       }
-    }, 60);
+    }, 150);
   
     // ────────────────────────────────
     // 🔒 Lock & timer prep
