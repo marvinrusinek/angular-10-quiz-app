@@ -3118,7 +3118,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
 
-
         // Update explanation and highlighting (RAF for smoother update)
         this._pendingRAF = requestAnimationFrame(() => {
           if (this._skipNextAsyncUpdates) return;
