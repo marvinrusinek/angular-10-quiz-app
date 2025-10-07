@@ -3067,8 +3067,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
       
-        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)        
-        const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
+        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
+        const wasAllCorrect = this._lastAllCorrect;
+        const justCompleted =
+          q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
+
+        const canEmitNow =
+          q?.type === QuestionType.SingleAnswer || justCompleted;
         if (canEmitNow) {
           // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
           const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
