@@ -307,19 +307,27 @@ export class QuizNavigationService {
     // 🧹 Cleanup block (deferred slightly)
     // ────────────────────────────────
     // Delay cleanup slightly so indexFreeze$ finishes before closing gates
+    // ────────────────────────────────
+    // 🧹 Delayed cleanup after route change
+    // ────────────────────────────────
     setTimeout(() => {
       try {
         // Close all OTHER indices, but keep the one we're navigating TO open.
         if (typeof index === 'number' && index >= 0) {
-          // Defensive: only close after confirming target index is valid
+          // Run microtask to ensure freeze/observables settle first
           queueMicrotask(() => {
-            try { this.explanationTextService.closeOthersExcept(index); } catch {}
+            try {
+              this.explanationTextService.closeOthersExcept(index);
+            } catch (err) {
+              console.warn('[navigateToQuestion] ⚠️ closeOthersExcept failed:', err);
+            }
           });
         } else {
+          // Fallback: close everything if index is invalid
           this.explanationTextService.closeAll();
         }
       } catch (err) {
-        console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept failed:', err);
+        console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept outer failed:', err);
       }
 
       try {
@@ -329,20 +337,24 @@ export class QuizNavigationService {
           currentIndex >= 0 &&
           currentIndex !== index
         ) {
-          // Run asynchronously to prevent clearing too early
+          // Use a slight microtask delay to avoid racing with new question render
           queueMicrotask(() => {
-            try { this.selectedOptionService.resetOptionState(currentIndex); } catch {}
+            try {
+              this.selectedOptionService.resetOptionState(currentIndex);
+            } catch (err) {
+              console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
+            }
           });
         }
       } catch (err) {
-        console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
+        console.warn('[navigateToQuestion] ⚠️ resetOptionState outer failed:', err);
       }
 
       try {
         // Reset Next button and progress counter
         this.nextButtonStateService.setNextButtonState(false);
 
-        // Defer the correct-answer counter reset slightly (lets next Q text render first)
+        // Defer correct-answer counter reset to allow text render to complete
         setTimeout(() => {
           try {
             this.quizService.correctAnswersCountSubject?.next(0);
@@ -353,7 +365,8 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
       }
-    }, 200);
+    }, 100); // ← Delay cleanup slightly (100 ms) so indexFreeze$ finishes first
+
 
     // ────────────────────────────────
     // 🔒 Lock & timer prep
