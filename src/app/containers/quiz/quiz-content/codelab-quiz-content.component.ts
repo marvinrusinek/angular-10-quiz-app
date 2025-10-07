@@ -462,13 +462,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 8) Per-index streams (guarded; null/false until the new index opens), seed each stream with its last known value (prevents “Explanation not found”)
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
       switchMap(i => {
-        const last = this.explanationTextService?.formattedExplanations?.[i]?.explanation ?? null;
-        return concat(of<string | null>(last), this.explanationTextService.byIndex$(i));
+        const lastKnown = this.explanationTextService.formattedExplanations?.[i]?.explanation ?? null;
+        return concat(of<string | null>(lastKnown), this.explanationTextService.byIndex$(i));
       }),
-      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
 
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(i => {
