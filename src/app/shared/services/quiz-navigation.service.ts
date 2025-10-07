@@ -306,7 +306,7 @@ export class QuizNavigationService {
 
     // Clean up before rendering next question
     try { this.explanationTextService.closeAll(); } catch {}
-    try { this.selectedOptionService.resetOptionState(); } catch {}
+    try { this.selectedOptionService.resetOptionState(index); } catch {}
     try { this.nextButtonStateService.setNextButtonState(false); } catch {}
     try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
 
