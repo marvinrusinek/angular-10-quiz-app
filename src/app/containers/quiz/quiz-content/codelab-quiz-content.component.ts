@@ -459,17 +459,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // 8) Per-index explanation / gate — seed so first post-freeze render is question text
+    // 8) Per-index streams (guarded; null/false until the new index opens)
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i => concat(of<string | null>(null), this.explanationTextService.byIndex$(i))),
-      auditTime(0),
-      distinctUntilChanged(),
+      switchMap(i =>
+        // defer ensures the subscription to the new index starts AFTER old gates close
+        defer(() =>
+          concat(
+            // immediate null to clear any previous FET paint
+            of<string | null>(null),
+            // small defer avoids same-tick bleed from prior index
+            this.explanationTextService.byIndex$(i).pipe(
+              debounceTime(16),          // one frame delay ≈ 1 tick
+              distinctUntilChanged()
+            )
+          )
+        )
+      ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  
+
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i => concat(of(false), this.explanationTextService.gate$(i))),
-      auditTime(0),
-      distinctUntilChanged(),
+      switchMap(i =>
+        defer(() =>
+          concat(
+            of(false),
+            this.explanationTextService.gate$(i).pipe(
+              debounceTime(16),
+              distinctUntilChanged()
+            )
+          )
+        )
+      ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
