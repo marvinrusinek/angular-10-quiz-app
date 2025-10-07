@@ -985,15 +985,18 @@ export class ExplanationTextService {
     return false;
   }
 
-  // ---- Canonical per-index observable (null when nothing valid yet)
+  // Canonical per-index observable (null when nothing valid yet)
   public byIndex$(index: number): Observable<string | null> {
     const idx = Math.max(0, Number(index) || 0);
     if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     }
-    // distinctUntilChanged here reduces UI churn
-    return this._byIndex.get(idx)!.asObservable().pipe(distinctUntilChanged());
-  }
+  
+    return this._byIndex.get(idx)!.pipe(
+      map(text => (this._activeIndex === idx ? text : null)),
+      distinctUntilChanged()
+    );
+  }  
 
   // Back-compat aliases (optional): keep calls working but funnel to byIndex$
   public getFormattedStreamFor(index: number): Observable<string | null> {
