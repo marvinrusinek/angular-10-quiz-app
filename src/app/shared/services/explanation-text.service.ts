@@ -1084,10 +1084,10 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates and clear text to prevent cross-index bleed
-    for (const [k, bs] of this._gate.entries()) {
+    // Fully clear other indices
+    for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
-        try { bs.next(false); } catch {}
+        try { gate$.next(false); } catch {}
       }
     }
     for (const [k, subj] of this._byIndex.entries()) {
@@ -1096,22 +1096,18 @@ export class ExplanationTextService {
       }
     }
   
-    // Track active index
+    // Reset trackers before setting the new one
     this._activeIndex = idx;
+    this._lastByIndex.clear();
+    this._lastByIndex.set(idx, formatted ?? null);
   
-    // ⛔ Hard reset text for this index before re-emitting (prevents race from stale cache)
-    try {
-      this._byIndex.get(idx)?.next(null);
-      this.setGate(idx, false);
-    } catch {}
-  
-    // Store + emit fresh formatted text for this index only
+    // Now store + emit for this index only
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] 🔓 openExclusive for Q${idx} → ${formatted?.slice(0, 60)}`);
-  }
+    console.log(`[ETS] 🧭 openExclusive → idx=${idx}, text="${formatted}"`);
+  }  
 
   public closeOthersExcept(index: number, opts?: { preserveText?: boolean }): void {
     const idx = Math.max(0, Number(index) || 0);
