@@ -3073,7 +3073,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
 
         // Always clear all gates before deciding to emit a new explanation.
-        try { this.explanationTextService.closeAll(); } catch {}
+        try { this.explanationTextService.closeOthersExcept(i0); } catch {}
         // Decide whether this click should trigger a new explanation.
         const canEmitNow =
           q?.type === QuestionType.SingleAnswer
