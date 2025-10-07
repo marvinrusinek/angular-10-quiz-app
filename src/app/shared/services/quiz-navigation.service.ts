@@ -308,7 +308,7 @@ export class QuizNavigationService {
     try { this.explanationTextService.closeAll(); } catch {}
     try { this.selectedOptionService.resetOptionState(); } catch {}
     try { this.nextButtonStateService.setNextButtonState(false); } catch {}
-    try { this.quizService.correctAnswersCountSubject?.next(''); } catch {}
+    try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
 
     // Clean up locks for the question we're leaving
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
