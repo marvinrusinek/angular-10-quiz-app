@@ -509,6 +509,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
       // never render while frozen → first paint after index switch is always the question
+      debounceTime(10),
       filter(([, , , , , , , frozen]) => frozen === false),
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
