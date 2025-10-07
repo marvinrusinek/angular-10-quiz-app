@@ -1118,4 +1118,26 @@ export class ExplanationTextService {
       }
     }
   }
+
+  public closeAll(): void {
+    try {
+      // Close all gates
+      for (const [idx, gate$] of this._gate.entries()) {
+        try { gate$.next(false); } catch {}
+      }
+  
+      // Clear formatted explanation streams
+      for (const [idx, subj] of this._byIndex.entries()) {
+        try { subj.next(null); } catch {}
+      }
+  
+      // Reset internal trackers
+      this._activeIndex = null;
+      this._lastByIndex.clear();
+  
+      console.log('[ExplanationTextService] 🔒 All gates closed & formatted text cleared');
+    } catch (err) {
+      console.warn('[ExplanationTextService] ⚠️ closeAll failed:', err);
+    }
+  }  
 }

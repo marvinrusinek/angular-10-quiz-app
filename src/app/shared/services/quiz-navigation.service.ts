@@ -304,6 +304,12 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
 
+    // Clean up before rendering next question
+    try { this.explanationTextService.closeAll(); } catch {}
+    try { this.selectedOptionService.resetOptionState(); } catch {}
+    try { this.nextButtonStateService.setNextButtonState(false); } catch {}
+    try { this.correctAnswersTextSubject?.next(''); } catch {}
+
     // Clean up locks for the question we're leaving
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     
