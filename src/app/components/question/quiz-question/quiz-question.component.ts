@@ -3076,6 +3076,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try { this.explanationTextService.closeOthersExcept(i0, { preserveText: true }); } catch {}
         
         // Now open this question’s explanation gate
+        const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+        const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
+        const rawExpl = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
         const formattedExpl = this.explanationTextService
           .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
           .trim();
