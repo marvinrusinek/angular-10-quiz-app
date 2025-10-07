@@ -88,6 +88,7 @@ export class ExplanationTextService {
   private _gate = new Map<number, BehaviorSubject<boolean>>();
 
   private _lastGlobalExplanationIndex: number | null = null;
+  private _activeIndex: number | null = null;
 
   constructor() {}
 
@@ -1073,5 +1074,24 @@ export class ExplanationTextService {
     const idxStr = (j >= 0 ? after.slice(0, j) : after).trim();
     const idx = Number(idxStr);
     return Number.isInteger(idx) && idx >= 0 ? idx : null;
+  }
+
+  // Call to open a gate for an index
+  public openExclusive(index: number, formatted: string | null): void {
+    const idx = Math.max(0, Number(index) || 0);
+
+    // Close any previously active index
+    if (this._activeIndex !== null && this._activeIndex !== idx) {
+      try { this.setGate(this._activeIndex, false); } catch {}
+      try { this.emitFormatted(this._activeIndex, null); } catch {}
+    }
+
+    // Mark this one as active
+    this._activeIndex = idx;
+
+    // Store + emit for this index only
+    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
+    try { this.emitFormatted(idx, formatted); } catch {}
+    try { this.setGate(idx, true); } catch {}
   }
 }
