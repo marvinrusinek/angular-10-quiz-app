@@ -3090,6 +3090,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             ? true
             : allCorrect || justCompleted;
         if (canEmitNow) {
+          queueMicrotask(() => {
+            try { this.explanationTextService.closeAll(); } catch {}
+            try { this.explanationTextService.openExclusive(i0, formattedExpl); } catch {}
+          });
           // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
           const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
           const expectedText = (canonicalQ?.questionText ?? '').trim();
