@@ -528,9 +528,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           hasExplanation;
       
         const body = wantsExplanation ? explanation!.trim() : question;
-        return correct
+
+        // Ensure correct badge only for multi-answer questions
+        const qType = this.quizService.questions?.[Number(idx)]?.type;
+        const showBadge =
+          qType === QuestionType.MultipleAnswer &&
+          typeof correct === 'string' &&
+          correct.trim().length > 0;
+          
+        // Final render string (question or explanation + badge if applicable)
+        const finalText = showBadge
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
+          
+        return finalText;          
       }),      
       observeOn(asyncScheduler),
       auditTime(0),
