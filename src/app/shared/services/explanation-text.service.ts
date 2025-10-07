@@ -1084,40 +1084,35 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates and clear text to prevent cross-index bleed
-    for (const [k, bs] of this._gate.entries()) {
+    // 🔒 Close other gates (but don't destroy their stored explanations)
+    for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
-        try { bs.next(false); } catch {}
-      }
-    }
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
+        try { gate$.next(false); } catch {}
       }
     }
   
-    // Track active index
+    // Track current active index
     this._activeIndex = idx;
   
-    // Store + emit for this index only
+    // ✅ Set this question’s formatted explanation & open its gate
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
-  }
+  
+    console.log(`[ETS] 🟢 Opened exclusive explanation for Q${idx}`);
+  }  
 
-  public closeOthersExcept(index: number): void {
+  public closeOthersExcept(index: number, opts?: { preserveText?: boolean }): void {
     const idx = Math.max(0, Number(index) || 0);
     for (const [k, bs] of this._gate.entries()) {
       if (k !== idx) {
         try { bs.next(false); } catch {}
+        if (!opts?.preserveText) {
+          try { this._byIndex.get(k)?.next(null); } catch {}
+        }
       }
     }
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
-    }
-  }
+  }  
 
   public closeAll(): void {
     try {
