@@ -1083,25 +1083,39 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close everything first
+    // Prevent re-entrant overlap
+    if (this._activeIndex === idx) {
+      try { this.emitFormatted(idx, formatted); } catch {}
+      try { this.setGate(idx, true); } catch {}
+      return;
+    }
+  
+    // Close all other gates/texts in one atomic sweep
     for (const [k, gate$] of this._gate.entries()) {
-      try { gate$.next(false); } catch {}
+      if (k !== idx) {
+        try { gate$.next(false); } catch {}
+      }
     }
     for (const [k, subj] of this._byIndex.entries()) {
-      try { subj.next(null); } catch {}
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
+      }
     }
   
-    // Reset all internal trackers
+    // Track active index
     this._activeIndex = idx;
-    this._lastByIndex.clear();
   
-    // ✅ Open this index fresh
-    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-    try { this.emitFormatted(idx, formatted); } catch {}
-    try { this.setGate(idx, true); } catch {}
+    // Emit both together (atomic pair)
+    try {
+      this.emitFormatted(idx, formatted);
+      this.setGate(idx, true);
+    } catch (err) {
+      console.warn('[openExclusive] ⚠️ failed to emit:', err);
+    }
   
-    console.log(`[ETS] 🔓 openExclusive → active index = ${idx}`);
-  }  
+    // Debug tracking
+    console.log(`[ExplanationTextService] ✅ openExclusive → index ${idx}`);
+  }
 
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
