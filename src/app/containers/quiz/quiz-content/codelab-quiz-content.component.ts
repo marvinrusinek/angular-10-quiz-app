@@ -501,32 +501,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
       // never render while frozen → first paint after index switch is always the question
-      debounceTime(10),
       filter(([, , , , , , , frozen]) => frozen === false),
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(Number(idx), baseline);
+        const question = canonicalQuestionFor(idx, baseline);
       
-        // guard explanation validity — only when gate is open AND belongs to active index
-        const activeIdx = this.explanationTextService._activeIndex ?? -1;
-        const hasExplanation =
-          gate && activeIdx === idx && !!(explanation && explanation.trim());
+        const activeIndex = this.explanationTextService._activeIndex ?? -1;
+        const isCurrent = activeIndex === idx;
       
-        // allow explanation only if display state + intent all line up
+        const validExplanation =
+          isCurrent && gate && explanation && explanation.trim().length > 0;
+      
         const wantsExplanation =
           display.mode === 'explanation' &&
-          !!display.answered &&
-          !!shouldShow &&
-          hasExplanation;
+          display.answered &&
+          shouldShow &&
+          validExplanation;
       
-        const body = wantsExplanation ? (explanation as string).trim() : question;
-      
-        // 🟩 Always attach the badge for multiple-answer questions
-        const badge = correct
-          ? `<span class="correct-count">${correct}</span>`
-          : '';
-      
-        return `${body} ${badge}`.trim();
-      }),            
+        const body = wantsExplanation ? explanation.trim() : question;
+        return correct
+          ? `${body} <span class="correct-count">${correct}</span>`
+          : body;
+      }),
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
