@@ -404,6 +404,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         try { this.explanationTextService.setGate(i, false); } catch {}
         try { this.explanationTextService.emitFormatted(i, null); } catch {}
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
+        if (this.explanationTextService.getLastGlobalExplanationIndex() === _lastIdx) {
+          (this.explanationTextService as any)._lastGlobalExplanationIndex = null;
+        }
   
         _lastIdx = i;
       }),
@@ -514,9 +517,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-  
-  
-  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
