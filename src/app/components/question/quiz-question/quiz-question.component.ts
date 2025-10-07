@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, skip, switchMap, take, takeUntil, tap, timeout } from 'rxjs/operators';
-import { MatCheckbox } from '@angular/material/checkbox';
+import { MatCheckbox } from '@angular/material/checkfbox';
 import { MatRadioButton } from '@angular/material/radio';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -3049,17 +3049,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       
         // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
-        if ((q?.type === QuestionType.MultipleAnswer) && allCorrect && typeof (this as any).onSubmitMultiple === 'function') {
+        // inside onOptionClicked(), near where you check allCorrect
+        if (q?.type === QuestionType.MultipleAnswer && allCorrect) {
+          // Prevent double-submit loops
           if (!this._submittingMulti) {
             this._submittingMulti = true;
+
             (async () => {
-              try { await (this as any).onSubmitMultiple(); }
-              finally { this._submittingMulti = false; }
+              try {
+                // Optional: stop timer, mark answered, show explanation, etc.
+                this.safeStopTimer('completed');
+                await this.onSubmitMultiple();
+              } finally {
+                this._submittingMulti = false;
+              }
             })();
           }
         }
       
-        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
+        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)        
         const canEmitNow = q?.type === QuestionType.SingleAnswer ? true : allCorrect;
         if (canEmitNow) {
           // ✅ Canonicalize the question strictly for THIS index (prevents cross-index leaks)
@@ -3221,21 +3229,36 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q   = this.quizService.questions?.[idx];
-    if (!q) { return; }
+    if (!q) return;
   
-    const correct    = this.explanationTextService.getCorrectOptionIndices(q);
-    const raw        = (q.explanation ?? '').trim() || 'Explanation not provided';
-    const formatted  = this.explanationTextService.formatExplanation(q, correct, raw).trim();
+    // Build formatted explanation text for THIS question
+    const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
+    const rawExpl     = (q.explanation ?? '').trim() || 'Explanation not provided';
+    const formatted   = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    this.explanationTextService.storeFormattedExplanation(idx, formatted, q);
-    this.explanationTextService.emitFormatted?.(idx, formatted);
-    this.explanationTextService.setGate?.(idx, true);
+    // Cache + emit formatted text only for this index
+    try { this.explanationTextService.storeFormattedExplanation(idx, formatted, q); } catch {}
+    try { this.explanationTextService.emitFormatted(idx, formatted); } catch {}
+    try { this.explanationTextService.setGate(idx, true); } catch {}
   
+    // Show explanation mode + mark question as answered
     this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
     this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-  
     this.explanationTextService.setExplanationText(formatted, { context: `question:${idx}`, force: true });
-  }  
+  
+    // Reveal feedback icons for all options (current + previous selections)
+    try { this.revealFeedbackForAllOptions(q.options ?? []); } catch (err) {
+      console.warn('[onSubmitMultiple] ⚠️ revealFeedbackForAllOptions failed:', err);
+    }
+  
+    // Sync explanation UI immediately
+    try {
+      this.displayExplanation = true;
+      (this as any).setExplanationFor?.(idx, formatted);
+      (this as any).explanationToDisplay = formatted;
+      (this as any).explanationToDisplayChange?.emit(formatted);
+    } catch {}
+  } 
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
