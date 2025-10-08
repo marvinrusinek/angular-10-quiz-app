@@ -312,9 +312,8 @@ export class QuizNavigationService {
     // ────────────────────────────────
     setTimeout(() => {
       try {
-        // 🔒 Close all OTHER indices, but NEVER the one we’re navigating TO.
+        // 🧹 Close all OTHER indices, but NEVER the one we’re navigating TO.
         if (typeof index === 'number' && index >= 0) {
-          // Run microtask so indexFreeze$ can settle before cleanup executes
           queueMicrotask(() => {
             try {
               this.explanationTextService.closeOthersExcept(index);
@@ -323,7 +322,6 @@ export class QuizNavigationService {
             }
           });
         } else {
-          // Fallback: if index invalid, close everything safely
           try { this.explanationTextService.closeAll(); } catch {}
         }
       } catch (err) {
@@ -350,10 +348,8 @@ export class QuizNavigationService {
       }
     
       try {
-        // 🔁 Reset Next button and correct-answer counter after render stabilizes
+        // 🔁 Reset Next button and progress counter AFTER render stabilizes
         this.nextButtonStateService.setNextButtonState(false);
-    
-        // Delay counter reset slightly (lets next Q text + #correct badge paint first)
         setTimeout(() => {
           try {
             this.quizService.correctAnswersCountSubject?.next(0);
@@ -364,7 +360,8 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
       }
-    }, 100); // ⏳ Delay cleanup 100ms so indexFreeze$ completes before gates reset
+    }, 100);
+    
 
     // ────────────────────────────────
     // 🔒 Lock & timer prep
