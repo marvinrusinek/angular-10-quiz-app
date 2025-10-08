@@ -1083,9 +1083,8 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Always run asynchronously so freeze/unfreeze settles before open
-    queueMicrotask(() => {
-      // Close all other gates/text first (prevent cross-index bleed)
+    // 🔒 Close all other gates and text synchronously — but only if activeIndex changes
+    if (this._activeIndex !== idx) {
       for (const [k, gate$] of this._gate.entries()) {
         if (k !== idx) {
           try { gate$.next(false); } catch {}
@@ -1096,14 +1095,15 @@ export class ExplanationTextService {
           try { subj.next(null); } catch {}
         }
       }
+    }
   
-      // Mark active index and emit text for THIS question only
-      this._activeIndex = idx;
-      try { this.emitFormatted(idx, formatted); } catch {}
-      try { this.setGate(idx, true); } catch {}
+    this._activeIndex = idx;
   
-      console.log(`[ETS] ✅ openExclusive (async) → index ${idx}, textLen=${(formatted ?? '').length}`);
-    });
+    // Emit & gate ON immediately
+    try { this.emitFormatted(idx, formatted); } catch {}
+    try { this.setGate(idx, true); } catch {}
+  
+    console.log(`[ETS] ✅ openExclusive → index ${idx}, text length=${(formatted ?? '').length}`);
   }
   
   public closeOthersExcept(index: number): void {
