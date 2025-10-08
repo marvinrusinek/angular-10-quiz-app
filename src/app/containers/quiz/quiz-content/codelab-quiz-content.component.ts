@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, forkJoin, merge, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, mapTo, observeOn, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, mapTo, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -491,30 +491,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       indexFreeze$
     ]).pipe(
       // Prevent render while frozen — question paint first
-      filter(([, , , , , , , frozen]) => frozen === false),
+      // filter(([, , , , , , , frozen]) => frozen === false),
+      filter(([idx, , , , , explanation]) => {
+        const active = this.explanationTextService._activeIndex ?? idx;
+        return idx === active;
+      }),
+    
+      // 🧩 2. Hold the last valid explanation per index to prevent cross-paint
+      scan((prev, curr) => {
+        const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
+        const last = prev?.[5] as string | null;
+        const sameIndex = prev?.[0] === idx;
+        const expl = explanation && explanation.trim().length > 0 ? explanation : (sameIndex ? last : null);
+        return [idx, display, shouldShow, baseline, correct, expl, gate, frozen];
+      }, [] as any),
+
+      // 🕒 3. Small debounce to allow gate/shouldShow to sync
+      debounceTime(60),
     
       // One-frame debounce to let closeAll()/openExclusive settle
-      auditTime(30),  // (was debounceTime(50))
+      // auditTime(30),  // (was debounceTime(50))
     
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(Number(idx), baseline);
-        const activeIndex = this.explanationTextService._activeIndex ?? -1;
-        const isCurrent = activeIndex === idx;
-        const validExplanation = gate && explanation && explanation.trim().length > 0;
-      
-        // Explanation is valid only if gate open, correct index, and non-empty text
-        const wantsExplanation =
-          gate && shouldShow && display.mode === 'explanation' && explanation?.trim()?.length;
-      
-        // Ensure correct-count badge ONLY appears with question text
-        const body = wantsExplanation
-          ? explanation.trim()
+        const question = this.quizService.questions?.[idx]?.questionText ?? baseline ?? 'Loading…';
+        const validExplanation = gate && shouldShow && explanation?.trim()?.length;
+        const wantsExplanation = validExplanation && display.mode === 'explanation';
+    
+        return wantsExplanation
+          ? explanation!.trim()
           : correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-      
-        return body;
-      }),      
+      }),
     
       observeOn(asyncScheduler),
       distinctUntilChanged(),
