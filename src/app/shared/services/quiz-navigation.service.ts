@@ -365,9 +365,21 @@ export class QuizNavigationService {
     // ✅ POST-NAVIGATION — open only the correct explanation
     // ────────────────────────────────
     try {
+      // Wait for the route to stabilize and observables to attach
+      await waitForRoute;
+      await new Promise(resolve => setTimeout(resolve, 200)); // give indexFreeze$ time to unfreeze
+    
+      // Fetch fresh question data
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       const formatted = (fresh?.explanation ?? '').trim() || null;
-      this.explanationTextService.openExclusive(index, formatted);
+    
+      // Emit only if there’s actually an explanation
+      if (formatted) {
+        this.explanationTextService.openExclusive(index, formatted);
+        console.log(`[NAV] ✅ opened FET for Q${index + 1}, len=${formatted.length}`);
+      } else {
+        console.log(`[NAV] ⚠️ No explanation found for Q${index + 1}`);
+      }
     } catch (err) {
       console.warn('[navigateToQuestion] post-nav openExclusive failed:', err);
     }
