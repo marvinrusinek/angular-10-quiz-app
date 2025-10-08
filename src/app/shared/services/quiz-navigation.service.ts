@@ -289,7 +289,7 @@ export class QuizNavigationService {
     }
   }
 
-  public async navigateToQuestion(index: number): Promise<boolean> {  
+  public async navigateToQuestion(index: number): Promise<boolean> {
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -304,45 +304,25 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     // ────────────────────────────────
-    // ⚡ Pre-cleanup — happens IMMEDIATELY to avoid cross-index leaks
+    // 🔒 HARD RESET: clear all old explanation data synchronously
     // ────────────────────────────────
     try {
-      // Immediately clear old explanation data (prevents FET carry-over)
-      this.explanationTextService.closeOthersExcept(index);
-      this.explanationTextService._activeIndex = index;
+      this.explanationTextService.closeAll();
+      this.explanationTextService._activeIndex = -1;
+      this.explanationTextService.formattedExplanations = {};
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
     } catch (err) {
-      console.warn('[navigateToQuestion] pre-cleanup failed:', err);
+      console.warn('[navigateToQuestion] hard reset failed:', err);
     }
   
-    // ────────────────────────────────
-    // 🧹 Delayed cleanup after route change (deferred slightly)
-    // ────────────────────────────────
-    setTimeout(() => {
-      try {
-        // Keep target index open, close all others safely
-        if (typeof index === 'number' && index >= 0) {
-          queueMicrotask(() => this.explanationTextService.closeOthersExcept(index));
-        } else {
-          this.explanationTextService.closeAll();
-        }
-      } catch (err) {
-        console.warn('[navigateToQuestion] closeAll/closeOthersExcept failed:', err);
-      }
-  
-      try {
-        // Reset previous question’s options only (no inherited highlights)
-        if (typeof currentIndex === 'number' && currentIndex !== index) {
-          queueMicrotask(() => this.selectedOptionService.resetOptionState(currentIndex));
-        }
-      } catch {}
-  
-      try {
-        this.nextButtonStateService.setNextButtonState(false);
-        setTimeout(() => {
-          try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
-        }, 120);
-      } catch {}
-    }, 150); // ⏳ shortened from 250 → 150ms (better timing with indexFreeze$)
+    // 🧹 Reset current question’s local state
+    try {
+      this.selectedOptionService.resetOptionState(currentIndex);
+      this.nextButtonStateService.setNextButtonState(false);
+      this.quizService.correctAnswersCountSubject?.next(0);
+    } catch (err) {
+      console.warn('[navigateToQuestion] local state reset failed:', err);
+    }
   
     // ────────────────────────────────
     // 🔒 Lock & timer prep
@@ -351,64 +331,48 @@ export class QuizNavigationService {
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────
-    // 🧭 Route handling logic
+    // 🧭 ROUTE HANDLING
     // ────────────────────────────────
+    const waitForRoute = this.waitForUrl(routeUrl);
+  
+    // If same index & same route → force reload
     if (currentIndex === index && currentUrl === routeUrl) {
-      console.warn('[⚠️ Already on route – forcing reload]', {
-        currentIndex,
-        index,
-        routeUrl,
-      });
-  
-      const dummySuccess = await this.ngZone.run(() =>
-        this.router.navigateByUrl('/', { skipLocationChange: true })
-      );
-  
-      if (!dummySuccess) {
-        console.error('[❌ Dummy navigation failed]');
-        return false;
-      }
-  
-      const waitForRoute = this.waitForUrl(routeUrl);
-      const reloadSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
-      if (!reloadSuccess) {
-        waitForRoute.catch(() => undefined);
-        return false;
-      }
-  
+      console.warn('[⚠️ Already on route – forcing reload]', { currentIndex, index, routeUrl });
       try {
+        await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
+        await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
         await waitForRoute;
-        return true;
       } catch (err) {
-        console.error('[❌ Forced reload waitForUrl error]', err);
+        console.error('[❌ Forced reload error]', err);
+        return false;
+      }
+    } else {
+      try {
+        const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
+        if (!navSuccess) {
+          console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
+          waitForRoute.catch(() => undefined);
+          return false;
+        }
+        await waitForRoute;
+      } catch (err) {
+        console.error('[❌ Navigation error]', err);
         return false;
       }
     }
   
     // ────────────────────────────────
-    // 🧭 Normal navigation case
+    // ✅ POST-NAVIGATION — open only the correct explanation
     // ────────────────────────────────
     try {
-      const waitForRoute = this.waitForUrl(routeUrl);
-      const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
-  
-      if (!navSuccess) {
-        console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
-        waitForRoute.catch(() => undefined);
-        return false;
-      }
-  
-      try {
-        await waitForRoute;
-        return true;
-      } catch (err) {
-        console.error('[❌ waitForUrl error]', err);
-        return false;
-      }
+      const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+      const formatted = (fresh?.formattedExplanation ?? '').trim() || null;
+      this.explanationTextService.openExclusive(index, formatted);
     } catch (err) {
-      console.error('[❌ Navigation error]', err);
-      return false;
+      console.warn('[navigateToQuestion] post-nav openExclusive failed:', err);
     }
+  
+    return true;
   }
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
