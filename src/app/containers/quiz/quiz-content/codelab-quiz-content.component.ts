@@ -504,29 +504,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       perIndexGate$,
       indexFreeze$
     ]).pipe(
-      // ✅ 1) Prevent render while frozen — question paint first
+      // Prevent render while frozen — question paint first
       filter(([, , , , , , , frozen]) => frozen === false),
     
-      // ✅ 2) One-frame debounce to let closeAll()/openExclusive settle
+      // One-frame debounce to let closeAll()/openExclusive settle
       auditTime(30),  // (was debounceTime(50))
     
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
-      
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
       
-        // ✅ Explanation is valid only if gate open, correct index, and non-empty text
-        const hasExplanation = !!(explanation && explanation.trim().length > 0);
+        // Explanation is valid only if gate open, correct index, and non-empty text
+        const validExplanation = isCurrent && gate && explanation && explanation.trim().length > 0;
         const wantsExplanation =
           isCurrent &&
           gate &&
           display.mode === 'explanation' &&
           display.answered &&
           shouldShow &&
-          hasExplanation;
+          validExplanation;
       
-        // ✅ Ensure correct-count badge ONLY appears with question text
+        // Ensure correct-count badge ONLY appears with question text
         const body = wantsExplanation
           ? explanation.trim()
           : correct
