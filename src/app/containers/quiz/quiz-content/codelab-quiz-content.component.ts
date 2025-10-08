@@ -470,20 +470,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 8) Per-index explanation / gate — seed cleanly with null/false
     const perIndexExplanation$ = guardedIndex$.pipe(
-      switchMap(i => {
-        // Emit a guaranteed null first so no previous explanation can replay
-        const reset$ = of<string | null>(null);
-    
-        // Delay the actual stream by a microtask so reset arrives first
-        const fresh$ = defer(() =>
-          this.explanationTextService.byIndex$(i).pipe(
-            skipWhile(() => this.explanationTextService._activeIndex !== i),
-            distinctUntilChanged()
-          )
-        );
-    
-        return concat(reset$, fresh$);
-      }),
+      switchMap(i =>
+        this.explanationTextService.byIndex$(i).pipe(
+          startWith<string | null>(null),          // show question text first
+          // ignore the first non-null emission right after switching indices
+          skipWhile(v => v === null),              // skip the initial replay
+          takeUntil(timer(50)),                    // short grace window (~1 frame)
+          catchError(() => of(null)),              // safety guard
+          distinctUntilChanged()
+        )
+      ),
       startWith<string | null>(null),
       shareReplay({ bufferSize: 1, refCount: true })
     );
