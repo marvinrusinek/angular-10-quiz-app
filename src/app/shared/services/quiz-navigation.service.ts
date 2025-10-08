@@ -353,6 +353,7 @@ export class QuizNavigationService {
         setTimeout(() => {
           try {
             this.quizService.correctAnswersCountSubject?.next(0);
+            try { this.correctAnswersText$.next(''); } catch {}
           } catch (err) {
             console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
           }
