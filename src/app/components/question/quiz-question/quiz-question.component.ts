@@ -3090,11 +3090,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             : allCorrect || justCompleted;
 
         if (canEmitNow) {
-          setTimeout(() => {
-            try { this.explanationTextService.closeOthersExcept(i0); } catch {}
-            try { this.explanationTextService.openExclusive(i0, formattedExpl); } catch {}
-          }, 80); // slight delay lets indexFreeze$ finish
-
           // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
           const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
           const expectedText = (canonicalQ?.questionText ?? '').trim();
@@ -3117,8 +3112,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const formatted   = this.explanationTextService
               .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
               .trim();
-            
-            // ✅ Emit & open exclusively for this index only (no delayed closeAll)
+
+            // ✅ Delay only the cleanup, not the emit
+            // We close others slightly later so the indexFreeze$ finishes
+            setTimeout(() => {
+              try { this.explanationTextService.closeOthersExcept(i0); } catch {}
+            }, 80);
+
+            // Immediately open and emit for this index only
             try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
             
             // Intent only (no global text payload)
