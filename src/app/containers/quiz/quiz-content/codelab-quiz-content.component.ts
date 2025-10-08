@@ -509,7 +509,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
-        const isCurrent = activeIndex === idx;
+        const isCurrent = activeIndex === idx || activeIndex === -1;
       
         // Explanation is valid only if gate open, correct index, and non-empty text
         const validExplanation = isCurrent && gate && explanation && explanation.trim().length > 0;
