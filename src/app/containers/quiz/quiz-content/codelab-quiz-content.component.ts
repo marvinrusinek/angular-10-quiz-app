@@ -512,14 +512,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const isCurrent = activeIndex === idx;
 
         // ✅ Only consider explanation valid if it's for this index AND gate is open
-        const validExplanation = isCurrent && gate && explanation && explanation.trim().length > 0;
-        // const hasExplanation = isCurrent && gate && !!(explanation && explanation.trim());
+        //const validExplanation = isCurrent && gate && explanation && explanation.trim().length > 0;
+        //const hasExplanation = isCurrent && gate && !!(explanation && explanation.trim());
+        const hasExplanation = !!(explanation && explanation.trim().length);
 
         const wantsExplanation =
+          isCurrent &&
+          gate &&
           display.mode === 'explanation' &&
           display.answered &&
           shouldShow &&
-          validExplanation;
+          hasExplanation;
 
         const body = wantsExplanation ? explanation.trim() : question;
         return correct
