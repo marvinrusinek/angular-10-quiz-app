@@ -366,7 +366,7 @@ export class QuizNavigationService {
     // ────────────────────────────────
     try {
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-      const formatted = (fresh?.formattedExplanation ?? '').trim() || null;
+      const formatted = (fresh?.explanation ?? '').trim() || null;
       this.explanationTextService.openExclusive(index, formatted);
     } catch (err) {
       console.warn('[navigateToQuestion] post-nav openExclusive failed:', err);
