@@ -468,6 +468,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    // Guarded explanation stream — emit only when index matches active index
+    const guardedExplanation$: Observable<string | null> = combineLatest([
+      guardedIndex$,
+      this.explanationTextService.byIndex$(0).pipe(startWith(null)) // placeholder
+    ]).pipe(
+      switchMap(([idx]) =>
+        this.explanationTextService.byIndex$(idx).pipe(
+          map(text => ({ idx, text })),
+          filter(({ idx }) => idx === this.explanationTextService._activeIndex),
+          map(({ text }) => text ?? null)
+        )
+      ),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   
     // 9) Canonical question resolver for an index (no stale fallback)
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
@@ -480,16 +496,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
     this.combinedText$ = combineLatest<
       [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-    >([
-      guardedIndex$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$,
-      indexFreeze$
-    ]).pipe(
+    >([guardedIndex$, display$, shouldShow$, baselineText$, correctText$, guardedExplanation$, perIndexGate$, indexFreeze$]
+      ).pipe(
       // Prevent render while frozen — question paint first
       // filter(([, , , , , , , frozen]) => frozen === false),
       filter(([idx, , , , , explanation]) => {
