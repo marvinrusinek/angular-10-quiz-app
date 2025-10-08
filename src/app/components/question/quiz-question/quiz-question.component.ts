@@ -3112,10 +3112,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
             // Delay only the cleanup, not the emit
             // We close others slightly later so the indexFreeze$ finishes
-            setTimeout(() => {
+            /* setTimeout(() => {
               try { this.explanationTextService.closeOthersExcept(i0); } catch {}
               try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
-            }, 60);
+            }, 60); */
+
+            setTimeout(() => {
+              try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+              this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+              this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+            }, 80);
             
             // Intent only (no global text payload)
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
