@@ -1083,25 +1083,27 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates and text synchronously
-    for (const [k, gate$] of this._gate.entries()) {
-      if (k !== idx) {
-        try { gate$.next(false); } catch {}
+    // Always run asynchronously so freeze/unfreeze settles before open
+    queueMicrotask(() => {
+      // Close all other gates/text first (prevent cross-index bleed)
+      for (const [k, gate$] of this._gate.entries()) {
+        if (k !== idx) {
+          try { gate$.next(false); } catch {}
+        }
       }
-    }
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
+      for (const [k, subj] of this._byIndex.entries()) {
+        if (k !== idx) {
+          try { subj.next(null); } catch {}
+        }
       }
-    }
   
-    this._activeIndex = idx;
+      // Mark active index and emit text for THIS question only
+      this._activeIndex = idx;
+      try { this.emitFormatted(idx, formatted); } catch {}
+      try { this.setGate(idx, true); } catch {}
   
-    // Emit & gate ON immediately
-    try { this.emitFormatted(idx, formatted); } catch {}
-    try { this.setGate(idx, true); } catch {}
-  
-    console.log(`[ETS] ✅ openExclusive → index ${idx}, text length=${(formatted ?? '').length}`);
+      console.log(`[ETS] ✅ openExclusive (async) → index ${idx}, textLen=${(formatted ?? '').length}`);
+    });
   }
   
   public closeOthersExcept(index: number): void {
