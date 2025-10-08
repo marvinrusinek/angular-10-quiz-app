@@ -1161,5 +1161,39 @@ export class ExplanationTextService {
     } catch (err) {
       console.warn('[ExplanationTextService] ⚠️ closeAll failed:', err);
     }
-  }  
+  }
+
+  // ─────────────────────────────────────────────
+  // 🧩 Reset explanation state cleanly for a new index
+  // ─────────────────────────────────────────────
+  public resetForIndex(index: number): void {
+    // Close current index cleanly
+    if (this._byIndex.has(this._activeIndex)) {
+      try { this._byIndex.get(this._activeIndex)!.next(null); } catch {}
+    }
+    if (this._gate.has(this._activeIndex)) {
+      try { this._gate.get(this._activeIndex)!.next(false); } catch {}
+    }
+
+    // Update active index
+    this._activeIndex = index;
+
+    // Ensure subjects exist for the new index
+    if (!this._byIndex.has(index)) {
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    }
+    if (!this._gate.has(index)) {
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
+    }
+
+    // Optionally clear formatted explanation cache for this index
+    if (this.formattedExplanations) {
+      this.formattedExplanations[index] = {
+        questionIndex: index,
+        explanation: null
+      };
+    }
+
+    console.log(`[ETS] 🔁 resetForIndex(${index}) done`);
+  }
 }

@@ -302,41 +302,21 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
-
+  
     // ────────────────────────────────
-    // 🚫 PREVENT BEHAVIORSUBJECT REPLAY (critical fix)
+    // 🧩 1. Cleanly reset explanation state for new index
     // ────────────────────────────────
     try {
-      // Force all explanation subjects to emit null synchronously
-      for (const [k, subj] of this.explanationTextService._byIndex.entries()) {
-        subj.next(null);
-      }
-      for (const [k, gate] of this.explanationTextService._gate.entries()) {
-        gate.next(false);
-      }
-
-      // Clear formattedExplanations map for all previous indices
-      if (this.explanationTextService.formattedExplanations) {
-        Object.keys(this.explanationTextService.formattedExplanations).forEach(key => {
-          delete this.explanationTextService.formattedExplanations[Number(key)];
-        });
-      }
-
-      // Reset active index so new question starts clean
-      this.explanationTextService._activeIndex = -1;
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-
-      console.log('[NAV] 🧹 Cleared all BehaviorSubjects before navigation');
+      this.explanationTextService.resetForIndex(index);
+      console.log(`[NAV] 🧹 resetForIndex(${index}) called`);
     } catch (err) {
-      console.warn('[NAV] ⚠️ BehaviorSubject cleanup failed:', err);
+      console.warn('[NAV] ⚠️ resetForIndex failed:', err);
     }
   
     // ────────────────────────────────
-    // 🔒 1. Minimal pre-navigation cleanup
+    // 🔒 2. Minimal pre-navigation cleanup (other UI state)
     // ────────────────────────────────
     try {
-      // Only close *previous* explanation; don’t nuke everything.
-      this.explanationTextService.closeOthersExcept(currentIndex);
       this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
@@ -346,13 +326,13 @@ export class QuizNavigationService {
     }
   
     // ────────────────────────────────
-    // 🔒 2. Lock & timer prep
+    // 🔒 3. Lock & timer prep
     // ────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────
-    // 🧭 3. ROUTE HANDLING
+    // 🧭 4. ROUTE HANDLING
     // ────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
@@ -369,50 +349,31 @@ export class QuizNavigationService {
       }
   
       await waitForRoute;
-
+  
       // ────────────────────────────────
-      // 🧩 Reinitialize explanation subjects for new index
+      // ✅ 5. Post-navigation: fetch fresh question data
       // ────────────────────────────────
       try {
-        const idx = index;
-        if (!this.explanationTextService._byIndex.has(idx)) {
-          this.explanationTextService._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-        }
-        if (!this.explanationTextService._gate.has(idx)) {
-          this.explanationTextService._gate.set(idx, new BehaviorSubject<boolean>(false));
-        }
-        this.explanationTextService._activeIndex = idx;
-        console.log(`[NAV] ✅ Initialized explanation subjects for Q${idx + 1}`);
+        await firstValueFrom(
+          this.quizService.currentQuestionIndex$.pipe(
+            filter(i => i === index),
+            take(1),
+            timeout({ each: 2000, with: () => of(index) })
+          )
+        );
+  
+        const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+        console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
       } catch (err) {
-        console.warn('[NAV] ⚠️ Failed to reinitialize explanation subjects:', err);
+        console.warn('[navigateToQuestion] post-nav fetch failed:', err);
       }
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
   
-    // ────────────────────────────────
-    // ✅ 4. Post-navigation — let the new index settle, *then* open
-    // ────────────────────────────────
-    try {
-      // Wait until the service confirms the index switch
-      await firstValueFrom(
-        this.quizService.currentQuestionIndex$.pipe(
-          filter(i => i === index),
-          take(1),
-          timeout({ each: 2000, with: () => of(index) })
-        )
-      );
-    
-      // Safe to fetch the new question data now
-      const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-      console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
-    } catch (err) {
-      console.warn('[navigateToQuestion] post-nav fetch failed:', err);
-    }
-  
     return true;
-  }
+  }  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
