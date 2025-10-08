@@ -419,7 +419,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 🔒 Two-phase freeze: debounce + delayed unfreeze
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(() =>
-        concat(of(true), timer(100).pipe(mapTo(false)))  // wait 100ms before unfreeze
+        concat(of(true), timer(100).pipe(mapTo(false)))  // freeze for 100ms
       ),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -492,30 +492,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     };
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
-    this.combinedText$ = combineLatest<
-      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-    >([
+    this.combinedText$ = combineLatest([
       guardedIndex$, display$, shouldShow$, baselineText$, correctText$,
       perIndexExplanation$, perIndexGate$, indexFreeze$
     ]).pipe(
-      // ✅ 1) Prevent render while frozen — question paint first
       filter(([, , , , , , , frozen]) => frozen === false),
-
-      // ✅ 2) One-frame debounce to let closeAll()/openExclusive settle
-      debounceTime(50),
-
+      debounceTime(60), // debounce to let openExclusive settle
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
-
-        // ✅ Track the currently active explanation index
+    
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
-
-        // ✅ Only consider explanation valid if it's for this index AND gate is open
-        //const validExplanation = isCurrent && gate && explanation && explanation.trim().length > 0;
-        //const hasExplanation = isCurrent && gate && !!(explanation && explanation.trim());
-        const hasExplanation = !!(explanation && explanation.trim().length);
-
+        const hasExplanation = !!(explanation && explanation.trim());
         const wantsExplanation =
           isCurrent &&
           gate &&
@@ -523,13 +511,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           display.answered &&
           shouldShow &&
           hasExplanation;
-
+    
         const body = wantsExplanation ? explanation.trim() : question;
         return correct
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
-
       observeOn(asyncScheduler),
       auditTime(0),
       distinctUntilChanged(),
