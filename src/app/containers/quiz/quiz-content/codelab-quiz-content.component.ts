@@ -492,14 +492,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     };
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
-    this.combinedText$ = combineLatest([...]).pipe(
+    this.combinedText$ = combineLatest([
+      guardedIndex$,
+      display$,
+      shouldShow$,
+      baselineText$,
+      correctText$,
+      perIndexExplanation$,
+      perIndexGate$,
+      indexFreeze$
+    ]).pipe(
+      // ✅ 1) Prevent render while frozen — question paint first
       filter(([, , , , , , , frozen]) => frozen === false),
-      auditTime(30),  // stabilize same-tick renders
+    
+      // ✅ 2) One-frame debounce to let closeAll()/openExclusive settle
+      auditTime(30),  // (was debounceTime(50))
+    
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
+    
+        // ✅ Track currently active explanation index
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
-        const hasExplanation = isCurrent && gate && explanation?.trim()?.length > 0;
+    
+        // ✅ Only consider explanation valid if it's for this index AND gate is open
+        const hasExplanation =
+          isCurrent && gate && explanation && explanation.trim().length > 0;
+    
         const wantsExplanation =
           isCurrent &&
           gate &&
@@ -509,10 +528,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           hasExplanation;
     
         const body = wantsExplanation ? explanation.trim() : question;
+    
+        // ✅ Append correct answers badge if applicable
         return correct
           ? `${body} <span class="correct-count">${correct}</span>`
           : body;
       }),
+    
       observeOn(asyncScheduler),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
