@@ -3242,37 +3242,69 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  onSubmitMultiple(): void {
+  public onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
-    const q   = this.quizService.questions?.[idx];
+    const q = this.quizService.questions?.[idx];
     if (!q) return;
   
-    // Build formatted explanation text for THIS question
+    // ────────────────────────────────
+    // 🧩 1. Build formatted explanation text for THIS question
+    // ────────────────────────────────
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
-    const rawExpl     = (q.explanation ?? '').trim() || 'Explanation not provided';
-    const formatted   = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
+    const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
+    const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // Open exclusive gate for this question only
-    try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
-  
-    // Show explanation mode + mark question as answered
-    this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-    this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-    this.explanationTextService.setExplanationText(formatted, { context: `question:${idx}`, force: true });
-  
-    // Reveal feedback icons for all options (current + previous selections)
-    try { this.revealFeedbackForAllOptions(q.options ?? []); } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ revealFeedbackForAllOptions failed:', err);
+    // ────────────────────────────────
+    // 🔒 2. Open exclusive gate for this question only (atomic emit)
+    // ────────────────────────────────
+    try {
+      this.explanationTextService.openExclusive(idx, formatted);
+    } catch (err) {
+      console.warn('[onSubmitMultiple] openExclusive failed:', err);
     }
   
-    // Sync explanation UI immediately
+    // ────────────────────────────────
+    // 💡 3. Switch display state to explanation mode
+    // ────────────────────────────────
     try {
-      this.displayExplanation = true;
-      (this as any).setExplanationFor?.(idx, formatted);
-      (this as any).explanationToDisplay = formatted;
-      (this as any).explanationToDisplayChange?.emit(formatted);
-    } catch {}
-  } 
+      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+    } catch (err) {
+      console.warn('[onSubmitMultiple] display state update failed:', err);
+    }
+  
+    // ────────────────────────────────
+    // 🪞 4. Persist formatted explanation for external components
+    // ────────────────────────────────
+    try {
+      this.explanationTextService.setExplanationText(formatted, {
+        context: `question:${idx}`,
+        force: true
+      });
+    } catch (err) {
+      console.warn('[onSubmitMultiple] setExplanationText failed:', err);
+    }
+  
+    // ────────────────────────────────
+    // 🎯 5. Reveal feedback icons for all options
+    // ────────────────────────────────
+    try {
+      this.revealFeedbackForAllOptions(q.options ?? []);
+    } catch (err) {
+      console.warn('[onSubmitMultiple] revealFeedbackForAllOptions failed:', err);
+    }
+  
+    // ────────────────────────────────
+    // 🧭 6. Sync local UI (single controlled path)
+    // ────────────────────────────────
+    this.displayExplanation = true;
+    (this as any).explanationToDisplay = formatted;
+  
+    // Emit once for bindings that rely on @Output
+    (this as any).explanationToDisplayChange?.emit(formatted);
+  
+    console.log(`[onSubmitMultiple] ✅ Q${idx + 1} explanation displayed (len=${formatted.length})`);
+  }
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
