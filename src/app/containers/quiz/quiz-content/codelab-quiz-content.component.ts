@@ -459,9 +459,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 8) Per-index explanation / gate — seed cleanly with null/false
     const perIndexExplanation$ = guardedIndex$.pipe(
       switchMap(i =>
-        this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null))
+        // each time the question index changes, reset stream immediately with null
+        concat(
+          of<string | null>(null), // ensures question text shows instantly
+          this.explanationTextService.byIndex$(i).pipe(
+            // only allow emissions that belong to the current active index
+            filter(() => this.explanationTextService._activeIndex === i),
+            distinctUntilChanged()
+          )
+        )
       ),
-      distinctUntilChanged(),
+      startWith<string | null>(null),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
@@ -507,18 +515,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Prevent render while frozen — allow first question paint
       filter(([, , , , , , , frozen]) => frozen === false),
   
-      // 🧩 Hold the last valid explanation per index to prevent cross-paint
+      // Cross-index quarantine (must run BEFORE scan)
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
+        const active = this.explanationTextService._activeIndex ?? idx;
+
+        // Ignore any explanation that belongs to a different index during transition
+        const foreignExpl =
+          active !== idx && explanation && explanation.trim().length > 0;
+        const safeExplanation = foreignExpl ? null : explanation;
+
+        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen];
+      }),
+
+      // Hold the last valid explanation per index to prevent cross-paint
       scan((store, curr) => {
         const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
-  
+
         if (!store.map) store.map = new Map<number, string | null>();
-  
         const lastForIdx = store.map.get(idx) ?? null;
         const newExpl =
           explanation && explanation.trim().length > 0
             ? explanation.trim()
             : lastForIdx;
-  
+
         store.map.set(idx, newExpl);
         store.latest = [
           idx,
@@ -533,22 +552,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return store;
       }, { map: new Map(), latest: [] as any }),
       map((s: any) => s.latest),
-  
+
       // 🕒 Small debounce to allow gate/shouldShow to sync
       debounceTime(60),
-  
-      // 🔒 Cross-index quarantine (10-second patch)
-      // This prevents previous question’s FET from flashing on the next one.
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const active = this.explanationTextService._activeIndex ?? idx;
-  
-        // Ignore any explanation that belongs to a different index during transition
-        const foreignExpl =
-          active !== idx && explanation && explanation.trim().length > 0;
-        const safeExplanation = foreignExpl ? null : explanation;
-  
-        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate];
-      }),
   
       // 11) Map final output text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
