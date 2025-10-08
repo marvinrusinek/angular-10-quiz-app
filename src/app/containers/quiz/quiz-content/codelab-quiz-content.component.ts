@@ -151,6 +151,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isQuizQuestionComponentInitialized = new BehaviorSubject<boolean>(false);
   isContentAvailable$: Observable<boolean>;
 
+  private combinedSub?: Subscription;
+
   public click$ = new Subject<void>();
 
   private destroy$ = new Subject<void>();
@@ -220,6 +222,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.explanationTextService.explanationText$.next('');
     
     this.getCombinedDisplayTextStream();
+    this.combinedSub = this.combinedText$
+      .pipe(distinctUntilChanged())
+      .subscribe();
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
@@ -325,6 +330,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.pendingExplanationRequests.forEach((subscription) => subscription.unsubscribe());
     this.pendingExplanationRequests.clear();
     this.combinedTextSubject.complete();
+    this.combinedSub?.unsubscribe();
   }
 
   private resetExplanationView(): void {
