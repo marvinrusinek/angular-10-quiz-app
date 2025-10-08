@@ -1083,7 +1083,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // 🧹 Close all other gates and text
+    // Close all other gates and text
     for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
         try { gate$.next(false); } catch {}
@@ -1091,7 +1091,7 @@ export class ExplanationTextService {
       }
     }
   
-    // 🧩 If we’re switching indices, clear the last active one
+    // If we’re switching indices, clear the last active one
     if (this._activeIndex !== null && this._activeIndex !== idx) {
       try {
         this._byIndex.get(this._activeIndex)?.next(null);
@@ -1099,7 +1099,7 @@ export class ExplanationTextService {
       } catch {}
     }
   
-    // 🔓 Track and open the new active index
+    // Track and open the new active index
     this._activeIndex = idx;
     try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
@@ -1118,7 +1118,7 @@ export class ExplanationTextService {
       }
     }
   
-    // 🧩 Reset activeIndex if it’s no longer valid
+    // Reset activeIndex if it’s no longer valid
     if (this._activeIndex !== idx) {
       this._activeIndex = idx;
     }
