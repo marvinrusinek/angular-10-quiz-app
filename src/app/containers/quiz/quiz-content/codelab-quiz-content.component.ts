@@ -391,25 +391,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 2) Guard index changes: close old index, pre-close new index, reset intent
     let _lastIdx = -1;
 
-const guardedIndex$: Observable<number> = index$.pipe(
-  tap(i => {
-    // Close the old index only
-    if (_lastIdx !== -1 && _lastIdx !== i) {
-      try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
-      try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-      try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
-    }
+    const guardedIndex$: Observable<number> = index$.pipe(
+      tap(i => {
+        // Close the old index only
+        if (_lastIdx !== -1 && _lastIdx !== i) {
+          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
+          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
+          try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
+        }
 
-    // DO NOT clear or null the NEW index here.
-    // Just reset global display intent so question shows first.
-    try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-    try { this._showExplanation = false; } catch {}
-    try { this.lastQuestionText = ''; } catch {}
+        // DO NOT clear or null the NEW index here.
+        // Just reset global display intent so question shows first.
+        try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
+        try { this._showExplanation = false; } catch {}
+        try { this.lastQuestionText = ''; } catch {}
 
-    _lastIdx = i;
-  }),
-  shareReplay({ bufferSize: 1, refCount: true })
-);
+        _lastIdx = i;
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   
     // 3) Freeze: true immediately after index change, then false on next microtask
     // 🔒 Freeze period between question transitions
