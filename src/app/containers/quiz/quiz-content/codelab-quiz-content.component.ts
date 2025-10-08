@@ -509,8 +509,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
       // 🧩 Hold the last valid explanation per index to prevent cross-paint
       scan((store, curr) => {
-        const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] =
-          curr;
+        const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
   
         if (!store.map) store.map = new Map<number, string | null>();
   
@@ -538,6 +537,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // 🕒 Small debounce to allow gate/shouldShow to sync
       debounceTime(60),
   
+      // 🔒 Cross-index quarantine (10-second patch)
+      // This prevents previous question’s FET from flashing on the next one.
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+        const active = this.explanationTextService._activeIndex ?? idx;
+  
+        // Ignore any explanation that belongs to a different index during transition
+        const foreignExpl =
+          active !== idx && explanation && explanation.trim().length > 0;
+        const safeExplanation = foreignExpl ? null : explanation;
+  
+        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate];
+      }),
+  
       // 11) Map final output text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
@@ -556,7 +568,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-  }
+  }  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
