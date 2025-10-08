@@ -3110,13 +3110,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
               .trim();
 
-            // Delay only the cleanup, not the emit
-            // We close others slightly later so the indexFreeze$ finishes
-            /* setTimeout(() => {
-              try { this.explanationTextService.closeOthersExcept(i0); } catch {}
-              try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
-            }, 60); */
-
             setTimeout(() => {
               try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
               this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
@@ -3124,8 +3117,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             }, 80);
             
             // Intent only (no global text payload)
-            this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+            //this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+            //this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
             
             // Keep local bindings in sync immediately (no one-frame lag)
             try {
