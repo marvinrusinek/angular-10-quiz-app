@@ -358,7 +358,7 @@ export class QuizNavigationService {
           this.quizService.currentQuestionIndex$.pipe(
             filter(i => i === index),
             take(1),
-            timeout({ each: 2000, with: () => of(index) })
+            timeout(2000)
           )
         );
   
