@@ -3072,9 +3072,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const justCompleted =
           q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
 
-        // Always clear all gates before deciding to emit a new explanation.
-        try { this.explanationTextService.closeOthersExcept(i0, { preserveText: true }); } catch {}
-        
         // Now open this question’s explanation gate
         const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
         const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
@@ -3113,7 +3110,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
               .trim();
 
-            // ✅ Delay only the cleanup, not the emit
+            // Delay only the cleanup, not the emit
             // We close others slightly later so the indexFreeze$ finishes
             setTimeout(() => {
               try { this.explanationTextService.closeOthersExcept(i0); } catch {}
