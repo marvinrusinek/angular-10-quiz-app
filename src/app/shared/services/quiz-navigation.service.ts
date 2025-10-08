@@ -302,6 +302,35 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    // ────────────────────────────────
+    // 🚫 PREVENT BEHAVIORSUBJECT REPLAY (critical fix)
+    // ────────────────────────────────
+    try {
+      // Force all explanation subjects to emit null synchronously
+      for (const [k, subj] of this.explanationTextService._byIndex.entries()) {
+        subj.next(null);
+      }
+      for (const [k, gate] of this.explanationTextService._gate.entries()) {
+        gate.next(false);
+      }
+
+      // Clear formattedExplanations map for all previous indices
+      if (this.explanationTextService.formattedExplanations) {
+        Object.keys(this.explanationTextService.formattedExplanations).forEach(key => {
+          delete this.explanationTextService.formattedExplanations[Number(key)];
+        });
+      }
+
+      // Reset active index so new question starts clean
+      this.explanationTextService._activeIndex = -1;
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+
+      console.log('[NAV] 🧹 Cleared all BehaviorSubjects before navigation');
+    } catch (err) {
+      console.warn('[NAV] ⚠️ BehaviorSubject cleanup failed:', err);
+    }
+
   
     // ────────────────────────────────
     // 🔒 1. Minimal pre-navigation cleanup
