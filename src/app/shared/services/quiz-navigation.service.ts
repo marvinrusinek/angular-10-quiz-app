@@ -330,7 +330,6 @@ export class QuizNavigationService {
     } catch (err) {
       console.warn('[NAV] ⚠️ BehaviorSubject cleanup failed:', err);
     }
-
   
     // ────────────────────────────────
     // 🔒 1. Minimal pre-navigation cleanup
@@ -370,6 +369,23 @@ export class QuizNavigationService {
       }
   
       await waitForRoute;
+
+      // ────────────────────────────────
+      // 🧩 Reinitialize explanation subjects for new index
+      // ────────────────────────────────
+      try {
+        const idx = index;
+        if (!this.explanationTextService._byIndex.has(idx)) {
+          this.explanationTextService._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+        }
+        if (!this.explanationTextService._gate.has(idx)) {
+          this.explanationTextService._gate.set(idx, new BehaviorSubject<boolean>(false));
+        }
+        this.explanationTextService._activeIndex = idx;
+        console.log(`[NAV] ✅ Initialized explanation subjects for Q${idx + 1}`);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to reinitialize explanation subjects:', err);
+      }
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
