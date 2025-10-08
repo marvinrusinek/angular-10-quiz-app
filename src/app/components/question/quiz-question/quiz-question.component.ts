@@ -3114,10 +3114,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             // We close others slightly later so the indexFreeze$ finishes
             setTimeout(() => {
               try { this.explanationTextService.closeOthersExcept(i0); } catch {}
-            }, 80);
+              try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+            }, 60);
 
-            // Immediately open and emit for this index only
-            try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
             
             // Intent only (no global text payload)
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
