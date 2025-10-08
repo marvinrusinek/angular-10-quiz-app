@@ -1082,24 +1082,18 @@ export class ExplanationTextService {
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
+    this._activeIndex = idx;                     // move this to the top
   
     // Close all other indices instantly
     for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
+      if (k !== idx) { try { subj.next(null); } catch {} }
     }
     for (const [k, gate$] of this._gate.entries()) {
-      if (k !== idx) {
-        try { gate$.next(false); } catch {}
-      }
+      if (k !== idx) { try { gate$.next(false); } catch {} }
     }
   
-    // Guarantee subjects exist
     if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     if (!this._gate.has(idx)) this._gate.set(idx, new BehaviorSubject<boolean>(false));
-  
-    this._activeIndex = idx;
   
     const trimmed = (formatted ?? '').trim();
     this._byIndex.get(idx)!.next(trimmed || null);
