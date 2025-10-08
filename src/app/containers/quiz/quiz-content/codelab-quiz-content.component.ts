@@ -393,19 +393,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const guardedIndex$ = index$.pipe(
       tap(i => {
+        // 🔥 HARD RESET: wipe any stale explanation before the new index streams start
+        try {
+          this.explanationTextService.emitFormatted(i, null);
+          this.explanationTextService.setGate(i, false);
+        } catch {}
+    
         // Close only the previous index
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
           try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
-  
+    
         // Reset display intent for new question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   
     // 3) Freeze: true immediately after index change, then false on next microtask
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
