@@ -1083,7 +1083,7 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close other gates & explanations (but NOT this index)
+    // Close all other indices instantly
     for (const [k, subj] of this._byIndex.entries()) {
       if (k !== idx) {
         try { subj.next(null); } catch {}
@@ -1095,22 +1095,17 @@ export class ExplanationTextService {
       }
     }
   
-    // Always ensure the BehaviorSubjects exist
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(idx)) {
-      this._gate.set(idx, new BehaviorSubject<boolean>(false));
-    }
+    // Guarantee subjects exist
+    if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(idx)) this._gate.set(idx, new BehaviorSubject<boolean>(false));
   
-    // Update active index and emit
     this._activeIndex = idx;
   
-    const trimmed = (formatted ?? '').toString().trim();
+    const trimmed = (formatted ?? '').trim();
     this._byIndex.get(idx)!.next(trimmed || null);
     this._gate.get(idx)!.next(!!trimmed);
   
-    console.log(`[ETS] ✅ openExclusive(${idx}) → text length=${trimmed.length}`);
+    console.log(`[ETS] ✅ openExclusive(${idx}) textLen=${trimmed.length}`);
   }
   
   public closeOthersExcept(index: number): void {
