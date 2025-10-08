@@ -492,18 +492,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     };
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
-    this.combinedText$ = combineLatest([
-      guardedIndex$, display$, shouldShow$, baselineText$, correctText$,
-      perIndexExplanation$, perIndexGate$, indexFreeze$
-    ]).pipe(
+    this.combinedText$ = combineLatest([...]).pipe(
       filter(([, , , , , , , frozen]) => frozen === false),
-      debounceTime(60), // debounce to let openExclusive settle
+      auditTime(30),  // stabilize same-tick renders
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
-    
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
-        const hasExplanation = !!(explanation && explanation.trim());
+        const hasExplanation = isCurrent && gate && explanation?.trim()?.length > 0;
         const wantsExplanation =
           isCurrent &&
           gate &&
@@ -518,10 +514,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : body;
       }),
       observeOn(asyncScheduler),
-      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   }
 
   private emitContentAvailableState(): void {
