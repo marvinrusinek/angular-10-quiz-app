@@ -1083,29 +1083,34 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Close all other gates and text
+    // Close other gates & explanations (but NOT this index)
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
+      }
+    }
     for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
         try { gate$.next(false); } catch {}
-        try { this._byIndex.get(k)?.next(null); } catch {}
       }
     }
   
-    // If we’re switching indices, clear the last active one
-    if (this._activeIndex !== null && this._activeIndex !== idx) {
-      try {
-        this._byIndex.get(this._activeIndex)?.next(null);
-        this._gate.get(this._activeIndex)?.next(false);
-      } catch {}
+    // Always ensure the BehaviorSubjects exist
+    if (!this._byIndex.has(idx)) {
+      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    }
+    if (!this._gate.has(idx)) {
+      this._gate.set(idx, new BehaviorSubject<boolean>(false));
     }
   
-    // Track and open the new active index
+    // Update active index and emit
     this._activeIndex = idx;
-    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
-    try { this.emitFormatted(idx, formatted); } catch {}
-    try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] ✅ openExclusive → index ${idx}, len=${(formatted ?? '').length}`);
+    const trimmed = (formatted ?? '').toString().trim();
+    this._byIndex.get(idx)!.next(trimmed || null);
+    this._gate.get(idx)!.next(!!trimmed);
+  
+    console.log(`[ETS] ✅ openExclusive(${idx}) → text length=${trimmed.length}`);
   }
   
   public closeOthersExcept(index: number): void {
