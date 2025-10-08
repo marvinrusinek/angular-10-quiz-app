@@ -350,32 +350,20 @@ export class QuizNavigationService {
     // ✅ 4. Post-navigation — let the new index settle, *then* open
     // ────────────────────────────────
     try {
-      // Wait for the service to confirm it's pointing to the new question
+      // Wait until the service confirms the index switch
       await firstValueFrom(
         this.quizService.currentQuestionIndex$.pipe(
           filter(i => i === index),
           take(1),
-          timeout({ each: 2000, with: () => of(index) }) // prevent hanging
+          timeout({ each: 2000, with: () => of(index) })
         )
       );
-
-      // Now it’s safe to fetch the actual new question
+    
+      // Safe to fetch the new question data now
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-      const formatted = (fresh?.explanation ?? '').trim() || null;
-  
-      if (formatted) {
-        // atomic open (sets _activeIndex, gate=true, emits text)
-        this.explanationTextService.openExclusive(index, formatted);
-        // now mark explanation visible for this question
-        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-        this.displayState$.next({ mode: 'explanation', answered: true });
-  
-        console.log(`[NAV] ✅ opened FET for Q${index + 1}, len=${formatted.length}`);
-      } else {
-        console.log(`[NAV] ⚠️ No explanation found for Q${index + 1}`);
-      }
+      console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
     } catch (err) {
-      console.warn('[navigateToQuestion] post-nav openExclusive failed:', err);
+      console.warn('[navigateToQuestion] post-nav fetch failed:', err);
     }
   
     return true;
