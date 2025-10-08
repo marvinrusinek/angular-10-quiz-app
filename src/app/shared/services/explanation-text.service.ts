@@ -1114,7 +1114,10 @@ export class ExplanationTextService {
     // 🧠 Ensure formattedExplanations map is per-index
     // ────────────────────────────────
     if (!this.formattedExplanations) this.formattedExplanations = {};
-    this.formattedExplanations[idx] = { explanation: trimmed || null };
+    this.formattedExplanations[idx] = {
+      questionIndex: idx,
+      explanation: trimmed || null
+    };    
   
     console.log(`[ETS] ✅ openExclusive(${idx}) len=${trimmed.length}`);
   }
