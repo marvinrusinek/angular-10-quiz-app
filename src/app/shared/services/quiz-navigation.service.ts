@@ -304,78 +304,65 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     // ────────────────────────────────
-    // 🔒 HARD RESET: clear all old explanation data synchronously
+    // 🔒 1. Minimal pre-navigation cleanup
     // ────────────────────────────────
     try {
-      this.explanationTextService.closeAll();
-      this.explanationTextService._activeIndex = -1;
-      this.explanationTextService.formattedExplanations = {};
+      // Only close *previous* explanation; don’t nuke everything.
+      this.explanationTextService.closeOthersExcept(currentIndex);
       this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-    } catch (err) {
-      console.warn('[navigateToQuestion] hard reset failed:', err);
-    }
-  
-    // 🧹 Reset current question’s local state
-    try {
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
     } catch (err) {
-      console.warn('[navigateToQuestion] local state reset failed:', err);
+      console.warn('[navigateToQuestion] pre-cleanup failed:', err);
     }
   
     // ────────────────────────────────
-    // 🔒 Lock & timer prep
+    // 🔒 2. Lock & timer prep
     // ────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────
-    // 🧭 ROUTE HANDLING
+    // 🧭 3. ROUTE HANDLING
     // ────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
-    // If same index & same route → force reload
-    if (currentIndex === index && currentUrl === routeUrl) {
-      console.warn('[⚠️ Already on route – forcing reload]', { currentIndex, index, routeUrl });
-      try {
+    try {
+      if (currentIndex === index && currentUrl === routeUrl) {
+        console.warn('[⚠️ Already on route – forcing reload]', { currentIndex, index, routeUrl });
         await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
-        await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
-        await waitForRoute;
-      } catch (err) {
-        console.error('[❌ Forced reload error]', err);
+      }
+  
+      const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
+      if (!navSuccess) {
+        console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
       }
-    } else {
-      try {
-        const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
-        if (!navSuccess) {
-          console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
-          waitForRoute.catch(() => undefined);
-          return false;
-        }
-        await waitForRoute;
-      } catch (err) {
-        console.error('[❌ Navigation error]', err);
-        return false;
-      }
+  
+      await waitForRoute;
+    } catch (err) {
+      console.error('[❌ Navigation error]', err);
+      return false;
     }
   
     // ────────────────────────────────
-    // ✅ POST-NAVIGATION — open only the correct explanation
+    // ✅ 4. Post-navigation — let the new index settle, *then* open
     // ────────────────────────────────
     try {
-      // Wait for the route to stabilize and observables to attach
-      await waitForRoute;
-      await new Promise(resolve => setTimeout(resolve, 200)); // give indexFreeze$ time to unfreeze
-    
-      // Fetch fresh question data
+      // small delay so guardedIndex$/freeze streams are active
+      await new Promise(resolve => setTimeout(resolve, 150));
+  
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       const formatted = (fresh?.explanation ?? '').trim() || null;
-    
-      // Emit only if there’s actually an explanation
+  
       if (formatted) {
+        // atomic open (sets _activeIndex, gate=true, emits text)
         this.explanationTextService.openExclusive(index, formatted);
+        // now mark explanation visible for this question
+        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+        this.displayState$.next({ mode: 'explanation', answered: true });
+  
         console.log(`[NAV] ✅ opened FET for Q${index + 1}, len=${formatted.length}`);
       } else {
         console.log(`[NAV] ⚠️ No explanation found for Q${index + 1}`);
