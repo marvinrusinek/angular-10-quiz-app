@@ -1107,6 +1107,13 @@ export class ExplanationTextService {
   
     subj.next(trimmed || null);
     gate$.next(!!trimmed);
+
+    console.log('[openExclusive]', {
+      index: idx,
+      textLen: trimmed.length,
+      gate: !!trimmed,
+      active: this._activeIndex
+    });
   
     console.log(`[ETS] 🔓 openExclusive(${idx}) len=${trimmed.length}`);
   }
