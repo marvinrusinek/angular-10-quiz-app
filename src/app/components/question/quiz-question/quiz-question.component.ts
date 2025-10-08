@@ -3116,7 +3116,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               try { this.explanationTextService.closeOthersExcept(i0); } catch {}
               try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
             }, 60);
-
             
             // Intent only (no global text payload)
             this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
