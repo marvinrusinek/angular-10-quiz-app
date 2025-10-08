@@ -492,7 +492,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     };
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
-    this.combinedText$ = combineLatest([
+    this.combinedText$ = combineLatest<
+      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+    >([
       guardedIndex$,
       display$,
       shouldShow$,
