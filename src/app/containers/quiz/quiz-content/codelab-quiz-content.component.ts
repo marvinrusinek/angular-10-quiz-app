@@ -393,21 +393,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     const guardedIndex$: Observable<number> = index$.pipe(
       tap(i => {
-        // Close the old index only
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
           try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
-
-        // DO NOT clear or null the NEW index here.
-        // Just reset global display intent so question shows first.
+      
+        // ❗ Do NOT clear or null the NEW index here
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        try { this._showExplanation = false; } catch {}
-        try { this.lastQuestionText = ''; } catch {}
-
         _lastIdx = i;
-      }),
+      }),      
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
