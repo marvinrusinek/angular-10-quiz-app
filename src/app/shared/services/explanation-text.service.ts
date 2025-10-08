@@ -1083,40 +1083,42 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // Assign first — always the current one
-    this._activeIndex = idx;
+    // ────────────────────────────────
+    // 💣 HARD CLEAR: remove every stale entry first
+    // ────────────────────────────────
+    for (const [k] of this._byIndex.entries()) {
+      try { this._byIndex.get(k)?.next(null); } catch {}
+    }
+    for (const [k] of this._gate.entries()) {
+      try { this._gate.get(k)?.next(false); } catch {}
+    }
   
-    // Ensure subjects exist for every possible index
+    // ────────────────────────────────
+    // 🔐 Create fresh subjects for this index
+    // ────────────────────────────────
     if (!this._byIndex.has(idx))
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     if (!this._gate.has(idx))
       this._gate.set(idx, new BehaviorSubject<boolean>(false));
   
-    // Close everything else
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) subj.next(null);
-    }
-    for (const [k, gate$] of this._gate.entries()) {
-      if (k !== idx) gate$.next(false);
-    }
+    // ────────────────────────────────
+    // ✅ Activate only the current index
+    // ────────────────────────────────
+    this._activeIndex = idx;
   
-    // Emit current explanation and gate simultaneously
     const trimmed = (formatted ?? '').trim();
-    const subj = this._byIndex.get(idx)!;
-    const gate$ = this._gate.get(idx)!;
+    this._byIndex.get(idx)!.next(trimmed || null);
+    this._gate.get(idx)!.next(!!trimmed);
   
-    subj.next(trimmed || null);
-    gate$.next(!!trimmed);
-
-    console.log('[openExclusive]', {
-      index: idx,
-      textLen: trimmed.length,
-      gate: !!trimmed,
-      active: this._activeIndex
-    });
+    // ────────────────────────────────
+    // 🧠 Ensure formattedExplanations map is per-index
+    // ────────────────────────────────
+    if (!this.formattedExplanations) this.formattedExplanations = {};
+    this.formattedExplanations[idx] = { explanation: trimmed || null };
   
-    console.log(`[ETS] 🔓 openExclusive(${idx}) len=${trimmed.length}`);
+    console.log(`[ETS] ✅ openExclusive(${idx}) len=${trimmed.length}`);
   }
+  
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
