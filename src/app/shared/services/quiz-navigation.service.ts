@@ -361,7 +361,11 @@ export class QuizNavigationService {
         console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
       }
     }, 100);
-    
+
+    // Force active index sync for explanation text
+    queueMicrotask(() => {
+      try { this.explanationTextService._activeIndex = index; } catch {}
+    });
 
     // ────────────────────────────────
     // 🔒 Lock & timer prep
