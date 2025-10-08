@@ -304,15 +304,22 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     // ────────────────────────────────
-    // 🧹 Cleanup block (deferred slightly)
+    // ⚡ Pre-cleanup — happens IMMEDIATELY to avoid cross-index leaks
     // ────────────────────────────────
-    // Delay cleanup slightly so indexFreeze$ finishes before closing gates
+    try {
+      // Immediately clear old explanation data (prevents FET carry-over)
+      this.explanationTextService.closeOthersExcept(index);
+      this.explanationTextService._activeIndex = index;
+    } catch (err) {
+      console.warn('[navigateToQuestion] pre-cleanup failed:', err);
+    }
+  
     // ────────────────────────────────
-    // 🧹 Delayed cleanup after route change
+    // 🧹 Delayed cleanup after route change (deferred slightly)
     // ────────────────────────────────
     setTimeout(() => {
       try {
-        // Keep target index open, close all others
+        // Keep target index open, close all others safely
         if (typeof index === 'number' && index >= 0) {
           queueMicrotask(() => this.explanationTextService.closeOthersExcept(index));
         } else {
@@ -321,27 +328,22 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[navigateToQuestion] closeAll/closeOthersExcept failed:', err);
       }
-    
+  
       try {
-        // Reset previous question’s options
+        // Reset previous question’s options only (no inherited highlights)
         if (typeof currentIndex === 'number' && currentIndex !== index) {
           queueMicrotask(() => this.selectedOptionService.resetOptionState(currentIndex));
         }
       } catch {}
-    
+  
       try {
         this.nextButtonStateService.setNextButtonState(false);
         setTimeout(() => {
           try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
-        }, 150);
+        }, 120);
       } catch {}
-    }, 250); // delay 250ms to ensure indexFreeze$ completes
-
-    // Force active index sync for explanation text
-    queueMicrotask(() => {
-      try { this.explanationTextService._activeIndex = index; } catch {}
-    });
-
+    }, 150); // ⏳ shortened from 250 → 150ms (better timing with indexFreeze$)
+  
     // ────────────────────────────────
     // 🔒 Lock & timer prep
     // ────────────────────────────────
@@ -355,10 +357,9 @@ export class QuizNavigationService {
       console.warn('[⚠️ Already on route – forcing reload]', {
         currentIndex,
         index,
-        routeUrl
+        routeUrl,
       });
   
-      // Navigate to dummy route first, then back to trigger full reload
       const dummySuccess = await this.ngZone.run(() =>
         this.router.navigateByUrl('/', { skipLocationChange: true })
       );
@@ -376,7 +377,7 @@ export class QuizNavigationService {
       }
   
       try {
-        await waitForRoute; // ensure route change completed
+        await waitForRoute;
         return true;
       } catch (err) {
         console.error('[❌ Forced reload waitForUrl error]', err);
@@ -408,7 +409,7 @@ export class QuizNavigationService {
       console.error('[❌ Navigation error]', err);
       return false;
     }
-  }  
+  }
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
