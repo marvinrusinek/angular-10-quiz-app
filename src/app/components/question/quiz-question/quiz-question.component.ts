@@ -3116,10 +3116,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
             }, 80);
             
-            // Intent only (no global text payload)
-            //this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-            //this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-            
             // Keep local bindings in sync immediately (no one-frame lag)
             try {
               const fn: any = (this as any).setExplanationFor;
