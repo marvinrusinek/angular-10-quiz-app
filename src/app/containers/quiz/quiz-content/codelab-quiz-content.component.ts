@@ -511,16 +511,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       auditTime(30),  // (was debounceTime(50))
     
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(idx, baseline);
-    
-        // ✅ Track currently active explanation index
+        const question = canonicalQuestionFor(Number(idx), baseline);
+      
         const activeIndex = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = activeIndex === idx;
-    
-        // ✅ Only consider explanation valid if it's for this index AND gate is open
-        const hasExplanation =
-          isCurrent && gate && explanation && explanation.trim().length > 0;
-    
+      
+        // ✅ Explanation is valid only if gate open, correct index, and non-empty text
+        const hasExplanation = !!(explanation && explanation.trim().length > 0);
         const wantsExplanation =
           isCurrent &&
           gate &&
@@ -528,14 +525,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           display.answered &&
           shouldShow &&
           hasExplanation;
-    
-        const body = wantsExplanation ? explanation.trim() : question;
-    
-        // ✅ Append correct answers badge if applicable
-        return correct
-          ? `${body} <span class="correct-count">${correct}</span>`
-          : body;
-      }),
+      
+        // ✅ Ensure correct-count badge ONLY appears with question text
+        const body = wantsExplanation
+          ? explanation.trim()
+          : correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
+      
+        return body;
+      }),      
     
       observeOn(asyncScheduler),
       distinctUntilChanged(),

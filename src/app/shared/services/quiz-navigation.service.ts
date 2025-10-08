@@ -312,56 +312,30 @@ export class QuizNavigationService {
     // ────────────────────────────────
     setTimeout(() => {
       try {
-        // 🧹 Close all OTHER indices, but NEVER the one we’re navigating TO.
+        // Keep target index open, close all others
         if (typeof index === 'number' && index >= 0) {
-          queueMicrotask(() => {
-            try {
-              this.explanationTextService.closeOthersExcept(index);
-            } catch (err) {
-              console.warn('[navigateToQuestion] ⚠️ closeOthersExcept failed:', err);
-            }
-          });
+          queueMicrotask(() => this.explanationTextService.closeOthersExcept(index));
         } else {
-          try { this.explanationTextService.closeAll(); } catch {}
+          this.explanationTextService.closeAll();
         }
       } catch (err) {
-        console.warn('[navigateToQuestion] ⚠️ closeAll/closeOthersExcept outer failed:', err);
+        console.warn('[navigateToQuestion] closeAll/closeOthersExcept failed:', err);
       }
     
       try {
-        // 🧹 Reset PREVIOUS question’s options only (prevents inherited highlights)
-        if (
-          typeof currentIndex === 'number' &&
-          currentIndex >= 0 &&
-          currentIndex !== index
-        ) {
-          queueMicrotask(() => {
-            try {
-              this.selectedOptionService.resetOptionState(currentIndex);
-            } catch (err) {
-              console.warn('[navigateToQuestion] ⚠️ resetOptionState failed:', err);
-            }
-          });
+        // Reset previous question’s options
+        if (typeof currentIndex === 'number' && currentIndex !== index) {
+          queueMicrotask(() => this.selectedOptionService.resetOptionState(currentIndex));
         }
-      } catch (err) {
-        console.warn('[navigateToQuestion] ⚠️ resetOptionState outer failed:', err);
-      }
+      } catch {}
     
       try {
-        // 🔁 Reset Next button and progress counter AFTER render stabilizes
         this.nextButtonStateService.setNextButtonState(false);
         setTimeout(() => {
-          try {
-            this.quizService.correctAnswersCountSubject?.next(0);
-            this.quizStateService.correctAnswersTextSource?.next('');
-          } catch (err) {
-            console.warn('[navigateToQuestion] ⚠️ correctAnswersCountSubject reset failed:', err);
-          }
-        }, 120);
-      } catch (err) {
-        console.warn('[navigateToQuestion] ⚠️ reset next button/counter failed:', err);
-      }
-    }, 100);
+          try { this.quizService.correctAnswersCountSubject?.next(0); } catch {}
+        }, 150);
+      } catch {}
+    }, 250); // delay 250ms to ensure indexFreeze$ completes
 
     // Force active index sync for explanation text
     queueMicrotask(() => {
