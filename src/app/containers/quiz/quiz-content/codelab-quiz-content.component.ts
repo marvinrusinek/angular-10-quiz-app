@@ -391,18 +391,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 2) Guard index changes: close old index, pre-close new index, reset intent
     let _lastIdx = -1;
 
-    const guardedIndex$: Observable<number> = index$.pipe(
+    const guardedIndex$ = index$.pipe(
       tap(i => {
+        // Close only the previous index
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
           try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
-      
-        // ❗ Do NOT clear or null the NEW index here
+
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
-      }),      
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
@@ -456,19 +456,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 8) Per-index explanation / gate — seed so first post-freeze render is question text
     // 8) Per-index streams (guarded; null/false until the new index opens), seed each stream with its last known value (prevents “Explanation not found”)
-    const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i => this.explanationTextService.byIndex$(i).pipe(
-        startWith<string | null>(null)   // <— was lastKnown
-      )),
+    const perIndexExplanation$ = guardedIndex$.pipe(
+      switchMap(i => this.explanationTextService.byIndex$(i).pipe(startWith<string | null>(null))),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
     
-    // Gate stream — also start clean
-    const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i => this.explanationTextService.gate$(i).pipe(
-        startWith(false)                  // <— was reading previous gate value
-      )),
+    const perIndexGate$ = guardedIndex$.pipe(
+      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
       auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -509,7 +504,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         // Explanation is valid only if gate open, correct index, and non-empty text
         const wantsExplanation =
-          (display.mode === 'explanation' && display.answered && shouldShow && validExplanation);
+          gate && shouldShow && display.mode === 'explanation' && explanation?.trim()?.length;
       
         // Ensure correct-count badge ONLY appears with question text
         const body = wantsExplanation
