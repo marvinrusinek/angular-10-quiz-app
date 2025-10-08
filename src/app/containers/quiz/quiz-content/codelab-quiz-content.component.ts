@@ -390,29 +390,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 2) Guard index changes: close old index, pre-close new index, reset intent
     let _lastIdx = -1;
-    const guardedIndex$: Observable<number> = index$.pipe(
-      tap(i => {
-        if (_lastIdx !== -1 && _lastIdx !== i) {
-          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
-          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-      
-          // 🔥 NEW: hard clear any option highlighting or icons
-          try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
-        }
-      
-        // Reset per-index explanation and global state
-        try { this.explanationTextService.setGate(i, false); } catch {}
-        try { this.explanationTextService.emitFormatted(i, null); } catch {}
-        try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-      
-        // 🔥 NEW: also reset local highlight flags for fresh render
-        try { this._showExplanation = false; } catch {}
-        try { this.lastQuestionText = ''; } catch {}
-      
-        _lastIdx = i;
-      }),      
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+
+const guardedIndex$: Observable<number> = index$.pipe(
+  tap(i => {
+    // Close the old index only
+    if (_lastIdx !== -1 && _lastIdx !== i) {
+      try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
+      try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
+      try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
+    }
+
+    // DO NOT clear or null the NEW index here.
+    // Just reset global display intent so question shows first.
+    try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
+    try { this._showExplanation = false; } catch {}
+    try { this.lastQuestionText = ''; } catch {}
+
+    _lastIdx = i;
+  }),
+  shareReplay({ bufferSize: 1, refCount: true })
+);
   
     // 3) Freeze: true immediately after index change, then false on next microtask
     // 🔒 Freeze period between question transitions
@@ -465,19 +462,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 8) Per-index explanation / gate — seed so first post-freeze render is question text
     // 8) Per-index streams (guarded; null/false until the new index opens), seed each stream with its last known value (prevents “Explanation not found”)
     const perIndexExplanation$: Observable<string | null> = guardedIndex$.pipe(
-      switchMap(i => {
-        const lastKnown = this.explanationTextService.formattedExplanations?.[i]?.explanation ?? null;
-        return concat(of<string | null>(lastKnown), this.explanationTextService.byIndex$(i));
-      }),
+      switchMap(i => this.explanationTextService.byIndex$(i).pipe(
+        startWith<string | null>(null)   // <— was lastKnown
+      )),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
-
+    );
+    
+    // Gate stream — also start clean
     const perIndexGate$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(i => {
-        const last = !!this.explanationTextService._gate.get(i)?.getValue?.();
-        return concat(of(last), this.explanationTextService.gate$(i));
-      }),
+      switchMap(i => this.explanationTextService.gate$(i).pipe(
+        startWith(false)                  // <— was reading previous gate value
+      )),
       auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
