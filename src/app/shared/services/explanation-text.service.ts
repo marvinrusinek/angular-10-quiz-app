@@ -1083,27 +1083,29 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
   
-    // 🔒 Close all other gates and text synchronously — but only if activeIndex changes
-    if (this._activeIndex !== idx) {
-      for (const [k, gate$] of this._gate.entries()) {
-        if (k !== idx) {
-          try { gate$.next(false); } catch {}
-        }
-      }
-      for (const [k, subj] of this._byIndex.entries()) {
-        if (k !== idx) {
-          try { subj.next(null); } catch {}
-        }
+    // 🧹 Close all other gates and text
+    for (const [k, gate$] of this._gate.entries()) {
+      if (k !== idx) {
+        try { gate$.next(false); } catch {}
+        try { this._byIndex.get(k)?.next(null); } catch {}
       }
     }
   
-    this._activeIndex = idx;
+    // 🧩 If we’re switching indices, clear the last active one
+    if (this._activeIndex !== null && this._activeIndex !== idx) {
+      try {
+        this._byIndex.get(this._activeIndex)?.next(null);
+        this._gate.get(this._activeIndex)?.next(false);
+      } catch {}
+    }
   
-    // Emit & gate ON immediately
+    // 🔓 Track and open the new active index
+    this._activeIndex = idx;
+    try { this.storeFormattedExplanation(idx, formatted ?? '', null); } catch {}
     try { this.emitFormatted(idx, formatted); } catch {}
     try { this.setGate(idx, true); } catch {}
   
-    console.log(`[ETS] ✅ openExclusive → index ${idx}, text length=${(formatted ?? '').length}`);
+    console.log(`[ETS] ✅ openExclusive → index ${idx}, len=${(formatted ?? '').length}`);
   }
   
   public closeOthersExcept(index: number): void {
@@ -1112,16 +1114,16 @@ export class ExplanationTextService {
     for (const [k, gate$] of this._gate.entries()) {
       if (k !== idx) {
         try { gate$.next(false); } catch {}
+        try { this._byIndex.get(k)?.next(null); } catch {}
       }
     }
   
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
+    // 🧩 Reset activeIndex if it’s no longer valid
+    if (this._activeIndex !== idx) {
+      this._activeIndex = idx;
     }
   
-    console.log(`[ETS] 🧹 Closed all except index ${idx}`);
+    console.log(`[ETS] 🔒 closeOthersExcept → kept=${idx}`);
   }
 
   public closeAll(): void {
