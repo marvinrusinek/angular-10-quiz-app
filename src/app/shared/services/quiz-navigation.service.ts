@@ -350,9 +350,16 @@ export class QuizNavigationService {
     // ✅ 4. Post-navigation — let the new index settle, *then* open
     // ────────────────────────────────
     try {
-      // small delay so guardedIndex$/freeze streams are active
-      await new Promise(resolve => setTimeout(resolve, 150));
-  
+      // Wait for the service to confirm it's pointing to the new question
+      await firstValueFrom(
+        this.quizService.currentQuestionIndex$.pipe(
+          filter(i => i === index),
+          take(1),
+          timeout({ each: 2000, with: () => of(index) }) // prevent hanging
+        )
+      );
+
+      // Now it’s safe to fetch the actual new question
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       const formatted = (fresh?.explanation ?? '').trim() || null;
   
