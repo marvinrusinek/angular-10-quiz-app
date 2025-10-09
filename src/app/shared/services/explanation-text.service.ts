@@ -1162,23 +1162,31 @@ export class ExplanationTextService {
 
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // Close previous active index completely
-    if (this._activeIndex !== -1 && this._activeIndex !== index) {
-      const prev = this._activeIndex;
-      try { this._byIndex.get(prev)?.next(null); } catch {}
-      try { this._gate.get(prev)?.next(false); } catch {}
-      if (this.formattedExplanations?.[prev]) delete this.formattedExplanations[prev];
-      console.log(`[ETS] 🧹 Cleared previous FET cache for Q${prev + 1}`);
+    // 🔥 1. Fully destroy all existing subjects to prevent replay leaks
+    for (const [key, subj] of this._byIndex.entries()) {
+      try { subj.complete(); } catch {}
+    }
+    for (const [key, gate] of this._gate.entries()) {
+      try { gate.complete(); } catch {}
     }
   
-    // Ensure subjects for new index
-    if (!this._byIndex.has(index)) this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(index)) this._gate.set(index, new BehaviorSubject<boolean>(false));
+    this._byIndex.clear();
+    this._gate.clear();
+    this._lastByIndex.clear();
   
+    // 🔄 2. Reinitialize a clean BehaviorSubject for the *new* index
+    this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    this._gate.set(index, new BehaviorSubject<boolean>(false));
     this._activeIndex = index;
-    this.formattedExplanations[index] = { questionIndex: index, explanation: null };
-    console.log(`[ETS] 🔁 resetForIndex(${index}) complete`);
-  }  
+  
+    // 🔧 3. Reset local caches for this index only
+    if (this.formattedExplanations) {
+      this.formattedExplanations[index] = { questionIndex: index, explanation: null };
+    }
+  
+    console.log(`[ETS] ♻️ Hard reset complete; fresh BehaviorSubjects created for Q${index + 1}`);
+  }
+  
 
   // Observable for a specific index (UI will subscribe per index)
   public explainNowFor(idx: number): Observable<string | null> {
