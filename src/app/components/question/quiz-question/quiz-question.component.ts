@@ -3243,6 +3243,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public onSubmitMultiple(): void {
+    console.log('[onSubmitMultiple] clicked', {
+      idx: this.currentQuestionIndex,
+      active: this.explanationTextService._activeIndex
+    });
+    
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
     if (!q) return;
