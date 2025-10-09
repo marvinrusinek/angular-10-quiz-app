@@ -543,38 +543,38 @@ export class QuizNavigationService {
   }
 
   private waitForUrl(url: string): Promise<string> {
-    const targetUrl = this.normalizeUrl(url);
-
+    const target = this.normalizeUrl(url);
+  
     return new Promise<string>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        subscription.unsubscribe();
+        console.warn(`[waitForUrl] ⏰ Timeout waiting for ${target}`);
+        resolve(target); // fallback resolve after 1s to prevent hang
+      }, 1000);
+  
       const subscription = this.router.events.subscribe({
         next: (event) => {
           if (event instanceof NavigationEnd) {
             const finalUrl = this.normalizeUrl(event.urlAfterRedirects || event.url);
-            if (finalUrl === targetUrl) {
+  
+            // ✅ Instead of strict === match, use "includes"
+            if (finalUrl.includes(target)) {
+              clearTimeout(timeoutId);
               subscription.unsubscribe();
+              console.log(`[waitForUrl] ✅ Resolved: ${finalUrl}`);
               resolve(finalUrl);
             }
-            return;
           }
-
-          if (event instanceof NavigationCancel) {
-            const cancelledUrl = this.normalizeUrl(event.url);
-            if (cancelledUrl === targetUrl) {
-              subscription.unsubscribe();
-              reject(new Error(`Navigation to ${url} was cancelled.`));
-            }
-            return;
-          }
-
-          if (event instanceof NavigationError) {
-            const failedUrl = this.normalizeUrl(event.url);
-            if (failedUrl === targetUrl) {
-              subscription.unsubscribe();
-              reject(event.error ?? new Error(`Navigation to ${url} failed.`));
-            }
+  
+          if (event instanceof NavigationCancel || event instanceof NavigationError) {
+            clearTimeout(timeoutId);
+            subscription.unsubscribe();
+            console.warn(`[waitForUrl] ⚠️ Navigation failed/cancelled for ${target}`);
+            reject(new Error(`Navigation to ${target} failed.`));
           }
         },
         error: (err) => {
+          clearTimeout(timeoutId);
           subscription.unsubscribe();
           reject(err);
         },
