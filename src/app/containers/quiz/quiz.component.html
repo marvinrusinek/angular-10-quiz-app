@@ -15,6 +15,7 @@
         <codelab-quiz-content
           [questionToDisplay$]="questionToDisplay$"
           [explanationToDisplay]="explanationToDisplay"
+          [questionIndex]="quizService.currentQuestionIndex$ | async"
         ></codelab-quiz-content>
         
         <codelab-quiz-question
