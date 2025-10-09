@@ -530,8 +530,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       indexFreeze$
     ]).pipe(
       // Prevent render while frozen — allow first question paint
-      filter(([, , , , , , , frozen]) => frozen === false),
-      delayWhen(([, , , , , , , frozen]) => frozen ? of(null) : timer(150)),
+      // ✅ Only freeze AFTER the first question has rendered
+      filter(([idx, , , , , , , frozen]) => {
+        // Let the first question (idx === 0) through immediately
+        if (idx === 0) return true;
+        return frozen === false;
+      }),
 
       filter(([idx]) => {
         const active = this.explanationTextService._activeIndex;
