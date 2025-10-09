@@ -314,6 +314,7 @@ export class QuizNavigationService {
       // Reset first to wipe stale FET before route change
       this.explanationTextService.resetForIndex(index);
       this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+      this.explanationTextService.emitFormatted(index, null);
 
       // Wait briefly so resets propagate through BehaviorSubjects
       await new Promise(res => setTimeout(res, 100));
