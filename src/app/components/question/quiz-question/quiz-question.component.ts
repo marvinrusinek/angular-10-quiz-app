@@ -3252,18 +3252,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
 
     try {
-      // 🔹 Step 1: emit formatted text immediately
       this.explanationTextService.openExclusive(idx, formatted);
-    
-      // 🔹 Step 2: schedule UI state change in next microtask
-      Promise.resolve().then(() => {
-        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-        this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-    
-        console.log(`[onSubmitMultiple] 🧭 Explanation mode ON for Q${idx + 1}`);
-      });
-    
-      // optional: force immediate detection
+      this.explanationTextService._activeIndex = idx;
+      
+      // now flip the mode immediately
+      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+
       this.cdRef.detectChanges();
     } catch (err) {
       console.warn('[onSubmitMultiple] openExclusive sequencing failed:', err);
