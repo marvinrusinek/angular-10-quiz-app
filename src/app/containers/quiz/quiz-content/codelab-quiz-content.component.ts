@@ -527,96 +527,88 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
     this.combinedText$ = combineLatest<
-      [
-        number,
-        DisplayState,
-        boolean,
-        string,
-        string,
-        string | null,
-        boolean,
-        boolean
-      ]
-    >([
-      guardedIndex$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$,
-      indexFreeze$
-    ]).pipe(
-      // Prevent render while frozen — allow first question paint
-      filter(([, , , , , , , frozen]) => frozen === false),
+    [
+      number,
+      DisplayState,
+      boolean,
+      string,
+      string,
+      string | null,
+      boolean,
+      boolean
+    ]
+  >([
+    guardedIndex$,
+    display$,
+    shouldShow$,
+    baselineText$,
+    correctText$,
+    perIndexExplanation$,
+    perIndexGate$,
+    indexFreeze$
+  ]).pipe(
+    // Prevent render while frozen — allow first question paint
+    filter(([, , , , , , , frozen]) => frozen === false),
 
-      // Cross-index quarantine (must run BEFORE scan)
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
-        const active = this.explanationTextService._activeIndex ?? idx;
+    // Cross-index quarantine (must run BEFORE scan)
+    map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
+      const active = this.explanationTextService._activeIndex ?? idx;
 
-        // Ignore any explanation that belongs to a different index during transition
-        const foreignExpl =
-          active !== idx && explanation && explanation.trim().length > 0;
-        const safeExplanation = foreignExpl ? null : explanation;
+      // Ignore any explanation that belongs to a different index during transition
+      const foreignExpl =
+        active !== idx && explanation && explanation.trim().length > 0;
+      const safeExplanation = foreignExpl ? null : explanation;
 
-        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen];
-      }),
+      return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen];
+    }),
 
-      // Hold the last valid explanation per index to prevent cross-paint
-      scan((store, curr: [
-        number,
-        DisplayState,
-        boolean,
-        string,
-        string,
-        string | null,
-        boolean,
-        boolean
-      ]) => {
-        const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
-      
-        if (!store.map) store.map = new Map<number, string | null>();
-        const lastForIdx = store.map.get(idx) ?? null;
-        const newExpl =
-          explanation && explanation.trim().length > 0
-            ? explanation.trim()
-            : lastForIdx;
-      
-        store.map.set(idx, newExpl);
-        store.latest = [
-          idx,
-          display,
-          shouldShow,
-          baseline,
-          correct,
-          newExpl,
-          gate,
-          frozen
-        ];
-        return store;
-      }, { map: new Map(), latest: [] as any }),      
+    // Hold the last valid explanation per index to prevent cross-paint
+    scan((store, curr) => {
+      const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
 
-      // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
-      debounceTime(120),
+      if (!store.map) store.map = new Map<number, string | null>();
+      const lastForIdx = store.map.get(idx) ?? null;
+      const newExpl =
+        explanation && explanation.trim().length > 0
+          ? explanation.trim()
+          : lastForIdx;
 
-      // Final mapping to actual display text
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(idx, baseline);
-        const validExplanation = gate && shouldShow && explanation?.trim()?.length;
-        const wantsExplanation =
-          validExplanation && display.mode === 'explanation';
+      store.map.set(idx, newExpl);
+      store.latest = [
+        idx,
+        display,
+        shouldShow,
+        baseline,
+        correct,
+        newExpl,
+        gate,
+        frozen
+      ];
+      return store;
+    }, { map: new Map(), latest: [] as any }),
+    map((s: any) => s.latest),
 
-        return wantsExplanation
-          ? explanation!.trim()
-          : correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
-      }),
+    // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
+    debounceTime(120),
 
-      observeOn(asyncScheduler),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    // Final mapping to actual display text
+    map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+      const question = canonicalQuestionFor(idx, baseline);
+      const validExplanation = gate && shouldShow && explanation?.trim()?.length;
+      const wantsExplanation =
+        validExplanation && display.mode === 'explanation';
+
+      return wantsExplanation
+        ? explanation!.trim()
+        : correct
+        ? `${question} <span class="correct-count">${correct}</span>`
+        : question;
+    }),
+
+    observeOn(asyncScheduler),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
 
     return this.combinedText$;
   }  
