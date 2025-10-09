@@ -302,7 +302,7 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
-
+  
     try {
       // Clear local mirrors so only combinedText$ drives the UI after nav
       (this as any).displayExplanation = false;
@@ -311,19 +311,25 @@ export class QuizNavigationService {
     } catch {}
   
     try {
+      // 🧹 Clean up all relevant quiz state before navigation
       this.explanationTextService.resetForIndex(index);
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
+  
+      // 🚫 Explicitly clear explanation visibility BEFORE route begins
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+      console.log(`[NAV] 🧹 resetForIndex(${index}) + display cleared`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
     }
-    
+  
     // 🔒 3. Lock & timer prep
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // 🧭 4. ROUTE HANDLING
+    // 🧠 These must run AFTER the reset above — prevents stale FET leaks.
     const waitForRoute = this.waitForUrl(routeUrl);
   
     try {
@@ -350,7 +356,7 @@ export class QuizNavigationService {
     }
   
     return true;
-  }
+  }  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
