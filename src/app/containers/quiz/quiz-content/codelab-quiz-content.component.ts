@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, forkJoin, merge, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, delay, delayWhen, distinctUntilChanged, filter, map, mapTo, observeOn, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, timeout, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, delay, delayWhen, distinctUntilChanged, EMPTY, filter, map, mapTo, observeOn, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, timeout, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -568,8 +568,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
       ),
 
-      // ✅ Guard so we only emit if explanation belongs to the current question index
-      filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
+      // ✅ Guard so we only emit for the current question (with one microtask delay)
+      switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
+        const current = this.quizService.getCurrentQuestionIndex();
+        if (idx !== current) return EMPTY;
+        return of([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]).pipe(delay(0));
+      }),
   
       // 🕒 Smart synchronization: wait until explanation + shouldShow + gate align
       switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
