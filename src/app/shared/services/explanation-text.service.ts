@@ -1157,33 +1157,71 @@ export class ExplanationTextService {
   // 🧩 Reset explanation state cleanly for a new index
   // ─────────────────────────────────────────────
   public resetForIndex(index: number): void {
-    // Close current index cleanly
+    // ────────────────────────────────
+    // 🧹 1. Close the *previous* active index cleanly
+    // ────────────────────────────────
     if (this._byIndex.has(this._activeIndex)) {
-      try { this._byIndex.get(this._activeIndex)!.next(null); } catch {}
+      try {
+        this._byIndex.get(this._activeIndex)!.next(null);
+      } catch (err) {
+        console.warn('[ETS.resetForIndex] failed to null old _byIndex:', err);
+      }
     }
+  
     if (this._gate.has(this._activeIndex)) {
-      try { this._gate.get(this._activeIndex)!.next(false); } catch {}
+      try {
+        this._gate.get(this._activeIndex)!.next(false);
+      } catch (err) {
+        console.warn('[ETS.resetForIndex] failed to close old gate:', err);
+      }
     }
-
-    // Update active index
+  
+    // ────────────────────────────────
+    // 🔁 2. Update active index to the new question
+    // ────────────────────────────────
     this._activeIndex = index;
-
-    // Ensure subjects exist for the new index
+  
+    // ────────────────────────────────
+    // 🧩 3. Guarantee subjects exist for the new index
+    // ────────────────────────────────
     if (!this._byIndex.has(index)) {
       this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     }
     if (!this._gate.has(index)) {
       this._gate.set(index, new BehaviorSubject<boolean>(false));
     }
-
-    // Optionally clear formatted explanation cache for this index
+  
+    // ────────────────────────────────
+    // 🚫 4. Close and nullify *all other* indices (no stale replays)
+    // ────────────────────────────────
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== index) {
+        try { subj.next(null); } catch {}
+      }
+    }
+    for (const [k, gate] of this._gate.entries()) {
+      if (k !== index) {
+        try { gate.next(false); } catch {}
+      }
+    }
+  
+    // ────────────────────────────────
+    // 🗑️ 5. Clean formatted explanation cache
+    // ────────────────────────────────
     if (this.formattedExplanations) {
+      // Remove everything except the current index
+      Object.keys(this.formattedExplanations).forEach(key => {
+        const keyNum = Number(key);
+        if (keyNum !== index) delete this.formattedExplanations[keyNum];
+      });
+  
+      // Re-seed current index with a null explanation
       this.formattedExplanations[index] = {
         questionIndex: index,
         explanation: null
       };
     }
-
-    console.log(`[ETS] 🔁 resetForIndex(${index}) done`);
+  
+    console.log(`[ETS] 🔁 resetForIndex(${index}) completed`);
   }
 }
