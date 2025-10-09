@@ -481,21 +481,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 8) Per-index explanation / gate — seed cleanly with null/false
     const perIndexExplanation$ = guardedIndex$.pipe(
       switchMap(i => {
-        // existing ‘reset then real byIndex$’ path
-        const reset$ = of<string | null>(null);
-        const fresh$ = timer(75).pipe(
-          switchMap(() => this.explanationTextService.byIndex$(i)),
+        // 🧹 Emit null twice — immediately and again after 50 ms — to wipe old FET before new question text paints
+        const hardReset$ = concat(
+          of<string | null>(null),
+          timer(50).pipe(mapTo(null))
+        );
+    
+        // 🎯 Then start listening for the explanation stream of the *new* question only
+        const fresh$ = this.explanationTextService.byIndex$(i).pipe(
+          filter(text => !!text && text.trim().length > 0),
+          distinctUntilChanged(),
           catchError(() => of(null))
         );
     
-        // ✅ NEW: atomic fast-path for this index (wins if present)
-        const fastPath$ = this.explanationTextService.explainNowFor(i).pipe(startWith<string | null>(null));
-    
-        // Prefer fastPath$ when it emits; otherwise fall back to byIndex$
-        return combineLatest([fastPath$, concat(reset$, fresh$)]).pipe(
-          map(([fast, normal]) => (fast !== null ? fast : normal)),
-          distinctUntilChanged()
-        );
+        return concat(hardReset$, fresh$);
       }),
       startWith<string | null>(null),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -530,31 +529,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       indexFreeze$
     ]).pipe(
       // Prevent render while frozen — allow first question paint
-      // ✅ Only freeze AFTER the first question has rendered
+      // Only freeze AFTER the first question has rendered
       filter(([idx, , , , , , , frozen]) => {
         // Let the first question (idx === 0) through immediately
         if (idx === 0) return true;
         return frozen === false;
       }),
 
-      filter(([idx]) => {
-        const active = this.explanationTextService._activeIndex;
-      
-        // ✅ Always allow Q1 to render initially (when _activeIndex is still -1)
-        if (active === -1 && idx === 0) {
-          console.log(`[CQCC] 🟢 Allowing first question Q1 to render`);
-          return true;
-        }
-      
-        // Normal rule for all subsequent questions
-        const same = idx === active;
-        if (!same) {
-          console.log(`[CQCC] 🧱 Holding render for Q${idx + 1} (active=${active + 1})`);
-        }
-        return same;
-      }),
-      
-  
       // Cross-index quarantine (must run BEFORE scan)
       map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
         const active = this.explanationTextService._activeIndex ?? idx;
