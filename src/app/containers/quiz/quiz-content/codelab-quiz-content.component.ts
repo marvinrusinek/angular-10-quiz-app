@@ -514,10 +514,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       const base  = (baseline ?? '').toString().trim();
       return model || base || this.questionLoadingText || 'Loading…';
     };
+
+    // 🧩 Quarantine: wait 120 ms after any index change before allowing old FETs to propagate
+    const explanationQuarantine$ = guardedIndex$.pipe(
+      switchMap(i =>
+        concat(
+          of({ idx: i, quarantined: true }),
+          timer(120).pipe(mapTo({ idx: i, quarantined: false }))
+        )
+      ),
+      startWith({ idx: 0, quarantined: false }),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
     this.combinedText$ = combineLatest<
-      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+      [number, DisplayState, boolean, string, string, string | null, boolean, boolean, { idx: number; quarantined: boolean }]
     >([
       guardedIndex$,
       display$,
@@ -526,7 +538,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       correctText$,
       perIndexExplanation$,
       perIndexGate$,
-      indexFreeze$
+      indexFreeze$,
+      explanationQuarantine$
     ]).pipe(
       // Prevent render while frozen — allow first question paint
       // Only freeze AFTER the first question has rendered
@@ -537,11 +550,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
 
       // Cross-index quarantine (must run BEFORE scan)
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen, quarantine]) => {
+        // 🚧 If we’re inside the quarantine window, suppress all explanations
+        const safeExplanation = quarantine.quarantined ? null : explanation;
+
         const active = this.explanationTextService._activeIndex ?? idx;
-        const foreignExpl = active !== idx && explanation && explanation.trim().length > 0;
-        const safeExplanation = foreignExpl ? null : explanation;
-        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen] as const;
+        const foreignExpl = active !== idx && safeExplanation && safeExplanation.trim().length > 0;
+        const sanitized = foreignExpl ? null : safeExplanation;
+
+        return [idx, display, shouldShow, baseline, correct, sanitized, gate, frozen] as const;
       }),
   
       // Hold the last valid explanation per index to prevent cross-paint
