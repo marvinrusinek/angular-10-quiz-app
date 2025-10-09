@@ -1084,53 +1084,28 @@ export class ExplanationTextService {
     const idx = Math.max(0, Number(index) || 0);
     const trimmed = (formatted ?? '').trim();
   
-    // ────────────────────────────────
-    // 1️⃣ Guarantee subjects exist
-    // ────────────────────────────────
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(idx)) {
-      this._gate.set(idx, new BehaviorSubject<boolean>(false));
-    }
-  
-    // ────────────────────────────────
-    // 2️⃣ Close all other indices immediately
-    // ────────────────────────────────
+    // close others
     for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
+      if (k !== idx) subj.next(null);
     }
-    for (const [k, gate$] of this._gate.entries()) {
-      if (k !== idx) {
-        try { gate$.next(false); } catch {}
-      }
+    for (const [k, gate] of this._gate.entries()) {
+      if (k !== idx) gate.next(false);
     }
   
-    // ────────────────────────────────
-    // 3️⃣ Update cache + active index
-    // ────────────────────────────────
+    // ensure subjects
+    if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(idx)) this._gate.set(idx, new BehaviorSubject<boolean>(false));
+  
     this._activeIndex = idx;
-    this.formattedExplanations[idx] = {
-      questionIndex: idx,
-      explanation: trimmed || null
-    };
+    this.formattedExplanations[idx] = { questionIndex: idx, explanation: trimmed || null };
   
-    // ────────────────────────────────
-    // 4️⃣ Queue emission to guarantee delivery
-    // ────────────────────────────────
-    // (prevents lost FET when component subscribes slightly later)
-    setTimeout(() => {
-      try {
-        this._byIndex.get(idx)!.next(trimmed || null);
-        this._gate.get(idx)!.next(!!trimmed);
-        console.log(`[ETS] ✅ openExclusive(${idx}) emitted len=${trimmed.length}`);
-      } catch (err) {
-        console.warn('[ETS.openExclusive] emission failed:', err);
-      }
-    }, 150);
+    // emit immediately
+    this._byIndex.get(idx)!.next(trimmed || null);
+    this._gate.get(idx)!.next(!!trimmed);
+  
+    console.log(`[ETS] ✅ openExclusive(${idx}) textLen=${trimmed.length}`);
   }
+  
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
