@@ -485,29 +485,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 8) Per-index explanation / gate — seed cleanly with null/false
     const perIndexExplanation$ = guardedIndex$.pipe(
       switchMap(i => {
-        // Always emit null immediately so question text appears
+        // existing ‘reset then real byIndex$’ path
         const reset$ = of<string | null>(null);
-  
-        // ✅ After a short quarantine, listen ONLY if emission belongs to the active index
         const fresh$ = timer(75).pipe(
-          switchMap(() =>
-            this.explanationTextService.byIndex$(i).pipe(
-              filter((text) => {
-                const active = this.explanationTextService._activeIndex;
-                const isActive = active === i;
-                const valid = text && text.trim().length > 0;
-                if (!isActive) {
-                  console.log(`[FET🚫] Ignoring explanation from Q${i + 1} (active is Q${active + 1})`);
-                }
-                return isActive && valid;
-              }),
-              distinctUntilChanged(),
-              catchError(() => of(null))
-            )
-          )
+          switchMap(() => this.explanationTextService.byIndex$(i)),
+          catchError(() => of(null))
         );
-  
-        return concat(reset$, fresh$);
+    
+        // ✅ NEW: atomic fast-path for this index (wins if present)
+        const fastPath$ = this.explanationTextService.explainNowFor(i).pipe(startWith<string | null>(null));
+    
+        // Prefer fastPath$ when it emits; otherwise fall back to byIndex$
+        return combineLatest([fastPath$, concat(reset$, fresh$)]).pipe(
+          map(([fast, normal]) => (fast !== null ? fast : normal)),
+          distinctUntilChanged()
+        );
       }),
       startWith<string | null>(null),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -616,7 +608,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
-        const validExplanation = gate && shouldShow && explanation?.trim()?.length;
+        const validExplanation = gate && shouldShow && !!explanation?.trim()?.length;
         const wantsExplanation = validExplanation && display.mode === 'explanation';
       
         return wantsExplanation
@@ -624,7 +616,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           : correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-      }),
+      }),      
   
       observeOn(asyncScheduler),
       distinctUntilChanged(),
