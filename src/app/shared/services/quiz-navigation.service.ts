@@ -373,16 +373,6 @@ export class QuizNavigationService {
         const explanation = (fresh?.explanation ?? '').trim();
   
         console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
-  
-        if (explanation) {
-          // 🧠 Delay emission slightly to ensure UI stream is hot
-          this.explanationTextService.openExclusive(index, explanation);
-          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-          console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
-        } else {
-          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-          console.log(`[NAV] ℹ️ no FET for Q${index + 1}`);
-        }
       } catch (err) {
         console.warn('[navigateToQuestion] explanation sequencing failed:', err);
       }
