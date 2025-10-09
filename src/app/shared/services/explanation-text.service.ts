@@ -1082,19 +1082,43 @@ export class ExplanationTextService {
 
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
-    this._activeIndex = index;
-    const trimmed = (formatted ?? '').trim();
+    const trimmed = (formatted ?? '').trim() || null;
+  
+    // 🚫 Close all other indices immediately (no cross-paint)
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== index) {
+        try { subj.next(null); } catch {}
+      }
+    }
+    for (const [k, gate$] of this._gate.entries()) {
+      if (k !== index) {
+        try { gate$.next(false); } catch {}
+      }
+    }
+  
+    // 🎯 Ensure subjects for the target index
     if (!this._byIndex.has(index)) {
       this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     }
     if (!this._gate.has(index)) {
       this._gate.set(index, new BehaviorSubject<boolean>(false));
     }
-    this._byIndex.get(index)!.next(trimmed || null);
-    this._gate.get(index)!.next(!!trimmed);
-    console.log(`[ETS] ✅ openExclusive(${index}) emitted`);
-  }
   
+    // Mark the active index and emit atomically
+    this._activeIndex = index;
+    this._byIndex.get(index)!.next(trimmed);
+    this._gate.get(index)!.next(!!trimmed);
+  
+    // Optional cache update if you keep one
+    if (this.formattedExplanations) {
+      this.formattedExplanations[index] = {
+        questionIndex: index,
+        explanation: trimmed,
+      } as any;
+    }
+  
+    console.log(`[ETS] ✅ openExclusive(${index}) emitted (len=${trimmed?.length ?? 0})`);
+  }
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
