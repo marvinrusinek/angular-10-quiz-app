@@ -3243,45 +3243,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public onSubmitMultiple(): void {
-    console.log('[onSubmitMultiple] clicked', {
-      idx: this.currentQuestionIndex,
-      active: this.explanationTextService._activeIndex
-    });
-    
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
     if (!q) return;
   
-    queueMicrotask(() => {
-      const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
-      const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
-      const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
+    const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
+    const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
+    const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-      try {
-        this.explanationTextService.openExclusive(idx, formatted);
-        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-        console.log(`[onSubmitMultiple] ✅ opened explanation for Q${idx + 1}`);
-      } catch (err) {
-        console.warn('[onSubmitMultiple] openExclusive failed:', err);
-      }
-  
-      this.explanationTextService.setExplanationText(formatted, {
-        context: `question:${idx}`,
-        force: true
-      });
-  
-      try {
-        this.revealFeedbackForAllOptions(q.options ?? []);
-      } catch (err) {
-        console.warn('[onSubmitMultiple] revealFeedbackForAllOptions failed:', err);
-      }
-  
-      this.displayExplanation = true;
-      (this as any).explanationToDisplay = formatted;
-      (this as any).explanationToDisplayChange?.emit(formatted);
-    });
+    this.explanationTextService.openExclusive(idx, formatted);
+    this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
   }
-  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
