@@ -3256,8 +3256,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
   
-      // 🧠 Force Angular to render *immediately*
-      this.cdr.detectChanges();
+      // Force Angular to render *immediately*
+      this.cdRef.detectChanges();
   
       console.log(`[onSubmitMultiple] ✅ FET shown for Q${idx + 1} len=${formatted.length}`);
     });
