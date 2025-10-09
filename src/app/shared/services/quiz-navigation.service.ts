@@ -353,6 +353,7 @@ export class QuizNavigationService {
       // 🧠 Do not open explanation here — only prepare data.
       // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+      console.log(`[NAV-DIAG] getQuestionByIndex(${index}) →`, fresh?.questionText, fresh);
       if (fresh) {
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
