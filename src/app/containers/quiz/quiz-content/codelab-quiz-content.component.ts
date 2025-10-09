@@ -417,21 +417,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const guardedIndex$ = index$.pipe(
       tap(i => {
-        // ✅ Close only the previous index (do NOT clear the incoming one here)
-        if (_lastIdx !== -1 && _lastIdx !== i) {
-          try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
-          try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
-          try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
-        }
-  
+        // ... your existing previous-index cleanup ...
+    
         // Reset display intent for new question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
-        // 🚨 Hard-flush any residual explanation before the new question renders
+    
+        // 🚨 Hard-flush residual FET in the service
         try {
           this.explanationTextService.emitFormatted(i, null);
           this.explanationTextService.setGate(i, false);
           console.log(`[CQCC] 🔄 Flushed residual FET before rendering Q${i + 1}`);
+        } catch {}
+    
+        // ✅ NEW: also clear any local mirrors so nothing stale renders
+        try {
+          (this as any).displayExplanation = false;
+          (this as any).explanationToDisplay = '';
+          (this as any).explanationToDisplayChange?.emit('');
         } catch {}
       }),
       shareReplay({ bufferSize: 1, refCount: true })
