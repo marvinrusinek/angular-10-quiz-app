@@ -3247,12 +3247,61 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const q = this.quizService.questions?.[idx];
     if (!q) return;
   
+    // ────────────────────────────────
+    // 🧩 1. Build formatted explanation text for THIS question
+    // ────────────────────────────────
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    this.explanationTextService.openExclusive(idx, formatted);
-    this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+    // ────────────────────────────────
+    // 🔒 2. Close stale gates immediately (prevents replay of previous FET)
+    // ────────────────────────────────
+    try {
+      this.explanationTextService.closeAll();
+    } catch {}
+  
+    // ────────────────────────────────
+    // ⚡ 3. Atomically open explanation + set display state (same tick)
+    // ────────────────────────────────
+    try {
+      this.explanationTextService.openExclusive(idx, formatted);
+      this.explanationTextService._activeIndex = idx;
+      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+  
+      // Emit display state synchronously before Angular renders again
+      Promise.resolve().then(() => {
+        this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
+      });
+  
+      console.log(`[onSubmitMultiple] ✅ Opened FET for Q${idx + 1}, len=${formatted.length}`);
+    } catch (err) {
+      console.warn('[onSubmitMultiple] openExclusive/display update failed:', err);
+    }
+  
+    // ────────────────────────────────
+    // 🪞 4. Persist explanation for external bindings
+    // ────────────────────────────────
+    try {
+      this.explanationTextService.setExplanationText(formatted, {
+        context: `question:${idx}`,
+        force: true
+      });
+    } catch {}
+  
+    // ────────────────────────────────
+    // 🎯 5. Reveal feedback icons (visual layer)
+    // ────────────────────────────────
+    try {
+      this.revealFeedbackForAllOptions(q.options ?? []);
+    } catch {}
+  
+    // ────────────────────────────────
+    // 🧭 6. Local UI sync (one path only)
+    // ────────────────────────────────
+    this.displayExplanation = true;
+    (this as any).explanationToDisplay = formatted;
+    (this as any).explanationToDisplayChange?.emit(formatted);
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
