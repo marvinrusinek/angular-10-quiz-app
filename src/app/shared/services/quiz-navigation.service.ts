@@ -304,19 +304,20 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     // ────────────────────────────────
-    // 🧩 1. Cleanly reset explanation state for new index
+    // 🧩 1. Reset explanation state (but don't open anything yet)
     // ────────────────────────────────
     try {
+      this.explanationTextService.closeAll();
       this.explanationTextService.resetForIndex(index);
       this.explanationTextService._activeIndex = index;
       this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-      console.log(`[NAV] 🧹 resetForIndex(${index}) called`);
+      console.log(`[NAV] 🧹 resetForIndex(${index}) complete`);
     } catch (err) {
       console.warn('[NAV] ⚠️ resetForIndex failed:', err);
     }
   
     // ────────────────────────────────
-    // 🔒 2. Minimal pre-navigation cleanup (other UI state)
+    // 🔒 2. Minimal pre-navigation cleanup (UI)
     // ────────────────────────────────
     try {
       this.selectedOptionService.resetOptionState(currentIndex);
@@ -351,38 +352,15 @@ export class QuizNavigationService {
   
       await waitForRoute;
   
-      // ────────────────────────────────
-      // ✅ 5. Post-navigation: controlled sequencing for new question + explanation
-      // ────────────────────────────────
-      try {
-        // Wait until QuizService confirms the index switch
-        await firstValueFrom(
-          this.quizService.currentQuestionIndex$.pipe(
-            filter(i => i === index),
-            take(1),
-            timeout(2000),
-            catchError(() => of(index))
-          )
-        );
-  
-        // 🕒 Wait an additional frame (~200ms) to ensure content subscriptions are active
-        await new Promise(resolve => setTimeout(resolve, 200));
-  
-        // Fetch fresh question data
-        const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-        const explanation = (fresh?.explanation ?? '').trim();
-  
-        console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
-      } catch (err) {
-        console.warn('[navigateToQuestion] explanation sequencing failed:', err);
-      }
-  
+      // 🧠 Do not open explanation here — only prepare data.
+      // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
+      const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+      console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
   
-    // Always return true here (after all try/catch blocks close properly)
     return true;
   }
   
