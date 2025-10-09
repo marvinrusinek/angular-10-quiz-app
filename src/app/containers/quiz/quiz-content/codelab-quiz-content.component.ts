@@ -471,13 +471,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       );
   
-    // 6) Baseline question text candidate
-    const baselineText$: Observable<string> = this.questionToDisplay$.pipe(
-      startWith(this.questionLoadingText || ''),
-      map(s => (s ?? '').toString().trim()),
+    // 6) Baseline question text candidate (per index, no stale fallback)
+    const baselineText$: Observable<string> = guardedIndex$.pipe(
+      switchMap(i => {
+        // Immediately emit loading while fetching
+        const loading$ = of(this.questionLoadingText || 'Loading…');
+
+        // Wait for the actual question text for the index
+        const fresh$ = this.quizService.getQuestionByIndex(i).pipe(
+          map(q => (q?.questionText ?? '').trim() || `Question ${i + 1}`),
+          catchError(() => of('Error loading question text'))
+        );
+
+        return concat(loading$, fresh$);
+      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
   
     // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
