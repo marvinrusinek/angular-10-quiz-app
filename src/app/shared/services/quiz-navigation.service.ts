@@ -302,16 +302,14 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
-    
-    this.explanationTextService.resetForIndex(index);
-    this.explanationTextService._activeIndex = index;
-    this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
   
     // ────────────────────────────────
     // 🧩 1. Cleanly reset explanation state for new index
     // ────────────────────────────────
     try {
       this.explanationTextService.resetForIndex(index);
+      this.explanationTextService._activeIndex = index;
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       console.log(`[NAV] 🧹 resetForIndex(${index}) called`);
     } catch (err) {
       console.warn('[NAV] ⚠️ resetForIndex failed:', err);
@@ -321,7 +319,6 @@ export class QuizNavigationService {
     // 🔒 2. Minimal pre-navigation cleanup (other UI state)
     // ────────────────────────────────
     try {
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
@@ -355,29 +352,49 @@ export class QuizNavigationService {
       await waitForRoute;
   
       // ────────────────────────────────
-      // ✅ 5. Post-navigation: fetch fresh question data
+      // ✅ 5. Post-navigation: controlled sequencing for new question + explanation
       // ────────────────────────────────
       try {
+        // Wait until QuizService confirms the index switch
         await firstValueFrom(
           this.quizService.currentQuestionIndex$.pipe(
             filter(i => i === index),
             take(1),
-            timeout(2000)
+            timeout(2000),
+            catchError(() => of(index))
           )
         );
   
+        // Give Angular one microtask tick to render question text
+        await new Promise(resolve => queueMicrotask(resolve));
+  
+        // Fetch fresh question data (guaranteed current)
         const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+        const explanation = (fresh?.explanation ?? '').trim();
+  
         console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
+  
+        // Only open explanation if it actually exists
+        if (explanation) {
+          this.explanationTextService.openExclusive(index, explanation);
+          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+          console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
+        } else {
+          // No explanation yet → stay on question text
+          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+          console.log(`[NAV] ℹ️ no FET for Q${index + 1}`);
+        }
       } catch (err) {
-        console.warn('[navigateToQuestion] post-nav fetch failed:', err);
+        console.warn('[navigateToQuestion] explanation sequencing failed:', err);
       }
+  
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
   
     return true;
-  }  
+  }
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
