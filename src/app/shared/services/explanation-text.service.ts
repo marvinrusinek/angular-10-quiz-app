@@ -1082,35 +1082,54 @@ export class ExplanationTextService {
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
-    const trimmed = (formatted ?? '').trim() || null;
+    const trimmed = (formatted ?? '').trim();
   
-    // ─────────── clear any stale subjects for ALL other indices
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) subj.next(null);
-    }
-    for (const [k, gate] of this._gate.entries()) {
-      if (k !== idx) gate.next(false);
-    }
-  
-    // ─────────── guarantee subjects for this index exist
-    if (!this._byIndex.has(idx))
+    // ────────────────────────────────
+    // 1️⃣ Guarantee subjects exist
+    // ────────────────────────────────
+    if (!this._byIndex.has(idx)) {
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(idx))
+    }
+    if (!this._gate.has(idx)) {
       this._gate.set(idx, new BehaviorSubject<boolean>(false));
+    }
   
-    // ─────────── update service state atomically
+    // ────────────────────────────────
+    // 2️⃣ Close all other indices immediately
+    // ────────────────────────────────
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) {
+        try { subj.next(null); } catch {}
+      }
+    }
+    for (const [k, gate$] of this._gate.entries()) {
+      if (k !== idx) {
+        try { gate$.next(false); } catch {}
+      }
+    }
+  
+    // ────────────────────────────────
+    // 3️⃣ Update cache + active index
+    // ────────────────────────────────
     this._activeIndex = idx;
-    this._byIndex.get(idx)!.next(trimmed);
-    this._gate.get(idx)!.next(!!trimmed);
-  
-    // ─────────── store formatted explanation per-index
-    if (!this.formattedExplanations) this.formattedExplanations = {};
     this.formattedExplanations[idx] = {
       questionIndex: idx,
-      explanation: trimmed
+      explanation: trimmed || null
     };
   
-    console.log(`[ETS] ✅ openExclusive(${idx}) len=${trimmed?.length ?? 0}`);
+    // ────────────────────────────────
+    // 4️⃣ Queue emission to guarantee delivery
+    // ────────────────────────────────
+    // (prevents lost FET when component subscribes slightly later)
+    setTimeout(() => {
+      try {
+        this._byIndex.get(idx)!.next(trimmed || null);
+        this._gate.get(idx)!.next(!!trimmed);
+        console.log(`[ETS] ✅ openExclusive(${idx}) emitted len=${trimmed.length}`);
+      } catch (err) {
+        console.warn('[ETS.openExclusive] emission failed:', err);
+      }
+    }, 150);
   }
   
   public closeOthersExcept(index: number): void {
