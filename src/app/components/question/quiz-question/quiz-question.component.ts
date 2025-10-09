@@ -3244,24 +3244,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
-    const q = this.quizService.questions?.[idx];
+    const q   = this.quizService.questions?.[idx];
     if (!q) return;
   
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // 🚀 Atomic, single-tick: opens text, gate, flag, and fires fast-path
-    this.explanationTextService.triggerExplainNow(idx, formatted);
+    // 👇 ensure Angular reacts on first emission
+    this.ngZone.run(() => {
+      this.explanationTextService.openExclusive(idx, formatted);
+      this.explanationTextService._activeIndex = idx;
+      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
   
-    // Optional local mirrors (won’t cause flicker anymore)
-    this.displayExplanation = true;
-    (this as any).explanationToDisplay = formatted;
-    (this as any).explanationToDisplayChange?.emit(formatted);
+      this.displayExplanation = true;
+      (this as any).explanationToDisplay = formatted;
+      (this as any).explanationToDisplayChange?.emit(formatted);
+    });
   
     try { this.revealFeedbackForAllOptions(q.options ?? []); } catch {}
-
-    this.cdRef.detectChanges();
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
