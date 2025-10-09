@@ -3243,76 +3243,40 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public onSubmitMultiple(): void {
-    // Always derive the current index directly from the service
-    const idx = this.quizService.getCurrentQuestionIndex();
+    const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
     if (!q) return;
   
-    // ────────────────────────────────
-    // 🧩 1. Build formatted explanation text for THIS question
-    // ────────────────────────────────
-    const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
-    const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
-    const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
+    queueMicrotask(() => {
+      const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
+      const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
+      const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // ────────────────────────────────
-    // 🔐 2. Align service state BEFORE emitting (critical)
-    // ────────────────────────────────
-    try {
-      this.explanationTextService._activeIndex = idx; // ensure correct ownership
-    } catch (err) {
-      console.warn('[onSubmitMultiple] failed to set active index:', err);
-    }
+      try {
+        this.explanationTextService.openExclusive(idx, formatted);
+        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+        console.log(`[onSubmitMultiple] ✅ opened explanation for Q${idx + 1}`);
+      } catch (err) {
+        console.warn('[onSubmitMultiple] openExclusive failed:', err);
+      }
   
-    // ────────────────────────────────
-    // 🔒 3. Open exclusive gate for this question only (atomic emit)
-    // ────────────────────────────────
-    try {
-      this.explanationTextService.openExclusive(idx, formatted);
-    } catch (err) {
-      console.warn('[onSubmitMultiple] openExclusive failed:', err);
-    }
-  
-    // ────────────────────────────────
-    // 💡 4. Switch display state to explanation mode
-    // ────────────────────────────────
-    try {
-      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-    } catch (err) {
-      console.warn('[onSubmitMultiple] display state update failed:', err);
-    }
-  
-    // ────────────────────────────────
-    // 🪞 5. Persist formatted explanation for external components
-    // ────────────────────────────────
-    try {
       this.explanationTextService.setExplanationText(formatted, {
         context: `question:${idx}`,
         force: true
       });
-    } catch (err) {
-      console.warn('[onSubmitMultiple] setExplanationText failed:', err);
-    }
   
-    // ────────────────────────────────
-    // 🎯 6. Reveal feedback icons for all options
-    // ────────────────────────────────
-    try {
-      this.revealFeedbackForAllOptions(q.options ?? []);
-    } catch (err) {
-      console.warn('[onSubmitMultiple] revealFeedbackForAllOptions failed:', err);
-    }
+      try {
+        this.revealFeedbackForAllOptions(q.options ?? []);
+      } catch (err) {
+        console.warn('[onSubmitMultiple] revealFeedbackForAllOptions failed:', err);
+      }
   
-    // ────────────────────────────────
-    // 🧭 7. Sync local UI (single controlled path)
-    // ────────────────────────────────
-    this.displayExplanation = true;
-    (this as any).explanationToDisplay = formatted;
-    (this as any).explanationToDisplayChange?.emit(formatted);
-  
-    console.log(`[onSubmitMultiple] ✅ Q${idx + 1} explanation displayed (len=${formatted.length})`);
+      this.displayExplanation = true;
+      (this as any).explanationToDisplay = formatted;
+      (this as any).explanationToDisplayChange?.emit(formatted);
+    });
   }
+  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
