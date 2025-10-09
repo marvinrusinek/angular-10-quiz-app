@@ -311,15 +311,18 @@ export class QuizNavigationService {
     } catch {}
   
     try {
-      // 🧹 Clean up all relevant quiz state before navigation
+      // Reset first to wipe stale FET before route change
       this.explanationTextService.resetForIndex(index);
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+
+      // Wait briefly so resets propagate through BehaviorSubjects
+      await new Promise(res => setTimeout(res, 100));
+
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
-  
-      // 🚫 Explicitly clear explanation visibility BEFORE route begins
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-      console.log(`[NAV] 🧹 resetForIndex(${index}) + display cleared`);
+
+      console.log(`[NAV] 🧹 Reset + delay complete before route`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
     }
