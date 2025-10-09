@@ -1153,33 +1153,21 @@ export class ExplanationTextService {
 
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // Close every existing index first
-    for (const [k, subj] of this._byIndex.entries()) {
-      try { subj.next(null); } catch {}
-    }
-    for (const [k, gate] of this._gate.entries()) {
-      try { gate.next(false); } catch {}
+    // Close previous active index completely
+    if (this._activeIndex !== -1 && this._activeIndex !== index) {
+      const prev = this._activeIndex;
+      try { this._byIndex.get(prev)?.next(null); } catch {}
+      try { this._gate.get(prev)?.next(false); } catch {}
+      if (this.formattedExplanations?.[prev]) delete this.formattedExplanations[prev];
+      console.log(`[ETS] 🧹 Cleared previous FET cache for Q${prev + 1}`);
     }
   
-    // Reset active index
+    // Ensure subjects for new index
+    if (!this._byIndex.has(index)) this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(index)) this._gate.set(index, new BehaviorSubject<boolean>(false));
+  
     this._activeIndex = index;
-  
-    // Ensure BehaviorSubjects exist for this index
-    if (!this._byIndex.has(index)) {
-      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(index)) {
-      this._gate.set(index, new BehaviorSubject<boolean>(false));
-    }
-  
-    // Guarantee the formatted cache is clean
-    if (this.formattedExplanations) {
-      this.formattedExplanations[index] = {
-        questionIndex: index,
-        explanation: null
-      };
-    }
-  
+    this.formattedExplanations[index] = { questionIndex: index, explanation: null };
     console.log(`[ETS] 🔁 resetForIndex(${index}) complete`);
   }  
 
