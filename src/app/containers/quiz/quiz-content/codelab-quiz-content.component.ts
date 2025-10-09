@@ -681,25 +681,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
       
-        const isCurrentIdx = idx === this.quizService.getCurrentQuestionIndex();
-        const isActiveIdx  = idx === (this.explanationTextService._activeIndex ?? -1);
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
+        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
       
-        // Only allow explanation when all guards pass
+        // Only allow explanation when all guards pass AND explanation text exists
         const validExplanation =
-          isCurrentIdx &&
-          isActiveIdx &&
-          gate &&
-          shouldShow &&
+          idx === currentIdx &&
+          idx === activeIdx &&
+          gate === true &&
+          shouldShow === true &&
           !!explanation?.trim()?.length;
       
-        const wantsExplanation =
-          validExplanation && display.mode === 'explanation';
+        const wantsExplanation = validExplanation && display.mode === 'explanation';
       
-        return wantsExplanation
-          ? explanation!.trim()
-          : correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
+        // NEW: fallback guard — if not valid, ensure question text always shows
+        if (!wantsExplanation) {
+          return correct
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+        }
+      
+        // Only if everything passes → explanation text
+        return explanation!.trim();
       }),
   
       observeOn(asyncScheduler),
