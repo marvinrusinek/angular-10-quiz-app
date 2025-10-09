@@ -549,7 +549,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       // Prevent render while frozen — allow first question paint
       filter(([, , , , , , , frozen]) => frozen === false),
-  
+
       // Cross-index quarantine (must run BEFORE scan)
       map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
         const active = this.explanationTextService._activeIndex ?? idx;
@@ -588,23 +588,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }, { map: new Map(), latest: [] as any }),
       map((s: any) => s.latest),
 
-      // 🕒 Small debounce to allow gate/shouldShow to sync
-      debounceTime(60),
-  
-      // 11) Map final output text
+      // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
+      debounceTime(120),
+
+      // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(idx, baseline);
         const validExplanation = gate && shouldShow && explanation?.trim()?.length;
         const wantsExplanation =
           validExplanation && display.mode === 'explanation';
-  
+
         return wantsExplanation
           ? explanation!.trim()
           : correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
       }),
-  
+
       observeOn(asyncScheduler),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
