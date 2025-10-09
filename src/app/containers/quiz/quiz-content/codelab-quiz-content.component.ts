@@ -488,26 +488,37 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // 8) Per-index explanation / gate — seed cleanly with null/false
+    // 8) Per-index explanation / gate — ensure *fresh* subscription every time
     const perIndexExplanation$ = guardedIndex$.pipe(
       switchMap(i => {
-        // 🧹 Emit null twice — immediately and again after 50 ms — to wipe old FET before new question text paints
-        const hardReset$ = concat(
-          of<string | null>(null),
-          timer(50).pipe(mapTo(null))
+        console.log(`[CQCC] 🔁 Switching to index ${i}`);
+
+        // 💥 create a *cold* observable that never replays the previous index's value
+        return defer(() => 
+          concat(
+            // Emit null immediately so question text paints first
+            of<string | null>(null),
+            // Listen only to the explanation stream for this specific index
+            this.explanationTextService.byIndex$(i).pipe(
+              filter(text => {
+                const isValid = !!text && text.trim().length > 0;
+                if (isValid) console.log(`[CQCC] ✅ Explanation emitted for Q${i + 1} (len=${text.length})`);
+                return isValid;
+              }),
+              distinctUntilChanged(),
+              catchError(err => {
+                console.warn(`[CQCC] ⚠️ byIndex$ failed for Q${i + 1}`, err);
+                return of(null);
+              })
+            )
+          )
         );
-    
-        // 🎯 Then start listening for the explanation stream of the *new* question only
-        const fresh$ = this.explanationTextService.byIndex$(i).pipe(
-          filter(text => !!text && text.trim().length > 0),
-          distinctUntilChanged(),
-          catchError(() => of(null))
-        );
-    
-        return concat(hardReset$, fresh$);
       }),
       startWith<string | null>(null),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
   
     const perIndexGate$ = guardedIndex$.pipe(
       switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
