@@ -988,15 +988,25 @@ export class ExplanationTextService {
 
   // Canonical per-index observable (null when nothing valid yet)
   public byIndex$(index: number): Observable<string | null> {
-    // 🧩 Ensure subject always exists for this index
-    if (!this._byIndex.has(index)) {
+    // 🧩 Defensive: ensure the map always exists
+    if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
+  
+    // 🧩 Ensure a subject exists for this index
+    if (!this._byIndex.has(index) || !(this._byIndex.get(index) instanceof BehaviorSubject)) {
       this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     }
   
     const subj = this._byIndex.get(index);
-    // 🧠 Always return an Observable — never undefined
-    return subj ? subj.asObservable() : of(null);
+  
+    // 🧠 Always return a valid Observable
+    if (!subj) {
+      console.warn(`[ETS] ⚠️ byIndex$(${index}) missing subject, returning null stream`);
+      return of(null);
+    }
+  
+    return subj.asObservable();
   }
+  
 
   // Back-compat aliases (optional): keep calls working but funnel to byIndex$
   public getFormattedStreamFor(index: number): Observable<string | null> {

@@ -546,6 +546,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith({ idx: 0, quarantined: false }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    console.log('[CQCC sanity check]', {
+      guardedIndex$: typeof guardedIndex$,
+      display$: typeof display$,
+      shouldShow$: typeof shouldShow$,
+      baselineText$: typeof baselineText$,
+      correctText$: typeof correctText$,
+      perIndexExplanation$: typeof perIndexExplanation$,
+      perIndexGate$: typeof perIndexGate$,
+      indexFreeze$: typeof indexFreeze$,
+      explanationQuarantine$: typeof explanationQuarantine$
+    });
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
     this.combinedText$ = combineLatest<
