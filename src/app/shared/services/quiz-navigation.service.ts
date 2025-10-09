@@ -305,12 +305,11 @@ export class QuizNavigationService {
   
     // 🧩 1. Reset explanation state (but don't open anything yet)
     try {
-      this.explanationTextService.resetForIndex(index);
-      console.log(`[NAV] 🧹 resetForIndex(${index}) complete`);
+      this.explanationTextService.hardSwitchToIndex(index);
     } catch (err) {
-      console.warn('[NAV] ⚠️ resetForIndex failed:', err);
+      console.warn('[NAV] ⚠️ hardSwitchToIndex failed:', err);
     }
-  
+    
     // 🔒 2. Minimal pre-navigation cleanup (UI)
     try {
       this.selectedOptionService.resetOptionState(currentIndex);

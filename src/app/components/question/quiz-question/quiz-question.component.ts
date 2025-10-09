@@ -3250,17 +3250,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
-  
-    this.ngZone.run(() => {
+
+    setTimeout(() => {
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-  
-      // Force Angular to render *immediately*
-      this.cdRef.detectChanges();
-  
-      console.log(`[onSubmitMultiple] ✅ FET shown for Q${idx + 1} len=${formatted.length}`);
-    });
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+      console.log(`[onSubmitMultiple] ✅ opened FET for Q${idx + 1}`);
+    }, 50);
+    this.cdRef.detectChanges();
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
