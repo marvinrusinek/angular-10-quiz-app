@@ -3264,7 +3264,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       });
     
       // optional: force immediate detection
-      this.cdr.detectChanges();
+      this.cdRef.detectChanges();
     } catch (err) {
       console.warn('[onSubmitMultiple] openExclusive sequencing failed:', err);
     }
