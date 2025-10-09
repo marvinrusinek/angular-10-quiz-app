@@ -1082,46 +1082,36 @@ export class ExplanationTextService {
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
     const idx = Math.max(0, Number(index) || 0);
+    const trimmed = (formatted ?? '').trim() || null;
   
-    // ────────────────────────────────
-    // 💣 HARD CLEAR: remove every stale entry first
-    // ────────────────────────────────
-    for (const [k] of this._byIndex.entries()) {
-      try { this._byIndex.get(k)?.next(null); } catch {}
+    // ─────────── clear any stale subjects for ALL other indices
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) subj.next(null);
     }
-    for (const [k] of this._gate.entries()) {
-      try { this._gate.get(k)?.next(false); } catch {}
+    for (const [k, gate] of this._gate.entries()) {
+      if (k !== idx) gate.next(false);
     }
   
-    // ────────────────────────────────
-    // 🔐 Create fresh subjects for this index
-    // ────────────────────────────────
+    // ─────────── guarantee subjects for this index exist
     if (!this._byIndex.has(idx))
       this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     if (!this._gate.has(idx))
       this._gate.set(idx, new BehaviorSubject<boolean>(false));
   
-    // ────────────────────────────────
-    // ✅ Activate only the current index
-    // ────────────────────────────────
+    // ─────────── update service state atomically
     this._activeIndex = idx;
-  
-    const trimmed = (formatted ?? '').trim();
-    this._byIndex.get(idx)!.next(trimmed || null);
+    this._byIndex.get(idx)!.next(trimmed);
     this._gate.get(idx)!.next(!!trimmed);
   
-    // ────────────────────────────────
-    // 🧠 Ensure formattedExplanations map is per-index
-    // ────────────────────────────────
+    // ─────────── store formatted explanation per-index
     if (!this.formattedExplanations) this.formattedExplanations = {};
     this.formattedExplanations[idx] = {
       questionIndex: idx,
-      explanation: trimmed || null
-    };    
+      explanation: trimmed
+    };
   
-    console.log(`[ETS] ✅ openExclusive(${idx}) len=${trimmed.length}`);
+    console.log(`[ETS] ✅ openExclusive(${idx}) len=${trimmed?.length ?? 0}`);
   }
-  
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
