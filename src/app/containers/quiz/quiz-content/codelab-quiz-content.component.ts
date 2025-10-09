@@ -571,30 +571,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         },
         { map: new Map(), latest: [] as any }
       ),
+      // 🧩 Stabilize cross-index emissions
       map((s: any) =>
-        s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+      s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
       ),
+
+      // ✅ Guard so we only emit if explanation belongs to the active index
+      filter(([idx]) => idx === this.explanationTextService._activeIndex),
   
-      // 🧩 Synchronization barrier — waits until explanation, gate, and shouldShow agree
-      switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
-        const sync$ = combineLatest([
+      // 🕒 Smart synchronization: wait until explanation + shouldShow + gate align
+      switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+        const explanationReady$ = combineLatest([
           of(idx),
           of(display),
           of(shouldShow),
           of(baseline),
           of(correct),
-          of(explanation),
           of(gate),
-          of(frozen),
-          this.explanationTextService.shouldDisplayExplanation$.pipe(take(1)), // confirmation of latest flag
-        ]).pipe(
-          delay(50), // allow render queue + service emissions to settle
-          map(([idx2, display2, shouldShow2, baseline2, correct2, explanation2, gate2]) =>
-            [idx2, display2, shouldShow2, baseline2, correct2, explanation2, gate2] as const
+          this.explanationTextService.byIndex$(idx).pipe(
+            filter(text => !!text && text.trim().length > 0),
+            take(1),                              // wait for first valid text
+            timeout({ each: 1500, with: () => of(null) })
           )
+        ]).pipe(
+          map(([i, d, s, b, c, g, e]) => [i, d, s, b, c, e, g] as const),
+          catchError(() => of([idx, display, shouldShow, baseline, correct, explanation, gate] as const))
         );
-        return sync$;
+
+        return explanationReady$;
       }),
+
+      // 🕒 Gentle debounce to merge UI updates
+      debounceTime(80),
   
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
