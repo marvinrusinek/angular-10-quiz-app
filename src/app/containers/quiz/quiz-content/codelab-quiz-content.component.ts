@@ -470,23 +470,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 8) Per-index explanation / gate — seed cleanly with null/false
     const perIndexExplanation$ = guardedIndex$.pipe(
-      switchMap(i => {
-        // Always emit null immediately so question text appears
-        const reset$ = of<string | null>(null);
-    
-        // After a short quarantine, start listening for actual explanations
-        const fresh$ = timer(75).pipe(
-          switchMap(() =>
-            this.explanationTextService.byIndex$(i).pipe(
-              distinctUntilChanged(),
-              catchError(() => of(null))
-            )
-          )
-        );
-    
-        return concat(reset$, fresh$);
-      }),
-      startWith<string | null>(null),
+      switchMap(i =>
+        this.explanationTextService.byIndex$(i).pipe(
+          startWith<string | null>(null),
+          // 🧩 Only emit if index matches the service’s active index
+          filter(() => i === this.explanationTextService._activeIndex)
+        )
+      ),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
@@ -575,11 +566,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
       // 11) Map final output text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(idx, baseline);
+        const question = this.quizService.questions?.[idx]?.questionText ?? baseline ?? 'Loading…';
+      
+        // 🚫 Skip invalid explanation (wrong index or empty)
+        if (idx !== this.explanationTextService._activeIndex) {
+          return `${question} <span class="correct-count">${correct}</span>`;
+        }
+      
         const validExplanation = gate && shouldShow && explanation?.trim()?.length;
-        const wantsExplanation =
-          validExplanation && display.mode === 'explanation';
-  
+        const wantsExplanation = validExplanation && display.mode === 'explanation';
+      
         return wantsExplanation
           ? explanation!.trim()
           : correct
