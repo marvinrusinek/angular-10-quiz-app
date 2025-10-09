@@ -487,37 +487,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 8) Per-index explanation / gate — seed cleanly with null/false
-    // 8) Per-index explanation / gate — ensure *fresh* subscription every time
+    // 8) Per-index explanation stream — hard-reset on every index switch
     const perIndexExplanation$ = guardedIndex$.pipe(
       switchMap(i => {
-        console.log(`[CQCC] 🔁 Switching to index ${i}`);
+        console.log(`[CQCC] 🔁 Switched to index ${i}`);
 
-        // 💥 create a *cold* observable that never replays the previous index's value
-        return defer(() => 
-          concat(
-            // Emit null immediately so question text paints first
-            of<string | null>(null),
-            // Listen only to the explanation stream for this specific index
+        // 1️⃣ Immediate null emit to wipe previous explanation
+        const reset$ = of<string | null>(null);
+
+        // 2️⃣ After 150 ms, start listening for fresh explanation (only for this index)
+        const fresh$ = timer(150).pipe(
+          switchMap(() =>
             this.explanationTextService.byIndex$(i).pipe(
+              tap(text =>
+                console.log(`[CQCC] 📖 byIndex$(${i}) =>`, text ? text.slice(0, 60) : 'null')
+              ),
+              // Ignore anything from a *different* index (e.g. stale replay)
               filter(text => {
-                const isValid = !!text && text.trim().length > 0;
-                if (isValid) console.log(`[CQCC] ✅ Explanation emitted for Q${i + 1} (len=${text.length})`);
-                return isValid;
+                const active = this.explanationTextService._activeIndex;
+                const valid = !!text && text.trim().length > 0 && active === i;
+                if (!valid && text)
+                  console.log(
+                    `[CQCC] 🚫 Ignored stale FET from Q${active + 1} while on Q${i + 1}`
+                  );
+                return valid;
               }),
               distinctUntilChanged(),
-              catchError(err => {
-                console.warn(`[CQCC] ⚠️ byIndex$ failed for Q${i + 1}`, err);
-                return of(null);
-              })
+              catchError(() => of(null))
             )
           )
         );
+
+        // 3️⃣ Concatenate reset then fresh stream
+        return concat(reset$, fresh$);
       }),
       startWith<string | null>(null),
-      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
 
   
     const perIndexGate$ = guardedIndex$.pipe(
