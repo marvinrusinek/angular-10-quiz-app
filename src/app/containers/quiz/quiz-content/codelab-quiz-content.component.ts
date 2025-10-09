@@ -471,27 +471,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       );
   
-    // 6) Baseline question text candidate (strongly synchronized per index)
+    // 6) Baseline question text candidate (force fresh emission per index)
     const baselineText$: Observable<string> = guardedIndex$.pipe(
       switchMap(i => {
-        // Wait 120ms to ensure quizService.questions[] is updated after navigation
-        return timer(120).pipe(
-          switchMap(() =>
-            from(this.quizService.getQuestionByIndex(i)).pipe(
-              map(q => {
-                const txt = (q?.questionText ?? '').trim();
-                console.log(`[CQCC] 🧠 baselineText$ Q${i + 1}: "${txt || '(missing)'}"`);
-                return txt || `Question ${i + 1}`;
-              }),
-              startWith('Loading question...'),
-              catchError(() => of(`Question ${i + 1}`))
-            )
-          )
+        console.log(`[CQCC] 🧠 baselineText$ starting for Q${i + 1}`);
+        return defer(async () => {
+          // force refresh from service, NOT from old array
+          const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(i));
+          const text = (fresh?.questionText ?? '').trim() || `Question ${i + 1}`;
+          console.log(`[CQCC] ✅ baselineText$ emitted for Q${i + 1}: "${text}"`);
+          return text;
+        }).pipe(
+          catchError(err => {
+            console.warn(`[CQCC] ⚠️ baselineText$ failed for Q${i + 1}`, err);
+            return of(`Question ${i + 1}`);
+          })
         );
       }),
+      startWith('Loading question...'),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
 
 
   
