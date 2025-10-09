@@ -417,25 +417,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const guardedIndex$ = index$.pipe(
       tap(i => {
-        // 🔥 HARD RESET: wipe any stale explanation before the new index streams start
-        try {
-          this.explanationTextService.emitFormatted(i, null);
-          this.explanationTextService.setGate(i, false);
-        } catch {}
-    
-        // Close only the previous index
+        // ✅ Close only the previous index (do NOT clear the incoming one here)
         if (_lastIdx !== -1 && _lastIdx !== i) {
           try { this.explanationTextService.setGate(_lastIdx, false); } catch {}
           try { this.explanationTextService.emitFormatted(_lastIdx, null); } catch {}
           try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
-    
+  
+        // ❌ removed the "HARD RESET" for the new index `i` to avoid racing with its first FET
+        // try { this.explanationTextService.emitFormatted(i, null); } catch {}
+        // try { this.explanationTextService.setGate(i, false); } catch {}
+  
         // Reset display intent for new question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
       }),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
   
     // 3) Freeze: true immediately after index change, then false on next microtask
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
@@ -451,10 +449,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith({ mode: 'question', answered: false } as DisplayState),
       map(v => {
         const s = (v as any) ?? {};
-        const mode: 'question' | 'explanation' =
-          s.mode === 'explanation' ? 'explanation' : 'question';
-        const answered: boolean =
-          typeof s.answered === 'boolean' ? s.answered : false;
+        const mode: 'question' | 'explanation' = s.mode === 'explanation' ? 'explanation' : 'question';
+        const answered: boolean = typeof s.answered === 'boolean' ? s.answered : false;
         return { mode, answered } as DisplayState;
       }),
       distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered),
@@ -481,7 +477,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
       map(s => (s ?? '').toString().trim()),
-      startWith(''), // ensure first emission exists
+      startWith(''),  // ensure first emission exists
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -491,17 +487,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       switchMap(i => {
         // Always emit null immediately so question text appears
         const reset$ = of<string | null>(null);
-    
-        // After a short quarantine, start listening for actual explanations
+  
+        // ✅ After a short quarantine, listen ONLY if emission belongs to the active index
         const fresh$ = timer(75).pipe(
           switchMap(() =>
             this.explanationTextService.byIndex$(i).pipe(
+              filter(() => i === this.explanationTextService._activeIndex),  // <— key filter
               distinctUntilChanged(),
               catchError(() => of(null))
             )
           )
         );
-    
+  
         return concat(reset$, fresh$);
       }),
       startWith<string | null>(null),
@@ -509,9 +506,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     const perIndexGate$ = guardedIndex$.pipe(
-      switchMap(i =>
-        this.explanationTextService.gate$(i).pipe(startWith(false))
-      ),
+      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
       auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -521,97 +516,80 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
       const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
       const model = (q?.questionText ?? '').toString().trim();
-      const base = (baseline ?? '').toString().trim();
+      const base  = (baseline ?? '').toString().trim();
       return model || base || this.questionLoadingText || 'Loading…';
     };
   
     // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
     this.combinedText$ = combineLatest<
-    [
-      number,
-      DisplayState,
-      boolean,
-      string,
-      string,
-      string | null,
-      boolean,
-      boolean
-    ]
-  >([
-    guardedIndex$,
-    display$,
-    shouldShow$,
-    baselineText$,
-    correctText$,
-    perIndexExplanation$,
-    perIndexGate$,
-    indexFreeze$
-  ]).pipe(
-    // Prevent render while frozen — allow first question paint
-    filter(([, , , , , , , frozen]) => frozen === false),
-
-    // Cross-index quarantine (must run BEFORE scan)
-    map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
-      const active = this.explanationTextService._activeIndex ?? idx;
-
-      // Ignore any explanation that belongs to a different index during transition
-      const foreignExpl =
-        active !== idx && explanation && explanation.trim().length > 0;
-      const safeExplanation = foreignExpl ? null : explanation;
-
-      return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen];
-    }),
-
-    // Hold the last valid explanation per index to prevent cross-paint
-    scan((store, curr) => {
-      const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
-
-      if (!store.map) store.map = new Map<number, string | null>();
-      const lastForIdx = store.map.get(idx) ?? null;
-      const newExpl =
-        explanation && explanation.trim().length > 0
-          ? explanation.trim()
-          : lastForIdx;
-
-      store.map.set(idx, newExpl);
-      store.latest = [
-        idx,
-        display,
-        shouldShow,
-        baseline,
-        correct,
-        newExpl,
-        gate,
-        frozen
-      ];
-      return store;
-    }, { map: new Map(), latest: [] as any }),
-    map((s: any) => s.latest),
-
-    // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
-    debounceTime(120),
-
-    // Final mapping to actual display text
-    map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-      const question = canonicalQuestionFor(idx, baseline);
-      const validExplanation = gate && shouldShow && explanation?.trim()?.length;
-      const wantsExplanation =
-        validExplanation && display.mode === 'explanation';
-
-      return wantsExplanation
-        ? explanation!.trim()
-        : correct
-        ? `${question} <span class="correct-count">${correct}</span>`
-        : question;
-    }),
-
-    observeOn(asyncScheduler),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true })
-  );
-
+      [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+    >([
+      guardedIndex$,
+      display$,
+      shouldShow$,
+      baselineText$,
+      correctText$,
+      perIndexExplanation$,
+      perIndexGate$,
+      indexFreeze$
+    ]).pipe(
+      // Prevent render while frozen — allow first question paint
+      filter(([, , , , , , , frozen]) => frozen === false),
+  
+      // Cross-index quarantine (must run BEFORE scan)
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
+        const active = this.explanationTextService._activeIndex ?? idx;
+        const foreignExpl = active !== idx && explanation && explanation.trim().length > 0;
+        const safeExplanation = foreignExpl ? null : explanation;
+        return [idx, display, shouldShow, baseline, correct, safeExplanation, gate, frozen] as const;
+      }),
+  
+      // Hold the last valid explanation per index to prevent cross-paint
+      scan(
+        (
+          store: { map: Map<number, string | null>; latest: any },
+          curr: readonly [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+        ) => {
+          const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
+          if (!store.map) store.map = new Map<number, string | null>();
+          const lastForIdx = store.map.get(idx) ?? null;
+          const newExpl =
+            explanation && explanation.trim().length > 0 ? explanation.trim() : lastForIdx;
+  
+          store.map.set(idx, newExpl);
+          store.latest = [idx, display, shouldShow, baseline, correct, newExpl, gate, frozen];
+          return store;
+        },
+        { map: new Map(), latest: [] as any }
+      ),
+      map((s: any) =>
+        s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+      ),
+  
+      // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
+      debounceTime(120),
+  
+      // Final mapping to actual display text
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+        const question = canonicalQuestionFor(idx, baseline);
+        const validExplanation = gate && shouldShow && !!explanation?.trim()?.length;
+        const wantsExplanation = validExplanation && display.mode === 'explanation';
+  
+        return wantsExplanation
+          ? explanation!.trim()
+          : correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
+      }),
+  
+      observeOn(asyncScheduler),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
     return this.combinedText$;
-  }  
+  }
+   
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
