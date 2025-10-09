@@ -630,15 +630,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
-        const validExplanation = gate && shouldShow && !!explanation?.trim()?.length;
-        const wantsExplanation = validExplanation && display.mode === 'explanation';
+      
+        const isCurrentIdx = idx === this.quizService.getCurrentQuestionIndex();
+        const isActiveIdx  = idx === (this.explanationTextService._activeIndex ?? -1);
+      
+        // Only allow explanation when all guards pass
+        const validExplanation =
+          isCurrentIdx &&
+          isActiveIdx &&
+          gate &&
+          shouldShow &&
+          !!explanation?.trim()?.length;
+      
+        const wantsExplanation =
+          validExplanation && display.mode === 'explanation';
       
         return wantsExplanation
           ? explanation!.trim()
           : correct
           ? `${question} <span class="correct-count">${correct}</span>`
           : question;
-      }),      
+      }),
   
       observeOn(asyncScheduler),
       distinctUntilChanged(),
