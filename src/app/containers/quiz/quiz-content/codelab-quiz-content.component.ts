@@ -600,7 +600,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const question = canonicalQuestionFor(idx, baseline);
+        const question = canonicalQuestionFor(Number(idx), baseline);
         const validExplanation = gate && shouldShow && !!explanation?.trim()?.length;
         const wantsExplanation = validExplanation && display.mode === 'explanation';
       
