@@ -365,22 +365,23 @@ export class QuizNavigationService {
           )
         );
   
-        // Give Angular one microtask tick to render question text
-        await new Promise(resolve => queueMicrotask(resolve));
+        // 🕒 Wait an additional frame (~200ms) to ensure content subscriptions are active
+        await new Promise(resolve => setTimeout(resolve, 200));
   
-        // Fetch fresh question data (guaranteed current)
+        // Fetch fresh question data
         const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
         const explanation = (fresh?.explanation ?? '').trim();
   
         console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
   
-        // Only open explanation if it actually exists
         if (explanation) {
-          this.explanationTextService.openExclusive(index, explanation);
-          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-          console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
+          // 🧠 Delay emission slightly to ensure UI stream is hot
+          setTimeout(() => {
+            this.explanationTextService.openExclusive(index, explanation);
+            this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+            console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
+          }, 150);
         } else {
-          // No explanation yet → stay on question text
           this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
           console.log(`[NAV] ℹ️ no FET for Q${index + 1}`);
         }
@@ -393,6 +394,7 @@ export class QuizNavigationService {
       return false;
     }
   
+    // ✅ Always return true here (after all try/catch blocks close properly)
     return true;
   }
   
