@@ -1082,33 +1082,19 @@ export class ExplanationTextService {
 
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
-    const idx = Math.max(0, Number(index) || 0);
-  
-    // 🚫 Prevent stale emissions: close everything first
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== idx) {
-        try { subj.next(null); } catch {}
-      }
-    }
-    for (const [k, gate] of this._gate.entries()) {
-      if (k !== idx) {
-        try { gate.next(false); } catch {}
-      }
-    }
-  
-    // ✅ Guarantee subjects for this index
-    if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(idx)) this._gate.set(idx, new BehaviorSubject<boolean>(false));
-  
-    this._activeIndex = idx;
+    this._activeIndex = index;
     const trimmed = (formatted ?? '').trim();
-  
-    // 🧠 Emit explanation & gate simultaneously (no micro-gap)
-    this._gate.get(idx)!.next(!!trimmed);
-    this._byIndex.get(idx)!.next(trimmed || null);
-  
-    console.log(`[ETS] ✅ openExclusive(${idx}) textLen=${trimmed.length}`);
+    if (!this._byIndex.has(index)) {
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    }
+    if (!this._gate.has(index)) {
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
+    }
+    this._byIndex.get(index)!.next(trimmed || null);
+    this._gate.get(index)!.next(!!trimmed);
+    console.log(`[ETS] ✅ openExclusive(${index}) emitted`);
   }
+  
   
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);

@@ -533,15 +533,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       filter(([, , , , , , , frozen]) => frozen === false),
       delayWhen(([, , , , , , , frozen]) => frozen ? of(null) : timer(150)),
 
-      // 🧩 Guard: block any explanation from a previous question until the index is officially active
       filter(([idx]) => {
         const active = this.explanationTextService._activeIndex;
+      
+        // ✅ Always allow Q1 to render initially (when _activeIndex is still -1)
+        if (active === -1 && idx === 0) {
+          console.log(`[CQCC] 🟢 Allowing first question Q1 to render`);
+          return true;
+        }
+      
+        // Normal rule for all subsequent questions
         const same = idx === active;
         if (!same) {
           console.log(`[CQCC] 🧱 Holding render for Q${idx + 1} (active=${active + 1})`);
         }
         return same;
       }),
+      
   
       // Cross-index quarantine (must run BEFORE scan)
       map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
