@@ -1147,9 +1147,7 @@ export class ExplanationTextService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // 🧩 Reset explanation state cleanly for a new index
-  // ─────────────────────────────────────────────
+  // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
     // ────────────────────────────────
     // 🧹 1. Close the *previous* active index cleanly
