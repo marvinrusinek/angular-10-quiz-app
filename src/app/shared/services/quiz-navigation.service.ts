@@ -382,7 +382,7 @@ export class QuizNavigationService {
       return false;
     }
   
-    // ✅ Always return true here (after all try/catch blocks close properly)
+    // Always return true here (after all try/catch blocks close properly)
     return true;
   }
   
