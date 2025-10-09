@@ -673,6 +673,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
       // 🕒 Gentle debounce to merge UI updates
       debounceTime(80),
+
+      filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
+      tap(([idx]) => console.log(`[CQCC] 🎯 Rendering text for Q${idx + 1}`)),
   
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
