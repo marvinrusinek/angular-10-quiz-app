@@ -3260,6 +3260,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     (this as any).explanationToDisplayChange?.emit(formatted);
   
     try { this.revealFeedbackForAllOptions(q.options ?? []); } catch {}
+
+    this.cdRef.detectChanges();
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
