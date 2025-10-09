@@ -427,6 +427,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Reset display intent for new question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
+        // 🚨 Hard-flush any residual explanation before the new question renders
+        try {
+          this.explanationTextService.emitFormatted(i, null);
+          this.explanationTextService.setGate(i, false);
+          console.log(`[CQCC] 🔄 Flushed residual FET before rendering Q${i + 1}`);
+        } catch {}
       }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
