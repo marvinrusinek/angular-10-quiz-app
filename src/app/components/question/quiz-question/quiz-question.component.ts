@@ -3244,26 +3244,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   public onSubmitMultiple(): void {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
-    const q   = this.quizService.questions?.[idx];
+    const q = this.quizService.questions?.[idx];
     if (!q) return;
   
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // 👇 ensure Angular reacts on first emission
     this.ngZone.run(() => {
       this.explanationTextService.openExclusive(idx, formatted);
-      this.explanationTextService._activeIndex = idx;
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
   
-      this.displayExplanation = true;
-      (this as any).explanationToDisplay = formatted;
-      (this as any).explanationToDisplayChange?.emit(formatted);
-    });
+      // 🧠 Force Angular to render *immediately*
+      this.cdr.detectChanges();
   
-    try { this.revealFeedbackForAllOptions(q.options ?? []); } catch {}
+      console.log(`[onSubmitMultiple] ✅ FET shown for Q${idx + 1} len=${formatted.length}`);
+    });
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
