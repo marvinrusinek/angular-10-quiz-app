@@ -357,8 +357,8 @@ export class QuizNavigationService {
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
           try {
-            // ✅ Broadcast the new question text to the UI observable
-            this.quizService.questionToDisplay$.next(trimmedQ);
+            // Broadcast the new question text to the UI observable
+            this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
             console.log(`[NAV] 🧩 Updated questionToDisplay$ for Q${index + 1}:`, trimmedQ);
           } catch (err) {
             console.warn('[NAV] ⚠️ Failed to update questionToDisplay$', err);
