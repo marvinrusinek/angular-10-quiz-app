@@ -302,6 +302,13 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    try {
+      // Clear local mirrors so only combinedText$ drives the UI after nav
+      (this as any).displayExplanation = false;
+      (this as any).explanationToDisplay = '';
+      (this as any).explanationToDisplayChange?.emit('');
+    } catch {}
   
     try {
       this.explanationTextService.resetForIndex(index);
