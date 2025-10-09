@@ -3252,16 +3252,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
 
     try {
+      // Push the explanation text for the current question
       this.explanationTextService.openExclusive(idx, formatted);
-      this.explanationTextService._activeIndex = idx;
-      
-      // now flip the mode immediately
+    
+      // Tell the app to show the explanation immediately
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-
+    
+      // Trigger change detection to sync the DOM in the same tick
       this.cdRef.detectChanges();
+    
+      console.log(`[onSubmitMultiple] ✅ Explanation displayed for Q${idx + 1}`);
     } catch (err) {
-      console.warn('[onSubmitMultiple] openExclusive sequencing failed:', err);
+      console.warn('[onSubmitMultiple] ⚠️ openExclusive sequencing failed:', err);
     }
   }
 
