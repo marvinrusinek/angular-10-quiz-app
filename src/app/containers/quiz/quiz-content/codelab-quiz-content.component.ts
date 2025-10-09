@@ -563,16 +563,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
 
       // Hold the last valid explanation per index to prevent cross-paint
-      scan((store, curr) => {
+      scan((store, curr: [
+        number,
+        DisplayState,
+        boolean,
+        string,
+        string,
+        string | null,
+        boolean,
+        boolean
+      ]) => {
         const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
-
+      
         if (!store.map) store.map = new Map<number, string | null>();
         const lastForIdx = store.map.get(idx) ?? null;
         const newExpl =
           explanation && explanation.trim().length > 0
             ? explanation.trim()
             : lastForIdx;
-
+      
         store.map.set(idx, newExpl);
         store.latest = [
           idx,
@@ -585,8 +594,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           frozen
         ];
         return store;
-      }, { map: new Map(), latest: [] as any }),
-      map((s: any) => s.latest),
+      }, { map: new Map(), latest: [] as any }),      
 
       // 🕒 Slightly longer debounce so gate + explanation + shouldShow sync together
       debounceTime(120),
