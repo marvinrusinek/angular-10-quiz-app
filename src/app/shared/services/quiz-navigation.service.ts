@@ -348,11 +348,15 @@ export class QuizNavigationService {
         return false;
       }
   
+      console.log('[NAV-DIAG] before waitForRoute', routeUrl);
       await waitForRoute;
+      console.log('[NAV-DIAG] after waitForRoute', routeUrl);
   
       // 🧠 Do not open explanation here — only prepare data.
       // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
-      const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+      const obs = this.quizService.getQuestionByIndex(index);
+      console.log('[NAV-DIAG] getQuestionByIndex observable:', obs);
+      const fresh = await firstValueFrom(obs);
       console.log(`[NAV-DIAG] getQuestionByIndex(${index}) →`, fresh?.questionText, fresh);
       if (fresh) {
         const trimmedQ = (fresh.questionText ?? '').trim();
