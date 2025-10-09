@@ -376,11 +376,9 @@ export class QuizNavigationService {
   
         if (explanation) {
           // 🧠 Delay emission slightly to ensure UI stream is hot
-          setTimeout(() => {
-            this.explanationTextService.openExclusive(index, explanation);
-            this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-            console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
-          }, 150);
+          this.explanationTextService.openExclusive(index, explanation);
+          this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+          console.log(`[NAV] ✅ FET opened for Q${index + 1}, len=${explanation.length}`);
         } else {
           this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
           console.log(`[NAV] ℹ️ no FET for Q${index + 1}`);
