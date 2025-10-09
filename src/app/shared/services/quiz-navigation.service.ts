@@ -353,6 +353,10 @@ export class QuizNavigationService {
       // 🧠 Do not open explanation here — only prepare data.
       // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
+
+      const qText = (fresh?.questionText ?? '').trim();
+      this.quizQuestionLoaderService.questionToDisplay$.next(qText);
+      console.log(`[NAV] ✅ Updated questionToDisplay$ for Q${index + 1}:`, qText);
       console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
     } catch (err) {
       console.error('[❌ Navigation error]', err);
