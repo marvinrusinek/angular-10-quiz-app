@@ -573,32 +573,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       // 🧩 Stabilize cross-index emissions
       map((s: any) =>
-      s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
+        s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
       ),
-
-      // ✅ Guard so we only emit if explanation belongs to the active index
-      filter(([idx]) => idx === this.explanationTextService._activeIndex),
   
-      // 🕒 Smart synchronization: wait until explanation + shouldShow + gate align
       switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const explanationReady$ = combineLatest([
-          of(idx),
-          of(display),
-          of(shouldShow),
-          of(baseline),
-          of(correct),
-          of(gate),
-          this.explanationTextService.byIndex$(idx).pipe(
-            filter(text => !!text && text.trim().length > 0),
-            take(1),                              // wait for first valid text
-            timeout({ each: 1500, with: () => of(null) })
+        const wantsExplanation = display.mode === 'explanation' && shouldShow && gate;
+      
+        // If we are not supposed to show the explanation, just render the question path.
+        if (!wantsExplanation) {
+          return of<[number, DisplayState, boolean, string, string, string | null, boolean]>(
+            [idx, display, shouldShow, baseline, correct, null, gate]
+          );
+        }
+      
+        // We do want the explanation: ensure we emit only once we have the first valid FET for THIS index.
+        const active = this.explanationTextService._activeIndex;
+        if (active !== idx) {
+          // Still settling index? Keep showing question until active matches to avoid flicker.
+          return of<[number, DisplayState, boolean, string, string, string | null, boolean]>(
+            [idx, display, shouldShow, baseline, correct, null, gate]
+          );
+        }
+      
+        // Wait for the first valid explanation text for the current index.
+        return this.explanationTextService.byIndex$(idx).pipe(
+          filter(t => !!t && t.trim().length > 0),
+          take(1),
+          timeout(1500),
+          map(t => [idx, display, shouldShow, baseline, correct, t, gate] as const),
+          // If we time out or error, fall back to question path (no hard block).
+          catchError(() =>
+            of<[number, DisplayState, boolean, string, string, string | null, boolean]>(
+              [idx, display, shouldShow, baseline, correct, null, gate]
+            )
           )
-        ]).pipe(
-          map(([i, d, s, b, c, g, e]) => [i, d, s, b, c, e, g] as const),
-          catchError(() => of([idx, display, shouldShow, baseline, correct, explanation, gate] as const))
         );
-
-        return explanationReady$;
       }),
 
       // 🕒 Gentle debounce to merge UI updates
