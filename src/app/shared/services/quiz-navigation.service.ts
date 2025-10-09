@@ -303,9 +303,7 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
   
-    // ────────────────────────────────
     // 🧩 1. Reset explanation state (but don't open anything yet)
-    // ────────────────────────────────
     try {
       this.explanationTextService.closeAll();
       this.explanationTextService.resetForIndex(index);
@@ -316,9 +314,7 @@ export class QuizNavigationService {
       console.warn('[NAV] ⚠️ resetForIndex failed:', err);
     }
   
-    // ────────────────────────────────
     // 🔒 2. Minimal pre-navigation cleanup (UI)
-    // ────────────────────────────────
     try {
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
@@ -327,15 +323,11 @@ export class QuizNavigationService {
       console.warn('[navigateToQuestion] pre-cleanup failed:', err);
     }
   
-    // ────────────────────────────────
     // 🔒 3. Lock & timer prep
-    // ────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // ────────────────────────────────
     // 🧭 4. ROUTE HANDLING
-    // ────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
     try {
