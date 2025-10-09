@@ -553,11 +553,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // 9) Canonical question resolver for an index (no stale fallback)
     const canonicalQuestionFor = (idx: number, baseline: string): string => {
-      const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+      const quizQuestions = this.quizService.questions ?? this.questions ?? [];
+      const q = quizQuestions[idx];
       const model = (q?.questionText ?? '').toString().trim();
-      const base  = (baseline ?? '').toString().trim();
-      return model || base || this.questionLoadingText || 'Loading…';
-    };
+      const base = (baseline ?? '').toString().trim();
+    
+      // Stronger fallback: never reuse previous index’s baseline
+      if (!model && !base) {
+        console.warn(`[CQCC] ⚠️ Missing text for Q${idx + 1}`);
+        return `Question ${idx + 1} loading…`;
+      }
+    
+      return model || base || 'Loading…';
+    };    
 
     // 🧩 Quarantine: wait 120 ms after any index change before allowing old FETs to propagate
     const explanationQuarantine$ = guardedIndex$.pipe(
