@@ -220,11 +220,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.explanationText$.next('');
+
+    this.quizService.currentQuestionIndex$.subscribe(i =>
+      console.log('[CQCC] currentQuestionIndex$', i)
+    );
+    this.questionToDisplay$.subscribe(q =>
+      console.log('[CQCC] questionToDisplay$', q)
+    );
     
-    this.getCombinedDisplayTextStream();
-    this.combinedSub = this.combinedText$
-      .pipe(distinctUntilChanged())
-      .subscribe();
+    // 🧩 Build the stream only once globally
+    this.combinedText$ = this.getCombinedDisplayTextStream();
+
+    // 🧠 Always subscribe after the stream is created
+    // Use a small delay so we don't subscribe to an undefined observable
+    setTimeout(() => {
+      if (this.combinedText$ && !this.combinedSub) {
+        this.combinedSub = this.combinedText$
+          .pipe(distinctUntilChanged())
+          .subscribe({
+            next: (v) => console.log('[CQCC combinedText$]', v?.slice?.(0, 80)),
+            error: (err) => console.error('[CQCC combinedText$ error]', err)
+          });
+      }
+    }, 50);
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
@@ -383,7 +401,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what codelab-quiz-content shows
-  private getCombinedDisplayTextStream(): void {
+  private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
   
     // 1) Current index (stable, seeded)
@@ -591,6 +609,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
+    return this.combinedText$;
   }  
 
   private emitContentAvailableState(): void {
