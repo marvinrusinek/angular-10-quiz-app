@@ -90,6 +90,8 @@ export class ExplanationTextService {
   private _lastGlobalExplanationIndex: number | null = null;
   public _activeIndex: number | null = null;
 
+  private _explainNow$ = new Subject<{ idx: number; text: string }>();
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -1217,5 +1219,45 @@ export class ExplanationTextService {
     }
   
     console.log(`[ETS] 🔁 resetForIndex(${index}) completed`);
+  }
+
+  // Observable for a specific index (UI will subscribe per index)
+  public explainNowFor(idx: number): Observable<string | null> {
+    return this._explainNow$.pipe(
+      filter(e => e.idx === idx),
+      map(e => (e.text ?? '').trim() || null)
+    );
+  }
+
+  // Single entry point to open explanation atomically (no flicker)
+  public triggerExplainNow(index: number, formatted: string): void {
+    const idx = Math.max(0, Number(index) || 0);
+    const trimmed = (formatted ?? '').trim();
+
+    // close others
+    for (const [k, subj] of this._byIndex.entries()) {
+      if (k !== idx) try { subj.next(null); } catch {}
+    }
+    for (const [k, gate] of this._gate.entries()) {
+      if (k !== idx) try { gate.next(false); } catch {}
+    }
+
+    // ensure subjects
+    if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(idx))    this._gate.set(idx,    new BehaviorSubject<boolean>(false));
+
+    // commit state in one frame
+    this._activeIndex = idx;
+    this._byIndex.get(idx)!.next(trimmed || null);
+    this._gate.get(idx)!.next(!!trimmed);
+    this.setShouldDisplayExplanation(true, { force: true });
+
+    // fire atomic event last (UI “fast path”)
+    this._explainNow$.next({ idx, text: trimmed });
+
+    // optional cache
+    this.formattedExplanations[idx] = { questionIndex: idx, explanation: trimmed || null };
+
+    console.log(`[ETS] 🔔 triggerExplainNow(${idx}) len=${trimmed.length}`);
   }
 }
