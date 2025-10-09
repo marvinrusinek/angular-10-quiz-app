@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, forkJoin, merge, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, forkJoin, from, merge, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, debounceTime, delay, delayWhen, distinctUntilChanged, EMPTY, filter, map, mapTo, observeOn, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, timeout, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -471,23 +471,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       );
   
-    // 6) Baseline question text candidate (per index, no stale fallback)
+    // 6) Baseline question text candidate (strongly synchronized per index)
     const baselineText$: Observable<string> = guardedIndex$.pipe(
       switchMap(i => {
-        // Immediately emit loading while fetching
-        const loading$ = of(this.questionLoadingText || 'Loading…');
-
-        // Wait for the actual question text for the index
-        const fresh$ = this.quizService.getQuestionByIndex(i).pipe(
-          map(q => (q?.questionText ?? '').trim() || `Question ${i + 1}`),
-          catchError(() => of('Error loading question text'))
+        // Wait 120ms to ensure quizService.questions[] is updated after navigation
+        return timer(120).pipe(
+          switchMap(() =>
+            from(this.quizService.getQuestionByIndex(i)).pipe(
+              map(q => {
+                const txt = (q?.questionText ?? '').trim();
+                console.log(`[CQCC] 🧠 baselineText$ Q${i + 1}: "${txt || '(missing)'}"`);
+                return txt || `Question ${i + 1}`;
+              }),
+              startWith('Loading question...'),
+              catchError(() => of(`Question ${i + 1}`))
+            )
+          )
         );
-
-        return concat(loading$, fresh$);
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
 
   
     // 7) Correct-count badge text
