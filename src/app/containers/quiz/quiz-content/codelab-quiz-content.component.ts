@@ -438,7 +438,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 3) Freeze: true immediately after index change, then false on next microtask
     const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
       switchMap(() =>
-        concat(of(true), timer(350).pipe(mapTo(false)))  // freeze for 350ms
+        concat(of(true), timer(100).pipe(mapTo(false)))  // freeze for 350ms
       ),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
