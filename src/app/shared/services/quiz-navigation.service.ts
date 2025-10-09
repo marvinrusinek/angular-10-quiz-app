@@ -353,11 +353,22 @@ export class QuizNavigationService {
       // 🧠 Do not open explanation here — only prepare data.
       // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
-
-      const qText = (fresh?.questionText ?? '').trim();
-      this.quizQuestionLoaderService.questionToDisplay$.next(qText);
-      console.log(`[NAV] ✅ Updated questionToDisplay$ for Q${index + 1}:`, qText);
-      console.log(`[NAV] ✅ navigated to Q${index + 1}:`, fresh?.questionText);
+      if (fresh) {
+        const trimmedQ = (fresh.questionText ?? '').trim();
+        if (trimmedQ.length > 0) {
+          try {
+            // ✅ Broadcast the new question text to the UI observable
+            this.quizService.questionToDisplay$.next(trimmedQ);
+            console.log(`[NAV] 🧩 Updated questionToDisplay$ for Q${index + 1}:`, trimmedQ);
+          } catch (err) {
+            console.warn('[NAV] ⚠️ Failed to update questionToDisplay$', err);
+          }
+        } else {
+          console.warn(`[NAV] ⚠️ Empty question text for Q${index + 1}`);
+        }
+      } else {
+        console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
+      }
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
