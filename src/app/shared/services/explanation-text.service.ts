@@ -1222,4 +1222,23 @@ export class ExplanationTextService {
 
     console.log(`[ETS] 🔔 triggerExplainNow(${idx}) len=${trimmed.length}`);
   }
+
+  public hardSwitchToIndex(index: number): void {
+    // 🚫 Step 1: nuke every existing subject immediately
+    for (const subj of this._byIndex.values()) { try { subj.next(null); } catch {} }
+    for (const gate of this._gate.values()) { try { gate.next(false); } catch {} }
+  
+    // 🧹 Step 2: clear the formatted cache
+    this.formattedExplanations = {};
+  
+    // 🔄 Step 3: create brand-new subjects for this index
+    this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    this._gate.set(index, new BehaviorSubject<boolean>(false));
+  
+    // 🎯 Step 4: mark active index and reset display flag
+    this._activeIndex = index;
+    this.setShouldDisplayExplanation(false, { force: true });
+  
+    queueMicrotask(() => console.log(`[ETS] ⚙️ hardSwitchToIndex(${index}) done`));
+  }  
 }
