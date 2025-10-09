@@ -424,10 +424,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           try { this.selectedOptionService.resetOptionState(_lastIdx); } catch {}
         }
   
-        // ❌ removed the "HARD RESET" for the new index `i` to avoid racing with its first FET
-        // try { this.explanationTextService.emitFormatted(i, null); } catch {}
-        // try { this.explanationTextService.setGate(i, false); } catch {}
-  
         // Reset display intent for new question
         try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
         _lastIdx = i;
