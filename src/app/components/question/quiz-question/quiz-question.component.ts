@@ -3243,7 +3243,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public onSubmitMultiple(): void {
-    const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
+    // Always derive the current index directly from the service
+    const idx = this.quizService.getCurrentQuestionIndex();
     const q = this.quizService.questions?.[idx];
     if (!q) return;
   
@@ -3255,7 +3256,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     // ────────────────────────────────
-    // 🔒 2. Open exclusive gate for this question only (atomic emit)
+    // 🔐 2. Align service state BEFORE emitting (critical)
+    // ────────────────────────────────
+    try {
+      this.explanationTextService._activeIndex = idx; // ensure correct ownership
+    } catch (err) {
+      console.warn('[onSubmitMultiple] failed to set active index:', err);
+    }
+  
+    // ────────────────────────────────
+    // 🔒 3. Open exclusive gate for this question only (atomic emit)
     // ────────────────────────────────
     try {
       this.explanationTextService.openExclusive(idx, formatted);
@@ -3264,7 +3274,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // ────────────────────────────────
-    // 💡 3. Switch display state to explanation mode
+    // 💡 4. Switch display state to explanation mode
     // ────────────────────────────────
     try {
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
@@ -3274,7 +3284,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // ────────────────────────────────
-    // 🪞 4. Persist formatted explanation for external components
+    // 🪞 5. Persist formatted explanation for external components
     // ────────────────────────────────
     try {
       this.explanationTextService.setExplanationText(formatted, {
@@ -3286,7 +3296,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // ────────────────────────────────
-    // 🎯 5. Reveal feedback icons for all options
+    // 🎯 6. Reveal feedback icons for all options
     // ────────────────────────────────
     try {
       this.revealFeedbackForAllOptions(q.options ?? []);
@@ -3295,12 +3305,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // ────────────────────────────────
-    // 🧭 6. Sync local UI (single controlled path)
+    // 🧭 7. Sync local UI (single controlled path)
     // ────────────────────────────────
     this.displayExplanation = true;
     (this as any).explanationToDisplay = formatted;
-  
-    // Emit once for bindings that rely on @Output
     (this as any).explanationToDisplayChange?.emit(formatted);
   
     console.log(`[onSubmitMultiple] ✅ Q${idx + 1} explanation displayed (len=${formatted.length})`);
