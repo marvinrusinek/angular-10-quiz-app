@@ -302,6 +302,9 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    this.explanationTextService._activeIndex = index;
+    this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
   
     // ────────────────────────────────
     // 🧩 1. Cleanly reset explanation state for new index
