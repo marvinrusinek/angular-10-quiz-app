@@ -472,29 +472,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
   
     // 6) Baseline question text candidate (force fresh emission per index)
-    const baselineText$: Observable<string> = guardedIndex$.pipe(
-      switchMap(i => {
-        console.log(`[CQCC] 🧠 baselineText$ starting for Q${i + 1}`);
-        return defer(async () => {
-          // force refresh from service, NOT from old array
-          const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(i));
-          const text = (fresh?.questionText ?? '').trim() || `Question ${i + 1}`;
-          console.log(`[CQCC] ✅ baselineText$ emitted for Q${i + 1}: "${text}"`);
-          return text;
-        }).pipe(
-          catchError(err => {
-            console.warn(`[CQCC] ⚠️ baselineText$ failed for Q${i + 1}`, err);
-            return of(`Question ${i + 1}`);
-          })
-        );
+    const baselineText$: Observable<string> = combineLatest([
+      this.quizService.currentQuestionIndex$,
+      this.questionToDisplay$
+    ]).pipe(
+      map(([i, s]) => {
+        const safe = (s ?? '').toString().trim();
+        console.log(`[CQCC] 🧩 baselineText$ → Q${i + 1}:`, safe);
+        return safe;
       }),
-      startWith('Loading question...'),
+      startWith(''),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
-
-
   
     // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
