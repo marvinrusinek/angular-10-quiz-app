@@ -988,17 +988,15 @@ export class ExplanationTextService {
 
   // Canonical per-index observable (null when nothing valid yet)
   public byIndex$(index: number): Observable<string | null> {
-    const idx = Math.max(0, Number(index) || 0);
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
+    // 🧩 Ensure subject always exists for this index
+    if (!this._byIndex.has(index)) {
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     }
   
-    return this._byIndex.get(idx)!.pipe(
-      // 👇 Hold previous value for its own index; null out others only when a new one opens
-      map(text => (this._activeIndex === idx ? text : null)),
-      distinctUntilChanged()
-    );
-  }  
+    const subj = this._byIndex.get(index);
+    // 🧠 Always return an Observable — never undefined
+    return subj ? subj.asObservable() : of(null);
+  }
 
   // Back-compat aliases (optional): keep calls working but funnel to byIndex$
   public getFormattedStreamFor(index: number): Observable<string | null> {
@@ -1032,11 +1030,12 @@ export class ExplanationTextService {
 
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
-    const idx = Math.max(0, Number(index) || 0);
-    if (!this._gate.has(idx)) {
-      this._gate.set(idx, new BehaviorSubject<boolean>(false));
+    if (!this._gate.has(index)) {
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
     }
-    return this._gate.get(idx)!.asObservable().pipe(distinctUntilChanged());
+  
+    const subj = this._gate.get(index);
+    return subj ? subj.asObservable() : of(false);
   }
 
   public setGate(index: number, show: boolean): void {
