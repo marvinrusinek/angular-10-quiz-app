@@ -1172,15 +1172,7 @@ export class ExplanationTextService {
 
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // 🧩 Ensure containers exist
-    if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
-    if (!this._gate) this._gate = new Map<number, BehaviorSubject<boolean>>();
-  
-    // 🔁 Always recreate subject for the new index first (prevents undefined access)
-    if (!this._byIndex.has(index)) this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(index)) this._gate.set(index, new BehaviorSubject<boolean>(false));
-  
-    // 🧹 Close previous index AFTER new one is guaranteed valid
+    // 🧹 Close and clear previous index completely
     if (this._activeIndex !== -1 && this._activeIndex !== index) {
       const prev = this._activeIndex;
       try { this._byIndex.get(prev)?.next(null); } catch {}
@@ -1189,10 +1181,26 @@ export class ExplanationTextService {
       console.log(`[ETS] 🧹 Cleared previous FET cache for Q${prev + 1}`);
     }
   
+    // 🧩 Ensure subjects exist for new index
+    if (!this._byIndex.has(index)) {
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    }
+    if (!this._gate.has(index)) {
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
+    }
+  
+    // 🚫 Force immediate null emission for the new index too
+    try {
+      this._byIndex.get(index)?.next(null);
+      this._gate.get(index)?.next(false);
+    } catch {}
+  
     this._activeIndex = index;
     this.formattedExplanations[index] = { questionIndex: index, explanation: null };
-    console.log(`[ETS] 🔁 resetForIndex(${index}) complete`);
+  
+    console.log(`[ETS] 🔁 resetForIndex(${index}) complete + null flushed`);
   }
+  
 
   // Observable for a specific index (UI will subscribe per index)
   public explainNowFor(idx: number): Observable<string | null> {
