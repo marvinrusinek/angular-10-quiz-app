@@ -308,7 +308,6 @@ export class QuizNavigationService {
       this.explanationTextService.closeAll();
       this.explanationTextService.resetForIndex(index);
       this.explanationTextService._activeIndex = index;
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       console.log(`[NAV] 🧹 resetForIndex(${index}) complete`);
     } catch (err) {
       console.warn('[NAV] ⚠️ resetForIndex failed:', err);
