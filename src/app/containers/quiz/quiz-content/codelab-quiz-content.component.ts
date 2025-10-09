@@ -594,7 +594,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       observeOn(asyncScheduler),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    ) as Observable<string>; 
   
     return this.combinedText$;
   }
