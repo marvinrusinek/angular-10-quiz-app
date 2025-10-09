@@ -303,22 +303,15 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
   
-    // 🧩 1. Reset explanation state (but don't open anything yet)
     try {
-      this.explanationTextService.hardSwitchToIndex(index);
-    } catch (err) {
-      console.warn('[NAV] ⚠️ hardSwitchToIndex failed:', err);
-    }
-    
-    // 🔒 2. Minimal pre-navigation cleanup (UI)
-    try {
+      this.explanationTextService.resetForIndex(index);
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
     } catch (err) {
-      console.warn('[navigateToQuestion] pre-cleanup failed:', err);
+      console.warn('[NAV] cleanup failed', err);
     }
-  
+    
     // 🔒 3. Lock & timer prep
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
