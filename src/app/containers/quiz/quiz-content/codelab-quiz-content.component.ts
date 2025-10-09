@@ -472,19 +472,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       );
   
     // 6) Baseline question text candidate (force fresh emission per index)
-    const baselineText$: Observable<string> = combineLatest([
-      this.quizService.currentQuestionIndex$,
-      this.questionToDisplay$
-    ]).pipe(
-      map(([i, s]) => {
-        const safe = (s ?? '').toString().trim();
-        console.log(`[CQCC] 🧩 baselineText$ → Q${i + 1}:`, safe);
-        return safe;
+    const baselineText$: Observable<string> = guardedIndex$.pipe(
+      switchMap(i => {
+        // Force questionToDisplay$ to restart for this specific index
+        const question$ = this.questionToDisplay$.pipe(
+          startWith(''),
+          distinctUntilChanged(),
+          map(text => ({
+            idx: i,
+            text: (text ?? '').toString().trim()
+          }))
+        );
+    
+        // Also include fallback directly from QuizService.questions
+        const fallback$ = of(this.quizService.questions?.[i]?.questionText?.trim() ?? '');
+    
+        // Combine both, prefer live text first
+        return combineLatest([question$, fallback$]).pipe(
+          map(([q, fb]) => {
+            const safe = q.text || fb || `Loading question ${i + 1}…`;
+            console.log(`[CQCC] baselineText$ → Q${i + 1}:`, safe);
+            return safe;
+          }),
+          catchError(() => of(`Loading question ${i + 1}…`))
+        );
       }),
       startWith(''),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   
     // 7) Correct-count badge text
     const correctText$: Observable<string> = this.correctAnswersText$.pipe(
