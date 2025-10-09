@@ -3251,23 +3251,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    // 🚀 One atomic emission
-    this.explanationTextService.openExclusive(idx, formatted);
-    this.explanationTextService._activeIndex = idx;
+    // 🚀 Atomic, single-tick: opens text, gate, flag, and fires fast-path
+    this.explanationTextService.triggerExplainNow(idx, formatted);
   
-    // 🧠 Force both reactive flags true immediately
-    this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-    this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-  
-    // Reflect locally (Angular template safety)
+    // Optional local mirrors (won’t cause flicker anymore)
     this.displayExplanation = true;
     (this as any).explanationToDisplay = formatted;
     (this as any).explanationToDisplayChange?.emit(formatted);
   
-    // Optional: reveal icons
     try { this.revealFeedbackForAllOptions(q.options ?? []); } catch {}
   }
-  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
