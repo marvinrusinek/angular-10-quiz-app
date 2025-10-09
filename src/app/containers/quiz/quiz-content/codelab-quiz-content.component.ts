@@ -492,7 +492,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fresh$ = timer(75).pipe(
           switchMap(() =>
             this.explanationTextService.byIndex$(i).pipe(
-              filter(() => i === this.explanationTextService._activeIndex),  // <— key filter
+              filter((text) => {
+                const active = this.explanationTextService._activeIndex;
+                const isActive = active === i;
+                const valid = text && text.trim().length > 0;
+                if (!isActive) {
+                  console.log(`[FET🚫] Ignoring explanation from Q${i + 1} (active is Q${active + 1})`);
+                }
+                return isActive && valid;
+              }),
               distinctUntilChanged(),
               catchError(() => of(null))
             )
