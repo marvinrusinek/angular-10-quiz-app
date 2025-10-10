@@ -370,7 +370,8 @@ export class QuizNavigationService {
         const totalOpts = (fresh.options ?? []).length;
       
         // Only show correct-answer text for MultipleAnswer questions
-        if (fresh.type === QuestionType.MultipleAnswer) {
+        const typeVal = fresh.type?.toString().toLowerCase();
+        if (typeVal.includes('multiple')) {
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
           this.quizService.updateCorrectAnswersText(msg);
         } else {
