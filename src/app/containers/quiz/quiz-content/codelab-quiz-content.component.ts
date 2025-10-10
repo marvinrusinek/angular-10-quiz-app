@@ -55,7 +55,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() displayVariables: { question: string, explanation: string };
   @Input() localExplanationText = '';
   @Input() showLocalExplanation = false;
-  public explanationVisible = false;
 
   private combinedTextSubject = new BehaviorSubject<string>('');
   combinedText$ = this.combinedTextSubject.asObservable();
@@ -114,6 +113,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   displayCorrectAnswers = false;
   explanationDisplayed = false;
   isExplanationDisplayed = false;
+  explanationVisible = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
   private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
