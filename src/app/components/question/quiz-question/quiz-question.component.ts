@@ -3262,33 +3262,30 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // ✅ Hard-sync index before anything else
+      // 🧠 Ensure the service is ready and points to the correct index
       this.explanationTextService._activeIndex = idx;
+  
+      // 🔄 Reset and delay slightly to guarantee BehaviorSubjects attach
       this.explanationTextService.resetForIndex(idx);
-      this.explanationTextService.emitFormatted(idx, null);
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+      await new Promise(res => setTimeout(res, 100));
   
-      // 🧠 Double flush: one RAF + one small delay to guarantee BehaviorSubjects attach
-      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 100)));
-  
-      // ✅ Open cleanly for this question only
+      // ✅ Open the explanation *after* the reset completes
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-  
-      // 🧩 Force displayState refresh
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
   
-      // 🪞 Reflect locally
+      // 🔊 Log confirmation
+      console.log(`[onSubmitMultiple] ✅ FET opened for Q${idx + 1}:`, formatted.slice(0, 60));
+      
+      // Update local + UI
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
   
-      console.log(`[onSubmitMultiple] ✅ Explanation displayed cleanly for Q${idx + 1}`);
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
   }
-  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
