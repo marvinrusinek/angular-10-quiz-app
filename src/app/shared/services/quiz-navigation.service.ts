@@ -335,12 +335,12 @@ export class QuizNavigationService {
       console.warn('[NAV] cleanup failed', err);
     }
 
-    // 🔒 3. Lock & timer prep
+    // Lock & timer prep
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // 🧭 4. ROUTE HANDLING
-    // 🧠 These must run AFTER the reset above — prevents stale FET leaks.
+    // ROUTE HANDLING
+    // These must run AFTER the reset above — prevents stale FET leaks.
     const waitForRoute = this.waitForUrl(routeUrl);
   
     try {
@@ -359,7 +359,7 @@ export class QuizNavigationService {
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
   
-      // 🧠 Do not open explanation here — only prepare data.
+      // Do not open explanation here — only prepare data.
       // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
       const obs = this.quizService.getQuestionByIndex(index);
       console.log('[NAV-DIAG] getQuestionByIndex observable:', obs);
