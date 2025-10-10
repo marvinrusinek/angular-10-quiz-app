@@ -94,11 +94,15 @@ export class QuizService implements OnDestroy {
   correctMessage$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   numberOfCorrectAnswers: number;
 
-  correctAnswersCountSubject = new BehaviorSubject<number>(0);
-  public correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
+  private correctAnswersCountSubject = new BehaviorSubject<number>(
+    Number(localStorage.getItem('correctAnswersCount')) || 0
+  );
+  public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  private correctAnswersTextSource = new BehaviorSubject<string>('');
-  public correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+  private correctAnswersCountTextSource = new BehaviorSubject<string>(
+    localStorage.getItem('correctAnswersText') || 'Please select an answer'
+  );
+  public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
