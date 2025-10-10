@@ -369,20 +369,20 @@ export class QuizNavigationService {
         const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
         const totalOpts = (fresh.options ?? []).length;
       
-        // Only show correct-answer text for MultipleAnswer questions
-        const typeVal = fresh.type?.toString().toLowerCase();
-        if (typeVal.includes('multiple')) {
+        // 🧠 Only show “(# answers are correct)” for MultipleAnswer questions
+        if (fresh.type === QuestionType.MultipleAnswer) {
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
           this.quizService.updateCorrectAnswersText(msg);
+          console.log(`[NAV] 🧮 Correct answers text for multiple-answer Q${index + 1}:`, msg);
         } else {
-          // SingleAnswer → clear text
+          // Single-answer → clear banner text entirely
           this.quizService.updateCorrectAnswersText('');
+          console.log(`[NAV] ℹ️ Cleared correct answers text for single-answer Q${index + 1}`);
         }
       
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
           try {
-            // Delay text emission slightly to avoid cross-paint from previous question
             await new Promise(res => setTimeout(res, 100));
             this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
             console.log(`[NAV] 🧩 Delayed emission for Q${index + 1}:`, trimmedQ);
@@ -392,8 +392,7 @@ export class QuizNavigationService {
         }
       } else {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
-      }
-      
+      }      
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
