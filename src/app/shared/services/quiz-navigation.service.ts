@@ -304,43 +304,30 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     try {
-      // 💥 Fully clear local mirrors
+      // Clear local mirrors so only combinedText$ drives the UI after nav
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
       (this as any).explanationToDisplayChange?.emit('');
     
-      // 💣 Global flush of all BehaviorSubjects before navigation
-      if (this.explanationTextService?._byIndex) {
-        this.explanationTextService._byIndex.forEach((subj, key) => {
-          try { subj.next(null); } catch {}
-        });
-      }
-      if (this.explanationTextService?._gate) {
-        this.explanationTextService._gate.forEach((subj, key) => {
-          try { subj.next(false); } catch {}
-        });
+      // Close only the previous index completely (avoid touching the new one)
+      const prev = this.quizService.getCurrentQuestionIndex();
+      if (Number.isFinite(prev) && prev !== index) {
+        try { this.explanationTextService._byIndex.get(prev)?.next(null); } catch {}
+        try { this.explanationTextService._gate.get(prev)?.next(false); } catch {}
       }
     
-      // Force active index invalidation
+      // Invalidate active index so the component re-binds to the new index
       this.explanationTextService._activeIndex = -1;
     
-      // Reset the target index cleanly
-      this.explanationTextService.resetForIndex(index);
-      await new Promise(res => setTimeout(res, 75));
-    
-      // Close explanation display for the new index
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-      this.explanationTextService.emitFormatted(index, null);
-    
-      // Wait briefly so resets propagate through BehaviorSubjects
-      await new Promise(res => setTimeout(res, 125));
-    
-      // Clean option/UI state
-      this.selectedOptionService.resetOptionState(currentIndex);
+      // DO NOT emit/clear for the new index here; let submission open it.
+      // Reset per-question UI bits
+      this.selectedOptionService.resetOptionState(prev);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
     
-      console.log(`[NAV] 🧹 Full flush complete before routing → Q${index + 1}`);
+      // Small pause to flush subjects
+      await new Promise(res => setTimeout(res, 60));
+      console.log(`[NAV] 🧹 Prev index closed, activeIndex invalidated. Target=${index}`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
     }
