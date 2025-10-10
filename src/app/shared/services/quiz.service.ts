@@ -232,9 +232,28 @@ export class QuizService implements OnDestroy {
     this.initializeData();
     this.loadData();
 
-    const initialText =
+    // Initialize BehaviorSubjects
+    this.correctAnswersCountSubject = new BehaviorSubject<number>(0);
+    this.correctAnswersCountTextSource = new BehaviorSubject<string>('Please select an answer');
+
+    
+    // Restore persisted values from localStorage
+    const storedCount = localStorage.getItem('correctAnswersCount');
+    const storedText =
       localStorage.getItem('correctAnswersText') || 'Please select an answer';
-    this.correctAnswersCountTextSource.next(initialText);
+
+    if (storedText && storedText.trim().length > 0) {
+      this.correctAnswersCountTextSource.next(storedText.trim());
+    }
+
+    if (storedCount !== null && !isNaN(Number(storedCount))) {
+      this.correctAnswersCountSubject.next(Number(storedCount));
+    }
+
+    console.log('[QuizService] ♻️ Restored from localStorage', {
+      count: storedCount,
+      text: storedText,
+    });
   }
 
   ngOnDestroy(): void {
