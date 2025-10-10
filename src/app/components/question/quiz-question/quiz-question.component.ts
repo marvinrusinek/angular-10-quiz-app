@@ -3266,28 +3266,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // Reset & sync
+      // Ensure correct index first
       this.explanationTextService._activeIndex = idx;
+    
+      // Reset and wait a full frame so BehaviorSubjects attach
       this.explanationTextService.resetForIndex(idx);
-      await new Promise(res => setTimeout(res, 100));
-  
-      console.log(`[onSubmitMultiple] 🔁 resetForIndex done; opening gate for Q${idx + 1}`);
-  
-      // 🔒 Emit and open gate explicitly
-      this.explanationTextService.emitFormatted(idx, formatted);
+      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
+    
+      // Immediately switch display mode BEFORE opening the explanation
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+      this.quizStateService.setAnswered(true);
+      this.quizStateService.setAnswerSelected(true);
+      this.nextButtonStateService.setNextButtonState(true);
+    
+      // Now safely open and display the explanation
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-  
-      // ✅ Update UI
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+      console.log(`[onSubmitMultiple] ✅ Explanation opened cleanly for Q${idx + 1}`);
+    
+      // Sync local mirrors
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
-  
-      console.log(`[onSubmitMultiple] ✅ FET emitted + opened for Q${idx + 1}: ${formatted.slice(0,60)}…`);
     } catch (err) {
-      console.error('[onSubmitMultiple] ⚠️ Error:', err);
-    }
+      console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
+    }    
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
