@@ -3281,10 +3281,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.setGate(idx, true);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.explanationTextService.emitFormatted(idx, formatted);
-      
-      const correctCount = this.explanationTextService.getCorrectOptionIndices(q).length;
-      this.quizService.updateCorrectAnswersCount(correctCount);
-      console.log(`[onSubmitMultiple] 🔔 FET + correct-count emitted for Q${idx + 1}`);
 
       // 🧠 Sync local + UI display
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
