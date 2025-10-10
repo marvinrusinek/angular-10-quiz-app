@@ -3261,7 +3261,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // ✅ 1. Ensure proper index context
+      // 1. Ensure proper index context
       this.explanationTextService._activeIndex = idx;
       console.log(`[onSubmitMultiple] ▶ Starting for Q${idx + 1}`);
   
