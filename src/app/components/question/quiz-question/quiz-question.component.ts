@@ -3276,12 +3276,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // ✅ Open & emit cleanly
       this.explanationTextService.openExclusive(idx, formatted);
-
+  
       // 🧩 Force all explanation signals to fire together for this index
       this.explanationTextService.setGate(idx, true);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.explanationTextService.emitFormatted(idx, formatted);
-
+  
       // 🧠 Sync local + UI display
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       (this as any).displayExplanation = true;
@@ -3290,11 +3290,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
   
+      // 🧮 Update the “# of correct answers” banner text
+      try {
+        const numCorrect = correctIdxs.length;
+        const totalOpts = q.options?.length ?? 0;
+  
+        if (q.type === QuestionType.MultipleAnswer) {
+          // Use shared helper from QuizQuestionManagerService
+          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+          this.quizService.updateCorrectAnswersText(msg);
+          console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
+        } else {
+          // Single-answer → no banner
+          this.quizService.updateCorrectAnswersText('');
+        }
+      } catch (err) {
+        console.warn('[onSubmitMultiple] ⚠️ Failed to compute correct-answers text:', err);
+        this.quizService.updateCorrectAnswersText('');
+      }
+  
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
   }
-  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
