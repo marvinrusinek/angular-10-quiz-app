@@ -3290,19 +3290,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
   
-      // 🧮 Update the “# of correct answers” banner text
+      // 🧮 Update the “# of correct answers” banner text only for MultipleAnswer questions
       try {
-        const numCorrect = correctIdxs.length;
-        const totalOpts = q.options?.length ?? 0;
-  
         if (q.type === QuestionType.MultipleAnswer) {
-          // Use shared helper from QuizQuestionManagerService
+          const numCorrect = correctIdxs.length;
+          const totalOpts = q.options?.length ?? 0;
+  
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
         } else {
-          // Single-answer → no banner
+          // SingleAnswer → explicitly clear banner
           this.quizService.updateCorrectAnswersText('');
+          console.log(`[onSubmitMultiple] ℹ️ Cleared correct answers text for single-answer Q${idx + 1}`);
         }
       } catch (err) {
         console.warn('[onSubmitMultiple] ⚠️ Failed to compute correct-answers text:', err);
