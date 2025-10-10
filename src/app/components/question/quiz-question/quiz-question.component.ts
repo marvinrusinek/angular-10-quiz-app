@@ -2859,7 +2859,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     //const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const idx = this.quizService.getCurrentQuestionIndex();
-    const q = this.questions?.[i0];
+    const q = this.questions?.[idx];
     const evtIdx = event.index;
     const evtOpt = event.option;
   
@@ -2899,7 +2899,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       } else {
         // Release sticky baseline the first time a meaningful click happens
-        this.selectionMessageService.releaseBaseline(i0);
+        this.selectionMessageService.releaseBaseline(idx);
   
         if (q?.type === QuestionType.SingleAnswer) {
           // Exclusivity guard for single-answer
@@ -2921,13 +2921,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
   
       // Persist selection
-      try { this.selectedOptionService.setSelectedOption(evtOpt, i0); } catch {}
+      try { this.selectedOptionService.setSelectedOption(evtOpt, idx); } catch {}
   
       // Compute canonical options and stable keys
       const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
         ...o,
         optionId: Number(o.optionId ?? getStableId(o, idx)),
-        selected: (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).some(
+        selected: (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).some(
           (sel) => getStableId(sel) === getStableId(o)
         ),
       }));
@@ -2941,8 +2941,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Force correct lock priority if clicked option is correct
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
-          this.selectionMessageService._singleAnswerCorrectLock.add(i0);
-          this.selectionMessageService._singleAnswerIncorrectLock.delete(i0);
+          this.selectionMessageService._singleAnswerCorrectLock.add(idx);
+          this.selectionMessageService._singleAnswerIncorrectLock.delete(idx);
         }
       } else {
         if (canonicalOpts[evtIdx]) {
@@ -2962,7 +2962,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const clickedIdNum = Number(evtOpt?.optionId ?? NaN);
         if (Number.isFinite(clickedIdNum)) {
           // Always “spend” the clicked option so it can’t be re-clicked
-          this.selectedOptionService.lockOption(i0, clickedIdNum);
+          this.selectedOptionService.lockOption(idx, clickedIdNum);
         }
   
         if (q?.type === QuestionType.SingleAnswer) {
@@ -2986,7 +2986,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Immediate feedback sync (prevents icon delay when selecting multiple options)
       const selOptsSetImmediate = new Set(
-        (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) =>
+        (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).map((o) =>
           getStableId(o)
         )
       );
@@ -3010,7 +3010,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const tok = this._msgTok;
   
       this.selectionMessageService.emitFromClick({
-        index: i0,
+        index: idx,
         totalQuestions: this.totalQuestions,
         questionType: q?.type ?? QuestionType.SingleAnswer,
         options: optionsNow,
@@ -3023,7 +3023,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (this._skipNextAsyncUpdates) return;
         const correctOpts = canonicalOpts.filter((o) => !!o.correct);
         const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? []).map((o) => getStableId(o))
+          (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).map((o) => getStableId(o))
         );
         const selectedCorrectCount = correctOpts.filter((o) =>
           selOptsSet.has(getStableId(o))
@@ -3071,7 +3071,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
 
         // Now open this question’s explanation gate
-        const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+        const canonicalQ = this.quizService?.questions?.[idx] ?? this.questions?.[idx] ?? q;
         const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
         const rawExpl = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
         const formattedExpl = this.explanationTextService
@@ -3086,7 +3086,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         if (canEmitNow) {
           // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
-          const canonicalQ = this.quizService?.questions?.[i0] ?? this.questions?.[i0] ?? q;
+          const canonicalQ = this.quizService?.questions?.[idx] ?? this.questions?.[idx] ?? q;
           const expectedText = (canonicalQ?.questionText ?? '').trim();
           const actualText   = (q?.questionText ?? '').trim();
             
@@ -3109,7 +3109,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               .trim();
 
             setTimeout(() => {
-              try { this.explanationTextService.openExclusive(i0, formatted); } catch {}
+              try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
               this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
               this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
             }, 80);
@@ -3119,9 +3119,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               const fn: any = (this as any).setExplanationFor;
               if (typeof fn === 'function') {
                 // Support either signature: (idx, text) or (text)
-                fn.length >= 2 ? fn.call(this, i0, formatted) : fn.call(this, formatted);
+                fn.length >= 2 ? fn.call(this, idx, formatted) : fn.call(this, formatted);
               } else if (this._formattedByIndex instanceof Map) {
-                this._formattedByIndex.set(i0, formatted);
+                this._formattedByIndex.set(idx, formatted);
               }
             } catch {}
             
@@ -3134,8 +3134,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             
           } else {
             // Mismatch → don’t show anything; ensure THIS index is closed & cleared
-            try { this.explanationTextService.emitFormatted(i0, null); } catch {}
-            try { this.explanationTextService.setGate(i0, false); } catch {}
+            try { this.explanationTextService.emitFormatted(idx, null); } catch {}
+            try { this.explanationTextService.setGate(idx, false); } catch {}
             
             // Keep local state consistent with “question mode”
             this.displayExplanation = false;
@@ -3154,7 +3154,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         
           if (canEmitExplanation) {
             // ✅ NEW (Step 1): canonicalize the question for THIS index to avoid stale Q1 leaking into Q2
-            const canonicalQ   = this.quizService.questions?.[i0] ?? q;
+            const canonicalQ   = this.quizService.questions?.[idx] ?? q;
             const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
             const incomingText = (q?.questionText ?? '').toString().trim();
             const useQ         = (expectedText && expectedText === incomingText) ? q : canonicalQ;
@@ -3174,7 +3174,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.showExplanationChange?.emit(true);
         
             // Keep your local bindings in sync (cheap, idempotent)
-            this.setExplanationFor(i0, formatted);
+            this.setExplanationFor(idx, formatted);
             this.explanationToDisplay = formatted;
             this.explanationToDisplayChange.emit(formatted);
           } else {
@@ -3183,7 +3183,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this.displayExplanation = false;
             this.showExplanationChange?.emit(false);
         
-            const cached = this._formattedByIndex.get(i0);
+            const cached = this._formattedByIndex.get(idx);
             const rawTrue = (q?.explanation ?? '').trim();
             const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
             this.setExplanationFor(i0, txt);
@@ -3191,7 +3191,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         
           // UI polish (no service writes)
           const selOptsSet = new Set(
-            (this.selectedOptionService.selectedOptionsMap?.get(i0) ?? [])
+            (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? [])
               .map(o => this.selectionMessageService.stableKey(o as any))
           );
           this.updateOptionHighlighting(selOptsSet);
