@@ -424,7 +424,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith({ mode: 'question', answered: false } as DisplayState),
       map(v => {
         const s = (v as any) ?? {};
-        const mode: 'question' | 'explanation' = s.mode === 'explanation' ? 'explanation' : 'question';
+        const mode: 'question' | 'explanation' =
+          s.mode === 'explanation' ? 'explanation' : 'question';
         const answered: boolean = typeof s.answered === 'boolean' ? s.answered : false;
         return { mode, answered } as DisplayState;
       }),
@@ -435,12 +436,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 3) Global "should show" flag
     // ────────────────────────────────
-    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      map(Boolean),
-      startWith(false),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    const shouldShow$: Observable<boolean> =
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        map(Boolean),
+        startWith(false),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   
     // ────────────────────────────────
     // 4) Question text for *current* index
@@ -477,12 +479,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
   
     // ────────────────────────────────
     // 6) Explanation + gate scoped to *current* index
     // ────────────────────────────────
-    interface FetState { idx: number; text: string; gate: boolean; }
+    interface FetState {
+      idx: number;
+      text: string;
+      gate: boolean;
+    }
   
     const fetForIndex$: Observable<FetState> = index$.pipe(
       switchMap(idx =>
@@ -502,38 +507,47 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // ────────────────────────────────
-    // 7) Final render mapping
+    // 7) Final render mapping (tested stable version)
     // ────────────────────────────────
-    return combineLatest([index$, display$, shouldShow$, questionText$, correctText$, fetForIndex$]).pipe(
-      debounceTime(60), // 🕒 gentle sync fix for Q2 flicker
+    return combineLatest([
+      index$,
+      display$,
+      shouldShow$,
+      questionText$,
+      correctText$,
+      fetForIndex$
+    ]).pipe(
+      debounceTime(80), // 🕒 stabilize for Q2 flicker and async render races
       map(([idx, display, shouldShow, question, correct, fet]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
-
-        // ✅ Show FET as soon as all guards are true (no display.mode gate)
-        const canShowFET =
-          idx === activeIdx &&
-          shouldShow &&
-          fet.gate &&
-          fet.text.trim().length > 0;
-
-        if (canShowFET) {
-          console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
-          return fet.text.trim();
-        }
-
-        // ✅ Always display question + correct count right away
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
+  
+        // ✅ Always show question text + correct count immediately
         const withCorrect =
           correct && correct.trim().length > 0
             ? `${question} <span class="correct-count">${correct}</span>`
             : question;
-
+  
+        // ✅ Show FET as soon as all guards are true
+        const canShowFET =
+          idx === currentIdx &&
+          idx === activeIdx &&
+          shouldShow &&
+          fet.gate &&
+          fet.text.trim().length > 0;
+  
+        if (canShowFET) {
+          console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
+          return fet.text.trim();
+        }
+  
+        // 🧩 Otherwise display question + correct count
         return withCorrect;
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-   
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$
