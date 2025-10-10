@@ -694,7 +694,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
   
       // Final mapping to actual display text
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
+      map((
+        [idx, display, shouldShow, baseline, correct, explanation, gate]:
+        [number, DisplayState, boolean, string, string, string | null, boolean]
+      ) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
       
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
