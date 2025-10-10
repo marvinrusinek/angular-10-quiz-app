@@ -1172,35 +1172,34 @@ export class ExplanationTextService {
 
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // 🧹 Close and clear previous index completely
-    if (this._activeIndex !== -1 && this._activeIndex !== index) {
-      const prev = this._activeIndex;
-      try { this._byIndex.get(prev)?.next(null); } catch {}
-      try { this._gate.get(prev)?.next(false); } catch {}
-      if (this.formattedExplanations?.[prev]) delete this.formattedExplanations[prev];
-      console.log(`[ETS] 🧹 Cleared previous FET cache for Q${prev + 1}`);
-    }
-  
-    // 🧩 Ensure subjects exist for new index
-    if (!this._byIndex.has(index)) {
-      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(index)) {
-      this._gate.set(index, new BehaviorSubject<boolean>(false));
-    }
-  
-    // 🚫 Force immediate null emission for the new index too
+    // 🚨 1. Flush ALL existing subjects first to prevent replays
     try {
-      this._byIndex.get(index)?.next(null);
-      this._gate.get(index)?.next(false);
+      this._byIndex.forEach((subj, key) => {
+        subj.next(null);
+        console.log(`[ETS] 🧹 Flushed stale FET for Q${key + 1}`);
+      });
+      this._gate.forEach((gate, key) => gate.next(false));
     } catch {}
   
+    // 2. Clear formatted cache for all indices
+    if (this.formattedExplanations) this.formattedExplanations = {};
+  
+    // 3. Rebuild subjects cleanly for this index
+    if (!this._byIndex.has(index))
+      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(index))
+      this._gate.set(index, new BehaviorSubject<boolean>(false));
+  
+    // 4. Force immediate null emit for safety
+    this._byIndex.get(index)!.next(null);
+    this._gate.get(index)!.next(false);
+  
+    // 5. Update active index
     this._activeIndex = index;
     this.formattedExplanations[index] = { questionIndex: index, explanation: null };
   
-    console.log(`[ETS] 🔁 resetForIndex(${index}) complete + null flushed`);
+    console.log(`[ETS] 🔁 resetForIndex(${index}) complete`);
   }
-  
 
   // Observable for a specific index (UI will subscribe per index)
   public explainNowFor(idx: number): Observable<string | null> {
