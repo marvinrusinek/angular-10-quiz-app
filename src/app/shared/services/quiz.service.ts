@@ -93,7 +93,13 @@ export class QuizService implements OnDestroy {
   correctAnswerOptions: Option[] = [];
   correctMessage$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   numberOfCorrectAnswers: number;
+
   correctAnswersCountSubject = new BehaviorSubject<number>(0);
+  public correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
+  
+  private correctAnswersTextSource = new BehaviorSubject<string>('');
+  public correctAnswersText$ = this.correctAnswersTextSource.asObservable();
+
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
 
@@ -1648,7 +1654,23 @@ export class QuizService implements OnDestroy {
     return 1; // default to Question 1 if parsing fails
   }
 
-  updateCorrectAnswersText(newText: string): void {
+  // Updates the correct answers count and emits both numeric and text variants.
+  public updateCorrectAnswersCount(count: number): void {
+    // Numeric update
+    this.correctAnswersCountSubject.next(count);
+
+    // Derived display string (used in combinedText$)
+    const text = count > 0 ? `${count} correct answer${count > 1 ? 's' : ''}` : '';
+    this.correctAnswersTextSource.next(text);
+
+    // Persist if needed
+    localStorage.setItem('correctAnswersCount', String(count));
+    localStorage.setItem('correctAnswersText', text);
+
+    console.log(`[QuizService] ✅ Updated correct answers → count=${count}, text="${text}"`);
+  }
+
+  public updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersText', newText);
     this.correctAnswersCountTextSource.next(newText);
   }
