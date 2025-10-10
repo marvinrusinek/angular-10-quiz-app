@@ -3254,51 +3254,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async onSubmitMultiple(): Promise<void> {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
-    if (!q) {
-      console.warn('[onSubmitMultiple] ❌ No question for index', idx);
-      return;
-    }
-  
-    console.log(`[onSubmitMultiple] 🧠 Starting for Q${idx + 1}`);
+    if (!q) return;
   
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // Ensure correct index first
+      // ✅ 1. Ensure proper index context
       this.explanationTextService._activeIndex = idx;
-    
-      // Reset and wait a full frame so BehaviorSubjects attach
+      console.log(`[onSubmitMultiple] ▶ Starting for Q${idx + 1}`);
+  
+      // 2. Hard reset first to clear Q1 FET bleed
       this.explanationTextService.resetForIndex(idx);
-      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
-    
-      // Immediately switch display mode BEFORE opening the explanation
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+      this.explanationTextService.emitFormatted(idx, null);
+      await new Promise(res => setTimeout(res, 100));
+  
+      // 3. Now open FET stream *after* display state flips
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       this.quizStateService.setAnswered(true);
       this.quizStateService.setAnswerSelected(true);
       this.nextButtonStateService.setNextButtonState(true);
-    
-      // Now safely open and display the explanation
+  
+      await new Promise(res => requestAnimationFrame(res)); // ensure Observables hot
+  
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      console.log(`[onSubmitMultiple] ✅ Explanation opened cleanly for Q${idx + 1}`);
-    
-      // Sync local mirrors
+  
+      console.log(`[onSubmitMultiple] ✅ Explanation opened for Q${idx + 1}`);
+  
+      // 4. Push correct answer count immediately
+      const correctCount = q.options?.filter(o => o.correct).length ?? 0;
+      this.quizService.correctAnswersCountSubject?.next(correctCount);
+      console.log(`[onSubmitMultiple] 🧮 Correct answers count: ${correctCount}`);
+  
+      // 5. Sync local mirrors
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
+  
     } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
+      console.warn('[onSubmitMultiple] ⚠️ Failed:', err);
     }
-    
-    try {
-      const correctCount = q.options?.filter(o => o.correct).length ?? 0;
-      this.quizService.correctAnswersCountSubject?.next(correctCount);
-      console.log(`[onSubmitMultiple] 🧮 Correct answers count pushed: ${correctCount}`);
-    } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ correctAnswersCount update failed:', err);
-    }    
   }
 
   private onQuestionTimedOut(targetIndex?: number): void {
