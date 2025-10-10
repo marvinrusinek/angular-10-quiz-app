@@ -231,10 +231,10 @@ export class QuizService implements OnDestroy {
     this.initializeData();
     this.loadData();
 
-    console.log('[QuizService] ♻️ Restored from localStorage', {
+    /* console.log('[QuizService] ♻️ Restored from localStorage', {
       count: storedCount,
       text: storedText,
-    });
+    }); */
   }
 
   ngOnDestroy(): void {
