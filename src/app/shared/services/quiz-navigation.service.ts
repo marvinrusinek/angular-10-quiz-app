@@ -371,13 +371,14 @@ export class QuizNavigationService {
       
         // 🧠 Only show “(# answers are correct)” for MultipleAnswer questions
         if (fresh.type === QuestionType.MultipleAnswer) {
+          // Only show for multi-answer questions
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
           this.quizService.updateCorrectAnswersText(msg);
-          console.log(`[NAV] 🧮 Correct answers text for multiple-answer Q${index + 1}:`, msg);
+          console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
         } else {
-          // Single-answer → clear banner text entirely
+          // ❌ Clear for single-answer questions
           this.quizService.updateCorrectAnswersText('');
-          console.log(`[NAV] ℹ️ Cleared correct answers text for single-answer Q${index + 1}`);
+          console.log(`[NAV] ℹ️ Cleared correct-answers text for single Q${index + 1}`);
         }
       
         const trimmedQ = (fresh.questionText ?? '').trim();
