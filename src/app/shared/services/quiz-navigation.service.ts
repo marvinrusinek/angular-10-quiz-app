@@ -11,6 +11,7 @@ import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
 import { NextButtonStateService } from './next-button-state.service';
 import { QuizQuestionLoaderService } from './quizquestionloader.service';
+import { QuizQuestionManagerService } from './quizquestionmgr.service';
 import { QuizService } from './quiz.service';
 import { QuizDataService } from './quizdata.service';
 import { QuizStateService } from './quizstate.service';
@@ -65,6 +66,7 @@ export class QuizNavigationService {
     private explanationTextService: ExplanationTextService,
     private nextButtonStateService: NextButtonStateService,
     private quizQuestionLoaderService: QuizQuestionLoaderService,
+    private quizQuestionManagerService: QuizQuestionManagerService,
     private quizService: QuizService,
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
