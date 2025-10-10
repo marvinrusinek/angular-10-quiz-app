@@ -506,15 +506,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );    
   
     // 7) Correct-count badge text
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.currentQuestionIndex$,
-      this.correctAnswersText$.pipe(startWith(''))
-    ]).pipe(
-      map(([idx, s]) => {
-        const text = (s ?? '').toString().trim();
-        console.log(`[CQCC] 💬 Correct text for Q${idx + 1}:`, text);
-        return text;
-      }),
+    const correctText$: Observable<string> = this.correctAnswersText$.pipe(
+      startWith(''),  // always emit once
+      map(s => (s ?? '').toString().trim()),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -700,31 +694,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
   
       // Final mapping to actual display text
-      map((
-        [idx, display, shouldShow, baseline, correct, explanation, gate]:
-        [number, DisplayState, boolean, string, string, string | null, boolean]
-      ) => {
+      map(([idx, display, shouldShow, baseline, correct, explanation, gate]: [
+        number,
+        { mode: 'question' | 'explanation'; answered: boolean },
+        boolean,
+        string,
+        string,
+        string | null,
+        boolean
+      ]) => {
         const question = canonicalQuestionFor(idx, baseline);
       
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
-        const isCurrent = idx === this.quizService.getCurrentQuestionIndex();
-        const canShowFET =
-          isCurrent &&
-          idx === activeIdx &&
-          gate &&
-          shouldShow &&
-          explanation?.trim()?.length;
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
       
-        // Allow explanation to display immediately after submit
-        if (canShowFET && display.mode === 'explanation') {
-          console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
+        const validFET =
+          idx === currentIdx &&
+          idx === activeIdx &&
+          !!explanation?.trim()?.length &&
+          gate &&
+          shouldShow;
+      
+        // 🧠 NEW: render order enforcement
+        // Always build correct-count overlay at the same time as question text
+        const withCorrect =
+          correct && correct.trim().length > 0
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+      
+        if (display.mode === 'explanation' && validFET) {
+          console.log(`[CQCC] ✅ Rendering formatted explanation for Q${idx + 1}`);
           return explanation!.trim();
         }
       
-        // Fallback to question text
-        return correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
+        // Otherwise render question + correct count
+        return withCorrect;
       }),
   
       observeOn(asyncScheduler),
