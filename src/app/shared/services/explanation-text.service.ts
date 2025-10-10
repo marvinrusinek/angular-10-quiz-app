@@ -1172,7 +1172,7 @@ export class ExplanationTextService {
 
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // 🚨 1. Flush ALL existing subjects first to prevent replays
+    // Flush ALL existing subjects first to prevent replays
     try {
       this._byIndex.forEach((subj, key) => {
         subj.next(null);
@@ -1181,20 +1181,20 @@ export class ExplanationTextService {
       this._gate.forEach((gate, key) => gate.next(false));
     } catch {}
   
-    // 2. Clear formatted cache for all indices
+    // Clear formatted cache for all indices
     if (this.formattedExplanations) this.formattedExplanations = {};
   
-    // 3. Rebuild subjects cleanly for this index
+    // Rebuild subjects cleanly for this index
     if (!this._byIndex.has(index))
       this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     if (!this._gate.has(index))
       this._gate.set(index, new BehaviorSubject<boolean>(false));
   
-    // 4. Force immediate null emit for safety
+    // Force immediate null emit for safety
     this._byIndex.get(index)!.next(null);
     this._gate.get(index)!.next(false);
   
-    // 5. Update active index
+    // Update active index
     this._activeIndex = index;
     this.formattedExplanations[index] = { questionIndex: index, explanation: null };
   
