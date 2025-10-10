@@ -673,7 +673,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           of(baseline),
           of(correct),
           of(gate),
-          this.explanationTextService.byIndex$(idx).pipe(
+          this.explanationTextService.byIndex$(Number(idx)).pipe(
             filter(text => !!text && text.trim().length > 0),
             take(1),
             timeout({ each: 1500, with: () => of(null) })
