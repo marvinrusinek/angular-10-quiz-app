@@ -3186,7 +3186,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const cached = this._formattedByIndex.get(idx);
             const rawTrue = (q?.explanation ?? '').trim();
             const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
-            this.setExplanationFor(i0, txt);
+            this.setExplanationFor(idx, txt);
           }
         
           // UI polish (no service writes)
