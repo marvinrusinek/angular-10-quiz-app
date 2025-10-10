@@ -468,10 +468,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       index$,
       this.correctAnswersText$.pipe(startWith(''))
     ]).pipe(
-      map(([, s]) => (s ?? '').toString().trim()),
+      map(([idx, s]) => {
+        const safe = (s ?? '').toString().trim();
+        console.log(`[CQCC] 🧮 correctText$ → Q${idx + 1}:`, safe);
+        return safe;
+      }),
+      startWith(''),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
   
     // ────────────────────────────────
     // 6) Explanation + gate scoped to *current* index
@@ -499,25 +505,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 7) Final render mapping
     // ────────────────────────────────
     return combineLatest([index$, display$, shouldShow$, questionText$, correctText$, fetForIndex$]).pipe(
+      debounceTime(60), // 🕒 gentle sync fix for Q2 flicker
       map(([idx, display, shouldShow, question, correct, fet]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
-  
+
+        // ✅ Show FET as soon as all guards are true (no display.mode gate)
         const canShowFET =
           idx === activeIdx &&
-          display.mode === 'explanation' &&
           shouldShow &&
           fet.gate &&
           fet.text.trim().length > 0;
-  
+
         if (canShowFET) {
           console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
           return fet.text.trim();
         }
-  
-        // ✅ Always include correct-count immediately after question text
-        return correct
-          ? `${question} <span class="correct-count">${correct}</span>`
-          : question;
+
+        // ✅ Always display question + correct count right away
+        const withCorrect =
+          correct && correct.trim().length > 0
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+
+        return withCorrect;
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
