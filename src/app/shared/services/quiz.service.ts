@@ -178,11 +178,6 @@ export class QuizService implements OnDestroy {
   badgeTextSource = new BehaviorSubject<string>('');
   badgeText = this.badgeTextSource.asObservable();
 
-  private correctAnswersCountTextSource = new BehaviorSubject<string>(
-    'Select answers'
-  );
-  correctAnswersCountText$ = this.correctAnswersCountTextSource.asObservable();
-
   private nextExplanationTextSource = new BehaviorSubject<string>('');
   nextExplanationText$ = this.nextExplanationTextSource.asObservable();
 
