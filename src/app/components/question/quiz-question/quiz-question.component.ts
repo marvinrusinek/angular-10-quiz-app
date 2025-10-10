@@ -234,7 +234,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public internalBufferReady = false;
 
   private displayStateSubject = new BehaviorSubject<{
-    mode: 'question' | 'explanation';
+    mode: 'question' | 'explanation',
     answered: boolean;
   }>({
     mode: 'question',
