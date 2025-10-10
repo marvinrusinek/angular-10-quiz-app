@@ -3052,12 +3052,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // Prevent double-submit loops
           if (!this._submittingMulti) {
             this._submittingMulti = true;
-
+        
             (async () => {
               try {
-                // Optional: stop timer, mark answered, show explanation, etc.
-                this.safeStopTimer('completed');
+                // 🧩 Explicitly mark answered state first
+                this.quizStateService.setAnswered(true);
+                this.quizStateService.setAnswerSelected(true);
+                this.nextButtonStateService.setNextButtonState(true);
+        
+                // 💡 Flush a frame to ensure display observables (combinedText$, displayState$) are ready
+                await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
+        
+                // 🚀 Now safely open the explanation via onSubmitMultiple
+                console.log(`[onOptionClicked] 🚀 allCorrect for Q${idx + 1} — calling onSubmitMultiple()`);
                 await this.onSubmitMultiple();
+        
+              } catch (err) {
+                console.warn('[onOptionClicked] ⚠️ onSubmitMultiple failed:', err);
               } finally {
                 this._submittingMulti = false;
               }
@@ -3243,44 +3254,39 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   public async onSubmitMultiple(): Promise<void> {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
-    if (!q) return;
+    if (!q) {
+      console.warn('[onSubmitMultiple] ❌ No question for index', idx);
+      return;
+    }
+  
+    console.log(`[onSubmitMultiple] 🧠 Starting for Q${idx + 1}`);
   
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // 1️⃣ Ensure the service is pointing to this question index
+      // Reset & sync
       this.explanationTextService._activeIndex = idx;
-  
-      // 2️⃣ Defensive guard — recreate subjects if missing (prevents undefined byIndex$)
-      if (!this.explanationTextService._byIndex.has(idx)) {
-        console.warn(`[onSubmitMultiple] ⚠️ Missing subject for Q${idx + 1}, recreating...`);
-        this.explanationTextService.resetForIndex(idx);
-      }
-  
-      // 3️⃣ Reset and wait a full frame so BehaviorSubjects attach
       this.explanationTextService.resetForIndex(idx);
-      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
+      await new Promise(res => setTimeout(res, 100));
   
-      // 4️⃣ Now safely open and display the explanation
-      try {
-        this.explanationTextService.openExclusive(idx, formatted);
-        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-        console.log(`[onSubmitMultiple] ✅ Explanation opened cleanly for Q${idx + 1}`);
-      } catch (err) {
-        console.warn('[onSubmitMultiple] ⚠️ openExclusive failed', err);
-      }
+      console.log(`[onSubmitMultiple] 🔁 resetForIndex done; opening gate for Q${idx + 1}`);
   
-      // 5️⃣ Update local + UI display states
+      // 🔒 Emit and open gate explicitly
+      this.explanationTextService.emitFormatted(idx, formatted);
+      this.explanationTextService.openExclusive(idx, formatted);
+      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+  
+      // ✅ Update UI
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
   
-      console.log(`[onSubmitMultiple] ✅ Explanation displayed for Q${idx + 1}`);
+      console.log(`[onSubmitMultiple] ✅ FET emitted + opened for Q${idx + 1}: ${formatted.slice(0,60)}…`);
     } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
+      console.error('[onSubmitMultiple] ⚠️ Error:', err);
     }
   }
 
