@@ -22,9 +22,7 @@ export class ExplanationTextService {
   private explanationTextSubject = new BehaviorSubject<string>('');
   public explanation$ = this.explanationTextSubject.asObservable();
 
-  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<
-    string | null
-  >('');
+  explanationText$: BehaviorSubject<string | null> = new BehaviorSubject<string | null>('');
   explanationTexts: Record<number, string> = {};
 
   formattedExplanations: Record<number, FormattedExplanation> = {};
