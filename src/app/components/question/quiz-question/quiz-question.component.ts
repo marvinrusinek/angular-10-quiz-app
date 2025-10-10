@@ -3248,16 +3248,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
-
+  
     try {
-      // Ensure correct index first
+      // 1️⃣ Ensure the service is pointing to this question index
       this.explanationTextService._activeIndex = idx;
-
-      // Reset and wait a full frame so BehaviorSubjects attach
+  
+      // 2️⃣ Defensive guard — recreate subjects if missing (prevents undefined byIndex$)
+      if (!this.explanationTextService._byIndex.has(idx)) {
+        console.warn(`[onSubmitMultiple] ⚠️ Missing subject for Q${idx + 1}, recreating...`);
+        this.explanationTextService.resetForIndex(idx);
+      }
+  
+      // 3️⃣ Reset and wait a full frame so BehaviorSubjects attach
       this.explanationTextService.resetForIndex(idx);
       await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
-
-      // Now safely open and display the explanation
+  
+      // 4️⃣ Now safely open and display the explanation
       try {
         this.explanationTextService.openExclusive(idx, formatted);
         this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
@@ -3265,13 +3271,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch (err) {
         console.warn('[onSubmitMultiple] ⚠️ openExclusive failed', err);
       }
-    
-      // Update local + UI display states
+  
+      // 5️⃣ Update local + UI display states
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
-    
+  
       console.log(`[onSubmitMultiple] ✅ Explanation displayed for Q${idx + 1}`);
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
