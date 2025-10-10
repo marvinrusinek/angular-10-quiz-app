@@ -407,7 +407,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
   
+    // ────────────────────────────────
     // 1) Current index (stable, seeded)
+    // ────────────────────────────────
     const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
@@ -415,44 +417,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 2) Guard index changes: close old index, pre-close new index, reset intent
-    let _lastIdx = -1;
-  
-    const guardedIndex$ = index$.pipe(
-      tap(i => {
-        // ... your existing previous-index cleanup ...
-    
-        // Reset display intent for new question
-        try { this.explanationTextService.setShouldDisplayExplanation(false, { force: true }); } catch {}
-        _lastIdx = i;
-    
-        // 🚨 Hard-flush residual FET in the service
-        try {
-          this.explanationTextService.emitFormatted(i, null);
-          this.explanationTextService.setGate(i, false);
-          console.log(`[CQCC] 🔄 Flushed residual FET before rendering Q${i + 1}`);
-        } catch {}
-    
-        // ✅ NEW: also clear any local mirrors so nothing stale renders
-        try {
-          (this as any).displayExplanation = false;
-          (this as any).explanationToDisplay = '';
-          (this as any).explanationToDisplayChange?.emit('');
-        } catch {}
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    // 3) Freeze: true immediately after index change, then false on next microtask
-    const indexFreeze$: Observable<boolean> = guardedIndex$.pipe(
-      switchMap(() =>
-        concat(of(true), timer(100).pipe(mapTo(false)))  // freeze for 350ms
-      ),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-  
-    // 4) Display state (typed & coalesced)
+    // ────────────────────────────────
+    // 2) Display state (typed & coalesced)
+    // ────────────────────────────────
     const display$: Observable<DisplayState> = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as DisplayState),
       map(v => {
@@ -465,278 +432,96 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 5) Global "should show" flag
-    const shouldShow$: Observable<boolean> =
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        map(Boolean),
-        startWith(false),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
+    // ────────────────────────────────
+    // 3) Global "should show" flag
+    // ────────────────────────────────
+    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      map(Boolean),
+      startWith(false),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   
-    // 6) Baseline question text candidate (force fresh emission per index)
-    const baselineText$: Observable<string> = guardedIndex$.pipe(
-      switchMap(i => {
-        // Force questionToDisplay$ to restart for this specific index
-        const question$ = this.questionToDisplay$.pipe(
-          startWith(''),
-          distinctUntilChanged(),
-          map(text => ({
-            idx: i,
-            text: (text ?? '').toString().trim()
-          }))
-        );
-    
-        // Also include fallback directly from QuizService.questions
-        const fallback$ = of(this.quizService.questions?.[i]?.questionText?.trim() ?? '');
-    
-        // Combine both, prefer live text first
-        return combineLatest([question$, fallback$]).pipe(
-          map(([q, fb]) => {
-            const safe = q.text || fb || `Loading question ${i + 1}…`;
-            console.log(`[CQCC] baselineText$ → Q${i + 1}:`, safe);
-            return safe;
-          }),
-          catchError(() => of(`Loading question ${i + 1}…`))
-        );
+    // ────────────────────────────────
+    // 4) Question text for *current* index
+    // ────────────────────────────────
+    const questionText$: Observable<string> = combineLatest([
+      index$,
+      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || ''))
+    ]).pipe(
+      map(([idx, base]) => {
+        const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
+        const model = (q?.questionText ?? '').toString().trim();
+        const fallback = (base ?? '').toString().trim();
+        const safe = model || fallback || this.questionLoadingText || `Question ${idx + 1} loading…`;
+        console.log(`[CQCC] 🧩 questionText$ → Q${idx + 1}:`, safe);
+        return safe;
       }),
-      startWith(''),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );    
-  
-    // 7) Correct-count badge text
-    const correctText$: Observable<string> = this.correctAnswersText$.pipe(
-      startWith(''),  // always emit once
-      map(s => (s ?? '').toString().trim()),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 8) Per-index explanation stream — hard-reset on every index switch
-    const perIndexExplanation$ = guardedIndex$.pipe(
-      switchMap(i => {
-        console.log(`[CQCC] 🔁 Switched to index ${i}`);
-
-        // 1️⃣ Immediate null emit to wipe previous explanation
-        const reset$ = of<string | null>(null);
-
-        // 2️⃣ After 150 ms, start listening for fresh explanation (only for this index)
-        const fresh$ = timer(150).pipe(
-          switchMap(() =>
-            this.explanationTextService.byIndex$(i).pipe(
-              tap(text =>
-                console.log(`[CQCC] 📖 byIndex$(${i}) =>`, text ? text.slice(0, 60) : 'null')
-              ),
-              // Ignore anything from a *different* index (e.g. stale replay)
-              filter(text => {
-                const active = this.explanationTextService._activeIndex;
-                const valid = !!text && text.trim().length > 0 && active === i;
-                if (!valid && text)
-                  console.log(
-                    `[CQCC] 🚫 Ignored stale FET from Q${active + 1} while on Q${i + 1}`
-                  );
-                return valid;
-              }),
-              distinctUntilChanged(),
-              catchError(() => of(null))
-            )
-          )
-        );
-
-        // 3️⃣ Concatenate reset then fresh stream
-        return concat(reset$, fresh$);
-      }),
-      startWith<string | null>(null),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-
-
-  
-    const perIndexGate$ = guardedIndex$.pipe(
-      switchMap(i => this.explanationTextService.gate$(i).pipe(startWith(false))),
-      auditTime(0),
+    // ────────────────────────────────
+    // 5) Correct-count badge text (per-index)
+    // ────────────────────────────────
+    const correctText$: Observable<string> = combineLatest([
+      index$,
+      this.correctAnswersText$.pipe(startWith(''))
+    ]).pipe(
+      map(([, s]) => (s ?? '').toString().trim()),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // 9) Canonical question resolver for an index (no stale fallback)
-    const canonicalQuestionFor = (idx: number, baseline: string): string => {
-      const quizQuestions = this.quizService.questions ?? this.questions ?? [];
-      const q = quizQuestions[idx];
-      const model = (q?.questionText ?? '').toString().trim();
-      const base = (baseline ?? '').toString().trim();
-    
-      // Stronger fallback: never reuse previous index’s baseline
-      if (!model && !base) {
-        console.warn(`[CQCC] ⚠️ Missing text for Q${idx + 1}`);
-        return `Question ${idx + 1} loading…`;
-      }
-    
-      return model || base || 'Loading…';
-    };    
-
-    // 🧩 Quarantine: wait 120 ms after any index change before allowing old FETs to propagate
-    const explanationQuarantine$ = guardedIndex$.pipe(
-      switchMap(i =>
-        concat(
-          of({ idx: i, quarantined: true }),
-          timer(120).pipe(mapTo({ idx: i, quarantined: false }))
+    // ────────────────────────────────
+    // 6) Explanation + gate scoped to *current* index
+    // ────────────────────────────────
+    interface FetState { idx: number; text: string; gate: boolean; }
+  
+    const fetForIndex$: Observable<FetState> = index$.pipe(
+      switchMap(idx =>
+        combineLatest([
+          this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
+          this.explanationTextService.gate$(idx).pipe(startWith(false))
+        ]).pipe(
+          map(([text, gate]) => ({
+            idx,
+            text: (text ?? '').toString(),
+            gate: !!gate
+          })),
+          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         )
       ),
-      startWith({ idx: 0, quarantined: false }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
-    console.log('[CQCC sanity check]', {
-      guardedIndex$: typeof guardedIndex$,
-      display$: typeof display$,
-      shouldShow$: typeof shouldShow$,
-      baselineText$: typeof baselineText$,
-      correctText$: typeof correctText$,
-      perIndexExplanation$: typeof perIndexExplanation$,
-      perIndexGate$: typeof perIndexGate$,
-      indexFreeze$: typeof indexFreeze$,
-      explanationQuarantine$: typeof explanationQuarantine$
-    });
   
-    // 10) Combine everything (fully typed tuple to keep 'display' strongly typed)
-    this.combinedText$ = combineLatest<
-      [number, DisplayState, boolean, string, string, string | null, boolean, boolean, { idx: number; quarantined: boolean }]
-    >([
-      guardedIndex$,
-      display$,
-      shouldShow$,
-      baselineText$,
-      correctText$,
-      perIndexExplanation$,
-      perIndexGate$,
-      indexFreeze$,
-      explanationQuarantine$
-    ]).pipe(
-      // Prevent render while frozen — allow first question paint
-      // Only freeze AFTER the first question has rendered
-      filter(([idx, , , , , , , frozen]) => {
-        // Let the first question (idx === 0) through immediately
-        if (idx === 0) return true;
-        return frozen === false;
-      }),
-
-      // Cross-index quarantine (must run BEFORE scan)
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen, quarantine]) => {
-        // 🚧 If we’re inside the quarantine window, suppress all explanations
-        const safeExplanation = quarantine.quarantined ? null : explanation;
-
-        const active = this.explanationTextService._activeIndex ?? idx;
-        const foreignExpl = active !== idx && safeExplanation && safeExplanation.trim().length > 0;
-        const sanitized = foreignExpl ? null : safeExplanation;
-
-        return [idx, display, shouldShow, baseline, correct, sanitized, gate, frozen] as const;
-      }),
-  
-      // Hold the last valid explanation per index to prevent cross-paint
-      scan(
-        (
-          store: { map: Map<number, string | null>; latest: any },
-          curr: readonly [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-        ) => {
-          const [idx, display, shouldShow, baseline, correct, explanation, gate, frozen] = curr;
-          if (!store.map) store.map = new Map<number, string | null>();
-          const lastForIdx = store.map.get(idx) ?? null;
-          const newExpl =
-            explanation && explanation.trim().length > 0 ? explanation.trim() : lastForIdx;
-  
-          store.map.set(idx, newExpl);
-          store.latest = [idx, display, shouldShow, baseline, correct, newExpl, gate, frozen];
-          return store;
-        },
-        { map: new Map(), latest: [] as any }
-      ),
-      // 🧩 Stabilize cross-index emissions
-      map((s: any) =>
-      s.latest as [number, DisplayState, boolean, string, string, string | null, boolean, boolean]
-      ),
-
-      // ✅ Guard so we only emit for the current question (with one microtask delay)
-      switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]) => {
-        const current = this.quizService.getCurrentQuestionIndex();
-        if (idx !== current) return EMPTY;
-        return of([idx, display, shouldShow, baseline, correct, explanation, gate, frozen]).pipe(delay(0));
-      }),
-  
-      // 🕒 Smart synchronization: wait until explanation + shouldShow + gate align
-      switchMap(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
-        const explanationReady$ = combineLatest([
-          of(idx),
-          of(display),
-          of(shouldShow),
-          of(baseline),
-          of(correct),
-          of(gate),
-          this.explanationTextService.byIndex$(Number(idx)).pipe(
-            filter(text => !!text && text.trim().length > 0),
-            take(1),
-            timeout({ each: 1500, with: () => of(null) })
-          )
-        ]).pipe(
-          map(([i, d, s, b, c, g, e]) => [i, d, s, b, c, e, g] as const),
-          catchError(() =>
-            of([idx, display, shouldShow, baseline, correct, explanation, gate] as const)
-          )
-        );
-
-        return explanationReady$;
-      }),
-
-      // 🕒 Gentle debounce to merge UI updates
-      debounceTime(80),
-
-      filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
-  
-      // Final mapping to actual display text
-      map(([idx, display, shouldShow, baseline, correct, explanation, gate]: [
-        number,
-        { mode: 'question' | 'explanation'; answered: boolean },
-        boolean,
-        string,
-        string,
-        string | null,
-        boolean
-      ]) => {
-        const question = canonicalQuestionFor(idx, baseline);
-      
+    // ────────────────────────────────
+    // 7) Final render mapping
+    // ────────────────────────────────
+    return combineLatest([index$, display$, shouldShow$, questionText$, correctText$, fetForIndex$]).pipe(
+      map(([idx, display, shouldShow, question, correct, fet]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
-        const currentIdx = this.quizService.getCurrentQuestionIndex();
-      
-        const validFET =
-          idx === currentIdx &&
-          idx === activeIdx &&
-          !!explanation?.trim()?.length &&
-          gate &&
-          shouldShow;
-      
-        // 🧠 NEW: render order enforcement
-        // Always build correct-count overlay at the same time as question text
-        const withCorrect =
-          correct && correct.trim().length > 0
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
-      
-        if (display.mode === 'explanation' && validFET) {
-          console.log(`[CQCC] ✅ Rendering formatted explanation for Q${idx + 1}`);
-          return explanation!.trim();
-        }
-      
-        // Otherwise render question + correct count
-        return withCorrect;
-      }),
   
-      observeOn(asyncScheduler),
+        const canShowFET =
+          idx === activeIdx &&
+          display.mode === 'explanation' &&
+          shouldShow &&
+          fet.gate &&
+          fet.text.trim().length > 0;
+  
+        if (canShowFET) {
+          console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
+          return fet.text.trim();
+        }
+  
+        // ✅ Always include correct-count immediately after question text
+        return correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
+      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>; 
-  
-    return this.combinedText$;
+    );
   }
    
 
