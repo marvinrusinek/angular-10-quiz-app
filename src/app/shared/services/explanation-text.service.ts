@@ -988,12 +988,12 @@ export class ExplanationTextService {
   public byIndex$(index: number): Observable<string | null> {
     return this.getOrCreate(index).text$.asObservable();
   }
-  
 
   // Back-compat aliases (optional): keep calls working but funnel to byIndex$
   public getFormattedStreamFor(index: number): Observable<string | null> {
     return this.byIndex$(index);
   }
+  
   public formattedFor$(index: number): Observable<string | null> {
     return this.byIndex$(index);
   }
@@ -1018,7 +1018,7 @@ export class ExplanationTextService {
     }
     const bs = this._gate.get(idx)!;
     const next = !!show;
-    if (bs.getValue() !== next) bs.next(next); // coalesce
+    if (bs.getValue() !== next) bs.next(next);  // coalesce
   }
 
   // ---- Hard reset one index (use when leaving an index)
