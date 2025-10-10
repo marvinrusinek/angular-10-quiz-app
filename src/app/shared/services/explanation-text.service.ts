@@ -986,23 +986,7 @@ export class ExplanationTextService {
 
   // Canonical per-index observable (null when nothing valid yet)
   public byIndex$(index: number): Observable<string | null> {
-    // 🧩 Defensive: ensure the map always exists
-    if (!this._byIndex) this._byIndex = new Map<number, BehaviorSubject<string | null>>();
-  
-    // 🧩 Ensure a subject exists for this index
-    if (!this._byIndex.has(index) || !(this._byIndex.get(index) instanceof BehaviorSubject)) {
-      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    }
-  
-    const subj = this._byIndex.get(index);
-  
-    // 🧠 Always return a valid Observable
-    if (!subj) {
-      console.warn(`[ETS] ⚠️ byIndex$(${index}) missing subject, returning null stream`);
-      return of(null);
-    }
-  
-    return subj.asObservable();
+    return this.getOrCreate(index).text$.asObservable();
   }
   
 
@@ -1016,34 +1000,15 @@ export class ExplanationTextService {
 
   // ---- Emit per-index formatted text; coalesces duplicates and broadcasts event
   public emitFormatted(index: number, value: string | null): void {
-    const idx = Math.max(0, Number(index) || 0);
-    const trimmed = (value ?? '').toString().trim() || null;
-
-    const last = this._lastByIndex.get(idx) ?? null;
-    if (last === trimmed) return; // coalesce duplicate emits
-
-    if (!this._byIndex.has(idx)) {
-      this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    }
-
-    this._lastByIndex.set(idx, trimmed);
-    this._byIndex.get(idx)!.next(trimmed);
-
-    // Record which index most recently produced a visible explanation
-    this._lastGlobalExplanationIndex = trimmed ? idx : this._lastGlobalExplanationIndex;
-
-    // Single, index-scoped event for anyone listening
-    this._events$.next({ index: idx, text: trimmed });
+    const { text$ } = this.getOrCreate(index);
+    const trimmed = (value ?? '').trim() || null;
+    text$.next(trimmed);
+    console.log(`[ETS] emitFormatted(${index}) →`, trimmed?.slice(0,60) ?? 'null');
   }
 
   // ---- Per-index gate
   public gate$(index: number): Observable<boolean> {
-    if (!this._gate.has(index)) {
-      this._gate.set(index, new BehaviorSubject<boolean>(false));
-    }
-  
-    const subj = this._gate.get(index);
-    return subj ? subj.asObservable() : of(false);
+    return this.getOrCreate(index).gate$.asObservable();
   }
 
   public setGate(index: number, show: boolean): void {
@@ -1090,44 +1055,14 @@ export class ExplanationTextService {
 
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
+    const { text$, gate$ } = this.getOrCreate(index);
     const trimmed = (formatted ?? '').trim() || null;
-  
-    // 🚫 Close all other indices immediately (no cross-paint)
-    for (const [k, subj] of this._byIndex.entries()) {
-      if (k !== index) {
-        try { subj.next(null); } catch {}
-      }
-    }
-    for (const [k, gate$] of this._gate.entries()) {
-      if (k !== index) {
-        try { gate$.next(false); } catch {}
-      }
-    }
-  
-    // 🎯 Ensure subjects for the target index
-    if (!this._byIndex.has(index)) {
-      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(index)) {
-      this._gate.set(index, new BehaviorSubject<boolean>(false));
-    }
-  
-    // Mark the active index and emit atomically
     this._activeIndex = index;
-    this._byIndex.get(index)!.next(trimmed);
-    this._gate.get(index)!.next(!!trimmed);
-  
-    // Optional cache update if you keep one
-    if (this.formattedExplanations) {
-      this.formattedExplanations[index] = {
-        questionIndex: index,
-        explanation: trimmed,
-      } as any;
-    }
-  
-    console.log(`[ETS] ✅ openExclusive(${index}) emitted (len=${trimmed?.length ?? 0})`);
+    text$.next(trimmed);
+    gate$.next(!!trimmed);
+    console.log(`[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}`);
   }
-  
+
   public closeOthersExcept(index: number): void {
     const idx = Math.max(0, Number(index) || 0);
   
@@ -1168,36 +1103,29 @@ export class ExplanationTextService {
     }
   }
 
+  private getOrCreate(index: number) {
+    if (!this._byIndex.has(index)) this._byIndex.set(index, new BehaviorSubject<string | null>(null));
+    if (!this._gate.has(index))   this._gate.set(index,   new BehaviorSubject<boolean>(false));
+    return { text$: this._byIndex.get(index)!, gate$: this._gate.get(index)! };
+  }
+
   // Reset explanation state cleanly for a new index
   public resetForIndex(index: number): void {
-    // Close previous active index completely
+    // close previous
     if (this._activeIndex !== -1 && this._activeIndex !== index) {
-      const prev = this._activeIndex;
-      try { this._byIndex.get(prev)?.next(null); } catch {}
-      try { this._gate.get(prev)?.next(false); } catch {}
-      if (this.formattedExplanations?.[prev]) delete this.formattedExplanations[prev];
-      console.log(`[ETS] 🧹 Cleared previous FET cache for Q${prev + 1}`);
+      try { this._byIndex.get(this._activeIndex)?.next(null); } catch {}
+      try { this._gate.get(this._activeIndex)?.next(false); } catch {}
+      delete this.formattedExplanations?.[this._activeIndex];
     }
   
-    // Ensure subjects for new index
-    if (!this._byIndex.has(index)) {
-      this._byIndex.set(index, new BehaviorSubject<string | null>(null));
-    }
-    if (!this._gate.has(index)) {
-      this._gate.set(index, new BehaviorSubject<boolean>(false));
-    }
+    // ensure and hard-emit null/false for new index
+    const { text$, gate$ } = this.getOrCreate(index);
+    try { text$.next(null); } catch {}
+    try { gate$.next(false); } catch {}
   
-    // ✅ Immediately emit null for the new index so UI starts clean
-    try {
-      this._byIndex.get(index)!.next(null);
-      this._gate.get(index)!.next(false);
-    } catch {}
-  
-    // Update internal state
     this._activeIndex = index;
     this.formattedExplanations[index] = { questionIndex: index, explanation: null };
-  
-    console.log(`[ETS] 🔁 resetForIndex(${index}) emitted null + closed all others`);
+    console.log(`[ETS] resetForIndex(${index}) -> null/false`);
   }
 
   // Observable for a specific index (UI will subscribe per index)
