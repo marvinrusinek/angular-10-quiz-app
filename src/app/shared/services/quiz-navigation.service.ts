@@ -362,14 +362,13 @@ export class QuizNavigationService {
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
           try {
-            // Broadcast the new question text to the UI observable
+            // 🕒 Delay text emission slightly to avoid cross-paint from previous question
+            await new Promise(res => setTimeout(res, 100));
             this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
-            console.log(`[NAV] 🧩 Updated questionToDisplay$ for Q${index + 1}:`, trimmedQ);
+            console.log(`[NAV] 🧩 Delayed emission for Q${index + 1}:`, trimmedQ);
           } catch (err) {
             console.warn('[NAV] ⚠️ Failed to update questionToDisplay$', err);
           }
-        } else {
-          console.warn(`[NAV] ⚠️ Empty question text for Q${index + 1}`);
         }
       } else {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
