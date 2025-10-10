@@ -3290,6 +3290,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       (this as any).explanationToDisplayChange?.emit(formatted);
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
+    }
+    
+    try {
+      const correctCount = q.options?.filter(o => o.correct).length ?? 0;
+      this.quizService.correctAnswersCountSubject?.next(correctCount);
+      console.log(`[onSubmitMultiple] 🧮 Correct answers count pushed: ${correctCount}`);
+    } catch (err) {
+      console.warn('[onSubmitMultiple] ⚠️ correctAnswersCount update failed:', err);
     }    
   }
 
