@@ -79,7 +79,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private pendingExplanationRequests = new Map<string, Subscription>();
   private pendingExplanationKeys = new Set<string>();
   private latestViewState: QuestionViewState | null = null;
-  private previousExplanationSnapshot: { resolved: string; cached: string; fallback: string } | null = null;
+  private previousExplanationSnapshot: { resolved: string, cached: string, fallback: string } | null = null;
   private latestDisplayMode: 'question' | 'explanation' = 'question';
   private awaitingQuestionBaseline = false;
   private renderModeByKey = new Map<string, 'question' | 'explanation'>();
