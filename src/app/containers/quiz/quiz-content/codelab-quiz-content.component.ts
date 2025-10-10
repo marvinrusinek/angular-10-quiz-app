@@ -692,34 +692,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(80),
 
       filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
-      tap(([idx]) => console.log(`[CQCC] 🎯 Rendering text for Q${idx + 1}`)),
   
       // Final mapping to actual display text
       map(([idx, display, shouldShow, baseline, correct, explanation, gate]) => {
         const question = canonicalQuestionFor(Number(idx), baseline);
       
-        const currentIdx = this.quizService.getCurrentQuestionIndex();
-        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
-      
-        // Only allow explanation when all guards pass AND explanation text exists
-        const validExplanation =
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const isCurrent = idx === this.quizService.getCurrentQuestionIndex();
+        const canShowFET =
+          isCurrent &&
+          idx === activeIdx &&
           gate &&
           shouldShow &&
-          !!explanation?.trim()?.length &&
-          idx === this.explanationTextService._activeIndex &&
-          idx === this.quizService.getCurrentQuestionIndex();
+          explanation?.trim()?.length;
       
-          const wantsExplanation = validExplanation && display.mode === 'explanation';
-      
-        // NEW: fallback guard — if not valid, ensure question text always shows
-        if (!wantsExplanation) {
-          return correct
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
+        // Allow explanation to display immediately after submit
+        if (canShowFET && display.mode === 'explanation') {
+          console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
+          return explanation!.trim();
         }
       
-        // Only if everything passes → explanation text
-        return explanation!.trim();
+        // Fallback to question text
+        return correct
+          ? `${question} <span class="correct-count">${correct}</span>`
+          : question;
       }),
   
       observeOn(asyncScheduler),
