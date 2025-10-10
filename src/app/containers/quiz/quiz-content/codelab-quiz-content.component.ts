@@ -227,6 +227,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.questionToDisplay$.subscribe(q =>
       console.log('[CQCC] questionToDisplay$', q)
     );
+
+    this.explanationTextService.resetForIndex(0);
+    this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
     
     // 🧩 Build the stream only once globally
     this.combinedText$ = this.getCombinedDisplayTextStream();
@@ -700,13 +703,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         // Only allow explanation when all guards pass AND explanation text exists
         const validExplanation =
-          idx === currentIdx &&
-          idx === activeIdx &&
-          gate === true &&
-          shouldShow === true &&
-          !!explanation?.trim()?.length;
+          gate &&
+          shouldShow &&
+          !!explanation?.trim()?.length &&
+          idx === this.explanationTextService._activeIndex &&
+          idx === this.quizService.getCurrentQuestionIndex();
       
-        const wantsExplanation = validExplanation && display.mode === 'explanation';
+          const wantsExplanation = validExplanation && display.mode === 'explanation';
       
         // NEW: fallback guard — if not valid, ensure question text always shows
         if (!wantsExplanation) {
