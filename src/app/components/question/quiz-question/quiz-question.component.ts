@@ -3290,7 +3290,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
   
-      // 🧮 Update the “# of correct answers” banner text only for MultipleAnswer questions
+      // 🧮 Update “# of correct answers” text only for MultipleAnswer questions
       try {
         if (q.type === QuestionType.MultipleAnswer) {
           const numCorrect = correctIdxs.length;
@@ -3300,7 +3300,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
         } else {
-          // SingleAnswer → explicitly clear banner
+          // SingleAnswer → clear text explicitly
           this.quizService.updateCorrectAnswersText('');
           console.log(`[onSubmitMultiple] ℹ️ Cleared correct answers text for single-answer Q${idx + 1}`);
         }
@@ -3312,7 +3312,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
-  }
+  }  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
