@@ -6,6 +6,7 @@ import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { Option } from '../models/Option.model';
 import { QuestionPayload } from '../models/QuestionPayload.model';
+import { QuestionType } from '../../shared/models/question-type.enum';
 import { Quiz } from '../models/Quiz.model';
 import { QuizQuestion } from '../models/QuizQuestion.model';
 import { ExplanationTextService } from './explanation-text.service';
@@ -367,15 +368,20 @@ export class QuizNavigationService {
       if (fresh) {
         const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
         const totalOpts = (fresh.options ?? []).length;
-    
-        const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-    
-        this.quizService.updateCorrectAnswersText(msg);
-
+      
+        // Only show correct-answer text for MultipleAnswer questions
+        if (fresh.type === QuestionType.MultipleAnswer) {
+          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+          this.quizService.updateCorrectAnswersText(msg);
+        } else {
+          // SingleAnswer → clear text
+          this.quizService.updateCorrectAnswersText('');
+        }
+      
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
           try {
-            // 🕒 Delay text emission slightly to avoid cross-paint from previous question
+            // Delay text emission slightly to avoid cross-paint from previous question
             await new Promise(res => setTimeout(res, 100));
             this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
             console.log(`[NAV] 🧩 Delayed emission for Q${index + 1}:`, trimmedQ);
@@ -386,6 +392,7 @@ export class QuizNavigationService {
       } else {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
       }
+      
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
