@@ -1671,18 +1671,20 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    // Normalize — only persist non-empty messages
     const text = (newText ?? '').trim();
   
-    if (text.length > 0) {
-      localStorage.setItem('correctAnswersText', text);
-      this.correctAnswersCountTextSource.next(text);
-    } else {
-      // Clear both localStorage + BehaviorSubject for single-answer questions
+    if (text.length === 0) {
+      // Clear both memory + storage if empty
       localStorage.removeItem('correctAnswersText');
       this.correctAnswersCountTextSource.next('');
+      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+    } else {
+      // ✅ Persist only meaningful text
+      localStorage.setItem('correctAnswersText', text);
+      this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-  }
+  }  
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
