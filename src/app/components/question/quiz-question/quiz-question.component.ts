@@ -3262,43 +3262,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
     try {
-      // 1. Ensure proper index context
+      // ✅ Hard-sync index before anything else
       this.explanationTextService._activeIndex = idx;
-      console.log(`[onSubmitMultiple] ▶ Starting for Q${idx + 1}`);
-  
-      // 2. Hard reset first to clear Q1 FET bleed
       this.explanationTextService.resetForIndex(idx);
-      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       this.explanationTextService.emitFormatted(idx, null);
-      await new Promise(res => setTimeout(res, 100));
+      this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
   
-      // 3. Now open FET stream *after* display state flips
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-      this.quizStateService.setAnswered(true);
-      this.quizStateService.setAnswerSelected(true);
-      this.nextButtonStateService.setNextButtonState(true);
+      // 🧠 Double flush: one RAF + one small delay to guarantee BehaviorSubjects attach
+      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 100)));
   
-      await new Promise(res => requestAnimationFrame(res)); // ensure Observables hot
-  
+      // ✅ Open cleanly for this question only
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
   
-      console.log(`[onSubmitMultiple] ✅ Explanation opened for Q${idx + 1}`);
+      // 🧩 Force displayState refresh
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
   
-      // 4. Push correct answer count immediately
-      const correctCount = q.options?.filter(o => o.correct).length ?? 0;
-      this.quizService.correctAnswersCountSubject?.next(correctCount);
-      console.log(`[onSubmitMultiple] 🧮 Correct answers count: ${correctCount}`);
-  
-      // 5. Sync local mirrors
+      // 🪞 Reflect locally
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
   
+      console.log(`[onSubmitMultiple] ✅ Explanation displayed cleanly for Q${idx + 1}`);
     } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ Failed:', err);
+      console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
   }
+  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
