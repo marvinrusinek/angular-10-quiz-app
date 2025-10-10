@@ -2873,7 +2873,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     // [LOCK] Hard block re-clicks using NUMERIC optionId (matches SOC’s checks).
     try {
       const lockIdNum = Number(evtOpt?.optionId);
-      if (Number.isFinite(lockIdNum) && this.selectedOptionService.isOptionLocked(i0, lockIdNum)) {
+      if (Number.isFinite(lockIdNum) && this.selectedOptionService.isOptionLocked(idx, lockIdNum)) {
         // Already spent → ignore silently
         return;
       }
@@ -2971,7 +2971,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const allIdsNum = (this.optionsToDisplay ?? [])
               .map(o => Number(o.optionId))
               .filter(Number.isFinite);
-            this.selectedOptionService.lockMany(i0, allIdsNum as number[]);
+            this.selectedOptionService.lockMany(idx, allIdsNum as number[]);
           } else {
             // Incorrect click → DO NOT freeze the group
             // leave other options unlocked so the user can try again
