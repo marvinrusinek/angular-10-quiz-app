@@ -2857,7 +2857,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    //const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
+    const idx = this.quizService.getCurrentQuestionIndex();
     const q = this.questions?.[i0];
     const evtIdx = event.index;
     const evtOpt = event.option;
