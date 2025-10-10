@@ -304,48 +304,43 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     try {
-      // Clear local mirrors so only combinedText$ drives the UI after nav
+      // 💥 Fully clear local mirrors
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
       (this as any).explanationToDisplayChange?.emit('');
-    } catch {}
     
-    /* ────────────────────────────────────────────────
-       🧩 FULL EXPLANATION RESET BEFORE ROUTE CHANGE
-       - Flush every BehaviorSubject except the new index
-       - Prevents FET or gate from previous question (Q1)
-         from leaking into next question (Q2)
-       ──────────────────────────────────────────────── */
-    try {
-      // Fully clear explanation state for all questions except the target
-      this.explanationTextService._byIndex?.forEach((subj, key) => {
-        if (key !== index) {
+      // 💣 Global flush of all BehaviorSubjects before navigation
+      if (this.explanationTextService?._byIndex) {
+        this.explanationTextService._byIndex.forEach((subj, key) => {
           try { subj.next(null); } catch {}
-        }
-      });
-      this.explanationTextService._gate?.forEach((subj, key) => {
-        if (key !== index) {
+        });
+      }
+      if (this.explanationTextService?._gate) {
+        this.explanationTextService._gate.forEach((subj, key) => {
           try { subj.next(false); } catch {}
-        }
-      });
+        });
+      }
     
-      // Reset first to wipe stale FET before route change
+      // Force active index invalidation
+      this.explanationTextService._activeIndex = -1;
+    
+      // Reset the target index cleanly
       this.explanationTextService.resetForIndex(index);
-      await new Promise(res => setTimeout(res, 50));
+      await new Promise(res => setTimeout(res, 75));
     
-      // Close display gates for this new index (explicit reset)
+      // Close explanation display for the new index
       this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
       this.explanationTextService.emitFormatted(index, null);
     
       // Wait briefly so resets propagate through BehaviorSubjects
-      await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => setTimeout(res, 125));
     
-      // Clean per-question state
+      // Clean option/UI state
       this.selectedOptionService.resetOptionState(currentIndex);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
     
-      console.log(`[NAV] 🧹 Global FET reset + delay complete before route (index=${index})`);
+      console.log(`[NAV] 🧹 Full flush complete before routing → Q${index + 1}`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
     }
