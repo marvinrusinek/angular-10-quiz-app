@@ -3048,32 +3048,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
         // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
         // inside onOptionClicked(), near where you check allCorrect
-        if (q?.type === QuestionType.MultipleAnswer && allCorrect) {
-          // Prevent double-submit loops
-          if (!this._submittingMulti) {
-            this._submittingMulti = true;
-        
-            (async () => {
-              try {
-                // 🧩 Explicitly mark answered state first
-                this.quizStateService.setAnswered(true);
-                this.quizStateService.setAnswerSelected(true);
-                this.nextButtonStateService.setNextButtonState(true);
-        
-                // 💡 Flush a frame to ensure display observables (combinedText$, displayState$) are ready
-                await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
-        
-                // 🚀 Now safely open the explanation via onSubmitMultiple
-                console.log(`[onOptionClicked] 🚀 allCorrect for Q${idx + 1} — calling onSubmitMultiple()`);
-                await this.onSubmitMultiple();
-        
-              } catch (err) {
-                console.warn('[onOptionClicked] ⚠️ onSubmitMultiple failed:', err);
-              } finally {
-                this._submittingMulti = false;
-              }
-            })();
-          }
+        // Always fire submit when complete (single or multi)
+        const isSingle = q?.type === QuestionType.SingleAnswer;
+        const isMultiComplete = q?.type === QuestionType.MultipleAnswer && allCorrect;
+
+        if ((isSingle || isMultiComplete) && !this._submittingMulti) {
+          this._submittingMulti = true;
+
+          (async () => {
+            try {
+              // Explicitly mark answered state first
+              this.quizStateService.setAnswered(true);
+              this.quizStateService.setAnswerSelected(true);
+              this.nextButtonStateService.setNextButtonState(true);
+
+              // Flush a frame to ensure display observables (combinedText$, displayState$) are ready
+              await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
+
+              // Now safely open the explanation via onSubmitMultiple
+              console.log(`[onOptionClicked] 🚀 ${isSingle ? 'single' : 'multi'} correct for Q${idx + 1} — calling onSubmitMultiple()`);
+              await this.onSubmitMultiple();
+
+            } catch (err) {
+              console.warn('[onOptionClicked] ⚠️ onSubmitMultiple failed:', err);
+            } finally {
+              this._submittingMulti = false;
+            }
+          })();
         }
       
         // NEW: Emit explanation intent + cache NOW (don't wait for RAF)

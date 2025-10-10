@@ -25,7 +25,7 @@ interface QuestionViewState {
   question: QuizQuestion | null
 }
 
-type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
+type DisplayState = { mode: 'question' | 'explanation', answered: boolean };
 
 @Component({
   selector: 'codelab-quiz-content',
