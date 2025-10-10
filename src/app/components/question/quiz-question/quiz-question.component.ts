@@ -3242,7 +3242,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  public onSubmitMultiple(): void {
+  public async onSubmitMultiple(): Promise<void> {
     const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
     const q = this.quizService.questions?.[idx];
     if (!q) return;
@@ -3252,19 +3252,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
 
     try {
-      // Push the explanation text for the current question
+      // 🚨 Ensure the ExplanationTextService is pointing to this question
+      this.explanationTextService._activeIndex = idx;
+      this.explanationTextService.resetForIndex(idx);  // hard sync
+      await new Promise(res => setTimeout(res, 150));   // brief microtask flush
+    
+      // 🔒 Open the gate for this question only
       this.explanationTextService.openExclusive(idx, formatted);
-    
-      // Tell the app to show the explanation immediately
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
     
-      // Trigger change detection to sync the DOM in the same tick
-      this.cdRef.detectChanges();
+      // Update local + UI display states
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+      (this as any).displayExplanation = true;
+      (this as any).explanationToDisplay = formatted;
+      (this as any).explanationToDisplayChange?.emit(formatted);
     
       console.log(`[onSubmitMultiple] ✅ Explanation displayed for Q${idx + 1}`);
     } catch (err) {
-      console.warn('[onSubmitMultiple] ⚠️ openExclusive sequencing failed:', err);
+      console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
   }
 
