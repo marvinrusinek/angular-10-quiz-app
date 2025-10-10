@@ -100,7 +100,7 @@ export class QuizService implements OnDestroy {
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
   private correctAnswersCountTextSource = new BehaviorSubject<string>(
-    localStorage.getItem('correctAnswersText') || 'Please select an answer'
+    localStorage.getItem('correctAnswersText')?.trim() || ''
   );
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
@@ -1671,14 +1671,17 @@ export class QuizService implements OnDestroy {
   }
 
   updateCorrectAnswersText(newText: string): void {
-    const text = (newText ?? '').trim() || 'Please select an answer';
-    this.correctAnswersCountTextSource.next(text);
-    localStorage.setItem('correctAnswersText', text);
+    // Normalize — only persist non-empty messages
+    const text = (newText ?? '').trim();
   
-    const match = text.match(/\d+/);
-    const count = match ? Number(match[0]) : 0;
-    this.correctAnswersCountSubject.next(count);
-    localStorage.setItem('correctAnswersCount', count.toString());
+    if (text.length > 0) {
+      localStorage.setItem('correctAnswersText', text);
+      this.correctAnswersCountTextSource.next(text);
+    } else {
+      // Clear both localStorage + BehaviorSubject for single-answer questions
+      localStorage.removeItem('correctAnswersText');
+      this.correctAnswersCountTextSource.next('');
+    }
   }
 
   updateCorrectMessageText(message: string): void {
