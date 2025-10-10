@@ -3292,7 +3292,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // 🧮 Update “# of correct answers” text only for MultipleAnswer questions
       try {
-        if (q.type === QuestionType.MultipleAnswer) {
+        const typeVal = q.type?.toString().toLowerCase();
+        if (typeVal.includes('multiple')) {
           const numCorrect = correctIdxs.length;
           const totalOpts = q.options?.length ?? 0;
   
