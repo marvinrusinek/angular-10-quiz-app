@@ -3250,14 +3250,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
 
     try {
-      // 🚨 Ensure the ExplanationTextService is pointing to this question
+      // Ensure correct index first
       this.explanationTextService._activeIndex = idx;
-      this.explanationTextService.resetForIndex(idx);  // hard sync
-      await new Promise(res => setTimeout(res, 150));   // brief microtask flush
-    
-      // 🔒 Open the gate for this question only
-      this.explanationTextService.openExclusive(idx, formatted);
-      this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+
+      // Reset and wait a full frame so BehaviorSubjects attach
+      this.explanationTextService.resetForIndex(idx);
+      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
+
+      // Now safely open and display the explanation
+      try {
+        this.explanationTextService.openExclusive(idx, formatted);
+        this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
+        console.log(`[onSubmitMultiple] ✅ Explanation opened cleanly for Q${idx + 1}`);
+      } catch (err) {
+        console.warn('[onSubmitMultiple] ⚠️ openExclusive failed', err);
+      }
     
       // Update local + UI display states
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
