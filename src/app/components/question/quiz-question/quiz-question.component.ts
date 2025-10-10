@@ -2863,10 +2863,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const evtOpt = event.option;
   
     // EARLY GUARD: no option selected
-    if (evtOpt == null) {
-      // Message no longer set here, service will handle baseline
-      return;
-    }
+    if (evtOpt == null) return;
   
     // Stable key helper available throughout
     const getStableId = (o: Option | SelectedOption, idx?: number) =>
