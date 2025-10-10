@@ -3283,7 +3283,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.emitFormatted(idx, formatted);
       
       const correctCount = this.explanationTextService.getCorrectOptionIndices(q).length;
-      this.quizService.correctAnswersCountSubject?.next(correctCount);
+      this.quizService.updateCorrectAnswersCount(correctCount);
       console.log(`[onSubmitMultiple] 🔔 FET + correct-count emitted for Q${idx + 1}`);
 
       // 🧠 Sync local + UI display
