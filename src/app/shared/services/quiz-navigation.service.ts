@@ -317,7 +317,7 @@ export class QuizNavigationService {
          from leaking into next question (Q2)
        ──────────────────────────────────────────────── */
     try {
-      // 🔁 Fully clear explanation state for all questions except the target
+      // Fully clear explanation state for all questions except the target
       this.explanationTextService._byIndex?.forEach((subj, key) => {
         if (key !== index) {
           try { subj.next(null); } catch {}
