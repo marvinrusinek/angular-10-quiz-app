@@ -3253,39 +3253,45 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async onSubmitMultiple(): Promise<void> {
-    const idx = this.currentQuestionIndex ?? this.quizService.currentQuestionIndex ?? 0;
+    const idx = this.currentQuestionIndex ?? this.quizService.getCurrentQuestionIndex() ?? 0;
     const q = this.quizService.questions?.[idx];
-    if (!q) return;
+    if (!q) {
+      console.warn(`[onSubmitMultiple] ❌ No question found at index ${idx}`);
+      return;
+    }
   
     const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q);
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
+    console.log(`[onSubmitMultiple] 🧩 Prepared formatted text for Q${idx + 1}:`, formatted.slice(0, 60));
+  
     try {
-      // 🧠 Ensure the service is ready and points to the correct index
+      // 🔒 Ensure active index points to this question only
       this.explanationTextService._activeIndex = idx;
   
-      // 🔄 Reset and delay slightly to guarantee BehaviorSubjects attach
+      // 🧹 Full reset before opening
       this.explanationTextService.resetForIndex(idx);
-      await new Promise(res => setTimeout(res, 100));
+      await new Promise(res => requestAnimationFrame(() => setTimeout(res, 60)));
   
-      // ✅ Open the explanation *after* the reset completes
+      // ✅ Open & emit cleanly
       this.explanationTextService.openExclusive(idx, formatted);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+      this.explanationTextService.emitFormatted(idx, formatted);
   
-      // 🔊 Log confirmation
-      console.log(`[onSubmitMultiple] ✅ FET opened for Q${idx + 1}:`, formatted.slice(0, 60));
-      
-      // Update local + UI
+      // 🧠 Sync local + UI display
+      this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
       (this as any).explanationToDisplayChange?.emit(formatted);
+  
+      console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
   
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
   }
+  
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
