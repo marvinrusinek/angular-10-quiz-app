@@ -466,7 +466,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 5) Correct-count badge text (per-index)
     // ────────────────────────────────
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       index$,
       this.correctAnswersText$.pipe(startWith(''))
     ]).pipe(
@@ -476,6 +476,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return safe;
       }),
       startWith(''),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
+      startWith(''), // seed immediately
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
