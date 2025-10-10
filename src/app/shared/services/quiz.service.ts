@@ -1692,6 +1692,14 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     localStorage.setItem('correctAnswersText', newText);
     this.correctAnswersCountTextSource.next(newText);
+  
+    // Extract and store numeric count if text contains one
+    const match = newText.match(/\d+/);
+    if (match) {
+      const count = Number(match[0]);
+      localStorage.setItem('correctAnswersCount', count.toString());
+      this.correctAnswersCountSubject.next(count);
+    }
   }
 
   updateCorrectMessageText(message: string): void {
