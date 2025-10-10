@@ -236,24 +236,6 @@ export class QuizService implements OnDestroy {
     this.initializeData();
     this.loadData();
 
-    // Initialize BehaviorSubjects
-    this.correctAnswersCountSubject = new BehaviorSubject<number>(0);
-    this.correctAnswersCountTextSource = new BehaviorSubject<string>('Please select an answer');
-
-    
-    // Restore persisted values from localStorage
-    const storedCount = localStorage.getItem('correctAnswersCount');
-    const storedText =
-      localStorage.getItem('correctAnswersText') || 'Please select an answer';
-
-    if (storedText && storedText.trim().length > 0) {
-      this.correctAnswersCountTextSource.next(storedText.trim());
-    }
-
-    if (storedCount !== null && !isNaN(Number(storedCount))) {
-      this.correctAnswersCountSubject.next(Number(storedCount));
-    }
-
     console.log('[QuizService] ♻️ Restored from localStorage', {
       count: storedCount,
       text: storedText,
@@ -1684,7 +1666,7 @@ export class QuizService implements OnDestroy {
 
     // Derived display string (used in combinedText$)
     const text = count > 0 ? `${count} correct answer${count > 1 ? 's' : ''}` : '';
-    this.correctAnswersTextSource.next(text);
+    this.correctAnswersCountTextSource.next(text);
 
     // Persist if needed
     localStorage.setItem('correctAnswersCount', String(count));
@@ -1693,17 +1675,15 @@ export class QuizService implements OnDestroy {
     console.log(`[QuizService] ✅ Updated correct answers → count=${count}, text="${text}"`);
   }
 
-  public updateCorrectAnswersText(newText: string): void {
-    localStorage.setItem('correctAnswersText', newText);
-    this.correctAnswersCountTextSource.next(newText);
+  updateCorrectAnswersText(newText: string): void {
+    const text = (newText ?? '').trim() || 'Please select an answer';
+    this.correctAnswersCountTextSource.next(text);
+    localStorage.setItem('correctAnswersText', text);
   
-    // Extract and store numeric count if text contains one
-    const match = newText.match(/\d+/);
-    if (match) {
-      const count = Number(match[0]);
-      localStorage.setItem('correctAnswersCount', count.toString());
-      this.correctAnswersCountSubject.next(count);
-    }
+    const match = text.match(/\d+/);
+    const count = match ? Number(match[0]) : 0;
+    this.correctAnswersCountSubject.next(count);
+    localStorage.setItem('correctAnswersCount', count.toString());
   }
 
   updateCorrectMessageText(message: string): void {
