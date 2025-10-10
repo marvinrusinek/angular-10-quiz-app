@@ -77,7 +77,7 @@ export class ExplanationTextService {
   private readonly _gateByIndex = new Map<number, BehaviorSubject<boolean>>();
 
   private _lastEmittedByIndex = new Map<number, string | null>();
-  private _byIndex = new Map<number, BehaviorSubject<string | null>>();
+  public _byIndex = new Map<number, BehaviorSubject<string | null>>();
   private _lastByIndex = new Map<number, string | null>();
 
   private _lastEmitIndex = new BehaviorSubject<number | null>(null);
