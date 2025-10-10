@@ -34,8 +34,8 @@ export class QuizService implements OnDestroy {
   quizData: Quiz[] = this.quizInitialState;
   private _quizData$ = new BehaviorSubject<Quiz[]>([]);
   data: {
-    questionText: string;
-    correctAnswersText?: string;
+    questionText: string,
+    correctAnswersText?: string,
     currentOptions: Option[]
   } = {
     questionText: '',
