@@ -363,6 +363,13 @@ export class QuizNavigationService {
       const fresh = await firstValueFrom(obs);
       console.log(`[NAV-DIAG] getQuestionByIndex(${index}) →`, fresh?.questionText, fresh);
       if (fresh) {
+        const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+        const totalOpts = (fresh.options ?? []).length;
+    
+        const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+    
+        this.quizService.updateCorrectAnswersText(msg);
+
         const trimmedQ = (fresh.questionText ?? '').trim();
         if (trimmedQ.length > 0) {
           try {
