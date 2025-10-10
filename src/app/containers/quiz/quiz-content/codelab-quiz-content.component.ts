@@ -698,7 +698,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         [idx, display, shouldShow, baseline, correct, explanation, gate]:
         [number, DisplayState, boolean, string, string, string | null, boolean]
       ) => {
-        const question = canonicalQuestionFor(Number(idx), baseline);
+        const question = canonicalQuestionFor(idx, baseline);
       
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const isCurrent = idx === this.quizService.getCurrentQuestionIndex();
