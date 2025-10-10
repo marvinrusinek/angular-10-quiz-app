@@ -94,7 +94,7 @@ export class QuizService implements OnDestroy {
   correctMessage$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   numberOfCorrectAnswers: number;
 
-  private correctAnswersCountSubject = new BehaviorSubject<number>(
+  public correctAnswersCountSubject = new BehaviorSubject<number>(
     Number(localStorage.getItem('correctAnswersCount')) || 0
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
