@@ -3226,7 +3226,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.cdRef.detectChanges();
         });        
 
-        this.updateOptionHighlighting(selOptsSet);
+        // this.updateOptionHighlighting(selOptsSet);
         this.refreshFeedbackFor(evtOpt ?? undefined);
       
         this.cdRef.markForCheck();
