@@ -60,6 +60,13 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    try {
+      localStorage.removeItem('correctAnswersText');
+      console.log('[INIT] 🧹 Cleared stored correctAnswersText from localStorage');
+    } catch (err) {
+      console.warn('[INIT] ⚠️ Failed to clear correctAnswersText', err);
+    }
+    
     this.initializeComponent();
   }
   
