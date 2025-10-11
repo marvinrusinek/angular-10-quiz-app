@@ -360,10 +360,7 @@ export class QuizNavigationService {
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
   
       // ────────────────────────────────────────────────
-      // ✅ FETCH NEW QUESTION
-      // ────────────────────────────────────────────────
-      // ✅ FETCH NEW QUESTION
-      // ────────────────────────────────────────────────
+      // FETCH NEW QUESTION
       const obs = this.quizService.getQuestionByIndex(index);
       const fresh = await firstValueFrom(obs);
 
@@ -373,7 +370,7 @@ export class QuizNavigationService {
       }
 
       // ────────────────────────────────────────────────
-      // 🧮 UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
+      // UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
       // ────────────────────────────────────────────────
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
@@ -381,7 +378,7 @@ export class QuizNavigationService {
       if (fresh.type === QuestionType.MultipleAnswer) {
         const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
 
-        // ✅ small delay to ensure combineLatest observers are ready
+        // small delay to ensure combineLatest observers are ready
         setTimeout(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
