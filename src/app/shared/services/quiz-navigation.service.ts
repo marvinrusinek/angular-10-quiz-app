@@ -385,18 +385,22 @@ export class QuizNavigationService {
         }, 100);
       
       } else {
-        // Single-answer → clear only if text actually exists
-        setTimeout(() => {
-          const current = (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
-          const hasBanner = /\banswers?\s+are\s+correct\b/i.test(current);
+        // 🧹 Single-answer → gently clear banner with debounce to prevent visible flash
+        const current =
+          (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
+        const hasBanner = /\banswers?\s+are\s+correct\b/i.test(current);
       
-          if (hasBanner) {
+        if (hasBanner) {
+          // Delay slightly longer so the new question text renders first
+          setTimeout(() => {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
-          } else {
-            console.log(`[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`);
-          }
-        }, 100);
+          }, 250); // ⏳ smoother debounce clears after question renders
+        } else {
+          console.log(
+            `[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`
+          );
+        }
       }
 
       // ────────────────────────────────────────────────
