@@ -387,11 +387,18 @@ export class QuizNavigationService {
           console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
         }, 100);
       } else {
-        // ❌ explicitly clear for single-answer questions
+        // explicitly clear for single-answer questions
+        // Clear banner only if it previously had text (avoids flash)
         setTimeout(() => {
-          this.quizService.updateCorrectAnswersText('');
-          console.log(`[NAV] ℹ️ Cleared correct-answers text for single Q${index + 1}`);
+          const lastText = localStorage.getItem('correctAnswersText') ?? '';
+          if (lastText.includes('answers are correct') || lastText.includes('answer is correct')) {
+            this.quizService.updateCorrectAnswersText('');
+            console.log(`[NAV] 🧹 Cleared residual banner for single-answer Q${index + 1}`);
+          } else {
+            console.log(`[NAV] ✅ Skipped clearing banner for single-answer Q${index + 1}`);
+          }
         }, 100);
+
       }
 
       // ────────────────────────────────────────────────
