@@ -3267,22 +3267,22 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     console.log(`[onSubmitMultiple] 🧩 Prepared formatted text for Q${idx + 1}:`, formatted.slice(0, 60));
   
     try {
-      // 🔒 Ensure active index points to this question only
+      // Ensure active index points to this question only
       this.explanationTextService._activeIndex = idx;
   
-      // 🧹 Full reset before opening
+      // Full reset before opening
       this.explanationTextService.resetForIndex(idx);
       await new Promise(res => requestAnimationFrame(() => setTimeout(res, 60)));
   
-      // ✅ Open & emit cleanly
+      // Open & emit cleanly
       this.explanationTextService.openExclusive(idx, formatted);
   
-      // 🧩 Force all explanation signals to fire together for this index
+      // Force all explanation signals to fire together for this index
       this.explanationTextService.setGate(idx, true);
       this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
       this.explanationTextService.emitFormatted(idx, formatted);
   
-      // 🧠 Sync local + UI display
+      // Sync local + UI display
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
       (this as any).displayExplanation = true;
       (this as any).explanationToDisplay = formatted;
@@ -3290,14 +3290,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
   
-      // 🧮 Update “# of correct answers” text only for MultipleAnswer questions
+      // Update “# of correct answers” text only for MultipleAnswer questions
       try {
-        const typeVal = q.type?.toString().toLowerCase();
-        if (typeVal.includes('multiple')) {
+        // Use a **strict enum comparison** instead of string includes
+        if (q.type === QuestionType.MultipleAnswer) {
           const numCorrect = correctIdxs.length;
           const totalOpts = q.options?.length ?? 0;
   
-          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+            numCorrect,
+            totalOpts
+          );
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
         } else {
@@ -3313,7 +3316,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
-  }  
+  }
 
   private onQuestionTimedOut(targetIndex?: number): void {
     // Ignore repeated signals
