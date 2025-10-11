@@ -311,7 +311,7 @@ export class QuizNavigationService {
   
     try {
       // ────────────────────────────────────────────────
-      // 🧹 CLEANUP PREVIOUS QUESTION
+      // CLEANUP PREVIOUS QUESTION
       // ────────────────────────────────────────────────
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
@@ -336,37 +336,15 @@ export class QuizNavigationService {
     }
   
     // ────────────────────────────────────────────────
-    // 🔒 PREP TIMER + LOCKS
+    // PREP TIMER + LOCKS
     // ────────────────────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────────────────────
-    // 🧭 ROUTE HANDLING
+    // ROUTE HANDLING
     // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
-  
-    // 🕒 tripleFrame helper: ensures Angular stabilizes before UI update
-    const tripleFrame = (fn: () => void, delay = 60) => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            setTimeout(() => requestAnimationFrame(fn), delay);
-          });
-        }, delay);
-      });
-    };
-  
-    // 🚫 Suppression window to block banner emissions during transition
-    const suppressCorrectText = (ms = 150) => {
-      try {
-        this.quizService.updateCorrectAnswersText('');
-      } catch {}
-      this._suppressTimer && clearTimeout(this._suppressTimer);
-      this._suppressTimer = setTimeout(() => {
-        this._suppressTimer = null;
-      }, ms);
-    };
   
     try {
       if (currentIndex === index && currentUrl === routeUrl) {
@@ -384,9 +362,6 @@ export class QuizNavigationService {
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
   
-      // 🔒 Block any lingering banner emissions during transition
-      suppressCorrectText(150);
-  
       // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
       // ────────────────────────────────────────────────
@@ -398,45 +373,29 @@ export class QuizNavigationService {
         return false;
       }
   
+      // ────────────────────────────────────────────────
+      // UPDATE “# OF CORRECT ANSWERS”
+      // ────────────────────────────────────────────────
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
   
-      // ────────────────────────────────────────────────
-      // 🧮 UPDATE “# OF CORRECT ANSWERS”
-      // ────────────────────────────────────────────────
-      if (fresh.type === QuestionType.MultipleAnswer) {
-        // Multi-answer → display banner after stabilization
-        tripleFrame(() => {
-          if (!this._suppressTimer) {
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          // Only emit banner text for MultipleAnswer questions
+          if (fresh.type === QuestionType.MultipleAnswer) {
             this.quizService.updateCorrectAnswersText(msg);
             console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
           } else {
-            console.log(`[NAV] ⏳ Skipped banner update (suppressed) for Q${index + 1}`);
+            this.quizService.updateCorrectAnswersText('');
+            console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           }
-        }, 80);
-      } else {
-        // Single-answer → clear banner *only after suppression period*
-        tripleFrame(() => {
-          if (!this._suppressTimer) {
-            const current = (this.quizService as any)
-              .correctAnswersCountTextSource?.getValue?.() ?? '';
-            const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
-  
-            if (hadBanner) {
-              this.quizService.updateCorrectAnswersText('');
-              console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
-            } else {
-              console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
-            }
-          } else {
-            console.log(`[NAV] 🚫 Suppression active for single-answer Q${index + 1}`);
-          }
-        }, 120);
-      }
+          resolve(true);
+        });
+      });
   
       // ────────────────────────────────────────────────
-      // 🧠 EMIT QUESTION TEXT
+      // EMIT QUESTION TEXT
       // ────────────────────────────────────────────────
       const trimmedQ = (fresh.questionText ?? '').trim();
       if (trimmedQ.length > 0) {
