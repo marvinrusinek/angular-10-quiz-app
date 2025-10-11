@@ -467,8 +467,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 5) Correct-count badge text (per-index)
     // ────────────────────────────────
     const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
-      startWith(''),  // ensures stable initial value
+      startWith(''),
       distinctUntilChanged(),
+      tap(v => console.log(`[CQCC] 🧮 correctText$ emit:`, v)),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
