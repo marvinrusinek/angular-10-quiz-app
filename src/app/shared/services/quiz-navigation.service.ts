@@ -307,40 +307,40 @@ export class QuizNavigationService {
     const nextIndex = index;
   
     try {
-      // Clear local mirrors so only combinedText$ drives the UI after nav
+      // ────────────────────────────────────────────────
+      // 🧹 CLEANUP PREVIOUS QUESTION
+      // ────────────────────────────────────────────────
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
       (this as any).explanationToDisplayChange?.emit('');
-    
-      // Close only the previous index completely (avoid touching the new one)
+  
       const prev = this.quizService.getCurrentQuestionIndex();
       if (Number.isFinite(prev) && prev !== index) {
         try { this.explanationTextService._byIndex.get(prev)?.next(null); } catch {}
         try { this.explanationTextService._gate.get(prev)?.next(false); } catch {}
       }
-    
-      // Invalidate active index so the component re-binds to the new index
+  
       this.explanationTextService._activeIndex = -1;
-    
-      // DO NOT emit/clear for the new index here; let submission open it.
-      // Reset per-question UI bits
+  
       this.selectedOptionService.resetOptionState(prev);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
-    
-      // Small pause to flush subjects
+  
       await new Promise(res => setTimeout(res, 60));
       console.log(`[NAV] 🧹 Prev index closed, activeIndex invalidated. Target=${index}`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
     }
-
-    // Lock & timer prep
+  
+    // ────────────────────────────────────────────────
+    // 🔒 PREP TIMER + LOCKS
+    // ────────────────────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // ROUTE HANDLING
-    // These must run AFTER the reset above — prevents stale FET leaks.
+    // ────────────────────────────────────────────────
+    // 🧭 ROUTE HANDLING
+    // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
     try {
@@ -359,48 +359,55 @@ export class QuizNavigationService {
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
   
-      // Do not open explanation here — only prepare data.
-      // Let onSubmitMultiple() or onOptionClicked() handle openExclusive().
+      // ────────────────────────────────────────────────
+      // ✅ FETCH NEW QUESTION
+      // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
-      console.log('[NAV-DIAG] getQuestionByIndex observable:', obs);
       const fresh = await firstValueFrom(obs);
-      console.log(`[NAV-DIAG] getQuestionByIndex(${index}) →`, fresh?.questionText, fresh);
-      if (fresh) {
-        const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-        const totalOpts = (fresh.options ?? []).length;
-      
-        // 🧠 Only show “(# answers are correct)” for MultipleAnswer questions
-        if (fresh.type === QuestionType.MultipleAnswer) {
-          // Only show for multi-answer questions
-          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+  
+      if (!fresh) {
+        console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
+        return false;
+      }
+  
+      // ────────────────────────────────────────────────
+      // 🧮 UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
+      // ────────────────────────────────────────────────
+      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+      const totalOpts = (fresh.options ?? []).length;
+  
+      if (fresh.type === QuestionType.MultipleAnswer) {
+        const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+        // Delay 100 ms to ensure stream subscribers (like combinedText$) are active
+        setTimeout(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
-        } else {
-          // ❌ Clear for single-answer questions
+        }, 100);
+      } else {
+        // Explicitly clear for single-answer questions
+        setTimeout(() => {
           this.quizService.updateCorrectAnswersText('');
           console.log(`[NAV] ℹ️ Cleared correct-answers text for single Q${index + 1}`);
-        }
-      
-        const trimmedQ = (fresh.questionText ?? '').trim();
-        if (trimmedQ.length > 0) {
-          try {
-            await new Promise(res => setTimeout(res, 100));
-            this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
-            console.log(`[NAV] 🧩 Delayed emission for Q${index + 1}:`, trimmedQ);
-          } catch (err) {
-            console.warn('[NAV] ⚠️ Failed to update questionToDisplay$', err);
-          }
-        }
-      } else {
-        console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
-      }      
+        }, 100);
+      }
+  
+      // ────────────────────────────────────────────────
+      // 🧠 EMIT QUESTION TEXT
+      // ────────────────────────────────────────────────
+      const trimmedQ = (fresh.questionText ?? '').trim();
+      if (trimmedQ.length > 0) {
+        await new Promise(res => setTimeout(res, 120));
+        this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
+        console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}:`, trimmedQ);
+      }
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
     }
   
     return true;
-  }  
+  }
+    
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
