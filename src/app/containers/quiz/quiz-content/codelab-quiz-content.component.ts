@@ -466,10 +466,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 5) Correct-count badge text (per-index)
     // ────────────────────────────────
-    
-    
     const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
-      startWith(''), // seed immediately
+      debounceTime(40),  // small delay to absorb transient clears
+      startWith(''),  // seed immediately
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -478,9 +477,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 6) Explanation + gate scoped to *current* index
     // ────────────────────────────────
     interface FetState {
-      idx: number;
-      text: string;
-      gate: boolean;
+      idx: number,
+      text: string,
+      gate: boolean
     }
   
     const fetForIndex$: Observable<FetState> = index$.pipe(
