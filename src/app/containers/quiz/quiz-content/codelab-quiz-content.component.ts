@@ -514,29 +514,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, question, correct, fet]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-  
-        // ✅ Always show question text + correct count immediately
-        const withCorrect =
-          correct && correct.trim().length > 0
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
-  
-        // ✅ Show FET as soon as all guards are true
+      
+        // Lookup current question type
+        const q = this.quizService.questions?.[idx];
+        const isMultiple = q?.type === QuestionType.MultipleAnswer;
+      
+        // ✅ Stable explanation visibility check
         const canShowFET =
-          idx === currentIdx &&
           idx === activeIdx &&
+          idx === currentIdx &&
           shouldShow &&
           fet.gate &&
           fet.text.trim().length > 0;
-  
+      
         if (canShowFET) {
           console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
           return fet.text.trim();
         }
-  
-        // 🧩 Otherwise display question + correct count
+      
+        // ✅ Only append the correct-answers text for multiple-answer questions
+        const withCorrect =
+          isMultiple && correct && correct.trim().length > 0
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+      
         return withCorrect;
-      }),
+      }),      
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
