@@ -385,18 +385,19 @@ export class QuizNavigationService {
         }, 100);
       
       } else {
-        // Single-answer → clear only if text actually exists
-        setTimeout(() => {
-          const current = (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
-          const hasBanner = /\banswers?\s+are\s+correct\b/i.test(current);
+        // Single-answer → only clear if text actually exists (avoid flash)
+        const current = (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
+        const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
       
-          if (hasBanner) {
+        if (hadBanner) {
+          // Defer slightly so combinedText$ doesn’t flash
+          setTimeout(() => {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
-          } else {
-            console.log(`[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`);
-          }
-        }, 100);
+          }, 120);
+        } else {
+          console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
+        }
       }
 
       // ────────────────────────────────────────────────
