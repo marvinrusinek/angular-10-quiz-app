@@ -362,35 +362,38 @@ export class QuizNavigationService {
       // ────────────────────────────────────────────────
       // ✅ FETCH NEW QUESTION
       // ────────────────────────────────────────────────
+      // ✅ FETCH NEW QUESTION
+      // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
       const fresh = await firstValueFrom(obs);
-  
+
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
-  
+
       // ────────────────────────────────────────────────
       // 🧮 UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
       // ────────────────────────────────────────────────
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
-  
+
       if (fresh.type === QuestionType.MultipleAnswer) {
         const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-        // Delay 100 ms to ensure stream subscribers (like combinedText$) are active
+
+        // ✅ small delay to ensure combineLatest observers are ready
         setTimeout(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
         }, 100);
       } else {
-        // Explicitly clear for single-answer questions
+        // ❌ explicitly clear for single-answer questions
         setTimeout(() => {
           this.quizService.updateCorrectAnswersText('');
           console.log(`[NAV] ℹ️ Cleared correct-answers text for single Q${index + 1}`);
         }, 100);
       }
-  
+
       // ────────────────────────────────────────────────
       // 🧠 EMIT QUESTION TEXT
       // ────────────────────────────────────────────────
