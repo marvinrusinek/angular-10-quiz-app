@@ -1657,7 +1657,7 @@ export class QuizService implements OnDestroy {
   }
 
   // Updates the correct answers count and emits both numeric and text variants.
-  /* public updateCorrectAnswersCount(count: number): void {
+  public updateCorrectAnswersCount(count: number): void {
     // Numeric update
     this.correctAnswersCountSubject.next(count);
 
@@ -1670,33 +1670,23 @@ export class QuizService implements OnDestroy {
     localStorage.setItem('correctAnswersText', text);
 
     console.log(`[QuizService] ✅ Updated correct answers → count=${count}, text="${text}"`);
-  } */
+  }
+  
   updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // Cancel any pending update
-    if (this._correctTextTimer) {
-      clearTimeout(this._correctTextTimer);
+    if (text.length === 0) {
+      // Clear both memory + storage if empty
+      localStorage.removeItem('correctAnswersText');
+      this.correctAnswersCountTextSource.next('');
+      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+    } else {
+      // ✅ Persist only meaningful text
+      localStorage.setItem('correctAnswersText', text);
+      this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-  
-    // Micro-debounce actual update to avoid flicker
-    this._correctTextTimer = setTimeout(() => {
-      if (text.length === 0) {
-        // Clear both memory + storage if empty
-        localStorage.removeItem('correctAnswersText');
-        this.correctAnswersCountTextSource.next('');
-        console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
-      } else {
-        // Persist only meaningful text
-        localStorage.setItem('correctAnswersText', text);
-        this.correctAnswersCountTextSource.next(text);
-        console.log('[QuizService] 💾 Saved correctAnswersText:', text);
-      }
-      this._correctTextTimer = null;
-    }, 50);  // 50 ms debounce smooths out flicker
-  }
-
-  
+  }  
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
