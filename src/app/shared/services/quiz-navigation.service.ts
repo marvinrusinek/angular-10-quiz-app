@@ -308,7 +308,7 @@ export class QuizNavigationService {
   
     try {
       // ────────────────────────────────────────────────
-      // CLEANUP PREVIOUS QUESTION
+      // 🧹 CLEANUP PREVIOUS QUESTION
       // ────────────────────────────────────────────────
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
@@ -333,20 +333,24 @@ export class QuizNavigationService {
     }
   
     // ────────────────────────────────────────────────
-    // PREP TIMER + LOCKS
+    // 🔒 PREP TIMER + LOCKS
     // ────────────────────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────────────────────
-    // ROUTE HANDLING
+    // 🧭 ROUTE HANDLING
     // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
-    // 🕒 doubleFrame helper (prevents flicker on slower change detection)
-    const doubleFrame = (fn: () => void, delay = 100) => {
+    // 🕒 tripleFrame helper: ensures Angular stabilizes before UI update
+    const tripleFrame = (fn: () => void, delay = 60) => {
       requestAnimationFrame(() => {
-        setTimeout(() => requestAnimationFrame(fn), delay);
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            setTimeout(() => requestAnimationFrame(fn), delay);
+          });
+        }, delay);
       });
     };
   
@@ -377,22 +381,22 @@ export class QuizNavigationService {
         return false;
       }
   
-      // ────────────────────────────────────────────────
-      // 🧮 UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
-      // ────────────────────────────────────────────────
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
   
+      // ────────────────────────────────────────────────
+      // 🧮 UPDATE “# OF CORRECT ANSWERS”
+      // ────────────────────────────────────────────────
       if (fresh.type === QuestionType.MultipleAnswer) {
-        // Multi-answer → display banner after two frames for smoother sync
-        doubleFrame(() => {
+        // Multi-answer → display banner after stabilization
+        tripleFrame(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
-        }, 100);
+        }, 80);
       } else {
-        // Single-answer → clear banner only if necessary (no flash)
-        doubleFrame(() => {
+        // Single-answer → clear banner only if previous banner existed
+        tripleFrame(() => {
           const current = (this.quizService as any)
             .correctAnswersCountTextSource?.getValue?.() ?? '';
           const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
@@ -401,9 +405,9 @@ export class QuizNavigationService {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           } else {
-            console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
+            console.log(`[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`);
           }
-        }, 140);
+        }, 120);
       }
   
       // ────────────────────────────────────────────────
