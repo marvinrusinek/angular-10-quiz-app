@@ -488,6 +488,13 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
     this.quizId = quizId;
 
+    // SET INDEX FROM ROUTE PARAMS EARLY
+    const routeParamIndex = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+    const idx = Math.max(0, (Number(routeParamIndex) || 1) - 1);
+    this.currentQuestionIndex = idx;
+    this.quizService.setCurrentQuestionIndex(idx);
+    console.log('[INIT] Route-based index set:', idx);
+
     await this.ensureInitialQuestionFromRoute();
 
     this.indexSubscription = this.quizService.currentQuestionIndex$
