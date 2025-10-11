@@ -1682,8 +1682,6 @@ export class QuizService implements OnDestroy {
       this.correctAnswersCountTextSource.next(text);
       console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-  
-    console.log('[QuizService DEBUG] current BehaviorSubject value:', this.correctAnswersCountTextSource.getValue());
   }   
 
   updateCorrectMessageText(message: string): void {
