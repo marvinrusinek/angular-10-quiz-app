@@ -1676,15 +1676,13 @@ export class QuizService implements OnDestroy {
     const text = (newText ?? '').trim();
   
     if (text.length === 0) {
-      // Clear both memory + storage if empty
+      // Clear both memory and storage if empty
       localStorage.removeItem('correctAnswersText');
       this.correctAnswersCountTextSource.next('');
       console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
     } else {
-      // Persist only meaningful text
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
-      console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
   }
 
