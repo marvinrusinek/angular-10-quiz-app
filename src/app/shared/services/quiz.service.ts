@@ -99,9 +99,10 @@ export class QuizService implements OnDestroy {
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  private correctAnswersCountTextSource = new BehaviorSubject<string>(
+  /* private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
-  );
+  ); */
+  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
