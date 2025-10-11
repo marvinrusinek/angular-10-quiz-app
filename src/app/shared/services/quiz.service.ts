@@ -99,9 +99,10 @@ export class QuizService implements OnDestroy {
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  private correctAnswersCountTextSource = new BehaviorSubject<string>(
+  /* private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
-  );
+  ); */
+  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
   public correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
@@ -1674,10 +1675,12 @@ export class QuizService implements OnDestroy {
     const text = (newText ?? '').trim();
   
     if (text.length === 0) {
+      // Clear both memory + storage if empty
       localStorage.removeItem('correctAnswersText');
       this.correctAnswersCountTextSource.next('');
       console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
     } else {
+      // ✅ Persist only meaningful text
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
       console.log('[QuizService] 💾 Saved correctAnswersText:', text);
