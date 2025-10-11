@@ -3021,17 +3021,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Update Next button and quiz state
       queueMicrotask(() => {
         if (this._skipNextAsyncUpdates) return;
-        const correctOpts = canonicalOpts.filter((o) => !!o.correct);
-        const selOptsSet = new Set(
-          (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).map((o) => getStableId(o))
+        const correctOpts = (canonicalOpts ?? []).filter(o => !!o.correct);
+        const selOpts = Array.from(
+          this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []
         );
-        const selectedCorrectCount = correctOpts.filter((o) =>
-          selOptsSet.has(getStableId(o))
+
+        const selKeys = new Set(selOpts.map(o => getStableId(o)));
+        const selectedCorrectCount = correctOpts.filter(o =>
+          selKeys.has(getStableId(o))
         ).length;
+
         const allCorrect =
           q?.type === QuestionType.MultipleAnswer
-            ? selectedCorrectCount === correctOpts.length &&
-              selOptsSet.size === correctOpts.length
+            ? correctOpts.length > 0 &&
+              selectedCorrectCount === correctOpts.length &&
+              selKeys.size === correctOpts.length
             : !!evtOpt?.correct;
       
         // Persist for use in finally and stop guard
@@ -3051,6 +3055,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Always fire submit when complete (single or multi)
         const isSingle = q?.type === QuestionType.SingleAnswer;
         const isMultiComplete = q?.type === QuestionType.MultipleAnswer && allCorrect;
+
+        console.log('[onOptionClicked DEBUG]', {
+          idx,
+          questionType: q?.type,
+          allCorrect,
+          isSingle,
+          isMultiComplete,
+          submitting: this._submittingMulti
+        });        
 
         if ((isSingle || isMultiComplete) && !this._submittingMulti) {
           this._submittingMulti = true;
