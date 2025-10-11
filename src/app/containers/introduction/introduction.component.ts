@@ -66,16 +66,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
     } catch (err) {
       console.warn('[INIT] ⚠️ Failed to clear correctAnswersText', err);
     }
-    
-    this.initializeComponent();
-  }
-  
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
-  private initializeComponent(): void {
     this.subscribeToRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
   
@@ -87,6 +78,11 @@ export class IntroductionComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.cdRef.markForCheck();
       });
+  }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private subscribeToRouteParameters(): void {
