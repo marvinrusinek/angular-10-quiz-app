@@ -398,7 +398,6 @@ export class QuizNavigationService {
             console.log(`[NAV] ✅ Skipped clearing banner for single-answer Q${index + 1}`);
           }
         }, 100);
-
       }
 
       // ────────────────────────────────────────────────
