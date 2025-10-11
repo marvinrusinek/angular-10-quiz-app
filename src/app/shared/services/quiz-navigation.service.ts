@@ -296,9 +296,6 @@ export class QuizNavigationService {
   }
 
   public async navigateToQuestion(index: number): Promise<boolean> {
-    this.currentQuestionIndex = index;
-    this.quizService.setCurrentQuestionIndex(index);
-    
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -311,6 +308,9 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    this.currentQuestionIndex = index;
+    this.quizService.setCurrentQuestionIndex(index);
   
     try {
       // CLEANUP PREVIOUS QUESTION
