@@ -1674,30 +1674,19 @@ export class QuizService implements OnDestroy {
 
   updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
-
-    // Clear any pending updates (prevents rapid fire)
-    if (this._debounceTimer) {
-      clearTimeout(this._debounceTimer);
-      this._debounceTimer = null;
+  
+    if (text.length === 0) {
+      // Clear both memory + storage if empty
+      localStorage.removeItem('correctAnswersText');
+      this.correctAnswersCountTextSource.next('');
+      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+    } else {
+      // ✅ Persist only meaningful text
+      localStorage.setItem('correctAnswersText', text);
+      this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-
-    // Debounce actual update by ~50ms to absorb transient clears
-    this._debounceTimer = setTimeout(() => {
-      if (text.length === 0) {
-        // Clear both memory + storage if empty
-        localStorage.removeItem('correctAnswersText');
-        this.correctAnswersCountTextSource.next('');
-        console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
-      } else {
-        // Persist only meaningful text
-        localStorage.setItem('correctAnswersText', text);
-        this.correctAnswersCountTextSource.next(text);
-        console.log('[QuizService] 💾 Saved correctAnswersText:', text);
-      }
-
-      this._debounceTimer = null;
-    }, 50);  // 50ms is enough to avoid visible flash
-  }
+  }  
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
