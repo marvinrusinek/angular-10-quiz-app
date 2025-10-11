@@ -222,6 +222,8 @@ export class QuizService implements OnDestroy {
   // Emitted with the target question index just before navigation hydrates it
   readonly preReset$ = this._preReset$.asObservable();
 
+  private _debounceTimer: any = null;
+
   constructor(
     private quizShuffleService: QuizShuffleService,
     private activatedRoute: ActivatedRoute,
@@ -1672,19 +1674,30 @@ export class QuizService implements OnDestroy {
 
   updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
-  
-    if (text.length === 0) {
-      // Clear both memory + storage if empty
-      localStorage.removeItem('correctAnswersText');
-      this.correctAnswersCountTextSource.next('');
-      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
-    } else {
-      // ✅ Persist only meaningful text
-      localStorage.setItem('correctAnswersText', text);
-      this.correctAnswersCountTextSource.next(text);
-      console.log('[QuizService] 💾 Saved correctAnswersText:', text);
+
+    // Clear any pending updates (prevents rapid fire)
+    if (this._debounceTimer) {
+      clearTimeout(this._debounceTimer);
+      this._debounceTimer = null;
     }
-  }  
+
+    // Debounce actual update by ~50ms to absorb transient clears
+    this._debounceTimer = setTimeout(() => {
+      if (text.length === 0) {
+        // Clear both memory + storage if empty
+        localStorage.removeItem('correctAnswersText');
+        this.correctAnswersCountTextSource.next('');
+        console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+      } else {
+        // Persist only meaningful text
+        localStorage.setItem('correctAnswersText', text);
+        this.correctAnswersCountTextSource.next(text);
+        console.log('[QuizService] 💾 Saved correctAnswersText:', text);
+      }
+
+      this._debounceTimer = null;
+    }, 50);  // 50ms is enough to avoid visible flash
+  }
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
