@@ -466,23 +466,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 5) Correct-count badge text (per-index)
     // ────────────────────────────────
-    /* const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
+    const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
       debounceTime(40),  // small delay to absorb transient clears
       startWith(''),  // seed immediately
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.currentQuestionIndex$,
-      this.quizService.correctAnswersText$.pipe(startWith(''))
-    ]).pipe(
-      debounceTime(40), // 🕒 micro-debounce to smooth route/subject timing
-      map(([idx, text]) => {
-        const trimmed = (text ?? '').toString().trim();
-        const qType = this.quizService.questions?.[idx]?.type;
-        // 🧠 Only show for MultipleAnswer questions
-        return qType === QuestionType.MultipleAnswer ? trimmed : '';
-      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
