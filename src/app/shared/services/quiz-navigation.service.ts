@@ -354,6 +354,17 @@ export class QuizNavigationService {
       });
     };
   
+    // 🚫 Suppression window to block banner emissions during transition
+    const suppressCorrectText = (ms = 150) => {
+      try {
+        this.quizService.updateCorrectAnswersText('');
+      } catch {}
+      this._suppressTimer && clearTimeout(this._suppressTimer);
+      this._suppressTimer = setTimeout(() => {
+        this._suppressTimer = null;
+      }, ms);
+    };
+  
     try {
       if (currentIndex === index && currentUrl === routeUrl) {
         console.warn('[⚠️ Already on route – forcing reload]', { currentIndex, index, routeUrl });
@@ -369,6 +380,9 @@ export class QuizNavigationService {
       console.log('[NAV-DIAG] before waitForRoute', routeUrl);
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
+  
+      // 🔒 Block any lingering banner emissions during transition
+      suppressCorrectText(150);
   
       // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
@@ -391,21 +405,29 @@ export class QuizNavigationService {
       if (fresh.type === QuestionType.MultipleAnswer) {
         // Multi-answer → display banner after stabilization
         tripleFrame(() => {
-          this.quizService.updateCorrectAnswersText(msg);
-          console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
+          if (!this._suppressTimer) {
+            this.quizService.updateCorrectAnswersText(msg);
+            console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
+          } else {
+            console.log(`[NAV] ⏳ Skipped banner update (suppressed) for Q${index + 1}`);
+          }
         }, 80);
       } else {
-        // Single-answer → clear banner only if previous banner existed
+        // Single-answer → clear banner *only after suppression period*
         tripleFrame(() => {
-          const current = (this.quizService as any)
-            .correctAnswersCountTextSource?.getValue?.() ?? '';
-          const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
+          if (!this._suppressTimer) {
+            const current = (this.quizService as any)
+              .correctAnswersCountTextSource?.getValue?.() ?? '';
+            const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
   
-          if (hadBanner) {
-            this.quizService.updateCorrectAnswersText('');
-            console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
+            if (hadBanner) {
+              this.quizService.updateCorrectAnswersText('');
+              console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
+            } else {
+              console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
+            }
           } else {
-            console.log(`[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`);
+            console.log(`[NAV] 🚫 Suppression active for single-answer Q${index + 1}`);
           }
         }, 120);
       }
@@ -427,6 +449,7 @@ export class QuizNavigationService {
   
     return true;
   }
+  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
