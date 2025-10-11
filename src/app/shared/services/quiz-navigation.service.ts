@@ -193,10 +193,7 @@ export class QuizNavigationService {
     })();
 
     const snapshotIndex = readIndexFromSnapshot();
-
     let currentIndex = snapshotIndex;
-    this.currentQuestionIndex = currentIndex;
-    this.quizService.setCurrentQuestionIndex(currentIndex);
 
     if (currentIndexFromService !== null) {
       currentIndex = offset >= 0
@@ -205,6 +202,12 @@ export class QuizNavigationService {
     }
 
     const targetIndex = currentIndex + offset;  // 0-based
+
+    // ────────────────────────────────────────────────
+    // UPDATE INDEX EARLY so template reflects navigation instantly
+    // ────────────────────────────────────────────────
+    this.currentQuestionIndex = targetIndex;
+    this.quizService.setCurrentQuestionIndex(targetIndex);
   
     // Block if going out of bounds
     if (targetIndex < 0) {
