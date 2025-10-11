@@ -466,28 +466,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 5) Correct-count badge text (per-index)
     // ────────────────────────────────
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       index$,
-      this.quizService.correctAnswersText$.pipe(startWith(''))
+      this.correctAnswersText$.pipe(startWith(''))
     ]).pipe(
       map(([idx, s]) => {
         const safe = (s ?? '').toString().trim();
-    
-        // Defensive guard: make sure questions array exists
-        const questions = this.quizService.questions ?? this.questions ?? [];
-        const q = questions[idx];
-        const qType = q?.type;
-    
-        // ✅ Only show for MultipleAnswer questions
-        if (qType === QuestionType.MultipleAnswer && safe.length > 0) {
-          console.log(`[CQCC] 🧮 Correct answers text for Q${idx + 1}:`, safe);
-          return safe;
-        }
-    
-        // ❌ Hide for SingleAnswer or missing data
-        return '';
+        console.log(`[CQCC] 🧮 correctText$ → Q${idx + 1}:`, safe);
+        return safe;
       }),
       startWith(''),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
+      startWith(''), // seed immediately
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -496,9 +489,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 6) Explanation + gate scoped to *current* index
     // ────────────────────────────────
     interface FetState {
-      idx: number,
-      text: string,
-      gate: boolean
+      idx: number;
+      text: string;
+      gate: boolean;
     }
   
     const fetForIndex$: Observable<FetState> = index$.pipe(
@@ -533,32 +526,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, display, shouldShow, question, correct, fet]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-      
-        // Lookup current question type
-        const q = this.quizService.questions?.[idx];
-        const isMultiple = q?.type === QuestionType.MultipleAnswer;
-      
-        // ✅ Stable explanation visibility check
+  
+        // ✅ Always show question text + correct count immediately
+        const withCorrect =
+          correct && correct.trim().length > 0
+            ? `${question} <span class="correct-count">${correct}</span>`
+            : question;
+  
+        // ✅ Show FET as soon as all guards are true
         const canShowFET =
-          idx === activeIdx &&
           idx === currentIdx &&
+          idx === activeIdx &&
           shouldShow &&
           fet.gate &&
           fet.text.trim().length > 0;
-      
+  
         if (canShowFET) {
           console.log(`[CQCC] ✅ Showing FET for Q${idx + 1}`);
           return fet.text.trim();
         }
-      
-        // ✅ Only append the correct-answers text for multiple-answer questions
-        const withCorrect =
-          isMultiple && correct && correct.trim().length > 0
-            ? `${question} <span class="correct-count">${correct}</span>`
-            : question;
-      
+  
+        // 🧩 Otherwise display question + correct count
         return withCorrect;
-      }),      
+      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );

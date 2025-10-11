@@ -99,11 +99,10 @@ export class QuizService implements OnDestroy {
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  /* private correctAnswersCountTextSource = new BehaviorSubject<string>(
+  private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
-  ); */
-  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  public correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
+  );
+  public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -1685,7 +1684,7 @@ export class QuizService implements OnDestroy {
       this.correctAnswersCountTextSource.next(text);
       console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-  }   
+  }  
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
