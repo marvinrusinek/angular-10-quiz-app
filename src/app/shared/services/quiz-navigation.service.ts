@@ -202,6 +202,11 @@ export class QuizNavigationService {
     }
 
     const targetIndex = currentIndex + offset;  // 0-based
+
+    this.ngZone.run(() => {
+      this.currentQuestionIndex = targetIndex;
+      this.quizService.setCurrentQuestionIndex(targetIndex);
+    });
   
     // Block if going out of bounds
     if (targetIndex < 0) {
