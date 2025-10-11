@@ -308,6 +308,10 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    // SET CURRENT INDEX EARLY so template updates
+    this.currentQuestionIndex = index;
+    this.quizService.setCurrentQuestionIndex(index);
   
     try {
       // ────────────────────────────────────────────────
