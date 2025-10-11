@@ -469,7 +469,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
       startWith(''),
       distinctUntilChanged(),
-      tap(v => console.log(`[CQCC] 🧮 correctText$ emit:`, v)),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
