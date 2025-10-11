@@ -62,6 +62,9 @@ export class QuizNavigationService {
 
   private renderResetSubject = new Subject<void>();
   renderReset$ = this.renderResetSubject.asObservable();
+
+  // Internal suppression timer used to block transient banner updates (anti-flash)
+  private _suppressTimer: ReturnType<typeof setTimeout> | null = null;
   
   constructor(
     private explanationTextService: ExplanationTextService,
