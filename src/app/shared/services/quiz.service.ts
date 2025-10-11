@@ -102,7 +102,7 @@ export class QuizService implements OnDestroy {
   private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
   );
-  public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
+  public correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
