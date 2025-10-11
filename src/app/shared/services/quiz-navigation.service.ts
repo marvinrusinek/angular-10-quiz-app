@@ -308,7 +308,7 @@ export class QuizNavigationService {
   
     try {
       // ────────────────────────────────────────────────
-      // 🧹 CLEANUP PREVIOUS QUESTION
+      // CLEANUP PREVIOUS QUESTION
       // ────────────────────────────────────────────────
       (this as any).displayExplanation = false;
       (this as any).explanationToDisplay = '';
@@ -333,15 +333,19 @@ export class QuizNavigationService {
     }
   
     // ────────────────────────────────────────────────
-    // 🔒 PREP TIMER + LOCKS
+    // PREP TIMER + LOCKS
     // ────────────────────────────────────────────────
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
     // ────────────────────────────────────────────────
-    // 🧭 ROUTE HANDLING
+    // ROUTE HANDLING
     // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
+  
+    // micro-debounce helper for synchronized UI updates
+    const microDebounce = (fn: () => void, delay = 120) =>
+      setTimeout(() => requestAnimationFrame(fn), delay);
   
     try {
       if (currentIndex === index && currentUrl === routeUrl) {
@@ -361,47 +365,46 @@ export class QuizNavigationService {
   
       // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
+      // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
       const fresh = await firstValueFrom(obs);
-
+  
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
-
+  
       // ────────────────────────────────────────────────
-      // UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
+      // 🧮 UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
       // ────────────────────────────────────────────────
+      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+      const totalOpts = (fresh.options ?? []).length;
+      const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+  
       if (fresh.type === QuestionType.MultipleAnswer) {
-        const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-        const totalOpts  = (fresh.options ?? []).length;
-      
-        const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-      
-        // Small delay so combineLatest observers (combinedText$) are ready
-        setTimeout(() => {
+        // Multi-answer → display banner after micro-delay
+        microDebounce(() => {
           this.quizService.updateCorrectAnswersText(msg);
-          console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
-        }, 100);
-      
+          console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
+        });
       } else {
-        // Single-answer → only clear if text actually exists (avoid flash)
-        const current = (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
-        const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
-      
-        if (hadBanner) {
-          // Defer slightly so combinedText$ doesn’t flash
-          setTimeout(() => {
+        // Single-answer → clear banner *only after stabilization* (no flash)
+        microDebounce(() => {
+          const current = (this.quizService as any)
+            .correctAnswersCountTextSource?.getValue?.() ?? '';
+          const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
+  
+          if (hadBanner) {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
-          }, 120);
-        } else {
-          console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
-        }
+          } else {
+            console.log(`[NAV] ✅ Skipped clear for single-answer Q${index + 1}`);
+          }
+        }, 200);
       }
-
+  
       // ────────────────────────────────────────────────
-      // EMIT QUESTION TEXT
+      // 🧠 EMIT QUESTION TEXT
       // ────────────────────────────────────────────────
       const trimmedQ = (fresh.questionText ?? '').trim();
       if (trimmedQ.length > 0) {
@@ -409,6 +412,7 @@ export class QuizNavigationService {
         this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
         console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}:`, trimmedQ);
       }
+  
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
@@ -416,7 +420,6 @@ export class QuizNavigationService {
   
     return true;
   }
-    
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
