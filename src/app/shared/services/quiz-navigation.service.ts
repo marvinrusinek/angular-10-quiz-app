@@ -195,6 +195,9 @@ export class QuizNavigationService {
     const snapshotIndex = readIndexFromSnapshot();
 
     let currentIndex = snapshotIndex;
+    this.currentQuestionIndex = currentIndex;
+    this.quizService.setCurrentQuestionIndex(currentIndex);
+
     if (currentIndexFromService !== null) {
       currentIndex = offset >= 0
         ? Math.max(currentIndexFromService, snapshotIndex)
@@ -308,9 +311,6 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
-
-    this.currentQuestionIndex = index;
-    this.quizService.setCurrentQuestionIndex(index);
   
     try {
       // CLEANUP PREVIOUS QUESTION
