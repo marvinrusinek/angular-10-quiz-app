@@ -372,33 +372,35 @@ export class QuizNavigationService {
       // ────────────────────────────────────────────────
       // UPDATE “# OF CORRECT ANSWERS” (after navigation settled)
       // ────────────────────────────────────────────────
-      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-      const totalOpts = (fresh.options ?? []).length;
-
       if (fresh.type === QuestionType.MultipleAnswer) {
+        const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+        const totalOpts  = (fresh.options ?? []).length;
+      
         const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-
-        // small delay to ensure combineLatest observers are ready
+      
+        // Small delay so combineLatest observers (combinedText$) are ready
         setTimeout(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Correct answers text for multi Q${index + 1}:`, msg);
         }, 100);
+      
       } else {
-        // explicitly clear for single-answer questions
-        // Clear banner only if it previously had text (avoids flash)
+        // Single-answer → clear only if text actually exists
         setTimeout(() => {
-          const lastText = localStorage.getItem('correctAnswersText') ?? '';
-          if (lastText.includes('answers are correct') || lastText.includes('answer is correct')) {
+          const current = (this.quizService as any).correctAnswersCountTextSource?.getValue?.() ?? '';
+          const hasBanner = /\banswers?\s+are\s+correct\b/i.test(current);
+      
+          if (hasBanner) {
             this.quizService.updateCorrectAnswersText('');
-            console.log(`[NAV] 🧹 Cleared residual banner for single-answer Q${index + 1}`);
+            console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           } else {
-            console.log(`[NAV] ✅ Skipped clearing banner for single-answer Q${index + 1}`);
+            console.log(`[NAV] ✅ Skipped clear (no banner to remove) for single-answer Q${index + 1}`);
           }
         }, 100);
       }
 
       // ────────────────────────────────────────────────
-      // 🧠 EMIT QUESTION TEXT
+      // EMIT QUESTION TEXT
       // ────────────────────────────────────────────────
       const trimmedQ = (fresh.questionText ?? '').trim();
       if (trimmedQ.length > 0) {
