@@ -1681,12 +1681,22 @@ export class QuizService implements OnDestroy {
       this.correctAnswersCountTextSource.next('');
       console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
     } else {
-      // ✅ Persist only meaningful text
+      // Persist only meaningful text
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
       console.log('[QuizService] 💾 Saved correctAnswersText:', text);
     }
-  }  
+  }
+
+  public clearStoredCorrectAnswersText(): void {
+    try {
+      localStorage.removeItem('correctAnswersText');
+      this.correctAnswersCountTextSource.next('');
+      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+    } catch (err) {
+      console.warn('[QuizService] ⚠️ Failed to clear correctAnswersText', err);
+    }
+  }
 
   updateCorrectMessageText(message: string): void {
     this.correctMessage$.next(message);
