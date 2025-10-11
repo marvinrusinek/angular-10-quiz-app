@@ -343,9 +343,12 @@ export class QuizNavigationService {
     // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
-    // micro-debounce helper for synchronized UI updates
-    const microDebounce = (fn: () => void, delay = 120) =>
-      setTimeout(() => requestAnimationFrame(fn), delay);
+    // 🕒 doubleFrame helper (prevents flicker on slower change detection)
+    const doubleFrame = (fn: () => void, delay = 100) => {
+      requestAnimationFrame(() => {
+        setTimeout(() => requestAnimationFrame(fn), delay);
+      });
+    };
   
     try {
       if (currentIndex === index && currentUrl === routeUrl) {
@@ -382,14 +385,14 @@ export class QuizNavigationService {
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
   
       if (fresh.type === QuestionType.MultipleAnswer) {
-        // Multi-answer → display banner after micro-delay
-        microDebounce(() => {
+        // Multi-answer → display banner after two frames for smoother sync
+        doubleFrame(() => {
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
-        });
+        }, 100);
       } else {
-        // Single-answer → clear banner *only after stabilization* (no flash)
-        microDebounce(() => {
+        // Single-answer → clear banner only if necessary (no flash)
+        doubleFrame(() => {
           const current = (this.quizService as any)
             .correctAnswersCountTextSource?.getValue?.() ?? '';
           const hadBanner = /\banswers?\s+are\s+correct\b/i.test(current);
@@ -398,9 +401,9 @@ export class QuizNavigationService {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           } else {
-            console.log(`[NAV] ✅ Skipped clear for single-answer Q${index + 1}`);
+            console.log(`[NAV] ✅ No banner to clear for single-answer Q${index + 1}`);
           }
-        }, 200);
+        }, 140);
       }
   
       // ────────────────────────────────────────────────
