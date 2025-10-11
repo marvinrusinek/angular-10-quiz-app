@@ -476,9 +476,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 6) Explanation + gate scoped to *current* index
     // ────────────────────────────────
     interface FetState {
-      idx: number;
-      text: string;
-      gate: boolean;
+      idx: number,
+      text: string,
+      gate: boolean
     }
   
     const fetForIndex$: Observable<FetState> = index$.pipe(
