@@ -760,7 +760,7 @@ export class QuizService implements OnDestroy {
             disabled: false,
             correct: !!opt.correct,
             feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
-          }));
+          }))
         };
       
         console.log(`[QuizService] ✅ Final sanitized options for Q${index}:`, clonedQuestion.options);
