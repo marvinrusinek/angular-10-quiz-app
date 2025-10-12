@@ -1358,7 +1358,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestionIndexSource.next(index);
   }  
 
-  getCurrentQuestionIndex(): number {
+  /* getCurrentQuestionIndex(): number {
     const selectedQuiz = this.quizData.find(
       (quiz) => quiz.quizId === this.quizId
     );
@@ -1378,6 +1378,10 @@ export class QuizService implements OnDestroy {
       console.error(`Quiz with id ${this.quizId} not found`);
       return 0; // Fallback to 0 if no quiz is found
     }
+  } */
+  getCurrentQuestionIndex(): number {
+    const idx = this.currentQuestionIndexSource.getValue?.() ?? this.currentQuestionIndex;
+    return Math.max(0, idx);
   }
 
   getCurrentQuestionIndexObservable(): Observable<number> {
