@@ -208,11 +208,6 @@ export class QuizNavigationService {
       console.warn('[⛔] Already at first question, cannot go back.');
       return false;
     }
-
-    this.ngZone.run(() => {
-      this.currentQuestionIndex = targetIndex;
-      this.quizService.setCurrentQuestionIndex(targetIndex);
-    });
   
     // Guard against loading or navigating
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
