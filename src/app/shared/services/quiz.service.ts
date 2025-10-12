@@ -222,8 +222,6 @@ export class QuizService implements OnDestroy {
   // Emitted with the target question index just before navigation hydrates it
   readonly preReset$ = this._preReset$.asObservable();
 
-  private _correctTextTimer: any = null;
-
   constructor(
     private quizShuffleService: QuizShuffleService,
     private activatedRoute: ActivatedRoute,
