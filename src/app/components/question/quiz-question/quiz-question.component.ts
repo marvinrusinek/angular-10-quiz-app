@@ -295,6 +295,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private _submittingMulti = false;  // prevents re-entry
 
+  private isUserClickInProgress = false;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -2835,8 +2837,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
-    // Reset skip flag at the start of each click
-    this._skipNextAsyncUpdates = false;
+    this.isUserClickInProgress = true;
+    this._skipNextAsyncUpdates = false;  // reset skip flag at start of each click
   
     // Cancel pending RAF
     if (this._pendingRAF != null) {
