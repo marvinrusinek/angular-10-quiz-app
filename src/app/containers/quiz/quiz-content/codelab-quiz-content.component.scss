@@ -13,3 +13,14 @@ h3 {
   vertical-align: middle;
   line-height: 1.35;
 }
+
+[question-content] {
+  display: block;
+  min-height: 3em;        /* prevents collapse between questions */
+  line-height: 1.4;
+  overflow: hidden;
+  will-change: opacity, transform;  /* pre-allocates a compositor layer */
+  backface-visibility: hidden;      /* avoids sub-pixel flicker */
+  transform: translateZ(0);         /* isolates to its own GPU layer */
+  transition: opacity 0.15s linear; /* lets browser blend frames */
+}
