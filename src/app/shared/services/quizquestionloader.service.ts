@@ -103,9 +103,8 @@ export class QuizQuestionLoaderService {
     private quizStateService: QuizStateService,
     private router: Router
   ) {
-    this.questionToDisplay$.subscribe(q =>
-      console.log('[questionToDisplay$ emit]', q)
-    );
+    this.questionToDisplay$
+      .subscribe(q => console.log(`[TRACE QTD] emit:`, q, 'at', performance.now().toFixed(1)));
   }
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
