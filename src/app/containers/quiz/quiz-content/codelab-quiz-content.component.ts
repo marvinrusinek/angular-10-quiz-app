@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { asyncScheduler, BehaviorSubject, combineLatest, concat, defer, EMPTY, forkJoin, from, merge, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, debounceTime, delay, delayWhen, distinctUntilChanged, filter, map, mapTo, observeOn, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, timeout, withLatestFrom } from 'rxjs/operators';
@@ -36,6 +36,7 @@ type DisplayState = { mode: 'question' | 'explanation', answered: boolean };
 export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
+  @ViewChild('qText', { static: true }) qText!: ElementRef<HTMLSpanElement>;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
   @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion = new BehaviorSubject<QuizQuestion | null>(null);
@@ -244,13 +245,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             next: (v) => {
               console.log('[CQCC combinedText$]', v?.slice?.(0, 80));
     
-              // Force a synchronous repaint — prevents one-frame flash
+              // 🧩 Update the span content directly (prevents DOM teardown)
+              if (this.qText?.nativeElement) {
+                this.qText.nativeElement.innerHTML = v || '';
+              }
+    
+              // 🧩 Force an immediate repaint
               this.cdRef.detectChanges();
             },
             error: (err) => console.error('[CQCC combinedText$ error]', err)
           });
       }
-    }, 50);    
+    }, 50);
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
