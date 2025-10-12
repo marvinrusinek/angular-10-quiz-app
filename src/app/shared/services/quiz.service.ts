@@ -728,26 +728,31 @@ export class QuizService implements OnDestroy {
       map((questions: QuizQuestion[]) => {
         if (index < 0 || index >= questions.length) {
           console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
-          return null; 
+          return null;
         }
-
-        const question = questions[index];
-
-        if (!question || !question.options) {
+      
+        const raw = questions[index];
+        if (!raw || !Array.isArray(raw.options)) {
           console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
           return null;
         }
-
-        // Inject feedback for options if missing
-        question.options = question.options.map((opt, i) => ({
-          ...opt,
-          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
-        }));
-
-        console.log(`[QuizService] ✅ Final options for Q${index}:`, question.options);
-
-        return question;
-      }),
+      
+        // 🧩 Clone deeply to avoid mutating shared question objects
+        const clonedQuestion: QuizQuestion = {
+          ...raw,
+          options: raw.options.map((opt, i) => ({
+            ...opt,
+            // Reset transient UI state every time the question is fetched
+            selected: false,
+            highlight: false,
+            showIcon: false,
+            feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
+          })),
+        };
+      
+        console.log(`[QuizService] ✅ Final sanitized options for Q${index}:`, clonedQuestion.options);
+        return clonedQuestion;
+      }),      
       catchError((error: Error) => {
         console.error(`[QuizService] ❌ Error fetching question at index ${index}:`, error);
         return of(null);
