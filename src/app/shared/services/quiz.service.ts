@@ -232,14 +232,6 @@ export class QuizService implements OnDestroy {
   ) {
     this.initializeData();
     this.loadData();
-
-    this.correctAnswersText$
-      ?.subscribe(txt => console.log(`[TRACE CAT] emit:`, txt, 'at', performance.now().toFixed(1)));
-
-    /* console.log('[QuizService] ♻️ Restored from localStorage', {
-      count: storedCount,
-      text: storedText,
-    }); */
   }
 
   ngOnDestroy(): void {
