@@ -106,13 +106,18 @@ export class QuizQuestionLoaderService {
     /* this.questionToDisplay$
       .subscribe(q => console.log(`[TRACE QTD] emit:`, q, 'at', performance.now().toFixed(1))); */
 
-    // Trace all emissions to find rogue .next() calls
     const originalNext = this.questionToDisplay$.next.bind(this.questionToDisplay$);
     this.questionToDisplay$.next = (value: string) => {
-      const stack = new Error().stack?.split('\n').slice(1, 3).join(' ↩ ');
-      console.log(`[TRACE next] "${value}" @`, performance.now().toFixed(1), '\n', stack);
-      originalNext(value);
-    };
+        const time = performance.now().toFixed(1);
+        const trimmed = (value ?? '').trim();
+        if (trimmed === '') {
+          const stack = new Error().stack?.split('\n').slice(1, 4).join(' ↩ ');
+          console.log(`[TRACE ⚠️ empty next()] @ ${time}`, '\n', stack);
+        } else {
+          console.log(`[TRACE next()] "${trimmed}" @ ${time}`);
+        }
+        originalNext(value);
+      };
   }
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
