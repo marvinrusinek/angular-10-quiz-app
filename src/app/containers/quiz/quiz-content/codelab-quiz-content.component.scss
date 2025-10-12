@@ -15,12 +15,14 @@ h3 {
 }
 
 [question-content] {
-  display: block;
-  min-height: 3em;        /* prevents collapse between questions */
-  line-height: 1.4;
+  display: inline-block;
+  width: 100%;
+  min-height: 3em;
+  text-align: left;
+  white-space: normal;
   overflow: hidden;
-  will-change: opacity, transform;  /* pre-allocates a compositor layer */
-  backface-visibility: hidden;      /* avoids sub-pixel flicker */
-  transform: translateZ(0);         /* isolates to its own GPU layer */
-  transition: opacity 0.15s linear; /* lets browser blend frames */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  contain: paint;
+  backface-visibility: hidden;
 }
