@@ -3249,59 +3249,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
   }
 
-  private resetFeedbackState(): void {
-    this.showFeedback = false;
-    this.showFeedbackForOption = {};
-    this.optionsToDisplay.forEach((option) => {
-      option.feedback = '';
-      option.showIcon = false;
-      option.selected = false;  // reset selection before reapplying
-    });
-    this.cdRef.detectChanges();
-  }
-  /****** End of functions responsible for handling navigation to a particular question using the URL. ******/
-
-  /* updateQuestionDisplayForShuffledQuestions(): void {
-    this.questionToDisplay =
-      this.questions[this.currentQuestionIndex].questionText;
-  } */
-  updateQuestionDisplayForShuffledQuestions(): void {
-    void this.updateQuestionDisplay(this.currentQuestionIndex);
-  }
-
-  getQuestionAndOptions(quizId: string, questionIndex: number): void {
-    if (!quizId || quizId.trim() === '') {
-      console.error('❌ quizId is missing or empty');
-      return;
-    }
-
-    if (
-      typeof questionIndex !== 'number' ||
-      isNaN(questionIndex) ||
-      questionIndex < 0
-    ) {
-      console.error(`❌ Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
-
-    // Fetch the question and options using the QuizDataService
-    this.questionAndOptionsSubscription = this.quizDataService
-      .getQuestionAndOptions(quizId, questionIndex)
-      .subscribe({
-        next: ([question, options]) => {
-          // Update component state or variables to reflect the new question and options
-          this.question = question;
-          this.options = options;
-        },
-        error: (error) => {
-          console.error(
-            `Error fetching question and options for quizId ${quizId} and questionIndex ${questionIndex}:`,
-            error
-          );
-        },
-      });
-  }
-
   private applyQuestionPayloadToDisplay(
     payload: QuestionPayload | null,
     questionIndex: number
