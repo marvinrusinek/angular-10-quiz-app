@@ -112,18 +112,18 @@ export class QuizQuestionLoaderService {
     /* this.questionToDisplay$
       .subscribe(q => console.log(`[TRACE QTD] emit:`, q, 'at', performance.now().toFixed(1))); */
 
-    const originalNext = this.questionToDisplay$.next.bind(this.questionToDisplay$);
+    // Prevent any blank/whitespace question text from ever reaching the UI.
+    const _origNext = this.questionToDisplay$.next.bind(this.questionToDisplay$);
     this.questionToDisplay$.next = (value: string) => {
-        const time = performance.now().toFixed(1);
-        const trimmed = (value ?? '').trim();
-        if (trimmed === '') {
-          const stack = new Error().stack?.split('\n').slice(1, 4).join(' ↩ ');
-          console.log(`[TRACE ⚠️ empty next()] @ ${time}`, '\n', stack);
-        } else {
-          console.log(`[TRACE next()] "${trimmed}" @ ${time}`);
-        }
-        originalNext(value);
-      };
+      const s = (value ?? '').trim();
+      if (!s) {
+        // Optional trace so you can see who tries to clear:
+        // const stack = new Error().stack?.split('\n').slice(1,3).join(' ↩ ');
+        // console.log('[SKIP empty question emit]', stack);
+        return;  // swallow empties
+      }
+      _origNext(value);
+    };
   }
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
