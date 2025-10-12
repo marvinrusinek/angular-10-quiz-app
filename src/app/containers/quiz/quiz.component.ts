@@ -1480,8 +1480,17 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
 
+        // Wipe every headline stream only when we’re not already loading a new question
+        const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
+        const activeIndex = this.quizService.getCurrentQuestionIndex();
+
         // Wipe every headline stream before any async work
-        this.quizQuestionLoaderService.resetHeadlineStreams();  // clears QA, header, expl.
+        if (!isNavigating) {
+          this.quizQuestionLoaderService.resetHeadlineStreams(activeIndex);  // clears QA, header, expl.
+          console.log('[RESET HEADLINES] cleared safely for Q', activeIndex + 1);
+        } else {
+          console.log('[SKIP resetHeadlineStreams] navigation still in progress → skip clear');
+        }
         this.cdRef.markForCheck();
         /* ──────────────────────────────────────────────────────────────────── */
 
