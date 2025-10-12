@@ -401,7 +401,7 @@ export class QuizNavigationService {
           // Always emit — even empty — so each question triggers a render
           this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
 
-          resolve(true);
+          resolve();
         });
       });
     } catch (err) {
