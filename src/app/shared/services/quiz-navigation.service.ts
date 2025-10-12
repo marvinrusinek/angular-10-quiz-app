@@ -396,7 +396,7 @@ export class QuizNavigationService {
           // Question text emission
           const trimmedQ = (fresh.questionText ?? '').trim();
           // Always emit — even empty — so each question triggers a render
-          this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
+          this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
 
           resolve(true);
         });
