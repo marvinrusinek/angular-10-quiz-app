@@ -374,10 +374,6 @@ export class QuizNavigationService {
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
 
-      // Clear banner before new question fetch
-      this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
-      this.quizService.clearStoredCorrectAnswersText();
-  
       // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
       // ────────────────────────────────────────────────
@@ -388,6 +384,10 @@ export class QuizNavigationService {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
+
+      // Clear banner before new question fetch
+      this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
+      this.quizService.clearStoredCorrectAnswersText();
   
       // ────────────────────────────────────────────────
       // UPDATE “# OF CORRECT ANSWERS”
