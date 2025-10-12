@@ -382,8 +382,8 @@ export class QuizNavigationService {
       this.quizService.updateCorrectAnswersText('');
 
       // Emit banner text AND question text together
-      await new Promise(resolve => {
-        requestAnimationFrame(() => {
+      await new Promise<void>(resolve => {
+        queueMicrotask(() => {
           // Banner handling
           if (fresh.type === QuestionType.MultipleAnswer) {
             this.quizService.updateCorrectAnswersText(msg);
