@@ -516,14 +516,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 7) Final render mapping (tested stable version)
     return combineLatest([
       index$,
-      display$,
-      shouldShow$,
       questionText$,
       correctText$,
-      fetForIndex$
+      fetForIndex$,
+      shouldShow$
     ]).pipe(
       debounceTime(0),  // stabilize for Q2 flicker and async render races
-      map(([idx, display, shouldShow, question, correct, fet]) => {
+      map(([idx, question, correct, fet, shouldShow]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
   
