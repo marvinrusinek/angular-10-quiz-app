@@ -249,7 +249,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               const el = this.qText?.nativeElement;
               if (el) {
                 el.style.transition = 'opacity 0.12s linear';
-                el.style.opacity = '0';
+                // Reduce opacity a bit but never fully transparent
+                el.style.opacity = '0.4';
     
                 // Wait one frame so opacity 0 paints first
                 requestAnimationFrame(() => {
