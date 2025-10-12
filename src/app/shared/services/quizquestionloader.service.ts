@@ -975,7 +975,20 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  resetHeadlineStreams(): void {
+  resetHeadlineStreams(index?: number): void {
+    const activeIndex = this.quizService.getCurrentQuestionIndex();
+  
+    // 🧩 Guard: skip stale resets from previous questions
+    if (index != null && index !== activeIndex) {
+      console.log(
+        `[SKIP stale resetHeadlineStreams] tried Q${index + 1}, active Q${activeIndex + 1}`
+      );
+      return;
+    }
+  
+    console.log('[RESET HEADLINES] clearing for active index', activeIndex);
+  
+    // Clear streams only for the current question
     this.questionToDisplay$.next('');  // clears question text
     this.explanationTextService.explanationText$.next('');  // clears explanation
     this.clearQA();  // clears question and options
