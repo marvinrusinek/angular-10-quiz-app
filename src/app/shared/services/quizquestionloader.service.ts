@@ -978,7 +978,7 @@ export class QuizQuestionLoaderService {
   resetHeadlineStreams(index?: number): void {
     const activeIndex = this.quizService.getCurrentQuestionIndex();
   
-    // 🧩 Guard: skip stale resets from previous questions
+    // Guard: skip stale resets from previous questions
     if (index != null && index !== activeIndex) {
       console.log(
         `[SKIP stale resetHeadlineStreams] tried Q${index + 1}, active Q${activeIndex + 1}`
