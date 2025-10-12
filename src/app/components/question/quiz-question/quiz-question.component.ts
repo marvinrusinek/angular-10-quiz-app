@@ -4653,6 +4653,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private updateFeedback(option: SelectedOption): void {
+    // Only process feedback if user actually clicked
+    if (!this.isUserClickInProgress) {
+      console.warn('[updateFeedback] skipped — no user click in progress');
+      return;
+    }
+
     this.updateFeedbackForOption(option);
 
     if (!option.correct) {
