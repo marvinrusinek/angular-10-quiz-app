@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, EMPTY, forkJoin, merge, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, retry, shareReplay, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
@@ -469,6 +469,14 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     this.initializeRouteParameters();
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        const raw = this.activatedRoute.snapshot.paramMap.get('questionIndex');
+        const idx = Math.max(0, (Number(raw) || 1) - 1);
+        this.quizService.setCurrentQuestionIndex(idx);
+      });
 
     let quizId = this.quizService.getCurrentQuizId();
     if (!quizId) {
