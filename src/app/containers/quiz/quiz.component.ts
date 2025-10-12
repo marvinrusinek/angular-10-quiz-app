@@ -476,7 +476,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         const raw = this.activatedRoute.snapshot.paramMap.get('questionIndex');
         const idx = Math.max(0, (Number(raw) || 1) - 1);
         this.quizService.setCurrentQuestionIndex(idx);
-        this.quizService.updateCorrectAnswersText('');
       });
 
     let quizId = this.quizService.getCurrentQuizId();
