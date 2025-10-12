@@ -469,6 +469,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   async ngOnInit(): Promise<void> {
     this.initializeRouteParameters();
+    this.quizService.clearStoredCorrectAnswersText();
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
