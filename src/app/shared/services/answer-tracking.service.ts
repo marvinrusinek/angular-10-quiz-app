@@ -56,10 +56,6 @@ export class AnswerTrackingService {
 
   public resetOptionState(): void {
     this.isOptionSelected = false;
-  
-    // Clear both selection and answered state
-    this.selectedOptionService.setOptionSelected(false);
-    this.selectedOptionService.setAnswered(false);
   }
 
   public isAnyOptionSelected(): boolean {
