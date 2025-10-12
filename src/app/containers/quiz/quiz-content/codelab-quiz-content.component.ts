@@ -449,7 +449,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     const questionText$: Observable<string> = combineLatest([
       index$,
-      this.questionToDisplay$.pipe(startWith(this.questionLoadingText || ''))
+      this.questionToDisplay$.pipe(
+        filter(v => !!v && v.trim().length > 0),
+        distinctUntilChanged()
+      )
     ]).pipe(
       map(([idx, base]) => {
         const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
