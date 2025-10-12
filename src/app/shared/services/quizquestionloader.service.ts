@@ -108,23 +108,7 @@ export class QuizQuestionLoaderService {
     private selectedOptionService: SelectedOptionService,
     private quizStateService: QuizStateService,
     private router: Router
-  ) {
-    /* this.questionToDisplay$
-      .subscribe(q => console.log(`[TRACE QTD] emit:`, q, 'at', performance.now().toFixed(1))); */
-
-    // Prevent any blank/whitespace question text from ever reaching the UI.
-    const _origNext = this.questionToDisplay$.next.bind(this.questionToDisplay$);
-    this.questionToDisplay$.next = (value: string) => {
-      const s = (value ?? '').trim();
-      if (!s) {
-        // Optional trace so you can see who tries to clear:
-        // const stack = new Error().stack?.split('\n').slice(1,3).join(' ↩ ');
-        // console.log('[SKIP empty question emit]', stack);
-        return;  // swallow empties
-      }
-      _origNext(value);
-    };
-  }
+  ) {}
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
