@@ -424,9 +424,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
   
-    // ────────────────────────────────
     // 1) Current index (stable, seeded)
-    // ────────────────────────────────
     const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
@@ -434,9 +432,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // ────────────────────────────────
     // 2) Display state (typed & coalesced)
-    // ────────────────────────────────
     const display$: Observable<DisplayState> = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as DisplayState),
       map(v => {
@@ -450,9 +446,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // ────────────────────────────────
     // 3) Global "should show" flag
-    // ────────────────────────────────
     const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         map(Boolean),
@@ -461,27 +455,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       );
   
-    // ────────────────────────────────
     // 4) Question text for *current* index
-    // ────────────────────────────────
-    /* const questionText$: Observable<string> = combineLatest([
-      index$,
-      this.questionToDisplay$.pipe(
-        filter(v => !!v && v.trim().length > 0),
-        distinctUntilChanged()
-      )
-    ]).pipe(
-      map(([idx, base]) => {
-        const q = this.quizService.questions?.[idx] ?? this.questions?.[idx] ?? null;
-        const model = (q?.questionText ?? '').toString().trim();
-        const fallback = (base ?? '').toString().trim();
-        const safe = model || fallback || this.questionLoadingText || `Question ${idx + 1} loading…`;
-        console.log(`[CQCC] 🧩 questionText$ → Q${idx + 1}:`, safe);
-        return safe;
-      }),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
     const questionText$: Observable<string> = combineLatest([
       index$,
       this.questionToDisplay$
@@ -489,7 +463,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       scan(
         (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
           const next = (text ?? '').trim();
-          const lastValid = next || acc.lastValid; // remember previous non-empty
+          const lastValid = next || acc.lastValid;  // remember previous non-empty
           return { idx, lastValid };
         },
         { idx: 0, lastValid: '' } // initial seed
@@ -505,9 +479,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // ────────────────────────────────
     // 5) Correct-count badge text (per-index)
-    // ────────────────────────────────
     const correctText$: Observable<string> = this.quizService.correctAnswersText$.pipe(
       debounceTime(0),  // align timing with questionText$
       filter(v => v != null),  // skip undefined/null
@@ -517,16 +489,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
   
-    // ────────────────────────────────
     // 6) Explanation + gate scoped to *current* index
-    // ────────────────────────────────
-    interface FetState {
+    interface FETState {
       idx: number,
       text: string,
       gate: boolean
     }
   
-    const fetForIndex$: Observable<FetState> = index$.pipe(
+    const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap(idx =>
         combineLatest([
           this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
@@ -543,9 +513,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    // ────────────────────────────────
     // 7) Final render mapping (tested stable version)
-    // ────────────────────────────────
     return combineLatest([
       index$,
       display$,
@@ -559,13 +527,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
   
-        // ✅ Always show question text + correct count immediately
+        // Always show question text and correct count immediately
         const withCorrect =
           correct && correct.trim().length > 0
             ? `${question} <span class="correct-count">${correct}</span>`
             : question;
   
-        // ✅ Show FET as soon as all guards are true
+        // Show FET as soon as all guards are true
         const canShowFET =
           idx === currentIdx &&
           idx === activeIdx &&
@@ -578,7 +546,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fet.text.trim();
         }
   
-        // 🧩 Otherwise display question + correct count
+        // Otherwise display question + correct count
         return withCorrect;
       }),
       distinctUntilChanged(),
