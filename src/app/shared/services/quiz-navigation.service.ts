@@ -307,7 +307,7 @@ export class QuizNavigationService {
     }
     this._fetchInProgress = true;  */
 
-    this.quizService.clearStoredCorrectAnswersText();
+    // this.quizService.clearStoredCorrectAnswersText();
 
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
@@ -398,8 +398,12 @@ export class QuizNavigationService {
       const totalOpts  = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
 
+      console.log('[NAV] 🧮 numCorrect:', numCorrect, 'totalOpts:', totalOpts);
+      console.log('[NAV] 🧩 msg returned from getNumberOfCorrectAnswersText():', msg);
+      console.log('[NAV] 🧭 fresh.type:', fresh.type);
+
       // Clear any leftover banner text immediately
-      this.quizService.updateCorrectAnswersText('');
+      // this.quizService.updateCorrectAnswersText('');
 
       // Emit banner text AND question text together
       await new Promise<void>(resolve => {
