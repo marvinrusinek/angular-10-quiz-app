@@ -4751,6 +4751,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private processOptionSelectionAndUpdateState(index: number): void {
+    // Skip if this was not triggered by an actual click
+    if (!this.isUserClickInProgress) {
+      console.warn('[processOptionSelectionAndUpdateState] skipped — no user click in progress');
+      return;
+    }
+
     const option = this.question.options[index];
     const selectedOption: SelectedOption = {
       optionId: option.optionId,
