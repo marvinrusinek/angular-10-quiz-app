@@ -403,13 +403,18 @@ export class QuizNavigationService {
       console.log('[NAV] 🧭 fresh.type:', fresh.type);
 
       // Clear any leftover banner text immediately
-      // this.quizService.updateCorrectAnswersText('');
+      this.quizService.updateCorrectAnswersText('');
+
+      const isMulti =
+        (fresh.type as any) === QuestionType.MultipleAnswer ||
+        (fresh.type as any) === 'MultipleAnswer' ||
+        (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
 
       // Emit banner text AND question text together
       await new Promise<void>(resolve => {
         queueMicrotask(() => {
           // Banner handling
-          if (fresh.type === QuestionType.MultipleAnswer) {
+          if (isMulti) {
             this.quizService.updateCorrectAnswersText(msg);
             console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
           } else {
