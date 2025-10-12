@@ -1480,18 +1480,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
           return;
         }
 
-        // Wipe every headline stream only when we’re not already loading a new question
-        const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
-        const activeIndex = this.quizService.getCurrentQuestionIndex();
-
-        // Wipe every headline stream before any async work
-        if (!isNavigating) {
-          this.quizQuestionLoaderService.resetHeadlineStreams(activeIndex);  // clears QA, header, expl.
-          console.log('[RESET HEADLINES] cleared safely for Q', activeIndex + 1);
-        } else {
-          console.log('[SKIP resetHeadlineStreams] navigation still in progress → skip clear');
-        }
+        // 🧩 DO NOT reset streams yet — wait until we confirm new data
         this.cdRef.markForCheck();
+
         /* ──────────────────────────────────────────────────────────────────── */
 
         // Update indices (local and services) before async calls
@@ -1537,6 +1528,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
             console.error('[❌ No question at index]', { index });
             return;
           }
+
+          // Now it’s safe to clear previous headline data
+          this.quizQuestionLoaderService.resetHeadlineStreams(index);
+
           /* ────────────────────────────────────────────────────────────────── */
 
           // Local state still needed elsewhere in the component
