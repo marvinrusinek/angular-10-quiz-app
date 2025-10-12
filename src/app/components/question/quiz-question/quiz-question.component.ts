@@ -3252,6 +3252,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     } finally {
       queueMicrotask(() => {
         this._clickGate = false;
+        this.isUserClickInProgress = false;
   
         // Release sticky baseline regardless
         this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
