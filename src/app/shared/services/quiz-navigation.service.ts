@@ -301,13 +301,13 @@ export class QuizNavigationService {
   }
 
   public async navigateToQuestion(index: number): Promise<boolean> {
-    if (this._fetchInProgress) {
+    /* if (this._fetchInProgress) {
       console.warn('[NAV] 🧯 Skipping overlapping getQuestionByIndex call');
       return false;
     }
-    this._fetchInProgress = true;
+    this._fetchInProgress = true;  */
 
-    // this.quizService.clearStoredCorrectAnswersText();
+    this.quizService.clearStoredCorrectAnswersText();
 
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
