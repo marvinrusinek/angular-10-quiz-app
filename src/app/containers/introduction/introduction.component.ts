@@ -60,7 +60,7 @@ export class IntroductionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // this.quizService.clearStoredCorrectAnswersText();
+    this.quizService.clearStoredCorrectAnswersText();
 
     this.subscribeToRouteParameters();
     this.handleQuizSelectionAndFetchQuestions();
