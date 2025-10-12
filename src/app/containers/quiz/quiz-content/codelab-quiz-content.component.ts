@@ -252,13 +252,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 // Reduce opacity a bit but never fully transparent
                 el.style.opacity = '0.4';
     
-                // Wait two frames after Angular’s layout work
-                requestAnimationFrame(() => {
-                  requestAnimationFrame(() => {
-                    el.innerHTML = v || '';  // write text directly
-                    el.style.opacity = '1';  // fade in
-                  });
-                });
+                el.innerHTML = v || '';  // write text directly
+                el.style.opacity = '1';  // fade in
               }
     
               // Repaint synchronously
