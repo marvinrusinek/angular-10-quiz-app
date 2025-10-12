@@ -202,17 +202,17 @@ export class QuizNavigationService {
     }
 
     const targetIndex = currentIndex + offset;  // 0-based
-
-    this.ngZone.run(() => {
-      this.currentQuestionIndex = targetIndex;
-      this.quizService.setCurrentQuestionIndex(targetIndex);
-    });
   
     // Block if going out of bounds
     if (targetIndex < 0) {
       console.warn('[⛔] Already at first question, cannot go back.');
       return false;
     }
+
+    this.ngZone.run(() => {
+      this.currentQuestionIndex = targetIndex;
+      this.quizService.setCurrentQuestionIndex(targetIndex);
+    });
   
     // Guard against loading or navigating
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
