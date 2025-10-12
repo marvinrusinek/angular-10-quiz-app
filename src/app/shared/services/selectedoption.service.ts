@@ -1936,33 +1936,24 @@ export class SelectedOptionService {
 
   public resetOptionState(questionIndex?: number, optionsToDisplay?: Option[]): void {
     try {
-      // Clear per-question map
       if (typeof questionIndex === 'number') {
-        const opts = this.selectedOptionsMap.get(questionIndex) ?? [];
-        const cleared = opts.map(o => ({
-          ...o,
-          selected: false,
-          showIcon: false,
-          highlight: false,
-        }));
-        this.selectedOptionsMap.set(questionIndex, cleared);
-        console.log(`[SelectedOptionService] 🔄 Cleared stored state for Q${questionIndex}`);
+        this.selectedOptionsMap.set(questionIndex, []);
+        console.log(`[SelectedOptionService] 🔄 Cleared selectedOptionsMap for Q${questionIndex}`);
       } else {
         this.selectedOptionsMap.clear();
-        console.log('[SelectedOptionService] 🔄 Cleared stored state for ALL questions');
+        console.log('[SelectedOptionService] 🔄 Cleared all selected options');
       }
   
-      // Reset live options actually being displayed
       if (Array.isArray(optionsToDisplay)) {
-        for (const opt of optionsToDisplay) {
-          opt.selected = false;
-          opt.highlight = false;
-          opt.showIcon = false;
-          (opt as any).disabled = false; // make sure nothing is disabled on load
+        for (const o of optionsToDisplay) {
+          o.selected = false;
+          o.highlight = false;
+          o.showIcon = false;
         }
+        console.log('[SelectedOptionService] 🧹 Reset visible option states');
       }
   
-      // Reset service flags
+      // Also clear any global flags
       this.setOptionSelected(false);
       this.setAnswered(false);
     } catch (err) {
