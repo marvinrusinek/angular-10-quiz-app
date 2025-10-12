@@ -65,6 +65,8 @@ export class QuizNavigationService {
 
   // Internal suppression timer used to block transient banner updates (anti-flash)
   private _suppressTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private _fetchInProgress = false;  // prevents overlapping question fetches
   
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -299,6 +301,12 @@ export class QuizNavigationService {
   }
 
   public async navigateToQuestion(index: number): Promise<boolean> {
+    if (this._fetchInProgress) {
+      console.warn('[NAV] 🧯 Skipping overlapping getQuestionByIndex call');
+      return false;
+    }
+    this._fetchInProgress = true;
+
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -414,6 +422,9 @@ export class QuizNavigationService {
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
+    } finally {
+      this._fetchInProgress = false;
+      console.debug('[NAV] ✅ Fetch complete');
     }
   
     return true;
