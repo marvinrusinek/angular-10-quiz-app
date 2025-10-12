@@ -102,7 +102,11 @@ export class QuizQuestionLoaderService {
     private selectedOptionService: SelectedOptionService,
     private quizStateService: QuizStateService,
     private router: Router
-  ) {}
+  ) {
+    this.questionToDisplay$.subscribe(q =>
+      console.log('[questionToDisplay$ emit]', q)
+    );
+  }
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
     try {

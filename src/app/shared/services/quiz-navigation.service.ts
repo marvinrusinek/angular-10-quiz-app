@@ -395,10 +395,8 @@ export class QuizNavigationService {
 
           // Question text emission
           const trimmedQ = (fresh.questionText ?? '').trim();
-          if (trimmedQ.length > 0) {
-            this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
-            console.log(`[NAV] 🧩 Emitted question text + banner together for Q${index + 1}:`, trimmedQ);
-          }
+          // Always emit — even empty — so each question triggers a render
+          this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
 
           resolve(true);
         });
