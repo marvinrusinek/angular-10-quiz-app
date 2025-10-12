@@ -375,13 +375,16 @@ export class QuizNavigationService {
       // UPDATE “# OF CORRECT ANSWERS”
       // ────────────────────────────────────────────────
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-      const totalOpts = (fresh.options ?? []).length;
+      const totalOpts  = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+
+      // Clear any leftover banner text immediately
       this.quizService.updateCorrectAnswersText('');
-  
+
+      // Emit banner text AND question text together
       await new Promise(resolve => {
         requestAnimationFrame(() => {
-          // Only emit banner text for MultipleAnswer questions
+          // Banner handling
           if (fresh.type === QuestionType.MultipleAnswer) {
             this.quizService.updateCorrectAnswersText(msg);
             console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
@@ -389,20 +392,17 @@ export class QuizNavigationService {
             this.quizService.updateCorrectAnswersText('');
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           }
+
+          // Question text emission
+          const trimmedQ = (fresh.questionText ?? '').trim();
+          if (trimmedQ.length > 0) {
+            this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
+            console.log(`[NAV] 🧩 Emitted question text + banner together for Q${index + 1}:`, trimmedQ);
+          }
+
           resolve(true);
         });
       });
-  
-      // ────────────────────────────────────────────────
-      // EMIT QUESTION TEXT
-      // ────────────────────────────────────────────────
-      const trimmedQ = (fresh.questionText ?? '').trim();
-      if (trimmedQ.length > 0) {
-        await new Promise(res => setTimeout(res, 120));
-        this.quizQuestionLoaderService.questionToDisplay$.next(trimmedQ);
-        console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}:`, trimmedQ);
-      }
-  
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
