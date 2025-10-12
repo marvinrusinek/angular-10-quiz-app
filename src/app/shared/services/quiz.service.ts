@@ -737,7 +737,7 @@ export class QuizService implements OnDestroy {
           return null;
         }
       
-        // 🧩 Clone deeply to avoid mutating shared question objects
+        // Clone deeply to avoid mutating shared question objects
         const clonedQuestion: QuizQuestion = {
           ...raw,
           options: raw.options.map((opt, i) => ({
