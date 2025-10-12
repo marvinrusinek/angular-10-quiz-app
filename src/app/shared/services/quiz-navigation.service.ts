@@ -79,7 +79,10 @@ export class QuizNavigationService {
     private activatedRoute: ActivatedRoute, 
     private router: Router,
     private ngZone: NgZone
-  ) {}
+  ) {
+    console.log('[Instance check] QQLS', this.quizQuestionLoaderService);
+    console.log('[Instance check] QS', this.quizService);
+  }
 
   handleRouteParams(params: ParamMap): 
     Observable<{ quizId: string, questionIndex: number, quizData: Quiz }> {
