@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
-import { catchError, take } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { firstValueFrom, lastValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../models/question-type.enum';
@@ -34,6 +34,12 @@ export class QuizQuestionLoaderService {
   currentQuestionAnswered = false;
   questionToDisplay = '';
   questionToDisplay$ = new BehaviorSubject<string>('');
+  // Derived stream that smooths rapid clears/fills (prevents flash)
+  public readonly questionDisplay$ = this.questionToDisplay$.pipe(
+    debounceTime(0),  // merge empty→real emissions in same tick
+    distinctUntilChanged()  // ignore identical repeats
+  );
+
   questionTextLoaded = false;
   questionInitialized = false;
   explanationToDisplay = '';
