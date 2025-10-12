@@ -736,6 +736,18 @@ export class QuizService implements OnDestroy {
           console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
           return null;
         }
+
+        // Log the incoming data before any sanitization
+        console.log(`[QuizService] 🧩 RAW options for Q${index} before clone:`);
+        console.table(
+          raw.options.map((o, i) => ({
+            i,
+            text: o.text,
+            selected: o.selected,
+            highlight: o.highlight,
+            showIcon: o.showIcon
+          }))
+        );
       
         // Clone deeply to avoid mutating shared question objects
         const clonedQuestion: QuizQuestion = {
