@@ -307,6 +307,8 @@ export class QuizNavigationService {
     }
     this._fetchInProgress = true;
 
+    this.quizService.clearStoredCorrectAnswersText();
+
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -388,7 +390,6 @@ export class QuizNavigationService {
       // Clear banner before new question fetch
       this.selectedOptionService.resetOptionState(index, fresh.options ?? []);
       this.nextButtonStateService.setNextButtonState(false);
-      this.quizService.clearStoredCorrectAnswersText();
   
       // ────────────────────────────────────────────────
       // UPDATE “# OF CORRECT ANSWERS”
