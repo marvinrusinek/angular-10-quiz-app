@@ -388,7 +388,7 @@ export class QuizNavigationService {
       }
 
       // Clear banner before new question fetch
-      this.selectedOptionService.resetOptionState(index, fresh.options ?? []);
+      //this.selectedOptionService.resetOptionState(index, fresh.options ?? []);
       this.nextButtonStateService.setNextButtonState(false);
   
       // ────────────────────────────────────────────────
