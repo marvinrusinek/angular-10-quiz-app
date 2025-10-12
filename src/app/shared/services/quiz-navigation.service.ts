@@ -377,6 +377,7 @@ export class QuizNavigationService {
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+      this.quizService.updateCorrectAnswersText('');
   
       await new Promise(resolve => {
         requestAnimationFrame(() => {
