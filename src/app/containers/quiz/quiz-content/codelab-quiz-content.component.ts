@@ -253,7 +253,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
                 // wait one frame so opacity 0 paints first
                 requestAnimationFrame(() => {
-                  el.textContent = v || '';  // write text directly
+                  el.innerHTML = v || '';  // write text directly
                   el.style.opacity = '1';  // fade in
                 });
               }
