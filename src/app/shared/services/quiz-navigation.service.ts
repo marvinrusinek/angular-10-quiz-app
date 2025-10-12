@@ -308,6 +308,9 @@ export class QuizNavigationService {
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
+
+    // Freeze current question display to prevent mid-transition clears
+    this.quizQuestionLoaderService.questionToDisplay$.next('(freeze)');
   
     try {
       // CLEANUP PREVIOUS QUESTION
