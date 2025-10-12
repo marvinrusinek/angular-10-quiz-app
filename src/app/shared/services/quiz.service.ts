@@ -1683,8 +1683,6 @@ export class QuizService implements OnDestroy {
     // Persist if needed
     localStorage.setItem('correctAnswersCount', String(count));
     localStorage.setItem('correctAnswersText', text);
-
-    console.log(`[QuizService] ✅ Updated correct answers → count=${count}, text="${text}"`);
   }
   
   updateCorrectAnswersText(newText: string): void {
@@ -1698,7 +1696,6 @@ export class QuizService implements OnDestroy {
       // Persist new text normally
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
-      console.log('[QuizService] 💾 Stored correctAnswersText:', text);
     }
   }  
 
