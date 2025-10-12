@@ -232,7 +232,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.explanationTextService.resetForIndex(0);
     this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
     
-    // 🧩 Build the stream only once globally
+    // Build the stream only once globally
     this.combinedText$ = this.getCombinedDisplayTextStream();
 
     // Always subscribe after the stream is created
@@ -245,12 +245,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             next: (v) => {
               console.log('[CQCC combinedText$]', v?.slice?.(0, 80));
     
-              // 🧩 Update the span content directly (prevents DOM teardown)
-              if (this.qText?.nativeElement) {
-                this.qText.nativeElement.innerHTML = v || '';
+              // Smoothly update question text in place
+              const el = this.qText?.nativeElement;
+              if (el) {
+                el.style.transition = 'opacity 0.12s linear';
+                el.style.opacity = '0';
+    
+                // wait one frame so opacity 0 paints first
+                requestAnimationFrame(() => {
+                  el.textContent = v || '';  // write text directly
+                  el.style.opacity = '1';  // fade in
+                });
               }
     
-              // 🧩 Force an immediate repaint
+              // Repaint synchronously
               this.cdRef.detectChanges();
             },
             error: (err) => console.error('[CQCC combinedText$ error]', err)
