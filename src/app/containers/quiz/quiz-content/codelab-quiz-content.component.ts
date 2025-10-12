@@ -545,7 +545,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fet.text.trim();
         }
   
-        // Otherwise display question + correct count
+        // Otherwise display question and correct count
         return withCorrect;
       }),
       distinctUntilChanged(),
