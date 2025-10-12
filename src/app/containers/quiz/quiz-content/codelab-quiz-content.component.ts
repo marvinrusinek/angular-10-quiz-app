@@ -447,7 +447,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────
     // 4) Question text for *current* index
     // ────────────────────────────────
-    const questionText$: Observable<string> = combineLatest([
+    /* const questionText$: Observable<string> = combineLatest([
       index$,
       this.questionToDisplay$.pipe(
         filter(v => !!v && v.trim().length > 0),
@@ -460,6 +460,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fallback = (base ?? '').toString().trim();
         const safe = model || fallback || this.questionLoadingText || `Question ${idx + 1} loading…`;
         console.log(`[CQCC] 🧩 questionText$ → Q${idx + 1}:`, safe);
+        return safe;
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    const questionText$: Observable<string> = combineLatest([
+      index$,
+      this.questionToDisplay$
+    ]).pipe(
+      scan(
+        (acc, [idx, text]) => {
+          const next = (text ?? '').trim();
+          if (next) acc.lastValid = next; // remember last non-empty
+          return { idx, text: next || acc.lastValid };
+        },
+        { idx: 0, lastValid: '' as string }
+      ),
+      map(v => {
+        const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
+        const model = (q?.questionText ?? '').trim();
+        const safe = model || v.text || this.questionLoadingText || `Question ${v.idx + 1}`;
         return safe;
       }),
       distinctUntilChanged(),
