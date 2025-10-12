@@ -1691,15 +1691,16 @@ export class QuizService implements OnDestroy {
     const text = (newText ?? '').trim();
   
     if (text.length === 0) {
-      // Clear both memory and storage if empty
-      localStorage.removeItem('correctAnswersText');
+      // Only clear in memory, not localStorage
       this.correctAnswersCountTextSource.next('');
-      console.log('[QuizService] 🧹 Cleared correctAnswersText from storage');
+      console.log('[QuizService] 🧹 Cleared correctAnswersText in memory only');
     } else {
+      // Persist new text normally
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 💾 Stored correctAnswersText:', text);
     }
-  }
+  }  
 
   public clearStoredCorrectAnswersText(): void {
     try {
