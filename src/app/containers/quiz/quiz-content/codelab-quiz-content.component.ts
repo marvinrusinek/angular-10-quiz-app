@@ -475,17 +475,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.questionToDisplay$
     ]).pipe(
       scan(
-        (acc, [idx, text]) => {
+        (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
           const next = (text ?? '').trim();
-          if (next) acc.lastValid = next; // remember last non-empty
-          return { idx, text: next || acc.lastValid };
+          const lastValid = next || acc.lastValid; // remember previous non-empty
+          return { idx, lastValid };
         },
-        { idx: 0, lastValid: '' as string }
+        { idx: 0, lastValid: '' } // initial seed
       ),
       map(v => {
         const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
         const model = (q?.questionText ?? '').trim();
-        const safe = model || v.text || this.questionLoadingText || `Question ${v.idx + 1}`;
+        const safe =
+          model || v.lastValid || this.questionLoadingText || `Question ${v.idx + 1}`;
         return safe;
       }),
       distinctUntilChanged(),
