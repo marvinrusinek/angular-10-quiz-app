@@ -234,18 +234,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 🧩 Build the stream only once globally
     this.combinedText$ = this.getCombinedDisplayTextStream();
 
-    // 🧠 Always subscribe after the stream is created
+    // Always subscribe after the stream is created
     // Use a small delay so we don't subscribe to an undefined observable
     setTimeout(() => {
       if (this.combinedText$ && !this.combinedSub) {
         this.combinedSub = this.combinedText$
           .pipe(distinctUntilChanged())
           .subscribe({
-            next: (v) => console.log('[CQCC combinedText$]', v?.slice?.(0, 80)),
+            next: (v) => {
+              console.log('[CQCC combinedText$]', v?.slice?.(0, 80));
+    
+              // Force a synchronous repaint — prevents one-frame flash
+              this.cdRef.detectChanges();
+            },
             error: (err) => console.error('[CQCC combinedText$ error]', err)
           });
       }
-    }, 50);
+    }, 50);    
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
