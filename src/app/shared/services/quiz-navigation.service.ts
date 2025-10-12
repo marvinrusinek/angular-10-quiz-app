@@ -367,6 +367,7 @@ export class QuizNavigationService {
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
 
       // Clear banner before new question fetch
+      this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
       this.quizService.clearStoredCorrectAnswersText();
   
       // ────────────────────────────────────────────────
