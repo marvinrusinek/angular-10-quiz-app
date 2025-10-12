@@ -1101,28 +1101,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.cdRef.detectChanges();
   }
 
-  // REMOVE!!
   private resetOptionState(): void {
-    this.isOptionSelected = false;
-
-    // Clear both selection and answered state
-    this.selectedOptionService.setOptionSelected(false);
-    // this.selectedOptionService.setAnswered(false);
-
-    // Reset the actual options (visual and logical state)
-    if (this.questions?.length) {
-      this.questions.forEach((q) => {
-        q.options?.forEach((opt) => {
-          opt.selected = false;
-          opt.highlight = false;
-          opt.showIcon = false;
-        });
-      });
-    } else {
-      console.warn(
-        '[⚠️ resetOptionState] No questions available to reset options.'
-      );
-    }
+    const idx = this.currentQuestionIndex ?? 0;
+    const options = this.questions[idx].options ?? [];
+    this.selectedOptionService.resetOptionState(idx, options);
   }
 
   ngOnDestroy(): void {
