@@ -15,14 +15,22 @@ h3 {
 }
 
 [question-content] {
-  display: inline-block;
-  width: 100%;
+  position: relative;
+  display: block;
   min-height: 3em;
-  text-align: left;
-  white-space: normal;
-  overflow: hidden;
+  width: 100%;
+  contain: layout paint;  /* isolate layout + paint */
   will-change: opacity, transform;
   transform: translateZ(0);
-  contain: paint;
-  backface-visibility: hidden;
+}
+
+[question-content]::before {
+  content: attr(data-text);  /* paint text from attribute */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  white-space: pre-wrap;
+  transition: opacity 0.15s ease-in-out;
 }
