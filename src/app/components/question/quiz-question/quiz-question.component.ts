@@ -2926,26 +2926,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
         // Multiple-answer behavior unchanged
       } catch { /* noop */ }
-
-      // Show FET once all correct answers are selected
-      // ────────────────────────────────
-      if (q?.type === QuestionType.MultipleAnswer && allCorrect && !this._fetEarlyShown.has(idx)) {
-        this._fetEarlyShown.add(idx);
-
-        console.log(`[QQC] 🧠 Scheduling FET for multi-answer Q${idx + 1}`);
-
-        // Defer to allow nextButtonState updates first
-        queueMicrotask(async () => {
-          try {
-            await this.updateExplanationText(idx);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-            console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
-          } catch (err) {
-            console.warn('[QQC] ⚠️ Deferred FET trigger failed', err);
-          }
-        });
-      }
   
       /* =========================
          continue as before…
@@ -3015,6 +2995,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Only stop the timer when the question is actually finished correctly
         if (allCorrect) {
           this.safeStopTimer('completed');
+        }
+
+        // Deferred FET trigger for Multiple-Answer questions
+        // ────────────────────────────────
+        if (q?.type === QuestionType.MultipleAnswer && allCorrect && !this._fetEarlyShown.has(idx)) {
+          this._fetEarlyShown.add(idx);
+
+          console.log(`[QQC] 🧠 Scheduling FET for multi-answer Q${idx + 1}`);
+
+          // Defer so navigation and button state settle first
+          queueMicrotask(async () => {
+            try {
+              await this.updateExplanationText(idx);
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+              console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+            } catch (err) {
+              console.warn('[QQC] ⚠️ Deferred FET trigger failed', err);
+            }
+          });
         }
       
         // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
