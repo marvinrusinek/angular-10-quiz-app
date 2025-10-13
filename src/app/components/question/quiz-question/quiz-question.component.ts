@@ -1240,8 +1240,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
               '[restoreQuizState] ⚠️ No previously selected option found. Skipping feedback reapply.mmm'
             );
           }
-        }, 50); // extra delay ensures selections are fully restored before applying feedback
-      }, 100); // slight delay to ensure UI updates correctly
+        }, 50);  // extra delay ensures selections are fully restored before applying feedback
+      }, 100);  // slight delay to ensure UI updates correctly
     } catch (error) {
       console.error('[restoreQuizState] ❌ Error restoring quiz state:', error);
     }
@@ -1249,25 +1249,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Method to initialize `displayMode$` and control the display reactively
   private initializeDisplayModeSubscription(): void {
-    this.displayModeSubscription = this.quizService
-      .isAnswered(this.currentQuestionIndex)
+    this.displayModeSubscription = this.quizService.isAnswered(this.currentQuestionIndex)
       .pipe(
         map((isAnswered) => (isAnswered ? 'explanation' : 'question')),
         distinctUntilChanged(),
         tap((mode: 'question' | 'explanation') => {
           if (this.isRestoringState) {
-            console.log(
-              `[🛠️ Restoration] Skipping displayMode$ update (${mode})`
-            );
+            console.log(`[🛠️ Restoration] Skipping displayMode$ update (${mode})`);
           } else {
-            console.log(
-              `[👀 Observed isAnswered ➡️ ${mode}] — no displayMode$ update`
-            );
+            console.log(`[👀 Observed isAnswered ➡️ ${mode}] — no displayMode$ update`);
           }
         }),
         catchError((error) => {
           console.error('❌ Error in display mode subscription:', error);
-          return of('question'); // safe fallback
+          return of('question');  // safe fallback
         })
       )
       .subscribe();
@@ -1287,7 +1282,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .subscribe(() => {
         const paramIndex =
           this.activatedRoute.snapshot.paramMap.get('questionIndex');
-        const index = paramIndex ? +paramIndex : 0; // Fallback to 0 if param is missing or invalid
+        const index = paramIndex ? +paramIndex : 0;  // fallback to 0 if param is missing or invalid
 
         // Check if questions are available to avoid out-of-bounds access
         if (!this.questions || this.questions.length === 0) {
@@ -1295,10 +1290,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           return;
         }
 
-        const adjustedIndex = Math.max(
-          0,
-          Math.min(index - 1, this.questions.length - 1)
-        );
+        const adjustedIndex = Math.max(0, Math.min(index - 1, this.questions.length - 1));
         this.quizService.updateCurrentQuestionIndex(adjustedIndex);
 
         // Use the adjusted index for explanation text to ensure sync
@@ -1308,17 +1300,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Function to subscribe to navigation flags
   private subscribeToNavigationFlags(): void {
-    this.quizService
-      .getIsNavigatingToPrevious()
-      .subscribe(
-        (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
-      );
+    this.quizService.getIsNavigatingToPrevious().subscribe(
+      (isNavigating) => (this.isNavigatingToPrevious = isNavigating)
+    );
   }
 
   // Function to subscribe to total questions count
   private subscribeToTotalQuestions(): void {
-    this.quizService
-      .getTotalQuestionsCount(this.quizId)
+    this.quizService.getTotalQuestionsCount(this.quizId)
       .pipe(takeUntil(this.destroy$))
       .subscribe((totalQuestions: number) => {
         this.totalQuestions = totalQuestions;
@@ -1331,7 +1320,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.sharedOptionComponent.renderReady$
       .pipe(
         filter((ready) => ready === true),
-        take(1) // only care about first true
+        take(1)  // only care about first true
       )
       .subscribe(() => {
         console.log('[🟢 QuizQuestionComponent] Render ready confirmed by SOC');
@@ -1365,7 +1354,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       .pipe(take(1), debounceTime(100))
       .subscribe((loaded) => {
         if (loaded) {
-          this.handleRouteChanges(); // handle route changes after questions are loaded
+          this.handleRouteChanges();  // handle route changes after questions are loaded
         } else {
           console.warn(
             'Questions are not loaded yet. Skipping explanation update.....'
@@ -1429,9 +1418,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       let questionIndex = isNaN(parsedParam) ? 1 : parsedParam;
 
       if (questionIndex < 1 || questionIndex > this.totalQuestions) {
-        console.warn(
-          `[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to Q1]`
-        );
+        console.warn(`[⚠️ Invalid questionIndex param: ${rawParam}. Defaulting to Q1]`);
         questionIndex = 1;
       }
 
