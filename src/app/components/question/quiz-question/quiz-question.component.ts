@@ -2927,27 +2927,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Multiple-answer behavior unchanged
       } catch { /* noop */ }
 
-      // ────────────────────────────────
-      // Early FET trigger (Multi-Answer: first correct click)
-      // ────────────────────────────────
+      // Early FET trigger (for Multiple-Answer questions)
       try {
-        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct && !this._fetEarlyShown.has(idx)) {
-          this._fetEarlyShown.add(idx);
+        const qIndex = this.currentQuestionIndex;
+        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct) {
+          if (!this._fetEarlyShown.has(qIndex)) {
+            this._fetEarlyShown.add(qIndex);
+            console.log(`[QQC] 🧠 Triggering early FET for multi-answer Q${qIndex + 1}`);
 
-          // Immediately mark explanation state open & displayed
-          this.explanationTextService.setGate(idx, true);
-          this.explanationTextService.setShouldDisplayExplanation(true);
-          this.quizStateService.setDisplayState({ mode: 'explanation', answered: false });
-
-          // Build formatted explanation right away
-          await this.updateExplanationText(idx);
-
-          console.log(`[QQC] 🧠 Early FET shown for multi-answer Q${idx + 1}`);
+            await this.updateExplanationText(qIndex);
+            this.explanationTextService.setShouldDisplayExplanation(true);
+          } else {
+            console.log(`[QQC] 🚫 Early FET already shown for Q${qIndex + 1}`);
+          }
         }
       } catch (err) {
         console.warn('[QQC] ⚠️ Early FET trigger failed', err);
       }
-
   
       /* =========================
          continue as before…
