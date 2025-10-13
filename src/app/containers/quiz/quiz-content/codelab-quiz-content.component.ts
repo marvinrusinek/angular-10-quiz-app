@@ -85,6 +85,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private readonly explanationLoadingText = 'Loading explanation…';
   private readonly questionLoadingText = 'Loading question…';
   private lastQuestionIndexForReset: number | null = null;
+  private staleFallbackIndices = new Set<number>();
 
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
