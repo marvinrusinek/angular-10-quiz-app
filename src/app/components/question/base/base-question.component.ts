@@ -170,6 +170,14 @@ export abstract class BaseQuestionComponent implements OnInit, OnChanges, OnDest
   }
 
   protected initializeQuestion(): void {
+    try {
+      const qqc = (this as any).quizQuestionComponent ?? (this as any)._quizQuestionComponent;
+      qqc?._fetEarlyShown?.clear();
+      console.log('[BQC] 🔄 Cleared _fetEarlyShown before showing new question');
+    } catch (err) {
+      console.warn('[BQC] ⚠️ Could not clear _fetEarlyShown:', err);
+    }
+
     if (this.question && Array.isArray(this.question.options) && this.question.options.length > 0) {
       this.initializeOptions();
       this.optionsInitialized = true;
