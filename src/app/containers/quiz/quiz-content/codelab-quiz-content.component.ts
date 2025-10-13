@@ -1,45 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import {
-  asyncScheduler,
-  BehaviorSubject,
-  combineLatest,
-  forkJoin,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import {
-  auditTime,
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  observeOn,
-  scan,
-  shareReplay,
-  startWith,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -68,15 +30,12 @@ interface QuestionViewState {
   styleUrls: ['./codelab-quiz-content.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CodelabQuizContentComponent
-  implements OnInit, OnChanges, OnDestroy
-{
+export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('quizQuestionComponent', { static: false })
   quizQuestionComponent!: QuizQuestionComponent | undefined;
   @ViewChild('qText', { static: true }) qText!: ElementRef<HTMLHeadingElement>;
   @Output() isContentAvailableChange = new EventEmitter<boolean>();
-  @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null =
-    null;
+  @Input() combinedQuestionData$: Observable<CombinedQuestionDataType> | null = null;
   @Input() currentQuestion = new BehaviorSubject<QuizQuestion | null>(null);
   @Input() questionToDisplay = '';
   @Input() questionToDisplay$!: Observable<string>;
@@ -120,26 +79,18 @@ export class CodelabQuizContentComponent
   combinedText$ = this.combinedTextSubject.asObservable();
 
   shouldDisplayCorrectAnswers = false;
-  private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> =
-    new BehaviorSubject<boolean>(false);
-  shouldDisplayCorrectAnswers$ =
-    this.shouldDisplayCorrectAnswersSubject.asObservable();
+  private shouldDisplayCorrectAnswersSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  shouldDisplayCorrectAnswers$ = this.shouldDisplayCorrectAnswersSubject.asObservable();
   currentQuestionIndexValue: number;
-  currentQuestion$: BehaviorSubject<QuizQuestion | null> =
-    new BehaviorSubject<QuizQuestion | null>(null);
-  currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<
-    Option[]
-  >([]);
+  currentQuestion$: BehaviorSubject<QuizQuestion | null> = new BehaviorSubject<QuizQuestion | null>(null);
+  currentOptions$: BehaviorSubject<Option[] | null> = new BehaviorSubject<Option[]>([]);
   currentQuestionIndex$: Observable<number>;
   nextQuestion$: Observable<QuizQuestion | null>;
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
 
-  private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({
-    idx: -1,
-    html: '',
-  });
+  private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
   private explanationCache = new Map<string, string>();
   private lastExplanationMarkupByKey = new Map<string, string>();
@@ -252,7 +203,7 @@ export class CodelabQuizContentComponent
     this.combinedText$ = this.getCombinedDisplayTextStream();
 
     // Always subscribe after the stream is created
-    // Use a small delay so we don't subscribe to an undefined observable
+    // Use a small delay so as not to subscribe to an undefined observable
     setTimeout(() => {
       if (this.combinedText$ && !this.combinedSub) {
         this.combinedSub = this.combinedText$
@@ -263,9 +214,9 @@ export class CodelabQuizContentComponent
               const el = this.qText?.nativeElement;
               if (el) {
                 el.style.transition = 'opacity 0.12s linear';
-                el.style.opacity = '0.4'; // fade out (dim briefly)
-                el.innerHTML = v || ''; // write text directly
-                el.style.opacity = '1'; // fade back in
+                el.style.opacity = '0.4';  // fade out (dim briefly)
+                el.innerHTML = v || '';    // write text directly
+                el.style.opacity = '1';    // fade back in
               }
 
               // Repaint synchronously
@@ -301,7 +252,7 @@ export class CodelabQuizContentComponent
           currentQuestion: null,
           isNavigatingToPrevious: false,
           isExplanationDisplayed: false,
-          selectionMessage: 'Unable to load question.',
+          selectionMessage: 'Unable to load question.'
         } satisfies CombinedQuestionDataType);
       })
     );
@@ -309,10 +260,6 @@ export class CodelabQuizContentComponent
     this.isContentAvailable$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
         const isAvailable = !!currentQuestion && currentOptions.length > 0;
-        console.log('isContentAvailable$: ', isAvailable, {
-          currentQuestion,
-          currentOptions,
-        });
         return isAvailable;
       }),
       distinctUntilChanged(),
