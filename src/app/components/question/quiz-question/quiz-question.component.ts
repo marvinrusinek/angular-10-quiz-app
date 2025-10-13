@@ -244,6 +244,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   explanationTextSubject = new BehaviorSubject<string>('');
   explanationText$ = this.explanationTextSubject.asObservable();
+  private _fetEarlyShown = new Set<number>();
 
   feedbackTextSubject = new BehaviorSubject<string>('');
   feedbackText$ = this.feedbackTextSubject.asObservable();
@@ -2927,14 +2928,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       } catch { /* noop */ }
 
       // ────────────────────────────────
-      // 🧠 Early FET trigger (for Multiple-Answer questions)
+      // Early FET trigger (Multi-Answer: first correct click)
       // ────────────────────────────────
       try {
-        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct) {
-          console.log(`[QQC] 🧠 Triggering early FET for multi-answer Q${this.currentQuestionIndex}`);
-
-          await this.updateExplanationText(this.currentQuestionIndex);
+        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct && !this._fetEarlyShown.has(idx)) {
+          this._fetEarlyShown.add(idx);                 // latch so we don’t re-run on next clicks
+          // Open explanation gate synchronously for this index
+          try { this.explanationTextService.setGate(idx, true); } catch {}
           this.explanationTextService.setShouldDisplayExplanation(true);
+
+          // Populate formatted explanation now
+          await this.updateExplanationText(idx);
+
+          // Optional: drive local display state immediately (avoids one-frame lag)
+          this.displayStateSubject?.next({ mode: 'explanation', answered: false } as const);
+          this.displayExplanation = true;
         }
       } catch (err) {
         console.warn('[QQC] ⚠️ Early FET trigger failed', err);
