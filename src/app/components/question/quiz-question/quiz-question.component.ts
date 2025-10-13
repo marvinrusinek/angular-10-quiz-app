@@ -3003,8 +3003,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         
             (async () => {
               try {
-                await this.updateExplanationText(idx);
                 this.explanationTextService.setShouldDisplayExplanation(true);
+                await this.updateExplanationText(idx);
                 this.displayStateSubject?.next({ mode: 'explanation', answered: true });
                 console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
               } catch (err) {
