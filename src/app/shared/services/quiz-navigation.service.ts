@@ -381,6 +381,12 @@ export class QuizNavigationService {
       this.nextButtonStateService.setNextButtonState(false);
 
       // ────────────────────────────────────────────────
+      // Reset transient per-question latches (like early FET)
+      // ────────────────────────────────────────────────
+      this._fetEarlyShown.clear();
+      console.log(`[NAV] 🔄 Cleared _fetEarlyShown before loading Q${index + 1}`);
+
+      // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
       // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
@@ -397,10 +403,6 @@ export class QuizNavigationService {
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts  = (fresh.options ?? []).length;
       const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-
-      console.log('[NAV] 🧮 numCorrect:', numCorrect, 'totalOpts:', totalOpts);
-      console.log('[NAV] 🧩 msg returned from getNumberOfCorrectAnswersText():', msg);
-      console.log('[NAV] 🧭 fresh.type:', fresh.type);
 
       // Clear any leftover banner text immediately
       this.quizService.updateCorrectAnswersText('');
