@@ -106,11 +106,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
   explanationDisplayed = false;
+  explanationTextLocal = '';
   isExplanationDisplayed = false;
   explanationVisible = false;
   isExplanationTextDisplayed = false;
   isExplanationTextDisplayed$: Observable<boolean>;
   private isExplanationDisplayed$ = new BehaviorSubject<boolean>(false);
+  private _showExplanation = false;
   nextExplanationText = '';
   formattedExplanation = '';;
   formattedExplanation$ = this.explanationTextService.formattedExplanation$;
@@ -131,9 +133,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
-
-  public explanationTextLocal = '';
-  private _showExplanation = false;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
