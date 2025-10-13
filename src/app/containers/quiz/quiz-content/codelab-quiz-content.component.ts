@@ -541,7 +541,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return withCorrect;
       }),
       distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+      shareReplay({ bufferSize: 1, refCount: true }),
+      observeOn(asyncScheduler)
     );
   }
 
