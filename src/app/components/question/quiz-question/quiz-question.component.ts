@@ -2932,17 +2932,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ────────────────────────────────
       try {
         if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct && !this._fetEarlyShown.has(idx)) {
-          this._fetEarlyShown.add(idx);                 // latch so we don’t re-run on next clicks
-          // Open explanation gate synchronously for this index
-          try { this.explanationTextService.setGate(idx, true); } catch {}
-          this.explanationTextService.setShouldDisplayExplanation(true);
+          this._fetEarlyShown.add(idx);
 
-          // Populate formatted explanation now
+          // Immediately mark explanation state open & displayed
+          this.explanationTextService.setGate(idx, true);
+          this.explanationTextService.setShouldDisplayExplanation(true);
+          this.quizStateService.setDisplayState({ mode: 'explanation', answered: false });
+
+          // Build formatted explanation right away
           await this.updateExplanationText(idx);
 
-          // Optional: drive local display state immediately (avoids one-frame lag)
-          this.displayStateSubject?.next({ mode: 'explanation', answered: false } as const);
-          this.displayExplanation = true;
+          console.log(`[QQC] 🧠 Early FET shown for multi-answer Q${idx + 1}`);
         }
       } catch (err) {
         console.warn('[QQC] ⚠️ Early FET trigger failed', err);
