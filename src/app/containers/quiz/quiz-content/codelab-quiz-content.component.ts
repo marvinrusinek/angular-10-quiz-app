@@ -56,6 +56,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input() localExplanationText = '';
   @Input() showLocalExplanation = false;
 
+  @Input() set explanationOverride(o: {idx: number; html: string}) {
+    this.overrideSubject.next(o);
+  }
+
+  @Input() set questionIndex(idx: number) {
+    // Remember the index and clear any old override
+    this.currentIndex = idx;
+    this.overrideSubject.next({ idx, html: '' });
+    this.clearCachedQuestionArtifacts(idx);
+    this.resetExplanationView();
+    if (this._showExplanation) {
+      this._showExplanation = false;
+    }
+    this.cdRef.markForCheck();
+  }
+
+  @Input()
+  set showExplanation(value: boolean) {
+    this._showExplanation = value;
+    this.cdRef.markForCheck();
+  }
+  get showExplanation() {
+    return this._showExplanation;
+  }
+
   private combinedTextSubject = new BehaviorSubject<string>('');
   combinedText$ = this.combinedTextSubject.asObservable();
 
@@ -86,22 +111,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private readonly questionLoadingText = 'Loading question…';
   private lastQuestionIndexForReset: number | null = null;
   private staleFallbackIndices = new Set<number>();
-
-  @Input() set explanationOverride(o: {idx: number; html: string}) {
-    this.overrideSubject.next(o);
-  }
-
-  @Input() set questionIndex(idx: number) {
-    // Remember the index and clear any old override
-    this.currentIndex = idx;
-    this.overrideSubject.next({ idx, html: '' });
-    this.clearCachedQuestionArtifacts(idx);
-    this.resetExplanationView();
-    if (this._showExplanation) {
-      this._showExplanation = false;
-    }
-    this.cdRef.markForCheck();
-  }
 
   displayMode$: Observable<'question' | 'explanation'>;
   displayCorrectAnswers = false;
@@ -140,18 +149,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private combinedSub?: Subscription;
 
   private destroy$ = new Subject<void>();
-
-  @Input()
-  set showExplanation(value: boolean) {
-    this._showExplanation = value;
-    this.cdRef.markForCheck();
-  }
-  get showExplanation() {
-    return this._showExplanation;
-  }
-
-  @Input() questionHtml    = '';
-  @Input() explanationHtml = '';
 
   constructor(
     private quizService: QuizService,
