@@ -133,7 +133,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   explanationTexts: string[] = [];
 
   public explanationTextLocal = '';
-  public explanationVisibleLocal = false;
+  private _showExplanation = false;
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
@@ -150,8 +150,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   public click$ = new Subject<void>();
 
   private destroy$ = new Subject<void>();
-
-  private _showExplanation = false;
 
   @Input()
   set showExplanation(value: boolean) {
