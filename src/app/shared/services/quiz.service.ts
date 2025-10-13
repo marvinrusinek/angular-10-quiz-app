@@ -748,8 +748,19 @@ export class QuizService implements OnDestroy {
           showIcon: false,
           feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
         }));
-      
-        console.log(`[QuizService] ✅ Deep-cloned and sanitized options for Q${index}:`, clonedQuestion.options);
+
+        // 🔒Detach cloned question and re-emit through the private subject
+        try {
+          const freshArray = [...questions];
+          freshArray[index] = clonedQuestion;
+
+          // use the private subject, not the public observable
+          this.questionsSubject?.next?.(freshArray);
+          console.log(`[QuizService] 🧩 Detached & re-emitted cloned question Q${index}`);
+        } catch (err) {
+          console.warn('[QuizService] ⚠️ Failed to re-emit freshArray:', err);
+        }
+
         return clonedQuestion;
       }),      
       catchError((error: Error) => {
