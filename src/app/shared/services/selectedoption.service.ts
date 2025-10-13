@@ -1965,6 +1965,17 @@ export class SelectedOptionService {
       console.warn('[SelectedOptionService] ⚠️ resetOptionState failed:', err);
     }
   }
+
+  public resetAllStates(): void {
+    try {
+      this.selectedOptionsMap.clear();
+      this._lockedOptionsMap?.clear?.();
+      this.optionStates?.clear?.();
+      console.log('[SelectedOptionService] 🧹 Cleared all selection/lock state');
+    } catch (err) {
+      console.warn('[SelectedOptionService] ⚠️ resetAllStates failed', err);
+    }
+  }
   
   private getDefaultOptions(): Option[] {
     const defaultOptions = Array(4)
