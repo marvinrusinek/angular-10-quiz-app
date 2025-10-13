@@ -737,33 +737,19 @@ export class QuizService implements OnDestroy {
           return null;
         }
 
-        // Log the incoming data before any sanitization
-        console.log(`[QuizService] 🧩 RAW options for Q${index} before clone:`);
-        console.table(
-          raw.options.map((o, i) => ({
-            i,
-            text: o.text,
-            selected: o.selected,
-            highlight: o.highlight,
-            showIcon: o.showIcon
-          }))
-        );
+        // Deep clone to break all shared object references
+        const clonedQuestion: QuizQuestion = JSON.parse(JSON.stringify(raw));
+
+        // Sanitize UI fields
+        clonedQuestion.options = clonedQuestion.options.map((opt, i) => ({
+          ...opt,
+          selected: false,
+          highlight: false,
+          showIcon: false,
+          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
+        }));
       
-        // Clone deeply to avoid mutating shared question objects
-        const clonedQuestion: QuizQuestion = {
-          ...raw,
-          options: raw.options.map((opt, i) => ({
-            ...opt,
-            selected: false,
-            highlight: false,
-            showIcon: false,
-            disabled: false,
-            correct: !!opt.correct,
-            feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
-          }))
-        };
-      
-        console.log(`[QuizService] ✅ Final sanitized options for Q${index}:`, clonedQuestion.options);
+        console.log(`[QuizService] ✅ Deep-cloned and sanitized options for Q${index}:`, clonedQuestion.options);
         return clonedQuestion;
       }),      
       catchError((error: Error) => {
