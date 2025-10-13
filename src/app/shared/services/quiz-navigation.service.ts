@@ -377,8 +377,25 @@ export class QuizNavigationService {
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
 
       // Clear banner before new question fetch
-      this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
-      this.nextButtonStateService.setNextButtonState(false);
+      /* this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
+      this.nextButtonStateService.setNextButtonState(false); */
+
+      // ────────────────────────────────────────────────
+      // HARD RESET all per-question selection/lock state
+      // ────────────────────────────────────────────────
+      try {
+        this.selectedOptionService.resetAllStates?.();  // optional if you have it
+      } catch {}
+
+      try {
+        this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
+      } catch {}
+
+      try {
+        this.selectedOptionService.clearLockedOptions?.();  // optional if exists
+      } catch {}
+
+      console.log(`[NAV] 🧹 Fully cleared selected/locked options before loading Q${index + 1}`);
 
       // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
