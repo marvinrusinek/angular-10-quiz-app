@@ -3001,14 +3001,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             this._fetEarlyShown.add(idx);
             console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
         
-            try {
-              await this.updateExplanationText(idx);
-              this.explanationTextService.setShouldDisplayExplanation(true);
-              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-              console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
-            } catch (err) {
-              console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
-            }
+            (async () => {
+              try {
+                await this.updateExplanationText(idx);
+                this.explanationTextService.setShouldDisplayExplanation(true);
+                this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+                console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+              } catch (err) {
+                console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
+              }
+            })();
           }
         }
       
