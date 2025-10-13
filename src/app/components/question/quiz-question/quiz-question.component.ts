@@ -2925,6 +2925,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
         // Multiple-answer behavior unchanged
       } catch { /* noop */ }
+
+      // ────────────────────────────────
+      // 🧠 Early FET trigger (for Multiple-Answer questions)
+      // ────────────────────────────────
+      try {
+        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct) {
+          console.log(`[QQC] 🧠 Triggering early FET for multi-answer Q${this.currentQuestionIndex}`);
+
+          await this.updateExplanationText(this.currentQuestionIndex);
+          this.explanationTextService.setShouldDisplayExplanation(true);
+        }
+      } catch (err) {
+        console.warn('[QQC] ⚠️ Early FET trigger failed', err);
+      }
+
   
       /* =========================
          continue as before…
