@@ -124,8 +124,20 @@ export class QuizNavigationService {
   }
   
   public async advanceToPreviousQuestion(): Promise<boolean> {
-    this.resetExplanationAndState();
-    return await this.navigateWithOffset(-1);  // defer navigation until state is clean
+    // Do not wipe everything; only clear transient display flags if necessary
+    try {
+      this.quizStateService.setLoading(true);
+  
+      // Clear only ephemeral fields (no deep reset)
+      (this as any).displayExplanation = false;
+      (this as any).explanationToDisplay = '';
+      this.explanationTextService.setShouldDisplayExplanation(false);
+  
+    } catch (err) {
+      console.warn('[NAV] ⚠️ partial reset before previous question failed', err);
+    }
+  
+    return await this.navigateWithOffset(-1);
   }
 
   advanceToResults(): void {
