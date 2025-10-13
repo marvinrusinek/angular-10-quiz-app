@@ -749,13 +749,13 @@ export class QuizService implements OnDestroy {
           feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
         }));
 
-        // 🔒Detach cloned question and re-emit through the private subject
+        // Detach cloned question and re-emit through the private subject
         try {
           const freshArray = [...questions];
           freshArray[index] = clonedQuestion;
 
-          // use the private subject, not the public observable
-          this.questionsSubject?.next?.(freshArray);
+          // Use the private subject, not the public observable
+          this.questionsSubject.next(freshArray);
           console.log(`[QuizService] 🧩 Detached & re-emitted cloned question Q${index}`);
         } catch (err) {
           console.warn('[QuizService] ⚠️ Failed to re-emit freshArray:', err);
