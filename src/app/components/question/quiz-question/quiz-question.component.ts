@@ -3144,7 +3144,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           // - SingleAnswer: on click
           // - MultipleAnswer: only when allCorrect became true
           const canEmitExplanation =
-            q?.type === QuestionType.SingleAnswer ? true : !!this._lastAllCorrect;
+            q?.type === QuestionType.SingleAnswer
+              ? true
+              : (this._fetEarlyShown.has(idx) || !!this._lastAllCorrect);
         
           if (canEmitExplanation) {
             // ✅ NEW (Step 1): canonicalize the question for THIS index to avoid stale Q1 leaking into Q2
