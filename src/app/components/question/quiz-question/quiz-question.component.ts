@@ -263,9 +263,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private timerSub: Subscription;
 
   waitingForReady = false;
-  deferredClick?: {
-    option: SelectedOption | null; index: number; checked: boolean; wasReselected?: boolean;
-  };
+  deferredClick?: { option: SelectedOption | null, index: number, checked: boolean, wasReselected?: boolean };
 
   private _hiddenAt: number | null = null;
   private _elapsedAtHide: number | null = null;
@@ -273,12 +271,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   _pendingPassiveRaf: number | null = null;
   canonicalOptions: CanonicalOption[] = [];
   private _msgTok = 0;
-
-  // Flash-proof first-click guard
-  // Tracks question indices for which the first incorrect click occurred
-  private _firstClickIncorrectGuard = new Set<number>();
-  private _skipNextAsyncUpdates = false;
-  private _singleIncorrectLock = new Set<number>();
 
   private questionFresh = true;
   private flashDisabledSet: Set<FeedbackKey> = new Set();
@@ -289,6 +281,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   // Tracks whether we already stopped for this question
   private _timerStoppedForQuestion = false;
+  private _skipNextAsyncUpdates = false;
 
   // Last computed "allCorrect" (used across microtasks/finally)
   private _lastAllCorrect = false;
