@@ -2927,22 +2927,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Multiple-answer behavior unchanged
       } catch { /* noop */ }
 
-      // Early FET trigger (for Multiple-Answer questions)
-      try {
-        const qIndex = this.currentQuestionIndex;
-        if (q?.type === QuestionType.MultipleAnswer && evtOpt?.correct) {
-          if (!this._fetEarlyShown.has(qIndex)) {
-            this._fetEarlyShown.add(qIndex);
-            console.log(`[QQC] 🧠 Triggering early FET for multi-answer Q${qIndex + 1}`);
+      // Show FET once all correct answers are selected
+      // ────────────────────────────────
+      if (q?.type === QuestionType.MultipleAnswer && allCorrect && !this._fetEarlyShown.has(idx)) {
+        this._fetEarlyShown.add(idx);
 
-            await this.updateExplanationText(qIndex);
+        console.log(`[QQC] 🧠 Scheduling FET for multi-answer Q${idx + 1}`);
+
+        // Defer to allow nextButtonState updates first
+        queueMicrotask(async () => {
+          try {
+            await this.updateExplanationText(idx);
             this.explanationTextService.setShouldDisplayExplanation(true);
-          } else {
-            console.log(`[QQC] 🚫 Early FET already shown for Q${qIndex + 1}`);
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+          } catch (err) {
+            console.warn('[QQC] ⚠️ Deferred FET trigger failed', err);
           }
-        }
-      } catch (err) {
-        console.warn('[QQC] ⚠️ Early FET trigger failed', err);
+        });
       }
   
       /* =========================
