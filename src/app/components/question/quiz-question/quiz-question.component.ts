@@ -6832,9 +6832,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   private applyDisplayOrder(options: Option[] | null | undefined): Option[] {
-    if (!Array.isArray(options)) {
-      return [];
-    }
+    if (!Array.isArray(options)) return [];
 
     return options.map((option, index) => ({
       ...option,
