@@ -121,23 +121,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   numberOfCorrectAnswers$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   shouldDisplayNumberOfCorrectAnswers: boolean;
 
-  currentQuestionSubscription: Subscription;
-  formattedExplanationSubscription: Subscription;
-
   correctAnswersTextSource: BehaviorSubject<string> = new BehaviorSubject<string>('');
   correctAnswersText$ = this.correctAnswersTextSource.asObservable();
 
   public displayCorrectAnswersText$: Observable<string | null>;
 
-  private explanationTextSource = new BehaviorSubject<string>(null);
-  explanationText$ = this.explanationTextSource.asObservable();
   explanationText: string | null = null;
   explanationTexts: string[] = [];
 
   private correctAnswersDisplaySubject = new Subject<boolean>();
   correctAnswersDisplay$ = this.correctAnswersDisplaySubject.asObservable();
-
-  shouldDisplayNumberCorrectText$: Observable<boolean>;
 
   questionRendered: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -145,8 +138,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isContentAvailable$: Observable<boolean>;
 
   private combinedSub?: Subscription;
-
-  public click$ = new Subject<void>();
 
   private destroy$ = new Subject<void>();
 
@@ -352,8 +343,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.destroy$.complete();
     this.correctAnswersTextSource.complete();
     this.correctAnswersDisplaySubject.complete();
-    this.currentQuestionSubscription?.unsubscribe();
-    this.formattedExplanationSubscription?.unsubscribe();
     this.pendingExplanationRequests.forEach((subscription) => subscription.unsubscribe());
     this.pendingExplanationRequests.clear();
     this.combinedTextSubject.complete();
