@@ -1,9 +1,45 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy,
-  OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith,
-  switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import {
+  asyncScheduler,
+  BehaviorSubject,
+  combineLatest,
+  forkJoin,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import {
+  auditTime,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  observeOn,
+  scan,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -71,19 +107,13 @@ export class CodelabQuizContentComponent
     this.overrideSubject.next({ idx, html: '' });
     this.clearCachedQuestionArtifacts(idx);
     this.resetExplanationView();
-    if (this._showExplanation) {
-      this._showExplanation = false;
-    }
+    if (this._showExplanation) this._showExplanation = false;
     this.cdRef.markForCheck();
   }
 
-  @Input()
-  set showExplanation(value: boolean) {
+  @Input() set showExplanation(value: boolean) {
     this._showExplanation = value;
     this.cdRef.markForCheck();
-  }
-  get showExplanation() {
-    return this._showExplanation;
   }
 
   private combinedTextSubject = new BehaviorSubject<string>('');
@@ -249,9 +279,9 @@ export class CodelabQuizContentComponent
               const el = this.qText?.nativeElement;
               if (el) {
                 el.style.transition = 'opacity 0.12s linear';
-                el.style.opacity = '0.4';  // fade out (dim briefly)
-                el.innerHTML = v || '';    // write text directly
-                el.style.opacity = '1';    // fade back in
+                el.style.opacity = '0.4'; // fade out (dim briefly)
+                el.innerHTML = v || ''; // write text directly
+                el.style.opacity = '1'; // fade back in
               }
 
               // Repaint synchronously
@@ -1374,7 +1404,7 @@ export class CodelabQuizContentComponent
       distinctUntilChanged(),
       catchError((error) => {
         console.error('Error in displayCorrectAnswersText$ observable:', error);
-        return of(null); // default to null in case of error
+        return of(null);  // default to null in case of error
       })
     );
   }
