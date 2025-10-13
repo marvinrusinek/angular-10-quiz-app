@@ -14,7 +14,6 @@ import { QuizDataService } from '../../../shared/services/quizdata.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
-import { SelectedOptionService } from '../../../shared/services/selectedoption.service';
 import { QuizQuestionComponent } from '../../../components/question/quiz-question/quiz-question.component';
 
 interface QuestionViewState {
@@ -88,12 +87,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastQuestionIndexForReset: number | null = null;
   private staleFallbackIndices = new Set<number>();
 
-  private lastQuestionText = '';
-  private _renderLastIndex = -1;
-  private _acceptedExplByIndex = new Map<number, string>();
-
-  private _lastIdx = -1;
-
   @Input() set explanationOverride(o: {idx: number; html: string}) {
     this.overrideSubject.next(o);
   }
@@ -163,7 +156,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   @Input()
   set showExplanation(value: boolean) {
     this._showExplanation = value;
-    this.cdRef.markForCheck();  // tell Angular to check this component on the next CD cycle
+    this.cdRef.markForCheck();
   }
   get showExplanation() {
     return this._showExplanation;
@@ -178,7 +171,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
-    private selectedOptionService: SelectedOptionService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef
   ) {
