@@ -1937,25 +1937,30 @@ export class SelectedOptionService {
   public resetOptionState(questionIndex?: number, optionsToDisplay?: Option[]): void {
     try {
       if (typeof questionIndex === 'number') {
-        this.selectedOptionsMap.set(questionIndex, []);
-        console.log(`[SelectedOptionService] 🔄 Cleared selectedOptionsMap for Q${questionIndex}`);
+        const opts = this.selectedOptionsMap.get(questionIndex) ?? [];
+        const cleared = opts.map(o => ({
+          ...o,
+          selected: false,
+          highlight: false,
+          showIcon: false,
+          disabled: false
+        }));
+        this.selectedOptionsMap.set(questionIndex, cleared);
+        console.log(`[SelectedOptionService] 🔄 Reset options for question ${questionIndex}`);
       } else {
         this.selectedOptionsMap.clear();
-        console.log('[SelectedOptionService] 🔄 Cleared all selected options');
+        console.log('[SelectedOptionService] 🔄 Reset options for ALL questions');
       }
   
+      // Also reset any visible array directly bound to the template
       if (Array.isArray(optionsToDisplay)) {
-        for (const o of optionsToDisplay) {
+        optionsToDisplay.forEach(o => {
           o.selected = false;
           o.highlight = false;
           o.showIcon = false;
-        }
-        console.log('[SelectedOptionService] 🧹 Reset visible option states');
+          (o as any).disabled = false;
+        });
       }
-  
-      // Also clear any global flags
-      this.setOptionSelected(false);
-      this.setAnswered(false);
     } catch (err) {
       console.warn('[SelectedOptionService] ⚠️ resetOptionState failed:', err);
     }
