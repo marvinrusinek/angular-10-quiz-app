@@ -2094,6 +2094,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ───────────── Update Component State ─────────────
 
       this.currentQuestion = { ...potentialQuestion };
+      console.group(`[QQC LIFECYCLE TRACE] After resetAllStates + assignOptionIds for Q${this.currentQuestionIndex}`);
+      (this.optionsToDisplay ?? []).forEach((opt, i) => {
+        console.log(
+          `Opt${i}:`,
+          {
+            text: opt.text,
+            correct: opt.correct,
+            selected: opt.selected,
+            highlight: opt.highlight,
+            showIcon: opt.showIcon
+          }
+        );
+      });
+      console.groupEnd();
+
       // Full reset of option/lock/selection state for new question
       if (this.selectedOptionService?.resetAllStates) {
         this.selectedOptionService.resetAllStates();
