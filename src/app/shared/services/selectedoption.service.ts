@@ -59,7 +59,7 @@ export class SelectedOptionService {
     private nextButtonStateService: NextButtonStateService
   ) {
     console.log('[SelectedOptionService] 🧭 Constructed at', performance.now().toFixed(1));
-    
+
     const index$ = this.quizService?.currentQuestionIndex$;
     if (index$) {
       index$
@@ -788,59 +788,27 @@ export class SelectedOptionService {
     selectedOption: SelectedOption,
     isMultiSelect: boolean
   ): void {
-    console.log("MY USS");
-    console.log(
-      `[SOS] 🧠 updateSelectionState(qIdx=${questionIndex}) → incoming selectedOptionId=${selectedOption?.optionId}`,
-      'currentMapKeys:',
-      Array.from(this.selectedOptionsMap.keys())
-    );
-    // Use numeric index directly — not a string key like "Q2"
-    if (!Number.isFinite(questionIndex) || questionIndex < 0) {
-      console.warn(`[updateSelectionState] Invalid questionIndex: ${questionIndex}`);
-      return;
-    }
+    let idx = Number(questionIndex);
+    if (!Number.isFinite(idx) || idx < 0) idx = 0;  // <-- pure numeric key
   
-    const prevSelections =
-      this.canonicalizeSelectionsForQuestion(
-        questionIndex,
-        this.selectedOptionsMap.get(questionIndex) || []
-      ) ?? [];
-  
-    // Always clone to avoid shared references between questions
-    const canonicalSelected = {
-      ...this.canonicalizeOptionForQuestion(questionIndex, selectedOption)
-    };
-  
-    if (
-      canonicalSelected?.optionId === undefined ||
-      canonicalSelected.optionId === null
-    ) {
-      console.warn('[updateSelectionState] Unable to resolve canonical optionId', {
-        questionIndex,
-        selectedOption,
-      });
+    const prevSelections = this.ensureBucket(idx).map(o => ({ ...o })); // clone
+    const canonicalSelected = this.canonicalizeOptionForQuestion(idx, selectedOption);
+    if (canonicalSelected?.optionId == null) {
+      console.warn('[updateSelectionState] Unable to resolve canonical optionId', { questionIndex, selectedOption });
       return;
     }
   
     let updatedSelections: SelectedOption[];
-  
     if (isMultiSelect) {
-      const alreadySelected = prevSelections.some(
-        (opt) => opt.optionId === canonicalSelected.optionId
-      );
-      updatedSelections = alreadySelected
-        ? [...prevSelections]
-        : [...prevSelections, canonicalSelected];
+      const already = prevSelections.find(opt => opt.optionId === canonicalSelected.optionId);
+      updatedSelections = already ? prevSelections : [...prevSelections, { ...canonicalSelected }];
     } else {
-      updatedSelections = [canonicalSelected];
+      updatedSelections = [{ ...canonicalSelected }]; // single-answer: replace
     }
   
-    // Store per-question selections by numeric key
-    this.commitSelections(questionIndex, [...updatedSelections.map(o => ({ ...o }))]);
-
-    console.log('[SOS] ✅ after commit → map:', JSON.stringify([...this.selectedOptionsMap]));
-  
-    console.log(`[SelectedOptionService] ✅ Updated selections for Q${questionIndex}:`, updatedSelections);
+    this.commitSelections(idx, updatedSelections);
+    // Debug: verify buckets are per-question index
+    console.log('[SOS] bucket keys:', Array.from(this.selectedOptionsMap.keys()));
   }
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
@@ -1661,22 +1629,34 @@ export class SelectedOptionService {
     questionIndex: number,
     selections: SelectedOption[]
   ): SelectedOption[] {
-    const canonicalSelections = this.canonicalizeSelectionsForQuestion(
-      questionIndex,
-      selections
-    );
-
-    if (canonicalSelections.length > 0) {
-      this.selectedOptionsMap.set(questionIndex, canonicalSelections);
-    } else {
-      this.selectedOptionsMap.delete(questionIndex);
-      this.optionSnapshotByQuestion.delete(questionIndex);
+    // Always normalize to numeric key
+    const idx = Number(questionIndex);
+    if (!Number.isFinite(idx) || idx < 0) {
+      console.warn(`[commitSelections] ⚠️ Invalid question index: ${questionIndex}`);
+      return [];
     }
-
-    this.syncFeedbackForQuestion(questionIndex, canonicalSelections);
-
+  
+    // Canonicalize and deep clone the selections
+    const canonicalSelections = this.canonicalizeSelectionsForQuestion(
+      idx,
+      selections
+    ).map(sel => ({ ...sel })); // ← ensure new object identity
+  
+    if (canonicalSelections.length > 0) {
+      // Replace the old bucket completely
+      this.selectedOptionsMap.set(idx, canonicalSelections);
+    } else {
+      this.selectedOptionsMap.delete(idx);
+      this.optionSnapshotByQuestion.delete(idx);
+    }
+  
+    this.syncFeedbackForQuestion(idx, canonicalSelections);
+  
+    // Debug sanity: make sure every question has its own map key
+    console.log('[SOS] commitSelections → map keys:', Array.from(this.selectedOptionsMap.keys()));
+  
     return canonicalSelections;
-  }
+  }  
 
   private syncFeedbackForQuestion(
     questionIndex: number,
@@ -2195,5 +2175,11 @@ export class SelectedOptionService {
     } catch (err) {
       console.warn('[SelectedOptionService] ⚠️ clearLockedOptions failed', err);
     }
-  }  
+  }
+
+  private ensureBucket(idx: number): SelectedOption[] {
+    if (!Number.isFinite(idx) || idx < 0) idx = 0;
+    if (!this.selectedOptionsMap.has(idx)) this.selectedOptionsMap.set(idx, []);
+    return this.selectedOptionsMap.get(idx)!;
+  }
 }
