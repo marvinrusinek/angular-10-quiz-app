@@ -222,6 +222,8 @@ export class QuizService implements OnDestroy {
   // Emitted with the target question index just before navigation hydrates it
   readonly preReset$ = this._preReset$.asObservable();
 
+  private _lastFetchedIndex: number | null = null;
+
   constructor(
     private quizShuffleService: QuizShuffleService,
     private activatedRoute: ActivatedRoute,
@@ -722,6 +724,12 @@ export class QuizService implements OnDestroy {
   }
 
   getQuestionByIndex(index: number): Observable<QuizQuestion | null> {
+    if (this._lastFetchedIndex === index) {
+      console.log(`[QuizService] 🧭 Skipping redundant clone for Q${index}`);
+    } else {
+      this._lastFetchedIndex = index;
+    }
+
     return this.questions$.pipe(
       filter((questions) => Array.isArray(questions) && questions.length > 0),
       take(1),
