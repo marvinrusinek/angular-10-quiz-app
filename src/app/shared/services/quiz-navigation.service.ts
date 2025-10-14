@@ -425,6 +425,13 @@ export class QuizNavigationService {
       // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
       const fresh = await firstValueFrom(obs);
+
+      console.log('[NAV DEBUG] Option object identity check:');
+      const prevQ = this.quizService.questions?.[this.currentQuestionIndex];
+      if (prevQ && fresh && Array.isArray(prevQ.options) && Array.isArray(fresh.options)) {
+        const sameRef = prevQ.options.some((opt, i) => opt === fresh.options[i]);
+        console.log('❓ Shared object references between old and new:', sameRef);
+      }
   
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
