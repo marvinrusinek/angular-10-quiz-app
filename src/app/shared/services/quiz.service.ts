@@ -755,6 +755,25 @@ export class QuizService implements OnDestroy {
             feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
           })),
         };
+        // Break all shared object references (even within options array)
+        clonedQuestion.options = (raw.options ?? []).map((opt, i) => ({
+          ...JSON.parse(JSON.stringify(opt)),  // ensures new object identity
+          optionId:
+            typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+              ? opt.optionId
+              : i + 1,
+          selected: false,
+          highlight: false,
+          showIcon: false,
+          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
+        }));
+
+        // Debug check for reference leaks
+        if (this.questions && this.questions[index - 1]?.options) {
+          const prevOpts = this.questions[index - 1].options;
+          const shared = prevOpts.some((p, j) => p === clonedQuestion.options[j]);
+          console.log(`[LEAK TEST] Q${index - 1}→Q${index}: sharedRefs=${shared}`);
+        }
       
         // Do NOT mutate `questions` or re-emit here
         // just return a fully independent clone
