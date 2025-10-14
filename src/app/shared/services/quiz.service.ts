@@ -761,6 +761,13 @@ export class QuizService implements OnDestroy {
           console.warn('[QuizService] ⚠️ Failed to re-emit freshArray:', err);
         }
 
+        // Diagnostic log: show the cloned options only for this question
+        console.groupCollapsed(`[TRACE CLONE CHECK] Q${index}`);
+        (clonedQuestion.options ?? []).forEach((opt, i) => {
+          console.log(`Q${index} Opt${i}:`, opt.text, '→ id:', opt.optionId, 'ref:`, opt);
+        });
+        console.groupEnd();
+
         return clonedQuestion;
       }),      
       catchError((error: Error) => {
