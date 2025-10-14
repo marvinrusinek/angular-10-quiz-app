@@ -2102,14 +2102,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ));
 
       this.currentQuestion = { ...potentialQuestion };
-      // Absolute selection reset to prevent cross-highlighting
+      // Absolute selection reset to prevent cross-highlighting between questions
       try {
         const idx = this.currentQuestionIndex;
+        
+        // Clear all possible per-question and global residues
         this.selectedOptionService.clearSelectionsForQuestion(idx);
-        this.selectedOptionService.resetAllStates?.();
-        console.log(`[HARD RESET] Cleared selection/lock state before rendering Q${idx}`);
+        if (this.selectedOptionService.resetAllStates) {
+          this.selectedOptionService.resetAllStates();
+        }
+
+        // Diagnostic dump — verify state actually cleared
+        const dump = Array.from(
+          this.selectedOptionService.selectedOptionsMap.entries()
+        ).map(([k, v]) => ({
+          qIndex: k,
+          selectedIds: v.map(o => o.optionId),
+        }));
+        console.log(`[HARD RESET] ✅ Cleared selection/lock state before rendering Q${idx}`, dump);
       } catch (err) {
-        console.warn('[HARD RESET] Failed to clear selection state', err);
+        console.warn('[HARD RESET] ⚠️ Failed to clear selection state', err);
       }
 
       this.optionsToDisplay = this.quizService
