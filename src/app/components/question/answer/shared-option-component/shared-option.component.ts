@@ -2304,63 +2304,43 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   public hydrateOptionsFromSelectionState(): void {
-    console.group(`[CROSS-TRACE: HYDRATE] start for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
-    (this.optionsToDisplay ?? []).forEach((opt, i) => {
-      console.log(`BEFORE hydrate → Opt${i}:`, opt.text, 'ref:', opt);
-    });
-    console.groupEnd();
-
-    const idx = this.resolvedQuestionIndex ?? this.currentQuestionIndex ?? -1;
-    const map = this.selectedOptionService.selectedOptionsMap;
-    const storedSelections =
-      (map && map.has(idx) ? map.get(idx)! : []) ||
-      this.selectedOptionService.getSelectedOptions() ||
-      [];
+    console.group(`[CROSS-TRACE: HYDRATE] begin for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
+    try {
+      const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
+      console.log('storedSelections length:', storedSelections.length);
   
-    console.log(`[HYDRATE GUARD] called for Q${idx}`, {
-      storedCount: storedSelections.length,
-      mapKeys: Array.from(map?.keys?.() ?? [])
-    });
-  
-    // Guard: if there are no stored selections for this question, skip
-    if (storedSelections.length === 0) {
-      console.log(`[HYDRATE GUARD] 🧹 No selections found for Q${idx}, resetting clean`);
-      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
-        ...opt,
-        selected: false,
-        highlight: false,
-        showIcon: false
-      }));
-      return;
-    }
-  
-    // Apply state from the per-question selection map only
-    this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const match = storedSelections.find(sel => sel.optionId === opt.optionId);
-      if (match) {
-        return {
-          ...opt,
-          selected: match.selected,
-          highlight: match.highlight,
-          showIcon: match.showIcon
-        };
-      } else {
-        return {
-          ...opt,
-          selected: false,
-          highlight: false,
-          showIcon: false
-        };
+      if (!Array.isArray(this.optionsToDisplay)) {
+        console.warn('[HYDRATE] optionsToDisplay is not array, resetting to []');
+        this.optionsToDisplay = [];
+        return;
       }
-    });
-
-    console.group(`[CROSS-TRACE: HYDRATE] end for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
-    (this.optionsToDisplay ?? []).forEach((opt, i) => {
-      console.log(`AFTER hydrate → Opt${i}:`, opt.text, 'ref:', opt);
-    });
-    console.groupEnd();
   
-    console.log(`[HYDRATE GUARD] ✅ Hydrated ${storedSelections.length} options for Q${idx}`);
+      // Deep clone before mutating
+      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({ ...opt }));
+  
+      console.log('[HYDRATE] Pre-map clone ok, options count:', this.optionsToDisplay.length);
+  
+      this.optionsToDisplay = this.optionsToDisplay.map(opt => {
+        const match = storedSelections.find(sel =>
+          sel.optionId === opt.optionId &&
+          sel.questionIndex === (opt as any).questionIndex
+        );
+  
+        return match
+          ? { ...opt, selected: match.selected, highlight: match.highlight, showIcon: match.showIcon }
+          : { ...opt, selected: false, highlight: false, showIcon: false };
+      });
+  
+      console.group(`[CROSS-TRACE: HYDRATE] end for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
+      this.optionsToDisplay.forEach((opt, i) => {
+        console.log(`AFTER hydrate → Opt${i}:`, opt.text, 'ref:', opt);
+      });
+      console.groupEnd();
+    } catch (err) {
+      console.error('[HYDRATE] 💥 Exception during map()', err);
+    } finally {
+      console.groupEnd();
+    }
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
