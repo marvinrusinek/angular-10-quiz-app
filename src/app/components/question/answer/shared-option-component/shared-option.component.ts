@@ -2326,7 +2326,10 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   public hydrateOptionsFromSelectionState(): void {
-    console.group(`[CROSS-TRACE: HYDRATE] begin for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
+    console.group(`[CROSS-TRACE: HYDRATE] start for Q${this.currentQuestionIndex}`);
+    console.log('[MAP SNAPSHOT]', Array.from(this.selectedOptionService.selectedOptionsMap.entries())
+      .map(([q, opts]) => ({ q, optIds: opts.map(o => o.optionId), texts: opts.map(o => o.text) })));
+    console.groupEnd();
     try {
       const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
       console.log('storedSelections length:', storedSelections.length);
