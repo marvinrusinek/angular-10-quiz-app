@@ -2094,6 +2094,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ───────────── Update Component State ─────────────
 
       this.currentQuestion = { ...potentialQuestion };
+      this.optionsToDisplay = this.quizService
+        .assignOptionIds(this.currentQuestion.options || [])
+        .map((option) => ({
+          ...option,
+          active: true,
+          feedback: undefined,
+          showIcon: false,
+          selected: false,
+        }));
       console.group(`[QQC LIFECYCLE TRACE] After resetAllStates + assignOptionIds for Q${this.currentQuestionIndex}`);
       (this.optionsToDisplay ?? []).forEach((opt, i) => {
         console.log(
@@ -2108,6 +2117,24 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
       });
       console.groupEnd();
+
+      const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
+      const currQ = this.currentQuestion;
+
+      console.log('[QQC REF CHECK DEBUG]', {
+        hasQuestionsArray: !!this.questionsArray,
+        prevExists: !!this.questionsArray?.[this.currentQuestionIndex - 1],
+        currExists: !!this.currentQuestion,
+        index: this.currentQuestionIndex
+      });
+      
+
+      if (prevQ && currQ && Array.isArray(prevQ.options) && Array.isArray(currQ.options)) {
+        const shared = prevQ.options.some((opt, i) => opt === currQ.options[i]);
+        console.log(
+          `[QQC REF CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: shared=${shared}`
+        );
+      }
 
       // Full reset of option/lock/selection state for new question
       if (this.selectedOptionService?.resetAllStates) {
