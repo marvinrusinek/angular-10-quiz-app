@@ -409,15 +409,16 @@ export class QuizNavigationService {
 
       console.log(`[NAV] 🧹 Fully cleared selected/locked options before loading Q${index + 1}`);
 
-      // ────────────────────────────────────────────────
-      // Full selection reset between questions
-      // ────────────────────────────────────────────────
+      // Full reset of selection/lock/feedback state
       try {
-        this.selectedOptionService.resetAllStates?.();     // hard clear of map + locks
-        this.selectedOptionService.selectedOptionsMap.clear();
-        console.log('[NAV] 🧹 Cleared SelectedOptionService state before loading Q', index);
+        this.selectedOptionService.resetAllStates?.();
+        this.selectedOptionService.selectedOptionsMap?.clear?.();
+        if (typeof (this.selectedOptionService as any)._lockedOptionsMap?.clear === 'function') {
+          (this.selectedOptionService as any)._lockedOptionsMap.clear();
+        }
+        console.log(`[NAV] 🔄 Cleared all option-related state before loading Q${index}`);
       } catch (err) {
-        console.warn('[NAV] ⚠️ Could not fully clear selection state', err);
+        console.warn('[NAV] ⚠️ Failed to clear selection state', err);
       }
 
       // ────────────────────────────────────────────────
