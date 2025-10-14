@@ -775,7 +775,12 @@ export class QuizService implements OnDestroy {
           freshArray[index] = clonedQuestion;
 
           // Use the private subject, not the public observable
-          this.questionsSubject.next(freshArray);
+          // this.questionsSubject.next(freshArray);
+          this.questionsSubject.next(
+            this.questionsSubject.value.map((q, i) =>
+              i === index ? clonedQuestion : q
+            )
+          );
           console.log(`[QuizService] 🧩 Detached & re-emitted cloned question Q${index}`);
         } catch (err) {
           console.warn('[QuizService] ⚠️ Failed to re-emit freshArray:', err);
