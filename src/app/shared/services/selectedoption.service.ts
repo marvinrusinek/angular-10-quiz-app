@@ -783,23 +783,23 @@ export class SelectedOptionService {
     selectedOption: SelectedOption,
     isMultiSelect: boolean
   ): void {
-    const key = `Q${questionIndex}`;
-    const numericKey = Number(key);
-    if (isNaN(numericKey)) {
-      console.warn(`Invalid key' ${key}`);
+    // Use numeric index directly — not a string key like "Q2"
+    if (!Number.isFinite(questionIndex) || questionIndex < 0) {
+      console.warn(`[updateSelectionState] Invalid questionIndex: ${questionIndex}`);
       return;
     }
-
-    const prevSelections = this.canonicalizeSelectionsForQuestion(
-      numericKey,
-      this.selectedOptionsMap.get(numericKey) || []
-    );
-
-    const canonicalSelected = this.canonicalizeOptionForQuestion(
-      numericKey,
-      selectedOption
-    );
-
+  
+    const prevSelections =
+      this.canonicalizeSelectionsForQuestion(
+        questionIndex,
+        this.selectedOptionsMap.get(questionIndex) || []
+      ) ?? [];
+  
+    // Always clone to avoid shared references between questions
+    const canonicalSelected = {
+      ...this.canonicalizeOptionForQuestion(questionIndex, selectedOption)
+    };
+  
     if (
       canonicalSelected?.optionId === undefined ||
       canonicalSelected.optionId === null
@@ -810,23 +810,24 @@ export class SelectedOptionService {
       });
       return;
     }
-
+  
     let updatedSelections: SelectedOption[];
-
+  
     if (isMultiSelect) {
-      const alreadySelected = prevSelections.find(
+      const alreadySelected = prevSelections.some(
         (opt) => opt.optionId === canonicalSelected.optionId
       );
-      if (!alreadySelected) {
-        updatedSelections = [...prevSelections, canonicalSelected];
-      } else {
-        updatedSelections = prevSelections;
-      }
+      updatedSelections = alreadySelected
+        ? [...prevSelections]
+        : [...prevSelections, canonicalSelected];
     } else {
       updatedSelections = [canonicalSelected];
     }
-
-    this.commitSelections(numericKey, updatedSelections);
+  
+    // Store per-question selections by numeric key
+    this.commitSelections(questionIndex, [...updatedSelections.map(o => ({ ...o }))]);
+  
+    console.log(`[SelectedOptionService] ✅ Updated selections for Q${questionIndex}:`, updatedSelections);
   }
 
   updateSelectedOptions(questionIndex: number, optionIndex: number, action: 'add' | 'remove'): void {
