@@ -2122,6 +2122,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           selected: false,
         }));
       
+
+      if (this.questionsArray?.[this.currentQuestionIndex - 1]?.options) {
+        const prevOpts = this.questionsArray[this.currentQuestionIndex - 1].options;
+        const currOpts = this.optionsToDisplay;
+        const shared = prevOpts.some((p, i) => p === currOpts[i]);
+        console.log(`[REF CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: shared=${shared}`);
+      }
+
       const prevIdx = this.currentQuestionIndex - 1;
       const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
       const currQ = this.currentQuestion;
