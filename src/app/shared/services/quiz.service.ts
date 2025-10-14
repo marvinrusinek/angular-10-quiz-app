@@ -726,6 +726,14 @@ export class QuizService implements OnDestroy {
       filter((questions) => Array.isArray(questions) && questions.length > 0),
       take(1),
       map((questions: QuizQuestion[]) => {
+        console.groupCollapsed(`[IDENTITY TRACE] Before clone for Q${index}`);
+        (questions ?? []).forEach((q, qi) => {
+          (q.options ?? []).forEach((o, oi) => {
+            console.log(`Q${qi} Opt${oi}`, { id: o.optionId, ref: o });
+          });
+        });
+        console.groupEnd();
+
         if (index < 0 || index >= questions.length) {
           console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
           return null;
@@ -3321,4 +3329,19 @@ export class QuizService implements OnDestroy {
       null
     );
   }
+
+  private logOptionIdentities(label: string, questions: QuizQuestion[]): void {
+    try {
+      console.groupCollapsed(`[IDENTITY TRACE] ${label}`);
+      questions.forEach((q, qi) => {
+        if (!Array.isArray(q.options)) return;
+        q.options.forEach((o, oi) => {
+          console.log(`Q${qi} Opt${oi}`, { id: o.optionId, ref: o });
+        });
+      });
+      console.groupEnd();
+    } catch (err) {
+      console.warn('[IDENTITY TRACE] failed:', err);
+    }
+  }  
 }

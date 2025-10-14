@@ -356,6 +356,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnInit(): Promise<void> {
+    const qIndex = this.quizService.getCurrentQuestionIndex();
+    const current = this.quizService.questions?.[qIndex];
+    const next = this.quizService.questions?.[qIndex + 1];
+    
+    if (current && next && current.options && next.options) {
+      const shared = current.options.some((o, i) => o === next.options[i]);
+      console.log(`[REF TRACE] Shared option refs between Q${qIndex} and Q${qIndex + 1}:`, shared);
+    }    
+
     this.clearSoundFlagsForCurrentQuestion(0);
 
     this.idxSub = this.quizService.currentQuestionIndex$.pipe(
