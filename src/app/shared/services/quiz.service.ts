@@ -775,6 +775,14 @@ export class QuizService implements OnDestroy {
           );
         });
         console.groupEnd();
+
+        // Verify unique option object identities for each question
+        for (let i = 0; i < clonedQuestion.options.length; i++) {
+          const opt = clonedQuestion.options[i];
+          const refId = `${index}-${i}`;
+          (opt as any)._refTag = refId;  // tag every option for tracking
+          console.log(`[REF-ID] Q${index} Opt${i} → tag=${refId}, ref=`, opt);
+        }
   
         return clonedQuestion;
       }),
