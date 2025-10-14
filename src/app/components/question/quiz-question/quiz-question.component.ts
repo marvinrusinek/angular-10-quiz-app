@@ -103,7 +103,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   @Input() optionsToDisplay: Option[] = [];
   @Input() currentQuestion: QuizQuestion | null = null;
   @Input() currentQuestion$: Observable<QuizQuestion | null> = of(null);
-  @Input() questionIndex!: number;
   @Input() currentQuestionIndex = 0;
   @Input() previousQuestionIndex: number;
   @Input() quizId: string | null | undefined = '';
@@ -290,6 +289,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private isUserClickInProgress = false;
 
+  private _abortController: AbortController | null = null;
+  private indexChange$ = new Subject<void>();
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -329,6 +330,28 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       selectedOptionService,
       cdRef
     );
+  }
+
+  /* @Input() set questionIndex(value: number) {
+    this.indexChange$.next();  // cancel previous question subscriptions
+    this.currentQuestionIndex = value;
+    this.loadQuestion(value);  // reload question data for the new index
+  } */
+  @Input() set questionIndex(value: number) {
+    console.log('[QQC] 🔄 questionIndex input changed to', value);
+  
+    // Cancel any previous request
+    this._abortController?.abort();
+  
+    // Create a new AbortController for this load
+    this._abortController = new AbortController();
+    const signal = this._abortController.signal;
+  
+    // Save the new index locally if needed
+    this.currentQuestionIndex = value;
+  
+    // Call loader with the signal
+    this.loadQuestion(signal);
   }
 
   @Input() set questionPayload(value: QuestionPayload | null) {
