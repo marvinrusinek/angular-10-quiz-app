@@ -413,12 +413,13 @@ export class QuizNavigationService {
       try {
         this.selectedOptionService.resetAllStates?.();
         this.selectedOptionService.selectedOptionsMap?.clear?.();
+        this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
         if (typeof (this.selectedOptionService as any)._lockedOptionsMap?.clear === 'function') {
           (this.selectedOptionService as any)._lockedOptionsMap.clear();
         }
-        console.log(`[NAV] 🔄 Cleared all option-related state before loading Q${index}`);
+        console.log(`[NAV CLEANUP] 🧹 Cleared all option/lock state before fetching Q${index}`);
       } catch (err) {
-        console.warn('[NAV] ⚠️ Failed to clear selection state', err);
+        console.warn('[NAV CLEANUP] ⚠️ Failed to clear option/lock state', err);
       }
 
       // ────────────────────────────────────────────────
