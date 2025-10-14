@@ -332,14 +332,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     );
   }
 
-  /* @Input() set questionIndex(value: number) {
-    this.indexChange$.next();  // cancel previous question subscriptions
-    this.currentQuestionIndex = value;
-    this.loadQuestion(value);  // reload question data for the new index
-  } */
   @Input() set questionIndex(value: number) {
-    console.log('[QQC] 🔄 questionIndex input changed to', value);
-  
     // Cancel any previous request
     this._abortController?.abort();
   
@@ -2814,6 +2807,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     checked: boolean;
     wasReselected?: boolean;
   }): Promise<void> {
+    console.log('[QQC] 🖱 onOptionClicked triggered for', event.option?.optionId);
     this.isUserClickInProgress = true;
     this._skipNextAsyncUpdates = false;  // reset skip flag at start of each click
   
