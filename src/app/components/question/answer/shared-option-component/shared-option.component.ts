@@ -2304,31 +2304,51 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   public hydrateOptionsFromSelectionState(): void {
-    const storedSelections = this.selectedOptionService.getSelectedOptions() || [];
+    const idx = this.resolvedQuestionIndex ?? this.currentQuestionIndex ?? -1;
+    const map = this.selectedOptionService.selectedOptionsMap;
+    const storedSelections =
+      (map && map.has(idx) ? map.get(idx)! : []) ||
+      this.selectedOptionService.getSelectedOptions() ||
+      [];
   
+    console.log(`[HYDRATE GUARD] called for Q${idx}`, {
+      storedCount: storedSelections.length,
+      mapKeys: Array.from(map?.keys?.() ?? [])
+    });
+  
+    // Guard: if there are no stored selections for this question, skip
+    if (storedSelections.length === 0) {
+      console.log(`[HYDRATE GUARD] 🧹 No selections found for Q${idx}, resetting clean`);
+      this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+        ...opt,
+        selected: false,
+        highlight: false,
+        showIcon: false
+      }));
+      return;
+    }
+  
+    // Apply state from the per-question selection map only
     this.optionsToDisplay = this.optionsToDisplay.map(opt => {
-      const match = storedSelections.find(
-        sel =>
-          sel.optionId === opt.optionId &&
-          sel.questionIndex === (opt as SelectedOption).questionIndex
-      );
-  
+      const match = storedSelections.find(sel => sel.optionId === opt.optionId);
       if (match) {
         return {
           ...opt,
           selected: match.selected,
           highlight: match.highlight,
-          showIcon: match.showIcon,
+          showIcon: match.showIcon
         };
       } else {
         return {
           ...opt,
           selected: false,
           highlight: false,
-          showIcon: false,
+          showIcon: false
         };
       }
     });
+  
+    console.log(`[HYDRATE GUARD] ✅ Hydrated ${storedSelections.length} options for Q${idx}`);
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
