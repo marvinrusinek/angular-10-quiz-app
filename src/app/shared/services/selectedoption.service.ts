@@ -2173,4 +2173,17 @@ export class SelectedOptionService {
       (canonical[i] as any).selected = !!(u as any).selected;
     });
   }
+
+  public clearLockedOptions(): void {
+    try {
+      if ((this as any)._lockedOptionsMap && typeof (this as any)._lockedOptionsMap.clear === 'function') {
+        (this as any)._lockedOptionsMap.clear();
+        console.log('[SelectedOptionService] 🔓 Cleared all locked options');
+      } else {
+        console.log('[SelectedOptionService] ℹ️ No _lockedOptionsMap found — skipping');
+      }
+    } catch (err) {
+      console.warn('[SelectedOptionService] ⚠️ clearLockedOptions failed', err);
+    }
+  }  
 }
