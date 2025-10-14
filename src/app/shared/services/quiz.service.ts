@@ -2837,18 +2837,22 @@ export class QuizService implements OnDestroy {
   }
 
   // Ensures every option has a valid optionId. If optionId is missing or invalid, it will assign the index as the optionId.
-  assignOptionIds(options: Option[]): Option[] {
+  assignOptionIds(options: Option[], questionIndex?: number): Option[] {
     if (!Array.isArray(options)) {
-      console.error('Expected an array of options but received:', options);
+      console.error('[assignOptionIds] Expected array, got:', options);
       return [];
     }
-
+  
+    const qIdx = Number.isFinite(questionIndex) ? questionIndex : Math.floor(Math.random() * 1000);
+  
     return this.normalizeOptionDisplayOrder(options).map((option, index) => ({
       ...option,
-      // Assign optionId only if it's not a valid number
-      optionId: option.optionId ?? index + 1  // use 1-based index for clarity
+      // Compose a globally unique numeric ID (e.g., 1000 + 1 = 1001)
+      optionId: Number.isFinite(option.optionId)
+        ? option.optionId
+        : qIdx * 100 + (index + 1),
     }));
-  }
+  }  
 
   private normalizeOptionDisplayOrder(options: Option[] = []): Option[] {
     if (!Array.isArray(options)) {
