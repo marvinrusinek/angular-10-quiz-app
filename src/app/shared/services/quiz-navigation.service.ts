@@ -429,8 +429,8 @@ export class QuizNavigationService {
       console.log('[NAV DEBUG] Option object identity check:');
       const prevQ = this.quizService.questions?.[this.currentQuestionIndex];
       if (prevQ && fresh && Array.isArray(prevQ.options) && Array.isArray(fresh.options)) {
-        const sameRef = prevQ.options.some((opt, i) => opt === fresh.options[i]);
-        console.log('❓ Shared object references between old and new:', sameRef);
+        const sharedRefs = prevQ.options.some((opt, i) => opt === fresh.options[i]);
+        console.log(`[NAV REF CHECK] Between Q${this.currentQuestionIndex} and Q${index}: shared=${sharedRefs}`);
       }
   
       if (!fresh) {
