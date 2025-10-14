@@ -58,6 +58,8 @@ export class SelectedOptionService {
     private quizService: QuizService,
     private nextButtonStateService: NextButtonStateService
   ) {
+    console.log('[SelectedOptionService] 🧭 Constructed at', performance.now().toFixed(1));
+    
     const index$ = this.quizService?.currentQuestionIndex$;
     if (index$) {
       index$
@@ -786,6 +788,12 @@ export class SelectedOptionService {
     selectedOption: SelectedOption,
     isMultiSelect: boolean
   ): void {
+    console.log("MY USS");
+    console.log(
+      `[SOS] 🧠 updateSelectionState(qIdx=${questionIndex}) → incoming selectedOptionId=${selectedOption?.optionId}`,
+      'currentMapKeys:',
+      Array.from(this.selectedOptionsMap.keys())
+    );
     // Use numeric index directly — not a string key like "Q2"
     if (!Number.isFinite(questionIndex) || questionIndex < 0) {
       console.warn(`[updateSelectionState] Invalid questionIndex: ${questionIndex}`);
@@ -829,6 +837,8 @@ export class SelectedOptionService {
   
     // Store per-question selections by numeric key
     this.commitSelections(questionIndex, [...updatedSelections.map(o => ({ ...o }))]);
+
+    console.log('[SOS] ✅ after commit → map:', JSON.stringify([...this.selectedOptionsMap]));
   
     console.log(`[SelectedOptionService] ✅ Updated selections for Q${questionIndex}:`, updatedSelections);
   }

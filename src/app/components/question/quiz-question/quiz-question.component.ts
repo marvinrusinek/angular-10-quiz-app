@@ -4655,6 +4655,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
 
+    console.log('[QQC] ⚙️ updateFeedback called for optionId', option.optionId);
+
     this.updateFeedbackForOption(option);
 
     if (!option.correct) {
@@ -4769,6 +4771,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       highlight: true,
       showIcon: true
     };
+    console.log('[QQC] ⚡ About to call updateSelectionState', {
+      idx: this.currentQuestionIndex,
+      selectedOption,
+      serviceRef: this.selectedOptionService
+    });
+    
     this.selectedOptionService.updateSelectionState(
       this.currentQuestionIndex,
       selectedOption,
