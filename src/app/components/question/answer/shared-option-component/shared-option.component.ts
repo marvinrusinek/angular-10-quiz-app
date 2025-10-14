@@ -316,6 +316,18 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // HARD CLONE BARRIER: break all option object references between questions
+    if (Array.isArray(this.optionsToDisplay)) {
+      try {
+        this.optionsToDisplay = typeof structuredClone === 'function'
+          ? structuredClone(this.optionsToDisplay)
+          : JSON.parse(JSON.stringify(this.optionsToDisplay));
+        console.log('[HARD CLONE BARRIER] optionsToDisplay deep-cloned for new question');
+      } catch (err) {
+        console.warn('[HARD CLONE BARRIER] clone failed', err);
+      }
+    }
+
     if (changes['questionIndex']) {
       this.resolvedQuestionIndex = null;
       this.updateResolvedQuestionIndex(changes['questionIndex'].currentValue);
