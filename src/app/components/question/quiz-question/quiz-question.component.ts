@@ -2148,6 +2148,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.optionsToDisplay = cloned; // new reference
 
+      // Diagnostic log: confirm fresh state
+      console.group(`[QQC OPTIONS TRACE] After deep clone for Q${this.currentQuestionIndex}`);
+      this.optionsToDisplay.forEach((opt, i) => {
+        console.log(
+          `Opt${i}:`,
+          opt.text,
+          '| correct:',
+          opt.correct,
+          '| selected:',
+          opt.selected,
+          '| showIcon:',
+          opt.showIcon,
+          '| highlight:',
+          opt.highlight,
+          '| ref:',
+          opt
+        );
+      });
+      console.groupEnd();
+
       this.updateShouldRenderOptions(this.optionsToDisplay);
 
       // Finally update the route index (triggers the key change)
