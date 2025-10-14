@@ -328,6 +328,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       }
     }
 
+    console.table(
+      this.optionsToDisplay?.map(o => ({
+        text: o.text,
+        refTag: (o as any)._refTag,
+        selected: o.selected,
+        highlight: o.highlight,
+        showIcon: o.showIcon
+      }))
+    );
+
     if (changes['questionIndex']) {
       this.resolvedQuestionIndex = null;
       this.updateResolvedQuestionIndex(changes['questionIndex'].currentValue);
