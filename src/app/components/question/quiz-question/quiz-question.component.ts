@@ -2093,6 +2093,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // ───────────── Update Component State ─────────────
 
+      console.log('[QQC RESET TRACE] Calling resetAllStates() before assigning new options');
+      this.selectedOptionService.resetAllStates();
+
       this.currentQuestion = { ...potentialQuestion };
       this.optionsToDisplay = this.quizService
         .assignOptionIds(this.currentQuestion.options || [])
