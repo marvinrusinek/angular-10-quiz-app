@@ -316,6 +316,19 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // Always resolve a valid index
+    const fallbackIndex =
+      changes['questionIndex']?.currentValue ??
+      changes['currentQuestionIndex']?.currentValue ??
+      this.currentQuestionIndex ??
+      this.questionIndex ??
+      -1;
+
+    this.resolvedQuestionIndex = fallbackIndex;
+    this.currentQuestionIndex = fallbackIndex;
+
+    console.log(`[HYDRATE-INDEX FIX] Resolved questionIndex=${this.currentQuestionIndex}`);
+
     // HARD CLONE BARRIER: break all option object references between questions
     if (Array.isArray(this.optionsToDisplay)) {
       try {
