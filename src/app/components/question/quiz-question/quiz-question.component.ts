@@ -2116,11 +2116,12 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
       const currQ = this.currentQuestion;
 
-      if (prevQ && currQ) {
-        const sharedRefs = prevQ.options?.some((opt, i) => opt === currQ.options?.[i]);
-        console.log(`[LEAK TEST] Between Q${prevIdx} and Q${this.currentQuestionIndex}: sharedRefs=${sharedRefs}`);
-      } else {
-        console.log(`[LEAK TEST] Between Q${prevIdx} and Q${this.currentQuestionIndex}: skipped (no prevQ/currQ)`);
+      const nextIdx = this.currentQuestionIndex + 1;
+      const nextQ = this.questionsArray?.[nextIdx];
+
+      if (currQ && nextQ) {
+        const sharedRefsNext = currQ.options?.some((opt, i) => opt === nextQ.options?.[i]);
+        console.log(`[LEAK TEST NEXT] Between Q${this.currentQuestionIndex} and Q${nextIdx}: sharedRefs=${sharedRefsNext}`);
       }
 
       // Full reset of option/lock/selection state for new question
