@@ -2304,6 +2304,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }  
 
   public hydrateOptionsFromSelectionState(): void {
+    console.group(`[CROSS-TRACE: HYDRATE] start for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
+    (this.optionsToDisplay ?? []).forEach((opt, i) => {
+      console.log(`BEFORE hydrate → Opt${i}:`, opt.text, 'ref:', opt);
+    });
+    console.groupEnd();
+
     const idx = this.resolvedQuestionIndex ?? this.currentQuestionIndex ?? -1;
     const map = this.selectedOptionService.selectedOptionsMap;
     const storedSelections =
@@ -2347,6 +2353,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         };
       }
     });
+
+    console.group(`[CROSS-TRACE: HYDRATE] end for Q${this.resolvedQuestionIndex ?? this.currentQuestionIndex}`);
+    (this.optionsToDisplay ?? []).forEach((opt, i) => {
+      console.log(`AFTER hydrate → Opt${i}:`, opt.text, 'ref:', opt);
+    });
+    console.groupEnd();
   
     console.log(`[HYDRATE GUARD] ✅ Hydrated ${storedSelections.length} options for Q${idx}`);
   }
