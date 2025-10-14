@@ -2094,6 +2094,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ───────────── Update Component State ─────────────
 
       this.currentQuestion = { ...potentialQuestion };
+      // Full reset of option/lock/selection state for new question
+      if (this.selectedOptionService?.resetAllStates) {
+        this.selectedOptionService.resetAllStates();
+        console.log(`[QQC] 🧹 Cleared all selection/lock maps before loading Q${this.currentQuestionIndex}`);
+      }
       /* this.optionsToDisplay = this.quizService
         .assignOptionIds(this.currentQuestion.options || [])
         .map((option) => ({
