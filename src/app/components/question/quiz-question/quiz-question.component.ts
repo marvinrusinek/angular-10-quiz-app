@@ -2148,6 +2148,32 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.optionsToDisplay = cloned; // new reference
 
+      // REF TRACE: detect shared references or bleed-through between questions
+      try {
+        const quizSvcQ = this.quizService.questions?.[this.currentQuestionIndex];
+        if (quizSvcQ && quizSvcQ.options) {
+          console.group(`[QQC 🔬 REF TRACE] QuizService.options vs local question.options for Q${this.currentQuestionIndex}`);
+          const sameArrayRef = quizSvcQ.options === this.currentQuestion.options;
+          console.log('Same array reference?', sameArrayRef);
+
+          quizSvcQ.options.forEach((o, i) => {
+            const local = this.currentQuestion.options?.[i];
+            console.log(
+              `Q${this.currentQuestionIndex} Opt${i}:`,
+              'service.selected =', o.selected,
+              '| local.selected =', local?.selected,
+              '| same object ref =', o === local
+            );
+          });
+
+          console.groupEnd();
+        }
+      } catch (err) {
+        console.warn('[QQC 🔬 REF TRACE] failed:', err);
+      }
+
+
+
       // Diagnostic log: confirm fresh state
       console.group(`[QQC OPTIONS TRACE] After deep clone for Q${this.currentQuestionIndex}`);
       this.optionsToDisplay.forEach((opt, i) => {
@@ -2167,6 +2193,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         );
       });
       console.groupEnd();
+
+      const mapDump = Array.from(
+        this.selectedOptionService.selectedOptionsMap.entries()
+      ).map(([k, v]) => ({
+        qIndex: k,
+        selectedIds: v.map(o => o.optionId)
+      }));
+      console.log('[QQC MAP DUMP after clone]', mapDump);      
 
       this.updateShouldRenderOptions(this.optionsToDisplay);
 

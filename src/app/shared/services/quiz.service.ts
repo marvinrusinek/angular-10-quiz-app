@@ -727,40 +727,48 @@ export class QuizService implements OnDestroy {
     return this.questions$.pipe(
       filter(qs => Array.isArray(qs) && qs.length > 0),
       take(1),
-      map((qs: QuizQuestion[]) => {
-        if (index < 0 || index >= qs.length) {
-          console.warn(`[QuizService] ⚠️ Invalid question index ${index}`);
+      map((questions: QuizQuestion[]) => {
+        if (index < 0 || index >= questions.length) {
+          console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
           return null;
         }
-  
-        const raw = qs[index];
+      
+        const raw = questions[index];
         if (!raw || !Array.isArray(raw.options)) {
-          console.warn(`[QuizService] ⚠️ No valid options for Q${index}`);
+          console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
           return null;
         }
-  
-        // Deep clone — completely new objects
+      
+        // Deep-clone everything to prevent shared references
         const clonedQuestion: QuizQuestion = {
           ...raw,
-          options: (raw.options.map((opt, i): Option => ({
+          options: raw.options.map((opt, i) => ({
             ...opt,
-            optionId:
-              typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
-                ? opt.optionId
-                : i + 1, // assign numeric fallback
+            optionId: typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+              ? opt.optionId
+              : i + 1,
             selected: false,
             highlight: false,
             showIcon: false,
-            feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
-          })) as Option[])
+            active: true,
+            disabled: false,
+            feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
+          })),
         };
-  
-        // Diagnostic check: verify identity isolation
-        const sharedRef = raw.options.some((opt, i) => opt === clonedQuestion.options[i]);
-        console.log(`[CLONE CHECK Q${index}] Shared refs between raw & clone:`, sharedRef);
-  
+      
+        // Do NOT mutate `questions` or re-emit here
+        // just return a fully independent clone
+        console.groupCollapsed(`[QuizService] 🧬 Cloned Question Q${index}`);
+        (clonedQuestion.options ?? []).forEach((opt, i) => {
+          console.log(
+            `Opt${i}: text="${opt.text}", id=${opt.optionId}, selected=${opt.selected}, ref=`,
+            opt
+          );
+        });
+        console.groupEnd();
+      
         return clonedQuestion;
-      }),
+      }),      
       catchError((err: Error) => {
         console.error(`[QuizService] ❌ Error fetching Q${index}:`, err);
         return of(null);
