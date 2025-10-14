@@ -2111,40 +2111,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           showIcon: false,
           selected: false,
         }));
-      console.log('[QQC CROSS-TRACE] After assignOptionIds(), first optionIds:',
-      this.optionsToDisplay.map(o => o.optionId));
       
-      console.group(`[QQC LIFECYCLE TRACE] After resetAllStates + assignOptionIds for Q${this.currentQuestionIndex}`);
-      /* (this.optionsToDisplay ?? []).forEach((opt, i) => {
-        console.log(
-          `Opt${i}:`,
-          {
-            text: opt.text,
-            correct: opt.correct,
-            selected: opt.selected,
-            highlight: opt.highlight,
-            showIcon: opt.showIcon
-          }
-        );
-      }); */
-      console.groupEnd();
-
+      const prevIdx = this.currentQuestionIndex - 1;
       const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
       const currQ = this.currentQuestion;
 
-      console.log('[QQC REF CHECK DEBUG]', {
-        hasQuestionsArray: !!this.questionsArray,
-        prevExists: !!this.questionsArray?.[this.currentQuestionIndex - 1],
-        currExists: !!this.currentQuestion,
-        index: this.currentQuestionIndex
-      });
-      
-
-      if (prevQ && currQ && Array.isArray(prevQ.options) && Array.isArray(currQ.options)) {
-        const shared = prevQ.options.some((opt, i) => opt === currQ.options[i]);
-        console.log(
-          `[QQC REF CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: shared=${shared}`
-        );
+      if (prevQ && currQ) {
+        const sharedRefs = prevQ.options?.some((opt, i) => opt === currQ.options?.[i]);
+        console.log(`[LEAK TEST] Between Q${prevIdx} and Q${this.currentQuestionIndex}: sharedRefs=${sharedRefs}`);
+      } else {
+        console.log(`[LEAK TEST] Between Q${prevIdx} and Q${this.currentQuestionIndex}: skipped (no prevQ/currQ)`);
       }
 
       // Full reset of option/lock/selection state for new question
