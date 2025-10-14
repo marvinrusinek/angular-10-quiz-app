@@ -274,18 +274,32 @@ export class SelectedOptionService {
   }
 
   clearSelectionsForQuestion(questionIndex: number): void {
-    if (this.selectedOptionsMap.has(questionIndex)) {
-      this.selectedOptionsMap.delete(questionIndex);  // removes the entry entirely
-      console.log(`[🗑️ cleared] selections for Q${questionIndex}`);
-    } else {
-      console.log(`[ℹ️ no selections to clear] for Q${questionIndex}`);
+    const idx = Number(questionIndex);
+    if (!Number.isFinite(idx)) {
+      console.warn(`[clearSelectionsForQuestion] ⚠️ Invalid index:`, questionIndex);
+      return;
     }
-
-    this.feedbackByQuestion.delete(questionIndex);
-
-    if (this.quizService?.currentQuestionIndex === questionIndex) {
+  
+    // Remove from selection and feedback maps
+    if (this.selectedOptionsMap.has(idx)) {
+      this.selectedOptionsMap.delete(idx);
+      console.log(`[🗑️ cleared] selections for Q${idx}`);
+    } else {
+      console.log(`[ℹ️ no selections to clear] for Q${idx}`);
+    }
+  
+    this.feedbackByQuestion.delete(idx);
+    this.optionSnapshotByQuestion?.delete?.(idx);
+  
+    // Reset feedback UI if currently on this question
+    if (this.quizService?.getCurrentQuestionIndex?.() === idx) {
       this.showFeedbackForOptionSubject.next({});
     }
+  
+    // Optional extra safety — clear any lingering lock states
+    try {
+      (this as any)._lockedOptionsMap?.delete?.(idx);
+    } catch {}
   }
 
   // Method to get the current option selected state
