@@ -393,6 +393,32 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.updateSelections(-1);
       this.cdRef.detectChanges();
     }
+
+    // NEW: full local visual reset to prevent ghost highlighting
+    if (questionChanged || optionsChanged) {
+      console.log(`[SOC] 🔄 Resetting local visual state for Q${this.resolvedQuestionIndex}`);
+      this.highlightedOptionIds.clear();
+      this.flashDisabledSet.clear();
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      
+      // Force every option to lose highlight/showIcon state
+      if (Array.isArray(this.optionsToDisplay)) {
+        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+          ...opt,
+          selected: false,
+          highlight: false,
+          showIcon: false,
+        }));
+      }
+
+      // Optional: reset any lingering form control
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+      
+      this.cdRef.detectChanges();
+    }
   
     // New currentQuestion
     if (changes['currentQuestion'] && this.currentQuestion?.questionText?.trim()) {
