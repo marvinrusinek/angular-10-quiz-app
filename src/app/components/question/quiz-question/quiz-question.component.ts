@@ -2131,15 +2131,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       const prevIdx = this.currentQuestionIndex - 1;
-      const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
-      const currQ = this.currentQuestion;
+      const prevQ = this.questionsArray?.[this.currentQuestionIndex - 1];
+      const currQ = potentialQuestion;
 
       const nextIdx = this.currentQuestionIndex + 1;
       const nextQ = this.questionsArray?.[nextIdx];
 
-      if (currQ && nextQ) {
-        const sharedRefsNext = currQ.options?.some((opt, i) => opt === nextQ.options?.[i]);
-        console.log(`[LEAK TEST NEXT] Between Q${this.currentQuestionIndex} and Q${nextIdx}: sharedRefs=${sharedRefsNext}`);
+      if (prevQ && currQ) {
+        const sharedRefs = prevQ.options?.some((opt, i) => opt === currQ.options?.[i]);
+        console.log(`[REF CHAIN CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: sharedRefs=${sharedRefs}`);
       }
 
       // Full reset of option/lock/selection state for new question
@@ -2169,6 +2169,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         highlight: false,
         disabled: false,
       }));
+
 
       // Always use a fresh reference for display array
       this.optionsToDisplay = this.currentQuestion.options.map(o => ({ ...o }));
