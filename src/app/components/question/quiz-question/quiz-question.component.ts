@@ -2096,6 +2096,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.log('[QQC RESET TRACE] Calling resetAllStates() before assigning new options');
       this.selectedOptionService.resetAllStates();
 
+      console.log('[QQC CROSS-TRACE] After resetAllStates(), map dump:');
+      console.log("[QQC CROSS-TRACE] After resetAllStates(), map dump:", JSON.stringify(
+        Array.from(this.selectedOptionService.selectedOptionsMap.entries())
+      ));
+
       this.currentQuestion = { ...potentialQuestion };
       this.optionsToDisplay = this.quizService
         .assignOptionIds(this.currentQuestion.options || [])
@@ -2106,8 +2111,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           showIcon: false,
           selected: false,
         }));
+      console.log('[QQC CROSS-TRACE] After assignOptionIds(), first optionIds:',
+      this.optionsToDisplay.map(o => o.optionId));
+      
       console.group(`[QQC LIFECYCLE TRACE] After resetAllStates + assignOptionIds for Q${this.currentQuestionIndex}`);
-      (this.optionsToDisplay ?? []).forEach((opt, i) => {
+      /* (this.optionsToDisplay ?? []).forEach((opt, i) => {
         console.log(
           `Opt${i}:`,
           {
@@ -2118,7 +2126,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             showIcon: opt.showIcon
           }
         );
-      });
+      }); */
       console.groupEnd();
 
       const prevQ = this.questionsArray[this.currentQuestionIndex - 1];
