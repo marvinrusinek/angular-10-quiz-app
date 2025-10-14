@@ -2102,6 +2102,16 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       ));
 
       this.currentQuestion = { ...potentialQuestion };
+      // Absolute selection reset to prevent cross-highlighting
+      try {
+        const idx = this.currentQuestionIndex;
+        this.selectedOptionService.clearSelectionsForQuestion(idx);
+        this.selectedOptionService.resetAllStates?.();
+        console.log(`[HARD RESET] Cleared selection/lock state before rendering Q${idx}`);
+      } catch (err) {
+        console.warn('[HARD RESET] Failed to clear selection state', err);
+      }
+
       this.optionsToDisplay = this.quizService
         .assignOptionIds(this.currentQuestion.options || [], this.currentQuestionIndex)
         .map(option => ({
