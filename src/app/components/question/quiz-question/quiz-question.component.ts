@@ -2103,8 +2103,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.currentQuestion = { ...potentialQuestion };
       this.optionsToDisplay = this.quizService
-        .assignOptionIds(this.currentQuestion.options || [])
-        .map((option) => ({
+        .assignOptionIds(this.currentQuestion.options || [], this.currentQuestionIndex)
+        .map(option => ({
           ...option,
           active: true,
           feedback: undefined,
