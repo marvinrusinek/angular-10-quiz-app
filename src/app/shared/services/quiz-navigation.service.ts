@@ -409,23 +409,14 @@ export class QuizNavigationService {
 
       console.log(`[NAV] 🧹 Fully cleared selected/locked options before loading Q${index + 1}`);
 
-      // 🧹 Full reset of selection/lock/feedback state (prev + current)
+      // Full reset of selection/lock/feedback state
       try {
-        const prev = this.quizService.getCurrentQuestionIndex();
-        const keys = [prev, index].filter(v => typeof v === 'number' && v >= 0);
-        keys.forEach(k => {
-          this.selectedOptionService.clearSelectionsForQuestion?.(k);
-        });
-
         this.selectedOptionService.resetAllStates?.();
         this.selectedOptionService.selectedOptionsMap?.clear?.();
         if (typeof (this.selectedOptionService as any)._lockedOptionsMap?.clear === 'function') {
           (this.selectedOptionService as any)._lockedOptionsMap.clear();
         }
-
-        console.log(
-          `[NAV] 🔄 Cleared selection/lock state for questions ${keys.join(', ')}`
-        );
+        console.log(`[NAV] 🔄 Cleared all option-related state before loading Q${index}`);
       } catch (err) {
         console.warn('[NAV] ⚠️ Failed to clear selection state', err);
       }
