@@ -117,8 +117,9 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
 
   private click$ = new Subject<{ b: OptionBindings; i: number }>();
 
-  trackByQuestionScoped = (_: number, b: OptionBindings) =>
-    `${this.questionVersion}-${b.option.optionId}`;
+  trackByQuestionScoped = (_: number, b: OptionBindings) => {
+    return `Q${this.currentQuestionIndex}-O${b.option.optionId}-${b.option.text}`;
+  };
 
   private flashDisabledSet = new Set<number>();
   private lockedIncorrectOptionIds = new Set<number>();
