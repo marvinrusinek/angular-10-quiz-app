@@ -739,29 +739,31 @@ export class QuizService implements OnDestroy {
           return null;
         }
   
-        // Deep-clone to break shared references
+        // Deep-clone to break shared object references
         const clonedQuestion: QuizQuestion = {
-          ...raw,
-          options: (raw.options ?? []).map((opt, i) => ({
-            ...JSON.parse(JSON.stringify(opt)),  // full deep clone
-            optionId:
-              typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
-                ? opt.optionId
-                : i + 1,
-            selected: false,
-            highlight: false,
-            showIcon: false,
-            active: true,
-            disabled: false,
-            feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
-          })),
+          ...JSON.parse(JSON.stringify(raw)),  // full deep copy of question + options
+          options: (raw.options ?? []).map((opt, i) => {
+            // Each option gets its own new object identity
+            const clone = { ...JSON.parse(JSON.stringify(opt)) };
+            clone.optionId =
+              typeof clone.optionId === 'number' && Number.isFinite(clone.optionId)
+                ? clone.optionId
+                : i + 1;
+            clone.selected = false;
+            clone.highlight = false;
+            clone.showIcon = false;
+            clone.active = true;
+            clone.disabled = false;
+            clone.feedback = clone.feedback ?? `Default feedback for Q${index} Option ${i}`;
+            return clone;
+          }),
         };
   
         // Leak check: confirm that no options share memory with the previous question
         if (this.questions && this.questions[index - 1]?.options) {
           const prevOpts = this.questions[index - 1].options;
           const shared = prevOpts.some((p, j) => p === clonedQuestion.options[j]);
-          console.log(`[LEAK TEST] Q${index - 1}→Q${index}: sharedRefs=${shared}`);
+          console.log(`[LEAK FINAL TEST] Q${index - 1}→Q${index}: sharedRefs=${shared}`);
         }
   
         // Diagnostics
