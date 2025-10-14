@@ -2094,7 +2094,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ───────────── Update Component State ─────────────
 
       this.currentQuestion = { ...potentialQuestion };
-      this.optionsToDisplay = this.quizService
+      /* this.optionsToDisplay = this.quizService
         .assignOptionIds(this.currentQuestion.options || [])
         .map((option) => ({
           ...option,
@@ -2102,7 +2102,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           feedback: undefined,
           showIcon: false,
           selected: false,
-        }));
+        })); */
+      // Hard reset and deep clone each option
+      this.currentQuestion.options = (this.currentQuestion.options ?? []).map((opt, i) => ({
+        ...opt,
+        optionId: typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+          ? opt.optionId
+          : i + 1,
+        active: true,
+        feedback: opt.feedback ?? undefined,
+        showIcon: false,
+        selected: false,
+        highlight: false,
+        disabled: false,
+      }));
+
+      // Always use a fresh reference for display array
+      this.optionsToDisplay = this.currentQuestion.options.map(o => ({ ...o }));
+
+      // Sanity check to ensure no shared refs between question source and display array
+      console.log(
+        `[QQC REF CHECK] Q${this.currentQuestionIndex}`,
+        this.currentQuestion.options[0] === this.optionsToDisplay[0]
+          ? '❌ Shared reference!'
+          : '✅ Independent clone'
+      );
       
         console.log(
           '[DEBUG Q1 Options Snapshot]',
