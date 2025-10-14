@@ -2135,7 +2135,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       const currQ = potentialQuestion;
 
       const nextIdx = this.currentQuestionIndex + 1;
-      const nextQ = this.questionsArray?.[nextIdx];
+      const nextQ = this.questionsArray?.[this.currentQuestionIndex + 1];
+      if (currQ && nextQ) {
+        const sharedRefsNext = currQ.options?.some((opt, i) => opt === nextQ.options?.[i]);
+        console.log(`[REF CHAIN CHECK NEXT] Between Q${this.currentQuestionIndex} and Q${this.currentQuestionIndex + 1}: sharedRefs=${sharedRefsNext}`);
+      }
 
       if (prevQ && currQ) {
         const sharedRefs = prevQ.options?.some((opt, i) => opt === currQ.options?.[i]);
