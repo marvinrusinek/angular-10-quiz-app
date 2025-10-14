@@ -412,6 +412,8 @@ export class QuizNavigationService {
       // Full reset of selection/lock/feedback state
       try {
         this.selectedOptionService.resetAllStates?.();
+        (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
+        (this.selectedOptionService as any).optionStates?.clear?.();
         this.selectedOptionService.selectedOptionsMap?.clear?.();
         this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
         if (typeof (this.selectedOptionService as any)._lockedOptionsMap?.clear === 'function') {
