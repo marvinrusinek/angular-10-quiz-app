@@ -732,21 +732,22 @@ export class QuizService implements OnDestroy {
           console.warn(`[QuizService] ⚠️ Invalid question index ${index}. Returning null.`);
           return null;
         }
-      
+  
         const raw = questions[index];
         if (!raw || !Array.isArray(raw.options)) {
           console.warn(`[QuizService] ⚠️ No valid question/options found for Q${index}. Returning null.`);
           return null;
         }
-      
-        // Deep-clone everything to prevent shared references
+  
+        // Deep-clone to break shared references
         const clonedQuestion: QuizQuestion = {
           ...raw,
-          options: raw.options.map((opt, i) => ({
-            ...opt,
-            optionId: typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
-              ? opt.optionId
-              : i + 1,
+          options: (raw.options ?? []).map((opt, i) => ({
+            ...JSON.parse(JSON.stringify(opt)),  // full deep clone
+            optionId:
+              typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+                ? opt.optionId
+                : i + 1,
             selected: false,
             highlight: false,
             showIcon: false,
@@ -755,28 +756,15 @@ export class QuizService implements OnDestroy {
             feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
           })),
         };
-        // Break all shared object references (even within options array)
-        clonedQuestion.options = (raw.options ?? []).map((opt, i) => ({
-          ...JSON.parse(JSON.stringify(opt)),  // ensures new object identity
-          optionId:
-            typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
-              ? opt.optionId
-              : i + 1,
-          selected: false,
-          highlight: false,
-          showIcon: false,
-          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
-        }));
-
-        // Debug check for reference leaks
+  
+        // Leak check: confirm that no options share memory with the previous question
         if (this.questions && this.questions[index - 1]?.options) {
           const prevOpts = this.questions[index - 1].options;
           const shared = prevOpts.some((p, j) => p === clonedQuestion.options[j]);
           console.log(`[LEAK TEST] Q${index - 1}→Q${index}: sharedRefs=${shared}`);
         }
-      
-        // Do NOT mutate `questions` or re-emit here
-        // just return a fully independent clone
+  
+        // Diagnostics
         console.groupCollapsed(`[QuizService] 🧬 Cloned Question Q${index}`);
         (clonedQuestion.options ?? []).forEach((opt, i) => {
           console.log(
@@ -785,9 +773,9 @@ export class QuizService implements OnDestroy {
           );
         });
         console.groupEnd();
-      
+  
         return clonedQuestion;
-      }),      
+      }),
       catchError((err: Error) => {
         console.error(`[QuizService] ❌ Error fetching Q${index}:`, err);
         return of(null);
