@@ -741,13 +741,17 @@ export class QuizService implements OnDestroy {
         const clonedQuestion: QuizQuestion = JSON.parse(JSON.stringify(raw));
 
         // Sanitize UI fields
-        clonedQuestion.options = clonedQuestion.options.map((opt, i) => ({
+        clonedQuestion.options = (raw.options ?? []).map((opt, i) => ({
           ...opt,
+          optionId:
+            typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+              ? opt.optionId
+              : i + 1,  // assign a sequential fallback ID
           selected: false,
           highlight: false,
           showIcon: false,
-          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`
-        }));
+          feedback: opt.feedback ?? `Default feedback for Q${index} Option ${i}`,
+        }));        
 
         // Detach cloned question and re-emit through the private subject
         try {
@@ -763,9 +767,16 @@ export class QuizService implements OnDestroy {
 
         // Diagnostic log: show the cloned options only for this question
         console.groupCollapsed(`[TRACE CLONE CHECK] Q${index}`);
-        (clonedQuestion.options ?? []).forEach((opt, i) => {
-          console.log(`Q${index} Opt${i}:`, opt.text, '→ id:', opt.optionId, 'ref:`, opt);
-        });
+        (clonedQuestion.options ?? []).forEach((opt, i) =>
+          console.log(
+            `Q${index} Opt${i}:`,
+            opt.text,
+            '→ id:',
+            opt.optionId,
+            'ref:',
+            opt
+          )
+        );
         console.groupEnd();
 
         return clonedQuestion;
