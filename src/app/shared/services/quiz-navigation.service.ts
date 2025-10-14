@@ -410,6 +410,17 @@ export class QuizNavigationService {
       console.log(`[NAV] 🧹 Fully cleared selected/locked options before loading Q${index + 1}`);
 
       // ────────────────────────────────────────────────
+      // Full selection reset between questions
+      // ────────────────────────────────────────────────
+      try {
+        this.selectedOptionService.resetAllStates?.();     // hard clear of map + locks
+        this.selectedOptionService.selectedOptionsMap.clear();
+        console.log('[NAV] 🧹 Cleared SelectedOptionService state before loading Q', index);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Could not fully clear selection state', err);
+      }
+
+      // ────────────────────────────────────────────────
       // FETCH NEW QUESTION
       // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
