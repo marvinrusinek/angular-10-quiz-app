@@ -41,7 +41,10 @@ export class SelectedOptionService {
 
   currentQuestionType: QuestionType | null = null;
   private _lockedByQuestion = new Map<number, Set<string | number>>();
-  private _questionLocks = new Set<number>()
+  private _questionLocks = new Set<number>();
+
+  private _lockedOptionsMap: Map<number, Set<number>> = new Map();
+  private optionStates: Map<number, any> = new Map();
 
   set isNextButtonEnabled(value: boolean) {
     this.isNextButtonEnabledSubject.next(value);
