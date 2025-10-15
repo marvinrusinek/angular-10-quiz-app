@@ -653,7 +653,7 @@ export class QuizNavigationService {
       const timeoutId = setTimeout(() => {
         subscription.unsubscribe();
         console.warn(`[waitForUrl] ⏰ Timeout waiting for ${target}`);
-        resolve(target); // fallback resolve after 1s to prevent hang
+        resolve(target);  // fallback resolve after 1s to prevent hang
       }, 1000);
   
       const subscription = this.router.events.subscribe({
@@ -661,7 +661,7 @@ export class QuizNavigationService {
           if (event instanceof NavigationEnd) {
             const finalUrl = this.normalizeUrl(event.urlAfterRedirects || event.url);
   
-            // ✅ Instead of strict === match, use "includes"
+            // Instead of strict === match, use "includes"
             if (finalUrl.includes(target)) {
               clearTimeout(timeoutId);
               subscription.unsubscribe();
@@ -687,9 +687,7 @@ export class QuizNavigationService {
   }
 
   private normalizeUrl(url: string): string {
-    if (!url) {
-      return '';
-    }
+    if (!url) return '';
 
     try {
       const serialized = this.router.serializeUrl(this.router.parseUrl(url));
