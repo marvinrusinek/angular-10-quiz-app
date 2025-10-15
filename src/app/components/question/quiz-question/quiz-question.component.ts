@@ -3009,7 +3009,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
           try {
             this.explanationTextService.setShouldDisplayExplanation(true);
-            await this.updateExplanationText(idx); // ✅ legal and immediate
+            await new Promise(res => setTimeout(res, 50));  // debounce frame delay
+            await this.updateExplanationText(idx);
             console.log('[QQC DEBUG] updateExplanationText() trigger check', {
               currentQuestionIndex: this.currentQuestionIndex,
               optionClicked: event.option?.text,
