@@ -2428,7 +2428,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
         // Assign unique IDs to options
         questionData.options = this.quizService.assignOptionIds(
-          questionData.options
+          questionData.options,
+          this.currentQuestionIndex
         );
 
         // Assign active states for options
@@ -2506,7 +2507,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           '[generateFeedbackText] optionsToDisplay is not set. Falling back to question options.'
         );
         this.optionsToDisplay = this.quizService.assignOptionIds(
-          question.options
+          question.options,
+          this.currentQuestionIndex
         );
 
         // Log and validate the restored options
