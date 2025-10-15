@@ -2833,7 +2833,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     console.log('[QQC] 🖱 onOptionClicked triggered for', event.option?.optionId);
     this.isUserClickInProgress = true;
-    this._skipNextAsyncUpdates = false;  // reset skip flag at start of each click
+    this._skipNextAsyncUpdates = false; // reset skip flag at start of each click
   
     // Cancel pending RAF
     if (this._pendingRAF != null) {
@@ -2854,65 +2854,58 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return;
     }
   
-    //const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0) ?? (this.currentQuestionIndex ?? 0);
     const idx = this.quizService.getCurrentQuestionIndex();
     const q = this.questions?.[idx];
     const evtIdx = event.index;
     const evtOpt = event.option;
   
-    // EARLY GUARD: no option selected
     if (evtOpt == null) return;
   
-    // Stable key helper available throughout
     const getStableId = (o: Option | SelectedOption, idx?: number) =>
       this.selectionMessageService.stableKey(o as Option, idx);
   
-    // [LOCK] Hard block re-clicks using NUMERIC optionId (matches SOC’s checks).
+    // [LOCK] Hard block re-clicks using NUMERIC optionId
     try {
       const lockIdNum = Number(evtOpt?.optionId);
       if (Number.isFinite(lockIdNum) && this.selectedOptionService.isOptionLocked(idx, lockIdNum)) {
-        // Already spent → ignore silently
-        return;
+        return; // already locked
       }
     } catch {}
   
     if (this._clickGate) return;
     this._clickGate = true;
-  
     this.questionFresh = false;
   
     try {
       // Update local UI selection immediately
       const optionsNow: Option[] =
-        this.optionsToDisplay?.map((o) => ({ ...o })) ??
-        this.currentQuestion?.options?.map((o) => ({ ...o })) ??
+        this.optionsToDisplay?.map(o => ({ ...o })) ??
+        this.currentQuestion?.options?.map(o => ({ ...o })) ??
         [];
   
-      // For single-answer, ignore deselect events entirely
+      // SINGLE-ANSWER → ignore deselects
       if (q?.type === QuestionType.SingleAnswer && event.checked === false) {
         optionsNow.forEach(opt => { if (opt.selected) opt.selected = true; });
         if (Array.isArray(this.optionsToDisplay)) {
-          (this.optionsToDisplay as Option[]).forEach(opt => { if (opt.selected) opt.selected = true; });
+          this.optionsToDisplay.forEach(opt => { if (opt.selected) opt.selected = true; });
         }
       } else {
-        // Release sticky baseline the first time a meaningful click happens
         this.selectionMessageService.releaseBaseline(idx);
   
         if (q?.type === QuestionType.SingleAnswer) {
-          // Exclusivity guard for single-answer
-          optionsNow.forEach((opt, idx) => {
-            opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+          optionsNow.forEach((opt, i) => {
+            opt.selected = i === evtIdx ? (event.checked ?? true) : false;
           });
           if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[]).forEach((opt, idx) => {
-              opt.selected = idx === evtIdx ? (event.checked ?? true) : false;
+            this.optionsToDisplay.forEach((opt, i) => {
+              opt.selected = i === evtIdx ? (event.checked ?? true) : false;
             });
           }
         } else {
-          // Multi-answer: allow multiple selections
+          // Multiple-answer: allow multiple selections
           optionsNow[evtIdx].selected = event.checked ?? true;
           if (Array.isArray(this.optionsToDisplay)) {
-            (this.optionsToDisplay as Option[])[evtIdx].selected = event.checked ?? true;
+            this.optionsToDisplay[evtIdx].selected = event.checked ?? true;
           }
         }
       }
@@ -2920,89 +2913,60 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Persist selection
       try { this.selectedOptionService.setSelectedOption(evtOpt, idx); } catch {}
   
-      // Compute canonical options and stable keys
-      const canonicalOpts: Option[] = (q?.options ?? []).map((o, idx) => ({
+      // Canonical options for consistent state
+      const canonicalOpts: Option[] = (q?.options ?? []).map((o, i) => ({
         ...o,
-        optionId: Number(o.optionId ?? getStableId(o, idx)),
+        optionId: Number(o.optionId ?? getStableId(o, i)),
         selected: (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).some(
-          (sel) => getStableId(sel) === getStableId(o)
+          sel => getStableId(sel) === getStableId(o)
         ),
       }));
   
-      // Enforce single-answer exclusivity at canonical level too
+      // Enforce single-answer exclusivity canonically
       if (q?.type === QuestionType.SingleAnswer) {
-        canonicalOpts.forEach((opt, idx) => {
-          opt.selected = idx === evtIdx;  // only the clicked one survives
-        });
-  
-        // Force correct lock priority if clicked option is correct
+        canonicalOpts.forEach((opt, i) => { opt.selected = i === evtIdx; });
         if (evtOpt?.correct && canonicalOpts[evtIdx]) {
           canonicalOpts[evtIdx].selected = true;
           this.selectionMessageService._singleAnswerCorrectLock.add(idx);
           this.selectionMessageService._singleAnswerIncorrectLock.delete(idx);
         }
-      } else {
-        if (canonicalOpts[evtIdx]) {
-          canonicalOpts[evtIdx].selected = true;
-        }
+      } else if (canonicalOpts[evtIdx]) {
+        canonicalOpts[evtIdx].selected = true;
       }
   
-      /* =========================
-         [REVEAL→LOCK] Do this in order
-         ========================= */
-  
-      // 1) Reveal feedback for ALL options now (so ❌/✔ show even if we disable next)
+      // 1️⃣ Reveal feedback and lock options
       this.revealFeedbackForAllOptions(canonicalOpts);
   
-      // 2) Apply one-shot locks using NUMERIC optionId
       try {
         const clickedIdNum = Number(evtOpt?.optionId ?? NaN);
         if (Number.isFinite(clickedIdNum)) {
-          // Always “spend” the clicked option so it can’t be re-clicked
           this.selectedOptionService.lockOption(idx, clickedIdNum);
         }
-  
         if (q?.type === QuestionType.SingleAnswer) {
           if (evtOpt?.correct) {
-            // Correct click → freeze the whole group
             const allIdsNum = (this.optionsToDisplay ?? [])
               .map(o => Number(o.optionId))
               .filter(Number.isFinite);
             this.selectedOptionService.lockMany(idx, allIdsNum as number[]);
-          } else {
-            // Incorrect click → DO NOT freeze the group
-            // leave other options unlocked so the user can try again
           }
         }
-        // Multiple-answer behavior unchanged
-      } catch { /* noop */ }
+      } catch {}
   
-      /* =========================
-         continue as before…
-         ========================= */
-  
-      // Immediate feedback sync (prevents icon delay when selecting multiple options)
+      // Feedback sync
       const selOptsSetImmediate = new Set(
-        (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).map((o) =>
-          getStableId(o)
-        )
+        (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []).map(o => getStableId(o))
       );
       this.updateOptionHighlighting(selOptsSetImmediate);
       this.refreshFeedbackFor(evtOpt ?? undefined);
       this.cdRef.markForCheck();
       this.cdRef.detectChanges();
   
-      const frozenSnapshot = canonicalOpts.map((o, idx) => ({
-        idx,
-        text: String(o.text),
-        correct: !!o.correct,
-        selected: !!o.selected,
+      // Snapshot and message
+      const frozenSnapshot = canonicalOpts.map((o, i) => ({
+        idx: i, text: String(o.text), correct: !!o.correct, selected: !!o.selected
       }));
-  
-      // Single, unified snapshot + recompute
       this.selectionMessageService.setOptionsSnapshot(canonicalOpts);
   
-      // Emit selection message via service
       this._msgTok = (this._msgTok ?? 0) + 1;
       const tok = this._msgTok;
   
@@ -3015,244 +2979,62 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         token: tok
       });
   
-      // Update Next button and quiz state
+      // Compute correctness
+      const correctOpts = canonicalOpts.filter(o => !!o.correct);
+      const selOpts = Array.from(
+        this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []
+      );
+      const selKeys = new Set(selOpts.map(o => getStableId(o)));
+      const selectedCorrectCount = correctOpts.filter(o => selKeys.has(getStableId(o))).length;
+  
+      const allCorrect =
+        q?.type === QuestionType.MultipleAnswer
+          ? correctOpts.length > 0 &&
+            selectedCorrectCount === correctOpts.length &&
+            selKeys.size === correctOpts.length
+          : !!evtOpt?.correct;
+  
+      this._lastAllCorrect = allCorrect;
+      this.nextButtonStateService.setNextButtonState(allCorrect);
+      this.quizStateService.setAnswered(allCorrect);
+      this.quizStateService.setAnswerSelected(allCorrect);
+  
+      // Stop timer + trigger FET immediately (legally awaited)
+      if (allCorrect) {
+        this.safeStopTimer('completed');
+  
+        if (q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
+          this._fetEarlyShown.add(idx);
+          console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+  
+          try {
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            await this.updateExplanationText(idx); // ✅ legal and immediate
+            console.log('[QQC DEBUG] updateExplanationText() trigger check', {
+              currentQuestionIndex: this.currentQuestionIndex,
+              optionClicked: event.option?.text,
+              isAnswered: this.quizStateService.isAnswered$
+            });
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+          } catch (err) {
+            console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
+          }
+        }
+      }
+  
+      // 🔄 Continue post-click microtasks for highlighting & feedback
       queueMicrotask(() => {
         if (this._skipNextAsyncUpdates) return;
-        const correctOpts = (canonicalOpts ?? []).filter(o => !!o.correct);
-        const selOpts = Array.from(
-          this.selectedOptionService.selectedOptionsMap?.get(idx) ?? []
-        );
-
-        const selKeys = new Set(selOpts.map(o => getStableId(o)));
-        const selectedCorrectCount = correctOpts.filter(o =>
-          selKeys.has(getStableId(o))
-        ).length;
-
-        const allCorrect =
-          q?.type === QuestionType.MultipleAnswer
-            ? correctOpts.length > 0 &&
-              selectedCorrectCount === correctOpts.length &&
-              selKeys.size === correctOpts.length
-            : !!evtOpt?.correct;
-      
-        // Persist for use in finally and stop guard
-        this._lastAllCorrect = allCorrect;
-        
-        this.nextButtonStateService.setNextButtonState(allCorrect);
-        this.quizStateService.setAnswered(allCorrect);
-        this.quizStateService.setAnswerSelected(allCorrect);
-      
-        // Only stop the timer when the question is actually finished correctly
-        if (allCorrect) {
-          this.safeStopTimer('completed');
-        
-          // Trigger FET immediately (not deferred)
-          if (q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
-            this._fetEarlyShown.add(idx);
-            console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
-        
-            (async () => {
-              try {
-                this.explanationTextService.setShouldDisplayExplanation(true);
-                await this.updateExplanationText(idx);
-                this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-                console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
-              } catch (err) {
-                console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
-              }
-            })();
-          }
-        }
-      
-        // NEW: for multi-answer, optionally submit when complete (no Promise.finally)
-        // inside onOptionClicked(), near where you check allCorrect
-        // Always fire submit when complete (single or multi)
-        const isSingle = q?.type === QuestionType.SingleAnswer;
-        const isMultiComplete = q?.type === QuestionType.MultipleAnswer && allCorrect;
-
-        console.log('[onOptionClicked DEBUG]', {
-          idx,
-          questionType: q?.type,
-          allCorrect,
-          isSingle,
-          isMultiComplete,
-          submitting: this._submittingMulti
-        });        
-
-        if ((isSingle || isMultiComplete) && !this._submittingMulti) {
-          this._submittingMulti = true;
-
-          (async () => {
-            try {
-              // Explicitly mark answered state first
-              this.quizStateService.setAnswered(true);
-              this.quizStateService.setAnswerSelected(true);
-              this.nextButtonStateService.setNextButtonState(true);
-
-              // Flush a frame to ensure display observables (combinedText$, displayState$) are ready
-              await new Promise(res => requestAnimationFrame(() => setTimeout(res, 50)));
-
-              // Now safely open the explanation via onSubmitMultiple
-              console.log(`[onOptionClicked] 🚀 ${isSingle ? 'single' : 'multi'} correct for Q${idx + 1} — calling onSubmitMultiple()`);
-              await this.onSubmitMultiple();
-
-            } catch (err) {
-              console.warn('[onOptionClicked] ⚠️ onSubmitMultiple failed:', err);
-            } finally {
-              this._submittingMulti = false;
-            }
-          })();
-        }
-      
-        // NEW: Emit explanation intent + cache NOW (don't wait for RAF)
-        const wasAllCorrect = this._lastAllCorrect;
-        const justCompleted =
-          q?.type === QuestionType.MultipleAnswer && !wasAllCorrect && allCorrect;
-
-        // Now open this question’s explanation gate
-        const canonicalQ = this.quizService?.questions?.[idx] ?? this.questions?.[idx] ?? q;
-        const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
-        const rawExpl = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
-        const formattedExpl = this.explanationTextService
-          .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
-          .trim();
-        
-        // Decide whether this click should trigger a new explanation.
-        const canEmitNow =
-          q?.type === QuestionType.SingleAnswer
-            ? true
-            : allCorrect || justCompleted;
-
-        if (canEmitNow) {
-          // Canonicalize the question strictly for THIS index (prevents cross-index leaks)
-          const canonicalQ = this.quizService?.questions?.[idx] ?? this.questions?.[idx] ?? q;
-          const expectedText = (canonicalQ?.questionText ?? '').trim();
-          const actualText   = (q?.questionText ?? '').trim();
-            
-          // Fallback for first question initialization (Q1 sometimes lacks baseline)
-          if ((!expectedText || expectedText !== actualText) && canonicalQ) {
-            try {
-              (canonicalQ as any).questionText = actualText;
-            } catch {
-              // swallow — just in case the structure is immutable or proxied
-            }
-          }
-            
-          // Only if the question matches this index (prevents cross-index leaks)
-          if (expectedText && actualText && expectedText === actualText) {
-            // Build formatted explanation from the canonical question
-            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(canonicalQ as any);
-            const rawExpl     = (canonicalQ?.explanation ?? '').toString().trim() || 'Explanation not provided';
-            const formatted   = this.explanationTextService
-              .formatExplanation(canonicalQ as any, correctIdxs, rawExpl)
-              .trim();
-
-            setTimeout(() => {
-              try { this.explanationTextService.openExclusive(idx, formatted); } catch {}
-              this.explanationTextService.setShouldDisplayExplanation(true, { force: true });
-              this.displayStateSubject?.next({ mode: 'explanation', answered: true } as const);
-            }, 80);
-            
-            // Keep local bindings in sync immediately (no one-frame lag)
-            try {
-              const fn: any = (this as any).setExplanationFor;
-              if (typeof fn === 'function') {
-                // Support either signature: (idx, text) or (text)
-                fn.length >= 2 ? fn.call(this, idx, formatted) : fn.call(this, formatted);
-              } else if (this._formattedByIndex instanceof Map) {
-                this._formattedByIndex.set(idx, formatted);
-              }
-            } catch {}
-            
-            try {
-              this.explanationToDisplay = formatted;
-              this.explanationToDisplayChange?.emit(formatted);
-            } catch {}
-            
-            this.displayExplanation = true;
-            
-          } else {
-            // Mismatch → don’t show anything; ensure THIS index is closed & cleared
-            try { this.explanationTextService.emitFormatted(idx, null); } catch {}
-            try { this.explanationTextService.setGate(idx, false); } catch {}
-            
-            // Keep local state consistent with “question mode”
-            this.displayExplanation = false;
-          }
-        }            
-
-        // Update explanation and highlighting (RAF for smoother update)
-        this._pendingRAF = requestAnimationFrame(() => {
-          if (this._skipNextAsyncUpdates) return;
-        
-          // Decide if we should emit explanation now:
-          // - SingleAnswer: on click
-          // - MultipleAnswer: only when allCorrect became true
-          const canEmitExplanation =
-            q?.type === QuestionType.SingleAnswer
-              ? true
-              : (this._fetEarlyShown.has(idx) || !!this._lastAllCorrect);
-        
-          if (canEmitExplanation) {
-            // ✅ NEW (Step 1): canonicalize the question for THIS index to avoid stale Q1 leaking into Q2
-            const canonicalQ   = this.quizService.questions?.[idx] ?? q;
-            const expectedText = (canonicalQ?.questionText ?? '').toString().trim();
-            const incomingText = (q?.questionText ?? '').toString().trim();
-            const useQ         = (expectedText && expectedText === incomingText) ? q : canonicalQ;
-        
-            // Build formatted explanation (from canonical question only)
-            const correctIdxs = this.explanationTextService.getCorrectOptionIndices(useQ as any);
-            const rawExpl     = (useQ?.explanation ?? '').trim() || 'Explanation not provided';
-            const formatted   = this.explanationTextService
-              .formatExplanation(useQ as any, correctIdxs, rawExpl)
-              .trim();
-        
-            // ⬇️ PURE UI: no service writes here (no storeFormattedExplanation / emitFormatted / setGate /
-            // setShouldDisplayExplanation / setIsExplanationTextDisplayed / setExplanationText).
-            // Only local component state/bindings to avoid cross-index bleed or ping-pong.
-        
-            this.displayExplanation = true;
-            this.showExplanationChange?.emit(true);
-        
-            // Keep your local bindings in sync (cheap, idempotent)
-            this.setExplanationFor(idx, formatted);
-            this.explanationToDisplay = formatted;
-            this.explanationToDisplayChange.emit(formatted);
-          } else {
-            // leave baseline question visible
-            // ⬇️ PURE UI: do not toggle any global service flags here
-            this.displayExplanation = false;
-            this.showExplanationChange?.emit(false);
-        
-            const cached = this._formattedByIndex.get(idx);
-            const rawTrue = (q?.explanation ?? '').trim();
-            const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
-            this.setExplanationFor(idx, txt);
-          }
-        
-          // UI polish (no service writes)
-          const selOptsSet = new Set(
-            (this.selectedOptionService.selectedOptionsMap?.get(idx) ?? [])
-              .map(o => this.selectionMessageService.stableKey(o as any))
-          );
-          this.updateOptionHighlighting(selOptsSet);
-          this.refreshFeedbackFor(evtOpt ?? undefined);
-        
-          this.cdRef.markForCheck();
-          this.cdRef.detectChanges();
-        });        
-
-        // this.updateOptionHighlighting(selOptsSet);
+        this.updateOptionHighlighting(selOptsSetImmediate);
         this.refreshFeedbackFor(evtOpt ?? undefined);
-      
         this.cdRef.markForCheck();
         this.cdRef.detectChanges();
       });
   
-      // Post-click tasks: feedback, core selection, marking, refresh
+      // Post-click tasks (feedback + message sync)
       requestAnimationFrame(() => {
         if (this._skipNextAsyncUpdates) return;
-  
         (async () => {
           try { if (evtOpt) this.optionSelected.emit(evtOpt); } catch {}
           this.feedbackText = await this.generateFeedbackText(q);
@@ -3260,7 +3042,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           this.handleCoreSelection(event);
           if (evtOpt) this.markBindingSelected(evtOpt);
           this.refreshFeedbackFor(evtOpt ?? undefined);
-        })().catch(() => { /* swallow to avoid unhandled rejection in RAF */ });
+        })().catch(() => {});
       });
   
     } finally {
@@ -3268,19 +3050,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this._clickGate = false;
         this.isUserClickInProgress = false;
   
-        // Release sticky baseline regardless
         this.selectionMessageService.releaseBaseline(this.currentQuestionIndex);
   
-        // Only mark complete when it really is:
-        // - Single-answer: clicked option is correct
-        // - Multi-answer: your existing isAnswered (all correct selected)
         const selectionComplete =
           q?.type === QuestionType.SingleAnswer ? !!evtOpt?.correct : this._lastAllCorrect;
   
         this.selectionMessageService.setSelectionMessage(selectionComplete);
       });
     }
-  }
+  }  
 
   public async onSubmitMultiple(): Promise<void> {
     const idx = this.currentQuestionIndex ?? this.quizService.getCurrentQuestionIndex() ?? 0;
