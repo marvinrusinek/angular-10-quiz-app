@@ -161,9 +161,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       return null;
     }
 
-    if (candidate < 0) {
-      return 0;
-    }
+    if (candidate < 0) return 0;
 
     return Math.floor(candidate);
   }
@@ -171,9 +169,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   private updateResolvedQuestionIndex(candidate: unknown): void {
     const normalized = this.normalizeQuestionIndex(candidate);
 
-    if (normalized !== null) {
-      this.resolvedQuestionIndex = normalized;
-    }
+    if (normalized !== null) this.resolvedQuestionIndex = normalized;
   }
 
   private getActiveQuestionIndex(): number | null {
