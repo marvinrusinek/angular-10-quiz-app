@@ -2154,6 +2154,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
       this.updateShouldRenderOptions(this.optionsToDisplay);
 
+      // Emit "# of correct answers" text safely
+      try {
+        const q = this.currentQuestion;
+        if (q?.options?.length) {
+          const numCorrect = q.options.filter(o => o.correct).length;
+          const totalOpts  = q.options.length;
+          const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
+
+          if (numCorrect > 1) {
+            this.quizService.updateCorrectAnswersText(msg);
+            console.log(`[BANNER] Set multi-answer banner for Q${this.currentQuestionIndex + 1}:`, msg);
+          } else {
+            this.quizService.updateCorrectAnswersText('');
+            console.log(`[BANNER] Cleared single-answer banner for Q${this.currentQuestionIndex + 1}`);
+          }
+        }
+      } catch (err) {
+        console.warn('[BANNER] Failed to emit correct-answers text', err);
+      }
+
+
       // 7️⃣ Finalize bindings
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.initializeOptionBindings();
