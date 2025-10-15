@@ -3006,21 +3006,29 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
           this._fetEarlyShown.add(idx);
           console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+
+          // Adaptive debounce (shorter for single, longer for multi)
+          const questionType = q?.type as QuestionType;
+          const delayMs =
+            questionType === QuestionType.SingleAnswer ? 20 : 60;
   
-          try {
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            await new Promise(res => setTimeout(res, 50));  // debounce frame delay
-            await this.updateExplanationText(idx);
-            console.log('[QQC DEBUG] updateExplanationText() trigger check', {
-              currentQuestionIndex: this.currentQuestionIndex,
-              optionClicked: event.option?.text,
-              isAnswered: this.quizStateService.isAnswered$
-            });
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-            console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
-          } catch (err) {
-            console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
-          }
+          // Async IIFE to avoid await errors inside sync scope
+          (async () => {
+            try {
+              this.explanationTextService.setShouldDisplayExplanation(true);
+              await new Promise(res => setTimeout(res, 50));  // debounce frame delay
+              await this.updateExplanationText(idx);
+              console.log('[QQC DEBUG] updateExplanationText() trigger check', {
+                currentQuestionIndex: this.currentQuestionIndex,
+                optionClicked: event.option?.text,
+                isAnswered: this.quizStateService.isAnswered$
+              });
+              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+              console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+            } catch (err) {
+              console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
+            }
+          })();
         }
       }
   
