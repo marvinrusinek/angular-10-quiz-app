@@ -1185,8 +1185,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         try {
           const parsedOptions = JSON.parse(optionsData);
           if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-            this.optionsToDisplay =
-              this.quizService.assignOptionIds(parsedOptions);
+            this.optionsToDisplay = this.quizService.assignOptionIds(parsedOptions, storageIndex);
           } else {
             console.warn(
               '[restoreQuizState] ⚠️ Parsed options data is empty or invalid.'
@@ -2246,7 +2245,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Assign IDs and reset options
       this.currentQuestion.options = this.quizService.assignOptionIds(
-        this.currentQuestion.options
+        this.currentQuestion.options,
+        this.currentQuestionIndex
       );
       this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
         ...option,
