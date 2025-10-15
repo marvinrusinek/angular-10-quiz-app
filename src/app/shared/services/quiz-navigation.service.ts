@@ -719,9 +719,7 @@ export class QuizNavigationService {
 
   private async resolveTotalQuestions(quizId: string): Promise<number> {
     const loaderCount = this.quizQuestionLoaderService.totalQuestions;
-    if (Number.isFinite(loaderCount) && loaderCount > 0) {
-      return loaderCount;
-    }
+    if (Number.isFinite(loaderCount) && loaderCount > 0) return loaderCount;
 
     const cachedArrayCount = this.quizQuestionLoaderService.questionsArray?.length ?? 0;
     if (cachedArrayCount > 0) {
