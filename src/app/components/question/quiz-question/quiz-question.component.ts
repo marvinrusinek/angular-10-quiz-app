@@ -5585,7 +5585,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       // Ensure optionId is assigned to all options in the current question
       currentQuestion.options = this.quizService.assignOptionIds(
-        currentQuestion.options
+        currentQuestion.options, this.currentQuestionIndex
       );
 
       // Get selected options, but only include those with a valid optionId
@@ -6445,7 +6445,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
 
     const normalizedOptions = this.quizService.assignOptionIds(
-      baseOptions.map((option) => ({ ...option }))
+      baseOptions.map((option) => ({ ...option }), this.currentQuestionIndex)
     );
 
     this.options = normalizedOptions;
@@ -6869,10 +6869,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   private applyDisplayOrder(options: Option[] | null | undefined): Option[] {
     if (!Array.isArray(options)) return [];
 
-    return options.map((option, index) => ({
-      ...option,
-      displayOrder: index
-    }));
+    return options.map((option, index) => ({ ...option, displayOrder: index }));
   }
 
   // Centralized, reasoned stop. Only stops when allowed.
