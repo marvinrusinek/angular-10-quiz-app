@@ -2114,13 +2114,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
       this.currentQuestion = { ...potentialQuestion };
       // Absolute selection reset to prevent cross-highlighting
+      this.currentQuestion = { ...potentialQuestion };
+
+      // HARD SERVICE RESET — nuke any leftover per-question state
       try {
         const idx = this.currentQuestionIndex;
-        this.selectedOptionService.clearSelectionsForQuestion(idx);
+
+        // Clear selected + locked state synchronously
+        if (this.selectedOptionService?.selectedOptionsMap) {
+          this.selectedOptionService.selectedOptionsMap.delete(idx);
+        }
+        if ((this.selectedOptionService as any)._lockedOptionsMap) {
+          (this.selectedOptionService as any)._lockedOptionsMap.clear();
+        }
+
+        // Fully reinitialize both maps (break object identity)
+        (this.selectedOptionService as any).selectedOptionsMap = new Map();
+        (this.selectedOptionService as any)._lockedOptionsMap = new Map();
+
+        // Also clear any delayed hydration state
         this.selectedOptionService.resetAllStates?.();
-        console.log(`[HARD RESET] Cleared selection/lock state before rendering Q${idx}`);
+        this.selectedOptionService.clearSelectionsForQuestion(idx);
+
+        console.log(`[💥 HARD RESET] Fully cleared selection & lock maps before rendering Q${idx}`);
       } catch (err) {
-        console.warn('[HARD RESET] Failed to clear selection state', err);
+        console.warn('[💥 HARD RESET] Failed to fully clear selection state', err);
       }
 
       // Deep-clone and sanitize every option
