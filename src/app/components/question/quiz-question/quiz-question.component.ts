@@ -1961,6 +1961,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   public async loadQuestion(signal?: AbortSignal): Promise<boolean> {
+    // ABSOLUTE LOCK: prevent stale FET display
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.setExplanationText('');
+    this.readyForExplanationDisplay = false;
+    this.isExplanationReady = false;
+    this.isExplanationLocked = true;
+    this.forceQuestionDisplay = true;
+
     const shouldPreserveVisualState = this.canRenderQuestionInstantly(
       this.currentQuestionIndex
     );
