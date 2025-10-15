@@ -2421,42 +2421,44 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     }
   } */
   public hydrateOptionsFromSelectionState(): void {
-    const qIdx = this.resolvedQuestionIndex ?? this.currentQuestionIndex ?? 0;
+    const currentIndex =
+      this.getActiveQuestionIndex?.() ??
+      this.currentQuestionIndex ??
+      this.questionIndex ??
+      0;
   
-    console.group(`[🧩 hydrateOptionsFromSelectionState] for Q${qIdx}`);
-    const storedSelections = this.selectedOptionService.getSelectedOptionsForQuestion(qIdx) ?? [];
+    const storedSelections =
+      this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) ?? [];
   
     const base = Array.isArray(this.optionsToDisplay)
-      ? this.optionsToDisplay.map(o => JSON.parse(JSON.stringify(o)))
+      ? this.optionsToDisplay
       : [];
   
-    this.optionsToDisplay = base.map((opt, i) => {
-      const match = storedSelections.find(s => Number(s.optionId) === Number(opt.optionId));
+    // Build a NEW array; never reuse item references
+    const next = base.map((opt, i) => {
+      const match = storedSelections.find(
+        s => Number(s.optionId) === Number(opt.optionId) &&
+             Number(s.questionIndex) === Number(currentIndex)
+      );
       return {
         ...opt,
         optionId:
           typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
             ? opt.optionId
-            : qIdx * 100 + (i + 1),
-        selected: match?.selected ?? false,
-        highlight: match?.highlight ?? false,
-        showIcon: match?.showIcon ?? false,
-        active: opt.active ?? true,
-        disabled: false,
+            : currentIndex * 100 + (i + 1),
+        selected:  !!match?.selected,
+        highlight: !!match?.highlight,
+        showIcon:  !!match?.showIcon,
+        active:    opt.active ?? true,
+        disabled:  false
       };
     });
   
-    const hasSharedRef = this.optionsToDisplay.some((opt, i) => opt === base[i]);
-    console.log(`[HYDRATE REF CHECK] Shared refs with pre-hydrate array: ${hasSharedRef}`);
+    // Swap the whole array (break identity with previous render)
+    this.optionsToDisplay = next;
+    this.cdRef.markForCheck();
+  }
   
-    this.optionsToDisplay.forEach((opt, i) =>
-      console.log(`[HYDRATE] Opt${i}: id=${opt.optionId}, selected=${opt.selected}, highlight=${opt.highlight}`)
-    );
-  
-    this.cdRef.markForCheck?.();
-    this.cdRef.detectChanges?.();
-    console.groupEnd();
-  }  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
