@@ -2101,6 +2101,17 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         Array.from(this.selectedOptionService.selectedOptionsMap.entries())
       ));
 
+      // Absolute state purge before rendering next question
+      try {
+        this.selectedOptionService.resetAllStates?.();
+        this.selectedOptionService.selectedOptionsMap?.clear?.();
+        (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
+        (this.selectedOptionService as any).optionStates?.clear?.();
+        console.log(`[QQC RESET] 🧹 Cleared all selection/lock state before Q${this.currentQuestionIndex}`);
+      } catch (err) {
+        console.warn('[QQC RESET] ⚠️ Failed to clear state maps', err);
+      }
+
       this.currentQuestion = { ...potentialQuestion };
       // Absolute selection reset to prevent cross-highlighting
       try {
