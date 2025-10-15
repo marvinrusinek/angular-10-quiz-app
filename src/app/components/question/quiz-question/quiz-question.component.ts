@@ -5607,28 +5607,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   }
 
-  /* shouldShowIcon(option: Option): boolean {
-    const selectedOptions = this.selectedOptionService.getSelectedOptions(); // retrieve all selected options
-    const showFeedbackForOption =
-      this.selectedOptionService.getShowFeedbackForOption();
-
-    if (!Array.isArray(selectedOptions)) {
-      console.warn(
-        '[shouldShowIcon] Selected options are not an array:',
-        selectedOptions
-      );
-      return false; // ensure selectedOptions is an array
-    }
-
-    // Check if the current option should show an icon based on the selected options
-    const shouldShow = selectedOptions.some(
-      (selectedOption) =>
-        selectedOption.optionId === option.optionId &&
-        !!showFeedbackForOption[option.optionId]
-    );
-
-    return shouldShow;
-  } */
   shouldShowIcon(option: Option): boolean {
     return this.selectedOptionService.isSelectedOption(option);
   }
