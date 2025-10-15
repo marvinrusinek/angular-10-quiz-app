@@ -733,9 +733,7 @@ export class QuizNavigationService {
       const cachedCount = await firstValueFrom(
         this.quizService.totalQuestions$.pipe(take(1))
       );
-      if (Number.isFinite(cachedCount) && cachedCount > 0) {
-        return cachedCount;
-      }
+      if (Number.isFinite(cachedCount) && cachedCount > 0) return cachedCount;
     } catch {
       // ignore and fall through to fetch
     }
