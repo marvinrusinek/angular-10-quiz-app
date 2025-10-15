@@ -698,16 +698,12 @@ export class QuizNavigationService {
 
   private readQuizIdFromRouterSnapshot(): string | null {
     const direct = this.activatedRoute.snapshot.paramMap.get('quizId');
-    if (direct) {
-      return direct;
-    }
+    if (direct) return direct;
 
     let snapshot = this.router.routerState.snapshot.root;
     while (snapshot) {
       const value = snapshot.paramMap?.get('quizId');
-      if (value) {
-        return value;
-      }
+      if (value) return value;
       snapshot = snapshot.firstChild ?? null;
     }
 
