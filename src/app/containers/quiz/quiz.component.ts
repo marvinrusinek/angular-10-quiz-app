@@ -2131,7 +2131,16 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
       this.previousIndex = adjustedIndex;
       this.resetExplanationText();
-      this.loadQuestionByRouteIndex(adjustedIndex);
+      if (this.isNavigatedByUrl) {
+        const storedType = this.readStoredQuestionType();
+        if (storedType !== QuestionType.MultipleAnswer) {
+          this.quizService.updateCorrectAnswersText('');
+        }
+      }
+
+      void this.loadQuestionByRouteIndex(index).finally(() => {
+        this.isNavigatedByUrl = false;
+      });
 
       // Prepare and display feedback
       setTimeout(() => {
@@ -2282,6 +2291,107 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       console.error('[loadQuestionByRouteIndex] ❌ Unexpected error:', error);
       this.feedbackText = 'Error loading question details.';
       this.cdRef.markForCheck();
+    }
+  }
+
+  private async syncCorrectAnswersHint(
+    question: QuizQuestion
+  ): Promise<void> {
+    const resolvedType = this.resolveQuestionType(question);
+
+    this.persistCurrentQuestionType(resolvedType);
+
+    if (!this.isNavigatedByUrl) {
+      if (resolvedType !== QuestionType.MultipleAnswer) {
+        this.quizService.updateCorrectAnswersText('');
+      }
+      return;
+    }
+
+    const storedType = this.readStoredQuestionType();
+    if (storedType !== QuestionType.MultipleAnswer) {
+      this.quizService.updateCorrectAnswersText('');
+      return;
+    }
+
+    try {
+      const normalizedOptions = (question.options ?? []).map((option) => ({
+        ...option,
+        correct: !!option.correct,
+      }));
+
+      const numberOfCorrectAnswers =
+        this.quizQuestionManagerService.calculateNumberOfCorrectAnswers(
+          normalizedOptions
+        );
+      const correctAnswersText =
+        this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+          numberOfCorrectAnswers,
+          normalizedOptions.length
+        );
+
+      this.quizService.updateCorrectAnswersText(correctAnswersText);
+    } catch (error) {
+      console.error(
+        '[loadQuestionByRouteIndex] ❌ Failed to sync correct answers hint:',
+        error
+      );
+      this.quizService.updateCorrectAnswersText('');
+    }
+  }
+
+  private resolveQuestionType(question: QuizQuestion): QuestionType {
+    if (question?.type) {
+      return question.type;
+    }
+
+    const correctCount = (question?.options ?? []).reduce(
+      (count, option) => (option?.correct ? count + 1 : count),
+      0
+    );
+
+    return correctCount > 1
+      ? QuestionType.MultipleAnswer
+      : QuestionType.SingleAnswer;
+  }
+
+  private persistCurrentQuestionType(type: QuestionType): void {
+    try {
+      localStorage.setItem('currentQuestionType', type);
+    } catch (error) {
+      console.warn(
+        '[QuizComponent] ⚠️ Unable to persist currentQuestionType to storage:',
+        error
+      );
+    }
+  }
+
+  private readStoredQuestionType(): QuestionType | null {
+    try {
+      const stored = localStorage.getItem('currentQuestionType');
+      if (!stored) {
+        return null;
+      }
+
+      if (stored === QuestionType.MultipleAnswer) {
+        return QuestionType.MultipleAnswer;
+      }
+
+      if (stored === QuestionType.SingleAnswer) {
+        return QuestionType.SingleAnswer;
+      }
+
+      if (stored === QuestionType.TrueFalse) {
+        return QuestionType.TrueFalse;
+      }
+
+      return null;
+    } catch (error) {
+      console.warn(
+        '[QuizComponent] ⚠️ Unable to read currentQuestionType from storage:',
+        error
+      );
+      return null;
     }
   }
 
