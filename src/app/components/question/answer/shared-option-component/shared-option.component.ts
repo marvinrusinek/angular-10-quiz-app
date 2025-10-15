@@ -319,12 +319,27 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.currentQuestionIndex ??
       this.questionIndex ??
       -1;
-
+  
     this.resolvedQuestionIndex = fallbackIndex;
     this.currentQuestionIndex = fallbackIndex;
-
+  
     console.log(`[HYDRATE-INDEX FIX] Resolved questionIndex=${this.currentQuestionIndex}`);
-
+  
+    // HARD RESET: Deep clone & purge any reference identity leaks immediately when options change
+    if (changes['optionsToDisplay'] && Array.isArray(this.optionsToDisplay)) {
+      try {
+        // Hard clone & purge any reference identity leaks
+        this.optionsToDisplay = JSON.parse(JSON.stringify(this.optionsToDisplay));
+        this.optionBindings = [];
+        this.highlightDirectives?.forEach(d => d.clearHighlight?.());
+        this.highlightedOptionIds.clear();
+        this.selectedOption = null;
+        console.log('[💧 HARD RESET] optionsToDisplay deep-cloned and state cleared');
+      } catch (err) {
+        console.warn('[💧 HARD RESET] deep clone failed', err);
+      }
+    }
+  
     // HARD CLONE BARRIER: break all option object references between questions
     if (Array.isArray(this.optionsToDisplay)) {
       try {
@@ -336,7 +351,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         console.warn('[HARD CLONE BARRIER] clone failed', err);
       }
     }
-
+  
     console.table(
       this.optionsToDisplay?.map(o => ({
         text: o.text,
@@ -346,21 +361,21 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         showIcon: o.showIcon
       }))
     );
-
+  
     if (changes['questionIndex']) {
       this.resolvedQuestionIndex = null;
       this.updateResolvedQuestionIndex(changes['questionIndex'].currentValue);
     }
-
+  
     if (changes['currentQuestionIndex']) {
       this.resolvedQuestionIndex = null;
       this.updateResolvedQuestionIndex(changes['currentQuestionIndex'].currentValue);
     }
-
+  
     if (changes['config']?.currentValue?.idx !== undefined) {
       this.updateResolvedQuestionIndex(changes['config'].currentValue.idx);
     }
-
+  
     const shouldRegenerate =
       (changes['optionsToDisplay'] &&
         Array.isArray(this.optionsToDisplay) &&
@@ -368,16 +383,16 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
       (changes['config'] && this.config != null) ||
       (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number') ||
-      (changes['questionIndex'] && typeof changes['questionIndex'].currentValue === 'number')
+      (changes['questionIndex'] && typeof changes['questionIndex'].currentValue === 'number');
   
-      if (changes['currentQuestionIndex']) {
-        console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
+    if (changes['currentQuestionIndex']) {
+      console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
   
-        if (!changes['currentQuestionIndex'].firstChange) {
-          this.flashDisabledSet.clear();
-          this.cdRef.markForCheck();
-        }
+      if (!changes['currentQuestionIndex'].firstChange) {
+        this.flashDisabledSet.clear();
+        this.cdRef.markForCheck();
       }
+    }
   
     if (shouldRegenerate) {
       this.hydrateOptionsFromSelectionState();
@@ -424,8 +439,8 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.updateSelections(-1);
       this.cdRef.detectChanges();
     }
-
-    // NEW: full local visual reset to prevent ghost highlighting
+  
+    // Full local visual reset to prevent ghost highlighting
     if (questionChanged || optionsChanged) {
       console.log(`[SOC] 🔄 Resetting local visual state for Q${this.resolvedQuestionIndex}`);
       this.highlightedOptionIds.clear();
@@ -434,7 +449,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       this.feedbackConfigs = {};
       this.selectedOptionHistory = [];
       this.lastFeedbackOptionId = -1;
-      
+  
       // Force every option to lose highlight/showIcon state
       if (Array.isArray(this.optionsToDisplay)) {
         this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
@@ -444,26 +459,13 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
           showIcon: false,
         }));
       }
-
-      // Optional: reset any lingering form control
+  
+      // Reset any lingering form control
       this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
-      
+  
       this.cdRef.detectChanges();
     }
-  
-    // New currentQuestion
-    if (changes['currentQuestion'] && this.currentQuestion?.questionText?.trim()) {
-      this.selectedOption = null;
-      this.selectedOptionHistory = [];
-      this.lastFeedbackOptionId = -1;
-      this.highlightedOptionIds.clear();
-      this.highlightDirectives?.forEach(d => d.updateHighlight());
-    }
-  
-    if (changes['shouldResetBackground'] && this.shouldResetBackground) {
-      this.resetState();
-    }
-  }    
+  }
 
   ngAfterViewInit(): void {
     console.time('[⏱️ SOC ngAfterViewInit]');
