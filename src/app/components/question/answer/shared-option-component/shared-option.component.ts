@@ -313,111 +313,165 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // Always resolve a valid index (unchanged)
+    // Always resolve a valid index
     const fallbackIndex =
       changes['questionIndex']?.currentValue ??
       changes['currentQuestionIndex']?.currentValue ??
       this.currentQuestionIndex ??
       this.questionIndex ??
       -1;
-
+  
     this.resolvedQuestionIndex = fallbackIndex;
     this.currentQuestionIndex = fallbackIndex;
-
+  
     console.log(`[HYDRATE-INDEX FIX] Resolved questionIndex=${this.currentQuestionIndex}`);
-
-    // 🔒 Reentrancy guard — if we’re already hydrating, bail
-    if (this._hydrating) {
-      console.warn('[SOC] 🔁 ngOnChanges ignored (hydrate in progress)');
-      return;
-    }
-
-    // Only treat as “content changed” when options or question index actually changed
-    const questionChanged =
-      !!changes['questionIndex'] && !changes['questionIndex'].firstChange;
-
-    const optionsChanged =
-      !!changes['optionsToDisplay'] &&
-      changes['optionsToDisplay'].previousValue !== changes['optionsToDisplay'].currentValue;
-
-    // If options changed, hard-clone ONCE to break identity leaks
-    if (optionsChanged && Array.isArray(this.optionsToDisplay)) {
+  
+    // HARD RESET: Deep clone & purge any reference identity leaks immediately when options change
+    if (changes['optionsToDisplay'] && Array.isArray(this.optionsToDisplay)) {
       try {
-        this.optionsToDisplay = typeof structuredClone === 'function'
-          ? structuredClone(this.optionsToDisplay)
-          : JSON.parse(JSON.stringify(this.optionsToDisplay));
-
-        // local visual state reset — DO NOT clear bindings just yet
+        // Hard clone & purge any reference identity leaks
+        this.optionsToDisplay = JSON.parse(JSON.stringify(this.optionsToDisplay));
+        this.optionBindings = [];
+        this.highlightDirectives?.forEach(d => {
+          // Gracefully handle if the directive doesn’t have a clearHighlight method
+          if ('updateHighlight' in d) {
+            d.updateHighlight();  // use existing method to force visual reset
+          }
+        });
         this.highlightedOptionIds.clear();
-        this.flashDisabledSet.clear();
-        this.showFeedbackForOption = {};
-        this.feedbackConfigs = {};
-        this.selectedOptionHistory = [];
-        this.lastFeedbackOptionId = -1;
-        this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
-
+        this.selectedOption = null;
         console.log('[💧 HARD RESET] optionsToDisplay deep-cloned and state cleared');
       } catch (err) {
         console.warn('[💧 HARD RESET] deep clone failed', err);
       }
     }
-
-    // If the currentQuestionIndex changed (not the first time), clear transient “disabled” cache
+  
+    // HARD CLONE BARRIER: break all option object references between questions
+    if (Array.isArray(this.optionsToDisplay)) {
+      try {
+        this.optionsToDisplay = typeof structuredClone === 'function'
+          ? structuredClone(this.optionsToDisplay)
+          : JSON.parse(JSON.stringify(this.optionsToDisplay));
+        console.log('[HARD CLONE BARRIER] optionsToDisplay deep-cloned for new question');
+      } catch (err) {
+        console.warn('[HARD CLONE BARRIER] clone failed', err);
+      }
+    }
+  
+    console.table(
+      this.optionsToDisplay?.map(o => ({
+        text: o.text,
+        refTag: (o as any)._refTag,
+        selected: o.selected,
+        highlight: o.highlight,
+        showIcon: o.showIcon
+      }))
+    );
+  
+    if (changes['questionIndex']) {
+      this.resolvedQuestionIndex = null;
+      this.updateResolvedQuestionIndex(changes['questionIndex'].currentValue);
+    }
+  
+    if (changes['currentQuestionIndex']) {
+      this.resolvedQuestionIndex = null;
+      this.updateResolvedQuestionIndex(changes['currentQuestionIndex'].currentValue);
+    }
+  
+    if (changes['config']?.currentValue?.idx !== undefined) {
+      this.updateResolvedQuestionIndex(changes['config'].currentValue.idx);
+    }
+  
+    const shouldRegenerate =
+      (changes['optionsToDisplay'] &&
+        Array.isArray(this.optionsToDisplay) &&
+        this.optionsToDisplay.length > 0 &&
+        this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
+      (changes['config'] && this.config != null) ||
+      (changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number') ||
+      (changes['questionIndex'] && typeof changes['questionIndex'].currentValue === 'number');
+  
     if (changes['currentQuestionIndex']) {
       console.log('[🔍 currentQuestionIndex changed]', changes['currentQuestionIndex']);
+  
       if (!changes['currentQuestionIndex'].firstChange) {
         this.flashDisabledSet.clear();
         this.cdRef.markForCheck();
       }
     }
-
-    // Decide whether to rebuild bindings
-    const shouldRegenerate =
-      (optionsChanged && Array.isArray(this.optionsToDisplay) &&
-        this.optionsToDisplay.length > 0 &&
-        this.optionsToDisplay.every(opt => opt && typeof opt === 'object' && 'optionId' in opt)) ||
-      (!!changes['config'] && this.config != null) ||
-      (!!changes['currentQuestionIndex'] && typeof changes['currentQuestionIndex'].currentValue === 'number') ||
-      (!!changes['questionIndex'] && typeof changes['questionIndex'].currentValue === 'number');
-
-    if (shouldRegenerate && this.resolvedQuestionIndex >= 0) {
-      try {
-        this._hydrating = true;             // 🔒 start critical section
-
-        // 1) Hydrate from service state into a **brand new** array (no reuse)
-        this.hydrateOptionsFromSelectionState();
-
-        // 2) Build bindings once (don’t clear `optionBindings` before this)
-        this.generateOptionBindings();
-
-        // 3) If we truly swapped question or options, do the local visual reset once
-        if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
-          this.questionVersion++;
-          this.clearForceDisableAllOptions();
-          this.fullyResetRows();
-
-          // Update directives and selections in a stable order
-          this.cdRef.detectChanges();
-          this.highlightDirectives?.forEach(d => d.updateHighlight());
-          this.updateSelections(-1);
-          this.cdRef.detectChanges();
-        }
-      } finally {
-        this._hydrating = false;            // 🔓 end critical section
-      }
+  
+    if (shouldRegenerate) {
+      this.hydrateOptionsFromSelectionState();
+      this.generateOptionBindings();
     } else if (
       changes['optionBindings'] &&
       Array.isArray(changes['optionBindings'].currentValue) &&
       changes['optionBindings'].currentValue.length
     ) {
-      // Fallback path if parent feeds bindings directly
       this.hydrateOptionsFromSelectionState();
       this.generateOptionBindings();
     } else {
       console.warn('[⏳ generateOptionBindings skipped] No triggering inputs changed');
     }
+  
+    // Handle changes to optionsToDisplay / questionIndex (if any)
+    const questionChanged =
+      changes['questionIndex'] && !changes['questionIndex'].firstChange;
+    const optionsChanged =
+      changes['optionsToDisplay'] &&
+      changes['optionsToDisplay'].previousValue !== changes['optionsToDisplay'].currentValue;
+  
+    if ((questionChanged || optionsChanged) && this.optionsToDisplay?.length) {
+      this.questionVersion++;
+  
+      // If the previous question forced every option disabled (e.g. after
+      // showing feedback on completion), make sure that guard is cleared before
+      // the restart/new question renders so Q1 is interactive again.
+      this.clearForceDisableAllOptions();
+  
+      this.fullyResetRows();
+  
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+  
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  
+      this.processOptionBindings();
+  
+      this.cdRef.detectChanges();
+      this.highlightDirectives?.forEach(d => d.updateHighlight());
+      this.updateSelections(-1);
+      this.cdRef.detectChanges();
+    }
+  
+    // Full local visual reset to prevent ghost highlighting
+    if (questionChanged || optionsChanged) {
+      console.log(`[SOC] 🔄 Resetting local visual state for Q${this.resolvedQuestionIndex}`);
+      this.highlightedOptionIds.clear();
+      this.flashDisabledSet.clear();
+      this.showFeedbackForOption = {};
+      this.feedbackConfigs = {};
+      this.selectedOptionHistory = [];
+      this.lastFeedbackOptionId = -1;
+  
+      // Force every option to lose highlight/showIcon state
+      if (Array.isArray(this.optionsToDisplay)) {
+        this.optionsToDisplay = this.optionsToDisplay.map(opt => ({
+          ...opt,
+          selected: false,
+          highlight: false,
+          showIcon: false,
+        }));
+      }
+  
+      // Reset any lingering form control
+      this.form.get('selectedOptionId')?.setValue(null, { emitEvent: false });
+  
+      this.cdRef.detectChanges();
+    }
   }
-
 
   ngAfterViewInit(): void {
     console.time('[⏱️ SOC ngAfterViewInit]');
@@ -2457,8 +2511,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     // Swap the whole array (break identity with previous render)
     this.optionsToDisplay = next;
     this.cdRef.markForCheck();
-  }
-  
+  }  
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
     // Check if the option is selected (fallback to false if undefined or null)
