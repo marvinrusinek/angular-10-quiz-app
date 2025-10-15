@@ -82,8 +82,8 @@ export class QuizNavigationService {
     private router: Router,
     private ngZone: NgZone
   ) {
-    console.log('[Instance check] QQLS', this.quizQuestionLoaderService);
-    console.log('[Instance check] QS', this.quizService);
+    // Force router to destroy and recreate the component when params change
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
   handleRouteParams(params: ParamMap): 
