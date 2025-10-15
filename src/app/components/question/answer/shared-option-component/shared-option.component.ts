@@ -331,7 +331,12 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
         // Hard clone & purge any reference identity leaks
         this.optionsToDisplay = JSON.parse(JSON.stringify(this.optionsToDisplay));
         this.optionBindings = [];
-        this.highlightDirectives?.forEach(d => d.clearHighlight?.());
+        this.highlightDirectives?.forEach(d => {
+          // Gracefully handle if the directive doesn’t have a clearHighlight method
+          if ('updateHighlight' in d) {
+            d.updateHighlight();  // use existing method to force visual reset
+          }
+        });
         this.highlightedOptionIds.clear();
         this.selectedOption = null;
         console.log('[💧 HARD RESET] optionsToDisplay deep-cloned and state cleared');
