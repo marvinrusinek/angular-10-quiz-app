@@ -2113,8 +2113,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       this.currentQuestion = { ...potentialQuestion };
-      // Absolute selection reset to prevent cross-highlighting
-      this.currentQuestion = { ...potentialQuestion };
 
       // HARD SERVICE RESET — nuke any leftover per-question state
       try {
