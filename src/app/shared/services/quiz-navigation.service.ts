@@ -182,7 +182,7 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
-    // Read current index from the full router snapshot (robust across tab resumes / nested routes)
+    // Read current index directly from the full router snapshot (single source of truth)
     const readIndexFromSnapshot = (): number => {
       let snap = this.router.routerState.snapshot.root;
       let raw: string | null = null;
@@ -198,35 +198,20 @@ export class QuizNavigationService {
       if (n < 0) n = 0;
       return n;
     };
-
-    const currentIndexFromService = (() => {
-      try {
-        const idx = this.quizService.getCurrentQuestionIndex?.();
-        return Number.isInteger(idx) && idx >= 0 ? idx : null;
-      } catch (err) {
-        console.warn('[⚠️ currentIndexFromService] Fallback to router snapshot:', err);
-        return null;
-      }
-    })();
-
-    const snapshotIndex = readIndexFromSnapshot();
-    let currentIndex = snapshotIndex;
-
-    if (currentIndexFromService !== null) {
-      currentIndex = offset >= 0
-        ? Math.max(currentIndexFromService, snapshotIndex)
-        : Math.min(currentIndexFromService, snapshotIndex);
-    }
-
-    const targetIndex = currentIndex + offset;  // 0-based
   
+    // ────────────────────────────────────────────────
+    // 🧭 Use router snapshot exclusively for navigation index
+    // ────────────────────────────────────────────────
+    const currentIndex = readIndexFromSnapshot();
+    const targetIndex = currentIndex + offset; // always 0-based
+    
     // Block if going out of bounds
     if (targetIndex < 0) {
       console.warn('[⛔] Already at first question, cannot go back.');
       return false;
     }
   
-    // Guard against loading or navigating
+    // Guard against loading or navigating simultaneously
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     if (isLoading || isNavigating) {
@@ -239,13 +224,13 @@ export class QuizNavigationService {
       console.error('[❌ No quizId available]');
       return false;
     }
-
+  
     const totalQuestions = await this.resolveTotalQuestions(effectiveQuizId);
     if (!Number.isFinite(totalQuestions) || totalQuestions <= 0) {
       console.error('[❌ Unable to resolve total question count]', { effectiveQuizId });
       return false;
     }
-
+  
     // Early Exit: already beyond last question, navigate to /results
     const lastIndex = totalQuestions - 1;
     if (targetIndex > lastIndex) {
@@ -257,32 +242,37 @@ export class QuizNavigationService {
         });
       return !!moved;
     }
-
+  
+    // ────────────────────────────────────────────────
+    // 🚦 Begin clean navigation flow
+    // ────────────────────────────────────────────────
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
-
+  
     if (offset < 0) {
       this.quizService.setIsNavigatingToPrevious(true);
     }
-
+  
     try {
+      // Reset transient UI state and locks before moving
       this.quizQuestionLoaderService.resetUI();
-
+  
       const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
         console.error('[❌ navigateToQuestion error]', err);
         return false;
       });
-
+  
       if (navSuccess) {
+        // 🧹 State cleanup + reinitialization
         this.resetExplanationAndState();
         this.quizService.setCurrentQuestionIndex(targetIndex);
         this.currentQuestionIndex = targetIndex;
-
+  
         // Tell QQC to hard-reset state for the incoming question
         this.quizService.requestPreReset(targetIndex);
-
-        // Give the component a microtask to process the reset before we hydrate options
+  
+        // Allow one microtask for Angular to stabilize before hydrating
         await Promise.resolve();
   
         this.selectedOptionService.setAnswered(false, true);
@@ -302,6 +292,7 @@ export class QuizNavigationService {
       console.error('[❌ navigateWithOffset error]', err);
       return false;
     } finally {
+      // Always clear flags regardless of success/failure
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
