@@ -1274,7 +1274,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
       }
 
       const rawOptions = Array.isArray(rawQuestion.options) ? [...rawQuestion.options] : [];
-      const hydratedOptions = this.quizService.assignOptionIds(rawOptions).map((option) => ({
+      const hydratedOptions = this.quizService.assignOptionIds(rawOptions, safeIndex).map((option) => ({
         ...option,
         correct: option.correct ?? false,
         selected: option.selected ?? false,
@@ -1876,7 +1876,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     }
 
     const normalizedOptions = this.quizService
-      .assignOptionIds(selectedQuestion.options ?? [])
+      .assignOptionIds(
+        selectedQuestion.options ?? [],
+        this.currentQuestionIndex)
       .map((option) => ({
         ...option,
         correct: option.correct ?? false,
@@ -2118,39 +2120,52 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // This function updates the content based on the provided index.
   // It validates the index, checks if navigation is needed, and loads the appropriate question.
-  updateContentBasedOnIndex(index: number): void {
+  async updateContentBasedOnIndex(index: number): Promise<void> {
     const adjustedIndex = index - 1;
-
-    // Check if the adjusted index is out of bounds
-    if (adjustedIndex < 0 || adjustedIndex >= this.quiz.questions.length) {
-      console.error('Invalid index:', adjustedIndex);
+    const total = this.quiz?.questions?.length ?? 0;
+  
+    if (adjustedIndex < 0 || adjustedIndex >= total) {
+      console.warn(`[updateContentBasedOnIndex] Invalid index: ${adjustedIndex}`);
       return;
     }
-
-    // Check if the index has changed or if navigation is triggered by the URL
-    if (this.previousIndex !== adjustedIndex || this.isNavigatedByUrl) {
-      this.previousIndex = adjustedIndex;
-      this.resetExplanationText();
-      if (this.isNavigatedByUrl) {
-        const storedType = this.readStoredQuestionType();
-        if (storedType !== QuestionType.MultipleAnswer) {
-          this.quizService.updateCorrectAnswersText('');
-        }
-      }
-
-      void this.loadQuestionByRouteIndex(index).finally(() => {
-        this.isNavigatedByUrl = false;
-      });
-
-      // Prepare and display feedback
-      setTimeout(() => {
-        this.displayFeedback();  // call after options are loaded
-      }, 100);  // add slight delay to ensure options are loaded
-
-      this.isNavigatedByUrl = false;
-    } else {
-      console.log('No index change detected, still on index:', adjustedIndex);
+  
+    // detect movement
+    const movingForward = adjustedIndex > (this.previousIndex ?? -1);
+    const movingBackward = adjustedIndex < (this.previousIndex ?? -1);
+    const shouldReload = movingForward || movingBackward || this.isNavigatedByUrl;
+  
+    if (!shouldReload) {
+      console.log('[updateContentBasedOnIndex] No navigation needed.');
+      return;
     }
+  
+    console.group(`[updateContentBasedOnIndex] Navigation → Q${adjustedIndex + 1}`);
+    console.log('Previous:', this.previousIndex, 'Next:', adjustedIndex);
+  
+    this.previousIndex = adjustedIndex;
+    this.resetExplanationText();
+  
+    // wipe any ghost state between question loads
+    try {
+      this.selectedOptionService.resetAllStates?.();
+      this.selectedOptionService.clearSelectionsForQuestion(adjustedIndex);
+      this.nextButtonStateService.setNextButtonState(false);
+      console.log(`[updateContentBasedOnIndex] 🔄 Cleared state for Q${adjustedIndex + 1}`);
+    } catch (err) {
+      console.warn('[updateContentBasedOnIndex] ⚠️ State reset failed', err);
+    }
+  
+    // Directly load question by index (no router call)
+    try {
+      await this.loadQuestionByRouteIndex(index);
+      setTimeout(() => this.displayFeedback(), 120);
+    } catch (err) {
+      console.error('[updateContentBasedOnIndex] ❌ Failed to load question', err);
+    } finally {
+      this.isNavigatedByUrl = false;
+    }
+  
+    console.groupEnd();
   }
 
   resetExplanationText(): void {
@@ -2227,7 +2242,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         question.questionText?.trim() ?? 'No question available';
 
       const optionsWithIds = this.quizService.assignOptionIds(
-        question.options || []
+        question.options || [],
+        this.currentQuestionIndex
       );
       this.optionsToDisplay = optionsWithIds.map((option, index) => ({
         ...option,
@@ -3580,7 +3596,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
         // Assign optionIds
         this.currentQuestion.options = this.quizService.assignOptionIds(
-          this.currentQuestion.options
+          this.currentQuestion.options,
+          this.currentQuestionIndex
         );
         this.optionsToDisplay = this.currentQuestion.options;
   
@@ -4024,7 +4041,6 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   }
   
   public advanceToNextQuestion(): Promise<void> {
-    console.log('[🟢 advanceToNextQuestion() called] Q:', this.currentQuestionIndex);
     return this.advanceQuestion('next');
   }
   
