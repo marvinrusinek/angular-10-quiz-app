@@ -42,7 +42,9 @@ const routes: Routes = [
     RouterModule.forRoot(routes, { 
       enableTracing: false, 
       onSameUrlNavigation: 'reload',
-      scrollPositionRestoration: 'enabled'
+      // scrollPositionRestoration: 'enabled'
+      scrollPositionRestoration: 'disabled',
+      paramsInheritanceStrategy: 'always'
     })
   ],
   exports: [RouterModule]
