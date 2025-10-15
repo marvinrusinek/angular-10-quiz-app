@@ -181,7 +181,7 @@ export class QuizNavigationService {
   private async navigateWithOffset(offset: number): Promise<boolean> {
     try {
       // ────────────────────────────────
-      // PRE-CLEANUP to avoid FET flicker
+      // 🧹 Pre-cleanup (prevent FET flicker)
       // ────────────────────────────────
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.setExplanationText('');
@@ -192,98 +192,100 @@ export class QuizNavigationService {
       this.selectedOptionService.setAnswered(false);
       this.nextButtonStateService.reset();
   
-      console.log('[PRE-CLEANUP] Explanation and feedback cleared before navigating');
-    } catch (err) {
-      console.warn('[PRE-CLEANUP] Failed to clear explanation state:', err);
-    }
+      console.log('[PRE-CLEANUP] Explanation & feedback cleared before navigation');
   
-    // ────────────────────────────────
-    // 1️⃣ Read index exclusively from router snapshot
-    // ────────────────────────────────
-    const readIndexFromSnapshot = (): number => {
-      let snap = this.router.routerState.snapshot.root;
-      let raw: string | null = null;
-      while (snap) {
-        const v = snap.paramMap.get('questionIndex');
-        if (v != null) { raw = v; break; }
-        snap = snap.firstChild!;
+      // ────────────────────────────────
+      // 1️⃣ Trust ONLY the router snapshot
+      // ────────────────────────────────
+      const readIndexFromSnapshot = (): number => {
+        let snap = this.router.routerState.snapshot.root;
+        let raw: string | null = null;
+        while (snap) {
+          const v = snap.paramMap.get('questionIndex');
+          if (v != null) { raw = v; break; }
+          snap = snap.firstChild!;
+        }
+        // Route is 1-based → normalize to 0-based
+        let n = Number(raw);
+        if (!Number.isFinite(n)) n = 0;
+        n = Math.max(0, n - 1);
+        return n;
+      };
+  
+      const currentIndex = readIndexFromSnapshot();
+      const targetIndex = currentIndex + offset;
+      console.log(`[NAV] Snapshot index=${currentIndex}, target=${targetIndex}`);
+  
+      // ────────────────────────────────
+      // 2️⃣ Bounds / guard checks
+      // ────────────────────────────────
+      const effectiveQuizId = this.resolveEffectiveQuizId();
+      if (!effectiveQuizId) {
+        console.error('[❌ No quizId available]');
+        return false;
       }
-      const n = Math.max(0, (Number(raw) || 1) - 1);
-      return n;
-    };
   
-    const currentIndex = readIndexFromSnapshot();
-    const targetIndex = currentIndex + offset;
-    console.log(`[NAV] Snapshot index=${currentIndex}, target=${targetIndex}`);
+      const totalQuestions = await this.resolveTotalQuestions(effectiveQuizId);
+      const lastIndex = totalQuestions - 1;
   
-    // ────────────────────────────────
-    // 2️⃣ Bounds & state guards
-    // ────────────────────────────────
-    const effectiveQuizId = this.resolveEffectiveQuizId();
-    if (!effectiveQuizId) {
-      console.error('[❌ No quizId available]');
-      return false;
-    }
+      if (targetIndex < 0) {
+        console.warn('[⛔ Already at first question]');
+        return false;
+      }
+      if (targetIndex > lastIndex) {
+        console.log('[🏁 End of quiz → /results]');
+        await this.ngZone.run(() =>
+          this.router.navigate(['/results', effectiveQuizId])
+        );
+        return true;
+      }
   
-    const totalQuestions = await this.resolveTotalQuestions(effectiveQuizId);
-    const lastIndex = totalQuestions - 1;
+      if (this.quizStateService.isLoadingSubject.getValue() ||
+          this.quizStateService.isNavigatingSubject.getValue()) {
+        console.warn('[🚫 Navigation blocked]');
+        return false;
+      }
   
-    if (targetIndex < 0) {
-      console.warn('[⛔] Already at first question, cannot go back.');
-      return false;
-    }
-    if (targetIndex > lastIndex) {
-      await this.ngZone.run(() =>
-        this.router.navigate(['/results', effectiveQuizId])
-      );
-      return true;
-    }
+      // ────────────────────────────────
+      // 3️⃣ Begin navigation
+      // ────────────────────────────────
+      this.isNavigating = true;
+      this.quizStateService.setNavigating(true);
+      this.quizStateService.setLoading(true);
   
-    if (this.quizStateService.isLoadingSubject.value ||
-        this.quizStateService.isNavigatingSubject.value) {
-      console.warn('[🚫 Navigation blocked - busy]');
-      return false;
-    }
+      this.quizQuestionLoaderService.resetUI();
   
-    // ────────────────────────────────
-    // 3️⃣ Begin navigation flow
-    // ────────────────────────────────
-    this.isNavigating = true;
-    this.quizStateService.setNavigating(true);
-    this.quizStateService.setLoading(true);
-  
-    if (offset < 0) this.quizService.setIsNavigatingToPrevious(true);
-  
-    try {
       const quizId = effectiveQuizId;
       const routeUrl = `/question/${quizId}/${targetIndex + 1}`;
       const currentUrl = this.router.url;
   
-      // 🧭 Handle same-route navigation (Angular optimization trap)
+      // Force reload if URL identical
       if (currentUrl === routeUrl) {
-        console.warn('[NAV] Same route detected, forcing reload via dummy hop');
+        console.log('[NAV] Forcing same-route reload');
         await this.ngZone.run(() =>
           this.router.navigateByUrl('/', { skipLocationChange: true })
         );
       }
   
-      // ✅ Always navigate by URL (forces param change)
+      // ────────────────────────────────
+      // 4️⃣ Actual navigation + wait
+      // ────────────────────────────────
       const navSuccess = await this.ngZone.run(() =>
-        this.router.navigateByUrl(routeUrl, { replaceUrl: false })
+        this.router.navigateByUrl(routeUrl)
       );
   
       if (!navSuccess) {
-        console.warn('[⚠️ Router navigation failed]', routeUrl);
+        console.warn('[⚠️ Router navigateByUrl failed]', routeUrl);
         return false;
       }
   
-      // Give Angular time to re-bootstrap the component with the new param
-      await new Promise(r => setTimeout(r, 60));
-  
       console.log(`[NAV ✅] Navigated to ${routeUrl}`);
   
+      // Wait for change detection to settle
+      await new Promise(r => setTimeout(r, 60));
+  
       // ────────────────────────────────
-      // Update internal tracking & load new question
+      // 5️⃣ Reset + trigger question load
       // ────────────────────────────────
       this.quizService.setCurrentQuestionIndex(targetIndex);
       this.currentQuestionIndex = targetIndex;
@@ -306,7 +308,7 @@ export class QuizNavigationService {
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
-      if (offset < 0) this.quizService.setIsNavigatingToPrevious(false);
+      this.quizService.setIsNavigatingToPrevious(false);
     }
   }
   
