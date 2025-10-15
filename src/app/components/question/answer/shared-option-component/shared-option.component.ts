@@ -2428,7 +2428,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     this.markRenderReady?.('bindings refreshed');
   }
 
-  public hydrateOptionsFromSelectionState(): void {
+  /* public hydrateOptionsFromSelectionState(): void {
     console.group(`[CROSS-TRACE: HYDRATE] start for Q${this.currentQuestionIndex}`);
     console.log('[MAP SNAPSHOT]', Array.from(this.selectedOptionService.selectedOptionsMap.entries())
       .map(([q, opts]) => ({ q, optIds: opts.map(o => o.optionId), texts: opts.map(o => o.text) })));
@@ -2469,6 +2469,79 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
     } finally {
       console.groupEnd();
     }
+  } */
+  public hydrateOptionsFromSelectionState(): void {
+    const currentIndex =
+      this.getActiveQuestionIndex?.() ??
+      this.currentQuestionIndex ??
+      this.questionIndex ??
+      0;
+  
+    console.group(`[🧩 hydrateOptionsFromSelectionState] for Q${currentIndex}`);
+  
+    // 1️⃣ Read the stored selection map (do NOT mutate it)
+    const storedSelections =
+      this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) ?? [];
+  
+    console.log(
+      '[HYDRATE DEBUG] storedSelections:',
+      storedSelections.map(s => ({
+        q: s.questionIndex,
+        id: s.optionId,
+        selected: s.selected,
+        highlight: s.highlight
+      }))
+    );
+  
+    // 2️⃣ Defensive deep clone of current options
+    const baseOptions = Array.isArray(this.optionsToDisplay)
+      ? this.optionsToDisplay.map(o => JSON.parse(JSON.stringify(o)))
+      : [];
+  
+    // 3️⃣ Build a new array entirely (no reuse)
+    const hydratedOptions = baseOptions.map((opt, i) => {
+      const matched = storedSelections.find(
+        s =>
+          Number(s.optionId) === Number(opt.optionId) &&
+          Number(s.questionIndex) === Number(currentIndex)
+      );
+  
+      return {
+        ...opt,
+        optionId:
+          typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+            ? opt.optionId
+            : currentIndex * 100 + (i + 1), // enforce unique ID across quiz
+        selected: matched?.selected ?? false,
+        highlight: matched?.highlight ?? false,
+        showIcon: matched?.showIcon ?? false,
+        active: opt.active ?? true,
+        disabled: false
+      };
+    });
+  
+    // 4️⃣ Replace optionsToDisplay with a new array reference
+    this.optionsToDisplay = hydratedOptions.map(o => ({ ...o }));
+  
+    // 5️⃣ Double check: ensure no shared object identity
+    const hasSharedRef =
+      this.optionsToDisplay.some((opt, i) => opt === baseOptions[i]);
+    console.log(
+      `[HYDRATE REF CHECK] Shared refs with pre-hydrate array: ${hasSharedRef}`
+    );
+  
+    // 6️⃣ Sanity trace
+    this.optionsToDisplay.forEach((opt, i) =>
+      console.log(
+        `[HYDRATE] Opt${i}: id=${opt.optionId}, selected=${opt.selected}, highlight=${opt.highlight}`
+      )
+    );
+  
+    // 7️⃣ Apply updated array to bindings or view
+    this.cdRef.markForCheck?.();
+    this.cdRef.detectChanges?.();
+  
+    console.groupEnd();
   }
 
   getFeedbackBindings(option: Option, idx: number): FeedbackProps {
