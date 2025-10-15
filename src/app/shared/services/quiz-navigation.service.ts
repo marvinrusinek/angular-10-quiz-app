@@ -182,7 +182,9 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
-    // Read current index directly from the full router snapshot (single source of truth)
+    // ────────────────────────────────
+    // 1️⃣ Read index exclusively from the router snapshot
+    // ────────────────────────────────
     const readIndexFromSnapshot = (): number => {
       let snap = this.router.routerState.snapshot.root;
       let raw: string | null = null;
@@ -199,19 +201,18 @@ export class QuizNavigationService {
       return n;
     };
   
-    // ────────────────────────────────────────────────
-    // 🧭 Use router snapshot exclusively for navigation index
-    // ────────────────────────────────────────────────
     const currentIndex = readIndexFromSnapshot();
-    const targetIndex = currentIndex + offset; // always 0-based
-    
-    // Block if going out of bounds
+    const targetIndex = currentIndex + offset; // 0-based always
+    console.log(`[NAV] Snapshot index=${currentIndex}, target=${targetIndex}`);
+  
+    // ────────────────────────────────
+    // 2️⃣ Bounds & state guards
+    // ────────────────────────────────
     if (targetIndex < 0) {
       console.warn('[⛔] Already at first question, cannot go back.');
       return false;
     }
   
-    // Guard against loading or navigating simultaneously
     const isLoading = this.quizStateService.isLoadingSubject.getValue();
     const isNavigating = this.quizStateService.isNavigatingSubject.getValue();
     if (isLoading || isNavigating) {
@@ -231,75 +232,81 @@ export class QuizNavigationService {
       return false;
     }
   
-    // Early Exit: already beyond last question, navigate to /results
     const lastIndex = totalQuestions - 1;
     if (targetIndex > lastIndex) {
-      const moved = await this.ngZone
-        .run(() => this.router.navigate(['/results', effectiveQuizId]))
-        .catch(err => {
-          console.error('[❌ navigate to results error]', err);
-          return false;
-        });
+      const moved = await this.ngZone.run(() =>
+        this.router.navigate(['/results', effectiveQuizId])
+      ).catch(err => {
+        console.error('[❌ navigate to results error]', err);
+        return false;
+      });
       return !!moved;
     }
   
-    // ────────────────────────────────────────────────
-    // 🚦 Begin clean navigation flow
-    // ────────────────────────────────────────────────
+    // ────────────────────────────────
+    // 3️⃣ Begin navigation flow
+    // ────────────────────────────────
     this.isNavigating = true;
     this.quizStateService.setNavigating(true);
     this.quizStateService.setLoading(true);
   
-    if (offset < 0) {
-      this.quizService.setIsNavigatingToPrevious(true);
-    }
+    if (offset < 0) this.quizService.setIsNavigatingToPrevious(true);
   
     try {
-      // Reset transient UI state and locks before moving
       this.quizQuestionLoaderService.resetUI();
   
-      const navSuccess = await this.navigateToQuestion(targetIndex).catch((err) => {
-        console.error('[❌ navigateToQuestion error]', err);
-        return false;
-      });
+      const quizId = effectiveQuizId;
+      const routeUrl = `/question/${quizId}/${targetIndex + 1}`;
+      const currentUrl = this.router.url;
   
-      if (navSuccess) {
-        // 🧹 State cleanup + reinitialization
-        this.resetExplanationAndState();
-        this.quizService.setCurrentQuestionIndex(targetIndex);
-        this.currentQuestionIndex = targetIndex;
-  
-        // Tell QQC to hard-reset state for the incoming question
-        this.quizService.requestPreReset(targetIndex);
-  
-        // Allow one microtask for Angular to stabilize before hydrating
-        await Promise.resolve();
-  
-        this.selectedOptionService.setAnswered(false, true);
-        this.nextButtonStateService.reset();
-  
-        await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
-  
-        this.notifyNavigationSuccess();
-        this.notifyNavigatingBackwards();
-        this.notifyResetExplanation();
-      } else {
-        console.warn(`[❌ Navigation Failed] -> Q${targetIndex}`);
+      // 🧩 If URL is the same, force reload to re-trigger component lifecycle
+      if (currentUrl === routeUrl) {
+        console.log('[NAV] Forcing reload of same route:', routeUrl);
+        await this.ngZone.run(() =>
+          this.router.navigateByUrl('/', { skipLocationChange: true })
+        );
       }
   
-      return !!navSuccess;
+      // 🧭 Navigate using Angular router
+      const navSuccess = await this.ngZone.run(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
+  
+      if (!navSuccess) {
+        console.warn('[⚠️ Router navigation failed]', routeUrl);
+        return false;
+      }
+  
+      console.log(`[NAV ✅] Successfully navigated to ${routeUrl}`);
+  
+      // Small pause so Angular change detection fully stabilizes
+      await new Promise(r => setTimeout(r, 40));
+  
+      // Update service index for reference
+      this.quizService.setCurrentQuestionIndex(targetIndex);
+      this.currentQuestionIndex = targetIndex;
+  
+      // Reset state and trigger question load
+      this.resetExplanationAndState();
+      this.selectedOptionService.setAnswered(false, true);
+      this.nextButtonStateService.reset();
+  
+      await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
+  
+      this.notifyNavigationSuccess();
+      this.notifyNavigatingBackwards();
+      this.notifyResetExplanation();
+  
+      return true;
     } catch (err) {
       console.error('[❌ navigateWithOffset error]', err);
       return false;
     } finally {
-      // Always clear flags regardless of success/failure
       this.isNavigating = false;
       this.quizStateService.setNavigating(false);
       this.quizStateService.setLoading(false);
   
-      if (offset < 0) {
-        this.quizService.setIsNavigatingToPrevious(false);
-      }
+      if (offset < 0) this.quizService.setIsNavigatingToPrevious(false);
     }
   }
 
