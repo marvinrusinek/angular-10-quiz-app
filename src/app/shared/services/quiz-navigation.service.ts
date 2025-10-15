@@ -179,6 +179,23 @@ export class QuizNavigationService {
   }
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
+    // PRE-CLEANUP to avoid FET flicker
+    try {
+      // Hard reset explanation/feedback display before the route changes
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setExplanationText('');
+      this.explanationTextService.resetExplanationState?.();
+
+      this.quizService.updateCorrectAnswersText('');
+      this.quizStateService.setAnswerSelected(false);
+      this.selectedOptionService.setAnswered(false);
+      this.nextButtonStateService.reset();
+
+      console.log('[PRE-CLEANUP] Explanation and feedback cleared before navigating');
+    } catch (err) {
+      console.warn('[PRE-CLEANUP] Failed to clear explanation state:', err);
+    }
+
     // ────────────────────────────────
     // 1️⃣ Read index exclusively from the router snapshot
     // ────────────────────────────────
