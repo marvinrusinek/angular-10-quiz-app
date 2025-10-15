@@ -2274,7 +2274,7 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
       });
     });
   } */
-  public generateOptionBindings(): void {
+  /* public generateOptionBindings(): void {
     // ─── Track performance / debug ─────────────────────────────
     const currentIndex = this.getActiveQuestionIndex() ?? 0;
     console.log('[📍 currentIndex]', currentIndex);
@@ -2336,7 +2336,97 @@ export class SharedOptionComponent implements OnInit, OnChanges, AfterViewInit, 
   
     // ─── 7) Mark render ready immediately ──────────────────────
     this.markRenderReady('highlight directives updated');
-  }  
+  } */
+  public generateOptionBindings(): void {
+    const currentIndex = this.getActiveQuestionIndex() ?? 0;
+    console.group(`[🧩 generateOptionBindings] Building bindings for Q${currentIndex}`);
+  
+    // 1️⃣ Always start from a fresh clone of options
+    const localOpts = Array.isArray(this.optionsToDisplay)
+      ? this.optionsToDisplay.map(o => ({ ...JSON.parse(JSON.stringify(o)) }))
+      : [];
+  
+    // 2️⃣ Defensive clone: eliminate any shared references
+    this.optionsToDisplay = localOpts.map((opt, i) => ({
+      ...opt,
+      optionId:
+        typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
+          ? opt.optionId
+          : currentIndex * 100 + (i + 1),
+      selected: false,
+      highlight: false,
+      showIcon: false,
+    }));
+  
+    // 3️⃣ Get stored selections for this specific question only
+    const storedSelections =
+      this.selectedOptionService.getSelectedOptionsForQuestion(currentIndex) ?? [];
+  
+    // 4️⃣ Apply stored state immutably
+    const patched = this.optionsToDisplay.map(opt => {
+      const match = storedSelections.find(s => s.optionId === opt.optionId);
+      return {
+        ...opt,
+        selected: match?.selected ?? false,
+        highlight: match?.highlight ?? false,
+        showIcon: match?.showIcon ?? false,
+      };
+    });
+  
+    // Replace with fresh cloned array to break identity chain
+    this.optionsToDisplay = patched.map(o => ({ ...o }));
+  
+    // 5️⃣ Build the feedback map
+    const showMap: Record<number, boolean> = {};
+    const newBindings = this.optionsToDisplay.map((opt, idx) => {
+      const selected = !!opt.selected;
+      const enriched: SelectedOption = {
+        ...(opt as SelectedOption),
+        questionIndex: currentIndex,
+        selected,
+        highlight: opt.highlight ?? selected,
+        showIcon: opt.showIcon,
+      };
+  
+      if (enriched.selected && enriched.optionId != null) {
+        showMap[enriched.optionId] = true;
+      }
+  
+      const binding = this.getOptionBindings(enriched, idx, selected);
+      binding.option = enriched;
+      binding.showFeedbackForOption = showMap;
+      return binding;
+    });
+  
+    // 6️⃣ Assign brand-new objects to inputs (no mutation)
+    this.optionBindings = [...newBindings];
+    this.showFeedbackForOption = { ...showMap };
+  
+    // 7️⃣ Reset UI lock state
+    this.updateLockedIncorrectOptions?.();
+  
+    // 8️⃣ Force change detection & highlight refresh
+    this.cdRef.detectChanges();
+    this.highlightDirectives?.forEach((d, i) => {
+      try {
+        d.updateHighlight();
+      } catch (err) {
+        console.warn(`[⚠️ Highlight update failed on index ${i}]`, err);
+      }
+    });
+  
+    console.log(
+      `[generateOptionBindings] ✅ Completed for Q${currentIndex} | bindings:`,
+      this.optionBindings.map(b => ({
+        id: b.option.optionId,
+        selected: b.option.selected,
+        highlight: b.option.highlight,
+      }))
+    );
+    console.groupEnd();
+  
+    this.markRenderReady?.('bindings refreshed');
+  }
 
   public hydrateOptionsFromSelectionState(): void {
     console.group(`[CROSS-TRACE: HYDRATE] start for Q${this.currentQuestionIndex}`);
