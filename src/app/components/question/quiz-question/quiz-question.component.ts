@@ -2123,15 +2123,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('[HARD RESET] Failed to clear selection state', err);
       }
 
-      this.optionsToDisplay = this.quizService
-        .assignOptionIds(this.currentQuestion.options || [], this.currentQuestionIndex)
-        .map(option => ({
-          ...option,
-          active: true,
-          feedback: undefined,
-          showIcon: false,
-          selected: false,
-        }));
+      // Deep-clone and sanitize every option
+      const rawOpts = Array.isArray(potentialQuestion.options) ? potentialQuestion.options : [];
+
+      this.optionsToDisplay = rawOpts.map((opt, i) => ({
+        // hard break identity — no reference reuse possible
+        ...JSON.parse(JSON.stringify(opt)),
+        optionId: i + 1,
+        selected: false,
+        highlight: false,
+        showIcon: false,
+        active: true,
+        disabled: false,
+        feedback: opt.feedback ?? `Default feedback for Q${this.currentQuestionIndex} Opt${i}`,
+      }));
+
+      console.group(`[QQC TRACE] Options reset for Q${this.currentQuestionIndex}`);
+      this.optionsToDisplay.forEach((o, j) =>
+        console.log(`Opt${j}:`, o.text, 'selected:', o.selected, 'ref:', o)
+      );
+      console.groupEnd();
       
 
       if (this.questionsArray?.[this.currentQuestionIndex - 1]?.options) {
