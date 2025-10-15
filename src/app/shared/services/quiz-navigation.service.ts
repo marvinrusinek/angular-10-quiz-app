@@ -81,10 +81,7 @@ export class QuizNavigationService {
     private activatedRoute: ActivatedRoute, 
     private router: Router,
     private ngZone: NgZone
-  ) {
-    // Force router to destroy and recreate the component when params change
-    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
-  }
+  ) {}
 
   handleRouteParams(params: ParamMap): 
     Observable<{ quizId: string, questionIndex: number, quizData: Quiz }> {
