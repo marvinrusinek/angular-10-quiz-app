@@ -2091,60 +2091,27 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       }
 
       // ───────────── Update Component State ─────────────
+      console.group(`[QQC LOAD] Initializing Q${this.currentQuestionIndex}`);
 
-      console.log('[QQC RESET TRACE] Calling resetAllStates() before assigning new options');
-      this.selectedOptionService.resetAllStates();
+      // 1️⃣ Purge all previous state before touching new data
+      this.selectedOptionService.resetAllStates?.();
+      this.selectedOptionService.selectedOptionsMap?.clear?.();
+      (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
+      (this.selectedOptionService as any).optionStates?.clear?.();
 
-      console.log('[QQC CROSS-TRACE] After resetAllStates(), map dump:');
-      console.log("[QQC CROSS-TRACE] After resetAllStates(), map dump:", JSON.stringify(
-        Array.from(this.selectedOptionService.selectedOptionsMap.entries())
-      ));
+      console.log('[QQC LOAD] 🧹 All selection/lock state cleared');
 
-      // Absolute state purge before rendering next question
-      try {
-        this.selectedOptionService.resetAllStates?.();
-        this.selectedOptionService.selectedOptionsMap?.clear?.();
-        (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
-        (this.selectedOptionService as any).optionStates?.clear?.();
-        console.log(`[QQC RESET] 🧹 Cleared all selection/lock state before Q${this.currentQuestionIndex}`);
-      } catch (err) {
-        console.warn('[QQC RESET] ⚠️ Failed to clear state maps', err);
-      }
-
+      // 2️⃣ Defensive clone of question data
       this.currentQuestion = { ...potentialQuestion };
 
-      // HARD SERVICE RESET — nuke any leftover per-question state
-      try {
-        const idx = this.currentQuestionIndex;
-
-        // Clear selected + locked state synchronously
-        if (this.selectedOptionService?.selectedOptionsMap) {
-          this.selectedOptionService.selectedOptionsMap.delete(idx);
-        }
-        if ((this.selectedOptionService as any)._lockedOptionsMap) {
-          (this.selectedOptionService as any)._lockedOptionsMap.clear();
-        }
-
-        // Fully reinitialize both maps (break object identity)
-        (this.selectedOptionService as any).selectedOptionsMap = new Map();
-        (this.selectedOptionService as any)._lockedOptionsMap = new Map();
-
-        // Also clear any delayed hydration state
-        this.selectedOptionService.resetAllStates?.();
-        this.selectedOptionService.clearSelectionsForQuestion(idx);
-
-        console.log(`[💥 HARD RESET] Fully cleared selection & lock maps before rendering Q${idx}`);
-      } catch (err) {
-        console.warn('[💥 HARD RESET] Failed to fully clear selection state', err);
-      }
-
-      // Deep-clone and sanitize every option
-      const rawOpts = Array.isArray(potentialQuestion.options) ? potentialQuestion.options : [];
+      // 3️⃣ Deep clone options to guarantee new references
+      const rawOpts = Array.isArray(potentialQuestion.options)
+        ? JSON.parse(JSON.stringify(potentialQuestion.options))
+        : [];
 
       this.optionsToDisplay = rawOpts.map((opt, i) => ({
-        // hard break identity — no reference reuse possible
-        ...JSON.parse(JSON.stringify(opt)),
-        optionId: i + 1,
+        ...opt,
+        optionId: this.currentQuestionIndex * 100 + (i + 1), // globally unique
         selected: false,
         highlight: false,
         showIcon: false,
@@ -2153,187 +2120,38 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         feedback: opt.feedback ?? `Default feedback for Q${this.currentQuestionIndex} Opt${i}`,
       }));
 
-      console.group(`[QQC TRACE] Options reset for Q${this.currentQuestionIndex}`);
+      console.group(`[QQC TRACE] Fresh options for Q${this.currentQuestionIndex}`);
       this.optionsToDisplay.forEach((o, j) =>
-        console.log(`Opt${j}:`, o.text, 'selected:', o.selected, 'ref:', o)
+        console.log(`Opt${j}:`, o.text, '| id:', o.optionId, '| ref:', o)
       );
       console.groupEnd();
-      
 
+      // 4️⃣ Verify no shared references
       if (this.questionsArray?.[this.currentQuestionIndex - 1]?.options) {
-        const prevOpts = this.questionsArray[this.currentQuestionIndex - 1].options;
-        const currOpts = this.optionsToDisplay;
-        const shared = prevOpts.some((p, i) => p === currOpts[i]);
-        console.log(`[REF CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: shared=${shared}`);
+        const prev = this.questionsArray[this.currentQuestionIndex - 1].options;
+        const curr = this.optionsToDisplay;
+        const shared = prev.some((p, i) => p === curr[i]);
+        console.log(`[QQC REF CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: shared=${shared}`);
       }
 
-      const prevIdx = this.currentQuestionIndex - 1;
-      const prevQ = this.questionsArray?.[this.currentQuestionIndex - 1];
-      const currQ = potentialQuestion;
-
-      const nextIdx = this.currentQuestionIndex + 1;
-      const nextQ = this.questionsArray?.[this.currentQuestionIndex + 1];
-      if (currQ && nextQ) {
-        const sharedRefsNext = currQ.options?.some((opt, i) => opt === nextQ.options?.[i]);
-        console.log(`[REF CHAIN CHECK NEXT] Between Q${this.currentQuestionIndex} and Q${this.currentQuestionIndex + 1}: sharedRefs=${sharedRefsNext}`);
-      }
-
-      if (prevQ && currQ) {
-        const sharedRefs = prevQ.options?.some((opt, i) => opt === currQ.options?.[i]);
-        console.log(`[REF CHAIN CHECK] Between Q${this.currentQuestionIndex - 1} and Q${this.currentQuestionIndex}: sharedRefs=${sharedRefs}`);
-      }
-
-      // Full reset of option/lock/selection state for new question
-      if (this.selectedOptionService?.resetAllStates) {
-        this.selectedOptionService.resetAllStates();
-        console.log(`[QQC] 🧹 Cleared all selection/lock maps before loading Q${this.currentQuestionIndex}`);
-      }
-      /* this.optionsToDisplay = this.quizService
-        .assignOptionIds(this.currentQuestion.options || [])
-        .map((option) => ({
-          ...option,
-          active: true,
-          feedback: undefined,
-          showIcon: false,
-          selected: false,
-        })); */
-      // Hard reset and deep clone each option
-      this.currentQuestion.options = (this.currentQuestion.options ?? []).map((opt, i) => ({
-        ...opt,
-        optionId: typeof opt.optionId === 'number' && Number.isFinite(opt.optionId)
-          ? opt.optionId
-          : i + 1,
-        active: true,
-        feedback: opt.feedback ?? undefined,
-        showIcon: false,
-        selected: false,
-        highlight: false,
-        disabled: false,
-      }));
-
-
-      // Always use a fresh reference for display array
-      this.optionsToDisplay = this.currentQuestion.options.map(o => ({ ...o }));
-
-      // Sanity check to ensure no shared refs between question source and display array
-      console.log(
-        `[QQC REF CHECK] Q${this.currentQuestionIndex}`,
-        this.currentQuestion.options[0] === this.optionsToDisplay[0]
-          ? '❌ Shared reference!'
-          : '✅ Independent clone'
-      );
-      
-        console.log(
-          '[DEBUG Q1 Options Snapshot]',
-          JSON.parse(JSON.stringify(this.currentQuestion.options.map(o => ({
-            text: o.text,
-            correct: o.correct
-          }))))
-        );
-
-      // Emit early to reduce display lag
+      // 5️⃣ Push early payload to services (all fresh data)
       this.quizService.questionPayloadSubject.next({
         question: this.currentQuestion!,
         options: this.optionsToDisplay,
         explanation: '',
       });
 
-      if (!this.currentQuestion.options?.length) {
-        console.warn('[loadQuestion] Current question has no options.');
-        this.currentQuestion.options = [];
-      }
-
-      // Assign IDs and reset options
-      this.currentQuestion.options = this.quizService.assignOptionIds(
-        this.currentQuestion.options,
-        this.currentQuestionIndex
-      );
-      this.optionsToDisplay = this.currentQuestion.options.map((option) => ({
-        ...option,
-        active: true,
-        feedback: undefined,
-        showIcon: false,
-        selected: false,
-      }));
-
-      this.updateShouldRenderOptions(this.optionsToDisplay);
-
+      // 6️⃣ Update render variables
       this.questionToDisplay = this.currentQuestion.questionText?.trim() || '';
-
-      // Hand a brand-new array & bindings to the child
-      const cloned =
-        typeof structuredClone === 'function'
-          ? structuredClone(this.optionsToDisplay) // deep clone
-          : JSON.parse(JSON.stringify(this.optionsToDisplay));
-
-      this.optionsToDisplay = cloned; // new reference
-
-      // REF TRACE: detect shared references or bleed-through between questions
-      try {
-        const quizSvcQ = this.quizService.questions?.[this.currentQuestionIndex];
-        if (quizSvcQ && quizSvcQ.options) {
-          console.group(`[QQC 🔬 REF TRACE] QuizService.options vs local question.options for Q${this.currentQuestionIndex}`);
-          const sameArrayRef = quizSvcQ.options === this.currentQuestion.options;
-          console.log('Same array reference?', sameArrayRef);
-
-          quizSvcQ.options.forEach((o, i) => {
-            const local = this.currentQuestion.options?.[i];
-            console.log(
-              `Q${this.currentQuestionIndex} Opt${i}:`,
-              'service.selected =', o.selected,
-              '| local.selected =', local?.selected,
-              '| same object ref =', o === local
-            );
-          });
-
-          console.groupEnd();
-        }
-      } catch (err) {
-        console.warn('[QQC 🔬 REF TRACE] failed:', err);
-      }
-
-
-
-      // Diagnostic log: confirm fresh state
-      console.group(`[QQC OPTIONS TRACE] After deep clone for Q${this.currentQuestionIndex}`);
-      this.optionsToDisplay.forEach((opt, i) => {
-        console.log(
-          `Opt${i}:`,
-          opt.text,
-          '| correct:',
-          opt.correct,
-          '| selected:',
-          opt.selected,
-          '| showIcon:',
-          opt.showIcon,
-          '| highlight:',
-          opt.highlight,
-          '| ref:',
-          opt
-        );
-      });
-      console.groupEnd();
-
-      const mapDump = Array.from(
-        this.selectedOptionService.selectedOptionsMap.entries()
-      ).map(([k, v]) => ({
-        qIndex: k,
-        selectedIds: v.map(o => o.optionId)
-      }));
-      console.log('[QQC MAP DUMP after clone]', mapDump);      
-
       this.updateShouldRenderOptions(this.optionsToDisplay);
 
-      // Finally update the route index (triggers the key change)
-      this.currentQuestionIndex = lockedIndex;
-
-      console.time('[🧩 Init Option Bindings]');
+      // 7️⃣ Finalize bindings
       if (this.sharedOptionComponent) {
         this.sharedOptionComponent.initializeOptionBindings();
       }
-      console.timeEnd('[🧩 Init Option Bindings]');
+      this.cdRef.markForCheck();
 
-      this.cdRef.markForCheck(); // manually trigger change detection after bindings and updates
+      console.groupEnd();
       // ───────────── End UI Update ─────────────
 
       // Abort after UI update
