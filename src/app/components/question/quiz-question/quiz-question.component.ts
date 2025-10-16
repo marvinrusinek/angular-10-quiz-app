@@ -3195,18 +3195,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }  
 
   private handleTimerStoppedForActiveQuestion(reason: 'timeout' | 'stopped'): void {
-    if (this._timerStoppedForQuestion) {
-      return;
-    }
+    if (this._timerStoppedForQuestion) return;
 
     const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
-    if (!Number.isFinite(i0) || !this.questions?.[i0]) {
-      return;
-    }
-
-    if (reason !== 'timeout' && this.questionFresh) {
-      return;
-    }
+    if (!Number.isFinite(i0) || !this.questions?.[i0]) return;
+    if (reason !== 'timeout' && this.questionFresh) return;
 
     const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0);
 
