@@ -473,12 +473,23 @@ export class QuizNavigationService {
 
           // Question text emission
           const trimmedQ = (fresh.questionText ?? '').trim();
-          // Always emit — even empty — so each question triggers a render
-          this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
 
-          resolve();
+          // ⏳ Small adaptive bounce before emitting question text
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              try {
+                // Always emit — even empty — so each question triggers a render
+                this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+                console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}`);
+              } catch (err) {
+                console.warn('[NAV] ⚠️ emitQuestionTextSafely failed:', err);
+              }
+              resolve();
+            }, 40);  // delay ensures DOM settles before render
+          });
         });
       });
+
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
