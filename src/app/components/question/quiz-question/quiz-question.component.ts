@@ -3016,7 +3016,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           (async () => {
             try {
               this.explanationTextService.setShouldDisplayExplanation(true);
-              await new Promise(res => setTimeout(res, 50));  // debounce frame delay
+              await new Promise(res => setTimeout(res, delayMs));  // debounce frame delay
               await this.updateExplanationText(idx);
               console.log('[QQC DEBUG] updateExplanationText() trigger check', {
                 currentQuestionIndex: this.currentQuestionIndex,
