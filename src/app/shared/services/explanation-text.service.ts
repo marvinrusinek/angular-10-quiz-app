@@ -90,6 +90,9 @@ export class ExplanationTextService {
 
   private _explainNow$ = new Subject<{ idx: number; text: string }>();
 
+  private _readyForExplanation = false;
+  private _readyForExplanation$ = new BehaviorSubject<boolean>(false);
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -1185,5 +1188,22 @@ export class ExplanationTextService {
     this.setShouldDisplayExplanation(false, { force: true });
   
     queueMicrotask(() => console.log(`[ETS] ⚙️ hardSwitchToIndex(${index}) done`));
-  }  
+  }
+
+  // Observable for other components to listen for readiness changes
+  public get readyForExplanation$(): Observable<boolean> {
+    return this._readyForExplanation$.asObservable();
+  }
+
+  // Get the current readiness flag
+  public getReadyForExplanation(): boolean {
+    return this._readyForExplanation;
+  }
+
+  // Set readiness flag — true when navigation finishes and FET is cached
+  public setReadyForExplanation(ready: boolean): void {
+    this._readyForExplanation = ready;
+    this._readyForExplanation$.next(ready);
+    console.log(`[ETS] ⚙️ setReadyForExplanation = ${ready}`);
+  }
 }
