@@ -3081,8 +3081,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const rawExpl = (q.explanation ?? '').trim() || 'Explanation not provided';
     const formatted = this.explanationTextService.formatExplanation(q, correctIdxs, rawExpl).trim();
   
-    console.log(`[onSubmitMultiple] 🧩 Prepared formatted text for Q${idx + 1}:`, formatted.slice(0, 60));
-  
     try {
       // Ensure active index points to this question only
       this.explanationTextService._activeIndex = idx;
@@ -3091,7 +3089,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationTextService.resetForIndex(idx);
       await new Promise(res => requestAnimationFrame(() => setTimeout(res, 60)));
   
-      // Open & emit cleanly
+      // Open and emit cleanly
       this.explanationTextService.openExclusive(idx, formatted);
   
       // Force all explanation signals to fire together for this index
@@ -3101,15 +3099,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
       // Sync local + UI display
       this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-      (this as any).displayExplanation = true;
-      (this as any).explanationToDisplay = formatted;
-      (this as any).explanationToDisplayChange?.emit(formatted);
-  
-      console.log(`[onSubmitMultiple] ✅ FET displayed for Q${idx + 1}`);
+      this.displayExplanation = true;
+      this.explanationToDisplay = formatted;
+      this.explanationToDisplayChange?.emit(formatted);
   
       // Update “# of correct answers” text only for MultipleAnswer questions
       try {
-        // Use a **strict enum comparison** instead of string includes
+        // Use a strict enum comparison instead of string includes
         if (q.type === QuestionType.MultipleAnswer) {
           const numCorrect = correctIdxs.length;
           const totalOpts = q.options?.length ?? 0;
@@ -3123,7 +3119,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         } else {
           // SingleAnswer → clear text explicitly
           this.quizService.updateCorrectAnswersText('');
-          console.log(`[onSubmitMultiple] ℹ️ Cleared correct answers text for single-answer Q${idx + 1}`);
         }
       } catch (err) {
         console.warn('[onSubmitMultiple] ⚠️ Failed to compute correct-answers text:', err);
