@@ -3141,18 +3141,18 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.questions?.[i0] ??
       (this.currentQuestionIndex === i0 ? this.currentQuestion : undefined);
 
-    // Collect canonical snapshot + robust lock keys
+    // Collect canonical snapshot and robust lock keys
     const { canonicalOpts, lockKeys } = this.collectLockContextForQuestion(i0, {
       question: q,
-      fallbackOptions: this.optionsToDisplay,
+      fallbackOptions: this.optionsToDisplay
     });
 
-    // 1) Reveal feedback, lock, and disable options now that the timer has ended
+    // Reveal feedback, lock, and disable options now that the timer has ended
     this.applyLocksAndDisableForQuestion(i0, canonicalOpts, lockKeys, {
       revealFeedback: true
     });
   
-    // 2a) Announce completion to any listeners (progress, gating, etc.)
+    // Announce completion to any listeners (progress, gating, etc.)
     try {
       this.selectionMessageService.releaseBaseline(activeIndex);
   
@@ -3161,38 +3161,37 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         const total = this.totalQuestions ?? this.quizService?.totalQuestions ?? 0;
         const isLastQuestion = total > 0 && i0 === total - 1;
         this.selectionMessageService.forceNextButtonMessage(i0, {
-          isLastQuestion,
+          isLastQuestion
         });
       } else {
         this.selectionMessageService.setSelectionMessage(true);
       }
     } catch {}
   
-    // 2b) Show explanation immediately
+    // Show explanation immediately
     try {
       this.explanationTextService.setShouldDisplayExplanation(true);
       this.displayExplanation = true;
-      this.showExplanationChange?.emit(true);
+      this.showExplanationChange.emit(true);
   
       const cached = this._formattedByIndex.get(i0);
       const rawTrue =
         (q?.explanation ?? this.currentQuestion?.explanation ?? '').trim();
-      const txt = cached?.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
+      const txt = cached.trim() ?? rawTrue ?? '<span class="muted">Formatting…</span>';
       this.setExplanationFor(i0, txt);
       this.explanationToDisplay = txt;
       this.explanationToDisplayChange?.emit(txt);
     } catch {}
   
-    // 3) Allow navigation to proceed
+    // Allow navigation to proceed
     this.nextButtonStateService.setNextButtonState(true);
     this.quizStateService.setAnswered(true);
     this.quizStateService.setAnswerSelected(true);
   
-    // 3a) Defensive stop in case the timer didn’t auto-stop at zero
+    // Defensive stop in case the timer didn’t auto-stop at zero
     try { this.timerService.stopTimer(undefined, { force: true }); } catch {}
   
-    // Render
-    this.cdRef.markForCheck();
+    this.cdRef.markForCheck();  // render
   }  
 
   private handleTimerStoppedForActiveQuestion(reason: 'timeout' | 'stopped'): void {
