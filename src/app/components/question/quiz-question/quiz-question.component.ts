@@ -3002,40 +3002,48 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // Stop timer + trigger FET immediately (legally awaited)
       if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
         this.safeStopTimer('completed');
+        this._fetEarlyShown.add(idx);
+        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
       
-        if (q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
-          this._fetEarlyShown.add(idx);
-          console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+        const questionType = q?.type as QuestionType;
+        const delayMs = questionType === QuestionType.SingleAnswer ? 20 : 60;
       
-          // Adaptive debounce: shorter for single, longer for multi
-          const questionType = q?.type as QuestionType;
-          const delayMs = questionType === QuestionType.SingleAnswer ? 20 : 60;
-      
-          // Unlock the explanation service before updating text
-          (async () => {
+        // Schedule post-render unlock with defensive gate
+        requestAnimationFrame(() => {
+          queueMicrotask(async () => {
             try {
-              this.explanationTextService.setShouldDisplayExplanation(true);
-              (this.explanationTextService as any).readyForExplanation = true;
+              // ───────────────────────────────────────────────
+              // Lock the current index to avoid async clears
+              // ───────────────────────────────────────────────
               (this.explanationTextService as any)._activeIndex = idx;
-              console.log(`[QQC] 🔓 Unlocked FET gate for Q${idx + 1}`);
+              (this.explanationTextService as any)._lockedUntil = Date.now() + 500; // ½-sec grace window
       
-              // Small debounce before text emission
+              // Mark explanation as ready and visible
+              this.explanationTextService.setShouldDisplayExplanation(true);
+      
+              console.log(`[QQC] 🔓 FET gate unlocked for Q${idx + 1}`);
+      
+              // Wait briefly for DOM to settle
               await new Promise(res => setTimeout(res, delayMs));
       
+              // Build and display formatted text
               await this.updateExplanationText(idx);
-              console.log('[QQC DEBUG] updateExplanationText() trigger check', {
-                currentQuestionIndex: this.currentQuestionIndex,
-                optionClicked: event.option?.text,
-                isAnswered: this.quizStateService.isAnswered$
-              });
       
-              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-              console.log(`[QQC] ✅ FET displayed for multi-answer Q${idx + 1}`);
+              // Protect against post-render clears (from navigation pre-cleanup)
+              const stillActive =
+                (this.explanationTextService as any)._activeIndex === idx &&
+                Date.now() <= (this.explanationTextService as any)._lockedUntil;
+              if (stillActive) {
+                this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+                console.log(`[QQC] ✅ FET displayed and locked for Q${idx + 1}`);
+              } else {
+                console.log(`[QQC] ⚠️ Late cleanup suppressed for Q${idx + 1}`);
+              }
             } catch (err) {
-              console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
+              console.warn('[QQC] ⚠️ FET unlock failed', err);
             }
-          })();
-        }
+          });
+        });
       }
   
       // Continue post-click microtasks for highlighting & feedback
