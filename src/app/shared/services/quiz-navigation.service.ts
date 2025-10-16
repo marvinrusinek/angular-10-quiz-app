@@ -186,7 +186,9 @@ export class QuizNavigationService {
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.setExplanationText('');
       this.explanationTextService.resetExplanationState?.();
-  
+      this.explanationToDisplay = '';
+      this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
+        
       this.quizService.updateCorrectAnswersText('');
       this.quizStateService.setAnswerSelected(false);
       this.selectedOptionService.setAnswered(false);
