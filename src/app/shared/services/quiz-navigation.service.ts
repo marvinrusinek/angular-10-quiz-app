@@ -297,6 +297,41 @@ export class QuizNavigationService {
       this.nextButtonStateService.reset();
   
       await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
+
+      // Restore FET state safely for the new question
+      try {
+        const q = this.quizService.questions?.[targetIndex];
+        if (q && q.explanation) {
+          const rawExpl = (q.explanation ?? '').trim();
+          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+          const formatted = this.explanationTextService
+            .formatExplanation(q as any, correctIdxs, rawExpl)
+            .trim();
+
+          // Delay slightly after render to avoid flicker
+          setTimeout(() => {
+            this.explanationTextService.setExplanationText(formatted);
+            this.explanationTextService.setShouldDisplayExplanation(false); // hidden until click
+            console.log(`[NAV] 🧩 Cached FET for Q${targetIndex + 1}`);
+      
+            // Pre-arm explanation gate for this question
+            this.quizStateService.displayStateSubject?.next({
+              mode: 'question',
+              answered: false
+            });
+            this.explanationTextService._activeIndex = targetIndex;
+            this.explanationTextService.setIsExplanationTextDisplayed(false);
+            this.explanationTextService.setReadyForExplanation(true);
+            console.log(`[NAV] 🧠 FET gate pre-armed for Q${targetIndex + 1}`);
+          }, 80);
+        } else {
+          this.explanationTextService.setExplanationText('');
+          this.explanationTextService.setShouldDisplayExplanation(false);
+          console.log(`[NAV] 🧩 No explanation to cache for Q${targetIndex + 1}`);
+        }
+      } catch (err) {
+        console.warn('[NAV] ⚠️ FET restoration failed:', err);
+      }
   
       this.notifyNavigationSuccess();
       this.notifyNavigatingBackwards();
