@@ -4958,7 +4958,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     this.cdRef.markForCheck();
   }
 
-  async updateExplanationText(index: number): Promise<string> {
+  /* async updateExplanationText(index: number): Promise<string> {
     const i0 = this.normalizeIndex(index);
   
     const q = this.questions?.[i0];
@@ -5022,6 +5022,101 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     // Keep your per-question state
+    const qState = this.quizStateService.getQuestionState(this.quizId, i0);
+    this.quizStateService.setQuestionState(this.quizId, i0, {
+      ...qState,
+      explanationDisplayed: true,
+      explanationText: clean || baseRaw,
+    });
+  
+    return clean || baseRaw;
+  } */
+  async updateExplanationText(index: number): Promise<string> {
+    const i0 = this.normalizeIndex(index);
+    const q = this.questions?.[i0];
+  
+    // Prefer model raw; fallback to service cache if model is empty
+    const svcCached = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').toString().trim();
+    const baseRaw = ((q?.explanation ?? '') as string).toString().trim() || svcCached;
+  
+    console.warn('[🧠 updateExplanationText CALLED]', {
+      index: i0,
+      currentIndex: this.currentQuestionIndex,
+      baseRaw,
+    });
+  
+    // NEW: Guard for explanation readiness to prevent Q1→Q2 bleed
+    const ready =
+      (this.explanationTextService as any).readyForExplanation ??
+      true; // assume true if not tracked
+    const shouldDisplay =
+      (this.explanationTextService as any)._shouldDisplayExplanation ??
+      false; // assume hidden initially
+  
+    if (!ready) {
+      console.warn(`[🧠 FET] Skipping updateExplanationText for Q${i0 + 1} — service not ready`);
+      return baseRaw;
+    }
+  
+    if (!q) {
+      this.explanationTextService.setExplanationText(baseRaw || 'Explanation not available.');
+      const qState0 = this.quizStateService.getQuestionState(this.quizId, i0);
+      this.quizStateService.setQuestionState(this.quizId, i0, {
+        ...qState0,
+        explanationDisplayed: true,
+        explanationText: baseRaw || 'Explanation not available.',
+      });
+      return baseRaw;
+    }
+  
+    // Derive correct option indices from the question itself (works on timeout)
+    const indices: number[] = Array.isArray(q.options)
+      ? q.options.map((opt, idx) => (opt?.correct ? idx + 1 : -1)).filter(n => n > 0)
+      : [];
+  
+    // Format explanation using your service; fallback to raw
+    let formatted = '';
+    try {
+      const svc: any = this.explanationTextService;
+      if (typeof svc.formatExplanation === 'function') {
+        formatted = svc.formatExplanation(q, indices, baseRaw);
+      } else {
+        formatted = baseRaw;
+      }
+    } catch (e) {
+      console.warn('[updateExplanationText] formatter threw; using raw', e);
+      formatted = baseRaw;
+    }
+  
+    const clean = (formatted ?? '').toString().trim();
+  
+    // Cache per-index in the service
+    try {
+      const prev = this.explanationTextService.formattedExplanations?.[i0] as any;
+      this.explanationTextService.formattedExplanations[i0] = {
+        ...(prev ?? {}),
+        questionIndex: i0,
+        explanation: clean || baseRaw,
+      };
+      (this.explanationTextService as any).pushFormatted?.(clean || baseRaw);
+    } catch (err) {
+      console.warn('[updateExplanationText] cache push failed', err);
+    }
+  
+    // NEW: adaptive bounce — allows DOM to settle before emission
+    const delayMs = q?.type === QuestionType.SingleAnswer ? 20 : 60;
+    await new Promise(res => requestAnimationFrame(() => setTimeout(res, delayMs)));
+  
+    // Only emit live explanation text when it matches the active question
+    if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
+      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
+      this.explanationTextService.setExplanationText(clean || baseRaw);
+      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+    } else {
+      console.warn(`[🧠 FET] Skipped emit — index mismatch or empty text`);
+    }
+  
+    // Keep question state in sync
     const qState = this.quizStateService.getQuestionState(this.quizId, i0);
     this.quizStateService.setQuestionState(this.quizId, i0, {
       ...qState,
