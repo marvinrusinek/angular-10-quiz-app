@@ -471,8 +471,8 @@ export class QuizNavigationService {
             console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
           }
 
-          // Question text emission
           const trimmedQ = (fresh.questionText ?? '').trim();
+          const explanationRaw = (fresh.explanation ?? '').trim();
 
           // Small adaptive bounce before emitting question text
           requestAnimationFrame(() => {
@@ -481,14 +481,34 @@ export class QuizNavigationService {
                 // Always emit — even empty — so each question triggers a render
                 this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
                 console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}`);
+
+                // FET re-activation (restore only for this index)
+                if (explanationRaw) {
+                  const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
+                  const formatted = this.explanationTextService
+                    .formatExplanation(fresh as any, correctIdxs, explanationRaw)
+                    .trim();
+
+                  // Schedule the FET emission slightly after question render
+                  setTimeout(() => {
+                    try {
+                      this.explanationTextService.openExclusive(index, formatted);
+                      this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
+                      console.log(`[NAV] 🧩 FET restored placeholder for Q${index + 1}`);
+                    } catch (err) {
+                      console.warn('[NAV] ⚠️ FET restore failed:', err);
+                    }
+                  }, 80);  // small delay prevents Q1→Q2 flicker
+                }
               } catch (err) {
                 console.warn('[NAV] ⚠️ emitQuestionTextSafely failed:', err);
               }
-              resolve();
-            }, 40);  // delay ensures DOM settles before render
+              resolve();  // only resolve once everything is staged
+            }, isMulti ? 60 : 25);  // adaptive bounce delay
           });
         });
       });
+
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
