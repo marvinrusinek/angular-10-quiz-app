@@ -2833,7 +2833,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }): Promise<void> {
     console.log('[QQC] 🖱 onOptionClicked triggered for', event.option?.optionId);
     this.isUserClickInProgress = true;
-    this._skipNextAsyncUpdates = false; // reset skip flag at start of each click
+    this._skipNextAsyncUpdates = false;  // reset skip flag at start of each click
   
     // Cancel pending RAF
     if (this._pendingRAF != null) {
@@ -2934,7 +2934,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         canonicalOpts[evtIdx].selected = true;
       }
   
-      // 1️⃣ Reveal feedback and lock options
+      // Reveal feedback and lock options
       this.revealFeedbackForAllOptions(canonicalOpts);
   
       try {
@@ -3032,7 +3032,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         }
       }
   
-      // 🔄 Continue post-click microtasks for highlighting & feedback
+      // Continue post-click microtasks for highlighting & feedback
       queueMicrotask(() => {
         if (this._skipNextAsyncUpdates) return;
         this.updateOptionHighlighting(selOptsSetImmediate);
