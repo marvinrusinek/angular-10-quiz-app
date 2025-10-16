@@ -3000,7 +3000,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizStateService.setAnswerSelected(allCorrect);
   
       // Stop timer + trigger FET immediately (legally awaited)
-      if (allCorrect) {
+      if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
         this.safeStopTimer('completed');
       
         if (q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
@@ -3011,7 +3011,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const questionType = q?.type as QuestionType;
           const delayMs = questionType === QuestionType.SingleAnswer ? 20 : 60;
       
-          // ✅ Unlock the explanation service before updating text
+          // Unlock the explanation service before updating text
           (async () => {
             try {
               this.explanationTextService.setShouldDisplayExplanation(true);
