@@ -474,7 +474,7 @@ export class QuizNavigationService {
           // Question text emission
           const trimmedQ = (fresh.questionText ?? '').trim();
 
-          // ⏳ Small adaptive bounce before emitting question text
+          // Small adaptive bounce before emitting question text
           requestAnimationFrame(() => {
             setTimeout(() => {
               try {
@@ -489,7 +489,6 @@ export class QuizNavigationService {
           });
         });
       });
-
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
