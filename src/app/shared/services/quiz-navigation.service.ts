@@ -327,52 +327,28 @@ export class QuizNavigationService {
           const formatted = this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
-
-          // ────────────────────────────────────────────────
-          // 🧠 Delay until DOM + observables settle
-          // ────────────────────────────────────────────────
-          await new Promise<void>((resolve) => {
-            requestAnimationFrame(() => setTimeout(resolve, 100));
-          });
-
-          // Guard: skip if user already navigated away
+      
+          // Wait one frame for stability
+          await new Promise<void>((res) => requestAnimationFrame(() => setTimeout(res, 50)));
+      
+          // Skip if user already moved on
           const activeIdx = this.quizService.getCurrentQuestionIndex();
           if (activeIdx !== targetIndex) {
-            console.log(`[NAV] ⏸ Skipping FET pre-arm — user moved to Q${activeIdx + 1}`);
+            console.log(`[NAV] ⏸ Skipping FET pre-arm — user now on Q${activeIdx + 1}`);
             return;
           }
-
-          // ────────────────────────────────────────────────
-          // 🧩 Step 7: Silent pre-arm cache — no display flags
-          // ────────────────────────────────────────────────
-          const svc: any = this.explanationTextService;
-          if (!svc._fetLocked) {
-            svc._activeIndex = targetIndex;
-            svc._cachedFormatted = formatted;
-            svc._cachedAt = performance.now();
-
-            // Silent cache: store formatted explanation but don't display it
-            svc.latestExplanation = formatted;
-            svc.formattedExplanationSubject?.next(formatted);
-
-            // DO NOT set any display flags here
-            svc.setShouldDisplayExplanation(false);
-            svc.setIsExplanationTextDisplayed(false);
-            // Do not call setExplanationText — that triggers visible binding updates
-
-            console.log(`[NAV] 🧠 FET silently pre-armed for Q${targetIndex + 1}`);
-          } else {
-            console.log(`[NAV] 🚫 FET locked — skipping pre-arm for Q${targetIndex + 1}`);
-          }
+      
+          // 🔒 DO NOT trigger any display updates here
+          this.explanationTextService.silentlyPrecacheExplanation(targetIndex, formatted);
+      
         } else {
-          this.explanationTextService.setExplanationText('');
-          this.explanationTextService.setShouldDisplayExplanation(false);
+          // Safe clear if question has no explanation
+          this.explanationTextService.silentlyPrecacheExplanation(targetIndex, '');
           console.log(`[NAV] 🧩 No explanation to cache for Q${targetIndex + 1}`);
         }
       } catch (err) {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
-
   
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
