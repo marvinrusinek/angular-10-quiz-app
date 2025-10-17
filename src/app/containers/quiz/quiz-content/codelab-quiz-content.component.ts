@@ -495,24 +495,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, question, correct, fet, shouldShow]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-
-        // Always show question text and correct count immediately
+    
+        // 🧱 STEP 1: Guard for out-of-sync emissions during navigation
+        const isIndexStable = idx === currentIdx && idx === activeIdx;
+        if (!isIndexStable) {
+          // Skip any pre-armed or stale FET text for other questions
+          return question;
+        }
+    
+        // 🧩 STEP 2: Merge question with correct answers count (baseline)
         const withCorrect =
           correct && correct.trim().length > 0
             ? `${question} <span class="correct-count">${correct}</span>`
             : question;
-
-        // Show FET as soon as all guards are true
-        const canShowFET =
-          idx === currentIdx &&
-          idx === activeIdx &&
-          shouldShow &&
-          fet.gate &&
-          fet.text.trim().length > 0;
-
-        if (canShowFET) return fet.text.trim();
-
-        // Otherwise display question and correct count
+    
+        // 🧠 STEP 3: Use a safe gating heuristic for FET display
+        const fetText = (fet?.text ?? '').trim();
+        const fetGate = fet?.gate === true;
+        const isFETReady =
+          shouldShow === true &&
+          fetGate &&
+          fetText.length > 0 &&
+          !this.explanationTextService._visibilityLocked;
+    
+        // ✅ STEP 4: Only show FET when the explanation gate is *explicitly open*
+        if (isFETReady) {
+          return fetText;
+        }
+    
+        // ⏸ STEP 5: Otherwise remain in question mode (with correct count)
         return withCorrect;
       }),
       distinctUntilChanged(),
