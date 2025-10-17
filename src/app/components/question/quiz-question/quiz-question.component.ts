@@ -711,12 +711,25 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
+    // Guard: reset _fetEarlyShown whenever the question changes
+    if (
+      (changes['currentQuestionIndex'] && !changes['currentQuestionIndex'].firstChange) ||
+      (changes['question'] && !changes['question'].firstChange)
+    ) {
+      if (this._fetEarlyShown instanceof Set) {
+        this._fetEarlyShown.clear();
+        console.log(
+          `[QQC] 🧹 Cleared _fetEarlyShown on question change → Q${this.currentQuestionIndex + 1}`
+        );
+      }
+    }
+  
     if (changes.questionPayload && this.questionPayload) {
       this.hydrateFromPayload(this.questionPayload);
       this.questionPayloadSubject.next(this.questionPayload);
       this.enforceHydrationFallback();
     }
-
+  
     if (
       changes.currentQuestionIndex &&
       !changes.currentQuestionIndex.firstChange
@@ -725,45 +738,43 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.explanationVisible = false;
       this.explanationText = '';
     }
-
+  
     if (changes['question']) {
       // Clear local icon state before changing question
       this.clearOptionStateForQuestion(this.previousQuestionIndex);
     }
-
+  
     if (changes['question'] || changes['options']) {
-      this.unselectOption(); // clears per-question UI state
+      this.unselectOption();  // clears per-question UI state
       this.handleQuestionAndOptionsChange(
         changes['question'],
         changes['options']
       );
-
+  
       // Restore selected + icon state
       if (this.currentQuestionIndex != null) {
-        this.restoreSelectionsAndIconsForQuestion(this.quizService.currentQuestionIndex);
+        this.restoreSelectionsAndIconsForQuestion(
+          this.quizService.currentQuestionIndex
+        );
       }
-
+  
       this.previousQuestionIndex = this.currentQuestionIndex;
     }
-
+  
     // Emit renderReady when both question and options are valid
     const hasValidQuestion =
       !!this.questionData?.questionText?.trim?.() ||
       !!this.currentQuestion?.questionText?.trim?.();
-
+  
     const hasValidOptions = Array.isArray(this.options) && this.options.length > 0;
-
+  
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
       setTimeout(() => {
-        // Conditions met, emitting true
-        this.renderReadySubject.next(true);
+        this.renderReadySubject.next(true);  // conditions met, emit true
       }, 0);
     } else {
-      console.warn('[⏸️ renderReady] Conditions not met:', {
-        hasValidQuestion,
-        hasValidOptions
-      });
+      console.warn('[⏸️ renderReady] Conditions not met:', { hasValidQuestion, hasValidOptions });
       this.renderReadySubject.next(false);
     }
   }
