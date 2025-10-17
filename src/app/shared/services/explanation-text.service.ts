@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import {
-  distinctUntilChanged,
-  filter,
-  map,
-  shareReplay,
-  startWith,
-} from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, shareReplay, startWith } from 'rxjs/operators';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -1199,7 +1193,7 @@ export class ExplanationTextService {
 
     // Ensure subjects
     if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
-    if (!this._gate.has(idx))    this._gate.set(idx,    new BehaviorSubject<boolean>(false));
+    if (!this._gate.has(idx)) this._gate.set(idx, new BehaviorSubject<boolean>(false));
 
     // Commit state in one frame
     this._activeIndex = idx;
