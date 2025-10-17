@@ -650,9 +650,7 @@ export class QuizNavigationService {
       return this.quizService.quizId;
     }
 
-    if (this.quizId) {
-      return this.quizId;
-    }
+    if (this.quizId) return this.quizId;
 
     const routeQuizId = this.readQuizIdFromRouterSnapshot();
     if (routeQuizId) {
