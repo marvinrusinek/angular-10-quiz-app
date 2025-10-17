@@ -3224,19 +3224,23 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
         console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
       
+        // Now open this question’s explanation gate
         (async () => {
           try {
+            console.log(`[QQC] 🧠 Attempting forceShowExplanation for Q${idx + 1}`);
             await this.explanationTextService.forceShowExplanation(idx, q);
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
             this.displayExplanation = true;
-            console.log(`[QQC ✅] FET displayed for Q${idx + 1}`);
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            console.log(`[QQC ✅] forceShowExplanation returned for Q${idx + 1}`);
           } catch (err) {
-            console.warn('[QQC] ⚠️ forceShowExplanation failed; using fallback', err);
+            console.warn('[QQC] ⚠️ forceShowExplanation failed; fallback to updateExplanationText', err);
             try {
               await this.updateExplanationText(idx);
               this.displayExplanation = true;
               this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-            } catch {}
+            } catch (innerErr) {
+              console.error('[QQC] ❌ Both forceShowExplanation and fallback failed', innerErr);
+            }
           }
         })();
       }
