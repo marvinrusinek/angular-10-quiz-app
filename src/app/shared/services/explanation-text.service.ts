@@ -93,6 +93,8 @@ export class ExplanationTextService {
   private _readyForExplanation = false;
   private _readyForExplanation$ = new BehaviorSubject<boolean>(false);
 
+  private _visibilityLocked = false;
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -793,9 +795,15 @@ export class ExplanationTextService {
     shouldDisplay: boolean,
     options: { force?: boolean; context?: string } = {}
   ): void {
+    // Visibility lock: prevent any reactive writes while restoring visibility
+    if ((this as any)._visibilityLocked) {
+      console.log('[ETS] ⏸ Ignored setShouldDisplayExplanation while locked');
+      return;
+    }
+  
     const contextKey = this.normalizeContext(options.context);
     const signature = `${options.context ?? 'global'}:::${shouldDisplay}`;
-
+  
     if (!options.force) {
       const previous = this.shouldDisplayByContext.get(contextKey);
       if (
@@ -805,7 +813,7 @@ export class ExplanationTextService {
         return;
       }
     }
-
+  
     if (shouldDisplay) {
       this.shouldDisplayByContext.set(contextKey, true);
     } else if (contextKey === this.globalContextKey) {
@@ -813,18 +821,26 @@ export class ExplanationTextService {
     } else {
       this.shouldDisplayByContext.delete(contextKey);
     }
-
+  
     this.lastDisplaySignature = signature;
     const aggregated = this.computeContextualFlag(this.shouldDisplayByContext);
-
+  
     if (
       !options.force &&
       aggregated === this.shouldDisplayExplanationSource.getValue()
     ) {
       return;
     }
-
+  
+    // Normal reactive push (this is your main subject)
     this.shouldDisplayExplanationSource.next(aggregated);
+  
+    // Optional: if you still maintain a convenience mirror Subject, update it too
+    try {
+      (this as any).shouldDisplayExplanationSubject?.next(aggregated);
+    } catch {
+      // ignore — optional mirror stream
+    }
   }
 
   public triggerExplanationEvaluation(): void {
@@ -1205,5 +1221,15 @@ export class ExplanationTextService {
     this._readyForExplanation = ready;
     this._readyForExplanation$.next(ready);
     console.log(`[ETS] ⚙️ setReadyForExplanation = ${ready}`);
+  }
+  
+  public lockVisibilityRestore(): void {
+    this._visibilityLocked = true;
+    console.log('[ETS] 🔒 Explanation pipeline locked');
+  }
+
+  public unlockVisibilityRestore(): void {
+    this._visibilityLocked = false;
+    console.log('[ETS] 🔓 Explanation pipeline unlocked');
   }
 }
