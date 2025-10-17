@@ -854,6 +854,31 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // Ensure quiz state is restored before proceeding
         await this.restoreQuizState();
 
+        // 🧠 NEW: restore FET display mode accurately
+        try {
+          const qIdx = this.currentQuestionIndex ?? 0;
+          const qState = this.quizStateService.getQuestionState(this.quizId, qIdx);
+          const shouldShowExplanation =
+            qState?.explanationDisplayed === true ||
+            (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
+
+          if (shouldShowExplanation) {
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            this.displayExplanation = true;
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
+          } else {
+            this.displayStateSubject?.next({ mode: 'question', answered: false });
+            this.displayExplanation = false;
+            this.explanationTextService.setShouldDisplayExplanation(false);
+            this.explanationTextService.setIsExplanationTextDisplayed(false);
+            console.log(`[onVisibilityChange] ↩️ Restored question text for Q${qIdx + 1}`);
+          }
+        } catch (fetErr) {
+          console.warn('[onVisibilityChange] ⚠️ FET restore failed:', fetErr);
+        }
+
         // Ensure optionsToDisplay is populated before proceeding
         if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
           console.warn('[onVisibilityChange] ⚠️ optionsToDisplay is empty! Attempting to repopulate from currentQuestion.');
