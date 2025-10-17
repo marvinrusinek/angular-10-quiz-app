@@ -55,7 +55,7 @@ export class QuizStateService {
   answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
 
-  private displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
+  public displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
     mode: 'question',
     answered: false
   });
@@ -75,7 +75,6 @@ export class QuizStateService {
   }
 
   setDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
-    console.log('[✅ setDisplayState]', state);
     this.displayStateSubject.next(state);
   }
 
@@ -187,14 +186,8 @@ export class QuizStateService {
 
   // Store explanation for a question
   setQuestionExplanation(quizId: string, questionIndex: number, explanation: string): void {
-    if (!this.quizState[quizId]) {
-      this.quizState[quizId] = {};
-    }
-
-    if (!this.quizState[quizId][questionIndex]) {
-      this.quizState[quizId][questionIndex] = {};
-    }
-
+    if (!this.quizState[quizId]) this.quizState[quizId] = {};
+    if (!this.quizState[quizId][questionIndex]) this.quizState[quizId][questionIndex] = {};
     this.quizState[quizId][questionIndex] = { explanation };
   }
 
@@ -307,10 +300,7 @@ export class QuizStateService {
   // Method to set isAnswered and lock displayExplanation
   setAnswerSelected(isAnswered: boolean): void {
     this.answeredSubject.next(isAnswered);
-
-    if (isAnswered && !this.displayExplanationLocked) {
-      this.displayExplanationLocked = true;
-    }
+    if (isAnswered && !this.displayExplanationLocked) this.displayExplanationLocked = true;
   }
 
   resetDisplayLock(): void {
