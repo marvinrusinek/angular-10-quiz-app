@@ -317,8 +317,7 @@ export class QuizNavigationService {
       await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
 
       // Restore FET state safely for the new question
-      // 🧩 Step 6: Post-load FET Pre-arm (moved and guarded)
-      // 🧩 Step 6: Post-load FET Pre-arm (fixed hidden cache)
+      // Step 6: Post-load FET Pre-arm (fixed hidden cache)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
@@ -328,22 +327,42 @@ export class QuizNavigationService {
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
       
-          // Wait one frame for stability
-          await new Promise<void>((res) => requestAnimationFrame(() => setTimeout(res, 50)));
+          // ────────────────────────────────────────────────
+          // Step 1: Pre-arm gate WITHOUT setting text yet
+          // ────────────────────────────────────────────────
+          const svc: any = this.explanationTextService;
+          svc._preArmedReady = true;
+          svc._activeIndex = targetIndex;
+          svc._cachedFormatted = formatted;
+          svc._cachedAt = performance.now();
+          svc._fetLocked = false; // allow later emit from onOptionClicked
       
-          // Skip if user already moved on
-          const activeIdx = this.quizService.getCurrentQuestionIndex();
-          if (activeIdx !== targetIndex) {
-            console.log(`[NAV] ⏸ Skipping FET pre-arm — user now on Q${activeIdx + 1}`);
-            return;
-          }
+          this.quizStateService.displayStateSubject?.next({
+            mode: 'question',
+            answered: false,
+          });
       
-          // 🔒 DO NOT trigger any display updates here
-          this.explanationTextService.silentlyPrecacheExplanation(targetIndex, formatted);
-      
+          // Step 2: Wait until question text has rendered
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              try {
+                // Only set explanation text *after* the question text emission
+                if (!(svc as any)._fetLocked) {
+                  svc.setExplanationText('');
+                  svc.setShouldDisplayExplanation(false);
+                  svc.setIsExplanationTextDisplayed(false);
+                  console.log(`[NAV] 🧠 Pre-arm complete, FET cached but not displayed for Q${targetIndex + 1}`);
+                } else {
+                  console.log(`[NAV] 🚫 FET locked, skipping pre-cache for Q${targetIndex + 1}`);
+                }
+              } catch (err) {
+                console.warn('[NAV] ⚠️ FET pre-arm deferred injection failed', err);
+              }
+            }, 120);  // give the DOM 120ms to stabilize before any explanation push
+          });
         } else {
-          // Safe clear if question has no explanation
-          this.explanationTextService.silentlyPrecacheExplanation(targetIndex, '');
+          this.explanationTextService.setExplanationText('');
+          this.explanationTextService.setShouldDisplayExplanation(false);
           console.log(`[NAV] 🧩 No explanation to cache for Q${targetIndex + 1}`);
         }
       } catch (err) {
