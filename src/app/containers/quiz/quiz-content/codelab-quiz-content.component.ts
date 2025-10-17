@@ -471,36 +471,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             .byIndex$(idx)
             .pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
-          // Add these reactive guards (no effect if missing)
           this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
           this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
         ]).pipe(
-          switchMap(([text, gate, shouldShow, displayed]) => {
+          map(([text, gate, shouldShow, displayed]) => {
             const rawText = (text ?? '').toString().trim();
+            const gateOpen = !!gate;
+            const displayReady = shouldShow || displayed;
     
-            // Prevent pre-armed FET flicker — only delay when FET shouldn't be shown yet
-            const needsDelay = !shouldShow && !displayed && !gate && rawText.length > 0;
+            // ────────────────────────────────────────────────
+            // HARD GUARD: FET text must *only* emit when ALL are true
+            //  - gate open
+            //  - displayReady true
+            //  - rawText non-empty
+            // otherwise: emit blank text
+            // ────────────────────────────────────────────────
+            const canShowFET = gateOpen && displayReady && rawText.length > 0;
     
-            if (needsDelay) {
-              // Delay emission one animation frame (~60 ms) to let question text settle
-              return new Promise<FETState>((resolve) => {
-                requestAnimationFrame(() => {
-                  setTimeout(() => resolve({ idx, text: '', gate: false }), 60);
-                });
-              });
+            if (!canShowFET) {
+              return { idx, text: '', gate: false } as FETState;
             }
     
-            return of({
-              idx,
-              text: rawText,
-              gate: !!gate && (shouldShow || displayed)
-            });
+            return { idx, text: rawText, gate: true } as FETState;
           }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         )
       ),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
 
     // 7) Final render mapping (tested stable version)
     return combineLatest([
