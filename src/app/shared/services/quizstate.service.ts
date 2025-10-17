@@ -127,7 +127,7 @@ export class QuizStateService {
     }
   
     let state = this.quizStates[quizId].get(questionId) ?? this.createDefaultQuestionState();
-    this.quizStates[quizId].set(questionId, state); // store the default state in the quiz's state map
+    this.quizStates[quizId].set(questionId, state);  // store the default state in the quiz's state map
   
     return state;
   }
@@ -137,7 +137,7 @@ export class QuizStateService {
     let currentState = this.getQuestionState(quizId, questionIndex) || {
       isAnswered: false,
       selectedOptions: [],
-      numberOfCorrectAnswers: 0  // Ensure this property is properly initialized
+      numberOfCorrectAnswers: 0  // ensure this property is properly initialized
     };
   
     // If updating selected options and the question has correct answers to track
@@ -195,7 +195,6 @@ export class QuizStateService {
   getStoredExplanation(quizId: string, questionIndex: number): string | null {
     const explanationObject = this.quizState[quizId]?.[questionIndex];
     const explanation = explanationObject?.explanation || null;
-
     return explanation;
   }
 
