@@ -368,10 +368,11 @@ export class QuizNavigationService {
       this.notifyResetExplanation();
       this.notifyNavigationSuccess();
 
-      // Ensure explanation lock released after navigation
-      if ((this.explanationTextService as any)._visibilityLocked) {
-        (this.explanationTextService as any)._visibilityLocked = false;
-        console.log('[NAV] 🔓 ExplanationTextService visibility lock released');
+      try {
+        const ets: any = this.explanationTextService;
+        if (ets && ets._visibilityLocked) ets._visibilityLocked = false;
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to release ETS visibility lock', err);
       }
   
       return true;
