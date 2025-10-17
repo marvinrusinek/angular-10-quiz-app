@@ -881,114 +881,38 @@ export class ExplanationTextService {
     console.log('[✅ Change Detection Applied after Explanation Evaluation]');
   }
 
-  public async forceShowExplanation(
-    index: number,
-    question?: QuizQuestion | null
-  ): Promise<void> {
+  public async forceShowExplanation(index: number, question?: QuizQuestion): Promise<void> {
     try {
-      const svc = this as any;
-  
-      // ────────────────────────────────
-      // 🧩 Step 1: Auto-unlock stale locks
-      // ────────────────────────────────
-      const lockTooOld =
-        typeof svc._cachedAt === 'number' &&
-        performance.now() - svc._cachedAt > 2500;
-      const mismatchedIndex =
-        typeof svc._activeIndex === 'number' &&
-        svc._activeIndex !== index;
-  
-      if (lockTooOld || mismatchedIndex) {
-        console.warn(
-          `[ETS] 🔄 Auto-unlocking stale FET lock (was for Q${svc._activeIndex ?? 'N/A'})`
-        );
-        svc._fetLocked = false;
-        svc._visibilityLocked = false;
-        svc.readyForExplanation = false;
-      }
-  
-      // ────────────────────────────────
-      // 🧠 Step 2: Sanity guard
-      // ────────────────────────────────
-      if (svc._visibilityLocked) {
-        console.log(
-          `[ETS] 🚫 forceShowExplanation skipped — visibilityLocked for Q${index + 1}`
-        );
-        return;
-      }
-  
-      // ────────────────────────────────
-      // 🧩 Step 3: Resolve canonical question
-      // ────────────────────────────────
-      const q =
-        question ??
-        svc.quizService?.questions?.[index] ??
-        svc._cachedQuestion ??
-        null;
-  
+      const q = question || this.quizService?.questions?.[index];
       if (!q) {
-        console.warn(
-          `[ETS] ⚠️ No question found for forceShowExplanation(Q${index + 1})`
-        );
+        console.warn(`[ETS] ⚠️ No question found for index ${index}`);
         return;
       }
   
-      // ────────────────────────────────
-      // 🧠 Step 4: Format explanation
-      // ────────────────────────────────
       const raw = (q.explanation ?? '').trim();
-      const correctIdxs =
-        typeof svc.getCorrectOptionIndices === 'function'
-          ? svc.getCorrectOptionIndices(q)
-          : [];
-      const formatted =
-        typeof svc.formatExplanation === 'function'
-          ? svc.formatExplanation(q, correctIdxs, raw).trim()
-          : raw;
+      const correctIdxs = this.getCorrectOptionIndices?.(q) ?? [];
+      const formatted = this.formatExplanation?.(q, correctIdxs, raw)?.trim?.() ?? raw;
   
-      if (!formatted) {
-        console.warn(`[ETS] ⚠️ Empty explanation for Q${index + 1}`);
+      // Prevent overwriting a live explanation from the same index
+      if (this._activeIndex === index && this.shouldDisplayExplanationSource?.getValue?.()) {
+        console.log(`[ETS] 🚫 FET already displayed for Q${index + 1}, skipping duplicate.`);
         return;
       }
   
-      // ────────────────────────────────
-      // 🧩 Step 5: Unlock + cache new data
-      // ────────────────────────────────
-      svc._activeIndex = index;
-      svc._fetLocked = false; // ✅ allow immediate emit
-      svc.readyForExplanation = true;
-      svc.latestExplanation = formatted;
-      svc._cachedFormatted = formatted;
-      svc._cachedAt = performance.now();
+      // Fully unlock and emit explanation now
+      this._activeIndex = index;
+      this.readyForExplanation = true;
+      this._fetLocked = false;
+      this._visibilityLocked = false;
   
-      console.log(`[ETS] 🧠 forceShowExplanation armed for Q${index + 1}`);
+      // Push to explanation stream
+      this.setExplanationText(formatted, { force: true });
+      this.setShouldDisplayExplanation(true, { force: true });
+      this.setIsExplanationTextDisplayed(true, { force: true });
   
-      // ────────────────────────────────
-      // 💡 Step 6: Emit into reactive streams
-      // ────────────────────────────────
-      svc.setExplanationText(formatted, { force: true });
-      svc.setShouldDisplayExplanation(true, { force: true });
-      svc.setIsExplanationTextDisplayed(true, { force: true });
-  
-      if (svc.formattedExplanationSubject) {
-        svc.formattedExplanationSubject.next(formatted);
-      }
-      if (svc.explanationTextSubject) {
-        svc.explanationTextSubject.next(formatted);
-      }
-  
-      console.log(`[ETS ✅] Explanation emitted for Q${index + 1}`);
-  
-      // ────────────────────────────────
-      // 🕐 Step 7: One-frame polish
-      // ────────────────────────────────
-      await new Promise((res) => setTimeout(res, 40));
-      svc.setShouldDisplayExplanation(true, { force: true });
-      svc.setIsExplanationTextDisplayed(true, { force: true });
-  
-      console.log(`[ETS ✅] forceShowExplanation completed successfully for Q${index + 1}`);
+      console.log(`[ETS ✅] forceShowExplanation: FET emitted for Q${index + 1}`);
     } catch (err) {
-      console.error('[ETS ❌ forceShowExplanation failed]', err);
+      console.error('[ETS ❌] forceShowExplanation failed:', err);
     }
   }
 
