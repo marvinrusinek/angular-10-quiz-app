@@ -291,6 +291,18 @@ export class QuizNavigationService {
       // ────────────────────────────────
       this.quizService.setCurrentQuestionIndex(targetIndex);
       this.currentQuestionIndex = targetIndex;
+
+      // Reset FET readiness on navigation so next question can display its explanation
+      try {
+        const svc: any = this.explanationTextService;
+        svc.readyForExplanation = false;
+        svc._fetLocked = false;
+        svc._preArmedReady = false;
+        svc._activeIndex = targetIndex;
+        console.log(`[NAV] 🔄 Reset FET readiness for Q${targetIndex + 1}`);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to reset FET readiness', err);
+      }
   
       this.resetExplanationAndState();
       this.selectedOptionService.setAnswered(false, true);
