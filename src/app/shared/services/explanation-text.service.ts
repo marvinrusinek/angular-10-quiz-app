@@ -7,8 +7,8 @@ import { FormattedExplanation } from '../../shared/models/FormattedExplanation.m
 import { QuizQuestion } from '../../shared/models/QuizQuestion.model';
 
 export interface ExplanationEvent {
-  index: number;
-  text: string | null;
+  index: number,
+  text: string | null
 }
 
 @Injectable({ providedIn: 'root' })
@@ -867,25 +867,73 @@ export class ExplanationTextService {
   }
 
   public triggerExplanationEvaluation(): void {
-    const currentExplanation = this.formattedExplanationSubject
-      .getValue()
-      ?.trim();
+    const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
 
     if (shouldShow && currentExplanation) {
       console.log(`[✅ Explanation Ready to Display]: "${currentExplanation}"`);
       this.explanationTrigger.next();
-      this.setExplanationText(currentExplanation, {
-        force: true,
-        context: 'evaluation',
-      });
+      this.setExplanationText(currentExplanation, { force: true, context: 'evaluation' });
     } else {
-      console.warn(
-        '[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag'
-      );
+      console.warn('[⏭️ triggerExplanationEvaluation] Skipped — Missing explanation or display flag');
     }
 
     console.log('[✅ Change Detection Applied after Explanation Evaluation]');
+  }
+
+  public async forceShowExplanation(
+    idx: number,
+    question: QuizQuestion | null | undefined
+  ): Promise<void> {
+    const i0 = Math.max(0, Number(idx) | 0);
+    if (!question) {
+      console.warn('[ETS] ❌ Missing question for forceShowExplanation');
+      return;
+    }
+  
+    // Build formatted explanation
+    const rawExpl = (question.explanation ?? '').toString().trim();
+    const indices: number[] = Array.isArray(question.options)
+      ? question.options.map((o, k) => (o?.correct ? k + 1 : -1)).filter(n => n > 0)
+      : [];
+  
+    let formatted = rawExpl;
+    try {
+      if (typeof this.formatExplanation === 'function') {
+        formatted = (this.formatExplanation(question, indices, rawExpl) ?? '').toString().trim();
+      }
+    } catch (err) {
+      console.warn('[ETS] ⚠️ formatExplanation failed', err);
+      formatted = rawExpl;
+    }
+    if (!formatted) formatted = 'Explanation not available.';
+  
+    // Reset/arm state and push authoritative values
+    this._activeIndex = i0;
+    this._fetLocked = false;
+    this._visibilityLocked = false;
+    this.explanationLocked = false;
+    this.lastExplanationSignature = '';
+    this.lastDisplaySignature = '';
+    this.lastDisplayedSignature = '';
+  
+    this.latestExplanation = formatted;
+  
+    // Push through subjects — forced emission bypasses duplicate suppression
+    this.setExplanationText(formatted, { force: true });
+    this.setShouldDisplayExplanation(true, { force: true });
+    this.setIsExplanationTextDisplayed(true, { force: true });
+  
+    // Double-tick emission to guarantee Angular sees it
+    try {
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+      this.explanationTextSubject?.next(formatted);
+      this.formattedExplanationSubject?.next(formatted);
+    } catch (err) {
+      console.warn('[ETS] ⚠️ Double-tick failed', err);
+    }
+  
+    console.log(`[ETS] ✅ forceShowExplanation complete for Q${i0 + 1}`);
   }
 
   private buildQuestionKey(
