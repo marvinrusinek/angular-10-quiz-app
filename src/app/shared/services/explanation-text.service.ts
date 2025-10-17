@@ -882,58 +882,85 @@ export class ExplanationTextService {
   }
 
   public async forceShowExplanation(
-    idx: number,
-    question: QuizQuestion | null | undefined
+    index: number,
+    question?: QuizQuestion | null
   ): Promise<void> {
-    const i0 = Math.max(0, Number(idx) | 0);
-    if (!question) {
-      console.warn('[ETS] ❌ Missing question for forceShowExplanation');
-      return;
-    }
-  
-    // Build formatted explanation
-    const rawExpl = (question.explanation ?? '').toString().trim();
-    const indices: number[] = Array.isArray(question.options)
-      ? question.options.map((o, k) => (o?.correct ? k + 1 : -1)).filter(n => n > 0)
-      : [];
-  
-    let formatted = rawExpl;
     try {
-      if (typeof this.formatExplanation === 'function') {
-        formatted = (this.formatExplanation(question, indices, rawExpl) ?? '').toString().trim();
+      const svc = this as any;
+  
+      // Step 1: Sanity and visibility locks
+      if (svc._visibilityLocked) {
+        console.log(`[ETS] 🔒 forceShowExplanation skipped — visibilityLocked for Q${index + 1}`);
+        return;
       }
+  
+      // Step 2: Determine canonical question
+      const q =
+        question ??
+        (svc.quizService?.questions?.[index] ??
+          svc._cachedQuestion ??
+          null);
+  
+      if (!q) {
+        console.warn(`[ETS] ⚠️ No question available for forceShowExplanation(Q${index + 1})`);
+        return;
+      }
+  
+      // Step 3: Resolve explanation text
+      const raw = (q.explanation ?? '').trim();
+      const correctIdxs =
+        typeof svc.getCorrectOptionIndices === 'function'
+          ? svc.getCorrectOptionIndices(q)
+          : [];
+      const formatted =
+        typeof svc.formatExplanation === 'function'
+          ? svc.formatExplanation(q, correctIdxs, raw).trim()
+          : raw;
+  
+      if (!formatted) {
+        console.warn(`[ETS] ⚠️ Empty explanation for Q${index + 1}`);
+        return;
+      }
+  
+      // Step 4: Mark as active, cache and unlock
+      svc._activeIndex = index;
+      svc._fetLocked = true; // prevent pre-clean overwrites
+      svc.readyForExplanation = true;
+      svc.latestExplanation = formatted;
+      svc._cachedFormatted = formatted;
+      svc._cachedAt = performance.now();
+  
+      console.log(`[ETS] 🧠 forceShowExplanation armed for Q${index + 1}`);
+  
+      // Step 5: Emit synchronously into reactive streams
+      svc.setExplanationText(formatted, { force: true });
+      svc.setShouldDisplayExplanation(true, { force: true });
+      svc.setIsExplanationTextDisplayed(true, { force: true });
+  
+      // Broadcast immediately for listening components (e.g. QQC)
+      try {
+        if (svc.formattedExplanationSubject) {
+          svc.formattedExplanationSubject.next(formatted);
+        }
+        if (svc.explanationTextSubject) {
+          svc.explanationTextSubject.next(formatted);
+        }
+        console.log(`[ETS ✅] Explanation emitted for Q${index + 1}`);
+      } catch (emitErr) {
+        console.warn('[ETS] ⚠️ FET broadcast failed', emitErr);
+      }
+  
+      // Small adaptive bounce to avoid race with CD cycles
+      await new Promise((res) => setTimeout(res, 40));
+  
+      // Step 6: Safety ping (for visual consistency)
+      svc.setShouldDisplayExplanation(true, { force: true });
+      svc.setIsExplanationTextDisplayed(true, { force: true });
+  
+      console.log(`[ETS ✅] forceShowExplanation completed successfully for Q${index + 1}`);
     } catch (err) {
-      console.warn('[ETS] ⚠️ formatExplanation failed', err);
-      formatted = rawExpl;
+      console.error('[ETS ❌ forceShowExplanation failed]', err);
     }
-    if (!formatted) formatted = 'Explanation not available.';
-  
-    // Reset/arm state and push authoritative values
-    this._activeIndex = i0;
-    this._fetLocked = false;
-    this._visibilityLocked = false;
-    this.explanationLocked = false;
-    this.lastExplanationSignature = '';
-    this.lastDisplaySignature = '';
-    this.lastDisplayedSignature = '';
-  
-    this.latestExplanation = formatted;
-  
-    // Push through subjects — forced emission bypasses duplicate suppression
-    this.setExplanationText(formatted, { force: true });
-    this.setShouldDisplayExplanation(true, { force: true });
-    this.setIsExplanationTextDisplayed(true, { force: true });
-  
-    // Double-tick emission to guarantee Angular sees it
-    try {
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
-      this.explanationTextSubject?.next(formatted);
-      this.formattedExplanationSubject?.next(formatted);
-    } catch (err) {
-      console.warn('[ETS] ⚠️ Double-tick failed', err);
-    }
-  
-    console.log(`[ETS] ✅ forceShowExplanation complete for Q${i0 + 1}`);
   }
 
   private buildQuestionKey(
