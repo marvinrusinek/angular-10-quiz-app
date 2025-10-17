@@ -3238,29 +3238,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ────────────────────────────────────────────────
       // EARLY FET trigger (first correct click)
       // ────────────────────────────────────────────────
-      if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
+      // Lock the question index immediately to avoid drift
+      const lockedIndex = this.currentQuestionIndex ?? idx;
+
+      // Don’t rely on live reactive index after this point
+      console.log(`[QQC] 🔒 Locked index for FET trigger: Q${lockedIndex + 1}`);
+
+      if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(lockedIndex)) {
         this.safeStopTimer('completed');
-        this._fetEarlyShown.add(idx);
+        this._fetEarlyShown.add(lockedIndex);
       
-        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${lockedIndex + 1}`);
       
-        // Now open this question’s explanation gate
         (async () => {
           try {
-            console.log(`[QQC] 🧠 Attempting forceShowExplanation for Q${idx + 1}`);
-            await this.explanationTextService.forceShowExplanation(idx, q);
+            // Always use lockedIndex here
+            const svc: any = this.explanationTextService;
+            svc._activeIndex = lockedIndex;
+            svc.readyForExplanation = true;
+            svc._fetLocked = true;
+            svc.setShouldDisplayExplanation(true);
+            svc.setIsExplanationTextDisplayed(false);
+      
+            await new Promise(res => setTimeout(res, 40));
+      
+            // Retrieve canonical question using locked index
+            const canonicalQ = this.quizService.questions?.[lockedIndex] ?? q;
+            const raw = (canonicalQ?.explanation ?? '').trim();
+            const correctIdxs = svc.getCorrectOptionIndices(canonicalQ);
+            const formatted = svc.formatExplanation(canonicalQ, correctIdxs, raw).trim();
+      
+            // ✅ Always use lockedIndex here too
+            svc.setExplanationText(formatted);
+            svc.setIsExplanationTextDisplayed(true);
+            svc.setShouldDisplayExplanation(true);
+      
             this.displayExplanation = true;
             this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-            console.log(`[QQC ✅] forceShowExplanation returned for Q${idx + 1}`);
+            this.explanationToDisplay = formatted;
+            this.explanationToDisplayChange?.emit(formatted);
+      
+            console.log(`[QQC ✅] FET displayed for Q${lockedIndex + 1}`);
           } catch (err) {
-            console.warn('[QQC] ⚠️ forceShowExplanation failed; fallback to updateExplanationText', err);
-            try {
-              await this.updateExplanationText(idx);
-              this.displayExplanation = true;
-              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-            } catch (innerErr) {
-              console.error('[QQC] ❌ Both forceShowExplanation and fallback failed', innerErr);
-            }
+            console.warn('[QQC] ⚠️ FET trigger failed', err);
           }
         })();
       }
