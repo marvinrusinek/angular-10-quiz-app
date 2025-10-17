@@ -3006,38 +3006,49 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       // ────────────────────────────────────────────────
       // EARLY FET trigger (first correct click)
       // ────────────────────────────────────────────────
-      if (clickedIsCorrect && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
+      if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
+        this.safeStopTimer('completed');
         this._fetEarlyShown.add(idx);
-        console.log(`[QQC] ⚡ Early FET trigger for first correct click on Q${idx + 1}`);
-
-        // Lock the FET gate so nav pre-cache can't overwrite
-        (this.explanationTextService as any)._fetLocked = true;
-        (this.explanationTextService as any)._activeIndex = idx;
-
-        // Run async trigger
+      
+        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+      
+        const delayMs = 50; // adaptive bounce, fixed shorter delay
         (async () => {
           try {
-            // Give render a breath so pre-cache finishes before we write
-            await new Promise(res => setTimeout(res, 80));
-
-            // Write once, and hold
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            this.explanationTextService.setIsExplanationTextDisplayed(true);
-
-            const formatted = await this.updateExplanationText(idx);
-            this.explanationTextService.setExplanationText(formatted);
+            // Unlock and mark the explanation as ready in one atomic operation
+            const svc: any = this.explanationTextService;
+            svc._activeIndex = idx;
+            svc.readyForExplanation = true;
+            svc._fetLocked = true; // prevent pre-clean from overwriting
+            svc.setShouldDisplayExplanation(true);
+            svc.setIsExplanationTextDisplayed(false);
+      
+            console.log(`[QQC] 🔓 FET gate unlocked for Q${idx + 1}`);
+      
+            // Small adaptive debounce before updating text
+            await new Promise(res => setTimeout(res, delayMs));
+      
+            // Ensure no stale cross-index overwrite
+            const canonicalQ = this.quizService.questions?.[idx] ?? q;
+            const raw = (canonicalQ?.explanation ?? '').trim();
+            const correctIdxs = svc.getCorrectOptionIndices(canonicalQ);
+            const formatted = svc.formatExplanation(canonicalQ, correctIdxs, raw).trim();
+      
+            // Immediately update explanation state
+            svc.setExplanationText(formatted);
+            svc.setIsExplanationTextDisplayed(true);
+            svc.setShouldDisplayExplanation(true);
+      
             this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-
-            console.log(`[QQC] ✅ FET displayed & locked for Q${idx + 1}`);
+            this.explanationToDisplay = formatted;
+            this.explanationToDisplayChange?.emit(formatted);
+      
+            console.log(`[QQC ✅] FET displayed immediately for Q${idx + 1}`);
           } catch (err) {
-            console.warn('[QQC] ⚠️ Early FET trigger failed', err);
+            console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
           }
         })();
       }
-
-
-      
-
   
       // Continue post-click microtasks for highlighting & feedback
       queueMicrotask(() => {
