@@ -364,9 +364,15 @@ export class QuizNavigationService {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
   
-      this.notifyNavigationSuccess();
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
+      this.notifyNavigationSuccess();
+
+      // Ensure explanation lock released after navigation
+      if ((this.explanationTextService as any)._visibilityLocked) {
+        (this.explanationTextService as any)._visibilityLocked = false;
+        console.log('[NAV] 🔓 ExplanationTextService visibility lock released');
+      }
   
       return true;
     } catch (err) {
