@@ -786,7 +786,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   // Listen for the visibility change event
-  @HostListener('window:visibilitychange', [])
+  /* @HostListener('window:visibilitychange', [])
   async onVisibilityChange(): Promise<void> {
     if (document.visibilityState === 'hidden') {
       try {
@@ -954,6 +954,156 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           } else {
             console.error('[onVisibilityChange] ❌ Failed to reload current question.');
           }
+        }
+      }
+    } catch (error) {
+      console.error('[onVisibilityChange] ❌ Error during state restoration:', error);
+    }
+  } */
+  @HostListener('window:visibilitychange', [])
+  async onVisibilityChange(): Promise<void> {
+    if (document.visibilityState === 'hidden') {
+      try {
+        const idx = this.currentQuestionIndex ?? 0;
+        const qState = this.quizStateService.getQuestionState(this.quizId, idx);
+        this.quizStateService.setQuestionState(this.quizId, idx, {
+          ...qState,
+          explanationDisplayed: this.displayExplanation,
+          explanationText: this.explanationTextService.currentExplanationText ?? ''
+        });
+        console.log(`[VISIBILITY] 💾 Saved FET display state for Q${idx + 1}:`, this.displayExplanation);
+      } catch (err) {
+        console.warn('[VISIBILITY] ⚠️ Failed to persist FET state', err);
+      }
+
+      try {
+        const snap = await firstValueFrom<number>(
+          this.timerService.elapsedTime$.pipe(take(1))
+        );
+        this._elapsedAtHide = snap;
+      } catch {
+        this._elapsedAtHide = null;
+      }
+      this._hiddenAt = performance.now();
+      return;
+    }
+
+    // ───────────────────────────────────────
+    //  FAST-PATH EXPIRY CHECK
+    // ───────────────────────────────────────
+    try {
+      const duration = this.timerService.timePerQuestion ?? 30;
+
+      const elapsedLive = await firstValueFrom<number>(
+        this.timerService.elapsedTime$.pipe(take(1))
+      );
+
+      let candidate = elapsedLive;
+      if (this._hiddenAt != null && this._elapsedAtHide != null) {
+        const hiddenDeltaSec = Math.floor((performance.now() - this._hiddenAt) / 1000);
+        candidate = this._elapsedAtHide + hiddenDeltaSec;
+      }
+
+      if (candidate >= duration) {
+        const i0 = this.normalizeIndex(this.currentQuestionIndex ?? 0);
+
+        const alreadyShowing =
+          this.displayExplanation ||
+          (await firstValueFrom<boolean>(
+            this.explanationTextService.shouldDisplayExplanation$.pipe(take(1))
+          ));
+
+        if (!alreadyShowing) {
+          this.timerService.stopTimer?.(undefined, { force: true });
+          this.ngZone.run(() => { this.onTimerExpiredFor(i0); });
+          this._hiddenAt = null;
+          this._elapsedAtHide = null;
+          return;
+        }
+      }
+
+      this._hiddenAt = null;
+      this._elapsedAtHide = null;
+    } catch (err) {
+      console.warn('[onVisibilityChange] fast-path expiry check failed', err);
+    }
+
+    // ───────────────────────────────────────
+    //  RESTORE FLOW (LOCKED)
+    // ───────────────────────────────────────
+    try {
+      if (document.visibilityState === 'visible') {
+        console.log('[onVisibilityChange] 🟢 Restoring quiz state...');
+
+        // 🧱 LOCK RESTORATION PHASE
+        this._visibilityRestoreInProgress = true;
+
+        // 1️⃣ Ensure base quiz state restored
+        await this.restoreQuizState();
+
+        // 2️⃣ Ensure options are ready
+        if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
+          console.warn('[onVisibilityChange] ⚠️ optionsToDisplay empty → repopulating');
+          if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
+            this.optionsToDisplay = this.currentQuestion.options.map((option, index) => ({
+              ...option,
+              optionId: option.optionId ?? index,
+              correct: option.correct ?? false
+            }));
+          } else {
+            console.error('[onVisibilityChange] ❌ Failed to repopulate optionsToDisplay');
+            return;
+          }
+        }
+
+        // 3️⃣ Restore feedback and selection
+        if (this.currentQuestion) {
+          this.restoreFeedbackState();
+
+          setTimeout(() => {
+            const prevOpt = this.optionsToDisplay.find(o => o.selected);
+            if (prevOpt) {
+              this.applyOptionFeedback(prevOpt);
+            }
+          }, 50);
+
+          try {
+            const feedbackText = await this.generateFeedbackText(this.currentQuestion);
+            this.feedbackText = feedbackText;
+          } catch (error) {
+            console.error('[onVisibilityChange] ❌ Error generating feedback text:', error);
+          }
+        }
+
+        // 4️⃣ Debounce before restoring FET (ensures no race)
+        await new Promise(res => setTimeout(res, 60));
+
+        // 5️⃣ Authoritative FET restore
+        try {
+          const qIdx = this.currentQuestionIndex ?? 0;
+          const qState = this.quizStateService.getQuestionState(this.quizId, qIdx);
+          const shouldShowExplanation =
+            qState?.explanationDisplayed === true ||
+            (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
+
+          if (shouldShowExplanation) {
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            this.displayExplanation = true;
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
+          } else {
+            this.displayStateSubject?.next({ mode: 'question', answered: false });
+            this.displayExplanation = false;
+            this.explanationTextService.setShouldDisplayExplanation(false);
+            this.explanationTextService.setIsExplanationTextDisplayed(false);
+            console.log(`[onVisibilityChange] ↩️ Restored question text for Q${qIdx + 1}`);
+          }
+        } catch (fetErr) {
+          console.warn('[onVisibilityChange] ⚠️ FET restore failed:', fetErr);
+        } finally {
+          // 🧱 UNLOCK RESTORATION PHASE (one frame later)
+          setTimeout(() => { this._visibilityRestoreInProgress = false; }, 100);
         }
       }
     } catch (error) {
