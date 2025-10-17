@@ -291,6 +291,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
   private _abortController: AbortController | null = null;
   private indexChange$ = new Subject<void>();
+
+  private _visibilityRestoreInProgress = false;
+  private _suppressDisplayStateUntil = 0;
+
   private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
@@ -1038,10 +1042,13 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         // 🧱 LOCK RESTORATION PHASE
         this._visibilityRestoreInProgress = true;
 
-        // 1️⃣ Ensure base quiz state restored
+        // Give it a full frame to stabilize before letting observables fire
+        this._suppressDisplayStateUntil = performance.now() + 300;
+
+        // Ensure base quiz state restored
         await this.restoreQuizState();
 
-        // 2️⃣ Ensure options are ready
+        // Ensure options are ready
         if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
           console.warn('[onVisibilityChange] ⚠️ optionsToDisplay empty → repopulating');
           if (this.currentQuestion && Array.isArray(this.currentQuestion.options)) {
@@ -1056,7 +1063,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
 
-        // 3️⃣ Restore feedback and selection
+        // Restore feedback and selection
         if (this.currentQuestion) {
           this.restoreFeedbackState();
 
@@ -1075,10 +1082,10 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
 
-        // 4️⃣ Debounce before restoring FET (ensures no race)
+        // Debounce before restoring FET (ensures no race)
         await new Promise(res => setTimeout(res, 60));
 
-        // 5️⃣ Authoritative FET restore
+        // Authoritative FET restore
         try {
           const qIdx = this.currentQuestionIndex ?? 0;
           const qState = this.quizStateService.getQuestionState(this.quizId, qIdx);
@@ -1087,23 +1094,26 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
 
           if (shouldShowExplanation) {
-            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
             this.displayExplanation = true;
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.setIsExplanationTextDisplayed(true);
+            this.safeSetDisplayState({ mode: 'explanation', answered: true });
             console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
           } else {
-            this.displayStateSubject?.next({ mode: 'question', answered: false });
             this.displayExplanation = false;
             this.explanationTextService.setShouldDisplayExplanation(false);
             this.explanationTextService.setIsExplanationTextDisplayed(false);
+            this.safeSetDisplayState({ mode: 'question', answered: false });
             console.log(`[onVisibilityChange] ↩️ Restored question text for Q${qIdx + 1}`);
           }
         } catch (fetErr) {
           console.warn('[onVisibilityChange] ⚠️ FET restore failed:', fetErr);
         } finally {
-          // 🧱 UNLOCK RESTORATION PHASE (one frame later)
-          setTimeout(() => { this._visibilityRestoreInProgress = false; }, 100);
+          // Unlock after a short delay
+          setTimeout(() => {
+            this._visibilityRestoreInProgress = false;
+            console.log('[VISIBILITY] 🔓 Restore complete, reactive updates re-enabled');
+          }, 350);
         }
       }
     } catch (error) {
@@ -6959,5 +6969,15 @@ export class QuizQuestionComponent extends BaseQuestionComponent
 
     try { this.timerService.stopTimer?.(undefined, { force: true }); } catch {}
     this._timerStoppedForQuestion = true;
+  }
+
+  // Guard wrapper for display state changes
+  private safeSetDisplayState(state: { mode: 'question' | 'explanation'; answered: boolean }): void {
+    // Suppress any update while restoration lock is active or within the debounce window
+    if (this._visibilityRestoreInProgress || performance.now() < this._suppressDisplayStateUntil) {
+      console.log('[safeSetDisplayState] 🚫 Suppressed reactive display update during restore:', state);
+      return;
+    }
+    this.displayStateSubject?.next(state);
   }
 }
