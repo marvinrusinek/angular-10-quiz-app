@@ -307,23 +307,54 @@ export class QuizNavigationService {
           const formatted = this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
-
-          // Delay slightly after render to avoid flicker
-          setTimeout(() => {
-            this.explanationTextService.setExplanationText(formatted);
-            this.explanationTextService.setShouldDisplayExplanation(false); // hidden until click
-            console.log(`[NAV] 🧩 Cached FET for Q${targetIndex + 1}`);
       
-            // Pre-arm explanation gate for this question
-            this.quizStateService.displayStateSubject?.next({
-              mode: 'question',
-              answered: false
+          // ────────────────────────────────────────────────
+          // 🧩 Step 1: Clear stale state ONLY if not already armed
+          // ────────────────────────────────────────────────
+          const svc: any = this.explanationTextService;
+          const wasReady = !!svc._preArmedReady;
+          if (!wasReady) {
+            svc.setExplanationText('');
+            svc.setShouldDisplayExplanation(false);
+            svc.setIsExplanationTextDisplayed(false);
+          }
+      
+          // ────────────────────────────────────────────────
+          // 🧠 Step 2: Pre-arm the explanation gate BEFORE rendering
+          // ────────────────────────────────────────────────
+          svc._preArmedReady = true;
+          svc._activeIndex = targetIndex;
+          svc._cachedFormatted = formatted;
+          svc._cachedAt = performance.now();
+      
+          this.quizStateService.displayStateSubject?.next({
+            mode: 'question',
+            answered: false,
+          });
+      
+          // Slight bounce so the render finishes before injecting text
+          // Cache FET for upcoming question — but never override a live one
+          if (!(this.explanationTextService as any)._fetLocked) {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                setTimeout(() => {
+                  try {
+                    const svc = this.explanationTextService;
+                    svc.setExplanationText(formatted);
+                    svc.setShouldDisplayExplanation(false);
+                    svc.setIsExplanationTextDisplayed(false);
+                    (svc as any)._activeIndex = targetIndex;
+                    console.log(`[NAV] 🧠 FET pre-armed & cached for Q${targetIndex + 1}`);
+                  } catch (err) {
+                    console.warn('[NAV] ⚠️ FET pre-arm injection failed', err);
+                  }
+                  resolve();
+                }, 40);
+              });
             });
-            this.explanationTextService._activeIndex = targetIndex;
-            this.explanationTextService.setIsExplanationTextDisplayed(false);
-            this.explanationTextService.setReadyForExplanation(true);
-            console.log(`[NAV] 🧠 FET gate pre-armed for Q${targetIndex + 1}`);
-          }, 80);
+          } else {
+            console.log(`[NAV] 🚫 FET locked — skipping pre-cache for Q${targetIndex + 1}`);
+          }
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
