@@ -790,6 +790,19 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   async onVisibilityChange(): Promise<void> {
     if (document.visibilityState === 'hidden') {
       try {
+        const idx = this.currentQuestionIndex ?? 0;
+        const qState = this.quizStateService.getQuestionState(this.quizId, idx);
+        this.quizStateService.setQuestionState(this.quizId, idx, {
+          ...qState,
+          explanationDisplayed: this.displayExplanation,
+          explanationText: this.explanationTextService.currentExplanationText ?? ''
+        });
+        console.log(`[VISIBILITY] 💾 Saved FET display state for Q${idx + 1}:`, this.displayExplanation);
+      } catch (err) {
+        console.warn('[VISIBILITY] ⚠️ Failed to persist FET state', err);
+      }
+
+      try {
         const snap = await firstValueFrom<number>(
           this.timerService.elapsedTime$.pipe(take(1))
         );
@@ -863,12 +876,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             (this.explanationTextService as any)?.shouldDisplayExplanation$.value === true;
 
           if (shouldShowExplanation) {
+            // 🔹 Restore explanation mode
             this.displayStateSubject?.next({ mode: 'explanation', answered: true });
             this.displayExplanation = true;
             this.explanationTextService.setShouldDisplayExplanation(true);
             this.explanationTextService.setIsExplanationTextDisplayed(true);
             console.log(`[onVisibilityChange] ✅ Restored FET for Q${qIdx + 1}`);
           } else {
+            // 🔹 Restore question mode
             this.displayStateSubject?.next({ mode: 'question', answered: false });
             this.displayExplanation = false;
             this.explanationTextService.setShouldDisplayExplanation(false);
@@ -894,6 +909,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           }
         }
 
+        // Feedback restore flow
         if (this.currentQuestion) {
           // Restore selected options safely before applying feedback
           this.restoreFeedbackState();
