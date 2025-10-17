@@ -235,7 +235,7 @@ export class QuizQuestionLoaderService {
 
   // Fetch a question and its options and emit a single payload so the
   // heading and list paint in the same change-detection pass (no flicker).
-  async loadQuestionAndOptions(index: number): Promise<boolean> {
+  /* async loadQuestionAndOptions(index: number): Promise<boolean> {
     // quizId & cache handling
     if (!this.ensureRouteQuizId()) {
       return false;
@@ -276,6 +276,76 @@ export class QuizQuestionLoaderService {
     // Explanation / timers / final flags
     await this.postEmitUpdates(q, cloned, index);
 
+    return true;
+  } */
+  async loadQuestionAndOptions(index: number): Promise<boolean> {
+    // quizId & cache handling
+    if (!this.ensureRouteQuizId()) {
+      return false;
+    }
+  
+    // Index Validation and Count Fetch
+    const isCountValid = await this.ensureQuestionCount();
+    const isIndexValid = this.validateIndex(index);
+  
+    if (!isCountValid || !isIndexValid) {
+      console.warn('[⚠️ Invalid index or quiz length]', { index });
+      return false;
+    }
+  
+    // UI reset for a new question
+    await this.resetUiForNewQuestion(index);
+  
+    // Fetch question and options for this quiz
+    const { q, opts } = await this.fetchQuestionAndOptions(index);
+    if (!q || !opts.length) {
+      return false;
+    }
+  
+    // HARD CLONE BARRIER — break reference identity
+    let cloned: Option[] = [];
+    try {
+      cloned = JSON.parse(JSON.stringify(opts));
+      cloned.forEach((opt, i) => {
+        opt.optionId  = opt.optionId ?? i + 1;
+        opt.selected  = false;
+        opt.highlight = false;
+        opt.showIcon  = false;
+        opt.active    = true;
+        opt.disabled  = false;
+      });
+      console.log(`[QQ Loader] 🧱 Deep-cloned ${cloned.length} options for Q${index + 1}`);
+    } catch (err) {
+      console.warn('[QQ Loader] ⚠️ Deep clone failed, falling back to structuredClone', err);
+      cloned = typeof structuredClone === 'function'
+        ? structuredClone(opts)
+        : [...opts.map(o => ({ ...o }))];
+    }
+  
+    // Clear all legacy or leaked state
+    this.selectedOptionService.clearSelectionsForQuestion?.(index);
+    this.selectedOptionService.resetAllStates?.();
+    (this.explanationTextService as any)._fetLocked = false;
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.setExplanationText('');
+    console.log(`[QQ Loader] 🔄 Reset selection and FET state before rendering Q${index + 1}`);
+  
+    // Safe assignment — always new objects
+    this.currentQuestion      = { ...q, options: cloned };
+    this.optionsToDisplay     = [...cloned];
+    this.optionBindingsSrc    = [...cloned];
+    this.currentQuestionIndex = index;
+  
+    // Explanation fallback
+    const explanation = q.explanation?.trim() || 'No explanation available';
+  
+    // Emit to observers downstream
+    this.emitQaPayload(q, cloned, index, explanation);
+  
+    // Explanation / timers / final flags
+    await this.postEmitUpdates(q, cloned, index);
+  
     return true;
   }
 
