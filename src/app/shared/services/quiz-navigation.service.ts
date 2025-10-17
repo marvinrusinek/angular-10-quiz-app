@@ -319,56 +319,50 @@ export class QuizNavigationService {
       // Restore FET state safely for the new question
       // Step 6: Post-load FET Pre-arm (fixed hidden cache)
       try {
-        // ────────────────────────────────────────────────
-        // 🧹 Step 0: Always clear stale locks from previous question
-        // ────────────────────────────────────────────────
-        const svc: any = this.explanationTextService;
-        svc._fetLocked = false;           // unlock gate for new question
-        svc._activeIndex = targetIndex;   // move pointer immediately
-        svc._preArmedReady = false;       // will be set below
-        svc._cachedFormatted = '';
-        svc._cachedAt = performance.now();
-      
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
           const rawExpl = (q.explanation ?? '').trim();
-          const correctIdxs = svc.getCorrectOptionIndices(q as any);
-          const formatted = svc.formatExplanation(q as any, correctIdxs, rawExpl).trim();
+          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+          const formatted = this.explanationTextService
+            .formatExplanation(q as any, correctIdxs, rawExpl)
+            .trim();
       
           // ────────────────────────────────────────────────
-          // 🧠 Step 1: Pre-arm the explanation gate WITHOUT showing it
+          // Step 1: Pre-arm gate WITHOUT setting text yet
           // ────────────────────────────────────────────────
+          const svc: any = this.explanationTextService;
           svc._preArmedReady = true;
+          svc._activeIndex = targetIndex;
           svc._cachedFormatted = formatted;
+          svc._cachedAt = performance.now();
+          svc._fetLocked = false; // allow later emit from onOptionClicked
       
           this.quizStateService.displayStateSubject?.next({
             mode: 'question',
             answered: false,
           });
       
-          // ────────────────────────────────────────────────
-          // 🕒 Step 2: Defer FET injection until after question render
-          // ────────────────────────────────────────────────
+          // Step 2: Wait until question text has rendered
           requestAnimationFrame(() => {
             setTimeout(() => {
               try {
-                // Safety check: only clear & hide if not re-armed since
-                if (svc._activeIndex === targetIndex && !svc._fetLocked) {
+                // Only set explanation text *after* the question text emission
+                if (!(svc as any)._fetLocked) {
                   svc.setExplanationText('');
                   svc.setShouldDisplayExplanation(false);
                   svc.setIsExplanationTextDisplayed(false);
-                  console.log(`[NAV] 🧠 Pre-arm clean & hidden for Q${targetIndex + 1}`);
+                  console.log(`[NAV] 🧠 Pre-arm complete, FET cached but not displayed for Q${targetIndex + 1}`);
                 } else {
-                  console.log(`[NAV] 🚫 Skipped FET reset; locked or different index`);
+                  console.log(`[NAV] 🚫 FET locked, skipping pre-cache for Q${targetIndex + 1}`);
                 }
               } catch (err) {
                 console.warn('[NAV] ⚠️ FET pre-arm deferred injection failed', err);
               }
-            }, 120);
+            }, 120);  // give the DOM 120ms to stabilize before any explanation push
           });
         } else {
-          svc.setExplanationText('');
-          svc.setShouldDisplayExplanation(false);
+          this.explanationTextService.setExplanationText('');
+          this.explanationTextService.setShouldDisplayExplanation(false);
           console.log(`[NAV] 🧩 No explanation to cache for Q${targetIndex + 1}`);
         }
       } catch (err) {
