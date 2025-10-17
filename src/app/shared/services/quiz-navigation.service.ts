@@ -318,6 +318,7 @@ export class QuizNavigationService {
 
       // Restore FET state safely for the new question
       // 🧩 Step 6: Post-load FET Pre-arm (moved and guarded)
+      // 🧩 Step 6: Post-load FET Pre-arm (fixed hidden cache)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
@@ -328,13 +329,13 @@ export class QuizNavigationService {
             .trim();
 
           // ────────────────────────────────────────────────
-          // 🧠 Delay pre-arm until DOM and observables settle
+          // 🧠 Delay until DOM + observables settle
           // ────────────────────────────────────────────────
           await new Promise<void>((resolve) => {
             requestAnimationFrame(() => setTimeout(resolve, 100));
           });
 
-          // Guard: skip if user already navigated elsewhere
+          // Guard: skip if user already navigated away
           const activeIdx = this.quizService.getCurrentQuestionIndex();
           if (activeIdx !== targetIndex) {
             console.log(`[NAV] ⏸ Skipping FET pre-arm — user moved to Q${activeIdx + 1}`);
@@ -342,17 +343,24 @@ export class QuizNavigationService {
           }
 
           // ────────────────────────────────────────────────
-          // 🧩 Step 7: Safe pre-arm after full render
+          // 🧩 Step 7: Silent pre-arm cache — no display flags
           // ────────────────────────────────────────────────
           const svc: any = this.explanationTextService;
           if (!svc._fetLocked) {
             svc._activeIndex = targetIndex;
             svc._cachedFormatted = formatted;
             svc._cachedAt = performance.now();
+
+            // Silent cache: store formatted explanation but don't display it
+            svc.latestExplanation = formatted;
+            svc.formattedExplanationSubject?.next(formatted);
+
+            // DO NOT set any display flags here
             svc.setShouldDisplayExplanation(false);
             svc.setIsExplanationTextDisplayed(false);
-            svc.setExplanationText(formatted);
-            console.log(`[NAV] 🧠 FET pre-armed safely for Q${targetIndex + 1}`);
+            // Do not call setExplanationText — that triggers visible binding updates
+
+            console.log(`[NAV] 🧠 FET silently pre-armed for Q${targetIndex + 1}`);
           } else {
             console.log(`[NAV] 🚫 FET locked — skipping pre-arm for Q${targetIndex + 1}`);
           }
@@ -364,6 +372,7 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
+
   
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
