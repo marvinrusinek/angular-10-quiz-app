@@ -135,27 +135,33 @@ export class ExplanationTextService {
     const trimmed = (explanation ?? '').trim();
     const contextKey = this.normalizeContext(options.context);
     const signature = `${contextKey}:::${trimmed}`;
-
+  
+    // Visibility lock: prevent overwrites during tab restore
+    if ((this as any)._visibilityLocked) {
+      console.log('[ETS] ⏸ Ignored setExplanationText while locked');
+      return;
+    }
+  
     if (!options.force && this.explanationLocked) {
       const lockedContext = this.lockedContext ?? this.globalContextKey;
       const contextsMatch =
         lockedContext === this.globalContextKey ||
         contextKey === this.globalContextKey ||
         lockedContext === contextKey;
-
+  
       if (!contextsMatch) {
         console.warn(
           `[🛡️ Blocked explanation update for ${contextKey} while locked to ${lockedContext}]`
         );
         return;
       }
-
+  
       if (trimmed === '') {
         console.warn('[🛡️ Blocked reset: explanation is locked]');
         return;
       }
     }
-
+  
     if (!options.force) {
       const previous = this.explanationByContext.get(contextKey) ?? '';
       if (previous === trimmed && signature === this.lastExplanationSignature) {
@@ -167,17 +173,26 @@ export class ExplanationTextService {
         return;
       }
     }
-
+  
     if (trimmed) {
       this.explanationByContext.set(contextKey, trimmed);
     } else {
       this.explanationByContext.delete(contextKey);
     }
-
+  
     this.lastExplanationSignature = signature;
     this.latestExplanation = trimmed;
+  
+    // Unified emission pipeline
     this.explanationText$.next(trimmed);
     this.formattedExplanationSubject.next(trimmed);
+  
+    // Ensure direct subject update for visibility-stable downstreams
+    try {
+      (this as any).explanationTextSubject?.next(trimmed);
+    } catch {
+      // optional secondary stream
+    }
   }
 
   // Synchronous lookup by question index
@@ -757,9 +772,15 @@ export class ExplanationTextService {
     isDisplayed: boolean,
     options: { force?: boolean; context?: string } = {}
   ): void {
+    // Visibility lock: prevent overwrites during visibility restore
+    if ((this as any)._visibilityLocked) {
+      console.log('[ETS] ⏸ Ignored setIsExplanationTextDisplayed while locked');
+      return;
+    }
+  
     const contextKey = this.normalizeContext(options.context);
     const signature = `${options.context ?? 'global'}:::${isDisplayed}`;
-
+  
     if (!options.force) {
       const previous = this.displayedByContext.get(contextKey);
       if (
@@ -769,7 +790,7 @@ export class ExplanationTextService {
         return;
       }
     }
-
+  
     if (isDisplayed) {
       this.displayedByContext.set(contextKey, true);
     } else if (contextKey === this.globalContextKey) {
@@ -777,18 +798,26 @@ export class ExplanationTextService {
     } else {
       this.displayedByContext.delete(contextKey);
     }
-
+  
     this.lastDisplayedSignature = signature;
     const aggregated = this.computeContextualFlag(this.displayedByContext);
-
+  
     if (
       !options.force &&
       aggregated === this.isExplanationTextDisplayedSource.getValue()
     ) {
       return;
     }
-
+  
+    // Update the canonical BehaviorSubject
     this.isExplanationTextDisplayedSource.next(aggregated);
+  
+    // Also update a secondary Subject for legacy or parallel subscribers
+    try {
+      (this as any).isExplanationTextDisplayedSubject?.next(aggregated);
+    } catch {
+      // optional secondary push; ignore if missing
+    }
   }
 
   public setShouldDisplayExplanation(
@@ -1188,18 +1217,18 @@ export class ExplanationTextService {
   }
 
   public hardSwitchToIndex(index: number): void {
-    // 🚫 Step 1: nuke every existing subject immediately
+    // Step 1: nuke every existing subject immediately
     for (const subj of this._byIndex.values()) { try { subj.next(null); } catch {} }
     for (const gate of this._gate.values()) { try { gate.next(false); } catch {} }
   
-    // 🧹 Step 2: clear the formatted cache
+    // Step 2: clear the formatted cache
     this.formattedExplanations = {};
   
-    // 🔄 Step 3: create brand-new subjects for this index
+    // Step 3: create brand-new subjects for this index
     this._byIndex.set(index, new BehaviorSubject<string | null>(null));
     this._gate.set(index, new BehaviorSubject<boolean>(false));
   
-    // 🎯 Step 4: mark active index and reset display flag
+    // Step 4: mark active index and reset display flag
     this._activeIndex = index;
     this.setShouldDisplayExplanation(false, { force: true });
   
