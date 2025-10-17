@@ -3222,49 +3222,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         this.safeStopTimer('completed');
         this._fetEarlyShown.add(idx);
       
-        const delayMs = 50;  // adaptive bounce, fixed shorter delay
+        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
+      
         (async () => {
           try {
-            // Unlock and mark the explanation as ready in one atomic operation
-            const svc: any = this.explanationTextService;
-            svc._activeIndex = idx;
-            svc.readyForExplanation = true;
-            svc._fetLocked = true;  // prevent pre-clean from overwriting
-            svc.setShouldDisplayExplanation(true);
-            svc.setIsExplanationTextDisplayed(false);
-      
-            // Small adaptive debounce before updating text
-            await new Promise(res => setTimeout(res, delayMs));
-      
-            // Centralized call to ExplanationTextService.forceShowExplanation
-            try {
-              await this.explanationTextService.forceShowExplanation(
-                idx,
-                this.quizService?.questions?.[idx] ?? q
-              );
-              console.log(`[QQC ✅] FET displayed via forceShowExplanation for Q${idx + 1}`);
-            } catch (err) {
-              console.warn('[QQC] ⚠️ forceShowExplanation failed; fallback to manual FET', err);
-      
-              // Fallback: compute and inject manually
-              const canonicalQ = this.quizService.questions?.[idx] ?? q;
-              const raw = (canonicalQ?.explanation ?? '').trim();
-              const correctIdxs = svc.getCorrectOptionIndices(canonicalQ);
-              const formatted = svc.formatExplanation(canonicalQ, correctIdxs, raw).trim();
-      
-              // Immediately update explanation state manually
-              svc.setExplanationText(formatted);
-              svc.setIsExplanationTextDisplayed(true);
-              svc.setShouldDisplayExplanation(true);
-      
-              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-              this.explanationToDisplay = formatted;
-              this.explanationToDisplayChange?.emit(formatted);
-      
-              console.log(`[QQC ✅] FET displayed via fallback for Q${idx + 1}`);
-            }
+            await this.explanationTextService.forceShowExplanation(idx, q);
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            this.displayExplanation = true;
+            console.log(`[QQC ✅] FET displayed for Q${idx + 1}`);
           } catch (err) {
-            console.warn('[QQC] ⚠️ Immediate FET trigger failed', err);
+            console.warn('[QQC] ⚠️ forceShowExplanation failed; using fallback', err);
+            try {
+              await this.updateExplanationText(idx);
+              this.displayExplanation = true;
+              this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+            } catch {}
           }
         })();
       }
