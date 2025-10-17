@@ -55,10 +55,9 @@ export class QuizStateService {
   answeredSubject = new BehaviorSubject<boolean>(false);
   isAnswered$: Observable<boolean> = this.answeredSubject.asObservable();
 
-  public displayStateSubject = new BehaviorSubject<{ mode: 'question' | 'explanation'; answered: boolean }>({
-    mode: 'question',
-    answered: false
-  });
+  public displayStateSubject = 
+    new BehaviorSubject<{ mode: 'question' | 'explanation', answered: boolean }>({
+    mode: 'question', answered: false });
   public displayState$ = this.displayStateSubject.asObservable();
 
   qaSubject = new ReplaySubject<QAPayload>(1);
