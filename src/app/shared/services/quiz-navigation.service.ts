@@ -221,6 +221,12 @@ export class QuizNavigationService {
       // ────────────────────────────────
       // 2️⃣ Bounds / guard checks
       // ────────────────────────────────
+      // 🧹 Reset FET gating for the next question
+      if (this._fetEarlyShown?.has(targetIndex)) {
+        this._fetEarlyShown.delete(targetIndex);
+        console.log(`[NAV] 🔄 Cleared FET gate for Q${targetIndex + 1}`);
+      }
+
       const effectiveQuizId = this.resolveEffectiveQuizId();
       if (!effectiveQuizId) {
         console.error('[❌ No quizId available]');
