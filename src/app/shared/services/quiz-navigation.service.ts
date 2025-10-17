@@ -320,9 +320,25 @@ export class QuizNavigationService {
           }
       
           // ────────────────────────────────────────────────
-          // 🧠 Step 2: Pre-arm the explanation gate BEFORE rendering
+          // 🧠 Step 1.5: Hard Unlock + Reset any stale state
           // ────────────────────────────────────────────────
-          svc._preArmedReady = true;
+          try {
+            svc._visibilityLocked = false;
+            svc.explanationLocked = false;
+            svc._fetLocked = false;
+            svc._preArmedReady = false;
+            svc.lastExplanationSignature = '';
+            svc.lastDisplaySignature = '';
+            svc.lastDisplayedSignature = '';
+            (svc as any).readyForExplanation = true;
+            console.log(`[NAV] 🔓 Full FET unlock for Q${targetIndex + 1}`);
+          } catch (unlockErr) {
+            console.warn('[NAV] ⚠️ Failed to unlock FET service:', unlockErr);
+          }
+      
+          // ────────────────────────────────────────────────
+          // 🧠 Step 2: Pre-arm explanation gate BEFORE rendering
+          // ────────────────────────────────────────────────
           svc._activeIndex = targetIndex;
           svc._cachedFormatted = formatted;
           svc._cachedAt = performance.now();
@@ -332,29 +348,53 @@ export class QuizNavigationService {
             answered: false,
           });
       
-          // Slight bounce so the render finishes before injecting text
-          // Cache FET for upcoming question — but never override a live one
-          if (!(this.explanationTextService as any)._fetLocked) {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => {
-                setTimeout(() => {
-                  try {
-                    const svc = this.explanationTextService;
-                    svc.setExplanationText(formatted);
-                    svc.setShouldDisplayExplanation(false);
-                    svc.setIsExplanationTextDisplayed(false);
-                    (svc as any)._activeIndex = targetIndex;
+          // ────────────────────────────────────────────────
+          // 🪄 Step 3: Primary pre-cache emission
+          // ────────────────────────────────────────────────
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                try {
+                  const safeToInject =
+                    !svc._visibilityLocked && !svc.explanationLocked && !svc._fetLocked;
+      
+                  if (safeToInject) {
+                    svc.setExplanationText(formatted, { force: true });
+                    svc.setShouldDisplayExplanation(false, { force: true });
+                    svc.setIsExplanationTextDisplayed(false, { force: true });
                     console.log(`[NAV] 🧠 FET pre-armed & cached for Q${targetIndex + 1}`);
-                  } catch (err) {
-                    console.warn('[NAV] ⚠️ FET pre-arm injection failed', err);
+                  } else {
+                    console.log(`[NAV] ⏸ Skipped FET emit (locked) for Q${targetIndex + 1}`);
                   }
-                  resolve();
-                }, 40);
-              });
+                } catch (err) {
+                  console.warn('[NAV] ⚠️ FET pre-arm injection failed', err);
+                }
+                resolve();
+              }, 40);
             });
-          } else {
-            console.log(`[NAV] 🚫 FET locked — skipping pre-cache for Q${targetIndex + 1}`);
-          }
+          });
+      
+          // ────────────────────────────────────────────────
+          // 🧩 Step 4: Recovery Re-Emit (force UI refresh)
+          // ────────────────────────────────────────────────
+          setTimeout(() => {
+            try {
+              const currentText =
+                (svc.explanationTextSubject?.getValue?.() as string) ||
+                (svc.latestExplanation ?? '');
+              if (!currentText || currentText.trim() !== formatted) {
+                console.log(`[NAV] 🩹 FET recovery re-emit for Q${targetIndex + 1}`);
+                svc.explanationTextSubject?.next(formatted);
+                svc.formattedExplanationSubject?.next(formatted);
+                svc.setShouldDisplayExplanation(false, { force: true });
+                svc.setIsExplanationTextDisplayed(false, { force: true });
+              } else {
+                console.log(`[NAV] ✅ FET already visible/cached for Q${targetIndex + 1}`);
+              }
+            } catch (err) {
+              console.warn('[NAV] ⚠️ FET recovery emit failed', err);
+            }
+          }, 120); // delay ensures render has stabilized
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
