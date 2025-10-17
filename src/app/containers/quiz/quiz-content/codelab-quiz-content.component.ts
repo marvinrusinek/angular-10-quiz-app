@@ -471,17 +471,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             .byIndex$(idx)
             .pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
+          // Add these reactive guards (no effect if missing)
+          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
         ]).pipe(
-          map(([text, gate]) => ({
-            idx,
-            text: (text ?? '').toString(),
-            gate: !!gate,
-          })),
+          switchMap(([text, gate, shouldShow, displayed]) => {
+            const rawText = (text ?? '').toString().trim();
+    
+            // Prevent pre-armed FET flicker — only delay when FET shouldn't be shown yet
+            const needsDelay = !shouldShow && !displayed && !gate && rawText.length > 0;
+    
+            if (needsDelay) {
+              // Delay emission one animation frame (~60 ms) to let question text settle
+              return new Promise<FETState>((resolve) => {
+                requestAnimationFrame(() => {
+                  setTimeout(() => resolve({ idx, text: '', gate: false }), 60);
+                });
+              });
+            }
+    
+            return of({
+              idx,
+              text: rawText,
+              gate: !!gate && (shouldShow || displayed)
+            });
+          }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         )
       ),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
 
     // 7) Final render mapping (tested stable version)
     return combineLatest([
