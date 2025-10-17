@@ -3000,51 +3000,44 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       this.quizStateService.setAnswerSelected(allCorrect);
   
       // Stop timer + trigger FET immediately (legally awaited)
-      if (evtOpt?.correct && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
-        this.safeStopTimer('completed');
+      // Determine correctness of current click
+      const clickedIsCorrect = !!evtOpt?.correct;
+
+      // ────────────────────────────────────────────────
+      // EARLY FET trigger (first correct click)
+      // ────────────────────────────────────────────────
+      if (clickedIsCorrect && q?.type === QuestionType.MultipleAnswer && !this._fetEarlyShown.has(idx)) {
         this._fetEarlyShown.add(idx);
-        console.log(`[QQC] 🧠 Immediate FET trigger for multi-answer Q${idx + 1}`);
-      
-        const questionType = q?.type as QuestionType;
-        const delayMs = questionType === QuestionType.SingleAnswer ? 20 : 60;
-      
-        // Schedule post-render unlock with defensive gate
-        requestAnimationFrame(() => {
-          queueMicrotask(async () => {
-            try {
-              // ───────────────────────────────────────────────
-              // Lock the current index to avoid async clears
-              // ───────────────────────────────────────────────
-              (this.explanationTextService as any)._activeIndex = idx;
-              (this.explanationTextService as any)._lockedUntil = Date.now() + 500; // ½-sec grace window
-      
-              // Mark explanation as ready and visible
-              this.explanationTextService.setShouldDisplayExplanation(true);
-      
-              console.log(`[QQC] 🔓 FET gate unlocked for Q${idx + 1}`);
-      
-              // Wait briefly for DOM to settle
-              await new Promise(res => setTimeout(res, delayMs));
-      
-              // Build and display formatted text
-              await this.updateExplanationText(idx);
-      
-              // Protect against post-render clears (from navigation pre-cleanup)
-              const stillActive =
-                (this.explanationTextService as any)._activeIndex === idx &&
-                Date.now() <= (this.explanationTextService as any)._lockedUntil;
-              if (stillActive) {
-                this.displayStateSubject?.next({ mode: 'explanation', answered: true });
-                console.log(`[QQC] ✅ FET displayed and locked for Q${idx + 1}`);
-              } else {
-                console.log(`[QQC] ⚠️ Late cleanup suppressed for Q${idx + 1}`);
-              }
-            } catch (err) {
-              console.warn('[QQC] ⚠️ FET unlock failed', err);
-            }
-          });
-        });
+        console.log(`[QQC] ⚡ Early FET trigger for first correct click on Q${idx + 1}`);
+
+        // Lock the FET gate so nav pre-cache can't overwrite
+        (this.explanationTextService as any)._fetLocked = true;
+        (this.explanationTextService as any)._activeIndex = idx;
+
+        // Run async trigger
+        (async () => {
+          try {
+            // Give render a breath so pre-cache finishes before we write
+            await new Promise(res => setTimeout(res, 80));
+
+            // Write once, and hold
+            this.explanationTextService.setShouldDisplayExplanation(true);
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+
+            const formatted = await this.updateExplanationText(idx);
+            this.explanationTextService.setExplanationText(formatted);
+            this.displayStateSubject?.next({ mode: 'explanation', answered: true });
+
+            console.log(`[QQC] ✅ FET displayed & locked for Q${idx + 1}`);
+          } catch (err) {
+            console.warn('[QQC] ⚠️ Early FET trigger failed', err);
+          }
+        })();
       }
+
+
+      
+
   
       // Continue post-click microtasks for highlighting & feedback
       queueMicrotask(() => {
