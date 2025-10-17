@@ -89,6 +89,9 @@ export class ExplanationTextService {
 
   private _visibilityLocked = false;
 
+  private _cachedPreArmedExplanation: string | null = null;
+  private _cachedPreArmedIndex: number | null = null;
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
@@ -1276,6 +1279,17 @@ export class ExplanationTextService {
     this._readyForExplanation = ready;
     this._readyForExplanation$.next(ready);
     console.log(`[ETS] ⚙️ setReadyForExplanation = ${ready}`);
+  }
+
+  // Silently pre-caches an explanation for later use without triggering UI updates. This should never emit or toggle display flags.
+  public silentlyPrecacheExplanation(index: number, formatted: string): void {
+    try {
+      this._cachedPreArmedExplanation = formatted;
+      this._cachedPreArmedIndex = index;
+      console.log(`[ETS] 💾 Silently cached FET for Q${index + 1}`);
+    } catch (err) {
+      console.warn('[ETS] ⚠️ Failed to precache explanation', err);
+    }
   }
   
   public lockVisibilityRestore(): void {
