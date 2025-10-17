@@ -3268,7 +3268,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             const correctIdxs = svc.getCorrectOptionIndices(canonicalQ);
             const formatted = svc.formatExplanation(canonicalQ, correctIdxs, raw).trim();
       
-            // ✅ Always use lockedIndex here too
+            // Always use lockedIndex here too
             svc.setExplanationText(formatted);
             svc.setIsExplanationTextDisplayed(true);
             svc.setShouldDisplayExplanation(true);
