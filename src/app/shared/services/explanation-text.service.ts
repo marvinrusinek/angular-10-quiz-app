@@ -87,7 +87,7 @@ export class ExplanationTextService {
   private _readyForExplanation = false;
   private _readyForExplanation$ = new BehaviorSubject<boolean>(false);
 
-  private _visibilityLocked = false;
+  public _visibilityLocked = false;
 
   private _cachedPreArmedExplanation: string | null = null;
   private _cachedPreArmedIndex: number | null = null;
