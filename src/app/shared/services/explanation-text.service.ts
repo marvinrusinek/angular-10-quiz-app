@@ -882,39 +882,45 @@ export class ExplanationTextService {
   }
 
   public async forceShowExplanation(index: number, question?: QuizQuestion): Promise<void> {
+    console.log(`[ETS] 🧩 forceShowExplanation CALLED for Q${index + 1}`);
+  
     try {
-      const q = question || this.quizService?.questions?.[index];
+      const q = question;
       if (!q) {
         console.warn(`[ETS] ⚠️ No question found for index ${index}`);
         return;
       }
   
+      console.log(`[ETS] ✅ Found question for Q${index + 1}:`, {
+        text: q.questionText,
+        hasExplanation: !!q.explanation,
+        explanation: q.explanation?.slice(0, 60),
+        optionsCount: q.options?.length,
+      });
+  
       const raw = (q.explanation ?? '').trim();
-      const correctIdxs = this.getCorrectOptionIndices?.(q) ?? [];
-      const formatted = this.formatExplanation?.(q, correctIdxs, raw)?.trim?.() ?? raw;
+      const correctIdxs = this.getCorrectOptionIndices(q) ?? [];
+      const formatted = this.formatExplanation(q, correctIdxs, raw)?.trim?.() ?? raw;
   
-      // Prevent overwriting a live explanation from the same index
-      if (this._activeIndex === index && this.shouldDisplayExplanationSource?.getValue?.()) {
-        console.log(`[ETS] 🚫 FET already displayed for Q${index + 1}, skipping duplicate.`);
-        return;
-      }
+      console.log(`[ETS] 🧠 Computed formatted explanation for Q${index + 1}:`, formatted?.slice(0, 80));
   
-      // Fully unlock and emit explanation now
       this._activeIndex = index;
-      this.readyForExplanation = true;
-      this._fetLocked = false;
       this._visibilityLocked = false;
   
-      // Push to explanation stream
+      if (!formatted) {
+        console.warn(`[ETS] ⚠️ No formatted explanation available for Q${index + 1}`);
+      }
+  
       this.setExplanationText(formatted, { force: true });
       this.setShouldDisplayExplanation(true, { force: true });
       this.setIsExplanationTextDisplayed(true, { force: true });
   
-      console.log(`[ETS ✅] forceShowExplanation: FET emitted for Q${index + 1}`);
+      console.log(`[ETS ✅] FET successfully displayed for Q${index + 1}`);
     } catch (err) {
       console.error('[ETS ❌] forceShowExplanation failed:', err);
     }
   }
+  
 
   private buildQuestionKey(
     questionText: string | null | undefined,
