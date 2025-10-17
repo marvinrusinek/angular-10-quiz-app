@@ -711,17 +711,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // Guard: reset _fetEarlyShown whenever the question changes
+    // ────────────────────────────────────────────────
+    // 🧩 Guard: safely reset _fetEarlyShown only when truly moving to a *different* question
+    // (not during hydration or first render)
+    // ────────────────────────────────────────────────
+    const newIndex = changes['currentQuestionIndex']?.currentValue;
+    const prevIndex = changes['currentQuestionIndex']?.previousValue;
+  
     if (
-      (changes['currentQuestionIndex'] && !changes['currentQuestionIndex'].firstChange) ||
-      (changes['question'] && !changes['question'].firstChange)
+      typeof newIndex === 'number' &&
+      typeof prevIndex === 'number' &&
+      newIndex !== prevIndex &&
+      this._fetEarlyShown instanceof Set
     ) {
-      if (this._fetEarlyShown instanceof Set) {
-        this._fetEarlyShown.clear();
-        console.log(
-          `[QQC] 🧹 Cleared _fetEarlyShown on question change → Q${this.currentQuestionIndex + 1}`
-        );
-      }
+      this._fetEarlyShown.delete(prevIndex); // only clear the last one, not all
+      console.log(`[QQC] 🔄 Reset _fetEarlyShown for transition ${prevIndex + 1} → ${newIndex + 1}`);
     }
   
     if (changes.questionPayload && this.questionPayload) {
@@ -745,7 +749,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     }
   
     if (changes['question'] || changes['options']) {
-      this.unselectOption();  // clears per-question UI state
+      this.unselectOption(); // clears per-question UI state
       this.handleQuestionAndOptionsChange(
         changes['question'],
         changes['options']
@@ -766,15 +770,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       !!this.questionData?.questionText?.trim?.() ||
       !!this.currentQuestion?.questionText?.trim?.();
   
-    const hasValidOptions = Array.isArray(this.options) && this.options.length > 0;
+    const hasValidOptions =
+      Array.isArray(this.options) && this.options.length > 0;
   
     if (hasValidQuestion && hasValidOptions) {
       // Use setTimeout to allow DOM update cycle
       setTimeout(() => {
-        this.renderReadySubject.next(true);  // conditions met, emit true
+        // Conditions met, emitting true
+        this.renderReadySubject.next(true);
       }, 0);
     } else {
-      console.warn('[⏸️ renderReady] Conditions not met:', { hasValidQuestion, hasValidOptions });
+      console.warn('[⏸️ renderReady] Conditions not met:', {
+        hasValidQuestion,
+        hasValidOptions,
+      });
       this.renderReadySubject.next(false);
     }
   }
