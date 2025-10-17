@@ -1189,7 +1189,7 @@ export class ExplanationTextService {
     const idx = Math.max(0, Number(index) || 0);
     const trimmed = (formatted ?? '').trim();
 
-    // close others
+    // Close others
     for (const [k, subj] of this._byIndex.entries()) {
       if (k !== idx) try { subj.next(null); } catch {}
     }
@@ -1197,23 +1197,21 @@ export class ExplanationTextService {
       if (k !== idx) try { gate.next(false); } catch {}
     }
 
-    // ensure subjects
+    // Ensure subjects
     if (!this._byIndex.has(idx)) this._byIndex.set(idx, new BehaviorSubject<string | null>(null));
     if (!this._gate.has(idx))    this._gate.set(idx,    new BehaviorSubject<boolean>(false));
 
-    // commit state in one frame
+    // Commit state in one frame
     this._activeIndex = idx;
     this._byIndex.get(idx)!.next(trimmed || null);
     this._gate.get(idx)!.next(!!trimmed);
     this.setShouldDisplayExplanation(true, { force: true });
 
-    // fire atomic event last (UI “fast path”)
+    // Fire atomic event last (UI “fast path”)
     this._explainNow$.next({ idx, text: trimmed });
 
-    // optional cache
+    // Optional cache
     this.formattedExplanations[idx] = { questionIndex: idx, explanation: trimmed || null };
-
-    console.log(`[ETS] 🔔 triggerExplainNow(${idx}) len=${trimmed.length}`);
   }
 
   public hardSwitchToIndex(index: number): void {
