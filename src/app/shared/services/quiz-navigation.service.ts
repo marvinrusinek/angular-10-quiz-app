@@ -347,11 +347,19 @@ export class QuizNavigationService {
             setTimeout(() => {
               try {
                 // Only set explanation text *after* the question text emission
-                if (!(svc as any)._fetLocked) {
+                if (svc._activeIndex === targetIndex && !svc._fetLocked) {
                   svc.setExplanationText('');
                   svc.setShouldDisplayExplanation(false);
                   svc.setIsExplanationTextDisplayed(false);
                   console.log(`[NAV] 🧠 Pre-arm complete, FET cached but not displayed for Q${targetIndex + 1}`);
+                  svc._activeIndex = targetIndex;
+                  svc.setReadyForExplanation(true);
+                  // Pre-arm explanation gate
+                  this.quizStateService.displayStateSubject?.next({
+                    mode: 'question',
+                    answered: false
+                  });
+                  console.log(`[NAV] 🧠 FET gate pre-armed for Q${targetIndex + 1}`);
                 } else {
                   console.log(`[NAV] 🚫 FET locked, skipping pre-cache for Q${targetIndex + 1}`);
                 }
