@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -464,7 +464,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       gate: boolean;
     }
 
-    /* const fetForIndex$: Observable<FETState> = index$.pipe(
+    const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap((idx) =>
         combineLatest([
           this.explanationTextService
@@ -498,38 +498,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         )
       ),
       shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    const fetForIndex$: Observable<FETState> = index$.pipe(
-      switchMap((idx) =>
-        combineLatest([
-          this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
-          this.explanationTextService.gate$(idx).pipe(startWith(false)),
-          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false)),
-          this.questionToDisplay$.pipe(startWith('')) // 👈 NEW: wait for question emission too
-        ]).pipe(
-          // 💡 Only allow FET after the question text has emitted for this index
-          skipWhile(([text, gate, shouldShow, displayed, qTxt]) => {
-            const rawText = (text ?? '').toString().trim();
-            const noQuestionYet = !(qTxt && qTxt.trim().length > 0);
-            return noQuestionYet || rawText.length === 0;
-          }),
-          map(([text, gate, shouldShow, displayed]) => {
-            const rawText = (text ?? '').toString().trim();
-            const gateOpen = !!gate;
-            const displayReady = shouldShow || displayed;
-    
-            // HARD GUARD: only emit FET when both question & explanation ready
-            const canShowFET = gateOpen && displayReady && rawText.length > 0;
-            return canShowFET
-              ? ({ idx, text: rawText, gate: true } as FETState)
-              : ({ idx, text: '', gate: false } as FETState);
-          }),
-          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
-        )
-      ),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
 
     // 7) Final render mapping (tested stable version)
     return combineLatest([
