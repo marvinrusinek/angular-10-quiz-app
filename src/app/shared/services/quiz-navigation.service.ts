@@ -182,20 +182,42 @@ export class QuizNavigationService {
   private async navigateWithOffset(offset: number): Promise<boolean> {
     try {
       // ────────────────────────────────
-      // 🧹 Pre-cleanup (prevent FET flicker)
+      // 🧹 Pre-cleanup (prevent FET & banner flicker)
       // ────────────────────────────────
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.setExplanationText('');
-      this.explanationTextService.resetExplanationState?.();
-      this.explanationToDisplay = '';
-      this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-        
-      this.quizService.updateCorrectAnswersText('');
-      this.quizStateService.setAnswerSelected(false);
-      this.selectedOptionService.setAnswered(false);
-      this.nextButtonStateService.reset();
+      try {
+        const ets: any = this.explanationTextService;
   
-      console.log('[PRE-CLEANUP] Explanation & feedback cleared before navigation');
+        // 🔸 Reset explanation service internal state
+        ets._fetLocked = true;                 // lock explanation during navigation
+        ets.readyForExplanation = false;       // explanation not ready until question settles
+        ets._questionRenderedOnce = false;     // question not yet rendered
+        ets._visibilityLocked = false;         // ensure gate open next time
+        ets.setShouldDisplayExplanation(false);
+        ets.setIsExplanationTextDisplayed(false);
+        ets.setExplanationText('');
+        ets.formattedExplanationSubject?.next('');
+        ets.resetExplanationState?.();
+  
+        // 🔸 Reset component-level fields
+        this.explanationToDisplay = '';
+  
+        // 🔸 Reset display state to "question" mode
+        this.quizStateService.displayStateSubject?.next({
+          mode: 'question',
+          answered: false,
+        });
+  
+        // 🔸 Clear banner + answer state
+        this.quizService.updateCorrectAnswersText('');
+        this.quizService.correctAnswersTextSubject?.next(''); // safety reset
+        this.quizStateService.setAnswerSelected(false);
+        this.selectedOptionService.setAnswered(false);
+        this.nextButtonStateService.reset();
+  
+        console.log('[NAV] 🔄 Global FET + banner reset before navigation');
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Pre-cleanup reset failed', err);
+      }
   
       // ────────────────────────────────
       // 1️⃣ Trust ONLY the router snapshot
@@ -205,7 +227,10 @@ export class QuizNavigationService {
         let raw: string | null = null;
         while (snap) {
           const v = snap.paramMap.get('questionIndex');
-          if (v != null) { raw = v; break; }
+          if (v != null) {
+            raw = v;
+            break;
+          }
           snap = snap.firstChild!;
         }
         // Route is 1-based → normalize to 0-based
@@ -222,12 +247,6 @@ export class QuizNavigationService {
       // ────────────────────────────────
       // 2️⃣ Bounds / guard checks
       // ────────────────────────────────
-      // 🧹 Reset FET gating for the next question
-      if (this._fetEarlyShown?.has(targetIndex)) {
-        this._fetEarlyShown.delete(targetIndex);
-        console.log(`[NAV] 🔄 Cleared FET gate for Q${targetIndex + 1}`);
-      }
-
       const effectiveQuizId = this.resolveEffectiveQuizId();
       if (!effectiveQuizId) {
         console.error('[❌ No quizId available]');
@@ -249,8 +268,10 @@ export class QuizNavigationService {
         return true;
       }
   
-      if (this.quizStateService.isLoadingSubject.getValue() ||
-          this.quizStateService.isNavigatingSubject.getValue()) {
+      if (
+        this.quizStateService.isLoadingSubject.getValue() ||
+        this.quizStateService.isNavigatingSubject.getValue()
+      ) {
         console.warn('[🚫 Navigation blocked]');
         return false;
       }
@@ -263,17 +284,19 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(true);
   
       this.quizQuestionLoaderService.resetUI();
-
+  
       // Force display mode reset before question load
       try {
         this.quizStateService.displayStateSubject.next({
           mode: 'question',
-          answered: false
+          answered: false,
         });
         (this.explanationTextService as any)._shouldDisplayExplanation = false;
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
-        console.log(`[NAV] 🧭 Display mode forced to 'question' for Q${targetIndex + 1}`);
+        console.log(
+          `[NAV] 🧭 Display mode forced to 'question' for Q${targetIndex + 1}`
+        );
       } catch (err) {
         console.warn('[NAV] ⚠️ Failed to force display mode reset', err);
       }
@@ -303,35 +326,18 @@ export class QuizNavigationService {
       }
   
       console.log(`[NAV ✅] Navigated to ${routeUrl}`);
-
+  
       // Trigger full question reinitialization
       await this.navigateToQuestion(targetIndex);
       this.setQuestionReadyAfterDelay();
-  
-      // Wait for change detection to settle
-      // await new Promise(r => setTimeout(r, 60));
-
-      // HARD FET RESET — ensure next question starts with question text only
-      try {
-        this.explanationTextService.setShouldDisplayExplanation(false);
-        this.explanationTextService.setIsExplanationTextDisplayed(false);
-        this.explanationTextService.setExplanationText('');
-        this.explanationTextService.formattedExplanationSubject.next('');
-        (this.explanationTextService as any)._fetLocked = true;  // lock until user selects an option
-        (this.explanationTextService as any).readyForExplanation = false;
-        (this.explanationTextService as any)._questionRenderedOnce = false;
-        console.log(`[NAV] 🧩 FET hard-reset before loading Q${targetIndex + 1}`);
-      } catch (err) {
-        console.warn('[NAV] ⚠️ FET hard reset failed', err);
-      }
   
       // ────────────────────────────────
       // 5️⃣ Reset + trigger question load
       // ────────────────────────────────
       this.quizService.setCurrentQuestionIndex(targetIndex);
       this.currentQuestionIndex = targetIndex;
-
-      // Reset FET readiness on navigation so next question can display its explanation
+  
+      // Reset FET readiness so next question can display its explanation
       try {
         const svc: any = this.explanationTextService;
         svc.readyForExplanation = false;
@@ -348,60 +354,46 @@ export class QuizNavigationService {
       this.nextButtonStateService.reset();
   
       await this.quizQuestionLoaderService.loadQuestionAndOptions(targetIndex);
-
+  
       // Restore FET state safely for the new question
-      // Step 6: Post-load FET Pre-arm (fixed hidden cache)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
           const rawExpl = (q.explanation ?? '').trim();
-          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(q as any);
+          const correctIdxs = this.explanationTextService.getCorrectOptionIndices(
+            q as any
+          );
           const formatted = this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
-      
+  
           const svc: any = this.explanationTextService;
-      
-          // ────────────────────────────────────────────────
-          // 🧩 Step 0: Reset render-tracking flags before arming next question
-          // ────────────────────────────────────────────────
-          svc._questionRenderedOnce = false;        // ✅ ensures FET won’t appear prematurely
+          svc._questionRenderedOnce = false;
           svc._visibilityLocked = false;
-          console.log(`[NAV] 🔄 Reset _questionRenderedOnce for Q${targetIndex + 1}`);
-      
-          // ────────────────────────────────────────────────
-          // 🧩 Step 1: Clear only transient state; don’t touch cached text yet
-          // ────────────────────────────────────────────────
           svc._activeIndex = targetIndex;
           svc._fetLocked = false;
           svc.setShouldDisplayExplanation(false);
           svc.setIsExplanationTextDisplayed(false);
-      
-          // ────────────────────────────────────────────────
-          // 🧠 Step 2: Pre-arm explanation gate but defer actual text push
-          // ────────────────────────────────────────────────
           svc._cachedFormatted = formatted;
           svc._cachedAt = performance.now();
           svc.setReadyForExplanation?.(false);
-      
+  
           this.quizStateService.displayStateSubject?.next({
             mode: 'question',
             answered: false,
           });
-      
-          // ────────────────────────────────────────────────
-          // ⏳ Step 3: Lazy-emit FET *after* question text settles
-          // ────────────────────────────────────────────────
+  
           await this.explanationTextService.waitUntilQuestionRendered(600);
           setTimeout(() => {
             try {
               if (svc._activeIndex === targetIndex && !svc._fetLocked) {
-                // emit quietly without revealing it yet
                 svc.setExplanationText(formatted);
                 svc.setShouldDisplayExplanation(false);
                 svc.setIsExplanationTextDisplayed(false);
                 svc.setReadyForExplanation?.(true);
-                console.log(`[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`);
+                console.log(
+                  `[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`
+                );
               } else {
                 console.log(
                   `[NAV] 🚫 Skipped FET lazy cache for Q${targetIndex + 1} (locked or mismatched index)`
@@ -410,7 +402,7 @@ export class QuizNavigationService {
             } catch (err) {
               console.warn('[NAV] ⚠️ Lazy FET cache failed', err);
             }
-          }, 150); // safe debounce after question text emission
+          }, 150);
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
@@ -423,7 +415,7 @@ export class QuizNavigationService {
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
       this.notifyNavigationSuccess();
-
+  
       try {
         const ets: any = this.explanationTextService;
         if (ets && ets._visibilityLocked) ets._visibilityLocked = false;
