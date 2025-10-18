@@ -118,7 +118,7 @@ export class QuizService implements OnDestroy {
   public bannerPending = false;  // true while we’re deferring the final banner emit
   private _bannerToken = 0;  // unique ID per navigation
   private _localStorageSyncTimer: any = null;
-  private _suppressBannerClear = false;
+  public _suppressBannerClear = false;
   private _pendingBannerTimer: any = null;
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);

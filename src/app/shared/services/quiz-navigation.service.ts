@@ -621,6 +621,7 @@ export class QuizNavigationService {
               // Defer banner emission until all resets complete
               setTimeout(() => {
                 try {
+                  this.quizService._suppressBannerClear = false;  // allow banner now
                   if (isMulti) {
                     this.quizService.updateCorrectAnswersText(msg);
                     console.log(`[NAV ✅] 🧮 Final banner set for multi Q${index + 1}:`, msg);
