@@ -89,7 +89,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
-  questionReady = false;
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -1356,14 +1355,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return of(null);  // default to null in case of error
       })
     );
-  }
-
-  private setQuestionReadyAfterDelay() {
-    this.questionReady = false;
-    // Wait one animation frame before showing new question text
-    requestAnimationFrame(() => {
-      this.questionReady = true;
-    });
   }
 
   private normalizeKeySource(value: string | null | undefined): string {
