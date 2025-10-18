@@ -99,9 +99,10 @@ export class QuizService implements OnDestroy {
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  private correctAnswersCountTextSource = new BehaviorSubject<string>(
+  /* private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
-  );
+  ); */
+  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
   // Filter and debounce to prevent flashing the banner
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
     // Drop immediate empty clears that cause flicker
@@ -3383,5 +3384,19 @@ export class QuizService implements OnDestroy {
     } catch (err) {
       console.warn('[IDENTITY TRACE] failed:', err);
     }
-  }  
+  }
+  
+  public restoreCorrectAnswersTextFromStorage(): void {
+    setTimeout(() => {
+      try {
+        const saved = localStorage.getItem('correctAnswersText');
+        if (saved && saved.trim().length > 0) {
+          this.correctAnswersCountTextSource.next(saved);
+          console.log('[QuizService] 🔁 Restored banner text from localStorage:', saved);
+        }
+      } catch (err) {
+        console.warn('[QuizService] ⚠️ Failed to restore banner text', err);
+      }
+    }, 300);  // small async delay prevents re-render race
+  }
 }
