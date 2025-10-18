@@ -529,18 +529,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct).length > 1));
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
 
+        // Keep last rendered text so we never clear between frames
+        this.lastRenderedQuestionText ??= question;
+        this.lastRenderedCorrectText ??= correct;
+
+        // ─────────────────────────────────────────────
+        // Only block completely stale, non-multi emissions
+        // ─────────────────────────────────────────────
         if (!isIndexStable && !isMulti) {
-          return question; // skip only if not multi-answer
+          return (
+            this.lastRenderedQuestionText +
+            (this.lastRenderedCorrectText
+              ? `<span class="correct-count">${this.lastRenderedCorrectText}</span>`
+              : '')
+          );
         }
 
         // 🧩 STEP 2: Merge question text + correct count
-        // 🧩 STEP: Merge question and correct-count together
-        // Always emit them as one atomic string so they render in the same frame.
         let withCorrect = question;
 
-        // Only append when a multi-answer question is active
+        // Remember current values for next frame
+        this.lastRenderedQuestionText = question;
+        this.lastRenderedCorrectText = correct;
+
         if (isMulti && correct?.trim()?.length > 0) {
           withCorrect = `
             <div class="question-line">
@@ -548,6 +562,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               <span class="correct-count">${correct}</span>
             </div>`;
         }
+
     
         // 🧠 STEP 3: Gating conditions for explanation display
         const fetText = (fet?.text ?? '').trim();
