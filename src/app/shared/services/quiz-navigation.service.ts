@@ -306,6 +306,7 @@ export class QuizNavigationService {
 
       // Trigger full question reinitialization
       await this.navigateToQuestion(targetIndex);
+      this.setQuestionReadyAfterDelay();
   
       // Wait for change detection to settle
       // await new Promise(r => setTimeout(r, 60));
