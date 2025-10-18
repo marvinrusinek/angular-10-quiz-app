@@ -348,12 +348,16 @@ export class QuizNavigationService {
               try {
                 // Only set explanation text *after* the question text emission
                 if (svc._activeIndex === targetIndex && !svc._fetLocked) {
-                  svc.setExplanationText('');
+                  // Preload the *formatted* explanation quietly (don’t clear it)
+                  svc.setExplanationText(formatted);
                   svc.setShouldDisplayExplanation(false);
                   svc.setIsExplanationTextDisplayed(false);
                   console.log(`[NAV] 🧠 Pre-arm complete, FET cached but not displayed for Q${targetIndex + 1}`);
+
+                  // Mark as ready for explanation
                   svc._activeIndex = targetIndex;
                   svc.setReadyForExplanation(true);
+                  
                   // Pre-arm explanation gate
                   this.quizStateService.displayStateSubject?.next({
                     mode: 'question',
