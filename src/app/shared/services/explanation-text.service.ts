@@ -1317,7 +1317,7 @@ export class ExplanationTextService {
         this.questionRendered$.pipe(
           filter((v) => v === true),
           take(1),
-          timeout({ each: timeoutMs })
+          timeout(timeoutMs)
         )
       );
     } catch {
