@@ -541,7 +541,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           displayMode === 'explanation' &&
           questionStable &&
           !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.shouldDisplayExplanation$.getValue?.() === true;
+          this.explanationTextService.currentShouldDisplayExplanation === true;
     
         // ✅ STEP 4: Only render FET when *everything* aligns
         if (canShowFET) {

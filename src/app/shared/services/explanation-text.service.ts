@@ -98,6 +98,10 @@ export class ExplanationTextService {
 
   constructor() {}
 
+  get currentShouldDisplayExplanation(): boolean {
+    return this.shouldDisplayExplanationSource.getValue();
+  }
+
   updateExplanationText(question: QuizQuestion): void {
     const expl = question.explanation?.trim() || 'No explanation available';
     this.explanationTextSubject.next(expl);
