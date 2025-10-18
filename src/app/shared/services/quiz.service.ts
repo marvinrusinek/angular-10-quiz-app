@@ -1760,29 +1760,29 @@ export class QuizService implements OnDestroy {
   } */
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
-    if (text === this._lastBanner) return; // avoid redundant updates
-  
-    // Only update BehaviorSubject synchronously (UI paint)
-    this._lastBanner = text;
-    this.correctAnswersCountTextSource.next(text);
-  
-    console.log('[QuizService] 🧩 Banner text updated:', text);
-  
-    // Persist asynchronously AFTER paint to avoid flicker
+    if (text === this._lastBanner) return;
+
     clearTimeout(this._pendingBannerTimer);
+
+    // Debounce banner changes slightly so it never clears then refills in same frame
     this._pendingBannerTimer = setTimeout(() => {
-      try {
-        if (text.length > 0) {
-          localStorage.setItem('correctAnswersText', text);
-        } else {
-          localStorage.removeItem('correctAnswersText');
+      this._lastBanner = text;
+      this.correctAnswersCountTextSource.next(text);
+
+      console.log('[QuizService] 🧮 Banner text emitted:', text);
+
+      // Persist quietly after paint (doesn't trigger UI)
+      queueMicrotask(() => {
+        try {
+          if (text.length > 0) localStorage.setItem('correctAnswersText', text);
+          else localStorage.removeItem('correctAnswersText');
+        } catch (err) {
+          console.warn('[QuizService] ⚠️ Failed to persist banner', err);
         }
-        console.log('[QuizService] 💾 Stored banner post-paint:', text);
-      } catch (err) {
-        console.warn('[QuizService] ⚠️ Failed to persist banner', err);
-      }
-    }, 200);  // delay avoids collision with next question transition
+      });
+    }, 100);  // small delay coalesces navigation + question load
   }
+
 
   public clearStoredCorrectAnswersText(): void {
     try {

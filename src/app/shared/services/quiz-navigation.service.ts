@@ -442,7 +442,7 @@ export class QuizNavigationService {
     }
     this._fetchInProgress = true;
   
-    this.quizService.clearStoredCorrectAnswersText();
+    // this.quizService.clearStoredCorrectAnswersText();
   
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
