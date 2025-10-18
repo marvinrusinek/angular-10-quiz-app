@@ -2454,7 +2454,7 @@ export class QuizService implements OnDestroy {
     this.currentQuestion.next(currentQuestion);
 
     const normalizedOptions = Array.isArray(currentQuestion?.options)
-      ? this.assignOptionIds([...currentQuestion.options])
+      ? this.assignOptionIds([...currentQuestion.options], this.currentQuestionIndex)
       : [];
 
     if (currentQuestion) {
