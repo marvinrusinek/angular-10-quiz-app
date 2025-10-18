@@ -118,6 +118,8 @@ export class QuizService implements OnDestroy {
   public bannerPending = false;  // true while we’re deferring the final banner emit
   private _bannerToken = 0;  // unique ID per navigation
   private _localStorageSyncTimer: any = null;
+  private _suppressBannerClear = false;
+  private _pendingBannerTimer: any = null;
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -1721,7 +1723,7 @@ export class QuizService implements OnDestroy {
     localStorage.setItem('correctAnswersText', text);
   }
   
-  public updateCorrectAnswersText(newText: string): void {
+  /* public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
     const token = ++this._bannerToken;
   
@@ -1755,7 +1757,34 @@ export class QuizService implements OnDestroy {
         console.warn('[QuizService] ⚠️ localStorage sync failed', err);
       }
     }, 400);  // sync after navigation settles
-  }
+  } */
+  public updateCorrectAnswersText(newText: string): void {
+    const text = (newText ?? '').trim();
+  
+    // 🧩 Skip any attempt to clear during active navigation
+    if (this._suppressBannerClear && text === '') {
+      console.log('[QuizService] ⏸️ Suppressed transient clear during navigation');
+      return;
+    }
+  
+    // Avoid redundant emissions
+    if (text === this._lastBanner) return;
+  
+    clearTimeout(this._pendingBannerTimer);
+  
+    // Delay persistence until navigation settles
+    this._pendingBannerTimer = setTimeout(() => {
+      if (text.length > 0) {
+        localStorage.setItem('correctAnswersText', text);
+      } else {
+        localStorage.removeItem('correctAnswersText');
+      }
+    }, 400);
+  
+    this._lastBanner = text;
+    this.correctAnswersCountTextSource.next(text);
+    console.log('[QuizService] 🧠 Emitted banner text:', text);
+  }  
 
   public clearStoredCorrectAnswersText(): void {
     try {
