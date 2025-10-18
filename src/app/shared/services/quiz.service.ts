@@ -111,6 +111,7 @@ export class QuizService implements OnDestroy {
     // Only re-emit when actual text changes
     distinctUntilChanged()
   );
+  private lastBanner = '';  // cache last emitted text
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
