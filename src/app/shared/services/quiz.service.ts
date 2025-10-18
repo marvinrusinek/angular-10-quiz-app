@@ -99,17 +99,17 @@ export class QuizService implements OnDestroy {
   );
   public readonly correctAnswersCount$ = this.correctAnswersCountSubject.asObservable();
   
-  /* private correctAnswersCountTextSource = new BehaviorSubject<string>(
+  private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
-  ); */
-  private correctAnswersCountTextSource = new BehaviorSubject<string>('');
-  // Filter and debounce to prevent flashing the banner
+  );
+  
+  // Smoothed observable for banner display
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
-    // Drop immediate empty clears that cause flicker
-    filter(v => typeof v === 'string' && v.trim().length > 0),
-    // Give Angular a paint frame to coalesce rapid emissions
-    debounceTime(25),
-    // Only re-emit when actual text changes
+    // Keep both non-empty and empty values, just skip null/undefined
+    filter(v => typeof v === 'string'),
+    // Delay a tick to coalesce question + banner updates
+    debounceTime(35),
+    // Prevent redundant emissions
     distinctUntilChanged()
   );
 
