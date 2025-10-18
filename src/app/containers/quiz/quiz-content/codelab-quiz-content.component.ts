@@ -458,7 +458,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
       ); */
-    // Correct-count text, buffered until question text stabilises
+    // 🧩 Correct-count text, buffered until question text stabilises
     const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
