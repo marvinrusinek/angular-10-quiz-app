@@ -306,20 +306,19 @@ export class QuizNavigationService {
       // Wait for change detection to settle
       // await new Promise(r => setTimeout(r, 60));
 
-      // HARD FET RESET — ensure next question starts with question text only
+      // Force-hide explanation *only once* right before index switch
       try {
         this.explanationTextService.setShouldDisplayExplanation(false);
         this.explanationTextService.setIsExplanationTextDisplayed(false);
-        this.explanationTextService.setExplanationText('');
-        this.explanationTextService.formattedExplanationSubject.next('');
-        (this.explanationTextService as any)._fetLocked = true;  // lock until user selects an option
-        (this.explanationTextService as any).readyForExplanation = false;
-        (this.explanationTextService as any)._questionRenderedOnce = false;
-        console.log(`[NAV] 🧩 FET hard-reset before loading Q${targetIndex + 1}`);
+        this.quizStateService.displayStateSubject.next({
+          mode: 'question',
+          answered: false
+        });
+        console.log(`[NAV] 🧭 Display mode forced to 'question' (FET hidden) before setting index ${targetIndex}`);
       } catch (err) {
-        console.warn('[NAV] ⚠️ FET hard reset failed', err);
+        console.warn('[NAV] ⚠️ FET visibility reset failed', err);
       }
-  
+
       // ────────────────────────────────
       // 5️⃣ Reset + trigger question load
       // ────────────────────────────────
