@@ -116,6 +116,7 @@ export class QuizService implements OnDestroy {
   private _lastBanner = '';  // last text we emitted
   public bannerPending = false;  // true while we’re deferring the final banner emit
   private _bannerToken = 0;  // unique ID per navigation
+  private _localStorageSyncTimer: any = null;
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -1723,32 +1724,37 @@ export class QuizService implements OnDestroy {
     const text = (newText ?? '').trim();
     const token = ++this._bannerToken;
   
-    // Prevent duplicate or flickering emissions
-    if (this._lastBanner === text) return;
-  
-    // Skip transient clears if a banner is pending
+    if (text === this._lastBanner) return;
     if (text === '' && this.bannerPending) {
-      console.log('[QuizService] ⚠️ Skipped transient clear (bannerPending active)');
+      console.log('[QuizService] ⚠️ Skipped transient clear (bannerPending)');
       return;
     }
   
     this._lastBanner = text;
   
-    // Schedule on the next animation frame to coalesce Angular CD
-    requestAnimationFrame(() => {
-      // Only apply if still the latest navigation
-      if (token !== this._bannerToken) return;
+    // In-memory emit only
+    this.correctAnswersCountTextSource.next(text);
+    console.log('[QuizService] 🧠 Emitted banner text (memory only):', text);
   
-      if (text.length === 0) {
-        this.correctAnswersCountTextSource.next('');
-        console.log('[QuizService] 🧹 Cleared banner text (memory only)');
-      } else {
-        localStorage.setItem('correctAnswersText', text);
-        this.correctAnswersCountTextSource.next(text);
-        console.log('[QuizService] 💾 Banner updated and persisted:', text);
+    // Cancel any previous sync timer
+    clearTimeout(this._localStorageSyncTimer);
+  
+    // Defer localStorage persistence until UI stable
+    this._localStorageSyncTimer = setTimeout(() => {
+      try {
+        if (token !== this._bannerToken) return;  // stale navigation
+        if (text.length > 0) {
+          localStorage.setItem('correctAnswersText', text);
+          console.log('[QuizService] 💾 Synced banner text to localStorage:', text);
+        } else {
+          localStorage.removeItem('correctAnswersText');
+          console.log('[QuizService] 🧹 Removed banner text from localStorage');
+        }
+      } catch (err) {
+        console.warn('[QuizService] ⚠️ localStorage sync failed', err);
       }
-    });
-  }  
+    }, 400);  // sync after navigation settles
+  }
 
   public clearStoredCorrectAnswersText(): void {
     try {
