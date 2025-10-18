@@ -89,6 +89,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   previousQuestion$: Observable<QuizQuestion | null>;
   isNavigatingToPrevious: boolean;
   currentQuestionType: QuestionType;
+  private lastRenderedQuestionText = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -509,26 +510,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shouldShow$
     ]).pipe(
       debounceTime(0),
-      map(([idx, question, correct, fet, shouldShow]) => {
-        // Diagnostic snapshot — logs exactly what combineLatest emits
-        console.log(
-          `%c[DIAG combineLatest] idx=${idx} current=${this.quizService.getCurrentQuestionIndex()} ` +
-          `active=${this.explanationTextService._activeIndex} mode=${this.quizStateService.displayStateSubject?.value?.mode}`,
-          'color:#4af'
-        );
-        console.log({
-          fetText: fet?.text?.slice?.(0, 60) ?? '',
-          fetGate: fet?.gate,
-          shouldShow,
-          displayMode: this.quizStateService.displayStateSubject?.value?.mode,
-          questionStable: (this.explanationTextService as any)._questionRenderedOnce,
-          isDisplayed: this.explanationTextService.isExplanationTextDisplayedSource.getValue(),
-          shouldDisplay: this.explanationTextService.shouldDisplayExplanationSource.getValue(),
-          visibilityLocked: this.explanationTextService._visibilityLocked
-        });
-
+      map(([idx, question, correct, fet, shouldShow]) => {    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
+
+        if (idx !== currentIdx || idx !== activeIdx) {
+          console.log(`[FILT] Skipping stale emission (idx=${idx}, current=${currentIdx}, active=${activeIdx})`);
+          return this.lastRenderedQuestionText ?? question ?? '';
+        }
+
+        this.lastRenderedQuestionText = question;
     
         // 🧱 STEP 1: Guard against stale or mismatched indices
         const isIndexStable = idx === currentIdx && idx === activeIdx;
