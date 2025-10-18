@@ -92,6 +92,9 @@ export class ExplanationTextService {
   private _cachedPreArmedExplanation: string | null = null;
   private _cachedPreArmedIndex: number | null = null;
 
+  private _questionRendered = false;
+  public questionRendered$ = new BehaviorSubject<boolean>(false);
+
   constructor() {}
 
   updateExplanationText(question: QuizQuestion): void {
