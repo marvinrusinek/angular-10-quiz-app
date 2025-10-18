@@ -318,8 +318,6 @@ export class QuizNavigationService {
 
       // Restore FET state safely for the new question
       // Step 6: Post-load FET Pre-arm (fixed hidden cache)
-      // 🧠 Step: Deferred FET Pre-arm (hidden cache after render)
-      // 🧠 Step: Deferred FET Pre-arm (hidden cache after render)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
@@ -328,30 +326,54 @@ export class QuizNavigationService {
           const formatted = this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
-
+      
           const svc: any = this.explanationTextService;
-          const renderSvc: any = this.quizQuestionLoaderService;
-
-          // Wait until the question has definitely rendered before injecting FET
-          (async () => {
+      
+          // ────────────────────────────────────────────────
+          // 🧩 Step 1: Clear only transient state; don’t touch cached text yet
+          // ────────────────────────────────────────────────
+          svc._activeIndex = targetIndex;
+          svc._fetLocked = false;
+          svc.setShouldDisplayExplanation(false);
+          svc.setIsExplanationTextDisplayed(false);
+      
+          // ────────────────────────────────────────────────
+          // 🧠 Step 2: Pre-arm explanation gate but defer actual text push
+          // ────────────────────────────────────────────────
+          svc._cachedFormatted = formatted;
+          svc._cachedAt = performance.now();
+          svc.setReadyForExplanation?.(false);
+      
+          this.quizStateService.displayStateSubject?.next({
+            mode: 'question',
+            answered: false,
+          });
+      
+          // ────────────────────────────────────────────────
+          // ⏳ Step 3: Lazy-emit FET *after* question text settles
+          // ────────────────────────────────────────────────
+          // 150 ms is long enough for Q2/Q3 question-text renders to complete
+          await this.explanationTextService.waitUntilQuestionRendered(600);
+          setTimeout(() => {
             try {
-              await renderSvc.waitUntilQuestionRendered(800); // actively wait for render completion
-              await new Promise(r => setTimeout(r, 120));     // small extra debounce
-
-              // Only cache if still on the same question and FET not already shown
               if (svc._activeIndex === targetIndex && !svc._fetLocked) {
+                // emit quietly without revealing it yet
                 svc.setExplanationText(formatted);
                 svc.setShouldDisplayExplanation(false);
                 svc.setIsExplanationTextDisplayed(false);
-                svc.readyForExplanation = true;
-                console.log(`[NAV] 🧠 Deferred FET cache (hidden) confirmed after render for Q${targetIndex + 1}`);
+                svc.setReadyForExplanation?.(true);
+                console.log(
+                  `[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`
+                );
               } else {
-                console.log(`[NAV] 🚫 Skipped FET cache for Q${targetIndex + 1} (locked or mismatched)`);
+                console.log(
+                  `[NAV] 🚫 Skipped FET lazy cache for Q${targetIndex + 1} (locked or mismatched index)`
+                );
               }
             } catch (err) {
-              console.warn('[NAV] ⚠️ Deferred FET cache failed after render', err);
+              console.warn('[NAV] ⚠️ Lazy FET cache failed', err);
             }
-          })();
+          }, 150); // safe debounce after question text emission
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
@@ -360,8 +382,6 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
-
-
   
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
