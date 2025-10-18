@@ -523,20 +523,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         // 🧱 STEP 1: Guard against stale or mismatched indices
         const isIndexStable = idx === currentIdx && idx === activeIdx;
-        if (!isIndexStable) return question;
-    
+
+        // 🧩 Always let multi-answer banners through even on the first frame
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct).length > 1));
+
+        if (!isIndexStable && !isMulti) {
+          return question; // skip only if not multi-answer
+        }
+
         // 🧩 STEP 2: Merge question text + correct count
         // 🧩 STEP: Merge question and correct-count together
         // Always emit them as one atomic string so they render in the same frame.
         let withCorrect = question;
 
         // Only append when a multi-answer question is active
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-          (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct).length > 1));
-
         if (isMulti && correct?.trim()?.length > 0) {
           withCorrect = `
             <div class="question-line">
