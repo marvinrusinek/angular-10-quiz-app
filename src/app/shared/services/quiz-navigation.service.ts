@@ -319,6 +319,7 @@ export class QuizNavigationService {
       // Restore FET state safely for the new question
       // Step 6: Post-load FET Pre-arm (fixed hidden cache)
       // 🧠 Step: Deferred FET Pre-arm (hidden cache after render)
+      // 🧠 Step: Deferred FET Pre-arm (hidden cache after render)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
@@ -329,27 +330,28 @@ export class QuizNavigationService {
             .trim();
 
           const svc: any = this.explanationTextService;
+          const renderSvc: any = this.quizQuestionLoaderService;
 
-          // Wait until question text is fully rendered before caching explanation
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              try {
-                // Only cache if user hasn’t opened the explanation yet
-                if (!svc._fetLocked && svc._activeIndex === targetIndex) {
-                  svc.setExplanationText(formatted);
-                  svc.setShouldDisplayExplanation(false);
-                  svc.setIsExplanationTextDisplayed(false);
-                  svc.readyForExplanation = true;
+          // Wait until the question has definitely rendered before injecting FET
+          (async () => {
+            try {
+              await renderSvc.waitUntilQuestionRendered(800); // actively wait for render completion
+              await new Promise(r => setTimeout(r, 120));     // small extra debounce
 
-                  console.log(`[NAV] 🧠 Deferred FET cache (hidden) for Q${targetIndex + 1}`);
-                } else {
-                  console.log(`[NAV] 🚫 Skipped FET cache for Q${targetIndex + 1} (locked or mismatched)`);
-                }
-              } catch (err) {
-                console.warn('[NAV] ⚠️ Deferred FET cache failed', err);
+              // Only cache if still on the same question and FET not already shown
+              if (svc._activeIndex === targetIndex && !svc._fetLocked) {
+                svc.setExplanationText(formatted);
+                svc.setShouldDisplayExplanation(false);
+                svc.setIsExplanationTextDisplayed(false);
+                svc.readyForExplanation = true;
+                console.log(`[NAV] 🧠 Deferred FET cache (hidden) confirmed after render for Q${targetIndex + 1}`);
+              } else {
+                console.log(`[NAV] 🚫 Skipped FET cache for Q${targetIndex + 1} (locked or mismatched)`);
               }
-            }, 200); // Delay ensures question text has rendered fully
-          });
+            } catch (err) {
+              console.warn('[NAV] ⚠️ Deferred FET cache failed after render', err);
+            }
+          })();
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
@@ -358,6 +360,7 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
+
 
   
       this.notifyNavigatingBackwards();
