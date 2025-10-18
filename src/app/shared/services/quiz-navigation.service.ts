@@ -611,12 +611,12 @@ export class QuizNavigationService {
 
       // Emit banner text AND question text together
       await new Promise<void>((resolve) => {
-        // Wait for next paint so DOM + question state fully reset
+        // Wait for next paint so DOM and question state fully reset
         requestAnimationFrame(() => {
           // Slight delay ensures Angular CD + DOM mount finish
           setTimeout(() => {
             try {
-              // 🧮 Banner handling
+              // Banner handling
               if (isMulti) {
                 // Delay banner emission slightly so it appears with question text
                 this.quizService.updateCorrectAnswersText(msg);
