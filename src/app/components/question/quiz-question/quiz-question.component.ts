@@ -5300,9 +5300,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     // NEW: Guard for explanation readiness to prevent Q1→Q2 bleed
     const ready =
-      (this.explanationTextService as any).readyForExplanation ?? true; // assume true if not tracked
+      (this.explanationTextService as any).readyForExplanation ??
+      true; // assume true if not tracked
     const shouldDisplay =
-      (this.explanationTextService as any)._shouldDisplayExplanation ?? false; // assume hidden initially
+      (this.explanationTextService as any)._shouldDisplayExplanation ??
+      false; // assume hidden initially
   
     if (!ready) {
       console.warn(`[🧠 FET] Skipping updateExplanationText for Q${i0 + 1} — service not ready`);
@@ -5358,24 +5360,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const delayMs = q?.type === QuestionType.SingleAnswer ? 20 : 60;
     await new Promise(res => requestAnimationFrame(() => setTimeout(res, delayMs)));
   
-    // ────────────────────────────────────────────────
-    // 🧩 Hybrid FET handling (pre-seed, unlock, reveal)
-    // ────────────────────────────────────────────────
-    const svc: any = this.explanationTextService;
-    svc._fetLocked = false; // 🔓 unlock when truly ready for new question
-  
+    // Only emit live explanation text when it matches the active question
     if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
-      // 🧠 Step 1: Seed the stream quietly (hidden)
-      console.log(`[🧠 FET] Seeding formatted text for Q${i0 + 1}`);
+      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
       this.explanationTextService.setExplanationText(clean || baseRaw);
-      this.explanationTextService.setShouldDisplayExplanation(false); // stay hidden until explicitly shown
-  
-      // 🧠 Step 2: Reveal only when display gate is opened
-      if (shouldDisplay) {
-        console.log(`[🧠 FET] Revealing formatted text for Q${i0 + 1}`);
-        this.explanationTextService.setExplanationText(clean || baseRaw);
-        this.explanationTextService.setShouldDisplayExplanation(true);
-      }
+      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
     } else {
       console.warn(`[🧠 FET] Skipped emit — index mismatch or empty text`);
     }
@@ -5387,6 +5376,14 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       explanationDisplayed: true,
       explanationText: clean || baseRaw,
     });
+
+    if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
+      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
+      const svc: any = this.explanationTextService;
+      svc._fetLocked = false; // unlock when truly ready
+      this.explanationTextService.setExplanationText(clean || baseRaw);
+      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+    }
   
     return clean || baseRaw;
   }
