@@ -476,7 +476,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     ); */
     // 🧩 Correct-count text, buffered and persistent for multi-answer questions
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       this.quizService.currentQuestionIndex$.pipe(startWith(0))
     ]).pipe(
@@ -501,6 +501,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return '';
       }),
       distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    // 5) Correct-count banner text (debounced and frame-synced)
+    const correctText$: Observable<string> =
+    this.quizService.correctAnswersText$.pipe(
+      // Small delay to let questionText$ co-emit
+      debounceTime(45),
+      // Drop null/undefined but keep empty string to allow banner clears
+      filter(v => typeof v === 'string'),
+      distinctUntilChanged(),
+      startWith(''),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
