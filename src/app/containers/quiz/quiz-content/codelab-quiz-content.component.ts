@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -566,8 +566,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      debounceTime(0),
-      map(([idx, question, correct, fet, shouldShow]) => {    
+      // debounceTime(0),
+      auditTime(30),
+      /* map(([idx, question, correct, fet, shouldShow]) => {    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
 
@@ -652,7 +653,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         // ⏸ STEP 6: Default to question text (with correct count)
         return withCorrect;
-      }),
+      }), */
+      map(([idx, question, correct, fet, shouldShow]) => {
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
+      
+        // 🧩 Merge banner text (# of correct answers) and question together
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct).length > 1));
+      
+        let merged = question;
+        if (isMulti && correct?.trim()?.length > 0) {
+          merged = `
+            <div class="question-line">
+              ${question}
+              <span class="correct-count">${correct}</span>
+            </div>`;
+        }
+      
+        return merged;
+      }),      
       // Small debounce flushes stale FET emissions between navigations
       debounceTime(40),
       distinctUntilChanged(),
