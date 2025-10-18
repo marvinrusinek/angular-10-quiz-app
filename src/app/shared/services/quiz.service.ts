@@ -1761,30 +1761,37 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // 🧩 Skip any attempt to clear during active navigation
     if (this._suppressBannerClear && text === '') {
       console.log('[QuizService] ⏸️ Suppressed transient clear during navigation');
       return;
     }
-  
-    // Avoid redundant emissions
     if (text === this._lastBanner) return;
   
+    // ⏳ Cancel any pending update and re-schedule
     clearTimeout(this._pendingBannerTimer);
   
-    // Delay persistence until navigation settles
     this._pendingBannerTimer = setTimeout(() => {
-      if (text.length > 0) {
-        localStorage.setItem('correctAnswersText', text);
-      } else {
-        localStorage.removeItem('correctAnswersText');
-      }
-    }, 400);
+      // Double-check navigation hasn’t changed
+      if (this._suppressBannerClear) return;
   
-    this._lastBanner = text;
-    this.correctAnswersCountTextSource.next(text);
-    console.log('[QuizService] 🧠 Emitted banner text:', text);
-  }  
+      this._lastBanner = text;
+      this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 🧠 Emitted stable banner:', text);
+  
+      // Async persistence (after stable UI)
+      setTimeout(() => {
+        try {
+          if (text.length > 0) {
+            localStorage.setItem('correctAnswersText', text);
+          } else {
+            localStorage.removeItem('correctAnswersText');
+          }
+        } catch (err) {
+          console.warn('[QuizService] ⚠️ Failed to persist banner', err);
+        }
+      }, 300);
+    }, 250);  // 250ms debounce window – prevents pre-paint flashes
+  }
 
   public clearStoredCorrectAnswersText(): void {
     try {
