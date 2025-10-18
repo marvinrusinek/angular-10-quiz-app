@@ -1714,8 +1714,19 @@ export class QuizService implements OnDestroy {
     localStorage.setItem('correctAnswersText', text);
   }
   
-  updateCorrectAnswersText(newText: string): void {
+  public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
+  
+    // Cache the last emitted text to prevent duplicate or flashing emissions
+    if ((this as any)._lastBanner === text) return;
+  
+    // Prevent transient clears during active navigation
+    if (text === '' && (this as any)._pendingBannerTimer) {
+      console.log('[QuizService] ⚠️ Skipped transient clear (pending banner active)');
+      return;
+    }
+  
+    (this as any)._lastBanner = text;
   
     if (text.length === 0) {
       // Only clear in memory, not localStorage
@@ -1725,8 +1736,9 @@ export class QuizService implements OnDestroy {
       // Persist new text normally
       localStorage.setItem('correctAnswersText', text);
       this.correctAnswersCountTextSource.next(text);
+      console.log('[QuizService] 💾 Updated correctAnswersText and persisted:', text);
     }
-  }  
+  }
 
   public clearStoredCorrectAnswersText(): void {
     try {
