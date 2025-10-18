@@ -539,8 +539,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fetText.length > 0 &&
           displayMode === 'explanation' &&
           questionStable &&
-          !this.explanationTextService._visibilityLocked &&
-          !(this.explanationTextService as any)._fetLocked;  // never show while locked
+          !this.explanationTextService._visibilityLocked;
     
         // ✅ STEP 4: Only render FET when *everything* aligns
         if (canShowFET) {
@@ -554,8 +553,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // ⏸ STEP 6: Default to question text (with correct count)
         return withCorrect;
       }),
+      // Small debounce flushes stale FET emissions between navigations
+      debounceTime(40),
       distinctUntilChanged(),
-      auditTime(0),
       observeOn(asyncScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
     );    
