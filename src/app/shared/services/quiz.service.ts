@@ -115,6 +115,7 @@ export class QuizService implements OnDestroy {
   // Guards to prevent banner flicker during nav
   private _lastBanner = '';  // last text we emitted
   public bannerPending = false;  // true while we’re deferring the final banner emit
+  private _bannerToken = 0;  // unique ID per navigation
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -1720,32 +1721,34 @@ export class QuizService implements OnDestroy {
   
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
+    const token = ++this._bannerToken;
   
-    // ──────────────────────────────────────────────
-    // 🧠 Guard: prevent duplicate or flickering emissions
-    // ──────────────────────────────────────────────
+    // Prevent duplicate or flickering emissions
     if (this._lastBanner === text) return;
   
-    // 🛑 Prevent transient clears during active navigation
+    // Skip transient clears if a banner is pending
     if (text === '' && this.bannerPending) {
       console.log('[QuizService] ⚠️ Skipped transient clear (bannerPending active)');
       return;
     }
   
-    // Cache last emitted text
     this._lastBanner = text;
   
-    if (text.length === 0) {
-      // Only clear in memory, not localStorage
-      this.correctAnswersCountTextSource.next('');
-      console.log('[QuizService] 🧹 Cleared correctAnswersText in memory only');
-    } else {
-      // Persist new text normally
-      localStorage.setItem('correctAnswersText', text);
-      this.correctAnswersCountTextSource.next(text);
-      console.log('[QuizService] 💾 Updated correctAnswersText and persisted:', text);
-    }
-  }
+    // Schedule on the next animation frame to coalesce Angular CD
+    requestAnimationFrame(() => {
+      // Only apply if still the latest navigation
+      if (token !== this._bannerToken) return;
+  
+      if (text.length === 0) {
+        this.correctAnswersCountTextSource.next('');
+        console.log('[QuizService] 🧹 Cleared banner text (memory only)');
+      } else {
+        localStorage.setItem('correctAnswersText', text);
+        this.correctAnswersCountTextSource.next(text);
+        console.log('[QuizService] 💾 Banner updated and persisted:', text);
+      }
+    });
+  }  
 
   public clearStoredCorrectAnswersText(): void {
     try {
