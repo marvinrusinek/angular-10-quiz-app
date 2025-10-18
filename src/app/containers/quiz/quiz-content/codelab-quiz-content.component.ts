@@ -459,7 +459,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       ); */
     // 🧩 Correct-count text, buffered until question text stabilises
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
         distinctUntilChanged()
@@ -470,6 +470,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([correct, q]) => {
         const ready = (q ?? '').trim().length > 0;
         return ready ? (correct ?? '').toString() : '';
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    // 🧩 Correct-count text, buffered and persistent for multi-answer questions
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+      this.quizService.currentQuestionIndex$.pipe(startWith(0))
+    ]).pipe(
+      map(([correct, idx]) => {
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+
+        // For multi-answer questions, keep the last non-empty text
+        if (isMulti) {
+          if (correct && correct.trim().length > 0) {
+            this.lastCorrectBanner = correct;
+          }
+          return this.lastCorrectBanner ?? '';
+        }
+
+        // Single-answer → always blank
+        this.lastCorrectBanner = '';
+        return '';
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
