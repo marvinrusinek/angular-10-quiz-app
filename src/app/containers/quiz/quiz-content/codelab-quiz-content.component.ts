@@ -508,12 +508,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // Ignore the very first emission after an index change — prevents FET flash
-      switchMap(([idx, question, correct, fet, shouldShow]) =>
-        timer(35).pipe(
-          map(() => [idx, question, correct, fet, shouldShow] as const)
-        )
-      ),
+      debounceTime(0),
       map(([idx, question, correct, fet, shouldShow]) => {
         // Diagnostic snapshot — logs exactly what combineLatest emits
         console.log(
