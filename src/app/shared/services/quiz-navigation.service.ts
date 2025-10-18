@@ -441,9 +441,9 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
-
+  
     this.quizService.clearStoredCorrectAnswersText();
-
+  
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
     const quizId = quizIdFromRoute || fallbackQuizId;
@@ -451,21 +451,22 @@ export class QuizNavigationService {
     if (!quizId || quizId === 'fallback-id') {
       console.error('[❌ Invalid quizId – fallback used]', quizId);
     }
-
+  
     // Clear stale explanation text before switching questions
     this.explanationTextService.formattedExplanationSubject.next('');
     this.explanationTextService.setShouldDisplayExplanation(false);
     this.explanationTextService.setIsExplanationTextDisplayed(false);
-
-    //  Give Angular one frame to reset DOM before any new explanation emits
-    await new Promise(r => requestAnimationFrame(r));
+  
+    // Give Angular one frame to reset DOM before any new explanation emits
+    await new Promise((r) => requestAnimationFrame(r));
   
     const routeUrl = `/question/${quizId}/${index + 1}`;
     const currentUrl = this.router.url;
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
-
+  
     try {
+      // Early ETS priming
       const ets: any = this.explanationTextService;
       ets._activeIndex = index;
       ets._byIndex?.get?.(index)?.next(null);
@@ -477,7 +478,7 @@ export class QuizNavigationService {
     } catch (err) {
       console.warn('[NAV→Q] ⚠️ Early ETS priming failed', err);
     }
-
+  
     // Freeze current question display to prevent mid-transition clears
     this.quizQuestionLoaderService.questionToDisplay$.next('(freeze)');
   
@@ -489,17 +490,20 @@ export class QuizNavigationService {
   
       const prev = this.quizService.getCurrentQuestionIndex();
       if (Number.isFinite(prev) && prev !== index) {
-        try { this.explanationTextService._byIndex.get(prev)?.next(null); } catch {}
-        try { this.explanationTextService._gate.get(prev)?.next(false); } catch {}
+        try {
+          this.explanationTextService._byIndex.get(prev)?.next(null);
+        } catch {}
+        try {
+          this.explanationTextService._gate.get(prev)?.next(false);
+        } catch {}
       }
   
       this.explanationTextService._activeIndex = -1;
-  
       this.selectedOptionService.resetOptionState(prev);
       this.nextButtonStateService.setNextButtonState(false);
       this.quizService.correctAnswersCountSubject?.next(0);
   
-      await new Promise(res => setTimeout(res, 60));
+      await new Promise((res) => setTimeout(res, 60));
       console.log(`[NAV] 🧹 Prev index closed, activeIndex invalidated. Target=${index}`);
     } catch (err) {
       console.warn('[NAV] cleanup failed', err);
@@ -511,18 +515,23 @@ export class QuizNavigationService {
     this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
     this.timerService.resetTimerFlagsFor(nextIndex);
   
-    // ────────────────────────────────────────────────
-    // ROUTE HANDLING
-    // ────────────────────────────────────────────────
     const waitForRoute = this.waitForUrl(routeUrl);
   
     try {
       if (currentIndex === index && currentUrl === routeUrl) {
-        console.warn('[⚠️ Already on route – forcing reload]', { currentIndex, index, routeUrl });
-        await this.ngZone.run(() => this.router.navigateByUrl('/', { skipLocationChange: true }));
+        console.warn('[⚠️ Already on route – forcing reload]', {
+          currentIndex,
+          index,
+          routeUrl,
+        });
+        await this.ngZone.run(() =>
+          this.router.navigateByUrl('/', { skipLocationChange: true })
+        );
       }
   
-      const navSuccess = await this.ngZone.run(() => this.router.navigateByUrl(routeUrl));
+      const navSuccess = await this.ngZone.run(() =>
+        this.router.navigateByUrl(routeUrl)
+      );
       if (!navSuccess) {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
@@ -531,152 +540,82 @@ export class QuizNavigationService {
       console.log('[NAV-DIAG] before waitForRoute', routeUrl);
       await waitForRoute;
       console.log('[NAV-DIAG] after waitForRoute', routeUrl);
-
-      // Clear banner before new question fetch
-      /* this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
-      this.nextButtonStateService.setNextButtonState(false); */
-
-      // ────────────────────────────────────────────────
-      // HARD RESET all per-question selection/lock state
-      // ────────────────────────────────────────────────
-      try {
-        this.selectedOptionService.resetAllStates?.();  // optional if you have it
-      } catch {}
-
-      try {
-        this.selectedOptionService.resetOptionState(this.currentQuestionIndex, this.optionsToDisplay);
-      } catch {}
-
-      try {
-        this.selectedOptionService.clearLockedOptions?.();  // optional if exists
-      } catch {}
-
-      console.log(`[NAV] 🧹 Fully cleared selected/locked options before loading Q${index + 1}`);
-
+  
       // Full reset of selection/lock/feedback state
-      try {
-        this.selectedOptionService.resetAllStates?.();
-        (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
-        (this.selectedOptionService as any).optionStates?.clear?.();
-        this.selectedOptionService.selectedOptionsMap?.clear?.();
-        this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
-        if (typeof (this.selectedOptionService as any)._lockedOptionsMap?.clear === 'function') {
-          (this.selectedOptionService as any)._lockedOptionsMap.clear();
-        }
-        console.log(`[NAV CLEANUP] 🧹 Cleared all option/lock state before fetching Q${index}`);
-      } catch (err) {
-        console.warn('[NAV CLEANUP] ⚠️ Failed to clear option/lock state', err);
-      }
-
-      // ────────────────────────────────────────────────
+      this.selectedOptionService.resetAllStates?.();
+      (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
+      (this.selectedOptionService as any).optionStates?.clear?.();
+      this.selectedOptionService.selectedOptionsMap?.clear?.();
+      this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
+  
       // FETCH NEW QUESTION
-      // ────────────────────────────────────────────────
       const obs = this.quizService.getQuestionByIndex(index);
       const fresh = await firstValueFrom(obs);
-
-      console.log('[NAV DEBUG] Option object identity check:');
-      const prevQ = this.quizService.questions?.[this.currentQuestionIndex];
-      if (prevQ && fresh && Array.isArray(prevQ.options) && Array.isArray(fresh.options)) {
-        const sharedRefs = prevQ.options.some((opt, i) => opt === fresh.options[i]);
-        console.log(`[NAV REF CHECK] Between Q${this.currentQuestionIndex} and Q${index}: shared=${sharedRefs}`);
-      }
-  
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
   
-      // ────────────────────────────────────────────────
       // UPDATE “# OF CORRECT ANSWERS”
-      // ────────────────────────────────────────────────
-      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-      const totalOpts  = (fresh.options ?? []).length;
-      const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
-
-      // Clear any leftover banner text immediately
+      const numCorrect = (fresh.options ?? []).filter((o) => o.correct).length;
+      const totalOpts = (fresh.options ?? []).length;
+      const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+        numCorrect,
+        totalOpts
+      );
+  
       this.quizService.updateCorrectAnswersText('');
-
-      const isMulti =
-        (fresh.type as any) === QuestionType.MultipleAnswer ||
-        (fresh.type as any) === 'MultipleAnswer' ||
-        (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
-    
-      console.log('[DIAG-BANNER]', {
-          index,
-          type: fresh?.type,
-          correctCount: (fresh?.options ?? []).filter(o => o.correct).length,
-          total: (fresh?.options ?? []).length,
-          msg,
-          isMulti
-      });  
-
-      // Emit banner text AND question text together
+  
+      // Emit banner text + question text atomically
       await new Promise<void>((resolve) => {
-        // Wait for next paint so DOM and question state fully reset
         requestAnimationFrame(() => {
-          // Slight delay ensures Angular CD and DOM mount finish
-          setTimeout(() => {
-            try {
-              // Banner handling
-              // Defer banner emission until all resets complete
+          try {
+            const isMulti =
+              (fresh.type as any) === QuestionType.MultipleAnswer ||
+              (Array.isArray(fresh.options) &&
+                fresh.options.filter((o) => o.correct).length > 1);
+  
+            const banner = isMulti ? msg : '';
+            const trimmedQ = (fresh.questionText ?? '').trim();
+            const explanationRaw = (fresh.explanation ?? '').trim();
+  
+            this.quizService._suppressBannerClear = false;
+            this.quizService.updateCorrectAnswersText(banner);
+            this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+            console.log(
+              `[NAV ✅] 🧮 Banner + Question emitted atomically for Q${index + 1}`,
+              banner
+            );
+  
+            // FET pre-arm
+            if (explanationRaw) {
+              const correctIdxs =
+                this.explanationTextService.getCorrectOptionIndices(fresh as any);
+              const formatted = this.explanationTextService
+                .formatExplanation(fresh as any, correctIdxs, explanationRaw)
+                .trim();
               setTimeout(() => {
                 try {
-                  this.quizService._suppressBannerClear = false;  // allow banner now
-                  if (isMulti) {
-                    this.quizService.updateCorrectAnswersText(msg);
-                    console.log(`[NAV ✅] 🧮 Final banner set for multi Q${index + 1}:`, msg);
-                  } else {
-                    this.quizService.updateCorrectAnswersText('');
-                    console.log(`[NAV ✅] 🧹 Cleared banner for single-answer Q${index + 1}`);
-                  }
+                  this.explanationTextService.openExclusive(index, formatted);
+                  this.explanationTextService.setShouldDisplayExplanation(false, {
+                    force: false,
+                  });
+                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
                 } catch (err) {
-                  console.warn('[NAV ⚠️] Failed to emit final banner text', err);
+                  console.warn('[NAV] ⚠️ FET restore failed:', err);
                 }
-              }, 150);  // 150ms ensures banner shows *after* FET pre-arm resets
-      
-              // Emit the question text itself
-              const trimmedQ = (fresh.questionText ?? '').trim();
-              const explanationRaw = (fresh.explanation ?? '').trim();
-      
-              // Small adaptive bounce before emitting question text
-              requestAnimationFrame(() => {
-                setTimeout(() => {
-                  try {
-                    // Always emit — even empty — so each question triggers a render
-                    this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-                    console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}`);
-      
-                    // FET re-activation (restore only for this index)
-                    if (explanationRaw) {
-                      const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
-                      const formatted = this.explanationTextService
-                        .formatExplanation(fresh as any, correctIdxs, explanationRaw)
-                        .trim();
-      
-                      // Schedule the FET emission slightly after question render
-                      setTimeout(() => {
-                        try {
-                          this.explanationTextService.openExclusive(index, formatted);
-                          this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                          console.log(`[NAV] 🧩 FET restored placeholder for Q${index + 1}`);
-                        } catch (err) {
-                          console.warn('[NAV] ⚠️ FET restore failed:', err);
-                        }
-                      }, 80); // small delay prevents Q1→Q2 flicker
-                    }
-                  } catch (err) {
-                    console.warn('[NAV] ⚠️ emitQuestionTextSafely failed:', err);
-                  }
-                  resolve();  // only resolve once everything is staged
-                }, isMulti ? 60 : 25);  // adaptive bounce delay
-              });
-            } catch (err) {
-              console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-              resolve();
+              }, 120);
             }
-          }, 40);  // key delay: ensures banner waits until question fully mounted
+  
+            resolve();
+          } catch (err) {
+            console.warn('[NAV] ⚠️ Banner + question emission failed', err);
+            resolve();
+          }
         });
       });
+  
+      return true;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
       return false;
@@ -684,9 +623,7 @@ export class QuizNavigationService {
       this._fetchInProgress = false;
       console.debug('[NAV] ✅ Fetch complete');
     }
-  
-    return true;
-  }
+  }  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
