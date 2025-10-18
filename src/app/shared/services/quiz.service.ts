@@ -111,7 +111,10 @@ export class QuizService implements OnDestroy {
     // Only re-emit when actual text changes
     distinctUntilChanged()
   );
-  private lastBanner = '';  // cache last emitted text
+
+  // Guards to prevent banner flicker during nav
+  private _lastBanner = '';  // last text we emitted
+  public  bannerPending = false;  // true while we’re deferring the final banner emit
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -1718,15 +1721,15 @@ export class QuizService implements OnDestroy {
     const text = (newText ?? '').trim();
   
     // Cache the last emitted text to prevent duplicate or flashing emissions
-    if ((this as any)._lastBanner === text) return;
+    if (this._lastBanner === text) return;
   
     // Prevent transient clears during active navigation
-    if (text === '' && (this as any)._pendingBannerTimer) {
+    if (text === '' && this._pendingBannerTimer) {
       console.log('[QuizService] ⚠️ Skipped transient clear (pending banner active)');
       return;
     }
   
-    (this as any)._lastBanner = text;
+    this._lastBanner = text;
   
     if (text.length === 0) {
       // Only clear in memory, not localStorage
