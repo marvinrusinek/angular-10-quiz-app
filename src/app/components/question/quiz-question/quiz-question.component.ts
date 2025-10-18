@@ -2395,7 +2395,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts);
 
           if (numCorrect > 1) {
-            this.quizService.updateCorrectAnswersText(msg);
+            // this.quizService.updateCorrectAnswersText(msg);
             console.log(`[BANNER] Set multi-answer banner for Q${this.currentQuestionIndex + 1}:`, msg);
           } else {
             this.quizService.updateCorrectAnswersText('');
@@ -3367,7 +3367,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
             numCorrect,
             totalOpts
           );
-          this.quizService.updateCorrectAnswersText(msg);
+          // this.quizService.updateCorrectAnswersText(msg);
           console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
         } else {
           // SingleAnswer → clear text explicitly

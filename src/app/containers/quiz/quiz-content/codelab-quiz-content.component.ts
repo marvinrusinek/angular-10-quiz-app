@@ -91,6 +91,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   currentQuestionType: QuestionType;
   private lastRenderedQuestionText = '';
   private lastRenderedCorrectText = '';
+  private lastCorrectBanner = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -502,7 +503,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
