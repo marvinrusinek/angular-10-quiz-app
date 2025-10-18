@@ -1721,15 +1721,18 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // Cache the last emitted text to prevent duplicate or flashing emissions
+    // ──────────────────────────────────────────────
+    // 🧠 Guard: prevent duplicate or flickering emissions
+    // ──────────────────────────────────────────────
     if (this._lastBanner === text) return;
   
-    // Prevent transient clears during active navigation
-    if (text === '' && this._pendingBannerTimer) {
-      console.log('[QuizService] ⚠️ Skipped transient clear (pending banner active)');
+    // 🛑 Prevent transient clears during active navigation
+    if (text === '' && this.bannerPending) {
+      console.log('[QuizService] ⚠️ Skipped transient clear (bannerPending active)');
       return;
     }
   
+    // Cache last emitted text
     this._lastBanner = text;
   
     if (text.length === 0) {
