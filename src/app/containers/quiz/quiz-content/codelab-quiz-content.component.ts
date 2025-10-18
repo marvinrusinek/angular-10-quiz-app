@@ -539,9 +539,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (isFETReady) {
           return fetText;
         }
-
-        // Notify ETS that question text is now stable
-        this.explanationTextService.markQuestionRendered(true);
     
         // ⏸ STEP 5: Otherwise remain in question mode (with correct count)
         return withCorrect;
