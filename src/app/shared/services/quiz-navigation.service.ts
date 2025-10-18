@@ -262,6 +262,20 @@ export class QuizNavigationService {
       this.quizStateService.setLoading(true);
   
       this.quizQuestionLoaderService.resetUI();
+
+      // Force display mode reset before question load
+      try {
+        this.quizStateService.displayStateSubject.next({
+          mode: 'question',
+          answered: false
+        });
+        (this.explanationTextService as any)._shouldDisplayExplanation = false;
+        this.explanationTextService.setShouldDisplayExplanation(false);
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+        console.log(`[NAV] 🧭 Display mode forced to 'question' for Q${targetIndex + 1}`);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to force display mode reset', err);
+      }
   
       const quizId = effectiveQuizId;
       const routeUrl = `/question/${quizId}/${targetIndex + 1}`;
