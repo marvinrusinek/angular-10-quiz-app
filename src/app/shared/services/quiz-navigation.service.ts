@@ -618,15 +618,22 @@ export class QuizNavigationService {
           setTimeout(() => {
             try {
               // Banner handling
-              if (isMulti) {
-                // Delay banner emission slightly so it appears with question text
-                this.quizService.updateCorrectAnswersText(msg);
-                console.log(`[NAV] 🧮 Banner set for multi Q${index + 1}:`, msg);
-              } else {
-                this.quizService.updateCorrectAnswersText('');
-                console.log(`[NAV] 🧹 Cleared banner for single-answer Q${index + 1}`);
-              }
+              // Defer banner emission until all resets complete
+              setTimeout(() => {
+                try {
+                  if (isMulti) {
+                    this.quizService.updateCorrectAnswersText(msg);
+                    console.log(`[NAV ✅] 🧮 Final banner set for multi Q${index + 1}:`, msg);
+                  } else {
+                    this.quizService.updateCorrectAnswersText('');
+                    console.log(`[NAV ✅] 🧹 Cleared banner for single-answer Q${index + 1}`);
+                  }
+                } catch (err) {
+                  console.warn('[NAV ⚠️] Failed to emit final banner text', err);
+                }
+              }, 150);  // 150ms ensures banner shows *after* FET pre-arm resets
       
+              // Emit the question text itself
               const trimmedQ = (fresh.questionText ?? '').trim();
               const explanationRaw = (fresh.explanation ?? '').trim();
       
