@@ -302,6 +302,9 @@ export class QuizNavigationService {
       }
   
       console.log(`[NAV ✅] Navigated to ${routeUrl}`);
+
+      // Trigger full question reinitialization
+      await this.navigateToQuestion(targetIndex);
   
       // Wait for change detection to settle
       // await new Promise(r => setTimeout(r, 60));
