@@ -450,14 +450,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // 5) Correct-count badge text (per-index)
-    const correctText$: Observable<string> =
+    /* const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
         debounceTime(0), // align timing with questionText$
         filter((v) => v != null), // skip undefined/null
         distinctUntilChanged(),
         startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
-      );
+      ); */
+    // Correct-count text, buffered until question text stabilises
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        distinctUntilChanged()
+      ),
+      this.questionToDisplay$.pipe(startWith(''))
+    ]).pipe(
+      // emit only when both question text and correct text are available
+      map(([correct, q]) => {
+        const ready = (q ?? '').trim().length > 0;
+        return ready ? (correct ?? '').toString() : '';
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
