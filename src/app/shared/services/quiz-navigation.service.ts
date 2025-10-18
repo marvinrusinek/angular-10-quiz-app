@@ -290,7 +290,17 @@ export class QuizNavigationService {
       console.log(`[NAV ✅] Navigated to ${routeUrl}`);
   
       // Wait for change detection to settle
-      await new Promise(r => setTimeout(r, 60));
+      // await new Promise(r => setTimeout(r, 60));
+
+      // 🧩 Hard reset FET gate before any new question loads
+      // Prevents cached FET from showing for next question
+      // ────────────────────────────────
+      this.explanationTextService.formattedExplanationSubject.next('');
+      this.explanationTextService.setExplanationText('');
+      this.explanationTextService.setShouldDisplayExplanation(false);
+      this.explanationTextService.setIsExplanationTextDisplayed(false);
+      (this.explanationTextService as any)._fetLocked = true; // lock until first option click
+      await new Promise(r => requestAnimationFrame(r));
   
       // ────────────────────────────────
       // 5️⃣ Reset + trigger question load
