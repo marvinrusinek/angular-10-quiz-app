@@ -508,46 +508,56 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      debounceTime(0), // stabilize for Q2 flicker and async render races
+      debounceTime(0),
       map(([idx, question, correct, fet, shouldShow]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
     
-        // 🧱 STEP 1: Guard for out-of-sync emissions during navigation
+        // 🧱 STEP 1: Guard against stale or mismatched indices
         const isIndexStable = idx === currentIdx && idx === activeIdx;
-        if (!isIndexStable) {
-          // Skip any pre-armed or stale FET text for other questions
-          return question;
-        }
+        if (!isIndexStable) return question;
     
-        // 🧩 STEP 2: Merge question with correct answers count (baseline)
+        // 🧩 STEP 2: Merge question text + correct count
         const withCorrect =
           correct && correct.trim().length > 0
             ? `${question} <span class="correct-count">${correct}</span>`
             : question;
     
-        // 🧠 STEP 3: Use a safe gating heuristic for FET display
+        // 🧠 STEP 3: Gating conditions for explanation display
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-        const isFETReady =
-          shouldShow === true &&
+        const displayMode =
+          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+    
+        // 🧩 Extra safety: only allow FET after question was rendered once
+        const questionStable =
+          (this.explanationTextService as any)._questionRenderedOnce === true;
+    
+        const canShowFET =
           fetGate &&
+          shouldShow === true &&
           fetText.length > 0 &&
+          displayMode === 'explanation' &&
+          questionStable &&
           !this.explanationTextService._visibilityLocked;
     
-        // ✅ STEP 4: Only show FET when the explanation gate is *explicitly open*
-        if (isFETReady) {
+        // ✅ STEP 4: Only render FET when *everything* aligns
+        if (canShowFET) {
           return fetText;
         }
     
-        // ⏸ STEP 5: Otherwise remain in question mode (with correct count)
+        // 🧭 STEP 5: Notify ETS that question text rendered successfully
+        this.explanationTextService.markQuestionRendered(true);
+        (this.explanationTextService as any)._questionRenderedOnce = true;
+    
+        // ⏸ STEP 6: Default to question text (with correct count)
         return withCorrect;
       }),
       distinctUntilChanged(),
       auditTime(0),
       observeOn(asyncScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   }
 
   private emitContentAvailableState(): void {
