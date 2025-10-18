@@ -613,7 +613,7 @@ export class QuizNavigationService {
       await new Promise<void>((resolve) => {
         // Wait for next paint so DOM and question state fully reset
         requestAnimationFrame(() => {
-          // Slight delay ensures Angular CD + DOM mount finish
+          // Slight delay ensures Angular CD and DOM mount finish
           setTimeout(() => {
             try {
               // Banner handling
