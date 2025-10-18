@@ -327,51 +327,52 @@ export class QuizNavigationService {
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
       
-          // ────────────────────────────────────────────────
-          // Step 1: Pre-arm gate WITHOUT setting text yet
-          // ────────────────────────────────────────────────
           const svc: any = this.explanationTextService;
-          svc._preArmedReady = true;
+      
+          // ────────────────────────────────────────────────
+          // 🧩 Step 1: Clear only transient state; don’t touch cached text yet
+          // ────────────────────────────────────────────────
           svc._activeIndex = targetIndex;
+          svc._fetLocked = false;
+          svc.setShouldDisplayExplanation(false);
+          svc.setIsExplanationTextDisplayed(false);
+      
+          // ────────────────────────────────────────────────
+          // 🧠 Step 2: Pre-arm explanation gate but defer actual text push
+          // ────────────────────────────────────────────────
           svc._cachedFormatted = formatted;
           svc._cachedAt = performance.now();
-          svc._fetLocked = false; // allow later emit from onOptionClicked
+          svc.setReadyForExplanation?.(false);
       
           this.quizStateService.displayStateSubject?.next({
             mode: 'question',
             answered: false,
           });
       
-          // Step 2: Wait until question text has rendered
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              try {
-                // Only set explanation text *after* the question text emission
-                if (svc._activeIndex === targetIndex && !svc._fetLocked) {
-                  // Preload the *formatted* explanation quietly (don’t clear it)
-                  svc.setExplanationText(formatted);
-                  svc.setShouldDisplayExplanation(false);
-                  svc.setIsExplanationTextDisplayed(false);
-                  console.log(`[NAV] 🧠 Pre-arm complete, FET cached but not displayed for Q${targetIndex + 1}`);
-
-                  // Mark as ready for explanation
-                  svc._activeIndex = targetIndex;
-                  svc.setReadyForExplanation(true);
-                  
-                  // Pre-arm explanation gate
-                  this.quizStateService.displayStateSubject?.next({
-                    mode: 'question',
-                    answered: false
-                  });
-                  console.log(`[NAV] 🧠 FET gate pre-armed for Q${targetIndex + 1}`);
-                } else {
-                  console.log(`[NAV] 🚫 FET locked, skipping pre-cache for Q${targetIndex + 1}`);
-                }
-              } catch (err) {
-                console.warn('[NAV] ⚠️ FET pre-arm deferred injection failed', err);
+          // ────────────────────────────────────────────────
+          // ⏳ Step 3: Lazy-emit FET *after* question text settles
+          // ────────────────────────────────────────────────
+          // 150 ms is long enough for Q2/Q3 question-text renders to complete
+          setTimeout(() => {
+            try {
+              if (svc._activeIndex === targetIndex && !svc._fetLocked) {
+                // emit quietly without revealing it yet
+                svc.setExplanationText(formatted);
+                svc.setShouldDisplayExplanation(false);
+                svc.setIsExplanationTextDisplayed(false);
+                svc.setReadyForExplanation?.(true);
+                console.log(
+                  `[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`
+                );
+              } else {
+                console.log(
+                  `[NAV] 🚫 Skipped FET lazy cache for Q${targetIndex + 1} (locked or mismatched index)`
+                );
               }
-            }, 120);  // give the DOM 120ms to stabilize before any explanation push
-          });
+            } catch (err) {
+              console.warn('[NAV] ⚠️ Lazy FET cache failed', err);
+            }
+          }, 150); // safe debounce after question text emission
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
