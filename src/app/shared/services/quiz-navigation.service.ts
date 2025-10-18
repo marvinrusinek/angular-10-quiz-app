@@ -318,6 +318,7 @@ export class QuizNavigationService {
 
       // Restore FET state safely for the new question
       // Step 6: Post-load FET Pre-arm (fixed hidden cache)
+      // 🧠 Step: Deferred FET Pre-arm (hidden cache after render)
       try {
         const q = this.quizService.questions?.[targetIndex];
         if (q && q.explanation) {
@@ -326,54 +327,29 @@ export class QuizNavigationService {
           const formatted = this.explanationTextService
             .formatExplanation(q as any, correctIdxs, rawExpl)
             .trim();
-      
+
           const svc: any = this.explanationTextService;
-      
-          // ────────────────────────────────────────────────
-          // 🧩 Step 1: Clear only transient state; don’t touch cached text yet
-          // ────────────────────────────────────────────────
-          svc._activeIndex = targetIndex;
-          svc._fetLocked = false;
-          svc.setShouldDisplayExplanation(false);
-          svc.setIsExplanationTextDisplayed(false);
-      
-          // ────────────────────────────────────────────────
-          // 🧠 Step 2: Pre-arm explanation gate but defer actual text push
-          // ────────────────────────────────────────────────
-          svc._cachedFormatted = formatted;
-          svc._cachedAt = performance.now();
-          svc.setReadyForExplanation?.(false);
-      
-          this.quizStateService.displayStateSubject?.next({
-            mode: 'question',
-            answered: false,
-          });
-      
-          // ────────────────────────────────────────────────
-          // ⏳ Step 3: Lazy-emit FET *after* question text settles
-          // ────────────────────────────────────────────────
-          // 150 ms is long enough for Q2/Q3 question-text renders to complete
-          await this.explanationTextService.waitUntilQuestionRendered(600);
-          setTimeout(() => {
-            try {
-              if (svc._activeIndex === targetIndex && !svc._fetLocked) {
-                // emit quietly without revealing it yet
-                svc.setExplanationText(formatted);
-                svc.setShouldDisplayExplanation(false);
-                svc.setIsExplanationTextDisplayed(false);
-                svc.setReadyForExplanation?.(true);
-                console.log(
-                  `[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`
-                );
-              } else {
-                console.log(
-                  `[NAV] 🚫 Skipped FET lazy cache for Q${targetIndex + 1} (locked or mismatched index)`
-                );
+
+          // Wait until question text is fully rendered before caching explanation
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              try {
+                // Only cache if user hasn’t opened the explanation yet
+                if (!svc._fetLocked && svc._activeIndex === targetIndex) {
+                  svc.setExplanationText(formatted);
+                  svc.setShouldDisplayExplanation(false);
+                  svc.setIsExplanationTextDisplayed(false);
+                  svc.readyForExplanation = true;
+
+                  console.log(`[NAV] 🧠 Deferred FET cache (hidden) for Q${targetIndex + 1}`);
+                } else {
+                  console.log(`[NAV] 🚫 Skipped FET cache for Q${targetIndex + 1} (locked or mismatched)`);
+                }
+              } catch (err) {
+                console.warn('[NAV] ⚠️ Deferred FET cache failed', err);
               }
-            } catch (err) {
-              console.warn('[NAV] ⚠️ Lazy FET cache failed', err);
-            }
-          }, 150); // safe debounce after question text emission
+            }, 200); // Delay ensures question text has rendered fully
+          });
         } else {
           this.explanationTextService.setExplanationText('');
           this.explanationTextService.setShouldDisplayExplanation(false);
@@ -382,6 +358,7 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[NAV] ⚠️ FET restoration failed:', err);
       }
+
   
       this.notifyNavigatingBackwards();
       this.notifyResetExplanation();
