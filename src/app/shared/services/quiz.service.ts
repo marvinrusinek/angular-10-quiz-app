@@ -114,7 +114,7 @@ export class QuizService implements OnDestroy {
 
   // Guards to prevent banner flicker during nav
   private _lastBanner = '';  // last text we emitted
-  public  bannerPending = false;  // true while we’re deferring the final banner emit
+  public bannerPending = false;  // true while we’re deferring the final banner emit
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
@@ -949,7 +949,8 @@ export class QuizService implements OnDestroy {
         }
 
         const sanitizedOptions = this.assignOptionIds(
-          [...this.sanitizeOptions(question.options ?? [])]
+          [...this.sanitizeOptions(question.options ?? [])],
+          index
         );
         const normalizedQuestion: QuizQuestion = {
           ...question,
