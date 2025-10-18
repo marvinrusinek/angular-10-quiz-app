@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, map, shareReplay, startWith } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, shareReplay, startWith, take, timeout } from 'rxjs/operators';
+import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
 import { FormattedExplanation } from '../../shared/models/FormattedExplanation.model';
@@ -1304,4 +1305,23 @@ export class ExplanationTextService {
     this._visibilityLocked = false;
     console.log('[ETS] 🔓 Explanation pipeline unlocked');
   }
+
+  public markQuestionRendered(rendered = true): void {
+    this._questionRendered = rendered;
+    this.questionRendered$.next(rendered);
+  }
+  
+  public async waitUntilQuestionRendered(timeoutMs = 500): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.questionRendered$.pipe(
+          filter((v) => v === true),
+          take(1),
+          timeout({ each: timeoutMs })
+        )
+      );
+    } catch {
+      // swallow timeouts or interruptions silently
+    }
+  }  
 }
