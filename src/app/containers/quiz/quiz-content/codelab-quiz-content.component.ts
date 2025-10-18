@@ -533,13 +533,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const questionStable =
           (this.explanationTextService as any)._questionRenderedOnce === true;
     
+        // ✅ FINAL GUARD: Never show FET until the question has rendered once
+        // and the system has fully switched to explanation mode.
         const canShowFET =
           fetGate &&
-          shouldShow === true &&
           fetText.length > 0 &&
           displayMode === 'explanation' &&
           questionStable &&
-          !this.explanationTextService._visibilityLocked;
+          !this.explanationTextService._visibilityLocked &&
+          this.explanationTextService.shouldDisplayExplanation$.getValue?.() === true;
     
         // ✅ STEP 4: Only render FET when *everything* aligns
         if (canShowFET) {
