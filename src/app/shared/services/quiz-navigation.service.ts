@@ -330,6 +330,13 @@ export class QuizNavigationService {
           const svc: any = this.explanationTextService;
       
           // ────────────────────────────────────────────────
+          // 🧩 Step 0: Reset render-tracking flags before arming next question
+          // ────────────────────────────────────────────────
+          svc._questionRenderedOnce = false;        // ✅ ensures FET won’t appear prematurely
+          svc._visibilityLocked = false;
+          console.log(`[NAV] 🔄 Reset _questionRenderedOnce for Q${targetIndex + 1}`);
+      
+          // ────────────────────────────────────────────────
           // 🧩 Step 1: Clear only transient state; don’t touch cached text yet
           // ────────────────────────────────────────────────
           svc._activeIndex = targetIndex;
@@ -352,7 +359,6 @@ export class QuizNavigationService {
           // ────────────────────────────────────────────────
           // ⏳ Step 3: Lazy-emit FET *after* question text settles
           // ────────────────────────────────────────────────
-          // 150 ms is long enough for Q2/Q3 question-text renders to complete
           await this.explanationTextService.waitUntilQuestionRendered(600);
           setTimeout(() => {
             try {
@@ -362,9 +368,7 @@ export class QuizNavigationService {
                 svc.setShouldDisplayExplanation(false);
                 svc.setIsExplanationTextDisplayed(false);
                 svc.setReadyForExplanation?.(true);
-                console.log(
-                  `[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`
-                );
+                console.log(`[NAV] 🧠 Lazy-cached FET (hidden) for Q${targetIndex + 1}`);
               } else {
                 console.log(
                   `[NAV] 🚫 Skipped FET lazy cache for Q${targetIndex + 1} (locked or mismatched index)`
