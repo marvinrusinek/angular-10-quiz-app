@@ -1761,37 +1761,26 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    if (this._suppressBannerClear && text === '') {
-      console.log('[QuizService] ⏸️ Suppressed transient clear during navigation');
-      return;
-    }
-    if (text === this._lastBanner) return;
+    if (text === this._lastBanner) return; // no redundant re-emits
+    this._lastBanner = text;
   
-    // ⏳ Cancel any pending update and re-schedule
-    clearTimeout(this._pendingBannerTimer);
+    // Do NOT defer the emission — emit immediately with question text
+    this.correctAnswersCountTextSource.next(text);
+    console.log('[QuizService] 🧩 Emitted banner with question text:', text);
   
-    this._pendingBannerTimer = setTimeout(() => {
-      // Double-check navigation hasn’t changed
-      if (this._suppressBannerClear) return;
-  
-      this._lastBanner = text;
-      this.correctAnswersCountTextSource.next(text);
-      console.log('[QuizService] 🧠 Emitted stable banner:', text);
-  
-      // Async persistence (after stable UI)
-      setTimeout(() => {
-        try {
-          if (text.length > 0) {
-            localStorage.setItem('correctAnswersText', text);
-          } else {
-            localStorage.removeItem('correctAnswersText');
-          }
-        } catch (err) {
-          console.warn('[QuizService] ⚠️ Failed to persist banner', err);
+    // Persist asynchronously (non-blocking)
+    queueMicrotask(() => {
+      try {
+        if (text.length > 0) {
+          localStorage.setItem('correctAnswersText', text);
+        } else {
+          localStorage.removeItem('correctAnswersText');
         }
-      }, 300);
-    }, 250);  // 250ms debounce window – prevents pre-paint flashes
-  }
+      } catch (err) {
+        console.warn('[QuizService] ⚠️ Failed to persist banner', err);
+      }
+    });
+  }  
 
   public clearStoredCorrectAnswersText(): void {
     try {
