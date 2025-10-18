@@ -568,7 +568,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ]).pipe(
       // debounceTime(0),
       auditTime(30),
-      /* map(([idx, question, correct, fet, shouldShow]) => {    
+      map(([idx, question, correct, fet, shouldShow]) => {    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
 
@@ -653,29 +653,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         // ⏸ STEP 6: Default to question text (with correct count)
         return withCorrect;
-      }), */
-      map(([idx, question, correct, fet, shouldShow]) => {
-        const activeIdx = this.explanationTextService._activeIndex ?? -1;
-        const currentIdx = this.quizService.getCurrentQuestionIndex();
-      
-        // 🧩 Merge banner text (# of correct answers) and question together
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct).length > 1));
-      
-        let merged = question;
-        if (isMulti && correct?.trim()?.length > 0) {
-          merged = `
-            <div class="question-line">
-              ${question}
-              <span class="correct-count">${correct}</span>
-            </div>`;
-        }
-      
-        return merged;
-      }),      
+      }),
       // Small debounce flushes stale FET emissions between navigations
       debounceTime(40),
       distinctUntilChanged(),
