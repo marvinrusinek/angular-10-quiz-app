@@ -64,10 +64,10 @@ export class QuizNavigationService {
   private renderResetSubject = new Subject<void>();
   renderReset$ = this.renderResetSubject.asObservable();
 
-  // Internal suppression timer used to block transient banner updates (anti-flash)
-  private _suppressTimer: ReturnType<typeof setTimeout> | null = null;
-
   private _fetchInProgress = false;  // prevents overlapping question fetches
+
+  // Tracks which questions have had their formatted explanation shown early
+  private _fetEarlyShown: Set<number> = new Set();
   
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -608,6 +608,15 @@ export class QuizNavigationService {
         (fresh.type as any) === QuestionType.MultipleAnswer ||
         (fresh.type as any) === 'MultipleAnswer' ||
         (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
+    
+      console.log('[DIAG-BANNER]', {
+          index,
+          type: fresh?.type,
+          correctCount: (fresh?.options ?? []).filter(o => o.correct).length,
+          total: (fresh?.options ?? []).length,
+          msg,
+          isMulti
+      });  
 
       // Emit banner text AND question text together
       await new Promise<void>((resolve) => {
