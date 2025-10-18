@@ -209,7 +209,7 @@ export class QuizNavigationService {
   
         // 🔸 Clear banner + answer state
         this.quizService.updateCorrectAnswersText('');
-        this.quizService.correctAnswersTextSubject?.next(''); // safety reset
+        this.quizService.correctAnswersCountSubject?.next(0);  // safety reset
         this.quizStateService.setAnswerSelected(false);
         this.selectedOptionService.setAnswered(false);
         this.nextButtonStateService.reset();
