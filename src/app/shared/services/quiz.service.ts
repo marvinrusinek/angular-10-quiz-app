@@ -1760,27 +1760,29 @@ export class QuizService implements OnDestroy {
   } */
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
+    if (text === this._lastBanner) return; // avoid redundant updates
   
-    if (text === this._lastBanner) return; // no redundant re-emits
+    // Only update BehaviorSubject synchronously (UI paint)
     this._lastBanner = text;
-  
-    // Do NOT defer the emission — emit immediately with question text
     this.correctAnswersCountTextSource.next(text);
-    console.log('[QuizService] 🧩 Emitted banner with question text:', text);
   
-    // Persist asynchronously (non-blocking)
-    queueMicrotask(() => {
+    console.log('[QuizService] 🧩 Banner text updated:', text);
+  
+    // Persist asynchronously AFTER paint to avoid flicker
+    clearTimeout(this._pendingBannerTimer);
+    this._pendingBannerTimer = setTimeout(() => {
       try {
         if (text.length > 0) {
           localStorage.setItem('correctAnswersText', text);
         } else {
           localStorage.removeItem('correctAnswersText');
         }
+        console.log('[QuizService] 💾 Stored banner post-paint:', text);
       } catch (err) {
         console.warn('[QuizService] ⚠️ Failed to persist banner', err);
       }
-    });
-  }  
+    }, 200);  // delay avoids collision with next question transition
+  }
 
   public clearStoredCorrectAnswersText(): void {
     try {
