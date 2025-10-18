@@ -42,6 +42,7 @@ export class QuizNavigationService {
   isOptionSelected = false;
   isButtonEnabled$: Observable<boolean>;
 
+  questionReady = false;
   shouldRenderQuestionComponent = false;
   elapsedTimeDisplay = 0;
 
@@ -305,24 +306,6 @@ export class QuizNavigationService {
 
       // Trigger full question reinitialization
       await this.navigateToQuestion(targetIndex);
-
-      // Smoothly reveal new question text after navigation completes
-      try {
-        const quizComp = this.quizComponentRef?.instance ?? null;
-        if (quizComp && typeof quizComp.setQuestionReadyAfterDelay === 'function') {
-          quizComp.setQuestionReadyAfterDelay();
-          console.log('[NAV] 🪄 Question reveal scheduled via QuizComponent');
-        } else {
-          // fallback if service itself manages readiness flag
-          requestAnimationFrame(() => {
-            (this as any).questionReady = true;
-            console.log('[NAV] 🪄 Question reveal (fallback frame delay)');
-          });
-        }
-      } catch (err) {
-        console.warn('[NAV] ⚠️ Question reveal scheduling failed', err);
-      }
-
   
       // Wait for change detection to settle
       // await new Promise(r => setTimeout(r, 60));
@@ -942,5 +925,13 @@ export class QuizNavigationService {
     }
 
     return 0;
+  }
+
+  private setQuestionReadyAfterDelay(): void {
+    this.questionReady = false;
+    requestAnimationFrame(() => {
+      this.questionReady = true;
+      console.log('[NAV] 🪄 Question reveal triggered');
+    });
   }
 }
