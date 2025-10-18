@@ -508,7 +508,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      debounceTime(0),
+      debounceTime(0), // stabilize for Q2 flicker and async render races
       map(([idx, question, correct, fet, shouldShow]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
@@ -529,31 +529,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // 🧠 STEP 3: Use a safe gating heuristic for FET display
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-        const displayMode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
         const isFETReady =
           shouldShow === true &&
           fetGate &&
           fetText.length > 0 &&
-          displayMode === 'explanation' &&
           !this.explanationTextService._visibilityLocked;
     
         // ✅ STEP 4: Only show FET when the explanation gate is *explicitly open*
         if (isFETReady) {
           return fetText;
         }
-    
-        // 🧭 STEP 5: Notify ETS that question text is now stable
+
+        // Notify ETS that question text is now stable
         this.explanationTextService.markQuestionRendered(true);
     
-        // ⏸ STEP 6: Otherwise remain in question mode (with correct count)
+        // ⏸ STEP 5: Otherwise remain in question mode (with correct count)
         return withCorrect;
       }),
       distinctUntilChanged(),
       auditTime(0),
       observeOn(asyncScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
   }
 
   private emitContentAvailableState(): void {
