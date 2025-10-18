@@ -5288,10 +5288,8 @@ export class QuizQuestionComponent extends BaseQuestionComponent
     const i0 = this.normalizeIndex(index);
     const q = this.questions?.[i0];
   
-    const svcCached =
-      (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '')
-        .toString()
-        .trim();
+    // Prefer model raw; fallback to service cache if model is empty
+    const svcCached = (this.explanationTextService?.formattedExplanations?.[i0]?.explanation ?? '').toString().trim();
     const baseRaw = ((q?.explanation ?? '') as string).toString().trim() || svcCached;
   
     console.warn('[🧠 updateExplanationText CALLED]', {
@@ -5300,10 +5298,11 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       baseRaw,
     });
   
+    // NEW: Guard for explanation readiness to prevent Q1→Q2 bleed
     const ready =
-      (this.explanationTextService as any).readyForExplanation ?? true;
+      (this.explanationTextService as any).readyForExplanation ?? true; // assume true if not tracked
     const shouldDisplay =
-      (this.explanationTextService as any)._shouldDisplayExplanation ?? false;
+      (this.explanationTextService as any)._shouldDisplayExplanation ?? false; // assume hidden initially
   
     if (!ready) {
       console.warn(`[🧠 FET] Skipping updateExplanationText for Q${i0 + 1} — service not ready`);
@@ -5321,16 +5320,20 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       return baseRaw;
     }
   
+    // Derive correct option indices from the question itself (works on timeout)
     const indices: number[] = Array.isArray(q.options)
       ? q.options.map((opt, idx) => (opt?.correct ? idx + 1 : -1)).filter(n => n > 0)
       : [];
   
+    // Format explanation using your service; fallback to raw
     let formatted = '';
     try {
       const svc: any = this.explanationTextService;
-      formatted = typeof svc.formatExplanation === 'function'
-        ? svc.formatExplanation(q, indices, baseRaw)
-        : baseRaw;
+      if (typeof svc.formatExplanation === 'function') {
+        formatted = svc.formatExplanation(q, indices, baseRaw);
+      } else {
+        formatted = baseRaw;
+      }
     } catch (e) {
       console.warn('[updateExplanationText] formatter threw; using raw', e);
       formatted = baseRaw;
@@ -5338,6 +5341,7 @@ export class QuizQuestionComponent extends BaseQuestionComponent
   
     const clean = (formatted ?? '').toString().trim();
   
+    // Cache per-index in the service
     try {
       const prev = this.explanationTextService.formattedExplanations?.[i0] as any;
       this.explanationTextService.formattedExplanations[i0] = {
@@ -5350,20 +5354,33 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       console.warn('[updateExplanationText] cache push failed', err);
     }
   
+    // NEW: adaptive bounce — allows DOM to settle before emission
     const delayMs = q?.type === QuestionType.SingleAnswer ? 20 : 60;
     await new Promise(res => requestAnimationFrame(() => setTimeout(res, delayMs)));
   
-    // ✅ Emit only once — after unlocking FET gate
+    // ────────────────────────────────────────────────
+    // 🧩 Hybrid FET handling (pre-seed, unlock, reveal)
+    // ────────────────────────────────────────────────
+    const svc: any = this.explanationTextService;
+    svc._fetLocked = false; // 🔓 unlock when truly ready for new question
+  
     if (this.currentQuestionIndex === i0 && (clean || baseRaw)) {
-      console.log(`[🧠 FET] Emitting formatted text for Q${i0 + 1}`);
-      const svc: any = this.explanationTextService;
-      svc._fetLocked = false; // unlock when truly ready
+      // 🧠 Step 1: Seed the stream quietly (hidden)
+      console.log(`[🧠 FET] Seeding formatted text for Q${i0 + 1}`);
       this.explanationTextService.setExplanationText(clean || baseRaw);
-      this.explanationTextService.setShouldDisplayExplanation(shouldDisplay);
+      this.explanationTextService.setShouldDisplayExplanation(false); // stay hidden until explicitly shown
+  
+      // 🧠 Step 2: Reveal only when display gate is opened
+      if (shouldDisplay) {
+        console.log(`[🧠 FET] Revealing formatted text for Q${i0 + 1}`);
+        this.explanationTextService.setExplanationText(clean || baseRaw);
+        this.explanationTextService.setShouldDisplayExplanation(true);
+      }
     } else {
       console.warn(`[🧠 FET] Skipped emit — index mismatch or empty text`);
     }
   
+    // Keep question state in sync
     const qState = this.quizStateService.getQuestionState(this.quizId, i0);
     this.quizStateService.setQuestionState(this.quizId, i0, {
       ...qState,
