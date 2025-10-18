@@ -468,6 +468,19 @@ export class QuizNavigationService {
     const currentIndex = this.quizService.getCurrentQuestionIndex();
     const nextIndex = index;
 
+    try {
+      const ets: any = this.explanationTextService;
+      ets._activeIndex = index;
+      ets._byIndex?.get?.(index)?.next(null);
+      ets._gate?.get?.(index)?.next(false);
+      ets._fetLocked = true;
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+      console.log(`[NAV→Q] 🔒 ETS primed early for index ${index}`);
+    } catch (err) {
+      console.warn('[NAV→Q] ⚠️ Early ETS priming failed', err);
+    }
+
     // Freeze current question display to prevent mid-transition clears
     this.quizQuestionLoaderService.questionToDisplay$.next('(freeze)');
   
