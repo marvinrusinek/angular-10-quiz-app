@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, from, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 import _, { isEqual } from 'lodash';
 
@@ -102,7 +102,15 @@ export class QuizService implements OnDestroy {
   private correctAnswersCountTextSource = new BehaviorSubject<string>(
     localStorage.getItem('correctAnswersText') ?? ''
   );
-  public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable();
+  // Filter and debounce to prevent flashing the banner
+  public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
+    // Drop immediate empty clears that cause flicker
+    filter(v => typeof v === 'string' && v.trim().length > 0),
+    // Give Angular a paint frame to coalesce rapid emissions
+    debounceTime(25),
+    // Only re-emit when actual text changes
+    distinctUntilChanged()
+  );
 
   currentQuestionIndexSubject = new BehaviorSubject<number>(0);
   multipleAnswer = false;
