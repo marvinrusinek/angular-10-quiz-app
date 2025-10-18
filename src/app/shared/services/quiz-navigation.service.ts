@@ -426,6 +426,14 @@ export class QuizNavigationService {
     if (!quizId || quizId === 'fallback-id') {
       console.error('[❌ Invalid quizId – fallback used]', quizId);
     }
+
+    // Clear stale explanation text before switching questions
+    this.explanationTextService.formattedExplanationSubject.next('');
+    this.explanationTextService.setShouldDisplayExplanation(false);
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+
+    //  Give Angular one frame to reset DOM before any new explanation emits
+    await new Promise(r => requestAnimationFrame(r));
   
     const routeUrl = `/question/${quizId}/${index + 1}`;
     const currentUrl = this.router.url;
