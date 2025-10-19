@@ -569,112 +569,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // 7) Final render mapping (atomic frame-sync version)
-    const merged$ = questionText$.pipe(
-      withLatestFrom(index$, correctText$, fetForIndex$, shouldShow$),
-      observeOn(animationFrameScheduler)
-    );
-    
-    return merged$.pipe(
-      // Let the first emission through directly, then pair subsequent ones
-      startWith([ '', 0, '', { text: '', gate: false }, false ] as any),
-      pairwise(),
-      map(([
-        [prevQuestion, prevIdx, prevCorrect, prevFet, prevShow],
-        [question, idx, correct, fet, shouldShow]
-      ]) => {
-        const activeIdx = this.explanationTextService._activeIndex ?? -1;
-        const currentIdx = this.quizService.getCurrentQuestionIndex();
-    
-        const displayMode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    
-        // 🧱 STEP 1: Index stabilization
-        const isIndexStable = Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
-    
-        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
-        const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
-    
-        this.lastRenderedQuestionText = safeQuestion;
-        this.lastRenderedCorrectText = safeCorrect;
-    
-        // 🧩 STEP 2: Identify multi-answer
-        const qObj = this.quizService.questions?.[Number(idx)];
+    // 7️⃣ Final render mapping — question + banner only (no FET gating)
+    return combineLatest([index$, questionText$, correctText$]).pipe(
+      // Schedule both on the same animation frame
+      observeOn(animationFrameScheduler),
+      map(([idx, question, correct]) => {
+        const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
-    
-        // 🧩 STEP 3: Skip painting mid-navigation
-        if (this.quizStateService.isNavigatingSubject.getValue()) {
-          return this.lastRenderedQuestionText ?? prevQuestion ?? '';
-        }
-    
-        // 🧩 STEP 4: Prevent “question-only” flash if banner hasn’t caught up
-        if (isMulti && !safeCorrect && displayMode === 'question') {
-          console.log(`[SKIP] Waiting for banner for Q${Number(idx) + 1}`);
-          return this.lastRenderedQuestionText ?? safeQuestion;
-        }
-    
-        // 🧩 STEP 5: Fallback for non-multi
-        if (!isIndexStable && !isMulti) {
-          return (
-            this.lastRenderedQuestionText +
-            (this.lastRenderedCorrectText
-              ? `<span class="correct-count">${this.lastRenderedCorrectText}</span>`
-              : '')
-          );
-        }
-    
-        // 🧩 STEP 6: Merge question + correct count
-        let withCorrect = safeQuestion;
-        if (isMulti && safeCorrect && displayMode === 'question') {
-          withCorrect = `
+
+        const cleanQuestion = (question ?? '').trim();
+        const cleanCorrect = (correct ?? '').trim();
+
+        // For multi-answer: render both together
+        if (isMulti && cleanCorrect.length > 0) {
+          return `
             <div class="question-line">
-              ${safeQuestion}
-              <span class="correct-count">${safeCorrect}</span>
+              ${cleanQuestion}
+              <span class="correct-count">${cleanCorrect}</span>
             </div>`;
         }
-    
-        // 🧩 STEP 7: FET gating
-        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
-        const fetGate = fet?.gate === true;
-        // const questionStable = this.explanationTextService.hasRenderedQuestion;
 
-        // Determine if first render (nothing drawn yet)
-        const firstRender =
-        !this.explanationTextService.hasRenderedQuestion &&
-        (idx === 0 || this.quizService.getCurrentQuestionIndex() === 0);
-
-        const displayModeActive =
-          displayMode === 'explanation' ||
-          this.explanationTextService.isExplanationTextDisplayedSource?.value === true;
-    
-        /* const canShowFET =
-          fetGate &&
-          fetText &&
-          displayMode === 'explanation' &&
-          questionStable &&
-          shouldShow === true &&
-          !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.currentShouldDisplayExplanation === true; */
-        const canShowFET =
-          fetText.length > 0 &&
-          !firstRender && // 🚫 block FET on very first render
-          (fetGate || shouldShow === true || displayModeActive) &&
-          !this.explanationTextService._visibilityLocked;
-    
-        // if (canShowFET) return fetText;
-        if (canShowFET) {
-          // mark explanation as shown for next frames
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fetText;
-        }
-    
-        this.explanationTextService.markQuestionRendered(true);
-        return withCorrect;
+        // Otherwise, question text only
+        return cleanQuestion;
       }),
-      debounceTime(25),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
