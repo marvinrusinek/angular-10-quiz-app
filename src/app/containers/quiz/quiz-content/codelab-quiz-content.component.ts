@@ -801,7 +801,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       questionText$,
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
-        auditTime(8),                // sync with question text within same frame
+        auditTime(0),                  // same frame as question text
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
       ),
@@ -809,23 +809,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shouldShow$
     ]).pipe(
       observeOn(animationFrameScheduler),
-    
       map(([idx, question, correct, fet, shouldShow]) => {
         const currentIdx = this.quizService.getCurrentQuestionIndex();
         const activeIdx  = this.explanationTextService._activeIndex ?? -1;
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    
         const isIndexStable =
           Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
     
+        // Prevent regressing to an earlier question during transitions
+        if (Number(idx) < Number(this.lastRenderedIndex ?? -1)) {
+          return this.lastRenderedQuestionText ?? question ?? '';
+        }
+        this.lastRenderedIndex = Number(idx);
+    
         const safeQuestion = (question ?? '').trim();
         const safeCorrect  = (correct ?? '').trim();
-    
         this.lastRenderedQuestionText = safeQuestion;
         this.lastRenderedCorrectText  = safeCorrect;
     
-        // ── Identify multi-answer
         const qObj = this.quizService.questions?.[Number(idx)];
         const isMulti =
           qObj &&
@@ -833,12 +835,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // ── Skip redraw during navigation
+        // Skip mid-navigation flicker
         if (this.quizStateService.isNavigatingSubject.getValue()) {
-          return this.lastRenderedQuestionText ?? safeQuestion;
+          return this.lastRenderedQuestionText;
         }
     
-        // ── Combine question + correct count (same frame)
+        // Merge question + correct count atomically
         let withCorrect = safeQuestion;
         if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
@@ -848,28 +850,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             </div>`;
         }
     
-        // ── Handle explanation display
-        const fetText  = (fet?.text ?? '').trim();
-        const fetGate  = fet?.gate === true;
+        // FET gating
+        const fetText = (fet?.text ?? '').trim();
         const canShowFET =
-          fetGate &&
-          fetText &&
+          fet?.gate === true &&
+          fetText.length > 0 &&
           displayMode === 'explanation' &&
-          !this.explanationTextService._visibilityLocked &&
-          shouldShow === true;
+          shouldShow === true &&
+          !this.explanationTextService._visibilityLocked;
     
-        if (canShowFET) {
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fetText;
-        }
+        if (canShowFET) return fetText;
     
         this.explanationTextService.markQuestionRendered(true);
         return withCorrect;
       }),
-    
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   }
   
 
