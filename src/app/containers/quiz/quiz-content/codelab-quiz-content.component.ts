@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, pairwise, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
@@ -527,9 +527,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
-      idx: number;
-      text: string;
-      gate: boolean;
+      idx: number,
+      text: string,
+      gate: boolean
     }
 
     const fetForIndex$: Observable<FETState> = index$.pipe(
@@ -576,27 +576,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      auditTime(16),  // allows the question text and banner to resolve into the same render frame
-      map(([idx, question, correct, fet, shouldShow]) => {    
+      // Pair previous + current emissions
+      pairwise(),
+      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
+            [idx, question, correct, fet, shouldShow]]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-      
+    
         // Display mode gate ensures question/explanation separation
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-      
+    
         // Guard against stale or mismatched indices
         if (idx !== currentIdx || idx !== activeIdx) {
           console.log(
             `[FILT] Skipping stale emission (idx=${idx}, current=${currentIdx}, active=${activeIdx})`
           );
-          return this.lastRenderedQuestionText ?? question ?? '';
+          return this.lastRenderedQuestionText ?? prevQuestion ?? '';
         }
-      
-        this.lastRenderedQuestionText = question;
-      
+    
+        // Prefer current non-empty values; fall back to previous if empty
+        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
+        const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
+    
+        this.lastRenderedQuestionText = safeQuestion;
+        this.lastRenderedCorrectText = safeCorrect;
+    
         const isIndexStable = idx === currentIdx && idx === activeIdx;
-      
+    
         // Always let multi-answer banners through even on the first frame
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
@@ -604,11 +611,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter((o) => o.correct).length > 1));
-      
-        // Keep last rendered text so we never clear between frames
-        this.lastRenderedQuestionText ??= question;
-        this.lastRenderedCorrectText ??= correct;
-      
+    
         // Only block completely stale, non-multi emissions
         if (!isIndexStable && !isMulti) {
           return (
@@ -618,31 +621,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               : '')
           );
         }
-      
+    
         // Merge question text + correct count (atomic frame)
-        let withCorrect = question;
-      
-        // Remember current values for next frame
-        this.lastRenderedQuestionText = question;
-        this.lastRenderedCorrectText = correct;
-      
-        if (isMulti && correct?.trim()?.length > 0 && displayMode === 'question') {
+        let withCorrect = safeQuestion;
+    
+        if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
             <div class="question-line">
-              ${question}
-              <span class="correct-count">${correct}</span>
+              ${safeQuestion}
+              <span class="correct-count">${safeCorrect}</span>
             </div>`;
         }
-      
+    
         // Gating conditions for explanation display
-        const fetText = (fet?.text ?? '').trim();
+        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-      
+    
         // Extra safety: only allow FET after question was rendered once
         const questionStable = this.explanationTextService.hasRenderedQuestion;
-      
+    
         // FINAL GUARD: Never show FET until the question has rendered once
-        // and the system has fully switched to explanation mode.
         const canShowFET =
           fetGate &&
           fetText.length > 0 &&
@@ -651,24 +649,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           shouldShow === true &&
           !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
-      
-        // Only render FET when *everything* aligns
+    
         if (canShowFET) {
           return fetText;
         }
-      
+    
         // Notify ETS that question text rendered successfully
         this.explanationTextService.markQuestionRendered(true);
-      
+    
         // Default to question text (with correct count)
         return withCorrect;
-      }),      
+      }),
       // Small debounce flushes stale FET emissions between navigations
       debounceTime(40),
       distinctUntilChanged(),
       observeOn(asyncScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );        
   }
 
   private emitContentAvailableState(): void {
