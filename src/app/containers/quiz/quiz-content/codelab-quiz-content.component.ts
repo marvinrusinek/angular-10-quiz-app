@@ -571,35 +571,49 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 7) Final render mapping (tested stable version)
     return combineLatest([
       index$,
-      correctText$,     // 🔁 banner first (so we can delay its emission)
+      questionText$,
+      correctText$,
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // Wait for question text *after* banner stabilizes
-      withLatestFrom(questionText$),
+      // Allow emission once index stabilizes, even if navigation just ended
+      filter(() => {
+        const navBusy = this.quizStateService.isNavigatingSubject.getValue();
+        const idx = this.quizService.getCurrentQuestionIndex();
+        const active = this.explanationTextService._activeIndex ?? -1;
+        // Let through the first frame right after navigation changes index
+        return (!navBusy || idx === active) && idx >= 0;
+      }),
     
-      // Smooth the render frame
+      // Ensure banner and question settle into the same paint frame
       observeOn(animationFrameScheduler),
-      debounceTime(12),
     
-      map(([[idx, correct, fet, shouldShow], question]) => {
+      // Pair previous + current frame for atomic transition
+      pairwise(),
+    
+      // ────────────────────────────────────────────────
+      // Main merge and gating logic
+      // ────────────────────────────────────────────────
+      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
+            [idx, question, correct, fet, shouldShow]]) => {
+    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
+    
+        // Display mode: 'question' | 'explanation'
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // Guard mismatched indices
-        if (idx !== currentIdx || idx !== activeIdx) {
-          return this.lastRenderedQuestionText ?? question ?? '';
-        }
+        // STEP 1: Stabilize index and fall back if needed
+        const isIndexStable = idx === currentIdx && idx === activeIdx;
     
-        // Basic safety / caching
-        const safeQuestion = (question ?? '').trim();
-        const safeCorrect = (correct ?? '').trim();
+        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
+        const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
+    
         this.lastRenderedQuestionText = safeQuestion;
         this.lastRenderedCorrectText = safeCorrect;
     
-        // Identify multiple-answer question
+        // STEP 2: Identify multiple-answer questions
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
@@ -607,12 +621,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // Prevent mid-navigation paint
-        if (this.quizStateService.isNavigatingSubject.getValue()) {
-          return this.lastRenderedQuestionText ?? '';
+        // ────────────────────────────────────────────────
+        // NEW: skip rendering until banner has caught up
+        // ────────────────────────────────────────────────
+        // This prevents the brief "question-only" flash before the count appears.
+        if (isMulti && !safeCorrect && displayMode === 'question') {
+          console.log(`[SKIP] Waiting for correctAnswersText$ for Q${idx + 1}`);
+          return this.lastRenderedQuestionText ?? safeQuestion;
         }
     
-        // Merge banner + question in one frame
+        // Prevent mixed paints while navigation is in progress
+        if (this.quizStateService.isNavigatingSubject.getValue()) {
+          console.log(`[GATE] ⏳ Navigation in progress — suppressing text swap for Q${idx + 1}`);
+          return this.lastRenderedQuestionText ?? prevQuestion ?? '';
+        }
+    
+        // STEP 3: Render fallback (for stale / non-multi)
+        if (!isIndexStable && !isMulti) {
+          return (
+            this.lastRenderedQuestionText +
+            (this.lastRenderedCorrectText
+              ? `<span class="correct-count">${this.lastRenderedCorrectText}</span>`
+              : '')
+          );
+        }
+    
+        // STEP 4: Merge question text + correct count (atomic)
         let withCorrect = safeQuestion;
         if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
@@ -622,8 +656,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             </div>`;
         }
     
-        // Explanation gating (FET)
-        const fetText = (fet?.text ?? '').trim();
+        // STEP 5: Handle explanation gating (FET)
+        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
         const questionStable = this.explanationTextService.hasRenderedQuestion;
     
@@ -638,10 +672,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         if (canShowFET) return fetText;
     
+        // STEP 6: Mark question render as stable
         this.explanationTextService.markQuestionRendered(true);
+    
+        // Default: return merged question text with banner
         return withCorrect;
       }),
     
+      // Slight delay after mapping helps smooth out banner + question concurrency
+      debounceTime(25),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
