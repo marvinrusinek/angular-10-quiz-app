@@ -3362,11 +3362,21 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         if (q.type === QuestionType.MultipleAnswer) {
           const numCorrect = correctIdxs.length;
           const totalOpts = q.options?.length ?? 0;
-  
           const msg = this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
             numCorrect,
             totalOpts
           );
+
+          // Emit banner text AND question text together (atomic frame)
+          requestAnimationFrame(() => {
+            try {
+              // Push both banner and question text in the same frame
+              this.quizService.updateCorrectAnswersText(msg);
+            } catch (err) {
+              console.warn('[NAV ⚠️] Failed to emit banner + question text', err);
+            }
+          });
+
           this.quizService.updateCorrectAnswersText(msg);
           console.log(`[onSubmitMultiple] 🧮 Correct answers text for Q${idx + 1}:`, msg);
         } else {
@@ -3377,7 +3387,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
         console.warn('[onSubmitMultiple] ⚠️ Failed to compute correct-answers text:', err);
         this.quizService.updateCorrectAnswersText('');
       }
-  
     } catch (err) {
       console.warn('[onSubmitMultiple] ⚠️ FET open failed:', err);
     }
