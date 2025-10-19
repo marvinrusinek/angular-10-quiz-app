@@ -1316,6 +1316,17 @@ export class ExplanationTextService {
     this._questionRendered = rendered;
     this.questionRendered$.next(rendered);
   }
+
+  // Check if the current question has been rendered at least once.
+  public get hasRenderedQuestion(): boolean {
+    return this._questionRendered === true;
+  }
+
+  // Reset render tracking before a new question loads.
+  public resetQuestionRenderFlag(): void {
+    this._questionRendered = false;
+    this.questionRendered$.next(false);
+  }
   
   public async waitUntilQuestionRendered(timeoutMs = 500): Promise<void> {
     try {
