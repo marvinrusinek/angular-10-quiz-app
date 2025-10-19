@@ -24,6 +24,7 @@ interface QuestionViewState {
   question: QuizQuestion | null
 }
 
+
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
