@@ -332,17 +332,13 @@ export class ExplanationTextService {
     if (indexedKey) {
       const indexedMatch =
         this.formattedExplanationByQuestionText.get(indexedKey);
-      if (indexedMatch) {
-        return indexedMatch;
-      }
+      if (indexedMatch) return indexedMatch;
     }
 
     const plainKey = this.buildQuestionKey(question.questionText);
     if (plainKey) {
       const plainMatch = this.formattedExplanationByQuestionText.get(plainKey);
-      if (plainMatch) {
-        return plainMatch;
-      }
+      if (plainMatch) return plainMatch;
     }
 
     if (typeof fallbackIndex === 'number' && fallbackIndex >= 0) {
