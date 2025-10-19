@@ -744,15 +744,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ); */
     // 5) Correct-count banner text (debounced and frame-synced)
     const correctText$: Observable<string> =
-    this.quizService.correctAnswersText$.pipe(
-      // Small delay to let questionText$ co-emit
-      debounceTime(45),
-      // Drop null/undefined but keep empty string to allow banner clears
-      filter(v => typeof v === 'string'),
-      distinctUntilChanged(),
-      startWith(''),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        filter((v): v is string => typeof v === 'string'),
+        distinctUntilChanged(),
+        observeOn(animationFrameScheduler), // paint in same frame as question
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
@@ -805,32 +803,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // Pair previous + current frame for atomic transition
       pairwise(),
-      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
-            [idx, question, correct, fet, shouldShow]]) => {
+      map(([[prevIdx, prevQuestion, prevCorrect, prevFet],
+            [idx, question, correct, fet]]) => {
     
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-    
-        // Display mode: 'question' | 'explanation'
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // ────────────────────────────────────────────────
-        // STEP 1: Stabilize index and fall back to previous text if needed
-        // ────────────────────────────────────────────────
         const isIndexStable = idx === currentIdx && idx === activeIdx;
-    
         const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
         const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
     
+        // Remember last rendered state
         this.lastRenderedQuestionText = safeQuestion;
         this.lastRenderedCorrectText = safeCorrect;
     
-        // ────────────────────────────────────────────────
-        // STEP 2: Identify multiple-answer questions
-        // ────────────────────────────────────────────────
+        // ────────────── Multi-answer detection
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
@@ -838,23 +828,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // ────────────────────────────────────────────────
-        // STEP 3: Render fallback (for stale / non-multi)
-        // ────────────────────────────────────────────────
-        if (!isIndexStable && !isMulti) {
-          return (
-            this.lastRenderedQuestionText +
-            (this.lastRenderedCorrectText
-              ? `<span class="correct-count">${this.lastRenderedCorrectText}</span>`
-              : '')
-          );
+        // ────────────── Prevent painting during navigation
+        if (this.quizStateService.isNavigatingSubject.getValue()) {
+          return this.lastRenderedQuestionText ?? safeQuestion;
         }
     
-        // ────────────────────────────────────────────────
-        // STEP 4: Merge question text + correct count (atomic)
-        // ────────────────────────────────────────────────
+        // ────────────── Atomic merge (question + correct count)
         let withCorrect = safeQuestion;
-    
         if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
             <div class="question-line">
@@ -863,39 +843,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             </div>`;
         }
     
-        // ────────────────────────────────────────────────
-        // STEP 5: Handle explanation gating (FET)
-        // ────────────────────────────────────────────────
+        // ────────────── Handle explanation gating (FET)
         const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-        const questionStable = this.explanationTextService.hasRenderedQuestion;
     
         const canShowFET =
           fetGate &&
-          fetText &&
+          fetText.length > 0 &&
           displayMode === 'explanation' &&
-          questionStable &&
-          shouldShow === true &&
           !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
     
-        if (canShowFET) {
-          return fetText;
-        }
+        if (canShowFET) return fetText;
     
-        // ────────────────────────────────────────────────
-        // STEP 6: Mark question render as stable
-        // ────────────────────────────────────────────────
+        // Mark question as rendered once stable
         this.explanationTextService.markQuestionRendered(true);
     
-        // Default: return merged question text with banner
+        // Default → show question (and banner if applicable)
         return withCorrect;
       }),
-      debounceTime(30), // coalesce rapid emits
       distinctUntilChanged(),
       observeOn(animationFrameScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   }
   
 
