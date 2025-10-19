@@ -853,17 +853,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Always join banner in same emission frame (no debounce gaps)
         // Always render banner inline if multi-answer and we have any non-empty banner text
         if (isMulti && displayMode === 'question') {
-          const bannerText = safeCorrect?.trim() || this.lastRenderedCorrectText || '';
-          withCorrect = `
-            ${safeQuestion}
-            ${
-              bannerText
-                ? `<span class="correct-count"> ${bannerText}</span>`
-                : ''
-            }
-          `;
-          console.log(`[COMBINE] Rendering banner for Q${idx + 1}:`, bannerText);
-        }        
+          const banner = (safeCorrect ?? '').trim();
+          if (banner.length > 0) {
+            withCorrect = `
+              <div class="question-line">
+                ${safeQuestion}
+                <span class="correct-count">${banner}</span>
+              </div>`;
+          } else {
+            withCorrect = safeQuestion; // show question alone until banner arrives
+          }
+        }
     
         // FET gating
         const fetText = (fet?.text ?? '').trim();
