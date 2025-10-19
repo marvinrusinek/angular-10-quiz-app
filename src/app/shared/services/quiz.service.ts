@@ -1764,10 +1764,10 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // 🔒 Prevent redundant updates
+    // Prevent redundant updates
     if (this._lastBanner === text) return;
   
-    // 🔄 Cancel pending timers
+    // Cancel pending timers
     if (this._pendingBannerTimer) {
       clearTimeout(this._pendingBannerTimer);
       this._pendingBannerTimer = null;
@@ -1775,11 +1775,13 @@ export class QuizService implements OnDestroy {
   
     this._lastBanner = text;
   
-    // 🧠 Always emit — even empty — so combineLatest sees a stable value
+    // Always emit — even empty — so combineLatest sees a stable value
+    console.log('[QuizService] 🧾 updateCorrectAnswersText called with:', text);
     this.correctAnswersCountTextSource.next(text);
+    console.log('[QuizService] 📤 Emitted banner text to Subject');
     console.log(`[QuizService] 🧮 Emitted banner: "${text}"`);
   
-    // 🚫 Do not persist empty strings
+    // Do not persist empty strings
     if (!text.length) return;
   
     try {
