@@ -3405,21 +3405,6 @@ export class QuizService implements OnDestroy {
       null
     );
   }
-
-  private logOptionIdentities(label: string, questions: QuizQuestion[]): void {
-    try {
-      console.groupCollapsed(`[IDENTITY TRACE] ${label}`);
-      questions.forEach((q, qi) => {
-        if (!Array.isArray(q.options)) return;
-        q.options.forEach((o, oi) => {
-          console.log(`Q${qi} Opt${oi}`, { id: o.optionId, ref: o });
-        });
-      });
-      console.groupEnd();
-    } catch (err) {
-      console.warn('[IDENTITY TRACE] failed:', err);
-    }
-  }
   
   public restoreCorrectAnswersTextFromStorage(): void {
     setTimeout(() => {
