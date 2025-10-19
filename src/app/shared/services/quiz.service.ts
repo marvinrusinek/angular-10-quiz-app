@@ -111,6 +111,7 @@ export class QuizService implements OnDestroy {
     observeOn(animationFrameScheduler),
     // Prevent redundant emissions
     distinctUntilChanged(),
+    debounceTime(32),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
