@@ -570,32 +570,36 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, question, correct, fet, shouldShow]) => {    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-
+      
+        // Display mode gate ensures question/explanation separation
+        const displayMode =
+          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+      
+        // Guard against stale or mismatched indices
         if (idx !== currentIdx || idx !== activeIdx) {
-          console.log(`[FILT] Skipping stale emission (idx=${idx}, current=${currentIdx}, active=${activeIdx})`);
+          console.log(
+            `[FILT] Skipping stale emission (idx=${idx}, current=${currentIdx}, active=${activeIdx})`
+          );
           return this.lastRenderedQuestionText ?? question ?? '';
         }
-
+      
         this.lastRenderedQuestionText = question;
-    
-        // 🧱 STEP 1: Guard against stale or mismatched indices
+      
         const isIndexStable = idx === currentIdx && idx === activeIdx;
-
-        // 🧩 Always let multi-answer banners through even on the first frame
+      
+        // Always let multi-answer banners through even on the first frame
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-
+              qObj.options.filter((o) => o.correct).length > 1));
+      
         // Keep last rendered text so we never clear between frames
         this.lastRenderedQuestionText ??= question;
         this.lastRenderedCorrectText ??= correct;
-
-        // ─────────────────────────────────────────────
+      
         // Only block completely stale, non-multi emissions
-        // ─────────────────────────────────────────────
         if (!isIndexStable && !isMulti) {
           return (
             this.lastRenderedQuestionText +
@@ -604,34 +608,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               : '')
           );
         }
-
-        // 🧩 STEP 2: Merge question text + correct count
+      
+        // Merge question text + correct count (atomic frame)
         let withCorrect = question;
-
+      
         // Remember current values for next frame
         this.lastRenderedQuestionText = question;
         this.lastRenderedCorrectText = correct;
-
-        if (isMulti && correct?.trim()?.length > 0) {
+      
+        if (isMulti && correct?.trim()?.length > 0 && displayMode === 'question') {
           withCorrect = `
             <div class="question-line">
               ${question}
               <span class="correct-count">${correct}</span>
             </div>`;
         }
-
-    
-        // 🧠 STEP 3: Gating conditions for explanation display
+      
+        // Gating conditions for explanation display
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-        const displayMode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    
-        // 🧩 Extra safety: only allow FET after question was rendered once
+      
+        // Extra safety: only allow FET after question was rendered once
         const questionStable =
-          (this.explanationTextService as any)._questionRenderedOnce === true;
-    
-        // ✅ FINAL GUARD: Never show FET until the question has rendered once
+          this.explanationTextService._questionRenderedOnce === true;
+      
+        // FINAL GUARD: Never show FET until the question has rendered once
         // and the system has fully switched to explanation mode.
         const canShowFET =
           fetGate &&
@@ -640,19 +641,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           questionStable &&
           !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
-    
-        // ✅ STEP 4: Only render FET when *everything* aligns
+      
+        // Only render FET when *everything* aligns
         if (canShowFET) {
           return fetText;
         }
-    
-        // 🧭 STEP 5: Notify ETS that question text rendered successfully
+      
+        // Notify ETS that question text rendered successfully
         this.explanationTextService.markQuestionRendered(true);
-        (this.explanationTextService as any)._questionRenderedOnce = true;
-    
-        // ⏸ STEP 6: Default to question text (with correct count)
+        this.explanationTextService._questionRenderedOnce = true;
+      
+        // Default to question text (with correct count)
         return withCorrect;
-      }),
+      }),      
       // Small debounce flushes stale FET emissions between navigations
       debounceTime(40),
       distinctUntilChanged(),
