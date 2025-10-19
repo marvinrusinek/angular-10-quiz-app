@@ -576,6 +576,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
+      // Drop any emissions while navigation is active or index isn't aligned yet
+      filter(() => {
+        const navBusy = this.quizStateService.isNavigatingSubject.getValue();
+        const idx = this.quizService.getCurrentQuestionIndex();
+        const active = this.explanationTextService._activeIndex ?? -1;
+        return !navBusy && idx === active;
+      }),
+      // Wait one animation frame so question and banner settle together
+      observeOn(animationFrameScheduler),
       // Pair previous + current frame for atomic transition
       pairwise(),
       map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
