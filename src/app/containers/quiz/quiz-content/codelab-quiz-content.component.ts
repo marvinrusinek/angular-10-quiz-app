@@ -629,8 +629,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fetGate = fet?.gate === true;
       
         // Extra safety: only allow FET after question was rendered once
-        const questionStable =
-          this.explanationTextService._questionRenderedOnce === true;
+        const questionStable = this.explanationTextService.hasRenderedQuestion;
       
         // FINAL GUARD: Never show FET until the question has rendered once
         // and the system has fully switched to explanation mode.
@@ -639,6 +638,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fetText.length > 0 &&
           displayMode === 'explanation' &&
           questionStable &&
+          shouldShow === true &&
           !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
       
@@ -649,7 +649,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         // Notify ETS that question text rendered successfully
         this.explanationTextService.markQuestionRendered(true);
-        this.explanationTextService._questionRenderedOnce = true;
       
         // Default to question text (with correct count)
         return withCorrect;
