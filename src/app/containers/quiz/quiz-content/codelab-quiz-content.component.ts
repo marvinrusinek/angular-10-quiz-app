@@ -578,19 +578,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // 7) Final render mapping (tested stable version)
     return merged$.pipe(
-      // Allow emission once index stabilizes, even if navigation just ended
-      filter(() => {
-        const navBusy = this.quizStateService.isNavigatingSubject.getValue();
-        const idx = this.quizService.getCurrentQuestionIndex();
-        const active = this.explanationTextService._activeIndex ?? -1;
-        // Let through the first frame right after navigation changes index
-        return (!navBusy || idx === active) && idx >= 0;
-      }),
-    
-      // Ensure banner and question settle into the same paint frame
-      observeOn(animationFrameScheduler),
-    
-      // Pair previous + current frame for atomic transition
       pairwise(),
     
       // ────────────────────────────────────────────────
@@ -607,7 +594,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
         // STEP 1: Stabilize index and fall back if needed
-        const isIndexStable = idx === currentIdx && idx === activeIdx;
+        const isIndexStable = Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
     
         const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
         const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
