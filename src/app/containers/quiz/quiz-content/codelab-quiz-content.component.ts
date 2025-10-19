@@ -639,18 +639,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // 🧩 STEP 7: FET gating
         const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-        const questionStable = this.explanationTextService.hasRenderedQuestion;
+        // const questionStable = this.explanationTextService.hasRenderedQuestion;
+
+        const displayModeActive =
+          displayMode === 'explanation' ||
+          this.explanationTextService.isExplanationTextDisplayedSource?.value === true;
     
-        const canShowFET =
+        /* const canShowFET =
           fetGate &&
           fetText &&
           displayMode === 'explanation' &&
           questionStable &&
           shouldShow === true &&
           !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.currentShouldDisplayExplanation === true;
+          this.explanationTextService.currentShouldDisplayExplanation === true; */
+        const canShowFET =
+          fetText.length > 0 &&
+          (fetGate || shouldShow === true || displayModeActive) &&
+          !this.explanationTextService._visibilityLocked;
     
-        if (canShowFET) return fetText;
+        // if (canShowFET) return fetText;
+        if (canShowFET) {
+          // mark explanation as shown for next frames
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          return fetText;
+        }
     
         this.explanationTextService.markQuestionRendered(true);
         return withCorrect;
