@@ -570,26 +570,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // 7) Final render mapping (atomic frame-sync version)
     const merged$ = questionText$.pipe(
-      // Always bring along latest banner, index, etc.
+      // order is: [question, index, correct, fet, shouldShow]
       withLatestFrom(index$, correctText$, fetForIndex$, shouldShow$),
-      // Paint both together in one animation frame
       observeOn(animationFrameScheduler)
     );
-
-    // 7) Final render mapping (tested stable version)
+    
     return merged$.pipe(
       pairwise(),
-    
-      // ────────────────────────────────────────────────
-      // Main merge and gating logic
-      // ────────────────────────────────────────────────
-      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
-            [idx, question, correct, fet, shouldShow]]) => {
-    
+      map(([
+        [prevQuestion, prevIdx, prevCorrect, prevFet, prevShow],
+        [question, idx, correct, fet, shouldShow]
+      ]) => {
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
     
-        // Display mode: 'question' | 'explanation'
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
@@ -603,25 +597,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.lastRenderedCorrectText = safeCorrect;
     
         // STEP 2: Identify multiple-answer questions
-        const qObj = this.quizService.questions?.[idx];
+        const qObj = this.quizService.questions?.[Number(idx)];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // ────────────────────────────────────────────────
-        // NEW: skip rendering until banner has caught up
-        // ────────────────────────────────────────────────
-        // This prevents the brief "question-only" flash before the count appears.
+        // Skip rendering until banner has caught up
         if (isMulti && !safeCorrect && displayMode === 'question') {
-          console.log(`[SKIP] Waiting for correctAnswersText$ for Q${idx + 1}`);
+          console.log(`[SKIP] Waiting for correctAnswersText$ for Q${Number(idx) + 1}`);
           return this.lastRenderedQuestionText ?? safeQuestion;
         }
     
         // Prevent mixed paints while navigation is in progress
         if (this.quizStateService.isNavigatingSubject.getValue()) {
-          console.log(`[GATE] ⏳ Navigation in progress — suppressing text swap for Q${idx + 1}`);
+          console.log(`[GATE] ⏳ Navigation in progress — suppressing text swap for Q${Number(idx) + 1}`);
           return this.lastRenderedQuestionText ?? prevQuestion ?? '';
         }
     
@@ -661,18 +652,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         if (canShowFET) return fetText;
     
-        // STEP 6: Mark question render as stable
         this.explanationTextService.markQuestionRendered(true);
-    
-        // Default: return merged question text with banner
         return withCorrect;
       }),
-    
-      // Slight delay after mapping helps smooth out banner + question concurrency
       debounceTime(25),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
   }
 
   private emitContentAvailableState(): void {
