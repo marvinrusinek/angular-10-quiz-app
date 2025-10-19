@@ -829,12 +829,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return combineLatest([
       index$,
       questionText$,
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        auditTime(0),                  // same frame as question text
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
-      ),
+      correctText$,
       fetForIndex$,
       shouldShow$
     ]).pipe(
