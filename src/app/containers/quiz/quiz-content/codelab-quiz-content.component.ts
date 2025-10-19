@@ -897,7 +897,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
-
   
 
   private emitContentAvailableState(): void {
