@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, from, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, from, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 import _, { isEqual } from 'lodash';
 
