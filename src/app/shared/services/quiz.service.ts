@@ -1762,6 +1762,7 @@ export class QuizService implements OnDestroy {
     }, 400);  // sync after navigation settles
   } */
   public updateCorrectAnswersText(newText: string): void {
+    console.log("MY TEST123");
     const text = (newText ?? '').trim();
   
     // Prevent redundant updates

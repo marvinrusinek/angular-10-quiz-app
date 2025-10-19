@@ -848,12 +848,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         // Merge question + correct count atomically
         let withCorrect = safeQuestion;
-        if (isMulti && safeCorrect && displayMode === 'question') {
-          withCorrect = `
-            <div class="question-line">
-              ${safeQuestion}
-              <span class="correct-count">${safeCorrect}</span>
-            </div>`;
+        
+        // Always join banner in same emission frame (no debounce gaps)
+        if (isMulti && displayMode === 'question') {
+          const banner = (safeCorrect ?? '').trim();
+          if (banner.length > 0) {
+            withCorrect = `
+              <div class="question-line">
+                ${safeQuestion}
+                <span class="correct-count">${banner}</span>
+              </div>`;
+          } else {
+            // Keep previous banner until a new one arrives
+            const fallbackBanner = this.lastRenderedCorrectText ?? '';
+            if (fallbackBanner.length > 0) {
+              withCorrect = `
+                <div class="question-line">
+                  ${safeQuestion}
+                  <span class="correct-count">${fallbackBanner}</span>
+                </div>`;
+            }
+          }
         }
     
         // FET gating
