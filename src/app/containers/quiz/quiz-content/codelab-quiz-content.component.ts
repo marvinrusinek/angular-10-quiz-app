@@ -756,10 +756,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 5) Correct-count text (banner) — frame-synced with questionText$
     const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
-        // Align to question frame (no extra delay)
-        auditTime(0),
-        startWith(''),
+        auditTime(0),  // aligns to same animation frame as question text
+        filter(v => typeof v === 'string'),
         distinctUntilChanged(),
+        startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
       );
 
