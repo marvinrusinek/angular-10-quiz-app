@@ -391,6 +391,235 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   }
 
   // Combine the streams that decide what codelab-quiz-content shows
+  /* private getCombinedDisplayTextStream(): Observable<string> {
+    type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
+
+    // 1) Current index (stable, seeded)
+    const index$: Observable<number> =
+      this.quizService.currentQuestionIndex$.pipe(
+        startWith(this.currentQuestionIndexValue ?? 0),
+        map((i) => (Number.isFinite(i as number) ? Number(i) : 0)),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+
+    // 2) Display state (typed & coalesced)
+    const display$: Observable<DisplayState> = this.displayState$.pipe(
+      startWith({ mode: 'question', answered: false } as DisplayState),
+      map((v) => {
+        const s = (v as any) ?? {};
+        const mode: 'question' | 'explanation' =
+          s.mode === 'explanation' ? 'explanation' : 'question';
+        const answered: boolean =
+          typeof s.answered === 'boolean' ? s.answered : false;
+        return { mode, answered } as DisplayState;
+      }),
+      distinctUntilChanged(
+        (a, b) => a.mode === b.mode && a.answered === b.answered
+      ),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    // 3) Global "should show" flag
+    const shouldShow$: Observable<boolean> =
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        map(Boolean),
+        startWith(false),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+
+    // 4) Question text for current index
+    const questionText$: Observable<string> = combineLatest([
+      index$,
+      this.questionToDisplay$,
+    ]).pipe(
+      scan(
+        (
+          acc: { idx: number; lastValid: string },
+          [idx, text]: [number, string]
+        ) => {
+          const next = (text ?? '').trim();
+          const lastValid = next || acc.lastValid;  // remember previous non-empty
+          return { idx, lastValid };
+        },
+        { idx: 0, lastValid: '' }  // initial seed
+      ),
+      map((v) => {
+        const q =
+          this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
+        const model = (q?.questionText ?? '').trim();
+        const safe =
+          model ||
+          v.lastValid ||
+          this.questionLoadingText ||
+          `Question ${v.idx + 1}`;
+        return safe;
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    // 5) Correct-count badge text (per-index)
+    /* const correctText$: Observable<string> =
+      this.quizService.correctAnswersText$.pipe(
+        debounceTime(0), // align timing with questionText$
+        filter((v) => v != null), // skip undefined/null
+        distinctUntilChanged(),
+        startWith(''),
+        shareReplay({ bufferSize: 1, refCount: true })
+      ); */
+    // 🧩 Correct-count text, buffered until question text stabilises
+    /* const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        distinctUntilChanged()
+      ),
+      this.questionToDisplay$.pipe(startWith(''))
+    ]).pipe(
+      // emit only when both question text and correct text are available
+      map(([correct, q]) => {
+        const ready = (q ?? '').trim().length > 0;
+        return ready ? (correct ?? '').toString() : '';
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    // 🧩 Correct-count text, buffered and persistent for multi-answer questions
+    /* const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+      this.quizService.currentQuestionIndex$.pipe(startWith(0))
+    ]).pipe(
+      map(([correct, idx]) => {
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+
+        // For multi-answer questions, keep the last non-empty text
+        if (isMulti) {
+          if (correct && correct.trim().length > 0) {
+            this.lastCorrectBanner = correct;
+          }
+          return this.lastCorrectBanner ?? '';
+        }
+
+        // Single-answer → always blank
+        this.lastCorrectBanner = '';
+        return '';
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    // 5) Correct-count banner text (debounced and frame-synced)
+    const correctText$: Observable<string> =
+    this.quizService.correctAnswersText$.pipe(
+      // Small delay to let questionText$ co-emit
+      debounceTime(45),
+      // Drop null/undefined but keep empty string to allow banner clears
+      filter(v => typeof v === 'string'),
+      distinctUntilChanged(),
+      startWith(''),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    // 6) Explanation + gate scoped to *current* index
+    interface FETState {
+      idx: number,
+      text: string,
+      gate: boolean
+    }
+
+    const fetForIndex$: Observable<FETState> = index$.pipe(
+      switchMap((idx) =>
+        combineLatest([
+          this.explanationTextService
+            .byIndex$(idx)
+            .pipe(startWith<string | null>(null)),
+          this.explanationTextService.gate$(idx).pipe(startWith(false)),
+          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
+        ]).pipe(
+          map(([text, gate, shouldShow, displayed]) => {
+            const rawText = (text ?? '').toString().trim();
+            const gateOpen = !!gate;
+            const displayReady = shouldShow || displayed;
+    
+            // ────────────────────────────────────────────────
+            // HARD GUARD: FET text must *only* emit when ALL are true
+            //  - gate open
+            //  - displayReady true
+            //  - rawText non-empty
+            // otherwise: emit blank text
+            // ────────────────────────────────────────────────
+            const canShowFET = gateOpen && displayReady && rawText.length > 0;
+    
+            if (!canShowFET) {
+              return { idx, text: '', gate: false } as FETState;
+            }
+    
+            return { idx, text: rawText, gate: true } as FETState;
+          }),
+          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
+        )
+      ),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    // 7) Final render mapping (atomic frame-sync version)
+    // 7️⃣ Final render mapping — question + banner only (no FET gating)
+    // 7️⃣ Final render mapping — atomic frame-synchronized question + banner
+    map(([question, idx, correct]) => {
+      const qObj = this.quizService.questions?.[idx];
+      const isMulti =
+        qObj &&
+        ((qObj.type === QuestionType.MultipleAnswer) ||
+          (Array.isArray(qObj.options) &&
+            qObj.options.filter(o => o.correct).length > 1));
+    
+      const qText = (question ?? '').trim();
+      const banner = (correct ?? '').trim();
+    
+      // ────────────────────────────────────────────────
+      // 🧩 STEP 1: Safely read the latest formatted explanation text
+      // ────────────────────────────────────────────────
+      const ets: any = this.explanationTextService;
+      const fetText = (ets.formattedExplanationSubject?.value ?? '').trim();
+      const fetGate = !!ets.shouldDisplayExplanationSubject?.value;
+      const displayMode =
+        this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+    
+      // ────────────────────────────────────────────────
+      // 🧩 STEP 2: If FET should be visible, render it exclusively
+      // ────────────────────────────────────────────────
+      if (
+        fetGate &&
+        fetText &&
+        displayMode === 'explanation' &&
+        !ets._visibilityLocked
+      ) {
+        ets.setIsExplanationTextDisplayed(true);
+        return fetText;
+      }
+    
+      // ────────────────────────────────────────────────
+      // 🧩 STEP 3: Otherwise render the question (with banner if multi)
+      // ────────────────────────────────────────────────
+      if (isMulti && banner.length > 0 && displayMode === 'question') {
+        return `
+          <div class="question-line">
+            ${qText}
+            <span class="correct-count">${banner}</span>
+          </div>`;
+      }
+    
+      return qText;
+    }),    
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true });
+  } */
   private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
 
@@ -568,38 +797,108 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    // 7) Final render mapping (atomic frame-sync version)
-    // 7️⃣ Final render mapping — question + banner only (no FET gating)
-    return combineLatest([index$, questionText$, correctText$]).pipe(
-      // Schedule both on the same animation frame
-      observeOn(animationFrameScheduler),
-      map(([idx, question, correct]) => {
+    // 7) Final render mapping (tested stable version)
+    return combineLatest([
+      index$,
+      questionText$,
+      correctText$,
+      fetForIndex$,
+      shouldShow$
+    ]).pipe(
+      // Pair previous + current frame for atomic transition
+      pairwise(),
+      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
+            [idx, question, correct, fet, shouldShow]]) => {
+    
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
+    
+        // Display mode: 'question' | 'explanation'
+        const displayMode =
+          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+    
+        // ────────────────────────────────────────────────
+        // STEP 1: Stabilize index and fall back to previous text if needed
+        // ────────────────────────────────────────────────
+        const isIndexStable = idx === currentIdx && idx === activeIdx;
+    
+        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
+        const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
+    
+        this.lastRenderedQuestionText = safeQuestion;
+        this.lastRenderedCorrectText = safeCorrect;
+    
+        // ────────────────────────────────────────────────
+        // STEP 2: Identify multiple-answer questions
+        // ────────────────────────────────────────────────
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
-
-        const cleanQuestion = (question ?? '').trim();
-        const cleanCorrect = (correct ?? '').trim();
-
-        // For multi-answer: render both together
-        if (isMulti && cleanCorrect.length > 0) {
-          return `
+    
+        // ────────────────────────────────────────────────
+        // STEP 3: Render fallback (for stale / non-multi)
+        // ────────────────────────────────────────────────
+        if (!isIndexStable && !isMulti) {
+          return (
+            this.lastRenderedQuestionText +
+            (this.lastRenderedCorrectText
+              ? `<span class="correct-count">${this.lastRenderedCorrectText}</span>`
+              : '')
+          );
+        }
+    
+        // ────────────────────────────────────────────────
+        // STEP 4: Merge question text + correct count (atomic)
+        // ────────────────────────────────────────────────
+        let withCorrect = safeQuestion;
+    
+        if (isMulti && safeCorrect && displayMode === 'question') {
+          withCorrect = `
             <div class="question-line">
-              ${cleanQuestion}
-              <span class="correct-count">${cleanCorrect}</span>
+              ${safeQuestion}
+              <span class="correct-count">${safeCorrect}</span>
             </div>`;
         }
-
-        // Otherwise, question text only
-        return cleanQuestion;
+    
+        // ────────────────────────────────────────────────
+        // STEP 5: Handle explanation gating (FET)
+        // ────────────────────────────────────────────────
+        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
+        const fetGate = fet?.gate === true;
+        const questionStable = this.explanationTextService.hasRenderedQuestion;
+    
+        const canShowFET =
+          fetGate &&
+          fetText &&
+          displayMode === 'explanation' &&
+          questionStable &&
+          shouldShow === true &&
+          !this.explanationTextService._visibilityLocked &&
+          this.explanationTextService.currentShouldDisplayExplanation === true;
+    
+        if (canShowFET) {
+          return fetText;
+        }
+    
+        // ────────────────────────────────────────────────
+        // STEP 6: Mark question render as stable
+        // ────────────────────────────────────────────────
+        this.explanationTextService.markQuestionRendered(true);
+    
+        // Default: return merged question text with banner
+        return withCorrect;
       }),
+      debounceTime(30), // coalesce rapid emits
       distinctUntilChanged(),
+      observeOn(animationFrameScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
+
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$.pipe(takeUntil(this.destroy$)).subscribe({
