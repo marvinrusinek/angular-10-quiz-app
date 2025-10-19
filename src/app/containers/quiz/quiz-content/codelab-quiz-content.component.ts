@@ -576,7 +576,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      auditTime(35),  // coalesce fast emissions (question + banner) into one frame
+      auditTime(16),  // allows the question text and banner to resolve into the same render frame
       map(([idx, question, correct, fet, shouldShow]) => {    
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
