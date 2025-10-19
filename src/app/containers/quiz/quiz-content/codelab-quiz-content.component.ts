@@ -754,20 +754,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ); */
     // Correct-count banner text (persistent for multi-answer)
     // 5) Correct-count text (banner) — frame-synced with questionText$
-    const correctText$: Observable<string> = combineLatest([
+    const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
+        // Align to question frame (no extra delay)
+        auditTime(0),
         startWith(''),
-        distinctUntilChanged()
-      ),
-      questionText$.pipe(startWith(''))
-    ]).pipe(
-      // only emit when question text is available and stable
-      filter(([text, q]) => !!q && q.trim().length > 0),
-      map(([text]) => (text ?? '').trim()),
-      debounceTime(15), // allow Angular one frame to co-render
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
