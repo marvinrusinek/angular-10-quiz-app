@@ -608,6 +608,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
+        
+        // Prevent mixed paints while navigation is in progress
+        // This must run *before* any DOM or text merges
+        if (this.quizStateService.isNavigatingSubject.getValue()) {
+          console.log(`[GATE] ⏳ Navigation in progress — suppressing text swap for Q${idx + 1}`);
+          return (
+            this.lastRenderedQuestionText ??
+            prevQuestion ??
+            ''
+          );
+        }
     
         // ────────────────────────────────────────────────
         // STEP 3: Render fallback (for stale / non-multi)
