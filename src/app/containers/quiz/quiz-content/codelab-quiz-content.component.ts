@@ -24,7 +24,6 @@ interface QuestionViewState {
   question: QuizQuestion | null
 }
 
-
 @Component({
   selector: 'codelab-quiz-content',
   templateUrl: './codelab-quiz-content.component.html',
@@ -754,14 +753,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ); */
     // Correct-count banner text (persistent for multi-answer)
     // 5) Correct-count text (banner) — frame-synced with questionText$
-    const correctText$: Observable<string> =
+    const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
-        auditTime(0),  // aligns to same animation frame as question text
-        filter(v => typeof v === 'string'),
-        distinctUntilChanged(),
         startWith(''),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
+        distinctUntilChanged()
+      ),
+      questionText$.pipe(startWith(''))
+    ]).pipe(
+      // Only emit when both question and banner are ready
+      map(([banner, q]) => {
+        const questionReady = (q ?? '').trim().length > 0;
+        return questionReady ? (banner ?? '').toString() : '';
+      }),
+      // Give Angular one frame to align the two
+      auditTime(16),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );    
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
