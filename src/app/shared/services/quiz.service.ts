@@ -103,12 +103,12 @@ export class QuizService implements OnDestroy {
     localStorage.getItem('correctAnswersText') ?? ''
   );
   
-  // Smoothed observable for banner display
+  // Frame-synchronized observable for banner display
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
-    // Keep both non-empty and empty values, just skip null/undefined
+    // Skip only null or undefined (keep empty strings)
     filter(v => typeof v === 'string'),
-    // Delay a tick to coalesce question + banner updates
-    debounceTime(35),
+    // Coalesce emissions into the same browser paint frame
+    observeOn(animationFrameScheduler),
     // Prevent redundant emissions
     distinctUntilChanged()
   );
