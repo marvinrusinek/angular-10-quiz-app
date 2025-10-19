@@ -106,15 +106,10 @@ export class QuizService implements OnDestroy {
   
   // Frame-synchronized observable for banner display
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
-    // Align emission with next animation frame to coalesce with question text
-    observeOn(animationFrameScheduler),
-    // Skip only null or undefined (keep empty strings)
-    filter(v => typeof v === 'string'),
-    scan((prev, curr) => (curr.trim() === '' ? prev : curr), ''), // keep previous until new non-empty
-    // Prevent redundant emissions
+    debounceTime(25),
     distinctUntilChanged(),
-    debounceTime(32),
-    map(v => v.trim())
+    tap(v => console.log(`[🧭 correctAnswersText$ emit]`, JSON.stringify(v))),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
 
   // Guards to prevent banner flicker during nav
@@ -1765,39 +1760,30 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // Skip duplicates
+    // 🔒 Prevent redundant updates
     if (this._lastBanner === text) return;
   
-    // Skip transient clears during navigation
-    if (text === '' && this._isNavInProgress) {
-      console.log('[QuizService] ⏸ Skipped banner clear during navigation');
-      return;
-    }
-  
-    this._lastBanner = text;
-  
-    // Cancel any delayed clears
+    // 🔄 Cancel pending timers
     if (this._pendingBannerTimer) {
       clearTimeout(this._pendingBannerTimer);
       this._pendingBannerTimer = null;
     }
   
-    // Emit the current banner text immediately
-    this.correctAnswersCountTextSource.next(text);
+    this._lastBanner = text;
   
-    // Only persist non-empty text
-    if (text.length === 0) {
-      console.log('[QuizService] 🧹 Cleared banner (memory only)');
-      return;
-    }
+    // 🧠 Always emit — even empty — so combineLatest sees a stable value
+    this.correctAnswersCountTextSource.next(text);
+    console.log(`[QuizService] 🧮 Emitted banner: "${text}"`);
+  
+    // 🚫 Do not persist empty strings
+    if (!text.length) return;
   
     try {
       localStorage.setItem('correctAnswersText', text);
-      console.log('[QuizService] 💾 Persisted banner text:', text);
     } catch (err) {
-      console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
+      console.warn('[QuizService] ⚠️ Persist failed:', err);
     }
-  }
+  }  
 
   public clearStoredCorrectAnswersText(): void {
     try {
