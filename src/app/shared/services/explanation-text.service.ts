@@ -96,6 +96,10 @@ export class ExplanationTextService {
   private _questionRendered = false;
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
+  // Tracks whether the current question text has rendered at least once.
+  // Prevents explanation text (FET) from appearing before question paint.
+  public _questionRenderedOnce = false;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
