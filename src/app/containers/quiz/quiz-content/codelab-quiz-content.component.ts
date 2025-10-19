@@ -807,6 +807,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // 7) Final render mapping (tested stable version)
+    correctText$.subscribe(v => console.log('[correctText$ emission]', v));
     return combineLatest([
       index$,
       questionText$,
@@ -876,11 +877,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (canShowFET) return fetText;
     
         this.explanationTextService.markQuestionRendered(true);
+        console.log(`[CQCC] 🧮 Rendering banner "${safeCorrect}" with Q${idx + 1} text`);
         return withCorrect;
       }),
-      distinctUntilChanged(),
+      debounceTime(0),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()), // less aggressive equality
+      observeOn(animationFrameScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    ); 
   }
   
 
