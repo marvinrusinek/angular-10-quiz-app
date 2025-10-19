@@ -215,31 +215,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           .pipe(distinctUntilChanged())
           .subscribe({
             next: (v) => {
-              // Smoothly update question text in place
               const el = this.qText?.nativeElement;
-              if (el) {
-                // Coalesce DOM write to the next frame to avoid mid-paint overwrite
+              if (!el) return;
+    
+              // Use a single frame to coalesce opacity + content writes
+              requestAnimationFrame(() => {
+                // Start fade-out
+                el.style.transition = 'opacity 0.12s linear';
+                el.style.opacity = '0.4';
+    
+                // Write the new content (question + banner) once per frame
+                el.innerHTML = v || '';
+    
+                // Fade back in on the next frame after content write
                 requestAnimationFrame(() => {
-                  el.style.transition = 'opacity 0.12s linear';
-                  el.style.opacity = '0.4';  // fade out (dim briefly)
-              
-                  // Write atomic content (question + banner in same HTML chunk)
-                  el.innerHTML = v || '';  // write text directly
-              
-                  // Restore opacity on the same frame
-                  requestAnimationFrame(() => {
-                    el.style.opacity = '1';  // fade back in
-                  });
+                  el.style.opacity = '1';
                 });
-              }
-
-              // Repaint synchronously
-              this.cdRef.detectChanges();
+    
+                // Tell Angular we’ve manually mutated the DOM
+                this.cdRef.detectChanges();
+              });
             },
             error: (err) => console.error('[CQCC combinedText$ error]', err),
           });
       }
-    }, 50);
+    }, 20);
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
