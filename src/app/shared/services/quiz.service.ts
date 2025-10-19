@@ -1762,8 +1762,11 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // Avoid flicker by skipping duplicate emissions
-    if (this._lastBanner === text) return;
+    // Skip redundant or duplicate emissions
+    if (this._lastBanner === text) {
+      console.log('[QuizService] 🔁 Skipped duplicate banner:', text);
+      return;
+    }
   
     this._lastBanner = text;
   
@@ -1773,9 +1776,10 @@ export class QuizService implements OnDestroy {
       this._pendingBannerTimer = null;
     }
   
-    // Emit immediately for atomic render with question text
+    // Emit immediately for atomic render
     this.correctAnswersCountTextSource.next(text);
   
+    // Handle persistence carefully
     if (text.length === 0) {
       // Don't persist empties to storage — they cause flicker on reload
       console.log('[QuizService] 🧹 Cleared banner (memory only)');
@@ -1783,14 +1787,21 @@ export class QuizService implements OnDestroy {
     }
   
     try {
-      localStorage.setItem('correctAnswersText', text);
-      console.log('[QuizService] 💾 Persisted banner text:', text);
+      // Small async defer so persistence happens *after* the paint
+      this._pendingBannerTimer = setTimeout(() => {
+        try {
+          localStorage.setItem('correctAnswersText', text);
+          console.log('[QuizService] 💾 Persisted banner text:', text);
+        } catch (persistErr) {
+          console.warn('[QuizService] ⚠️ Failed to persist banner text', persistErr);
+        } finally {
+          this._pendingBannerTimer = null;
+        }
+      }, 120);  // delay prevents concurrent writes during question transition
     } catch (err) {
-      console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
+      console.warn('[QuizService] ⚠️ Persistence scheduling failed', err);
     }
   }
-  
-
 
   public clearStoredCorrectAnswersText(): void {
     try {
