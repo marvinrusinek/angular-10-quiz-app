@@ -1762,7 +1762,7 @@ export class QuizService implements OnDestroy {
       }
     }, 400);  // sync after navigation settles
   } */
-  public updateCorrectAnswersText(newText: string): void {
+  /* public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
     // Skip duplicates
@@ -1797,6 +1797,18 @@ export class QuizService implements OnDestroy {
     } catch (err) {
       console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
     }
+  } */
+  public updateCorrectAnswersText(newText: string): void {
+    const text = (newText ?? '').trim();
+  
+    // Skip duplicates
+    if (this._lastBanner === text) return;
+    this._lastBanner = text;
+  
+    // Emit immediately (atomic with question)
+    this.correctAnswersCountTextSource.next(text);
+  
+    console.log('[QuizService] 🧮 Banner updated instantaneously:', text);
   }
 
   public clearStoredCorrectAnswersText(): void {
