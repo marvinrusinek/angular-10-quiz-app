@@ -1763,46 +1763,31 @@ export class QuizService implements OnDestroy {
   } */
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
-  
-    // Skip redundant or duplicate emissions
-    if (this._lastBanner === text) {
-      console.log('[QuizService] 🔁 Skipped duplicate banner:', text);
-      return;
-    }
-  
+    if (this._lastBanner === text) return;
     this._lastBanner = text;
   
-    // Cancel any pending delayed clears
+    // Cancel any pending banner updates
     if (this._pendingBannerTimer) {
       clearTimeout(this._pendingBannerTimer);
       this._pendingBannerTimer = null;
     }
   
-    // Emit immediately for atomic render
-    this.correctAnswersCountTextSource.next(text);
+    // Defer just enough for navigation + DOM reset (~1 animation frame)
+    this._pendingBannerTimer = setTimeout(() => {
+      this.correctAnswersCountTextSource.next(text);
   
-    // Handle persistence carefully
-    if (text.length === 0) {
-      // Don't persist empties to storage — they cause flicker on reload
-      console.log('[QuizService] 🧹 Cleared banner (memory only)');
-      return;
-    }
+      if (text.length === 0) {
+        console.log('[QuizService] 🧹 Cleared banner (memory only)');
+        return;
+      }
   
-    try {
-      // Small async defer so persistence happens *after* the paint
-      this._pendingBannerTimer = setTimeout(() => {
-        try {
-          localStorage.setItem('correctAnswersText', text);
-          console.log('[QuizService] 💾 Persisted banner text:', text);
-        } catch (persistErr) {
-          console.warn('[QuizService] ⚠️ Failed to persist banner text', persistErr);
-        } finally {
-          this._pendingBannerTimer = null;
-        }
-      }, 120);  // delay prevents concurrent writes during question transition
-    } catch (err) {
-      console.warn('[QuizService] ⚠️ Persistence scheduling failed', err);
-    }
+      try {
+        localStorage.setItem('correctAnswersText', text);
+        console.log('[QuizService] 💾 Persisted banner text:', text);
+      } catch (err) {
+        console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
+      }
+    }, 80);  // ~1 frame delay prevents overlap with prior question
   }
 
   public clearStoredCorrectAnswersText(): void {
