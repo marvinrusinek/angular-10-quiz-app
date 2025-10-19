@@ -641,6 +641,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fetGate = fet?.gate === true;
         // const questionStable = this.explanationTextService.hasRenderedQuestion;
 
+        // Determine if first render (nothing drawn yet)
+        const firstRender =
+        !this.explanationTextService.hasRenderedQuestion &&
+        (idx === 0 || this.quizService.getCurrentQuestionIndex() === 0);
+
         const displayModeActive =
           displayMode === 'explanation' ||
           this.explanationTextService.isExplanationTextDisplayedSource?.value === true;
@@ -655,6 +660,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.explanationTextService.currentShouldDisplayExplanation === true; */
         const canShowFET =
           fetText.length > 0 &&
+          !firstRender && // 🚫 block FET on very first render
           (fetGate || shouldShow === true || displayModeActive) &&
           !this.explanationTextService._visibilityLocked;
     
