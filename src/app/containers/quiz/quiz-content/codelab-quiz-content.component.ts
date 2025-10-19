@@ -801,54 +801,45 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       questionText$,
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
+        auditTime(8),                // sync with question text within same frame
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
       ),
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // Drop any emissions during navigation
-      filter(() => !this.quizStateService.isNavigatingSubject.getValue()),
-    
-      // Coalesce into single frame
       observeOn(animationFrameScheduler),
     
-      // Pair previous and current frame
-      pairwise(),
-    
-      map(([[prevIdx, prevQuestion, prevCorrect, prevFet],
-            [idx, question, correct, fet]]) => {
-    
-        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
+      map(([idx, question, correct, fet, shouldShow]) => {
         const currentIdx = this.quizService.getCurrentQuestionIndex();
+        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // 🧱 Stabilize index
-        const isIndexStable = idx === currentIdx && idx === activeIdx;
+        const isIndexStable =
+          Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
     
-        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
-        const safeCorrect  = (correct ?? '').trim()  || (prevCorrect ?? '');
+        const safeQuestion = (question ?? '').trim();
+        const safeCorrect  = (correct ?? '').trim();
     
         this.lastRenderedQuestionText = safeQuestion;
         this.lastRenderedCorrectText  = safeCorrect;
     
-        // 🧩 Identify multi-answer question
-        const qObj = this.quizService.questions?.[idx];
+        // ── Identify multi-answer
+        const qObj = this.quizService.questions?.[Number(idx)];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // 🧩 Prevent race conditions on first load
-        if (!isIndexStable) {
-          return this.lastRenderedQuestionText;
+        // ── Skip redraw during navigation
+        if (this.quizStateService.isNavigatingSubject.getValue()) {
+          return this.lastRenderedQuestionText ?? safeQuestion;
         }
     
-        // 🧩 Render combined question + correct count (atomic)
+        // ── Combine question + correct count (same frame)
         let withCorrect = safeQuestion;
-    
         if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
             <div class="question-line">
@@ -857,29 +848,28 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             </div>`;
         }
     
-        // 🧩 Handle explanation text (FET)
-        const fetText  = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
+        // ── Handle explanation display
+        const fetText  = (fet?.text ?? '').trim();
         const fetGate  = fet?.gate === true;
         const canShowFET =
           fetGate &&
-          fetText.length > 0 &&
+          fetText &&
           displayMode === 'explanation' &&
           !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.currentShouldDisplayExplanation === true;
+          shouldShow === true;
     
-        if (canShowFET) return fetText;
+        if (canShowFET) {
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          return fetText;
+        }
     
-        // Mark render stable
         this.explanationTextService.markQuestionRendered(true);
-    
         return withCorrect;
       }),
     
-      // Drop jitter frames
-      debounceTime(20),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );       
+    );
   }
   
 
