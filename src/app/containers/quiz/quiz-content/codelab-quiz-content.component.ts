@@ -92,6 +92,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   currentQuestionType: QuestionType;
   private lastRenderedQuestionText = '';
   private lastRenderedCorrectText = '';
+  private lastRenderedIndex = -1;  // track the most recently rendered question index
   private lastCorrectBanner = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
