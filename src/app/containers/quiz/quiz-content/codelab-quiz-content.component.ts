@@ -570,12 +570,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // 7) Final render mapping (atomic frame-sync version)
     const merged$ = questionText$.pipe(
-      // order is: [question, index, correct, fet, shouldShow]
       withLatestFrom(index$, correctText$, fetForIndex$, shouldShow$),
       observeOn(animationFrameScheduler)
     );
     
     return merged$.pipe(
+      // Let the first emission through directly, then pair subsequent ones
+      startWith([ '', 0, '', { text: '', gate: false }, false ] as any),
       pairwise(),
       map(([
         [prevQuestion, prevIdx, prevCorrect, prevFet, prevShow],
@@ -587,7 +588,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // STEP 1: Stabilize index and fall back if needed
+        // 🧱 STEP 1: Index stabilization
         const isIndexStable = Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
     
         const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
@@ -596,7 +597,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.lastRenderedQuestionText = safeQuestion;
         this.lastRenderedCorrectText = safeCorrect;
     
-        // STEP 2: Identify multiple-answer questions
+        // 🧩 STEP 2: Identify multi-answer
         const qObj = this.quizService.questions?.[Number(idx)];
         const isMulti =
           qObj &&
@@ -604,19 +605,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // Skip rendering until banner has caught up
-        if (isMulti && !safeCorrect && displayMode === 'question') {
-          console.log(`[SKIP] Waiting for correctAnswersText$ for Q${Number(idx) + 1}`);
-          return this.lastRenderedQuestionText ?? safeQuestion;
-        }
-    
-        // Prevent mixed paints while navigation is in progress
+        // 🧩 STEP 3: Skip painting mid-navigation
         if (this.quizStateService.isNavigatingSubject.getValue()) {
-          console.log(`[GATE] ⏳ Navigation in progress — suppressing text swap for Q${Number(idx) + 1}`);
           return this.lastRenderedQuestionText ?? prevQuestion ?? '';
         }
     
-        // STEP 3: Render fallback (for stale / non-multi)
+        // 🧩 STEP 4: Prevent “question-only” flash if banner hasn’t caught up
+        if (isMulti && !safeCorrect && displayMode === 'question') {
+          console.log(`[SKIP] Waiting for banner for Q${Number(idx) + 1}`);
+          return this.lastRenderedQuestionText ?? safeQuestion;
+        }
+    
+        // 🧩 STEP 5: Fallback for non-multi
         if (!isIndexStable && !isMulti) {
           return (
             this.lastRenderedQuestionText +
@@ -626,7 +626,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           );
         }
     
-        // STEP 4: Merge question text + correct count (atomic)
+        // 🧩 STEP 6: Merge question + correct count
         let withCorrect = safeQuestion;
         if (isMulti && safeCorrect && displayMode === 'question') {
           withCorrect = `
@@ -636,7 +636,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             </div>`;
         }
     
-        // STEP 5: Handle explanation gating (FET)
+        // 🧩 STEP 7: FET gating
         const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
         const questionStable = this.explanationTextService.hasRenderedQuestion;
@@ -658,7 +658,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(25),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
   }
 
   private emitContentAvailableState(): void {
