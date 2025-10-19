@@ -50,6 +50,7 @@ export class QuizService implements OnDestroy {
   questionsList: QuizQuestion[] = [];
   nextQuestion: QuizQuestion;
   isNavigating = false;
+  private _isNavInProgress = false;
 
   private currentQuizSubject = new BehaviorSubject<Quiz | null>(null);
 
@@ -1763,31 +1764,39 @@ export class QuizService implements OnDestroy {
   } */
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
+  
+    // Skip duplicates
     if (this._lastBanner === text) return;
+  
+    // Skip transient clears during navigation
+    if (text === '' && this._isNavInProgress) {
+      console.log('[QuizService] ⏸ Skipped banner clear during navigation');
+      return;
+    }
+  
     this._lastBanner = text;
   
-    // Cancel any pending banner updates
+    // Cancel any delayed clears
     if (this._pendingBannerTimer) {
       clearTimeout(this._pendingBannerTimer);
       this._pendingBannerTimer = null;
     }
   
-    // Defer just enough for navigation + DOM reset (~1 animation frame)
-    this._pendingBannerTimer = setTimeout(() => {
-      this.correctAnswersCountTextSource.next(text);
+    // Emit the current banner text immediately
+    this.correctAnswersCountTextSource.next(text);
   
-      if (text.length === 0) {
-        console.log('[QuizService] 🧹 Cleared banner (memory only)');
-        return;
-      }
+    // Only persist non-empty text
+    if (text.length === 0) {
+      console.log('[QuizService] 🧹 Cleared banner (memory only)');
+      return;
+    }
   
-      try {
-        localStorage.setItem('correctAnswersText', text);
-        console.log('[QuizService] 💾 Persisted banner text:', text);
-      } catch (err) {
-        console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
-      }
-    }, 80);  // ~1 frame delay prevents overlap with prior question
+    try {
+      localStorage.setItem('correctAnswersText', text);
+      console.log('[QuizService] 💾 Persisted banner text:', text);
+    } catch (err) {
+      console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
+    }
   }
 
   public clearStoredCorrectAnswersText(): void {

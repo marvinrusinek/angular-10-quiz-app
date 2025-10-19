@@ -685,9 +685,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Default: return merged question text with banner
         return withCorrect;
       }),
-      debounceTime(40), // coalesce rapid emits
+      // debounceTime(40), // coalesce rapid emits
       distinctUntilChanged(),
-      observeOn(animationFrameScheduler),
+      // observeOn(animationFrameScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
