@@ -570,62 +570,47 @@ export class QuizNavigationService {
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => {
           try {
-            // ────────────────────────────────────────────────
-            // Determine if question is multi-answer
-            // ────────────────────────────────────────────────
+            // Determine multi-answer
             const isMulti =
               (fresh.type as any) === QuestionType.MultipleAnswer ||
               (Array.isArray(fresh.options) &&
                 fresh.options.filter((o) => o.correct).length > 1);
       
-            // Compute banner text
-            const banner = isMulti ? msg : '';
             const trimmedQ = (fresh.questionText ?? '').trim();
             const explanationRaw = (fresh.explanation ?? '').trim();
       
-            // ────────────────────────────────────────────────
-            // 🧩 STEP 1: Emit question text first
-            // ────────────────────────────────────────────────
+            // ✅ 1️⃣ Build and log the banner text
+            const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+            const totalOpts  = (fresh.options ?? []).length;
+            const banner = isMulti
+              ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
+              : '';
+      
+            console.log(`[NAV ✅] 🧮 Emitting question + banner for Q${index + 1}:`, banner);
+      
+            // ✅ 2️⃣ Emit both atomically (same frame)
+            this.quizService._suppressBannerClear = false;
+            this.quizService.updateCorrectAnswersText(banner);
             this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-            console.log(`[NAV] 🧩 Emitted question text for Q${index + 1}`);
       
-            // ────────────────────────────────────────────────
-            // 🧮 STEP 2: Emit banner text right after (next frame)
-            // ────────────────────────────────────────────────
-            requestAnimationFrame(() => {
-              try {
-                this.quizService._suppressBannerClear = false;
-                this.quizService.updateCorrectAnswersText(banner);
-                console.log(
-                  `[NAV ✅] 🧮 Banner emitted right after question for Q${index + 1}:`,
-                  banner
-                );
-              } catch (err) {
-                console.warn('[NAV ⚠️] Banner emission failed:', err);
-              }
-            });
-      
-            // ────────────────────────────────────────────────
-            // 🧠 STEP 3: FET pre-arm (slightly delayed)
-            // ────────────────────────────────────────────────
+            // ✅ 3️⃣ Defer FET pre-arm slightly so banner & question paint together
             if (explanationRaw) {
               const correctIdxs =
                 this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
-      
               setTimeout(() => {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
                   this.explanationTextService.setShouldDisplayExplanation(false, {
-                    force: false
+                    force: false,
                   });
                   console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
                 } catch (err) {
-                  console.warn('[NAV ⚠️] FET restore failed:', err);
+                  console.warn('[NAV] ⚠️ FET restore failed:', err);
                 }
-              }, 100);  // 100ms gives smooth, flicker-free transition
+              }, 120);
             }
       
             resolve();
@@ -634,7 +619,7 @@ export class QuizNavigationService {
             resolve();
           }
         });
-      });  
+      });       
       return true;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
