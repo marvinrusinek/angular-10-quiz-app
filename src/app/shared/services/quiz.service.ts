@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { animationFrameScheduler, BehaviorSubject, from, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, scan, shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 import _, { isEqual } from 'lodash';
 
@@ -105,10 +105,14 @@ export class QuizService implements OnDestroy {
   );
   
   // Frame-synchronized observable for banner display
+  // 🧮 Smooth banner emission (coalesced with question text)
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
-    debounceTime(25),
+    // Always emit — including empty clears — but skip null/undefined
+    filter(v => typeof v === 'string'),
+    // Give Angular and questionText$ exactly one paint frame to sync
+    auditTime(0),
+    // Drop accidental rapid double-emits
     distinctUntilChanged(),
-    tap(v => console.log(`[🧭 correctAnswersText$ emit]`, JSON.stringify(v))),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
