@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, map, shareReplay, startWith, take, timeout } from 'rxjs/operators';
+import { filter, map, take, timeout } from 'rxjs/operators';
 import { firstValueFrom } from '../../shared/utils/rxjs-compat';
 
 import { QuestionType } from '../../shared/models/question-type.enum';
