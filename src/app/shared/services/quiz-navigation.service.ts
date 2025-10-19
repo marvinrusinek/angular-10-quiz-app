@@ -619,13 +619,13 @@ export class QuizNavigationService {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
                   this.explanationTextService.setShouldDisplayExplanation(false, {
-                    force: false,
+                    force: false
                   });
                   console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
                 } catch (err) {
                   console.warn('[NAV ⚠️] FET restore failed:', err);
                 }
-              }, 100); // 100ms gives smooth, flicker-free transition
+              }, 100);  // 100ms gives smooth, flicker-free transition
             }
       
             resolve();
