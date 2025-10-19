@@ -568,14 +568,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
+    // 7) Final render mapping (atomic frame-sync version)
+    const merged$ = questionText$.pipe(
+      // Always bring along latest banner, index, etc.
+      withLatestFrom(index$, correctText$, fetForIndex$, shouldShow$),
+      // Paint both together in one animation frame
+      observeOn(animationFrameScheduler)
+    );
+
     // 7) Final render mapping (tested stable version)
-    return combineLatest([
-      index$,
-      questionText$,
-      correctText$,
-      fetForIndex$,
-      shouldShow$
-    ]).pipe(
+    return merged$.pipe(
       // Allow emission once index stabilizes, even if navigation just ended
       filter(() => {
         const navBusy = this.quizStateService.isNavigatingSubject.getValue();
