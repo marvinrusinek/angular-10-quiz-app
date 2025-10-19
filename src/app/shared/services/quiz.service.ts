@@ -107,10 +107,11 @@ export class QuizService implements OnDestroy {
   public readonly correctAnswersText$ = this.correctAnswersCountTextSource.asObservable().pipe(
     // Skip only null or undefined (keep empty strings)
     filter(v => typeof v === 'string'),
-    // Coalesce emissions into the same browser paint frame
+    // Align emission with next animation frame to coalesce with question text
     observeOn(animationFrameScheduler),
     // Prevent redundant emissions
-    distinctUntilChanged()
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
 
   // Guards to prevent banner flicker during nav
@@ -1760,28 +1761,35 @@ export class QuizService implements OnDestroy {
   } */
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
-    if (text === this._lastBanner) return;
-
-    clearTimeout(this._pendingBannerTimer);
-
-    // Debounce banner changes slightly so it never clears then refills in same frame
-    this._pendingBannerTimer = setTimeout(() => {
-      this._lastBanner = text;
-      this.correctAnswersCountTextSource.next(text);
-
-      console.log('[QuizService] 🧮 Banner text emitted:', text);
-
-      // Persist quietly after paint (doesn't trigger UI)
-      queueMicrotask(() => {
-        try {
-          if (text.length > 0) localStorage.setItem('correctAnswersText', text);
-          else localStorage.removeItem('correctAnswersText');
-        } catch (err) {
-          console.warn('[QuizService] ⚠️ Failed to persist banner', err);
-        }
-      });
-    }, 100);  // small delay coalesces navigation + question load
+  
+    // Avoid flicker by skipping duplicate emissions
+    if (this._lastBanner === text) return;
+  
+    this._lastBanner = text;
+  
+    // Cancel any pending delayed clears
+    if (this._pendingBannerTimer) {
+      clearTimeout(this._pendingBannerTimer);
+      this._pendingBannerTimer = null;
+    }
+  
+    // Emit immediately for atomic render with question text
+    this.correctAnswersCountTextSource.next(text);
+  
+    if (text.length === 0) {
+      // Don't persist empties to storage — they cause flicker on reload
+      console.log('[QuizService] 🧹 Cleared banner (memory only)');
+      return;
+    }
+  
+    try {
+      localStorage.setItem('correctAnswersText', text);
+      console.log('[QuizService] 💾 Persisted banner text:', text);
+    } catch (err) {
+      console.warn('[QuizService] ⚠️ Failed to persist banner text', err);
+    }
   }
+  
 
 
   public clearStoredCorrectAnswersText(): void {
