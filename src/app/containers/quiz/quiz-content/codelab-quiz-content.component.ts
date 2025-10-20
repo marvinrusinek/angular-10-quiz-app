@@ -812,7 +812,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       gate: boolean
     }
 
-    const fetForIndex$: Observable<FETState> = index$.pipe(
+    /* const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap((idx) =>
         combineLatest([
           this.explanationTextService
@@ -834,6 +834,39 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             //  - rawText non-empty
             // otherwise: emit blank text
             // ────────────────────────────────────────────────
+            const canShowFET = gateOpen && displayReady && rawText.length > 0;
+    
+            if (!canShowFET) {
+              return { idx, text: '', gate: false } as FETState;
+            }
+    
+            return { idx, text: rawText, gate: true } as FETState;
+          }),
+          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
+        )
+      ),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    const fetForIndex$: Observable<FETState> = index$.pipe(
+      switchMap((idx) =>
+        combineLatest([
+          this.explanationTextService
+            .byIndex$(idx)
+            .pipe(startWith<string | null>(null)),
+          this.explanationTextService.gate$(idx).pipe(startWith(false)),
+          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
+        ]).pipe(
+          map(([text, gate, shouldShow, displayed]) => {
+            const rawText = (text ?? '').toString().trim();
+    
+            // Hard stop: no FET on navigation transition or first render
+            const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
+            const firstRender = !this.explanationTextService.hasRenderedQuestion;
+            const gateOpen = gate && !navBusy && !firstRender;
+            const displayReady = shouldShow || displayed;
+    
+            // Only emit valid text when both gate + display are ready
             const canShowFET = gateOpen && displayReady && rawText.length > 0;
     
             if (!canShowFET) {
