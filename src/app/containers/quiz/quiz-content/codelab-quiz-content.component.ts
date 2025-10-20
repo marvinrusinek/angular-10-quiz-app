@@ -472,20 +472,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       index$
     ]).pipe(
       map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-
-        // Preserve last valid banner for multi-answer questions
+        const qObj = this.quizService.questions?.[idx] as any;
+        const isMulti = qObj?.isMulti === true;   // ✅ use stable flag only
+      
         if (isMulti) {
-          if (text?.trim()) this.lastRenderedBannerText = text.trim();
+          const trimmed = (text ?? '').trim();
+          if (trimmed.length > 0) {
+            this.lastRenderedBannerText = trimmed;
+            return trimmed;
+          }
           return this.lastRenderedBannerText ?? '';
         }
-
-        // Clear banner for single-answer
+      
+        // single-answer → clear banner
         this.lastRenderedBannerText = '';
         return '';
       }),
