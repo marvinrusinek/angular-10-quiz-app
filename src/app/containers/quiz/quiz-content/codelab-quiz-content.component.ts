@@ -218,7 +218,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.combinedSub = this.combinedText$
           .pipe(distinctUntilChanged())
           .subscribe({
-            /* next: (v) => {
+            next: (v) => {
               const el = this.qText?.nativeElement;
               if (!el) return;
     
@@ -239,11 +239,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 // Tell Angular we’ve manually mutated the DOM
                 this.cdRef.detectChanges();
               });
-            }, */
-            next: (v) => {
+            },
+            /* next: (v) => {
               this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(v || '');
               this.cdRef.detectChanges();
-            },
+            }, */
             error: (err) => console.error('[CQCC combinedText$ error]', err),
           });
       }
