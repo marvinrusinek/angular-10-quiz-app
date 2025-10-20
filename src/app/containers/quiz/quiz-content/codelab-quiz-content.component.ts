@@ -815,6 +815,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // 7) Final render mapping (tested stable version)
     correctText$.subscribe(v => console.log('[correctText$ emission]', v));
+
     return combineLatest([
       index$,
       questionText$,
@@ -823,70 +824,75 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shouldShow$
     ]).pipe(
       observeOn(animationFrameScheduler),
-      map(([idx, question, correct, fet, shouldShow]) => {
+
+      // 👇 Needed so we get [previous, current] emissions
+      pairwise(),
+
+      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
+            [idx, question, correct, fet, shouldShow]]) => {
+
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
-        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-        const isIndexStable =
-          Number(idx) === Number(currentIdx) && Number(idx) === Number(activeIdx);
-    
-        // Prevent regressing to an earlier question during transitions
-        if (Number(idx) < Number(this.lastRenderedIndex ?? -1)) {
-          return this.lastRenderedQuestionText ?? question ?? '';
-        }
-        this.lastRenderedIndex = Number(idx);
-    
-        const safeQuestion = (question ?? '').trim();
-        const safeCorrect  = (correct ?? '').trim();
+
+        // STEP 1: Stabilize index and previous values
+        const isIndexStable = idx === currentIdx && idx === activeIdx;
+        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
+        const safeCorrect = (correct ?? '').trim() || (prevCorrect ?? '');
+
         this.lastRenderedQuestionText = safeQuestion;
-        this.lastRenderedCorrectText  = safeCorrect;
-    
-        const qObj = this.quizService.questions?.[Number(idx)];
+        this.lastRenderedCorrectText = safeCorrect;
+
+        // STEP 2: Determine if multi-answer question
+        const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
-    
-        // Skip mid-navigation flicker
-        if (this.quizStateService.isNavigatingSubject.getValue()) {
-          return this.lastRenderedQuestionText;
-        }
-    
-        // Merge question + correct count atomically
-        let withCorrect = safeQuestion;
-        
-        // Always join banner in same emission frame (no debounce gaps)
-        // Always render banner inline if multi-answer and we have any non-empty banner text
-        // Only attach the banner if it's a multi-answer and banner text exists
+
+        // STEP 3: Build atomic HTML
+        let mergedHtml = safeQuestion;
         if (isMulti && safeCorrect && displayMode === 'question') {
-          withCorrect = `
+          mergedHtml = `
             ${safeQuestion}
             <span class="correct-count">${safeCorrect}</span>
           `;
         }
-    
-        // FET gating
-        const fetText = (fet?.text ?? '').trim();
+
+        // STEP 4: Explanation gating (FET)
+        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
+        const fetGate = fet?.gate === true;
+        const questionStable = this.explanationTextService.hasRenderedQuestion;
+
         const canShowFET =
-          fet?.gate === true &&
-          fetText.length > 0 &&
+          fetGate &&
+          fetText &&
           displayMode === 'explanation' &&
+          questionStable &&
           shouldShow === true &&
-          !this.explanationTextService._visibilityLocked;
-    
-        if (canShowFET) return fetText;
-    
+          !this.explanationTextService._visibilityLocked &&
+          this.explanationTextService.currentShouldDisplayExplanation === true;
+
+        if (canShowFET) {
+          return fetText;
+        }
+
         this.explanationTextService.markQuestionRendered(true);
-        console.log(`[CQCC] 🧮 Rendering banner "${safeCorrect}" with Q${idx + 1} text`);
-        return withCorrect;
+        return mergedHtml;
       }),
+      debounceTime(25),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+  
       debounceTime(0),
       distinctUntilChanged((a, b) => a.trim() === b.trim()), // less aggressive equality
       observeOn(animationFrameScheduler),
       shareReplay({ bufferSize: 1, refCount: true })
-    ); 
+    //); 
   }
   
 
