@@ -95,6 +95,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastCorrectBanner = '';
   private lastRenderedQuestionTextWithBanner: string = '';
   private lastRenderedBannerText = '';
+  private _pendingQuestionFrame: string | null = null;
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -998,8 +999,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(8),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
-    
+    ) as Observable<string>;    
   }
   
 
