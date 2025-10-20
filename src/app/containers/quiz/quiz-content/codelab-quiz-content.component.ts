@@ -240,10 +240,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 this.cdRef.detectChanges();
               });
             },
-            /* next: (v) => {
-              this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(v || '');
-              this.cdRef.detectChanges();
-            }, */
             error: (err) => console.error('[CQCC combinedText$ error]', err),
           });
       }
