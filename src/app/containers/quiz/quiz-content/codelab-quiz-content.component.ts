@@ -152,6 +152,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private combinedSub?: Subscription;
 
+  private combineInSameFrame<T>(...sources: Observable<T>[]): Observable<T[]> {
+    return combineLatest(sources).pipe(
+      // Defer delivery until browser paint tick
+      observeOn(animationFrameScheduler)
+    );
+  }
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -843,7 +850,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 7) Final render mapping (tested stable version)
     correctText$.subscribe(v => console.log('[correctText$ emission]', v));
 
-    return combineLatest([
+    /* return combineLatest([
       this.quizService.currentQuestionIndex$,
       this.questionToDisplay$,
       this.quizService.correctAnswersText$.pipe(
@@ -915,7 +922,72 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(8),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    ); */
+    return this.combineInSameFrame(
+      this.quizService.currentQuestionIndex$,
+      this.questionToDisplay$.pipe(distinctUntilChanged()),
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        auditTime(0),
+        distinctUntilChanged(),
+        shareReplay({ bufferSize: 1, refCount: true })
+      ),
+      fetForIndex$,
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
+    ).pipe(
+      pairwise(),
+      map(([[prevIdx, prevQ, prevBanner, prevFet, prevShow],
+            [idx, question, banner, fet, shouldShow]]) => {
+        // 🧩 your existing logic stays intact here
+        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const currentIdx = this.quizService.getCurrentQuestionIndex();
+        const displayMode =
+          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+    
+        // Stabilize
+        if (idx !== currentIdx || idx !== activeIdx) {
+          return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
+        }
+    
+        const qText = (question ?? '').trim();
+        const bannerText = (banner ?? '').trim();
+    
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+    
+        // Build atomic string
+        let mergedHtml = qText;
+        if (isMulti && bannerText && displayMode === 'question') {
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+        }
+    
+        // Explanation gating
+        const fetText = (fet?.text ?? '').trim();
+        const canShowFET =
+          fet?.gate === true &&
+          fetText.length > 0 &&
+          displayMode === 'explanation' &&
+          !this.explanationTextService._visibilityLocked &&
+          this.explanationTextService.currentShouldDisplayExplanation === true;
+    
+        if (canShowFET) {
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          return fetText;
+        }
+    
+        this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        return mergedHtml;
+      }),
+      debounceTime(8),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+    
     
   }
   
