@@ -987,9 +987,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounceTime(8),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
-    
-    
+    ) as Observable<string>;
   }
   
 
