@@ -824,12 +824,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // Wait one frame so all three observables co-emit in sync
       observeOn(animationFrameScheduler),
-    
-      // Stabilize per-frame state
       pairwise(),
-    
       map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
             [idx, question, correct, fet, shouldShow]]) => {
     
@@ -838,23 +834,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        const isIndexStable = idx === currentIdx && idx === activeIdx;
-    
-        const safeQuestion = (question ?? '').trim() || (prevQuestion ?? '');
-        const safeCorrect  = (correct ?? '').trim() || (prevCorrect ?? '');
-    
-        // Only update when something actually changes to avoid flicker
-        const questionChanged = safeQuestion !== this.lastRenderedQuestionText;
-        const correctChanged  = safeCorrect  !== this.lastRenderedCorrectText;
-    
-        if (!questionChanged && !correctChanged) {
-          return this.lastRenderedQuestionTextWithBanner ?? safeQuestion;
+        // guard stale emissions
+        if (idx !== currentIdx || idx !== activeIdx) {
+          return this.lastRenderedQuestionTextWithBanner ?? prevQuestion ?? '';
         }
     
-        this.lastRenderedQuestionText = safeQuestion;
-        this.lastRenderedCorrectText  = safeCorrect;
+        const safeQ = (question ?? '').trim() || (prevQuestion ?? '');
+        const safeC = (correct ?? '').trim() || (prevCorrect ?? '');
     
-        // Determine multi-answer question
+        // remember previous render
+        this.lastRenderedQuestionTextWithBanner ??= safeQ;
+    
+        // determine if multi-answer
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
@@ -862,47 +853,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // Merge question + correct count atomically
-        let mergedHtml = safeQuestion;
-        if (isMulti && safeCorrect && displayMode === 'question') {
-          mergedHtml = `${safeQuestion} <span class="correct-count">${safeCorrect}</span>`;
+        // build combined HTML for question + banner
+        let merged = safeQ;
+        if (isMulti && safeC && displayMode === 'question') {
+          merged = `${safeQ} <span class="correct-count">${safeC}</span>`;
         }
     
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-    
-        // FET gating
-        const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
-        const fetGate = fet?.gate === true;
-        const gateOpen =
-          fet?.gate === true ||
-          this.explanationTextService.shouldDisplayExplanationSource?.value === true ||
-          this.explanationTextService.isExplanationTextDisplayedSource?.value === true;
-    
-        const questionStable = this.explanationTextService.hasRenderedQuestion;
-    
+        // explanation gating
+        const fetText = (fet?.text ?? '').trim();
         const canShowFET =
-          gateOpen &&
+          fet?.gate === true &&
           fetText.length > 0 &&
-          (displayMode === 'explanation' ||
-            this.explanationTextService.currentShouldDisplayExplanation === true) &&
-          !this.explanationTextService._visibilityLocked;
+          displayMode === 'explanation' &&
+          !this.explanationTextService._visibilityLocked &&
+          this.explanationTextService.currentShouldDisplayExplanation === true;
     
         if (canShowFET) {
-          // Mark as displayed for consistency
           this.explanationTextService.setIsExplanationTextDisplayed(true);
-          this.lastRenderedQuestionTextWithBanner = fetText;
           return fetText;
         }
     
         this.explanationTextService.markQuestionRendered(true);
-        return mergedHtml;
+        this.lastRenderedQuestionTextWithBanner = merged;
+        return merged;
       }),
-    
-      // Debounce one paint frame (16ms) to coalesce minor timing drift
       debounceTime(16),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );    
+    );
+    
   }
   
 
