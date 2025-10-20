@@ -5078,28 +5078,27 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   // Compute and emit the "# of correct answers" banner text for a given question index.
   private emitCorrectAnswersBanner(index: number): void {
-    if (this._bannerGate) return;
-    this._bannerGate = true;
-  
-    setTimeout(() => (this._bannerGate = false), 100); // reopen after 100 ms
-  
     const fresh = this.quizService.questions?.[index];
-    if (!fresh || !Array.isArray(fresh.options)) return;
+    if (!fresh || !Array.isArray(fresh.options)) {
+      console.warn('[emitCorrectAnswersBanner] ❌ No question/options yet at index', index);
+      return;
+    }
+  
+    console.log('[emitCorrectAnswersBanner] 🧮 Raw options at index', index,
+      fresh.options.map(o => ({ text: o.text, correct: o.correct })));
   
     const isMulti =
       (fresh.type === QuestionType.MultipleAnswer) ||
-      ((fresh.options ?? []).filter(o => o.correct === true).length > 1);
-
-    (fresh as any).isMulti = isMulti;
+      fresh.options.filter(o => o.correct === true).length > 1;
+    (fresh as any).isMulti = isMulti; // 🔹 stamp here
+    console.log('[emitCorrectAnswersBanner] ✅ isMulti set to', isMulti);
   
     const numCorrect = fresh.options.filter(o => o.correct).length;
     const totalOpts = fresh.options.length;
-  
     const banner = isMulti
       ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
       : '';
   
-    console.log(`[QuizComponent] 🧩 banner for Q${index + 1}:`, banner);
     this.quizService.updateCorrectAnswersText(banner);
-  }
+  }  
 }
