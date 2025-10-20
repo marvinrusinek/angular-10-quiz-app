@@ -1159,7 +1159,7 @@ export class QuizService implements OnDestroy {
       tap((quiz) => {
         if (quiz) {
           console.log(`[QuizService] Quiz fetched for ID ${quizId}:`, quiz);
-
+  
           // Ensure each question and option has correct properties
           for (const [qIndex, question] of quiz.questions.entries()) {
             if (!question.options || question.options.length === 0) {
@@ -1168,23 +1168,28 @@ export class QuizService implements OnDestroy {
               );
               continue;
             }
-
+  
             console.log(
               `[QuizService] Initializing options for Question ${qIndex}:`,
               question
             );
-
+  
             for (const [oIndex, option] of question.options.entries()) {
               option.optionId = oIndex; // Assign unique optionId
               option.correct = option.correct ?? false; // Default `correct` to false if undefined
-
-              console.log(
-                `[QuizService] Option ${oIndex} initialized:`,
-                option
-              );
+              console.log(`[QuizService] Option ${oIndex} initialized:`, option);
             }
+  
+            // 🔹 Stamp multi-answer flag (compute once per question)
+            const isMulti =
+              question.type === QuestionType.MultipleAnswer ||
+              (Array.isArray(question.options) &&
+                question.options.filter((o) => o.correct === true).length > 1);
+  
+            (question as any).isMulti = isMulti;
+            console.log(`[QuizService] 🧮 Q${qIndex + 1} isMulti =`, isMulti);
           }
-
+  
           // Shuffle questions and options if enabled
           if (this.shouldShuffle()) {
             console.log('[QuizService] Shuffling questions and options...');
