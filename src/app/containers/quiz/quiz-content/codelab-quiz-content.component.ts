@@ -94,6 +94,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastRenderedIndex = -1;  // track the most recently rendered question index
   private lastCorrectBanner = '';
   private lastRenderedQuestionTextWithBanner: string = '';
+  private lastRenderedBannerText = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -758,14 +759,43 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ); */
     // Correct-count banner text (persistent for multi-answer)
     // 5) Correct-count text (banner) — frame-synced with questionText$
-    const correctText$: Observable<string> =
+    /* const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
         startWith(''),                 // ensures Q1 shows immediately
         debounceTime(0),               // schedule same microtask frame
         distinctUntilChanged(),
         tap(v => console.log('[BANNER EMIT]', v)),  // debug output
         shareReplay({ bufferSize: 1, refCount: true })
-      );
+      ); */
+    // 🧩 Correct-count text — synchronized & sticky for multi-answer questions
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+      index$
+    ]).pipe(
+      map(([text, idx]) => {
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+
+        // Preserve last valid banner for multi-answer questions
+        if (isMulti) {
+          if (text?.trim()) this.lastRenderedBannerText = text.trim();
+          return this.lastRenderedBannerText ?? '';
+        }
+
+        // Clear banner for single-answer
+        this.lastRenderedBannerText = '';
+        return '';
+      }),
+      auditTime(0),                  // ensure same animation frame
+      startWith(''),                 // seed initial emission
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
