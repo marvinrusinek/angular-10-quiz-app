@@ -995,7 +995,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-        const qObj = this.quizService.questions?.[idx];
+        const qObj = this.quizService.questions?.[idx] as any;
       
         // ───────── merge question + banner ─────────
         let mergedHtml = qText;
@@ -1011,13 +1011,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
       
         // ───────── restrict to multi-answer AFTER stability ─────────
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(
-                (o) => o.correct === true || o.correct === 'true'
-              ).length > 1));
+        const isMulti = qObj?.isMulti === true;
       
         if (isMulti && bannerStable.length > 0) {
           mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
