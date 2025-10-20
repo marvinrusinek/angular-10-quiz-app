@@ -948,8 +948,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
         }
     
-        const qText = (question ?? '').trim();
-        const bannerText = (banner ?? '').trim();
+        const qText = String(question ?? '').trim();
+        const bannerText = String(banner ?? '').trim();
     
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
@@ -965,9 +965,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
     
         // Explanation gating
-        const fetText = (fet?.text ?? '').trim();
+        const fetState = fet as { text?: string; gate?: boolean } | null;
+        const fetText = String(fetState?.text ?? '').trim();
+        const gateOpen = fetState?.gate === true;
         const canShowFET =
-          fet?.gate === true &&
+          gateOpen &&
           fetText.length > 0 &&
           displayMode === 'explanation' &&
           !this.explanationTextService._visibilityLocked &&
