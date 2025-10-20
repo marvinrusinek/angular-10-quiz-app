@@ -760,10 +760,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 5) Correct-count text (banner) — frame-synced with questionText$
     const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
-        auditTime(0),  // aligns to same animation frame as question text
-        filter(v => typeof v === 'string'),
+        startWith(''),                 // ensures Q1 shows immediately
+        debounceTime(0),               // schedule same microtask frame
         distinctUntilChanged(),
-        startWith(''),
+        tap(v => console.log('[BANNER EMIT]', v)),  // debug output
         shareReplay({ bufferSize: 1, refCount: true })
       );
 
