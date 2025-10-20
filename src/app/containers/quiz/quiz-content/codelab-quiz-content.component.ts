@@ -96,6 +96,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastRenderedQuestionTextWithBanner: string = '';
   private lastRenderedBannerText = '';
   private _pendingQuestionFrame: string | null = null;
+  private _fetLockedIndex: number | null = null;  // keeps track of the last question index whose FET (explanation) is locked in view
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -923,83 +924,84 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     ); */
-    return this.combineInSameFrame(
+    return combineLatest([
       this.quizService.currentQuestionIndex$,
       this.questionToDisplay$.pipe(distinctUntilChanged()),
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
         auditTime(0),
+        observeOn(animationFrameScheduler),
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
       ),
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
-    ).pipe(
-      // Pair the previous + current emissions for stabilization
-      pairwise(),
-      map(([[prevIdx, prevQuestion, prevBanner, prevFet, prevShow],
-            [idx, question, banner, fet, shouldShow]]) => {
-        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
-        const currentIdx = this.quizService.getCurrentQuestionIndex();
-        const displayMode =
+    ]).pipe(
+      startWith([0, '', '', { text: '', gate: false }, false] as any),
+      observeOn(animationFrameScheduler),
+      filter(([idx, question]) => {
+        const cur = this.quizService.getCurrentQuestionIndex();
+        const act = this.explanationTextService._activeIndex ?? -1;
+        return idx === cur && idx === act && !!(question && question.trim());
+      }),
+      map(([idx, question, banner, fet, shouldShow]) => {
+        const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    
-        // Guard stale emissions
-        if (idx !== currentIdx || idx !== activeIdx) {
-          return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
-        }
-    
-        const qText = String(question ?? '').trim() || String(prevQuestion ?? '').trim();
-        const bannerText = String(banner ?? '').trim() || String(prevBanner ?? '').trim();
-    
-        // ─── STEP 1: build banner+question atomically ───
+      
+        const qText = String(question ?? '').trim();
+        const bannerText = String(banner ?? '').trim();
+      
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-    
+            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+      
+        // ─── Build atomic question + banner ───
         let merged = qText;
-        if (isMulti && bannerText && displayMode === 'question') {
+        if (isMulti && bannerText && mode === 'question') {
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-    
-        // ─── STEP 2: explanation gating ───
-        const fetText = String((fet as any)?.text ?? '').trim() || String((prevFet as any)?.text ?? '').trim();
+      
+        // ─── Explanation gating with recovery ───
+        const fetText = String((fet as any)?.text ?? '').trim();
         const fetGate = Boolean((fet as any)?.gate);
-        const canShowFET =
+      
+        // If we just switched to explanation mode → show FET and lock it
+        if (
           fetGate &&
-          fetText.length > 0 &&
-          displayMode === 'explanation' &&
+          fetText &&
+          mode === 'explanation' &&
           !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.currentShouldDisplayExplanation === true;
-    
-        // Ensure FET always paints first, then question
-        if (canShowFET) {
+          this.explanationTextService.currentShouldDisplayExplanation === true
+        ) {
+          this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
-          this._pendingQuestionFrame = merged; // cache the merged question+banner
           return fetText;
         }
-    
-        // ─── STEP 3: defer question paint slightly after FET ───
-        if (this._pendingQuestionFrame && displayMode === 'question') {
-          const html = this._pendingQuestionFrame;
-          this._pendingQuestionFrame = null;
-          this.lastRenderedQuestionTextWithBanner = html;
-          return html;
+
+        // Hold FET while locked — don’t fall back to question until navigation changes
+        if (
+          this._fetLockedIndex === idx &&
+          this.explanationTextService.isExplanationTextDisplayedSource?.value
+        ) {
+          return fetText; // stay on explanation, even if mode toggles briefly
         }
-    
-        // ─── STEP 4: normal question mode ───
+
+        // Unlock when index changes (i.e. moved to next/prev question)
+        if (this._fetLockedIndex !== null && this._fetLockedIndex !== idx) {
+          this._fetLockedIndex = null;
+        }
+
+        // Otherwise, draw question as normal
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = merged;
         return merged;
       }),
-    
-      debounceTime(8),
+     
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;    
+    ) as Observable<string>;
   }
   
 
