@@ -5084,8 +5084,10 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     if (!fresh || !Array.isArray(fresh.options)) return;
   
     const isMulti =
-      (fresh.type as any) === QuestionType.MultipleAnswer ||
-      fresh.options.filter(o => o.correct).length > 1;
+      (fresh.type === QuestionType.MultipleAnswer) ||
+      ((fresh.options ?? []).filter(o => o.correct === true).length > 1);
+
+    (fresh as any).isMulti = isMulti;
   
     const numCorrect = fresh.options.filter(o => o.correct).length;
     const totalOpts = fresh.options.length;
