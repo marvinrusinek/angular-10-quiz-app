@@ -154,12 +154,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private combinedSub?: Subscription;
 
-  private combineInSameFrame(...sources: Observable<unknown>[]): Observable<unknown[]> {
-    return combineLatest(sources).pipe(
-      observeOn(animationFrameScheduler)
-    );
-  }  
-
   private destroy$ = new Subject<void>();
 
   constructor(
