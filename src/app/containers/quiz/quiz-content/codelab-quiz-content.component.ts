@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -164,7 +163,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private quizQuestionManagerService: QuizQuestionManagerService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef,
-    private sanitizer: DomSanitizer
+    private ngZone: NgZone
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -221,29 +220,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             next: (v) => {
               const el = this.qText?.nativeElement;
               if (!el) return;
-    
-              // Use a single frame to coalesce opacity + content writes
-              requestAnimationFrame(() => {
-                // Start fade-out
-                el.style.transition = 'opacity 0.12s linear';
-                el.style.opacity = '0.4';
-    
-                // Write the new content (question + banner) once per frame
-                el.innerHTML = v || '';
-    
-                // Fade back in on the next frame after content write
+
+              // Run inside Angular's zone so FET + banner are reactive
+              this.ngZone.run(() => {
                 requestAnimationFrame(() => {
-                  el.style.opacity = '1';
+                  // Fade-out
+                  el.style.transition = 'opacity 0.12s linear';
+                  el.style.opacity = '0.4';
+
+                  // Update content atomically
+                  el.innerHTML = v || '';
+
+                  // Fade-in again
+                  requestAnimationFrame(() => {
+                    el.style.opacity = '1';
+                  });
+
+                  // Force Angular to refresh bindings that depend on FET state
+                  this.cdRef.detectChanges();
                 });
-    
-                // Tell Angular we’ve manually mutated the DOM
-                this.cdRef.detectChanges();
               });
             },
             error: (err) => console.error('[CQCC combinedText$ error]', err),
           });
       }
     }, 20);
+
 
     this.combinedQuestionData$ = this.combineCurrentQuestionAndOptions().pipe(
       map(({ currentQuestion, currentOptions }) => {
