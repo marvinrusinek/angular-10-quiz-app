@@ -568,9 +568,12 @@ export class QuizNavigationService {
   
       // Emit banner text + question text atomically
       await new Promise<void>((resolve) => {
+        // 🔹 Use requestAnimationFrame for atomic frame updates
         requestAnimationFrame(() => {
           try {
-            // Determine multi-answer
+            // ────────────────────────────────────────────────
+            // STEP 1️⃣ Determine multi-answer
+            // ────────────────────────────────────────────────
             const isMulti =
               (fresh.type as any) === QuestionType.MultipleAnswer ||
               (Array.isArray(fresh.options) &&
@@ -579,27 +582,48 @@ export class QuizNavigationService {
             const trimmedQ = (fresh.questionText ?? '').trim();
             const explanationRaw = (fresh.explanation ?? '').trim();
       
-            // ✅ 1️⃣ Build and log the banner text
-            const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
-            const totalOpts  = (fresh.options ?? []).length;
+            // ────────────────────────────────────────────────
+            // STEP 2️⃣ Build and log the banner text
+            // ────────────────────────────────────────────────
+            const numCorrect = (fresh.options ?? []).filter((o) => o.correct).length;
+            const totalOpts = (fresh.options ?? []).length;
+      
             const banner = isMulti
-              ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
+              ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(
+                  numCorrect,
+                  totalOpts
+                )
               : '';
       
-            console.log(`[NAV ✅] 🧮 Emitting question + banner for Q${index + 1}:`, banner);
+            console.log(
+              `[NAV ✅] 🧮 Emitting question + banner for Q${index + 1}:`,
+              banner
+            );
       
-            // ✅ 2️⃣ Emit both atomically (same frame)
+            // ────────────────────────────────────────────────
+            // STEP 3️⃣ Emit both atomically (same frame)
+            // ────────────────────────────────────────────────
+            // Avoid suppressing the banner clear here — we want them in sync
             this.quizService._suppressBannerClear = false;
-            this.quizService.updateCorrectAnswersText(banner);
-            this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
       
-            // ✅ 3️⃣ Defer FET pre-arm slightly so banner & question paint together
+            // Emit the question and banner *in the same animation frame*
+            this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+            this.quizService.updateCorrectAnswersText(banner);
+      
+            // Mark last stable banner frame for sanity
+            this.quizService._lastBannerFrameIndex = index;
+      
+            // ────────────────────────────────────────────────
+            // STEP 4️⃣ Defer FET pre-arm slightly
+            // ────────────────────────────────────────────────
+            // Wait ~100–120ms so question + banner can paint first
             if (explanationRaw) {
               const correctIdxs =
                 this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
+      
               setTimeout(() => {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
@@ -613,13 +637,16 @@ export class QuizNavigationService {
               }, 120);
             }
       
+            // ────────────────────────────────────────────────
+            // STEP 5️⃣ Resolve once all emissions are queued
+            // ────────────────────────────────────────────────
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
             resolve();
           }
         });
-      });       
+      });
       return true;
     } catch (err) {
       console.error('[❌ Navigation error]', err);
