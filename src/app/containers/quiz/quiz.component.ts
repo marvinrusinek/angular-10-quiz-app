@@ -252,8 +252,8 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
 
   private renderGateSubject = new BehaviorSubject<boolean>(false);
   renderGate$ = this.renderGateSubject.asObservable();
-
   public finalRenderReady = false;
+  private _bannerGate = false;
 
   qaToDisplay?: { question: QuizQuestion; options: Option[] };
 
@@ -4524,6 +4524,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     const navSuccess = await this.attemptRouteUpdate(index);
     if (!navSuccess) return false;
 
+    // Compute and emit "# of correct answers" banner
+    requestAnimationFrame(() => this.emitCorrectAnswersBanner(index));
+
     this.injectDynamicComponent();
     this.updateBadgeText();
 
@@ -5068,5 +5071,30 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
     this.explanationTextService.setExplanationText(formatted);
     this.explanationTextService.setShouldDisplayExplanation(true);
     this.quizStateService.setDisplayState({ mode: 'explanation', answered: true });
+  }
+
+  // Compute and emit the "# of correct answers" banner text for a given question index.
+  private emitCorrectAnswersBanner(index: number): void {
+    if (this._bannerGate) return;
+    this._bannerGate = true;
+  
+    setTimeout(() => (this._bannerGate = false), 100); // reopen after 100 ms
+  
+    const fresh = this.quizService.questions?.[index];
+    if (!fresh || !Array.isArray(fresh.options)) return;
+  
+    const isMulti =
+      (fresh.type as any) === QuestionType.MultipleAnswer ||
+      fresh.options.filter(o => o.correct).length > 1;
+  
+    const numCorrect = fresh.options.filter(o => o.correct).length;
+    const totalOpts = fresh.options.length;
+  
+    const banner = isMulti
+      ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
+      : '';
+  
+    console.log(`[QuizComponent] 🧩 banner for Q${index + 1}:`, banner);
+    this.quizService.updateCorrectAnswersText(banner);
   }
 }
