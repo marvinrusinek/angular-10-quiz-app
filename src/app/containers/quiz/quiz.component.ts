@@ -3548,7 +3548,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         this.questionToDisplay = question.questionText?.trim() || 'No question available';
   
         // Assign optionIds
-        const normalizedOptions = this.quizService.assignOptionIds([...(options ?? [])]);
+        const normalizedOptions = this.quizService.assignOptionIds([...(options ?? [])], this.currentQuestionIndex);
         this.optionsToDisplay = normalizedOptions;
   
         // Ensure options are fully loaded
