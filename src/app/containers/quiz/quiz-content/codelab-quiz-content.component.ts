@@ -474,6 +474,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([text, idx]) => {
         const qObj = this.quizService.questions?.[idx] as any;
         const isMulti = qObj?.isMulti === true;   // ✅ use stable flag only
+
+        // Diagnostic log — see what's really happening for each question
+        console.log('[Banner verify]', {
+          idx,
+          questionText: qObj?.questionText,
+          isMulti,
+          text,
+          questions: this.quizService.questions?.length
+        });
       
         if (isMulti) {
           const trimmed = (text ?? '').trim();
