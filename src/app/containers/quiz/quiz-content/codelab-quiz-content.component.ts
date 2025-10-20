@@ -958,7 +958,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     ); */
     return combineLatest([
-      this.quizService.currentQuestionIndex$,
+      this.quizService.currentQuestionIndex$.pipe(startWith(0)),
       this.questionToDisplay$.pipe(distinctUntilChanged()),
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
@@ -970,68 +970,53 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
-      startWith([0, '', '', { text: '', gate: false }, false] as any),
       observeOn(animationFrameScheduler),
-      filter(([idx, question]) => {
-        const cur = this.quizService.getCurrentQuestionIndex();
-        const act = this.explanationTextService._activeIndex ?? -1;
-        return idx === cur && idx === act && !!(question && question.trim());
-      }),
+    
       map(([idx, question, banner, fet, shouldShow]) => {
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-      
-        const qText = String(question ?? '').trim();
-        const bannerText = String(banner ?? '').trim();
-      
+    
+        const qText = (question ?? '').trim();
+        const bannerText = (banner ?? '').trim();
+    
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
-      
-        // ─── Build atomic question + banner ───
-        let merged = qText;
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+    
+        // ────────────────────────────────────────────────
+        // 🧩 Merge question text + correct-count banner atomically
+        // ────────────────────────────────────────────────
+        let mergedHtml = qText;
         if (isMulti && bannerText && mode === 'question') {
-          merged = `${qText} <span class="correct-count">${bannerText}</span>`;
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-      
-        // ─── Explanation gating with recovery ───
-        const fetText = String((fet as any)?.text ?? '').trim();
-        const fetGate = Boolean((fet as any)?.gate);
-      
-        // If we just switched to explanation mode → show FET and lock it
+    
+        // ────────────────────────────────────────────────
+        // 🧩 Explanation gating
+        // ────────────────────────────────────────────────
+        const fetText = (fet?.text ?? '').trim();
+        const fetGate = fet?.gate === true;
+    
+        // Show FET only when explicitly in explanation mode
         if (
+          mode === 'explanation' &&
           fetGate &&
           fetText &&
-          mode === 'explanation' &&
-          !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true
         ) {
-          this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fetText;
         }
-
-        // Hold FET while locked — don’t fall back to question until navigation changes
-        if (
-          this._fetLockedIndex === idx &&
-          this.explanationTextService.isExplanationTextDisplayedSource?.value
-        ) {
-          return fetText; // stay on explanation, even if mode toggles briefly
-        }
-
-        // Unlock when index changes (i.e. moved to next/prev question)
-        if (this._fetLockedIndex !== null && this._fetLockedIndex !== idx) {
-          this._fetLockedIndex = null;
-        }
-
-        // Otherwise, draw question as normal
+    
+        // Otherwise hold stable question + banner text
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
         this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = merged;
-        return merged;
+        return mergedHtml;
       }),
-     
+    
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
