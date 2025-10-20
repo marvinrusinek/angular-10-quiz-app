@@ -962,14 +962,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this.questionToDisplay$.pipe(distinctUntilChanged()),
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
-        auditTime(0),
-        observeOn(animationFrameScheduler),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
+        distinctUntilChanged()
       ),
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
+      // ⏳ Merge emissions arriving within one frame
+      auditTime(16),
       observeOn(animationFrameScheduler),
     
       map(([idx, question, banner, fet, shouldShow]) => {
@@ -978,8 +977,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-    
         const qObj = this.quizService.questions?.[idx];
+    
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
@@ -987,7 +986,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               qObj.options.filter(o => o.correct).length > 1));
     
         // ────────────────────────────────────────────────
-        // 🧩 Merge question text + correct-count banner atomically
+        // 🧩 Stable merge of question text + banner
         // ────────────────────────────────────────────────
         let mergedHtml = qText;
         if (isMulti && bannerText && mode === 'question') {
@@ -1000,26 +999,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
     
-        // Show FET only when explicitly in explanation mode
-        if (
+        const canShowFET =
           mode === 'explanation' &&
           fetGate &&
-          fetText &&
-          this.explanationTextService.currentShouldDisplayExplanation === true
-        ) {
+          fetText.length > 0 &&
+          this.explanationTextService.currentShouldDisplayExplanation === true;
+    
+        // Show explanation only when fully ready
+        if (canShowFET) {
+          this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fetText;
         }
     
-        // Otherwise hold stable question + banner text
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        // Hold steady question text when not in explanation mode
         this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
     
+      // Prevent identical frame repaint
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
+    ) as Observable<string>;    
   }
   
 
