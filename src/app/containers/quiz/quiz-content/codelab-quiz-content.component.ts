@@ -75,8 +75,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.cdRef.markForCheck();
   }
 
-  safeHtml: SafeHtml = '';
-
   private combinedTextSubject = new BehaviorSubject<string>('');
   combinedText$ = this.combinedTextSubject.asObservable();
 
@@ -816,34 +814,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     correctText$.subscribe(v => console.log('[correctText$ emission]', v));
 
     return combineLatest([
-      index$,
-      questionText$.pipe(distinctUntilChanged()),
-      correctText$.pipe(distinctUntilChanged()),
+      this.quizService.currentQuestionIndex$,
+      this.questionToDisplay$,
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        distinctUntilChanged(),
+        auditTime(0) // coalesce same-frame emissions
+      ),
       fetForIndex$,
-      shouldShow$
+      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
+      // Allow them to land in the same animation frame
       observeOn(animationFrameScheduler),
+    
+      // Pair previous + current for atomic comparison
       pairwise(),
-      map(([[prevIdx, prevQuestion, prevCorrect, prevFet, prevShow],
-            [idx, question, correct, fet, shouldShow]]) => {
+    
+      map(([[prevIdx, prevQ, prevBanner, prevFet, prevShow],
+            [idx, question, banner, fet, shouldShow]]) => {
     
         const activeIdx = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // guard stale emissions
+        // Skip if this emission is stale
         if (idx !== currentIdx || idx !== activeIdx) {
-          return this.lastRenderedQuestionTextWithBanner ?? prevQuestion ?? '';
+          return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
         }
     
-        const safeQ = (question ?? '').trim() || (prevQuestion ?? '');
-        const safeC = (correct ?? '').trim() || (prevCorrect ?? '');
+        // Stable values
+        const qText = (question ?? '').trim();
+        const bannerText = (banner ?? '').trim();
     
-        // remember previous render
-        this.lastRenderedQuestionTextWithBanner ??= safeQ;
-    
-        // determine if multi-answer
+        // Determine if multi-answer question
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
@@ -851,13 +855,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // build combined HTML for question + banner
-        let merged = safeQ;
-        if (isMulti && safeC && displayMode === 'question') {
-          merged = `${safeQ} <span class="correct-count">${safeC}</span>`;
+        // 🔹 Merge banner + question text atomically
+        let mergedHtml = qText;
+        if (isMulti && bannerText && displayMode === 'question') {
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
     
-        // explanation gating
+        // 🔸 Explanation text gating
         const fetText = (fet?.text ?? '').trim();
         const canShowFET =
           fet?.gate === true &&
@@ -871,14 +875,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fetText;
         }
     
+        // Remember last render
         this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = merged;
-        return merged;
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        return mergedHtml;
       }),
-      debounceTime(16),
+    
+      // Small buffer for safety; prevents rapid repaint
+      debounceTime(8),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    );    
     
   }
   
