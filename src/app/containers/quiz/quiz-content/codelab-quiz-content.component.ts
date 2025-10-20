@@ -934,23 +934,24 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ).pipe(
+      // Pair the previous + current emissions for stabilization
       pairwise(),
-      map(([[prevIdx, prevQ, prevBanner, prevFet, prevShow],
+      map(([[prevIdx, prevQuestion, prevBanner, prevFet, prevShow],
             [idx, question, banner, fet, shouldShow]]) => {
-        // 🧩 your existing logic stays intact here
-        const activeIdx = this.explanationTextService._activeIndex ?? -1;
+        const activeIdx  = this.explanationTextService._activeIndex ?? -1;
         const currentIdx = this.quizService.getCurrentQuestionIndex();
         const displayMode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
     
-        // Stabilize
+        // Guard stale emissions
         if (idx !== currentIdx || idx !== activeIdx) {
           return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
         }
     
-        const qText = String(question ?? '').trim();
-        const bannerText = String(banner ?? '').trim();
+        const qText = String(question ?? '').trim() || String(prevQuestion ?? '').trim();
+        const bannerText = String(banner ?? '').trim() || String(prevBanner ?? '').trim();
     
+        // ─── STEP 1: build banner+question atomically ───
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           qObj &&
@@ -958,36 +959,47 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) &&
               qObj.options.filter(o => o.correct).length > 1));
     
-        // Build atomic string
-        let mergedHtml = qText;
+        let merged = qText;
         if (isMulti && bannerText && displayMode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+          merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
     
-        // Explanation gating
-        const fetState = fet as { text?: string; gate?: boolean } | null;
-        const fetText = String(fetState?.text ?? '').trim();
-        const gateOpen = fetState?.gate === true;
+        // ─── STEP 2: explanation gating ───
+        const fetText = String((fet as any)?.text ?? '').trim() || String((prevFet as any)?.text ?? '').trim();
+        const fetGate = Boolean((fet as any)?.gate);
         const canShowFET =
-          gateOpen &&
+          fetGate &&
           fetText.length > 0 &&
           displayMode === 'explanation' &&
           !this.explanationTextService._visibilityLocked &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
     
+        // Ensure FET always paints first, then question
         if (canShowFET) {
           this.explanationTextService.setIsExplanationTextDisplayed(true);
+          this._pendingQuestionFrame = merged; // cache the merged question+banner
           return fetText;
         }
     
+        // ─── STEP 3: defer question paint slightly after FET ───
+        if (this._pendingQuestionFrame && displayMode === 'question') {
+          const html = this._pendingQuestionFrame;
+          this._pendingQuestionFrame = null;
+          this.lastRenderedQuestionTextWithBanner = html;
+          return html;
+        }
+    
+        // ─── STEP 4: normal question mode ───
         this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        return mergedHtml;
+        this.lastRenderedQuestionTextWithBanner = merged;
+        return merged;
       }),
+    
       debounceTime(8),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
+    
   }
   
 
