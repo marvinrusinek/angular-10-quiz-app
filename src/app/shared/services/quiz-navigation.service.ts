@@ -594,11 +594,14 @@ export class QuizNavigationService {
                   totalOpts
                 )
               : '';
+            console.log('=== using this navigateToQuestion ===');
       
-            console.log(
-              `[NAV ✅] 🧮 Emitting question + banner for Q${index + 1}:`,
-              banner
-            );
+            console.log(`[NAV] 🧩 Computed banner for Q${index + 1}:`, {
+              isMulti,
+              numCorrect,
+              totalOpts,
+              banner,
+            });
       
             // ────────────────────────────────────────────────
             // STEP 3️⃣ Emit both atomically (same frame)
@@ -608,7 +611,10 @@ export class QuizNavigationService {
       
             // Emit the question and banner *in the same animation frame*
             this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-            this.quizService.updateCorrectAnswersText(banner);
+            // 👇 wait one frame so questionToDisplay$ subscribers are live
+            requestAnimationFrame(() => {
+              this.quizService.updateCorrectAnswersText(banner);
+            });
       
             // Mark last stable banner frame for sanity
             this.quizService._lastBannerFrameIndex = index;
