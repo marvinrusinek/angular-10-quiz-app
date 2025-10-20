@@ -960,16 +960,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return combineLatest([
       this.quizService.currentQuestionIndex$.pipe(startWith(0)),
       this.questionToDisplay$.pipe(distinctUntilChanged()),
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        distinctUntilChanged()
-      ),
+      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
-      // ⏳ Merge emissions arriving within one frame
+      // merge same-frame bursts
       auditTime(16),
       observeOn(animationFrameScheduler),
+    
+      // 🧱 Keep only emissions whose index >= last stable one
+      scan(
+        (acc, [idx, question, banner, fet, shouldShow]) => {
+          if (idx < acc.lastIdx) {
+            // drop backward bounce (old Q1 resurfacing during Q2 setup)
+            return acc;
+          }
+          return { lastIdx: idx, payload: [idx, question, banner, fet, shouldShow] };
+        },
+        { lastIdx: -1, payload: [0, '', '', { text: '', gate: false }, false] as any }
+      ),
+      map((v) => v.payload),
     
       map(([idx, question, banner, fet, shouldShow]) => {
         const mode =
@@ -983,19 +993,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
+              qObj.options.filter((o) => o.correct).length > 1));
     
-        // ────────────────────────────────────────────────
-        // 🧩 Stable merge of question text + banner
-        // ────────────────────────────────────────────────
+        // ───────── merge question + banner ─────────
         let mergedHtml = qText;
         if (isMulti && bannerText && mode === 'question') {
           mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
     
-        // ────────────────────────────────────────────────
-        // 🧩 Explanation gating
-        // ────────────────────────────────────────────────
+        // ───────── explanation gating ─────────
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
     
@@ -1005,23 +1011,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fetText.length > 0 &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
     
-        // Show explanation only when fully ready
         if (canShowFET) {
           this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fetText;
         }
     
-        // Hold steady question text when not in explanation mode
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
     
-      // Prevent identical frame repaint
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;    
+    ) as Observable<string>;
   }
   
 
