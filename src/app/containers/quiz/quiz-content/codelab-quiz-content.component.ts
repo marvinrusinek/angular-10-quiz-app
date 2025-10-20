@@ -76,6 +76,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     this.cdRef.markForCheck();
   }
 
+  safeHtml: SafeHtml = '';
+
   private combinedTextSubject = new BehaviorSubject<string>('');
   combinedText$ = this.combinedTextSubject.asObservable();
 
@@ -160,7 +162,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private explanationTextService: ExplanationTextService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private activatedRoute: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private sanitizer: DomSanitizer
   ) {
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
@@ -214,7 +217,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.combinedSub = this.combinedText$
           .pipe(distinctUntilChanged())
           .subscribe({
-            next: (v) => {
+            /* next: (v) => {
               const el = this.qText?.nativeElement;
               if (!el) return;
     
@@ -235,6 +238,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
                 // Tell Angular we’ve manually mutated the DOM
                 this.cdRef.detectChanges();
               });
+            }, */
+            next: (v) => {
+              this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(v || '');
+              this.cdRef.detectChanges();
             },
             error: (err) => console.error('[CQCC combinedText$ error]', err),
           });
