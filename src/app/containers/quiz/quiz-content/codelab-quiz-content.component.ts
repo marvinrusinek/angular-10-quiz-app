@@ -803,6 +803,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    correctText$.subscribe(v => console.log('[correctText$]', v));
 
 
     // 6) Explanation + gate scoped to *current* index
@@ -882,8 +883,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // 7) Final render mapping (tested stable version)
-    correctText$.subscribe(v => console.log('[correctText$ emission]', v));
-
     /* return combineLatest([
       this.quizService.currentQuestionIndex$,
       this.questionToDisplay$,
@@ -960,7 +959,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return combineLatest([
       this.quizService.currentQuestionIndex$.pipe(startWith(0)),
       this.questionToDisplay$.pipe(distinctUntilChanged()),
-      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        // ignore identical consecutive values
+        distinctUntilChanged(),
+        // small frame buffer so question and banner land together
+        auditTime(32),
+        // suppress intermediate blanks during navigation
+        filter(v => v !== null && v !== undefined),
+        shareReplay({ bufferSize: 1, refCount: true })
+      ),
       fetForIndex$,
       this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
     ]).pipe(
@@ -984,43 +992,60 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map(([idx, question, banner, fet, shouldShow]) => {
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-    
+      
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
         const qObj = this.quizService.questions?.[idx];
-    
+      
+        // ───────── merge question + banner ─────────
+        let mergedHtml = qText;
+      
+        // 🧩 Always compute stable banner first
+        const bannerStable =
+          bannerText && bannerText.trim().length > 0
+            ? bannerText.trim()
+            : this.lastRenderedBannerText ?? '';
+      
+        if (bannerStable.length > 0) {
+          this.lastRenderedBannerText = bannerStable;
+        }
+      
+        // ───────── restrict to multi-answer AFTER stability ─────────
         const isMulti =
           qObj &&
           ((qObj.type === QuestionType.MultipleAnswer) ||
             (Array.isArray(qObj.options) &&
-              qObj.options.filter((o) => o.correct).length > 1));
-    
-        // ───────── merge question + banner ─────────
-        let mergedHtml = qText;
-        if (isMulti && bannerText && mode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+              qObj.options.filter(
+                (o) => o.correct === true || o.correct === 'true'
+              ).length > 1));
+      
+        if (isMulti && bannerStable.length > 0) {
+          mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
+        } else {
+          this.lastRenderedBannerText = '';
         }
-    
+      
         // ───────── explanation gating ─────────
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-    
+      
         const canShowFET =
           mode === 'explanation' &&
           fetGate &&
           fetText.length > 0 &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
-    
+      
         if (canShowFET) {
           this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fetText;
         }
-    
+      
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
+      
     
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
