@@ -244,6 +244,8 @@ export class QuizService implements OnDestroy {
 
   private _lastFetchedIndex: number | null = null;
 
+  private _lastBannerFrameIndex: number | null = null;
+
   constructor(
     private quizShuffleService: QuizShuffleService,
     private activatedRoute: ActivatedRoute,
@@ -1762,7 +1764,6 @@ export class QuizService implements OnDestroy {
     }, 400);  // sync after navigation settles
   } */
   public updateCorrectAnswersText(newText: string): void {
-    console.log("MY TEST123");
     const text = (newText ?? '').trim();
   
     // Prevent redundant updates
@@ -1778,18 +1779,26 @@ export class QuizService implements OnDestroy {
   
     // Always emit — even empty — so combineLatest sees a stable value
     console.log('[QuizService] 🧾 updateCorrectAnswersText called with:', text);
+    
+    console.log(
+      '[QuizService] Subject next() called with:',
+      JSON.stringify(text)
+    );
     this.correctAnswersCountTextSource.next(text);
+    console.log(
+      '[QuizService] Subject current value after next():',
+      this.correctAnswersCountTextSource.value
+    );
+    
     console.log('[QuizService] 📤 Emitted banner text to Subject');
     console.log(`[QuizService] 🧮 Emitted banner: "${text}"`);
   
-    // Do not persist empty strings
-    if (!text.length) return;
-  
     try {
+      // Always persist — even empty — so restored state matches live UI
       localStorage.setItem('correctAnswersText', text);
     } catch (err) {
       console.warn('[QuizService] ⚠️ Persist failed:', err);
-    }
+    }    
   }  
 
   public clearStoredCorrectAnswersText(): void {
