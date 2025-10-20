@@ -873,19 +873,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // FET gating
         const fetText = (fet?.text ?? '').trim() || (prevFet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
+        const gateOpen =
+          fet?.gate === true ||
+          this.explanationTextService.shouldDisplayExplanationSource?.value === true ||
+          this.explanationTextService.isExplanationTextDisplayedSource?.value === true;
     
         const questionStable = this.explanationTextService.hasRenderedQuestion;
     
         const canShowFET =
-          fetGate &&
-          fetText &&
-          displayMode === 'explanation' &&
-          questionStable &&
-          shouldShow === true &&
-          !this.explanationTextService._visibilityLocked &&
-          this.explanationTextService.currentShouldDisplayExplanation === true;
+          gateOpen &&
+          fetText.length > 0 &&
+          (displayMode === 'explanation' ||
+            this.explanationTextService.currentShouldDisplayExplanation === true) &&
+          !this.explanationTextService._visibilityLocked;
     
-        if (canShowFET) return fetText;
+        if (canShowFET) {
+          // Mark as displayed for consistency
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          this.lastRenderedQuestionTextWithBanner = fetText;
+          return fetText;
+        }
     
         this.explanationTextService.markQuestionRendered(true);
         return mergedHtml;
