@@ -753,26 +753,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ); */
     // Correct-count banner text (persistent for multi-answer)
     // 5) Correct-count text (banner) — frame-synced with questionText$
-    // 5) Correct-count banner text (frame-synced and atomic with question text)
-    const correctText$: Observable<string> = combineLatest([
+    const correctText$: Observable<string> =
       this.quizService.correctAnswersText$.pipe(
+        auditTime(0),  // aligns to same animation frame as question text
+        filter(v => typeof v === 'string'),
+        distinctUntilChanged(),
         startWith(''),
-        map(v => (typeof v === 'string' ? v : '')),
-        distinctUntilChanged()
-      ),
-      questionText$.pipe(startWith(''))
-    ]).pipe(
-      // 🧩 Emit only when both question & banner are ready
-      map(([banner, q]) => {
-        const ready = (q ?? '').trim().length > 0;
-        // 🔁 Always return banner once ready, even if empty (prevents skip)
-        return ready ? banner : '';
-      }),
-      // 🕓 Force co-paint with question text, no extra debounce
-      auditTime(0),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
 
     // 6) Explanation + gate scoped to *current* index
     interface FETState {
