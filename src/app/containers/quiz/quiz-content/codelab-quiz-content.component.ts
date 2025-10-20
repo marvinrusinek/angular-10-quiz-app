@@ -1006,7 +1006,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         // ───────── restrict to multi-answer AFTER stability ─────────
         const isMulti = qObj?.isMulti === true;
-      
+              
+        console.log('[Render check]', { idx, isMulti, bannerText, bannerStable, mode });
+
         if (isMulti && bannerStable.length > 0) {
           mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
         } else {
