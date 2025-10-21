@@ -406,220 +406,56 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
-
-    // Current index (stable, seeded)
-    const index$: Observable<number> =
-      this.quizService.currentQuestionIndex$.pipe(
-        startWith(this.currentQuestionIndexValue ?? 0),
-        map((i) => (Number.isFinite(i as number) ? Number(i) : 0)),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
-
-    // Display state (typed and coalesced)
+    interface FETState { idx: number; text: string; gate: boolean }
+  
+    // ── Current index (stable)
+    const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // ── Display state (kept for mode reads)
     const display$: Observable<DisplayState> = this.displayState$.pipe(
       startWith({ mode: 'question', answered: false } as DisplayState),
-      map((v) => {
+      map(v => {
         const s = (v as any) ?? {};
-        const mode: 'question' | 'explanation' =
-          s.mode === 'explanation' ? 'explanation' : 'question';
+        const mode: 'question' | 'explanation' = s.mode === 'explanation' ? 'explanation' : 'question';
         const answered: boolean = typeof s.answered === 'boolean' ? s.answered : false;
         return { mode, answered } as DisplayState;
       }),
-      distinctUntilChanged(
-        (a, b) => a.mode === b.mode && a.answered === b.answered
-      ),
+      distinctUntilChanged((a, b) => a.mode === b.mode && a.answered === b.answered),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
-    // Global "should show" flag
-    /* const shouldShow$: Observable<boolean> =
+  
+    // ── Explanation “should show” flag (no time gates; we gate in FET pipe)
+    const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         map(Boolean),
         startWith(false),
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
-      ); */
-    // Explanation flag — force one stable frame of FALSE on startup
-    /* const shouldShow$: Observable<boolean> = merge(
-      // hold false for first 120ms to let question paint first
-      of(false).pipe(delay(120)),
-      this.explanationTextService.shouldDisplayExplanation$.pipe(
-        map(Boolean),
-        distinctUntilChanged()
-      )
-    ).pipe(
-      startWith(false),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    // Explanation flag — never show FET until question text has painted at least once
-    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
-      // Always coerce to boolean
-      map(Boolean),
-      // Hold back any TRUE until at least one question has rendered
-      withLatestFrom(this.questionToDisplay$.pipe(startWith(''))),
-      map(([flag, qText]) => {
-        const safe = typeof qText === 'string' && qText.trim().length > 0;
-        return safe ? flag : false;  // block FET if question not ready
-      }),
-      startWith(false),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-
-
-    // Question text for current index
-    const questionText$: Observable<string> = combineLatest([
-      index$,
-      this.questionToDisplay$
-    ]).pipe(
-      scan(
-        (
-          acc: { idx: number; lastValid: string },
-          [idx, text]: [number, string]
-        ) => {
-          const next = (text ?? '').trim();
-          const lastValid = next || acc.lastValid;  // remember previous non-empty
-          return { idx, lastValid };
-        },
-        { idx: 0, lastValid: '' }  // initial seed
-      ),
-      map((v) => {
-        const q =
-          this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
+      );
+  
+    // ── Question text (never emit empty: carry lastValid)
+    const questionText$: Observable<string> = combineLatest([index$, this.questionToDisplay$]).pipe(
+      scan((acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
+        const next = (text ?? '').trim();
+        const lastValid = next || acc.lastValid;
+        return { idx, lastValid };
+      }, { idx: 0, lastValid: '' }),
+      map(v => {
+        const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
         const model = (q?.questionText ?? '').trim();
-        const safe =
-          model ||
-          v.lastValid ||
-          this.questionLoadingText ||
-          `Question ${v.idx + 1}`;
+        const safe = model || v.lastValid || this.questionLoadingText || `Question ${v.idx + 1}`;
         return safe;
       }),
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
-    // Correct-count text — synchronized and sticky for multi-answer questions
-    /* const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        // ✅ Soft-guard: don’t block the stream — just skip banner until data exists
-        const questions = this.quizService.questions;
-        if (!Array.isArray(questions) || questions.length <= idx) {
-          // Return empty banner so question text still displays
-          console.log(`[Banner guard] Skipping banner for Q${idx + 1} — questions not ready`);
-          return '';
-        }
-      
-        const qObj = questions[idx] as any;
-        const isMulti =
-          qObj?.isMulti === true ||
-          qObj?.type === QuestionType.MultipleAnswer ||
-          (Array.isArray(qObj?.options) &&
-            qObj.options.filter((o) => o.correct === true).length > 1);
-      
-        console.log(
-          `[Banner verify] Q${idx + 1}`,
-          'isMulti =', qObj?.isMulti,
-          '| question =', qObj?.questionText,
-          '| banner text =', text,
-          '| total questions =', questions.length
-        );
-      
-        // ✅ Only display banner for multi-answer questions
-        if (isMulti) {
-          const trimmed = (text ?? '').trim();
-          if (trimmed.length > 0) {
-            this.lastRenderedBannerText = trimmed;
-            return trimmed;
-          }
-          return this.lastRenderedBannerText ?? '';
-        }
-      
-        // Single-answer → clear banner
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-      auditTime(0),
-      startWith(''),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    correctText$.subscribe(v => console.log('[correctText$]', v)); */
-    // Correct-count text — throttled to one paint frame
-    /* const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        distinctUntilChanged()
-      ),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const questions = this.quizService.questions ?? [];
-        const qObj = questions[idx] as any;
-        const isMulti =
-          qObj?.isMulti === true ||
-          qObj?.type === QuestionType.MultipleAnswer ||
-          (Array.isArray(qObj?.options) &&
-            qObj.options.filter((o) => o.correct === true).length > 1);
-
-        // Early exit if questions not ready yet
-        if (!qObj) return '';
-
-        const trimmed = (text ?? '').trim();
-        if (isMulti) {
-          if (trimmed) this.lastRenderedBannerText = trimmed;
-          return this.lastRenderedBannerText ?? '';
-        }
-
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-       👇 ONLY throttle the banner
-      observeOn(animationFrameScheduler),
-      auditTime(0),
-      startWith(''),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(
-        filter((t): t is string => typeof t === 'string' && t.trim().length > 0),
-        distinctUntilChanged()
-      ),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-    
-        if (isMulti) {
-          this.lastRenderedBannerText = text.trim();
-          return this.lastRenderedBannerText;
-        }
-    
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-      observeOn(animationFrameScheduler),
-      auditTime(0),
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
-    
-    // Explanation + gate scoped to *current* index
-    interface FETState {
-      idx: number,
-      text: string,
-      gate: boolean
-    }
-
+  
+    // ── First question paint latch (for FET gating)
     const firstQuestionPaint$: Observable<boolean> = questionText$.pipe(
       filter(t => t.trim().length > 0),
       take(1),
@@ -627,227 +463,102 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith(false),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
+  
+    // ── Correct-count banner (sticky only for multi; paint-synced)
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        map(s => (typeof s === 'string' ? s.trim() : '')),
+        distinctUntilChanged()
+      ),
+      index$
+    ]).pipe(
+      map(([text, idx]) => {
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          !!qObj &&
+          (qObj.type === QuestionType.MultipleAnswer ||
+           (Array.isArray(qObj.options) && qObj.options.filter(o => o.correct === true).length > 1));
+  
+        if (!isMulti) return '';             // never banner on single-answer
+        if (text) this.lastRenderedBannerText = text;
+        return this.lastRenderedBannerText ?? '';
+      }),
+      observeOn(animationFrameScheduler),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // ── FET (per index), hard-gated: nav idle + first question painted + gate + flag + non-empty text
     const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap((idx) =>
         combineLatest([
           this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
-          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+          shouldShow$, // already boolean + distinct + seeded
           this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false)),
-          firstQuestionPaint$ // 👈 added
+          firstQuestionPaint$
         ]).pipe(
           map(([text, gate, shouldShow, displayed, painted]) => {
             const rawText = (text ?? '').toString().trim();
-    
-            // Block FET while navigating or before first question paint
+  
             const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
-            const firstRender = !painted;                    // 👈 use painted flag
-            const gateOpen = gate && !navBusy && !firstRender;
+            const gateOpen = gate && !navBusy && painted === true;
             const displayReady = shouldShow || displayed;
-    
-            // Only emit valid text when both gate + display are ready
+  
             const canShowFET = gateOpen && displayReady && rawText.length > 0;
-    
-            if (!canShowFET) {
-              return { idx, text: '', gate: false } as FETState;
-            }
-            return { idx, text: rawText, gate: true } as FETState;
+  
+            return canShowFET
+              ? ({ idx, text: rawText, gate: true } as FETState)
+              : ({ idx, text: '', gate: false } as FETState);
           }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         )
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-
-    return combineLatest([
-      index$,
-      questionText$,
-      correctText$,
-      fetForIndex$,
-      shouldShow$
-    ]).pipe(
-      // Hold back emissions until a real question is ready and navigation is stable
-      switchMap(([idx, question, banner, fet, shouldShow]) => {
-        const ready =
-          typeof question === 'string' &&
-          question.trim().length > 0 &&
-          this.quizService.questions?.[idx]?.questionText?.trim()?.length > 0 &&
-          this.quizStateService.isNavigatingSubject?.value === false;
-
-        if (!ready) {
-          console.log(`[Render hold] Waiting for stable data for Q${idx + 1}`);
-          // suspend until the next animation frame and re-emit nothing
-          return EMPTY;
-        }
-
-        if (!this._firstRenderReleased) {
-          this._firstRenderReleased = true;
-          console.log(`[Render release] First stable frame unlocked for Q${idx + 1}`);
-        }
-
-        // once ready, resume normal stream
-        return of([idx, question, banner, fet, shouldShow]);
-      }),
-
-      auditTime(16),
-      observeOn(animationFrameScheduler),
-
-      // Keep only emissions whose index >= last stable one
-      scan(
-        (
-          acc: { lastIdx: number; payload: [number, string, string, FETState, boolean] },
-          [idx, question, banner, fet, shouldShow]: [number, string, string, FETState, boolean]
-        ) => {
-          if (typeof idx !== 'number' || idx < acc.lastIdx) return acc; // ✅ numeric guard
-          return { lastIdx: idx, payload: [idx, question, banner, fet, shouldShow] };
-        },
-        {
-          lastIdx: -1,
-          payload: [
-            0,
-            '',
-            '',
-            { idx: 0, text: '', gate: false }, // ✅ include idx here!
-            false,
-          ] as [number, string, string, FETState, boolean],
-        }
-      ),      
-      map((v) => v.payload),
+  
+    // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
+    return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
+      observeOn(animationFrameScheduler),    // paint in AF
       map(([idx, question, banner, fet, shouldShow]:
-        [number, string, string, FETState, boolean]) => {
-
-        // ───────── GUARD AGAINST EARLY EXPLANATION MODE ON FIRST QUESTION ─────────
-        const currentMode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-        if (idx === 0 && currentMode === 'explanation') {
-          console.log(`[Render guard] Forcing QUESTION mode for Q1 (initial load)`);
-          this.quizStateService.displayStateSubject.next({ mode: 'question', answered: false });
-        }
-
-        // Prevent flicker: once explanation is displayed for this index, lock it
-        const isLocked = this._fetLockedIndex === idx;
-        const shouldShowExplanation =
-          shouldShow || isLocked || this.explanationTextService.isExplanationTextDisplayedSource?.value;
-
-        if (shouldShowExplanation && fet?.text?.trim()) {
-          this._fetLockedIndex = idx;
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fet.text.trim();  // stay in FET mode
-        }
-
-        const mode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+           [number, string, string, FETState, boolean]) => {
+  
+        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-
-        // Skip unstable / transitional frames
-        const navigating = this.quizStateService.isNavigatingSubject?.value === true;
-        const firstFrame = !qText || qText.length === 0;
-        const navRecentlyChanged = performance.now() - (this._lastNavChangeTime ?? 0) < 120;
-
-        if (navigating || firstFrame || navRecentlyChanged) {
-          console.log(`[🛑 Frame suppressed] Q${idx + 1} (nav=${navigating}, first=${firstFrame}, recentNav=${navRecentlyChanged})`);
-          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
-        }
-
-        const allQs = this.quizService.questions ?? [];
-        const qObj = allQs[idx] as any;
-
-        console.log('[Render resolve]', {
-          idx,
-          total: allQs.length,
-          questionText: qObj?.questionText,
-          isMulti: qObj?.isMulti
-        });
-      
-        // Merge question and banner
-        let mergedHtml = qText;
-      
-        // Always compute stable banner first
-        const bannerStable =
-          bannerText && bannerText.trim().length > 0
-            ? bannerText.trim()
-            : this.lastRenderedBannerText ?? '';
-      
-        if (bannerStable.length > 0) {
-          this.lastRenderedBannerText = bannerStable;
-        }
-      
-        // Restrict to multi-answer AFTER stability
-        const isMulti = qObj?.isMulti === true;
-              
-        console.log('[Render check]', { idx, isMulti, bannerText, bannerStable, mode });
-
-        if (isMulti && bannerStable.length > 0 && mode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
-        } else {
-          this.lastRenderedBannerText = '';
-        }
-      
-        // Explanation gating
-        const fetText = (fet?.text ?? '').trim();
-        const fetGate = fet?.gate === true;
-
-        // Skip any emission where FET is "half open" or empty
-        if (fetGate && fetText.length === 0) {
-          console.log(`[Render guard] Suppressing empty FET for Q${idx + 1}`);
-          return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
-        }
-      
-        // Determine if explanation truly ready
-        const canShowFET =
-          this.quizStateService.displayStateSubject?.value?.mode === 'explanation' &&
-          fetGate &&
-          fetText.length > 0 &&
-          this.explanationTextService.currentShouldDisplayExplanation === true;
-      
-        if (canShowFET) {
+  
+        // Prefer showing FET only if fully ready
+        if (
+          mode === 'explanation' &&
+          fet?.gate === true &&
+          (fet?.text ?? '').trim().length > 0 &&
+          this.explanationTextService.currentShouldDisplayExplanation === true
+        ) {
           this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fetText;
+          return fet.text.trim();
         }
-      
-        console.log(
-          `[🔎 FRAME DEBUG] Q${idx + 1}`,
-          {
-            qText: (question ?? '').trim(),
-            banner: (banner ?? '').trim(),
-            fetText: (fet?.text ?? '').trim(),
-            gate: fet?.gate,
-            shouldShow,
-            mode: this.quizStateService.displayStateSubject?.value?.mode
-          }
-        );
-
-        // ───────── HARD GUARD AGAINST EARLY EMPTY EMISSIONS ─────────
-        if (!question || question.trim().length === 0) {
-          console.log(`[Render guard] Skipping blank emission for Q${idx + 1}`);
-          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+  
+        // Merge question + banner (multi only)
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          !!qObj &&
+          (qObj.type === QuestionType.MultipleAnswer ||
+           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct === true)));
+  
+        let mergedHtml = qText;
+        if (isMulti && bannerText && mode === 'question') {
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+          this.lastRenderedBannerText = bannerText; // remember last good banner
         }
-
-        // Also, skip if same question re-emitted immediately after navigation
-        if (this._fetLockedIndex !== null && this.quizStateService.isNavigatingSubject?.value) {
-          console.log(`[Render guard] Navigation in progress — suppress transient repaint for Q${idx + 1}`);
-          return this.lastRenderedQuestionTextWithBanner ?? '';
-        }
-        
+  
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        this._lastRenderedFrameTime = performance.now();
-
         return mergedHtml;
       }),
-      // Final stabilization — block empties and coalesce frames
-      skipWhile(v => (v ?? '').trim().length === 0),
-      debounceTime(48),
+      // One paint per real change
       distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
-      tap(v => {
-        if ((v ?? '').trim().length > 0) {
-          this.lastRenderedQuestionTextWithBanner = v.trim();
-        }
-      }),
-      startWith(this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? ''),
-      observeOn(animationFrameScheduler), // ensure paint occurs on next frame
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
