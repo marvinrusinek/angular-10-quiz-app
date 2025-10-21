@@ -423,7 +423,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       debounce((i, index) => index === 0 ? of(null) : timer(120)),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    
   
     // ── Display state (kept for mode reads)
     const display$: Observable<DisplayState> = this.displayState$.pipe(
