@@ -1336,5 +1336,13 @@ export class ExplanationTextService {
     } catch {
       // swallow timeouts or interruptions silently
     }
-  }  
+  }
+
+  public closeGateForIndex(index: number): void {
+    const entry = this._byIndex.get(index);
+    if (entry?.gate$) {
+      entry.gate$.next(false);
+      console.log(`[ETS] Closed gate for Q${index + 1}`);
+    }
+  }
 }

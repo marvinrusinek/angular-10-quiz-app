@@ -546,7 +546,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             const canShowFET = gateOpen && displayReady && rawText.length > 0;
     
             if (!canShowFET) {
-              return { idx, text: '', gate: false } as FETState;
+              return { idx, text: rawText, gate: false } as FETState;
             }
     
             return { idx, text: rawText, gate: true } as FETState;
@@ -583,6 +583,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
 
         const qText = (question ?? '').trim();
+        if (!qText) {
+          return this.lastRenderedQuestionTextWithBanner ?? '';
+        }
         const bannerText = (banner ?? '').trim();
         const qObj = this.quizService.questions?.[idx] as any;
 
