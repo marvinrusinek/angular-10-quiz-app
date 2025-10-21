@@ -520,6 +520,45 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
+      scan(
+        (acc, [idx, qText, banner, fet, shouldShow]) => {
+          const now = performance.now();
+          const sameIndex = idx === acc.lastIdx;
+          const sameText = qText.trim() === acc.lastQText;
+      
+          // If we switched questions → update timestamp
+          if (!sameIndex || !sameText) {
+            acc.lastIdx = idx;
+            acc.lastQText = qText.trim();
+            acc.lastChangeTime = now;
+            acc.stableSince = now;  // reset stability timer
+          } else if (now - acc.lastChangeTime > 100) {
+            // after 100 ms of same index + same text, mark as stable
+            acc.stableSince = acc.stableSince || now;
+          }
+      
+          acc.payload = [idx, qText, banner, fet, shouldShow];
+          return acc;
+        },
+        {
+          lastIdx: -1,
+          lastQText: '',
+          lastChangeTime: 0,
+          stableSince: 0,
+          payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as [
+            number,
+            string,
+            string,
+            FETState,
+            boolean
+          ],
+        }
+      ),
+      
+      // 🚦 Block emissions until question index & text have been stable for 100 ms
+      filter(acc => performance.now() - acc.stableSince > 100),
+      map(acc => acc.payload),
+      
       map(
         ([idx, question, banner, fet, shouldShow]: [
           number,
