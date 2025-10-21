@@ -469,7 +469,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Correct-count text — synchronized and sticky for multi-answer questions
-    /* const correctText$: Observable<string> = combineLatest([
+    const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       index$
     ]).pipe(
@@ -516,9 +516,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    correctText$.subscribe(v => console.log('[correctText$]', v)); */
+    correctText$.subscribe(v => console.log('[correctText$]', v));
     // Correct-count text — throttled to one paint frame
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
         distinctUntilChanged()
@@ -551,7 +551,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith(''),             // still seed initial value to combineLatest
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
-    );
+    ); */
     
     // Explanation + gate scoped to *current* index
     interface FETState {
