@@ -612,14 +612,16 @@ export class QuizNavigationService {
             // Avoid suppressing the banner clear here — we want them in sync
             this.quizService._suppressBannerClear = false;
       
-            // ✅ Emit the banner first so it's ready when question text paints
-            this.quizService.updateCorrectAnswersText(banner);
-      
-            // ✅ Emit the question in the same animation frame
+            // Emit the question and banner *in the same animation frame*
             this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
       
+            // 👇 wait one frame so questionToDisplay$ subscribers are live
+            requestAnimationFrame(() => {
+              this.quizService.updateCorrectAnswersText(banner);
+            });
+      
             // Mark last stable banner frame for sanity
-            this.quizService._lastBannerFrameIndex = index; 
+            this.quizService._lastBannerFrameIndex = index;
       
             // ────────────────────────────────────────────────
             // STEP 4️⃣ Defer FET pre-arm slightly
