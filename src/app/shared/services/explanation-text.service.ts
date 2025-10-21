@@ -1357,10 +1357,10 @@ export class ExplanationTextService {
       this.shouldDisplayExplanationSource?.next(false);
       this.isExplanationTextDisplayedSource?.next(false);
 
-      // Optional: clear any active explanation text cache
+      // Clear any active explanation text cache
       if (this._byIndex) {
-        for (const key of this._byIndex.keys()) {
-          this._byIndex.set(key, '');
+        for (const subj of this._byIndex.values()) {
+          subj.next('');
         }
       }
 
