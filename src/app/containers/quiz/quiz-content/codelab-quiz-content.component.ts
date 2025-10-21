@@ -212,8 +212,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Build the stream only once globally
     const waitForQuestions = interval(50).pipe(
-      map(() => this.quizService.questions?.length ?? 0),
-      filter(len => len > 0),
+      map((): number => this.quizService.questions?.length ?? 0),
+      filter((len: number) => len > 0),
       take(1)
     );
     waitForQuestions.subscribe(() => {
