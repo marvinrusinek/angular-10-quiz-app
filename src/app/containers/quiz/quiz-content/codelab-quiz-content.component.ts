@@ -547,8 +547,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return '';
       }),
       observeOn(animationFrameScheduler),
-      auditTime(0),
-      startWith(''),
+      debounceTime(25),          // wait 25ms for the first stable value 
+      startWith(''),             // still seed initial value to combineLatest
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
