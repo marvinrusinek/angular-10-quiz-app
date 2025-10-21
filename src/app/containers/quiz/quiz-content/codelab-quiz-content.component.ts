@@ -637,8 +637,39 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
+      // ⏸️ HOLD UNTIL FIRST QUESTION IS READY AND NAVIGATION SETTLES
+      // ─────────────────────────────────────────────────────────────
+      filter(([idx, question]) => {
+        const ready =
+          typeof question === 'string' &&
+          question.trim().length > 0 &&
+          this.quizService.questions?.length > 0 &&
+          this.quizService.questions?.[idx]?.questionText?.trim()?.length > 0 &&
+          this.quizStateService.isNavigatingSubject?.value === false;
+        if (!ready) {
+          console.log(`[Render hold] Waiting for stable data for Q${idx + 1}`);
+        }
+        return ready;
+      }),
+      take(1),
+      tap(([idx]) =>
+        console.log(`[Render release] First stable frame unlocked for Q${idx + 1}`)
+      ),
+
+      // After the first stable emission, reattach the normal stream
+      concatWith(
+        combineLatest([
+          index$,
+          questionText$,
+          correctText$,
+          fetForIndex$,
+          shouldShow$
+        ])
+      ),
+
+      auditTime(16),
       observeOn(animationFrameScheduler),
-      
+
       // Keep only emissions whose index >= last stable one
       scan(
         (acc, [idx, question, banner, fet, shouldShow]) => {
