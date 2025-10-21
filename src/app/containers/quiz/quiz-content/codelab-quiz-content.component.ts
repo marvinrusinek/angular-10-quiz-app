@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, mapTo, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -590,22 +590,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       gate: boolean
     }
 
+    const firstQuestionPaint$: Observable<boolean> = questionText$.pipe(
+      filter(t => t.trim().length > 0),
+      take(1),
+      mapTo(true),
+      startWith(false),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
     const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap((idx) =>
         combineLatest([
-          this.explanationTextService
-            .byIndex$(idx)
-            .pipe(startWith<string | null>(null)),
+          this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
           this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
-          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
+          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false)),
+          firstQuestionPaint$ // 👈 added
         ]).pipe(
-          map(([text, gate, shouldShow, displayed]) => {
+          map(([text, gate, shouldShow, displayed, painted]) => {
             const rawText = (text ?? '').toString().trim();
     
-            // Hard stop: no FET on navigation transition or first render
+            // Block FET while navigating or before first question paint
             const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
-            const firstRender = !this.explanationTextService.hasRenderedQuestion;
+            const firstRender = !painted;                    // 👈 use painted flag
             const gateOpen = gate && !navBusy && !firstRender;
             const displayReady = shouldShow || displayed;
     
@@ -615,7 +622,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             if (!canShowFET) {
               return { idx, text: '', gate: false } as FETState;
             }
-    
             return { idx, text: rawText, gate: true } as FETState;
           }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
@@ -625,17 +631,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     return combineLatest([
-      this.quizService.currentQuestionIndex$.pipe(startWith(0)),
-      this.questionToDisplay$.pipe(distinctUntilChanged()),
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        distinctUntilChanged(),
-        auditTime(32),  // small frame buffer so question and banner land together
-        filter(v => v !== null && v !== undefined),  // suppress intermediate blanks during navigation
-        shareReplay({ bufferSize: 1, refCount: true })
-      ),
-      fetForIndex$,
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
+      index$.pipe(startWith(0)),                              // ✅ seed initial index
+      questionText$.pipe(startWith(this.questionLoadingText)), // ✅ seed initial question text
+      correctText$.pipe(startWith('')),                        // ✅ banner starts empty
+      fetForIndex$.pipe(startWith({ idx: 0, text: '', gate: false })), // ✅ FET seed
+      shouldShow$.pipe(startWith(false))                       // ✅ initial display flag
     ]).pipe(
       auditTime(16),  // merge same-frame bursts
       observeOn(animationFrameScheduler),
@@ -643,10 +643,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       // Keep only emissions whose index >= last stable one
       scan(
         (acc, [idx, question, banner, fet, shouldShow]) => {
-          if (idx < acc.lastIdx) {
-            // drop backward bounce (old Q1 resurfacing during Q2 setup)
-            return acc;
-          }
+          if (idx < acc.lastIdx) return acc;
           return { lastIdx: idx, payload: [idx, question, banner, fet, shouldShow] };
         },
         { lastIdx: -1, payload: [0, '', '', { text: '', gate: false }, false] as any }
