@@ -746,11 +746,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        this._lastRenderedFrameTime = performance.now();
+
+        // ───────── HARD GUARD AGAINST EARLY EMPTY EMISSIONS ─────────
+        if (!question || question.trim().length === 0) {
+          console.log(`[Render guard] Skipping blank emission for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+        }
+
+        // Also, skip if same question re-emitted immediately after navigation
+        if (this._fetLockedIndex !== null && this.quizStateService.isNavigatingSubject?.value) {
+          console.log(`[Render guard] Navigation in progress — suppress transient repaint for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? '';
+        }
+
         return mergedHtml;
       }),
       // Final stabilization — block empties and coalesce frames
       skipWhile(v => (v ?? '').trim().length === 0),
-      debounceTime(24),  // wait one frame’s worth (~16-24 ms)
+      debounceTime(48),
       distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
       tap(v => {
         if ((v ?? '').trim().length > 0) {
