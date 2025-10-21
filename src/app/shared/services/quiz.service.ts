@@ -1208,6 +1208,13 @@ export class QuizService implements OnDestroy {
         if (!quiz) {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
+
+        // Ensure we assign questions to the service *before* anything uses them
+        this.questions = quiz.questions;
+
+        // Log the normalized array length for sanity
+        console.log('[QuizService] Questions array assigned to service:', this.questions?.length);
+
         return { quizId: quiz.quizId, questions: quiz.questions };
       }),
       tap((quiz) => {
