@@ -637,7 +637,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$.pipe(startWith({ idx: 0, text: '', gate: false })), // ✅ FET seed
       shouldShow$.pipe(startWith(false))                       // ✅ initial display flag
     ]).pipe(
-      auditTime(16),  // merge same-frame bursts
       observeOn(animationFrameScheduler),
       
       // Keep only emissions whose index >= last stable one
