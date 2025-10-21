@@ -521,6 +521,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
       observeOn(animationFrameScheduler),    // paint in AF
+      // ⏸️  Prevent explanation from cutting in during first 100 ms after a question change
+      scan(
+        (acc, [idx, qText, banner, fet, shouldShow]) => {
+          const now = performance.now();
+          const newQuestion = idx !== acc.lastIdx || qText.trim() !== acc.lastQText;
+          if (newQuestion) acc.lastQuestionChange = now;
+          return {
+            lastIdx: idx,
+            lastQText: qText.trim(),
+            lastQuestionChange: acc.lastQuestionChange,
+            payload: [idx, qText, banner, fet, shouldShow] as [number, string, string, FETState, boolean]
+          };
+        },
+        { lastIdx: -1, lastQText: '', lastQuestionChange: 0, payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as [number, string, string, FETState, boolean] }
+      ),
+      // filter out explanation frames emitted too soon after a question change
+      filter(({ lastQuestionChange }) => performance.now() - lastQuestionChange > 100),
+      map(v => v.payload),
+
       filter(([idx, question, banner, fet]) => {
         const q = (question ?? '').trim();
         const f = (fet?.text ?? '').trim();
