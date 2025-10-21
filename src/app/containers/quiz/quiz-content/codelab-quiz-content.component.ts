@@ -52,11 +52,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     mode: 'question' | 'explanation',
     answered: boolean
   }>;
-  @Input() displayVariables: { question: string, explanation: string };
+  @Input() displayVariables: { question: string; explanation: string };
   @Input() localExplanationText = '';
   @Input() showLocalExplanation = false;
 
-  @Input() set explanationOverride(o: { idx: number, html: string }) {
+  @Input() set explanationOverride(o: { idx: number; html: string }) {
     this.overrideSubject.next(o);
   }
 
@@ -469,7 +469,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Correct-count text — synchronized and sticky for multi-answer questions
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       index$
     ]).pipe(
@@ -516,7 +516,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    correctText$.subscribe(v => console.log('[correctText$]', v));
+    correctText$.subscribe(v => console.log('[correctText$]', v)); */
     // Correct-count text — throttled to one paint frame
     /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
@@ -546,12 +546,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.lastRenderedBannerText = '';
         return '';
       }),
+       👇 ONLY throttle the banner
       observeOn(animationFrameScheduler),
-      debounceTime(25),          // wait 25ms for the first stable value 
-      startWith(''),             // still seed initial value to combineLatest
+      auditTime(0),
+      startWith(''),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     ); */
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(
+        filter((t): t is string => typeof t === 'string' && t.trim().length > 0),
+        distinctUntilChanged()
+      ),
+      index$
+    ]).pipe(
+      map(([text, idx]) => {
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          qObj &&
+          ((qObj.type === QuestionType.MultipleAnswer) ||
+            (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct).length > 1));
+    
+        if (isMulti) {
+          this.lastRenderedBannerText = text.trim();
+          return this.lastRenderedBannerText;
+        }
+    
+        this.lastRenderedBannerText = '';
+        return '';
+      }),
+      observeOn(animationFrameScheduler),
+      auditTime(0),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
     
     // Explanation + gate scoped to *current* index
     interface FETState {
