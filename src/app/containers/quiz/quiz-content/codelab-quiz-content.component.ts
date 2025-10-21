@@ -526,25 +526,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         (acc, [idx, qText, banner, fet, shouldShow]) => {
           const now = performance.now();
           const newQuestion = idx !== acc.lastIdx || qText.trim() !== acc.lastQText;
-          if (newQuestion) acc.lastQuestionChange = now;
-          return {
-            lastIdx: idx,
-            lastQText: qText.trim(),
-            lastQuestionChange: acc.lastQuestionChange,
-            payload: [idx, qText, banner, fet, shouldShow] as [number, string, string, FETState, boolean]
-          };
+      
+          // open a one-frame suppression window every time the question changes
+          if (newQuestion) {
+            acc.lastIdx = idx;
+            acc.lastQText = qText.trim();
+            acc.frameHoldUntil = now + 2 * (1000 / 60); // ≈ 2 frames (~32ms)
+            acc.payload = [idx, qText, banner, fet, shouldShow];
+            return acc;
+          }
+      
+          // block emissions if we're still within the same-frame window
+          if (now < acc.frameHoldUntil) {
+            return acc; // skip repaint until next frame
+          }
+      
+          acc.payload = [idx, qText, banner, fet, shouldShow];
+          return acc;
         },
-        { lastIdx: -1, lastQText: '', lastQuestionChange: 0, payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as [number, string, string, FETState, boolean] }
-      ),
-      // filter out explanation frames emitted too soon after a question change
-      filter(({ lastQuestionChange }) => {
-        const elapsed = performance.now() - lastQuestionChange;
-        const ok = elapsed > 160;              // ⬅️ was 100
-        if (!ok) {
-          console.log(`[🕒 hold ${elapsed.toFixed(1)} ms] suppressing early frame`);
+        {
+          lastIdx: -1,
+          lastQText: '',
+          frameHoldUntil: 0,
+          payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as
+            [number, string, string, FETState, boolean],
         }
-        return ok;
-      }),
+      ),
       map(v => v.payload),
 
       filter(([idx, question, banner, fet]) => {
