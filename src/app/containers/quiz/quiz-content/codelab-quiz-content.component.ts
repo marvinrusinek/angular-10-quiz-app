@@ -520,59 +520,49 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
-      // ─────────────────────────────────────────────
-      // 1️⃣ Paint only once per animation frame
-      // ─────────────────────────────────────────────
-      observeOn(animationFrameScheduler),
-    
-      // ─────────────────────────────────────────────
-      // 2️⃣ Hold back until question text is stable
-      // ─────────────────────────────────────────────
-      filter(([idx, question]) => {
-        const ready =
-          typeof question === 'string' &&
-          question.trim().length > 0 &&
-          this.quizService.questions?.[idx]?.questionText?.trim()?.length > 0;
-        if (!ready) {
-          console.log(`[⏸ Hold] Waiting for question text for Q${idx + 1}`);
-        }
-        return ready;
-      }),
-    
-      // ─────────────────────────────────────────────
-      // 3️⃣ Delay any FET activity one frame after question paint
-      // ─────────────────────────────────────────────
-      switchMap(([idx, qText, banner, fet, shouldShow]) =>
-        // combineLatest re-fires when any source emits; we throttle via RAF
-        new Observable<[number, string, string, FETState, boolean]>(observer => {
-          requestAnimationFrame(() => {
-            observer.next([idx, qText, banner, fet, shouldShow]);
-            observer.complete();
+      observeOn(animationFrameScheduler),    // paint in AF
+      // ⏸️  Prevent explanation from cutting in during first 100 ms after a question change
+      scan(
+        (acc, [idx, qText, banner, fet, shouldShow]) => {
+          const now = performance.now();
+          const newQuestion = idx !== acc.lastIdx || qText.trim() !== acc.lastQText;
+          if (newQuestion) acc.lastQuestionChange = now;
+          return {
+            lastIdx: idx,
+            lastQText: qText.trim(),
+            lastQuestionChange: acc.lastQuestionChange,
+            payload: [idx, qText, banner, fet, shouldShow] as [number, string, string, FETState, boolean]
+          };
+        },
+        { lastIdx: -1, lastQText: '', lastQuestionChange: 0, payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as [number, string, string, FETState, boolean] }
+      ),
+      // filter out explanation frames emitted too soon after a question change
+      filter(({ lastQuestionChange }) => performance.now() - lastQuestionChange > 100),
+      map(v => v.payload),
+
+      filter(([idx, question, banner, fet]) => {
+        const q = (question ?? '').trim();
+        const f = (fet?.text ?? '').trim();
+        const qReady = q.length > 0;
+        const fetReady = !fet?.gate || f.length > 0;
+        const stable = qReady && fetReady;
+        if (!stable) {
+          console.log(`[🛑 Frame skip] Holding incomplete frame for Q${idx + 1}`, {
+            qLen: q.length,
+            gate: fet?.gate,
+            fLen: f.length
           });
-        })
-      ),
-    
-      // ─────────────────────────────────────────────
-      // 4️⃣ Drop redundant identical frames
-      // ─────────────────────────────────────────────
-      distinctUntilChanged(
-        ([i1, q1, b1, f1], [i2, q2, b2, f2]) =>
-          i1 === i2 &&
-          q1.trim() === q2.trim() &&
-          b1.trim() === b2.trim() &&
-          (f1?.text ?? '').trim() === (f2?.text ?? '').trim()
-      ),
-    
-      // ─────────────────────────────────────────────
-      // 5️⃣ Render logic
-      // ─────────────────────────────────────────────
-      map(([idx, question, banner, fet, shouldShow]) => {
-        const mode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+        }
+        return stable;
+      }),
+      map(([idx, question, banner, fet, shouldShow]:
+           [number, string, string, FETState, boolean]) => {
+  
+        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-    
-        // Show FET only when truly ready
+  
+        // Prefer showing FET only if fully ready
         if (
           mode === 'explanation' &&
           fet?.gate === true &&
@@ -583,26 +573,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fet.text.trim();
         }
-    
-        // Build merged question + banner
+  
+        // Merge question + banner (multi only)
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
           (qObj.type === QuestionType.MultipleAnswer ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.some(o => o.correct === true)));
-    
+           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct === true)));
+  
         let mergedHtml = qText;
         if (isMulti && bannerText && mode === 'question') {
           mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
-          this.lastRenderedBannerText = bannerText;
+          this.lastRenderedBannerText = bannerText; // remember last good banner
         }
-    
+  
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
-    
+      // One paint per real change
+      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
