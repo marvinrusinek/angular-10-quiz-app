@@ -471,40 +471,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
     // Correct-count text — synchronized and sticky for multi-answer questions
     const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+      this.quizService.correctAnswersText$.pipe(
+        // ✅ Never emit undefined or empty strings
+        filter((v): v is string => typeof v === 'string' && v.trim().length > 0),
+        distinctUntilChanged()
+      ),
       index$
     ]).pipe(
       map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx] as any;
-        const isMulti = qObj?.isMulti === true;   // ✅ use stable flag only
-
-        // Diagnostic log — expanded string version to guarantee visibility
-        console.log(
-          `[Banner verify] Q${idx + 1}`,
-          'isMulti =', qObj?.isMulti,
-          '| question =', qObj?.questionText,
-          '| banner text =', text,
-          '| total questions =', this.quizService.questions?.length
-        );
-      
+        const questions = this.quizService.questions ?? [];
+        const qObj = questions[idx];
+        if (!qObj) return this.lastRenderedBannerText ?? '';
+    
+        const isMulti =
+          qObj.type === QuestionType.MultipleAnswer ||
+          (Array.isArray(qObj.options) &&
+            qObj.options.filter(o => o.correct === true).length > 1);
+    
         if (isMulti) {
-          const trimmed = (text ?? '').trim();
-          if (trimmed.length > 0) {
-            this.lastRenderedBannerText = trimmed;
-            return trimmed;
-          }
-          return this.lastRenderedBannerText ?? '';
+          this.lastRenderedBannerText = text.trim();
+          return this.lastRenderedBannerText;
         }
-      
-        // single-answer → clear banner
-        this.lastRenderedBannerText = '';
-        return '';
+    
+        // keep old banner for multi-answer only; never repaint blanks
+        return this.lastRenderedBannerText ?? '';
       }),
-      auditTime(0),              // ensure same animation frame
-      startWith(''),             // seed initial emission
+      // paint banner and question in same visual frame
+      observeOn(animationFrameScheduler),
+      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    
     correctText$.subscribe(v => console.log('[correctText$]', v));
     
     // Explanation + gate scoped to *current* index
