@@ -537,7 +537,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         { lastIdx: -1, lastQText: '', lastQuestionChange: 0, payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as [number, string, string, FETState, boolean] }
       ),
       // filter out explanation frames emitted too soon after a question change
-      filter(({ lastQuestionChange }) => performance.now() - lastQuestionChange > 100),
+      filter(({ lastQuestionChange }) => {
+        const elapsed = performance.now() - lastQuestionChange;
+        const ok = elapsed > 160;              // ⬅️ was 100
+        if (!ok) {
+          console.log(`[🕒 hold ${elapsed.toFixed(1)} ms] suppressing early frame`);
+        }
+        return ok;
+      }),
       map(v => v.payload),
 
       filter(([idx, question, banner, fet]) => {
