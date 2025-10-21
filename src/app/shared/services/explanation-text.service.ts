@@ -99,12 +99,6 @@ export class ExplanationTextService {
   private _questionRendered = false;
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
-  // Per-question explanation gates
-  private _gatesByIndex: Map<number, BehaviorSubject<boolean>> = new Map();
-
-  // Lock flag to prevent premature explanation re-display
-  private _fetLocked: boolean = false;
-
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1343,32 +1337,5 @@ export class ExplanationTextService {
     } catch {
       // swallow timeouts or interruptions silently
     }
-  }
-
-  // Closes all open explanation gates to prevent cross-question leaks
-  public closeAllGates(): void {
-    try {
-      // Reset internal per-index gate subjects if you track them
-      if (this._gatesByIndex && typeof this._gatesByIndex.clear === 'function') {
-        this._gatesByIndex.clear();
-      }
-
-      // Reset main gate observables if you have them
-      this.shouldDisplayExplanationSource?.next(false);
-      this.isExplanationTextDisplayedSource?.next(false);
-
-      // Clear any active explanation text cache
-      if (this._byIndex) {
-        for (const subj of this._byIndex.values()) {
-          subj.next('');
-        }
-      }
-
-      this._fetLocked = false;
-      this._activeIndex = -1;
-      console.log('[ExplanationTextService] 🚪 All gates closed');
-    } catch (err) {
-      console.warn('[ExplanationTextService] ⚠️ closeAllGates failed:', err);
-    }
-  }
+  }  
 }

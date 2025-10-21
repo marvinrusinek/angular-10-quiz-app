@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, interval, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -469,35 +469,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Correct-count text — synchronized and sticky for multi-answer questions
-    /* const correctText$: Observable<string> = combineLatest([
+    const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       index$
     ]).pipe(
       map(([text, idx]) => {
-        // ✅ Soft-guard: don’t block the stream — just skip banner until data exists
-        const questions = this.quizService.questions;
-        if (!Array.isArray(questions) || questions.length <= idx) {
-          // Return empty banner so question text still displays
-          console.log(`[Banner guard] Skipping banner for Q${idx + 1} — questions not ready`);
-          return '';
-        }
-      
-        const qObj = questions[idx] as any;
-        const isMulti =
-          qObj?.isMulti === true ||
-          qObj?.type === QuestionType.MultipleAnswer ||
-          (Array.isArray(qObj?.options) &&
-            qObj.options.filter((o) => o.correct === true).length > 1);
-      
+        const qObj = this.quizService.questions?.[idx] as any;
+        const isMulti = qObj?.isMulti === true;   // ✅ use stable flag only
+
+        // Diagnostic log — expanded string version to guarantee visibility
         console.log(
           `[Banner verify] Q${idx + 1}`,
           'isMulti =', qObj?.isMulti,
           '| question =', qObj?.questionText,
           '| banner text =', text,
-          '| total questions =', questions.length
+          '| total questions =', this.quizService.questions?.length
         );
       
-        // ✅ Only display banner for multi-answer questions
         if (isMulti) {
           const trimmed = (text ?? '').trim();
           if (trimmed.length > 0) {
@@ -507,80 +495,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return this.lastRenderedBannerText ?? '';
         }
       
-        // Single-answer → clear banner
+        // single-answer → clear banner
         this.lastRenderedBannerText = '';
         return '';
       }),
-      auditTime(0),
-      startWith(''),
+      auditTime(0),              // ensure same animation frame
+      startWith(''),             // seed initial emission
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    correctText$.subscribe(v => console.log('[correctText$]', v)); */
-    // Correct-count text — throttled to one paint frame
-    /* const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        distinctUntilChanged()
-      ),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const questions = this.quizService.questions ?? [];
-        const qObj = questions[idx] as any;
-        const isMulti =
-          qObj?.isMulti === true ||
-          qObj?.type === QuestionType.MultipleAnswer ||
-          (Array.isArray(qObj?.options) &&
-            qObj.options.filter((o) => o.correct === true).length > 1);
-
-        // Early exit if questions not ready yet
-        if (!qObj) return '';
-
-        const trimmed = (text ?? '').trim();
-        if (isMulti) {
-          if (trimmed) this.lastRenderedBannerText = trimmed;
-          return this.lastRenderedBannerText ?? '';
-        }
-
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-       👇 ONLY throttle the banner
-      observeOn(animationFrameScheduler),
-      auditTime(0),
-      startWith(''),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(
-        filter((t): t is string => typeof t === 'string' && t.trim().length > 0),
-        distinctUntilChanged()
-      ),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-    
-        if (isMulti) {
-          this.lastRenderedBannerText = text.trim();
-          return this.lastRenderedBannerText;
-        }
-    
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-      observeOn(animationFrameScheduler),
-      auditTime(0),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+    correctText$.subscribe(v => console.log('[correctText$]', v));
     
     // Explanation + gate scoped to *current* index
     interface FETState {
@@ -652,32 +576,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       map((v) => v.payload),
       map(([idx, question, banner, fet, shouldShow]) => {
-        // Prevent flicker: once explanation is displayed for this index, lock it
-        const isLocked = this._fetLockedIndex === idx;
-        const shouldShowExplanation =
-          shouldShow || isLocked || this.explanationTextService.isExplanationTextDisplayedSource?.value;
-
-        if (shouldShowExplanation && fet?.text?.trim()) {
-          this._fetLockedIndex = idx;
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fet.text.trim();  // stay in FET mode
-        }
-
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
       
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-
-        const allQs = this.quizService.questions ?? [];
-        const qObj = allQs[idx] as any;
-
-        console.log('[Render resolve]', {
-          idx,
-          total: allQs.length,
-          questionText: qObj?.questionText,
-          isMulti: qObj?.isMulti
-        });
+        const qObj = this.quizService.questions?.[idx] as any;
       
         // Merge question and banner
         let mergedHtml = qText;
@@ -697,7 +601,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               
         console.log('[Render check]', { idx, isMulti, bannerText, bannerStable, mode });
 
-        if (isMulti && bannerStable.length > 0 && mode === 'question') {
+        if (isMulti && bannerStable.length > 0) {
           mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
         } else {
           this.lastRenderedBannerText = '';
@@ -721,13 +625,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
-
-        console.log(`[Render merge check] Q${idx + 1}`, {
-          isMulti,
-          bannerStable,
-          mergedHtmlPreview: mergedHtml.slice(0, 100)
-        });
-        
         return mergedHtml;
       }),
       distinctUntilChanged(),
