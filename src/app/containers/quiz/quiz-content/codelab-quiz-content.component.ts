@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, interval, map, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -211,7 +211,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
 
     // Build the stream only once globally
-    this.combinedText$ = this.getCombinedDisplayTextStream();
+    const waitForQuestions = interval(50).pipe(
+      map(() => this.quizService.questions?.length ?? 0),
+      filter(len => len > 0),
+      take(1)
+    );
+    waitForQuestions.subscribe(() => {
+      console.log('[Init] ✅ Questions ready, building combinedText$ stream');
+      this.combinedText$ = this.getCombinedDisplayTextStream();
+    });
 
     // Always subscribe after the stream is created
     // Use a small delay so as not to subscribe to an undefined observable
@@ -593,7 +601,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
-        const qObj = this.quizService.questions?.[idx] as any;
+
+        const allQs = this.quizService.questions ?? [];
+        const qObj = allQs[idx] as any;
+
+        console.log('[Render resolve]', {
+          idx,
+          total: allQs.length,
+          questionText: qObj?.questionText,
+          isMulti: qObj?.isMulti
+        });
       
         // Merge question and banner
         let mergedHtml = qText;
@@ -637,6 +654,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
+
+        console.log(`[Render merge check] Q${idx + 1}`, {
+          isMulti,
+          bannerStable,
+          mergedHtmlPreview: mergedHtml.slice(0, 100)
+        });
+        
         return mergedHtml;
       }),
       distinctUntilChanged(),
