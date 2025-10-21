@@ -441,7 +441,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // Question text for current index
     const questionText$: Observable<string> = combineLatest([
       index$,
-      this.questionToDisplay$,
+      this.questionToDisplay$
     ]).pipe(
       scan(
         (
@@ -465,7 +465,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           `Question ${v.idx + 1}`;
         return safe;
       }),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
@@ -579,7 +579,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       observeOn(animationFrameScheduler),
       auditTime(0),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
     
@@ -726,16 +726,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
 
-        console.log(`[Render merge check] Q${idx + 1}`, {
-          isMulti,
-          bannerStable,
-          mergedHtmlPreview: mergedHtml.slice(0, 100)
-        });
-        
+        console.log(
+          `[🔎 FRAME DEBUG] Q${idx + 1}`,
+          {
+            qText: (question ?? '').trim(),
+            banner: (banner ?? '').trim(),
+            fetText: (fet?.text ?? '').trim(),
+            gate: fet?.gate,
+            shouldShow,
+            mode: this.quizStateService.displayStateSubject?.value?.mode
+          }
+        );        
+
         return mergedHtml;
       }),
       throttleTime(0, animationFrameScheduler, { leading: true, trailing: true }),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => {
+        // Compare trimmed strings to avoid phantom repaint
+        const sa = (a ?? '').trim();
+        const sb = (b ?? '').trim();
+        return sa === sb;
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
