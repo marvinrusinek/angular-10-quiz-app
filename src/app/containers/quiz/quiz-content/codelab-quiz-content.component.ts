@@ -662,11 +662,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-
-        
-      
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
+
+        // Skip unstable / transitional frames
+        const navigating = this.quizStateService.isNavigatingSubject?.value === true;
+        const firstFrame = !qText || qText.length === 0;
+        const navRecentlyChanged = performance.now() - (this._lastNavChangeTime ?? 0) < 120;
+
+        if (navigating || firstFrame || navRecentlyChanged) {
+          console.log(`[🛑 Frame suppressed] Q${idx + 1} (nav=${navigating}, first=${firstFrame}, recentNav=${navRecentlyChanged})`);
+          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+        }
 
         const allQs = this.quizService.questions ?? [];
         const qObj = allQs[idx] as any;
@@ -725,9 +732,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fetText;
         }
       
-        this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-
         console.log(
           `[🔎 FRAME DEBUG] Q${idx + 1}`,
           {
@@ -740,6 +744,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
         );        
 
+        this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
       // Final stabilization — block empties and coalesce frames
