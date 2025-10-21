@@ -441,7 +441,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       ); */
     // Explanation flag — force one stable frame of FALSE on startup
-    const shouldShow$: Observable<boolean> = merge(
+    /* const shouldShow$: Observable<boolean> = merge(
       // hold false for first 120ms to let question paint first
       of(false).pipe(delay(120)),
       this.explanationTextService.shouldDisplayExplanation$.pipe(
@@ -451,7 +451,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     ).pipe(
       startWith(false),
       shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    // Explanation flag — never show FET until question text has painted at least once
+    const shouldShow$: Observable<boolean> = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      // Always coerce to boolean
+      map(Boolean),
+      // Hold back any TRUE until at least one question has rendered
+      withLatestFrom(this.questionToDisplay$.pipe(startWith(''))),
+      map(([flag, qText]) => {
+        const safe = typeof qText === 'string' && qText.trim().length > 0;
+        return safe ? flag : false;  // block FET if question not ready
+      }),
+      startWith(false),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
     );
+
 
     // Question text for current index
     const questionText$: Observable<string> = combineLatest([
