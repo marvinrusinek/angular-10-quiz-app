@@ -521,6 +521,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
       observeOn(animationFrameScheduler),    // paint in AF
+      filter(([idx, question, banner, fet]) => {
+        const q = (question ?? '').trim();
+        const f = (fet?.text ?? '').trim();
+        const qReady = q.length > 0;
+        const fetReady = !fet?.gate || f.length > 0;
+        const stable = qReady && fetReady;
+        if (!stable) {
+          console.log(`[🛑 Frame skip] Holding incomplete frame for Q${idx + 1}`, {
+            qLen: q.length,
+            gate: fet?.gate,
+            fLen: f.length
+          });
+        }
+        return stable;
+      }),
       map(([idx, question, banner, fet, shouldShow]:
            [number, string, string, FETState, boolean]) => {
   
