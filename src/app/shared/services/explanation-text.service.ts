@@ -98,6 +98,8 @@ export class ExplanationTextService {
   private _questionRendered = false;
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
+  private _gatesByIndex: Map<number, BehaviorSubject<boolean>> = new Map();
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1092,10 +1094,21 @@ export class ExplanationTextService {
   }
 
   // ---- Per-index gate
+  // Returns an observable for the explanation gate of a specific question index
   public gate$(index: number): Observable<boolean> {
-    return this.getOrCreate(index).gate$.asObservable();
-  }
+    // Ensure the gate exists
+    if (!this._gatesByIndex.has(index)) {
+      this._gatesByIndex.set(index, new BehaviorSubject<boolean>(false));
+    }
 
+    const gateSubject = this._gatesByIndex.get(index)!;
+
+    // Optional: debug log so you can see when gates are created and emitted
+    console.log(`[ExplanationTextService] gate$ created for Q${index + 1}`);
+
+    return gateSubject.asObservable();
+  }
+  
   public setGate(index: number, show: boolean): void {
     const idx = Math.max(0, Number(index) || 0);
     if (!this._gate.has(idx)) {
@@ -1336,5 +1349,32 @@ export class ExplanationTextService {
     } catch {
       // swallow timeouts or interruptions silently
     }
-  }  
+  }
+
+  // Closes all open explanation gates to prevent cross-question leaks
+  public closeAllGates(): void {
+    try {
+      // Reset internal per-index gate subjects
+      if (this._gatesByIndex && typeof this._gatesByIndex.clear === 'function') {
+        this._gatesByIndex.clear();
+      }
+
+      // Reset main gate observables
+      this.shouldDisplayExplanationSubject?.next(false);
+      this.isExplanationTextDisplayedSource?.next(false);
+
+      // Clear any active explanation text cache
+      if (this._byIndex) {
+        for (const key of this._byIndex.keys()) {
+          this._byIndex.set(key, '');
+        }
+      }
+
+      this._fetLocked = false;
+      this._activeIndex = -1;
+      console.log('[ExplanationTextService] 🚪 All gates closed');
+    } catch (err) {
+      console.warn('[ExplanationTextService] ⚠️ closeAllGates failed:', err);
+    }
+  }
 }
