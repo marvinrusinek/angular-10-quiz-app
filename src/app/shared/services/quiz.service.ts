@@ -1209,17 +1209,16 @@ export class QuizService implements OnDestroy {
           throw new Error(`Quiz with ID ${quizId} not found`);
         }
 
-        // Ensure we assign questions to the service *before* anything uses them
-        this.questions = quiz.questions;
-
-        // Log the normalized array length for sanity
-        console.log('[QuizService] Questions array assigned to service:', this.questions?.length);
-
         return { quizId: quiz.quizId, questions: quiz.questions };
       }),
       tap((quiz) => {
-        console.log('[QuizService] Active quiz set:', quiz);
+        // 🔹 Ensure service has a valid questions array before anything else uses it
+        this.questions = quiz.questions;
+        console.log('[QuizService] Questions array assigned to service:', this.questions?.length);
+
+        // Set active quiz afterward
         this.setActiveQuiz(quiz as unknown as Quiz);
+        console.log('[QuizService] Active quiz set:', quiz);
       }),
       catchError((error) => {
         console.error('An error occurred while loading questions:', error);
