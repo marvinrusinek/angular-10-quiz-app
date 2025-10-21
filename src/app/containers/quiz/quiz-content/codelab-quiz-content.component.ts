@@ -625,6 +625,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       ),
       map((v) => v.payload),
       map(([idx, question, banner, fet, shouldShow]) => {
+        // Prevent flicker: once explanation is displayed for this index, lock it
+        const isLocked = this._fetLockedIndex === idx;
+        const shouldShowExplanation =
+          shouldShow || isLocked || this.explanationTextService.isExplanationTextDisplayedSource?.value;
+
+        if (shouldShowExplanation && fet?.text?.trim()) {
+          this._fetLockedIndex = idx;
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          return fet.text.trim();  // stay in FET mode
+        }
+
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
       
