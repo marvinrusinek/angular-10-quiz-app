@@ -547,86 +547,81 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
+    // ⬇️ use the *stable* streams here: index$, questionText$, correctText$, fetForIndex$, shouldShow$
     return combineLatest([
-      this.quizService.currentQuestionIndex$.pipe(startWith(0)),
-      this.questionToDisplay$.pipe(distinctUntilChanged()),
-      this.quizService.correctAnswersText$.pipe(
-        startWith(''),
-        distinctUntilChanged(),
-        auditTime(32),  // small frame buffer so question and banner land together
-        filter(v => v !== null && v !== undefined),  // suppress intermediate blanks during navigation
-        shareReplay({ bufferSize: 1, refCount: true })
-      ),
-      fetForIndex$,
-      this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false))
+      index$,                       // stable current index
+      questionText$,                // ✅ stabilized question text
+      correctText$,                 // ✅ stabilized banner text (sticky for multi)
+      fetForIndex$,                 // scoped FET for active index
+      shouldShow$                   // global "should show explanation" flag
     ]).pipe(
-      auditTime(16),  // merge same-frame bursts
+      // coalesce bursts into the same paint frame
+      auditTime(16),
       observeOn(animationFrameScheduler),
-      
-      // Keep only emissions whose index >= last stable one
+
+      // keep only emissions whose index >= last stable one (drop bounce-back)
       scan(
         (acc, [idx, question, banner, fet, shouldShow]) => {
-          if (idx < acc.lastIdx) {
-            // drop backward bounce (old Q1 resurfacing during Q2 setup)
-            return acc;
-          }
+          if (idx < acc.lastIdx) return acc; // drop backward bounce (old Q surfacing)
           return { lastIdx: idx, payload: [idx, question, banner, fet, shouldShow] };
         },
         { lastIdx: -1, payload: [0, '', '', { text: '', gate: false }, false] as any }
       ),
-      map((v) => v.payload),
+      map(v => v.payload),
+
       map(([idx, question, banner, fet, shouldShow]) => {
-        const mode =
-          this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-      
+        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
         const qObj = this.quizService.questions?.[idx] as any;
-      
-        // Merge question and banner
+
+        // ───────── merge question + banner (multi only) ─────────
         let mergedHtml = qText;
-      
-        // Always compute stable banner first
+
+        // Always compute stable banner first (sticky)
         const bannerStable =
-          bannerText && bannerText.trim().length > 0
-            ? bannerText.trim()
-            : this.lastRenderedBannerText ?? '';
-      
+          bannerText.length > 0 ? bannerText : (this.lastRenderedBannerText ?? '');
+
         if (bannerStable.length > 0) {
           this.lastRenderedBannerText = bannerStable;
         }
-      
-        // Restrict to multi-answer AFTER stability
-        const isMulti = qObj?.isMulti === true;
-              
-        console.log('[Render check]', { idx, isMulti, bannerText, bannerStable, mode });
 
-        if (isMulti && bannerStable.length > 0) {
+        // Restrict to multi-answer AFTER stability (prefer stamped flag if present)
+        const isMulti =
+          (qObj?.isMulti === true) ||
+          (qObj &&
+            (qObj.type === QuestionType.MultipleAnswer ||
+              (Array.isArray(qObj.options) &&
+              qObj.options.filter(o => o.correct === true).length > 1)));
+
+        // Only append banner in QUESTION mode for multi-answer items
+        if (isMulti && bannerStable.length > 0 && mode === 'question') {
           mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
-        } else {
-          this.lastRenderedBannerText = '';
         }
-      
-        // Explanation gating
+        // ⚠️ Do NOT clear lastRenderedBannerText here; clearing causes a second repaint
+
+        // ───────── explanation gating ─────────
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
-      
+
         const canShowFET =
           mode === 'explanation' &&
           fetGate &&
           fetText.length > 0 &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
-      
+
         if (canShowFET) {
           this._fetLockedIndex = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
           return fetText;
         }
-      
+
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
         return mergedHtml;
       }),
+
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
