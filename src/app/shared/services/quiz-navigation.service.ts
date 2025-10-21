@@ -619,7 +619,7 @@ export class QuizNavigationService {
             this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
       
             // Mark last stable banner frame for sanity
-            this.quizService._lastBannerFrameIndex = index;
+            this.quizService._lastBannerFrameIndex = index; 
       
             // ────────────────────────────────────────────────
             // STEP 4️⃣ Defer FET pre-arm slightly
