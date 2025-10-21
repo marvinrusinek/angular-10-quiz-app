@@ -95,6 +95,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private lastCorrectBanner = '';
   private lastRenderedQuestionTextWithBanner: string = '';
   private lastRenderedBannerText = '';
+  private _lastRenderedFrameTime = 0;
+  private _lastNavChangeTime = 0;
   private _pendingQuestionFrame: string | null = null;
   private _fetLockedIndex: number | null = null;  // keeps track of the last question index whose FET (explanation) is locked in view
 
@@ -685,7 +687,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
       ),      
       map((v) => v.payload),
-      map(([idx, question, banner, fet, shouldShow]) => {
+      map(([idx, question, banner, fet, shouldShow]:
+        [number, string, string, FETState, boolean]) => {
         // Prevent flicker: once explanation is displayed for this index, lock it
         const isLocked = this._fetLockedIndex === idx;
         const shouldShowExplanation =
