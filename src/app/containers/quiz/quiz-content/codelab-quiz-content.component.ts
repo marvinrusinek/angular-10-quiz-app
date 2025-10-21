@@ -154,6 +154,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private combinedSub?: Subscription;
   private _fetHoldUntil = 0;
+  private _firstRenderReleased = false;
 
   private destroy$ = new Subject<void>();
 
@@ -637,47 +638,52 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       fetForIndex$,
       shouldShow$
     ]).pipe(
-      // ⏸️ HOLD UNTIL FIRST QUESTION IS READY AND NAVIGATION SETTLES
-      // ─────────────────────────────────────────────────────────────
-      filter(([idx, question]) => {
+      // Hold back emissions until a real question is ready and navigation is stable
+      switchMap(([idx, question, banner, fet, shouldShow]) => {
         const ready =
           typeof question === 'string' &&
           question.trim().length > 0 &&
-          this.quizService.questions?.length > 0 &&
           this.quizService.questions?.[idx]?.questionText?.trim()?.length > 0 &&
           this.quizStateService.isNavigatingSubject?.value === false;
+
         if (!ready) {
           console.log(`[Render hold] Waiting for stable data for Q${idx + 1}`);
+          // suspend until the next animation frame and re-emit nothing
+          return EMPTY;
         }
-        return ready;
-      }),
-      take(1),
-      tap(([idx]) =>
-        console.log(`[Render release] First stable frame unlocked for Q${idx + 1}`)
-      ),
 
-      // After the first stable emission, reattach the normal stream
-      concatWith(
-        combineLatest([
-          index$,
-          questionText$,
-          correctText$,
-          fetForIndex$,
-          shouldShow$
-        ])
-      ),
+        if (!this._firstRenderReleased) {
+          this._firstRenderReleased = true;
+          console.log(`[Render release] First stable frame unlocked for Q${idx + 1}`);
+        }
+
+        // once ready, resume normal stream
+        return of([idx, question, banner, fet, shouldShow]);
+      }),
 
       auditTime(16),
       observeOn(animationFrameScheduler),
 
       // Keep only emissions whose index >= last stable one
       scan(
-        (acc, [idx, question, banner, fet, shouldShow]) => {
-          if (idx < acc.lastIdx) return acc;
+        (
+          acc: { lastIdx: number; payload: [number, string, string, FETState, boolean] },
+          [idx, question, banner, fet, shouldShow]: [number, string, string, FETState, boolean]
+        ) => {
+          if (typeof idx !== 'number' || idx < acc.lastIdx) return acc; // ✅ numeric guard
           return { lastIdx: idx, payload: [idx, question, banner, fet, shouldShow] };
         },
-        { lastIdx: -1, payload: [0, '', '', { text: '', gate: false }, false] as any }
-      ),
+        {
+          lastIdx: -1,
+          payload: [
+            0,
+            '',
+            '',
+            { idx: 0, text: '', gate: false }, // ✅ include idx here!
+            false,
+          ] as [number, string, string, FETState, boolean],
+        }
+      ),      
       map((v) => v.payload),
       map(([idx, question, banner, fet, shouldShow]) => {
         // Prevent flicker: once explanation is displayed for this index, lock it
