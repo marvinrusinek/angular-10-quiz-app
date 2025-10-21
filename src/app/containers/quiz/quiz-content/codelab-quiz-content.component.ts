@@ -631,11 +631,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     return combineLatest([
-      index$.pipe(startWith(0)),                              // ✅ seed initial index
-      questionText$.pipe(startWith(this.questionLoadingText)), // ✅ seed initial question text
-      correctText$.pipe(startWith('')),                        // ✅ banner starts empty
-      fetForIndex$.pipe(startWith({ idx: 0, text: '', gate: false })), // ✅ FET seed
-      shouldShow$.pipe(startWith(false))                       // ✅ initial display flag
+      index$,
+      questionText$,
+      correctText$,
+      fetForIndex$,
+      shouldShow$
     ]).pipe(
       observeOn(animationFrameScheduler),
       
