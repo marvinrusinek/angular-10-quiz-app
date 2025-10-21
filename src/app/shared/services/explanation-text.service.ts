@@ -99,6 +99,12 @@ export class ExplanationTextService {
   private _questionRendered = false;
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
+  // Per-question explanation gates
+  private _gatesByIndex: Map<number, BehaviorSubject<boolean>> = new Map();
+
+  // Lock flag to prevent premature explanation re-display
+  private _fetLocked: boolean = false;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1348,7 +1354,7 @@ export class ExplanationTextService {
       }
 
       // Reset main gate observables if you have them
-      this.shouldDisplayExplanationSubject?.next(false);
+      this.shouldDisplayExplanationSource?.next(false);
       this.isExplanationTextDisplayedSource?.next(false);
 
       // Optional: clear any active explanation text cache
