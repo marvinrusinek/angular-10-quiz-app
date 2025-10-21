@@ -927,7 +927,7 @@ export class QuizNavigationService {
   private setQuestionReadyAfterDelay(): void {
     this.questionReady = false;
     requestAnimationFrame(() => {
-      this.questionReady = true;
+      this.questionReady = true; // 
       console.log('[NAV] 🪄 Question reveal triggered');
     });
   }
