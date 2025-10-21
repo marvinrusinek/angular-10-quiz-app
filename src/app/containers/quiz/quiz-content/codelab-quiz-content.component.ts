@@ -742,11 +742,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             shouldShow,
             mode: this.quizStateService.displayStateSubject?.value?.mode
           }
-        );        
-
-        this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        this._lastRenderedFrameTime = performance.now();
+        );
 
         // ───────── HARD GUARD AGAINST EARLY EMPTY EMISSIONS ─────────
         if (!question || question.trim().length === 0) {
@@ -759,6 +755,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           console.log(`[Render guard] Navigation in progress — suppress transient repaint for Q${idx + 1}`);
           return this.lastRenderedQuestionTextWithBanner ?? '';
         }
+        
+        this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        this._lastRenderedFrameTime = performance.now();
 
         return mergedHtml;
       }),
