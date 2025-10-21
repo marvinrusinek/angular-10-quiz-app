@@ -548,6 +548,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               ? ({ idx, text: rawText, gate: true } as FETState)
               : ({ idx, text: '', gate: false } as FETState);
           }),
+          debounceTime(40), // wait half a frame more for the question to stabilize
+          filter((fetState: FETState) => {
+            const txt = (fetState.text ?? '').trim();
+            // Only allow FET to pass if either:
+            //  - gate is open AND text exists
+            //  - or gate is closed (so question mode can continue)
+            const ok = (!fetState.gate) || (fetState.gate && txt.length > 0);
+            if (!ok) {
+              console.log(`[FET Guard] Holding early FET for Q${fetState.idx + 1}`);
+            }
+            return ok;
+          }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         )
       ),
