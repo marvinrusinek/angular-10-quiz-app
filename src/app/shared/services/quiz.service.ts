@@ -361,8 +361,9 @@ export class QuizService implements OnDestroy {
     );
   }
 
-  setActiveQuiz(quiz: Quiz): void {
+  public setActiveQuiz(quiz: Quiz): void {
     this.activeQuiz = quiz;
+    this.quizId = quiz.quizId;
     this.questionsList = quiz.questions;
     this.questionsSubject.next(quiz.questions);
     this.questions = quiz.questions;
@@ -1154,6 +1155,8 @@ export class QuizService implements OnDestroy {
   getQuestionsForQuiz(
     quizId: string
   ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
+    console.log('[QuizService] getQuestionsForQuiz called with ID:', quizId);
+
     return this.http.get<Quiz[]>(this.quizUrl).pipe(
       map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId)),
       tap((quiz) => {

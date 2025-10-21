@@ -190,25 +190,48 @@ export class QuizDataService implements OnDestroy {
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error(`Quiz with ID ${quizId} has no questions`);
         }
-  
+
         // ── Build normalized base questions (clone options per question) ──
         const baseQuestions: QuizQuestion[] = (quiz.questions ?? [])
           .map((question) => this.normalizeQuestion(question));
-        this.baseQuizQuestionCache.set(
-          quizId,
-          this.cloneQuestions(baseQuestions)
-        );
+
+        this.baseQuizQuestionCache.set(quizId, this.cloneQuestions(baseQuestions));
         this.quizService.setCanonicalQuestions(quizId, baseQuestions);
+
         const shouldShuffle = this.quizService.isShuffleEnabled();
         const sessionQuestions = this.buildSessionQuestions(
           quizId,
           baseQuestions,
           shouldShuffle
         );
-  
+
         this.quizQuestionCache.set(quizId, this.cloneQuestions(sessionQuestions));
-        this.quizService.applySessionQuestions(quizId, this.cloneQuestions(sessionQuestions));
+        this.quizService.applySessionQuestions(
+          quizId,
+          this.cloneQuestions(sessionQuestions)
+        );
         this.syncSelectedQuizState(quizId, sessionQuestions, quiz);
+
+        // 🔹 Assign questions to QuizService so UI can access them
+        this.quizService.questions = this.cloneQuestions(sessionQuestions);
+
+        // 🔹 Stamp multi-answer flag for each question
+        for (const [qIndex, question] of this.quizService.questions.entries()) {
+          (question as any).isMulti =
+            question.type === QuestionType.MultipleAnswer ||
+            (Array.isArray(question.options) &&
+              question.options.filter((o) => o.correct === true).length > 1);
+
+          console.log(
+            `[QuizDataService] Q${qIndex + 1} isMulti =`,
+            (question as any).isMulti
+          );
+        }
+
+        // 🔹 Debug logs for confirmation
+        console.log(
+          `[QuizDataService] ✅ Assigned ${this.quizService.questions.length} questions to QuizService`
+        );
 
         return this.cloneQuestions(sessionQuestions);
       }),
@@ -218,6 +241,7 @@ export class QuizDataService implements OnDestroy {
       })
     );
   }
+
   
 
   /**
