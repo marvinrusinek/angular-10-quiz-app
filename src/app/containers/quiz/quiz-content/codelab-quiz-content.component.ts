@@ -520,95 +520,84 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
-      observeOn(animationFrameScheduler),    // paint in AF
-      // ⏸️  Prevent explanation from cutting in during first 100 ms after a question change
-      scan(
-        (acc, [idx, qText, banner, fet, shouldShow]) => {
-          const now = performance.now();
-          const newQuestion = idx !== acc.lastIdx || qText.trim() !== acc.lastQText;
-      
-          // open a one-frame suppression window every time the question changes
-          if (newQuestion) {
-            acc.lastIdx = idx;
-            acc.lastQText = qText.trim();
-            acc.frameHoldUntil = now + 2 * (1000 / 60); // ≈ 2 frames (~32ms)
-            acc.payload = [idx, qText, banner, fet, shouldShow];
-            return acc;
+      map(
+        ([idx, question, banner, fet, shouldShow]: [
+          number,
+          string,
+          string,
+          FETState,
+          boolean
+        ]) => {
+          const mode =
+            this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+          const qText = (question ?? '').trim();
+          const bannerText = (banner ?? '').trim();
+    
+          // ────────────────────────────────────────────────
+          // 🧭 Gate hygiene: only close gates for *older* indices
+          // ────────────────────────────────────────────────
+          if (this._lastRenderedIndex !== idx) {
+            const prev = this._lastRenderedIndex;
+            this._lastRenderedIndex = idx;
+    
+            // Only reset if moving *forward* (not backward or re-rendering same)
+            if (prev < idx) {
+              requestAnimationFrame(() => {
+                if (
+                  typeof this.explanationTextService.closeAllGates === 'function'
+                ) {
+                  this.explanationTextService.closeAllGates();
+                  console.log(
+                    `[Gate Reset] Closed older FET gates (prev=${prev}, now=${idx})`
+                  );
+                }
+                // Clear display flags *after* current frame settles
+                this.explanationTextService.setIsExplanationTextDisplayed(false);
+                this.explanationTextService.setShouldDisplayExplanation(false, {
+                  force: true,
+                });
+              });
+            }
           }
-      
-          // block emissions if we're still within the same-frame window
-          if (now < acc.frameHoldUntil) {
-            return acc; // skip repaint until next frame
+    
+          // ────────────────────────────────────────────────
+          // 🧩 Prefer showing explanation text if fully ready
+          // ────────────────────────────────────────────────
+          if (
+            mode === 'explanation' &&
+            fet?.gate === true &&
+            (fet?.text ?? '').trim().length > 0 &&
+            this.explanationTextService.currentShouldDisplayExplanation === true
+          ) {
+            this._fetLockedIndex = idx;
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            return fet.text.trim();
           }
-      
-          acc.payload = [idx, qText, banner, fet, shouldShow];
-          return acc;
-        },
-        {
-          lastIdx: -1,
-          lastQText: '',
-          frameHoldUntil: 0,
-          payload: [0, '', '', { idx: 0, text: '', gate: false }, false] as
-            [number, string, string, FETState, boolean],
+    
+          // ────────────────────────────────────────────────
+          // 🧱 Merge question + banner for multi-answer
+          // ────────────────────────────────────────────────
+          const qObj = this.quizService.questions?.[idx];
+          const isMulti =
+            !!qObj &&
+            (qObj.type === QuestionType.MultipleAnswer ||
+              (Array.isArray(qObj.options) &&
+                qObj.options.some((o) => o.correct === true)));
+    
+          let mergedHtml = qText;
+          if (isMulti && bannerText && mode === 'question') {
+            mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+            this.lastRenderedBannerText = bannerText;
+          }
+    
+          this.explanationTextService.markQuestionRendered(true);
+          this.lastRenderedQuestionTextWithBanner = mergedHtml;
+          return mergedHtml;
         }
       ),
-      map(v => v.payload),
-
-      filter(([idx, question, banner, fet]) => {
-        const q = (question ?? '').trim();
-        const f = (fet?.text ?? '').trim();
-        const qReady = q.length > 0;
-        const fetReady = !fet?.gate || f.length > 0;
-        const stable = qReady && fetReady;
-        if (!stable) {
-          console.log(`[🛑 Frame skip] Holding incomplete frame for Q${idx + 1}`, {
-            qLen: q.length,
-            gate: fet?.gate,
-            fLen: f.length
-          });
-        }
-        return stable;
-      }),
-      map(([idx, question, banner, fet, shouldShow]:
-           [number, string, string, FETState, boolean]) => {
-  
-        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-        const qText = (question ?? '').trim();
-        const bannerText = (banner ?? '').trim();
-  
-        // Prefer showing FET only if fully ready
-        if (
-          mode === 'explanation' &&
-          fet?.gate === true &&
-          (fet?.text ?? '').trim().length > 0 &&
-          this.explanationTextService.currentShouldDisplayExplanation === true
-        ) {
-          this._fetLockedIndex = idx;
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fet.text.trim();
-        }
-  
-        // Merge question + banner (multi only)
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          !!qObj &&
-          (qObj.type === QuestionType.MultipleAnswer ||
-           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct === true)));
-  
-        let mergedHtml = qText;
-        if (isMulti && bannerText && mode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
-          this.lastRenderedBannerText = bannerText; // remember last good banner
-        }
-  
-        this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        return mergedHtml;
-      }),
-      // One paint per real change
       distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
+    ) as Observable<string>;    
   }
 
   private emitContentAvailableState(): void {
