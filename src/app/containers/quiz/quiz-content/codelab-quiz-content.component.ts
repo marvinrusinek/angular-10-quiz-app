@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { animationFrameScheduler, BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, debounceTime, distinctUntilChanged, filter, map, mapTo, observeOn, pairwise, scan, shareReplay, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
+import { auditTime, catchError, concatWith, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -742,26 +742,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         return mergedHtml;
       }),
-      filter(v => {
-        // skip any initial empty emission during bootstrap
-        const text = (v ?? '').trim();
-        const skip = text.length === 0;
-        if (skip) {
-          console.log('[Render guard] Skipping empty frame emission');
-        }
-        return !skip;
-      }),
-      auditTime(16), // merge any same-frame bursts
-      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
-      tap(v => {
-        const trimmed = (v ?? '').trim();
-        if (trimmed.length > 0) {
-          this.lastRenderedQuestionTextWithBanner = trimmed;
-        }
-      }),
-      startWith(this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? ''),
+      // Final stabilization — delay first paint until data stabilizes
+      skipWhile(v => (v ?? '').trim().length === 0),   // ignore all initial empties
+      first(),                                         // take the first non-empty emission
+      delay(0, animationFrameScheduler),               // allow Angular’s next paint tick
+      concatWith(
+        this.combinedDisplaySubject?.pipe?.(
+          debounceTime(24),
+          distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim())
+        ) ?? EMPTY
+      ),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
+      ) as Observable<string>;
   }
 
   private emitContentAvailableState(): void {
