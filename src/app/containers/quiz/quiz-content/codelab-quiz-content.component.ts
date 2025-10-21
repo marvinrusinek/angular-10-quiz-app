@@ -662,6 +662,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         const mode =
           this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+
+        
       
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
@@ -740,13 +742,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         return mergedHtml;
       }),
-      throttleTime(0, animationFrameScheduler, { leading: true, trailing: true }),
-      distinctUntilChanged((a, b) => {
-        // Compare trimmed strings to avoid phantom repaint
-        const sa = (a ?? '').trim();
-        const sb = (b ?? '').trim();
-        return sa === sb;
+      debounceTime(24),  // coalesce rapid multi-stream emissions into one paint
+      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+      tap(v => {
+        const trimmed = (v ?? '').trim();
+        if (trimmed.length > 0) this.lastRenderedQuestionTextWithBanner = trimmed;
       }),
+      startWith(this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? ''),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   }
