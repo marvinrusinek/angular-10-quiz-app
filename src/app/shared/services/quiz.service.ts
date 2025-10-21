@@ -1684,40 +1684,37 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // Prevent redundant updates
+    // 🔹 Step 1: Prevent redundant updates (exact same text as before)
     if (this._lastBanner === text) return;
   
-    // Cancel pending timers
+    // Cancel any pending delayed banner timers
     if (this._pendingBannerTimer) {
       clearTimeout(this._pendingBannerTimer);
       this._pendingBannerTimer = null;
     }
   
+    // Cache for comparison & persist later
     this._lastBanner = text;
   
-    // Always emit — even empty — so combineLatest sees a stable value
+    // Emit immediately — even empty — for reactive streams
     console.log('[QuizService] 🧾 updateCorrectAnswersText called with:', text);
-    
-    console.log(
-      '[QuizService] Subject next() called with:',
-      JSON.stringify(text)
-    );
     this.correctAnswersCountTextSource.next(text);
-    console.log(
-      '[QuizService] Subject current value after next():',
-      this.correctAnswersCountTextSource.value
+    console.log('[QuizService] 📤 Emitted banner text to Subject →', JSON.stringify(text)
     );
-    
-    console.log('[QuizService] 📤 Emitted banner text to Subject');
-    console.log(`[QuizService] 🧮 Emitted banner: "${text}"`);
   
+    // Optional micro-delay to keep UI paint order stable (prevents banner from racing the question text)
+    requestAnimationFrame(() => {
+      const current = this.correctAnswersCountTextSource.value;
+      console.log('[QuizService] 🧮 Banner visible value after RAF:', current);
+    });
+  
+    // Always persist — even empty — so restored state matches live UI
     try {
-      // Always persist — even empty — so restored state matches live UI
       localStorage.setItem('correctAnswersText', text);
     } catch (err) {
       console.warn('[QuizService] ⚠️ Persist failed:', err);
-    }    
-  }  
+    }
+  }
 
   public clearStoredCorrectAnswersText(): void {
     try {
