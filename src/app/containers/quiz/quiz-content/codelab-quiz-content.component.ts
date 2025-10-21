@@ -469,7 +469,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Correct-count text — synchronized and sticky for multi-answer questions
-    const correctText$: Observable<string> = combineLatest([
+    /* const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
       index$
     ]).pipe(
@@ -516,7 +516,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    correctText$.subscribe(v => console.log('[correctText$]', v));
+    correctText$.subscribe(v => console.log('[correctText$]', v)); */
+    // Correct-count text — throttled to one paint frame
+    const correctText$: Observable<string> = combineLatest([
+      this.quizService.correctAnswersText$.pipe(
+        startWith(''),
+        distinctUntilChanged()
+      ),
+      index$
+    ]).pipe(
+      map(([text, idx]) => {
+        const questions = this.quizService.questions ?? [];
+        const qObj = questions[idx] as any;
+        const isMulti =
+          qObj?.isMulti === true ||
+          qObj?.type === QuestionType.MultipleAnswer ||
+          (Array.isArray(qObj?.options) &&
+            qObj.options.filter((o) => o.correct === true).length > 1);
+
+        // Early exit if questions not ready yet
+        if (!qObj) return '';
+
+        const trimmed = (text ?? '').trim();
+        if (isMulti) {
+          if (trimmed) this.lastRenderedBannerText = trimmed;
+          return this.lastRenderedBannerText ?? '';
+        }
+
+        this.lastRenderedBannerText = '';
+        return '';
+      }),
+      /** 👇 ONLY throttle the banner */
+      observeOn(animationFrameScheduler),
+      auditTime(0),
+      startWith(''),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
     
     // Explanation + gate scoped to *current* index
     interface FETState {
@@ -622,7 +659,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               
         console.log('[Render check]', { idx, isMulti, bannerText, bannerStable, mode });
 
-        if (isMulti && bannerStable.length > 0) {
+        if (isMulti && bannerStable.length > 0 && mode === 'question') {
           mergedHtml = `${qText} <span class="correct-count">${bannerStable}</span>`;
         } else {
           this.lastRenderedBannerText = '';
