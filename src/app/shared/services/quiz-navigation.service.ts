@@ -443,7 +443,7 @@ export class QuizNavigationService {
     this._fetchInProgress = true;
 
     this.quizStateService.isNavigatingSubject.next(true);
-    this.explanationTextService.closeAllGates();
+    // this.explanationTextService.closeAllGates();
   
     // this.quizService.clearStoredCorrectAnswersText();
   
