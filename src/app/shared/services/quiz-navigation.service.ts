@@ -441,6 +441,9 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
+
+    this.quizStateService.isNavigatingSubject.next(true);
+    this.explanationTextService.closeAllGates();
   
     // this.quizService.clearStoredCorrectAnswersText();
   
