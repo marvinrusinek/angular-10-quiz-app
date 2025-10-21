@@ -555,24 +555,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     // ── Final render mapping (no EMPTY/holdbacks; upstream is already stable)
-    return index$.pipe(
-      distinctUntilChanged(),
-      switchMap((idx) => {
-        // tiny one-frame delay so the new question text & FET gates can update
-        return timer(0, animationFrameScheduler).pipe(
-          take(1),
-          switchMap(() =>
-            combineLatest([
-              of(idx),
-              questionText$,
-              correctText$,
-              fetForIndex$,
-              shouldShow$
-            ])
-          )
-        );
-      })
-    ).pipe(
+    return combineLatest([
+      index$.pipe(distinctUntilChanged(), debounceTime(24)),
+      questionText$.pipe(distinctUntilChanged(), debounceTime(24)),
+      correctText$.pipe(distinctUntilChanged(), debounceTime(24)),
+      fetForIndex$.pipe(distinctUntilChanged(), debounceTime(24)),
+      shouldShow$.pipe(distinctUntilChanged(), debounceTime(24))
+    ]).pipe(
       withLatestFrom(this.quizStateService.isNavigatingSubject.pipe(startWith(false))),
       filter(([[, question], isNav]) => {
         const ready =
