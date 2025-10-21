@@ -742,11 +742,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         return mergedHtml;
       }),
-      debounceTime(24),  // coalesce rapid multi-stream emissions into one paint
+      filter(v => {
+        // skip any initial empty emission during bootstrap
+        const text = (v ?? '').trim();
+        const skip = text.length === 0;
+        if (skip) {
+          console.log('[Render guard] Skipping empty frame emission');
+        }
+        return !skip;
+      }),
+      auditTime(16), // merge any same-frame bursts
       distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
       tap(v => {
         const trimmed = (v ?? '').trim();
-        if (trimmed.length > 0) this.lastRenderedQuestionTextWithBanner = trimmed;
+        if (trimmed.length > 0) {
+          this.lastRenderedQuestionTextWithBanner = trimmed;
+        }
       }),
       startWith(this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? ''),
       shareReplay({ bufferSize: 1, refCount: true })
