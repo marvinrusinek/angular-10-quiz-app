@@ -52,11 +52,11 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     mode: 'question' | 'explanation',
     answered: boolean
   }>;
-  @Input() displayVariables: { question: string; explanation: string };
+  @Input() displayVariables: { question: string, explanation: string };
   @Input() localExplanationText = '';
   @Input() showLocalExplanation = false;
 
-  @Input() set explanationOverride(o: { idx: number; html: string }) {
+  @Input() set explanationOverride(o: { idx: number, html: string }) {
     this.overrideSubject.next(o);
   }
 
