@@ -413,14 +413,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
       distinctUntilChanged(),
+      // Wait only for subsequent changes, not the initial one
+      debounce((i, index) => index === 0 ? of(null) : timer(120)),
       shareReplay({ bufferSize: 1, refCount: true })
     ); */
+    let emissionCount = 0;
     const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
       distinctUntilChanged(),
-      // Wait only for subsequent changes, not the initial one
-      debounce((i, index) => index === 0 ? of(null) : timer(120)),
+      debounce(() => {
+        // only delay after the first emission
+        emissionCount++;
+        return emissionCount === 1 ? of(null) : timer(120);
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
