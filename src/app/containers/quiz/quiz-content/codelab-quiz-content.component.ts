@@ -518,7 +518,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
     correctText$.subscribe(v => console.log('[correctText$]', v)); */
     // Correct-count text — throttled to one paint frame
-    /* const correctText$: Observable<string> = combineLatest([
+    const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
         startWith(''),
         distinctUntilChanged()
@@ -546,38 +546,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.lastRenderedBannerText = '';
         return '';
       }),
-       👇 ONLY throttle the banner
       observeOn(animationFrameScheduler),
       auditTime(0),
       startWith(''),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ); */
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(
-        filter((t): t is string => typeof t === 'string' && t.trim().length > 0),
-        distinctUntilChanged()
-      ),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx];
-        const isMulti =
-          qObj &&
-          ((qObj.type === QuestionType.MultipleAnswer) ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter(o => o.correct).length > 1));
-    
-        if (isMulti) {
-          this.lastRenderedBannerText = text.trim();
-          return this.lastRenderedBannerText;
-        }
-    
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-      observeOn(animationFrameScheduler),
-      auditTime(0),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
