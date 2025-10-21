@@ -704,9 +704,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // Explanation gating
         const fetText = (fet?.text ?? '').trim();
         const fetGate = fet?.gate === true;
+
+        // Skip any emission where FET is "half open" or empty
+        if (fetGate && fetText.length === 0) {
+          console.log(`[Render guard] Suppressing empty FET for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? question ?? '';
+        }
       
+        // Determine if explanation truly ready
         const canShowFET =
-          mode === 'explanation' &&
+          this.quizStateService.displayStateSubject?.value?.mode === 'explanation' &&
           fetGate &&
           fetText.length > 0 &&
           this.explanationTextService.currentShouldDisplayExplanation === true;
