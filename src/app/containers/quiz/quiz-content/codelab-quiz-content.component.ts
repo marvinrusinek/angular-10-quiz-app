@@ -742,18 +742,19 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
         return mergedHtml;
       }),
-      // Final stabilization — delay first paint until data stabilizes
-      skipWhile(v => (v ?? '').trim().length === 0),   // ignore all initial empties
-      first(),                                         // take the first non-empty emission
-      delay(0, animationFrameScheduler),               // allow Angular’s next paint tick
-      concatWith(
-        this.combinedDisplaySubject?.pipe?.(
-          debounceTime(24),
-          distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim())
-        ) ?? EMPTY
-      ),
+      // Final stabilization — block empties and coalesce frames
+      skipWhile(v => (v ?? '').trim().length === 0),
+      debounceTime(24),  // wait one frame’s worth (~16-24 ms)
+      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+      tap(v => {
+        if ((v ?? '').trim().length > 0) {
+          this.lastRenderedQuestionTextWithBanner = v.trim();
+        }
+      }),
+      startWith(this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? ''),
+      observeOn(animationFrameScheduler), // ensure paint occurs on next frame
       shareReplay({ bufferSize: 1, refCount: true })
-      ) as Observable<string>;
+    ) as Observable<string>;
   }
 
   private emitContentAvailableState(): void {
