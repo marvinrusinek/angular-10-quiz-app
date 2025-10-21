@@ -1684,7 +1684,7 @@ export class QuizService implements OnDestroy {
   public updateCorrectAnswersText(newText: string): void {
     const text = (newText ?? '').trim();
   
-    // 🔹 Step 1: Prevent redundant updates (exact same text as before)
+    // Prevent redundant updates (exact same text as before)
     if (this._lastBanner === text) return;
   
     // Cancel any pending delayed banner timers
