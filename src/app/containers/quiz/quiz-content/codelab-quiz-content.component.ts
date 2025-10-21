@@ -469,42 +469,53 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Correct-count text — synchronized and sticky for multi-answer questions
-    const correctText$: Observable<string> = combineLatest([
-      this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
-      index$
-    ]).pipe(
-      map(([text, idx]) => {
-        const qObj = this.quizService.questions?.[idx] as any;
-        const isMulti = qObj?.isMulti === true;   // ✅ use stable flag only
-
-        // Diagnostic log — expanded string version to guarantee visibility
-        console.log(
-          `[Banner verify] Q${idx + 1}`,
-          'isMulti =', qObj?.isMulti,
-          '| question =', qObj?.questionText,
-          '| banner text =', text,
-          '| total questions =', this.quizService.questions?.length
-        );
-      
-        if (isMulti) {
-          const trimmed = (text ?? '').trim();
-          if (trimmed.length > 0) {
-            this.lastRenderedBannerText = trimmed;
-            return trimmed;
-          }
-          return this.lastRenderedBannerText ?? '';
-        }
-      
-        // single-answer → clear banner
-        this.lastRenderedBannerText = '';
-        return '';
-      }),
-      auditTime(0),              // ensure same animation frame
-      startWith(''),             // seed initial emission
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true })
+    // Wait until QuizService.questions has data before running the combineLatest
+    const questionsReady$ = interval(50).pipe(
+      map(() => this.quizService.questions?.length ?? 0),
+      filter(len => len > 0),
+      take(1)
     );
-    correctText$.subscribe(v => console.log('[correctText$]', v));
+
+    // Build existing correctText$ AFTER questions are ready
+    const correctText$: Observable<string> = questionsReady$.pipe(
+      switchMap(() =>
+        combineLatest([
+          this.quizService.correctAnswersText$.pipe(startWith(''), distinctUntilChanged()),
+          index$
+        ]).pipe(
+          map(([text, idx]) => {
+            const qObj = this.quizService.questions?.[idx] as any;
+            const isMulti = qObj?.isMulti === true;  // uses stable flag set in QuizDataService
+
+            // Diagnostic log — easy to read
+            console.log(
+              `[Banner verify] Q${idx + 1}`,
+              'isMulti =', qObj?.isMulti,
+              '| question =', qObj?.questionText,
+              '| banner text =', text,
+              '| total questions =', this.quizService.questions?.length
+            );
+
+            if (isMulti) {
+              const trimmed = (text ?? '').trim();
+              if (trimmed.length > 0) {
+                this.lastRenderedBannerText = trimmed;
+                return trimmed;
+              }
+              return this.lastRenderedBannerText ?? '';
+            }
+
+            // single-answer → clear banner
+            this.lastRenderedBannerText = '';
+            return '';
+          }),
+          auditTime(0),
+          startWith(''),
+          distinctUntilChanged(),
+          shareReplay({ bufferSize: 1, refCount: true })
+        )
+      )
+    );
     
     // Explanation + gate scoped to *current* index
     interface FETState {
