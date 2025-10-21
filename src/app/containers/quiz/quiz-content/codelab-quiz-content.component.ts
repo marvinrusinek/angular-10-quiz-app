@@ -153,6 +153,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   isContentAvailable$: Observable<boolean>;
 
   private combinedSub?: Subscription;
+  private _fetHoldUntil = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -531,6 +532,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             const firstRender = !this.explanationTextService.hasRenderedQuestion;
             const gateOpen = gate && !navBusy && !firstRender;
             const displayReady = shouldShow || displayed;
+
+            // Prevent question↔FET flicker: hold gate closed for one visual frame after navigation
+            const now = performance.now();
+            if (!this._fetHoldUntil) this._fetHoldUntil = 0;
+            if (this.quizStateService.isNavigatingSubject?.value === true) {
+              this._fetHoldUntil = now + 48; // ~3 frames at 60 fps
+            }
+            const holdActive = now < this._fetHoldUntil;
+            if (holdActive) {
+              return { idx, text: '', gate: false } as FETState;
+            }
     
             // Only emit valid text when both gate + display are ready
             const canShowFET = gateOpen && displayReady && rawText.length > 0;
