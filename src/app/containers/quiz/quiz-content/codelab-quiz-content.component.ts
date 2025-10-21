@@ -433,13 +433,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
 
     // Global "should show" flag
-    const shouldShow$: Observable<boolean> =
+    /* const shouldShow$: Observable<boolean> =
       this.explanationTextService.shouldDisplayExplanation$.pipe(
         map(Boolean),
         startWith(false),
         distinctUntilChanged(),
         shareReplay({ bufferSize: 1, refCount: true })
-      );
+      ); */
+    // Explanation flag — force one stable frame of FALSE on startup
+    const shouldShow$: Observable<boolean> = merge(
+      // hold false for first 120ms to let question paint first
+      of(false).pipe(delay(120)),
+      this.explanationTextService.shouldDisplayExplanation$.pipe(
+        map(Boolean),
+        distinctUntilChanged()
+      )
+    ).pipe(
+      startWith(false),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
 
     // Question text for current index
     const questionText$: Observable<string> = combineLatest([
@@ -689,6 +701,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       map((v) => v.payload),
       map(([idx, question, banner, fet, shouldShow]:
         [number, string, string, FETState, boolean]) => {
+
+        // ───────── GUARD AGAINST EARLY EXPLANATION MODE ON FIRST QUESTION ─────────
+        const currentMode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+        if (idx === 0 && currentMode === 'explanation') {
+          console.log(`[Render guard] Forcing QUESTION mode for Q1 (initial load)`);
+          this.quizStateService.displayStateSubject.next({ mode: 'question', answered: false });
+        }
+
         // Prevent flicker: once explanation is displayed for this index, lock it
         const isLocked = this._fetLockedIndex === idx;
         const shouldShowExplanation =
