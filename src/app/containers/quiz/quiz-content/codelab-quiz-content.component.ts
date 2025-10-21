@@ -409,10 +409,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     interface FETState { idx: number; text: string; gate: boolean }
   
     // ── Current index (stable)
-    const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
+    /* const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
       distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    // Current index (stable, debounced)
+    const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged(),
+      debounce(() => timer(120)),   // wait 120 ms after last change before emitting
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
