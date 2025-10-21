@@ -244,7 +244,7 @@ export class QuizService implements OnDestroy {
 
   private _lastFetchedIndex: number | null = null;
 
-  private _lastBannerFrameIndex: number | null = null;
+  public _lastBannerFrameIndex: number | null = null;
 
   constructor(
     private quizShuffleService: QuizShuffleService,
