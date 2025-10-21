@@ -211,15 +211,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     });
 
     // Build the stream only once globally
-    const waitForQuestions = interval(50).pipe(
-      map((): number => this.quizService.questions?.length ?? 0),
-      filter((len: number) => len > 0),
-      take(1)
-    );
-    waitForQuestions.subscribe(() => {
-      console.log('[Init] ✅ Questions ready, building combinedText$ stream');
-      this.combinedText$ = this.getCombinedDisplayTextStream();
-    });
+    this.combinedText$ = this.getCombinedDisplayTextStream();
 
     // Always subscribe after the stream is created
     // Use a small delay so as not to subscribe to an undefined observable
@@ -482,30 +474,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       index$
     ]).pipe(
       map(([text, idx]) => {
-        // Guard: if questions not ready yet, don't block, just skip banner
+        // ✅ Soft-guard: don’t block the stream — just skip banner until data exists
         const questions = this.quizService.questions;
-        if (!questions || questions.length === 0) {
-          return ''; // skip until loaded
+        if (!Array.isArray(questions) || questions.length <= idx) {
+          // Return empty banner so question text still displays
+          console.log(`[Banner guard] Skipping banner for Q${idx + 1} — questions not ready`);
+          return '';
         }
-    
+      
         const qObj = questions[idx] as any;
         const isMulti =
-          qObj &&
-          (qObj.isMulti === true ||
-            qObj.type === QuestionType.MultipleAnswer ||
-            (Array.isArray(qObj.options) &&
-              qObj.options.filter((o) => o.correct === true).length > 1));
-    
-        // Diagnostic log — easy to read
+          qObj?.isMulti === true ||
+          qObj?.type === QuestionType.MultipleAnswer ||
+          (Array.isArray(qObj?.options) &&
+            qObj.options.filter((o) => o.correct === true).length > 1);
+      
         console.log(
           `[Banner verify] Q${idx + 1}`,
           'isMulti =', qObj?.isMulti,
           '| question =', qObj?.questionText,
           '| banner text =', text,
-          '| total questions =', questions?.length
+          '| total questions =', questions.length
         );
-    
-        // Only show banner for multi-answer questions
+      
+        // ✅ Only display banner for multi-answer questions
         if (isMulti) {
           const trimmed = (text ?? '').trim();
           if (trimmed.length > 0) {
@@ -514,7 +506,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           }
           return this.lastRenderedBannerText ?? '';
         }
-    
+      
         // Single-answer → clear banner
         this.lastRenderedBannerText = '';
         return '';
