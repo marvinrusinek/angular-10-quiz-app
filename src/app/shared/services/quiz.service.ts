@@ -1088,21 +1088,6 @@ export class QuizService implements OnDestroy {
     }
   }
 
-  async fetchAndSetQuestions(
-    quizId: string
-  ): Promise<{ quizId: string; questions: QuizQuestion[] }> {
-    try {
-      const questionsData = await this.getQuestionsForQuiz(quizId)
-        .pipe(take(1))
-        .toPromise() as QuestionsData;
-      this.questions = questionsData.questions;
-      return questionsData;
-    } catch (error) {
-      console.error('Error fetching questions for quiz:', error);
-      return { quizId, questions: [] };
-    }
-  }
-
   getAllQuestions(): Observable<QuizQuestion[]> {
     if (this.questionsSubject.getValue().length === 0) {
       this.http
@@ -1150,87 +1135,6 @@ export class QuizService implements OnDestroy {
         .subscribe(); // Start the Observable chain
     }
     return this.questions$;
-  }
-
-  getQuestionsForQuiz(
-    quizId: string
-  ): Observable<{ quizId: string; questions: QuizQuestion[] }> {
-    console.log('[QuizService] getQuestionsForQuiz called with ID:', quizId);
-
-    return this.http.get<Quiz[]>(this.quizUrl).pipe(
-      map((quizzes) => quizzes.find((quiz) => quiz.quizId === quizId)),
-      tap((quiz) => {
-        if (quiz) {
-          console.log(`[QuizService] Quiz fetched for ID ${quizId}:`, quiz);
-  
-          // Ensure each question and option has correct properties
-          for (const [qIndex, question] of quiz.questions.entries()) {
-            if (!question.options || question.options.length === 0) {
-              console.warn(
-                `[QuizService] Question ${qIndex} has no options. Skipping option initialization.`
-              );
-              continue;
-            }
-  
-            console.log(
-              `[QuizService] Initializing options for Question ${qIndex}:`,
-              question
-            );
-  
-            for (const [oIndex, option] of question.options.entries()) {
-              option.optionId = oIndex; // Assign unique optionId
-              option.correct = option.correct ?? false; // Default `correct` to false if undefined
-              console.log(`[QuizService] Option ${oIndex} initialized:`, option);
-            }
-  
-            // 🔹 Stamp multi-answer flag (compute once per question)
-            const isMulti =
-              question.type === QuestionType.MultipleAnswer ||
-              (Array.isArray(question.options) &&
-                question.options.filter((o) => o.correct === true).length > 1);
-  
-            (question as any).isMulti = isMulti;
-            console.log(`[QuizService] 🧮 Q${qIndex + 1} isMulti =`, isMulti);
-          }
-  
-          // Shuffle questions and options if enabled
-          if (this.shouldShuffle()) {
-            console.log('[QuizService] Shuffling questions and options...');
-            Utils.shuffleArray(quiz.questions);
-            for (const question of quiz.questions) {
-              if (question.options) {
-                Utils.shuffleArray(question.options);
-              }
-            }
-          }
-        } else {
-          console.warn(`[QuizService] No quiz found with ID ${quizId}.`);
-        }
-      }),
-      map((quiz) => {
-        if (!quiz) {
-          throw new Error(`Quiz with ID ${quizId} not found`);
-        }
-
-        return { quizId: quiz.quizId, questions: quiz.questions };
-      }),
-      tap((quiz) => {
-        // 🔹 Ensure service has a valid questions array before anything else uses it
-        this.questions = quiz.questions;
-        console.log('[QuizService] Questions array assigned to service:', this.questions?.length);
-
-        // Set active quiz afterward
-        this.setActiveQuiz(quiz as unknown as Quiz);
-        console.log('[QuizService] Active quiz set:', quiz);
-      }),
-      catchError((error) => {
-        console.error('An error occurred while loading questions:', error);
-        return throwError(() => new Error('Failed to load questions'));
-      }),
-      distinctUntilChanged(
-        (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-      )
-    );
   }
 
   public setQuestionData(data: any): void {
