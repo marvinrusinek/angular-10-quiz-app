@@ -502,9 +502,9 @@ export class QuizNavigationService {
       // 🧹 Clean up previous question state
       // ────────────────────────────────────────────────
       try {
-        (this as any).displayExplanation = false;
-        (this as any).explanationToDisplay = '';
-        (this as any).explanationToDisplayChange?.emit('');
+        this.displayExplanation = false;
+        this.explanationToDisplay = '';
+        this.explanationToDisplayChange?.emit('');
   
         const prev = this.quizService.getCurrentQuestionIndex();
         if (Number.isFinite(prev) && prev !== index) {
@@ -539,7 +539,7 @@ export class QuizNavigationService {
         console.warn('[⚠️ Already on route – forcing reload]', {
           currentIndex,
           index,
-          routeUrl,
+          routeUrl
         });
         await this.ngZone.run(() =>
           this.router.navigateByUrl('/', { skipLocationChange: true })
