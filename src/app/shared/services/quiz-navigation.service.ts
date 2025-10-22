@@ -459,7 +459,7 @@ export class QuizNavigationService {
       this.resetRenderStateBeforeNavigation(index);
   
       // Allow Angular to fully tear down old DOM frame
-      await new Promise<void>((resolve) => requestAnimationFrame(resolve));
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   
       // Reset explanation state before re-painting
       this.explanationTextService.formattedExplanationSubject.next('');
