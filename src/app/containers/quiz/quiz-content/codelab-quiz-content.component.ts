@@ -554,7 +554,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 4️⃣  Final render stream
     // ────────────────────────────────────────────────
   
-    return combineLatest([
+    /* return combineLatest([
       index$,
       questionText$,
       correctText$,
@@ -599,7 +599,76 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }),
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
+    ) as Observable<string>; */
+    return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
+      observeOn(animationFrameScheduler),
+    
+      map(([idx, question, banner, fet, shouldShow]:
+           [number, string, string, FETState, boolean]) => {
+    
+        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+        const qText = (question ?? '').trim();
+        const bannerText = (banner ?? '').trim();
+    
+        // ────────────────────────────────────────────────
+        // 🧭 Gate cleanup: close stale FET gates *before* new render
+        // ────────────────────────────────────────────────
+        if (this._lastRenderedIndex !== idx) {
+          const prev = this._lastRenderedIndex;
+          this._lastRenderedIndex = idx;
+    
+          // Close all gates immediately (sync, no RAF delay)
+          if (this.explanationTextService._gatesByIndex?.size) {
+            this.explanationTextService._gatesByIndex.clear();
+          }
+    
+          this.explanationTextService._fetLocked = null;
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
+          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+    
+          console.log(`[SYNC GATE RESET] Switched from Q${prev + 1} → Q${idx + 1}`);
+        }
+    
+        // ────────────────────────────────────────────────
+        // 🧩 Explanation (FET) mode
+        // ────────────────────────────────────────────────
+        if (
+          mode === 'explanation' &&
+          fet?.gate === true &&
+          (fet?.text ?? '').trim().length > 0 &&
+          this.explanationTextService.currentShouldDisplayExplanation === true
+        ) {
+          this.explanationTextService._fetLocked = idx;
+          this.explanationTextService.setIsExplanationTextDisplayed(true);
+          return fet.text.trim();
+        }
+    
+        // ────────────────────────────────────────────────
+        // 🧱 Merge question text and banner (multi-answer)
+        // ────────────────────────────────────────────────
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          !!qObj &&
+          (qObj.type === QuestionType.MultipleAnswer ||
+           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct === true)));
+    
+        let mergedHtml = qText;
+        if (isMulti && bannerText && mode === 'question') {
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+          this.lastRenderedBannerText = bannerText;
+        }
+    
+        this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+    
+        // Record last stable paint
+        this._lastQuestionPaintTime = performance.now();
+    
+        return mergedHtml;
+      }),
+      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ) as Observable<string>;    
   }
   
 
