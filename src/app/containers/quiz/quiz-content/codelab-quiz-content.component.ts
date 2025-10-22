@@ -703,8 +703,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           fetText.length > 0 &&
           this.explanationTextService.currentShouldDisplayExplanation
         ) {
+          console.log(
+            `[DIAG] FET render accepted for Q${idx + 1} | gate=${fet.gate} | text=${fetText.slice(0, 60)}`
+          );
           return fetText;
         }
+
+        // 🧩 Log question text render
+        console.log(
+          `[DIAG] QUESTION render accepted for Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`
+        );
     
         // 🧭 Diagnostic guard — skip redundant identical frames
         if (
