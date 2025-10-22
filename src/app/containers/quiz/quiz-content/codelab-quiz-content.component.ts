@@ -165,7 +165,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private _fetHoldUntil = 0;
   private _firstRenderReleased = false;
 
-  /** Tracks which question index was last rendered to prevent cross-frame bleeding.
+  // Tracks which question index was last rendered to prevent cross-frame bleeding.
   private _lastRenderedIndex: number = -1;
 
   // Small map to mirror ExplanationTextService’s gate state, used to locally clear.
