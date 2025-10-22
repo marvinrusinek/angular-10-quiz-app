@@ -571,7 +571,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
             return active === idx;
           }),
-          map(([text, gate, shouldShow, displayed, painted]) => {
+          /* map(([text, gate, shouldShow, displayed, painted]) => {
             const rawText = (text ?? '').toString().trim();
             const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
             const gateOpen = gate && !navBusy && painted;
@@ -589,7 +589,29 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             }
     
             return { idx, text: rawText, gate: true } as FETState;
-          }),
+          }), */
+          map(([text, gate, shouldShow, displayed, painted]) => {
+            const rawText = (text ?? '').toString().trim();
+            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+            const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
+          
+            // 🧱 HARD GATE: never leak FET from a different index
+            if (active !== idx) {
+              console.log(`[FET Guard] Blocked stale FET from Q${idx + 1} (active=${active + 1})`);
+              return { idx, text: '', gate: false } as FETState;
+            }
+          
+            const gateOpen = gate && !navBusy && painted;
+            const displayReady = shouldShow || displayed;
+            const canShowFET = gateOpen && displayReady && rawText.length > 0;
+          
+            if (!canShowFET) {
+              return { idx, text: '', gate: false } as FETState;
+            }
+          
+            console.log(`[FET OK] Q${idx + 1} gateOpen=${gateOpen} len=${rawText.length}`);
+            return { idx, text: rawText, gate: true } as FETState;
+          }),          
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
         );
       }),
