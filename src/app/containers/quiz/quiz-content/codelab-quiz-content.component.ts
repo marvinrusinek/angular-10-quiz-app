@@ -107,6 +107,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Time of last stable question paint
   private _lastQuestionPaintTime = 0;
+  private _lastModeSwitchTime = 0;
   private _lastQuestionText = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
