@@ -247,12 +247,23 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               // Run inside Angular's zone so FET + banner are reactive
               this.ngZone.run(() => {
                 requestAnimationFrame(() => {
+                  const incoming = typeof v === 'string' ? v : '';
+                  const plainText = incoming
+                    .replace(/<[^>]*>/g, ' ')
+                    .replace(/&nbsp;/gi, ' ')
+                    .trim();
+
+                  // Skip transient placeholder frames (e.g. a lone question mark)
+                  if (plainText === '?') {
+                    return;
+                  }
+
                   // Fade-out
                   el.style.transition = 'opacity 0.12s linear';
                   el.style.opacity = '0.4';
 
                   // Update content atomically
-                  el.innerHTML = v || '';
+                  el.innerHTML = incoming || '';
 
                   // Fade-in again
                   requestAnimationFrame(() => {
