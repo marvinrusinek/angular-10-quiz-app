@@ -1345,4 +1345,32 @@ export class ExplanationTextService {
       console.log(`[ETS] Closed gate for Q${index + 1}`);
     }
   }
+
+  public closeAllGates(): void {
+    try {
+      // Close per-index gates
+      for (const gate of this._gatesByIndex.values()) {
+        gate.next(false);
+      }
+      this._gatesByIndex.clear();
+  
+      // Reset explanation display state
+      this.shouldDisplayExplanationSource?.next(false);
+      this.isExplanationTextDisplayedSource?.next(false);
+  
+      // Reset internal text subjects
+      if (this._byIndex) {
+        for (const subj of this._byIndex.values()) {
+          subj.next('');
+        }
+      }
+  
+      this._fetLocked = false;
+      this._activeIndex = -1;
+  
+      console.log('[ExplanationTextService] 🚪 All gates closed');
+    } catch (err) {
+      console.warn('[ExplanationTextService] ⚠️ closeAllGates failed:', err);
+    }
+  }
 }
