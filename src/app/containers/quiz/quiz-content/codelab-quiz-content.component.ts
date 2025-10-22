@@ -107,6 +107,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   // Time of last stable question paint
   private _lastQuestionPaintTime = 0;
+  private _lastQuestionText = '';
 
   private overrideSubject = new BehaviorSubject<{ idx: number; html: string }>({ idx: -1, html: '' });
   private currentIndex = -1;
@@ -474,34 +475,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       index$,
       this.questionToDisplay$
     ]).pipe(
-      // Small frame delay gives Angular time to update quizService.questions
-      auditTime(16),
-    
-      map(([idx, text]) => {
-        const all = this.quizService.questions ?? [];
-        const modelText = (all[idx]?.questionText ?? '').trim();
-        const emitted = (text ?? '').trim();
-    
-        // 🧱 Guard 1: drop blanks or placeholder emissions
-        if (!emitted || emitted === '?' || emitted.length < 2) {
-          console.log(`[Skip] Empty/placeholder emission for Q${idx + 1}`);
-          return null;
-        }
-    
-        // 🧱 Guard 2: ignore any text that doesn’t match the current model
-        if (modelText && emitted !== modelText) {
-          console.log(
-            `[Skip] Mismatch: emitted="${emitted}" vs model="${modelText}" for Q${idx + 1}`
-          );
-          return null;
-        }
-    
-        return modelText || emitted;
+      // Wait one frame after any index change to allow data to load
+      switchMap(([idx, text]) => {
+        return timer(16).pipe(map(() => [idx, text] as [number, string]));
       }),
     
-      // Only pass through verified, non-null question text
-      filter((v): v is string => typeof v === 'string' && v.trim().length > 0),
+      map(([idx, text]) => {
+        const questions = this.quizService.questions ?? [];
+        const current = (questions[idx]?.questionText ?? '').trim();
+        const emitted = (text ?? '').trim();
     
+        // 🧱 Block blanks / placeholders
+        if (!emitted || emitted === '?' || emitted.length < 2) {
+          console.log(`[Skip] Empty placeholder for Q${idx + 1}`);
+          return null;
+        }
+    
+        // 🧱 Block stale cross-index bleed
+        const prevIdx = this._lastRenderedIndex ?? -1;
+        if (idx < prevIdx) {
+          console.log(`[Skip] Backward bleed: prev=${prevIdx}, now=${idx}`);
+          return null;
+        }
+    
+        // 🧱 Require canonical match before painting
+        if (current && emitted !== current) {
+          console.log(`[Skip] Mismatch: "${emitted}" vs canonical "${current}" for Q${idx + 1}`);
+          return null;
+        }
+    
+        this._lastRenderedIndex = idx;
+        return current || emitted;
+      }),
+    
+      filter((v): v is string => typeof v === 'string' && v.trim().length > 0),
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -667,6 +674,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
       
         const qText = (question ?? '').trim();
+        if (!qText) {
+          return this._lastQuestionText || this.lastRenderedQuestionTextWithBanner || this.questionLoadingText || '';
+        }
+
         const bannerText = (banner ?? '').trim();
         const fetText = (fet?.text ?? '').trim();
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
@@ -703,9 +714,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
       
         let merged = qText;
+
         if (isMulti && bannerText && mode === 'question') {
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
+
+        this._lastQuestionText = qText;
+        this.lastRenderedQuestionTextWithBanner = merged;
       
         // 🧹 After merging → reset explanation display flags
         this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
