@@ -470,47 +470,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     // 2️⃣  Question + Correct-count banner
     // ────────────────────────────────────────────────
-    const questionText$: Observable<string> = combineLatest([
-      index$,
-      this.questionToDisplay$,
-    ]).pipe(
-      // 🧱 Ignore placeholder or stale emissions (e.g., "?" or empty)
-      filter(([idx, text]) => {
-        const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-        const t = (text ?? '').trim();
-        if (idx !== active || t === '' || t === '?') {
-          console.log(
-            `[QTXT Guard] Dropping stale/blank text for Q${idx + 1} (active=${active + 1})`
-          );
-          return false;
-        }
-        return true;
-      }),
-    
-      // 🧠 Carry forward last valid question text
-      scan(
-        (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
-          const next = (text ?? '').trim();
-          const lastValid = next || acc.lastValid;
-          return { idx, lastValid };
-        },
-        { idx: 0, lastValid: '' }
+    const questionText$: Observable<string> = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged(),
+      switchMap((idx) =>
+        this.questionToDisplay$.pipe(
+          map(text => ({ idx, text: (text ?? '').trim() })),
+          // Wait until the text matches the *current* active question
+          filter(({ idx: localIdx, text }) => {
+            const active = this.quizService.getCurrentQuestionIndex?.() ?? localIdx;
+            const q = this.quizService.questions?.[localIdx];
+            const sameIdx = localIdx === active;
+            const correctText = (q?.questionText ?? '').trim();
+            const match = sameIdx && text.length > 0 && text === correctText;
+            if (!match) {
+              console.log(`[SYNC HOLD] idx=${localIdx}, active=${active}, text="${text}", correct="${correctText}"`);
+            }
+            return match;
+          }),
+          take(1), // only accept the first valid matching emission per index
+          map(({ text }) => text),
+          startWith(this.questionLoadingText ?? 'Loading...'),
+          distinctUntilChanged()
+        )
       ),
-    
-      // 🧩 Resolve actual text from the canonical questions array
-      map((v) => {
-        const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
-        const model = (q?.questionText ?? '').trim();
-        const safe =
-          model ||
-          v.lastValid ||
-          this.lastRenderedQuestionTextWithBanner ||
-          this.questionLoadingText ||
-          `Question ${v.idx + 1}`;
-        return safe;
-      }),
-    
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
