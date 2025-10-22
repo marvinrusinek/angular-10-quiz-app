@@ -778,14 +778,34 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const bannerText = (banner ?? '').trim();
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-
-          // ────────────────────────────────────────────────
-          // 🧭 Stabilize mode for 1 frame after question index change
-          // ────────────────────────────────────────────────
-          const active = this.quizService.getCurrentQuestionIndex();
           const now = performance.now();
 
+          // ────────────────  STABILIZATION GUARD  ────────────────
           if (this._lastRenderedIndex !== idx) {
+            this._lastRenderedIndex = idx;
+            this._indexSwitchTime = now;
+            this._renderStableAfter = now + 120;     // wait ~120 ms before allowing FET
+            this._firstStableFrameDone = false;
+
+            // always force question mode at switch
+            this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
+            console.log(`[Guard] Switched → Q${idx + 1}, blocking FET until ${(this._renderStableAfter - now).toFixed(0)} ms`);
+          }
+
+          // 🧱 skip any explanation frame within the stabilization window
+          if (mode === 'explanation' && now < this._renderStableAfter) {
+            console.log(`[Guard] Suppressing early FET for Q${idx + 1} (${(this._renderStableAfter - now).toFixed(0)} ms left)`);
+            return this._lastQuestionText || qText || '';
+          }
+
+          // 🧩 once a valid question has painted, mark as stable
+          if (!this._firstStableFrameDone && qText.length > 0) {
+            this._firstStableFrameDone = true;
+            this._renderStableAfter = now; // allow FET after this point
+          }
+
+
+          /* if (this._lastRenderedIndex !== idx) {
             // record index switch moment
             this._lastRenderedIndex = idx;
             this._lastModeSwitchTime = now;
@@ -803,7 +823,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           if (sinceSwitch < 80 && mode === 'explanation') {
             console.log(`[ModeGuard] Ignoring EXPLANATION frame (<80 ms after Q${idx + 1} load)`);
             return this._lastQuestionText || (question ?? '').trim();
-          }
+          } */
 
           if (
             mode === 'explanation' &&
