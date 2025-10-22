@@ -472,42 +472,44 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     const questionText$: Observable<string> = combineLatest([
       index$,
-      this.questionToDisplay$
+      this.questionToDisplay$,
     ]).pipe(
-      // Wait one frame after any index change to allow data to load
-      switchMap(([idx, text]) => {
-        return timer(16).pipe(map(() => [idx, text] as [number, string]));
+      // 🧱 Ignore placeholder or stale emissions (e.g., "?" or empty)
+      filter(([idx, text]) => {
+        const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+        const t = (text ?? '').trim();
+        if (idx !== active || t === '' || t === '?') {
+          console.log(
+            `[QTXT Guard] Dropping stale/blank text for Q${idx + 1} (active=${active + 1})`
+          );
+          return false;
+        }
+        return true;
       }),
     
-      map(([idx, text]) => {
-        const questions = this.quizService.questions ?? [];
-        const current = (questions[idx]?.questionText ?? '').trim();
-        const emitted = (text ?? '').trim();
+      // 🧠 Carry forward last valid question text
+      scan(
+        (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
+          const next = (text ?? '').trim();
+          const lastValid = next || acc.lastValid;
+          return { idx, lastValid };
+        },
+        { idx: 0, lastValid: '' }
+      ),
     
-        // 🧱 Block blanks / placeholders
-        if (!emitted || emitted === '?' || emitted.length < 2) {
-          console.log(`[Skip] Empty placeholder for Q${idx + 1}`);
-          return null;
-        }
-    
-        // 🧱 Block stale cross-index bleed
-        const prevIdx = this._lastRenderedIndex ?? -1;
-        if (idx < prevIdx) {
-          console.log(`[Skip] Backward bleed: prev=${prevIdx}, now=${idx}`);
-          return null;
-        }
-    
-        // 🧱 Require canonical match before painting
-        if (current && emitted !== current) {
-          console.log(`[Skip] Mismatch: "${emitted}" vs canonical "${current}" for Q${idx + 1}`);
-          return null;
-        }
-    
-        this._lastRenderedIndex = idx;
-        return current || emitted;
+      // 🧩 Resolve actual text from the canonical questions array
+      map((v) => {
+        const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
+        const model = (q?.questionText ?? '').trim();
+        const safe =
+          model ||
+          v.lastValid ||
+          this.lastRenderedQuestionTextWithBanner ||
+          this.questionLoadingText ||
+          `Question ${v.idx + 1}`;
+        return safe;
       }),
     
-      filter((v): v is string => typeof v === 'string' && v.trim().length > 0),
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
