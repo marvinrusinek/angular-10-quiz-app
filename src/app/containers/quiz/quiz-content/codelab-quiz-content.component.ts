@@ -697,22 +697,21 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
       
         // 🧩 Prefer showing FET when appropriate
-        if (
-          mode === 'explanation' &&
-          fet?.gate &&
-          fetText.length > 0 &&
-          this.explanationTextService.currentShouldDisplayExplanation
-        ) {
-          console.log(
-            `[DIAG] FET render accepted for Q${idx + 1} | gate=${fet.gate} | text=${fetText.slice(0, 60)}`
-          );
-          return fetText;
+        if (mode === 'explanation') {
+          const isReady =
+            fet?.gate === true &&
+            fetText.length > 0 &&
+            this.explanationTextService.currentShouldDisplayExplanation === true;
+        
+          if (isReady) {
+            console.log(`[Render] Showing FET for Q${idx + 1}`);
+            return fetText;
+          }
+        
+          // 🚫 otherwise, don’t draw at all until we have text
+          console.log(`[Render] Blocking empty FET frame for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? _lastQuestionText ?? qText;
         }
-
-        // 🧩 Log question text render
-        console.log(
-          `[DIAG] QUESTION render accepted for Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`
-        );
     
         // 🧭 Diagnostic guard — skip redundant identical frames
         if (
