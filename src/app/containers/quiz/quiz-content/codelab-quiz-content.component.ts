@@ -479,40 +479,33 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     const questionText$: Observable<string> = combineLatest([
       index$,
-      this.questionToDisplay$.pipe(
-        // Ignore null, '?', empty, or whitespace-only text
-        filter(t => typeof t === 'string' && t.trim().length > 0 && t.trim() !== '?'),
-        distinctUntilChanged()
-      )
+      this.questionToDisplay$,
     ]).pipe(
-      // Only pass question text if it matches the *current* index snapshot
-      filter(([idx, text]) => {
-        const activeIdx = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-        const isCurrent = idx === activeIdx;
-        if (!isCurrent) {
-          console.log(`[QTGuard] Drop stale question text from Q${idx + 1}, active is Q${activeIdx + 1}`);
-        }
-        return isCurrent;
+      // Drop any emission whose index ≠ current active index
+      filter(([idx]) => idx === this.quizService.getCurrentQuestionIndex()),
+      // Drop placeholders and blanks
+      filter(([_, text]) => {
+        const t = (text ?? '').trim();
+        return t.length > 0 && t !== '?' && t !== 'Loading question…';
       }),
-    
-      // Debounce just slightly to let the router/loader stabilize
-      debounceTime(20),
-    
-      map(([idx, text]) => {
-        const clean = (text ?? '').trim();
-        const qObj = this.quizService.questions?.[idx];
-        const fallback =
-          (qObj?.questionText ?? '').trim() ||
-          clean ||
-          this.questionLoadingText ||
-          `Question ${idx + 1}`;
-        return fallback;
+      // Ensure each index starts clean
+      scan(
+        (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
+          const next = (text ?? '').trim();
+          const lastValid = idx !== acc.idx ? next : next || acc.lastValid;
+          return { idx, lastValid };
+        },
+        { idx: -1, lastValid: '' }
+      ),
+      map(({ idx, lastValid }) => {
+        const q = this.quizService.questions?.[idx];
+        const model = (q?.questionText ?? '').trim();
+        const safe = model || lastValid || this.questionLoadingText || '';
+        return safe;
       }),
-    
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
-    
   
     const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
@@ -748,6 +741,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         _lastQuestionText = merged;
         return merged;
       }), */
+      this._lastRenderedIndex = this.quizService.getCurrentQuestionIndex();
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
         // ── Only let emissions through when both question and explanation are stable ──
         auditTime(16), // coalesce bursts to one per frame
@@ -775,59 +769,61 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
         
-          // ───────────────────────────────
-          // 🧭 Stabilization: run once per index switch
-          // ───────────────────────────────
+          // ───────────────────────────────────────────────
+          // 🧱 HARD GUARD: drop any frame from an older index
+          // ───────────────────────────────────────────────
+          if (typeof this._lastRenderedIndex === 'number' && idx < this._lastRenderedIndex) {
+            console.log(`[FrameDrop] stale idx=${idx} < last=${this._lastRenderedIndex}`);
+            return this._lastQuestionText || qText || '';
+          }
+        
+          // ───────────────────────────────────────────────
+          // 🧭 Stabilization window per index
+          // ───────────────────────────────────────────────
           if (this._lastRenderedIndex !== idx) {
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
-            this._renderStableAfter = now + 48;     // hold ~3 frames
+            this._renderStableAfter = now + 48;  // 2–3 frames
             this._fetLockedIndex = null;
             this._fetLockedFrameTime = 0;
             this._firstStableFrameDone = false;
-        
-            // always reset mode to question
+            this._lastQuestionText = '';
             this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] → Q${idx + 1} | FET blocked for 48 ms`);
+            console.log(`[Guard] → Q${idx + 1} | FET blocked 48 ms`);
           }
         
-          // ───────────────────────────────
-          // 🧩 First visible question frame unlocks after 48 ms quiet window
-          // ───────────────────────────────
+          // ───────────────────────────────────────────────
+          // 🧩 Once question visible, mark stable
+          // ───────────────────────────────────────────────
           if (!this._firstStableFrameDone && qText.length > 0) {
             this._firstStableFrameDone = true;
+            this._renderStableAfter = now; // release FET
             this._lastQuestionPaintTime = now;
           }
         
-          const sinceSwitch = now - this._indexSwitchTime;
-          const quietEnough = sinceSwitch > 48;
-        
-          // ───────────────────────────────
-          // 🚫 Ignore explanation attempts until quiet period finished
-          // ───────────────────────────────
-          if (mode === 'explanation' && (!quietEnough || fet?.idx !== idx)) {
-            console.log(`[Hold] suppress FET for Q${idx + 1} (quietEnough=${quietEnough})`);
+          // ───────────────────────────────────────────────
+          // 🚫 Suppress premature FET or mismatched index
+          // ───────────────────────────────────────────────
+          const tooEarly = now < this._renderStableAfter;
+          const wrongIdx = fet?.idx !== idx;
+          if (mode === 'explanation' && (tooEarly || wrongIdx)) {
+            console.log(`[HoldFET] skip early/mismatch FET (tooEarly=${tooEarly}, wrong=${wrongIdx})`);
             return this._lastQuestionText || qText;
           }
         
-          // ───────────────────────────────
-          // ✅ Render explanation once, then freeze question repaint for 120 ms
-          // ───────────────────────────────
+          // ───────────────────────────────────────────────
+          // ✅ Render valid FET once, then freeze question
+          // ───────────────────────────────────────────────
           if (
             mode === 'explanation' &&
             fet?.gate &&
             fetText.length > 0 &&
             this.explanationTextService.currentShouldDisplayExplanation
           ) {
-            const alreadyLocked =
-              this._fetLockedIndex === idx &&
-              now - (this._fetLockedFrameTime ?? 0) < 120;
-        
-            if (alreadyLocked) {
-              console.log(`[Lock] skip duplicate FET for Q${idx + 1}`);
+            const recent = now - (this._fetLockedFrameTime ?? 0) < 150;
+            if (this._fetLockedIndex === idx && recent) {
               return this._lastQuestionText || fetText;
             }
-        
             this._fetLockedIndex = idx;
             this._fetLockedFrameTime = now;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
@@ -835,9 +831,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             return fetText;
           }
         
-          // ───────────────────────────────
+          // ───────────────────────────────────────────────
           // 🧱 Merge question + banner
-          // ───────────────────────────────
+          // ───────────────────────────────────────────────
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
@@ -849,27 +845,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
         
-          // ───────────────────────────────
-          // 🧊 Freeze: if FET just shown, hold question repaint for 120 ms
-          // ───────────────────────────────
-          if (
+          // 🚫 Freeze repaints briefly after FET to avoid echo
+          const fetRecentlyLocked =
             this._fetLockedIndex === idx &&
-            now - (this._fetLockedFrameTime ?? 0) < 120
-          ) {
-            console.log(`[Freeze] skip Q repaint (FET lock active)`);
+            now - (this._fetLockedFrameTime ?? 0) < 120;
+          if (fetRecentlyLocked) {
+            console.log(`[Freeze] skip repaint during FET lock`);
             return this._lastQuestionText || fetText;
           }
         
+          // 🧹 Record diagnostics
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
           this._lastQuestionPaintTime = now;
+          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
-        
       
         // Deduplicate identical frames
         distinctUntilChanged((a, b) => a.trim() === b.trim()),
-        startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
       ) as Observable<string>;       
   }
