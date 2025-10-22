@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { animationFrameScheduler, BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of, Subject, Subscription, timer } from 'rxjs';
-import { auditTime, catchError, concatWith, debounce, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { auditTime, catchError, concatMap, concatWith, debounce, debounceTime, delay, distinctUntilChanged, filter, first, map, mapTo, observeOn, pairwise, scan, shareReplay, skipWhile, startWith, switchMap, take, takeUntil, tap, throttleTime, withLatestFrom } from 'rxjs/operators';
 import { firstValueFrom } from '../../../shared/utils/rxjs-compat';
 
 import { CombinedQuestionDataType } from '../../../shared/models/CombinedQuestionDataType.model';
@@ -164,6 +164,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private combinedSub?: Subscription;
   private _fetHoldUntil = 0;
   private _firstRenderReleased = false;
+
+  /** Tracks which question index was last rendered to prevent cross-frame bleeding.
+  private _lastRenderedIndex: number = -1;
+
+  // Small map to mirror ExplanationTextService’s gate state, used to locally clear.
+  private _gatesByIndex: Map<number, boolean> = new Map();
+
+  // Stores currently locked explanation index (prevents flicker reentry).
+  private _fetLocked: number | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -603,34 +612,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
       observeOn(animationFrameScheduler),
     
-      map(([idx, question, banner, fet, shouldShow]:
-           [number, string, string, FETState, boolean]) => {
-    
+      concatMap(([idx, question, banner, fet, shouldShow]) => {
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
     
         // ────────────────────────────────────────────────
-        // 🧭 Gate cleanup: close stale FET gates *before* new render
+        // 🔒 1️⃣ Hard reset stale FET gates *before* drawing next question
         // ────────────────────────────────────────────────
         if (this._lastRenderedIndex !== idx) {
           const prev = this._lastRenderedIndex;
           this._lastRenderedIndex = idx;
     
-          // Close all gates immediately (sync, no RAF delay)
           if (this.explanationTextService._gatesByIndex?.size) {
             this.explanationTextService._gatesByIndex.clear();
           }
-    
           this.explanationTextService._fetLocked = null;
           this.explanationTextService.setIsExplanationTextDisplayed(false);
           this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
     
-          console.log(`[SYNC GATE RESET] Switched from Q${prev + 1} → Q${idx + 1}`);
+          console.log(`[🧹 Gate reset] from Q${prev + 1} → Q${idx + 1}`);
+    
+          // ⏸ Pause for one animation frame before continuing (lets DOM settle)
+          return new Promise<string>((resolve) =>
+            requestAnimationFrame(() => resolve(''))
+          );
         }
     
         // ────────────────────────────────────────────────
-        // 🧩 Explanation (FET) mode
+        // 🧩 2️⃣ Explanation (FET) mode
         // ────────────────────────────────────────────────
         if (
           mode === 'explanation' &&
@@ -640,17 +650,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         ) {
           this.explanationTextService._fetLocked = idx;
           this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return fet.text.trim();
+          return of(fet.text.trim());
         }
     
         // ────────────────────────────────────────────────
-        // 🧱 Merge question text and banner (multi-answer)
+        // 🧱 3️⃣ Merge question text + banner (multi only)
         // ────────────────────────────────────────────────
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
           (qObj.type === QuestionType.MultipleAnswer ||
-           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct === true)));
+           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
     
         let mergedHtml = qText;
         if (isMulti && bannerText && mode === 'question') {
@@ -660,15 +670,16 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
-    
-        // Record last stable paint
         this._lastQuestionPaintTime = performance.now();
     
-        return mergedHtml;
+        return of(mergedHtml);
       }),
-      distinctUntilChanged((a, b) => (a ?? '').trim() === (b ?? '').trim()),
+    
+      // 🧩 Emit only real visual updates
+      filter(v => typeof v === 'string' && v.trim().length > 0),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;    
+    ) as Observable<string>;        
   }
   
 
