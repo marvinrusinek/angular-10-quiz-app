@@ -691,6 +691,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         this.explanationTextService.markQuestionRendered(true);
         this.lastRenderedQuestionTextWithBanner = mergedHtml;
         this._lastQuestionPaintTime = performance.now();
+
+        // Skip placeholder / transient question frames (like "?")
+        if (!qText || qText === '?' || qText.trim().length === 0) {
+          console.log(`[Render guard] Suppressing transient placeholder for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+        }
     
         return of(mergedHtml);
       }),
