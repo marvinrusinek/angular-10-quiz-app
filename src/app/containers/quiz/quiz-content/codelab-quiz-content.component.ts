@@ -777,6 +777,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const bannerText = (banner ?? '').trim();
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+
+          // 🧱 Block early FET emission within 80 ms of a question paint
+          const now = performance.now();
+          if (this._lastQuestionPaintTime && now - this._lastQuestionPaintTime < 80) {
+            if (fet?.gate && fet?.text?.trim()) {
+              console.log(`[FET Guard] Skipping early FET for Q${idx + 1} (<80 ms since question paint)`);
+              return this._lastQuestionText || qText;
+            }
+          }
       
           if (
             mode === 'explanation' &&
