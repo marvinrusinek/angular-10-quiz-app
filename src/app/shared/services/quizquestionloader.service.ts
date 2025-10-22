@@ -1079,9 +1079,17 @@ export class QuizQuestionLoaderService {
     const activeIndex = this.quizService.getCurrentQuestionIndex();
     if (index !== activeIndex) {
       console.log(`[SKIP] stale emission for Q${index + 1} (active is Q${activeIndex + 1})`);
-      return;  // ignore late/stale emission
+      return;
     }
+  
     const trimmed = (text ?? '').trim();
+  
+    // ⛔ BLOCK all placeholder emissions (question marks or empties)
+    if (!trimmed || trimmed === '?') {
+      console.log(`[BLOCK] Ignored placeholder emission "${trimmed}" for Q${index + 1}`);
+      return;
+    }
+  
     this.questionToDisplay$.next(trimmed);
   }  
 }
