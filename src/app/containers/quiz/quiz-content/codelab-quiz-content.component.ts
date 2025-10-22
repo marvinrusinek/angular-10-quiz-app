@@ -1623,12 +1623,4 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       .toLowerCase()
       .replace(/\s+/g, ' ');
   }
-
-  private normalizeQuestionFrame(markup: string): string {
-    return (markup ?? '')
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
 }
