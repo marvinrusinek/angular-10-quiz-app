@@ -167,6 +167,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private combinedSub?: Subscription;
   private _fetHoldUntil = 0;
   private _firstRenderReleased = false;
+  private _fetLockedFrameTime: number = 0;  // timestamp (ms) when FET was last locked
 
   // Tracks which question index was last rendered to prevent cross-frame bleeding.
   private _lastRenderedIndex: number = -1;
@@ -766,24 +767,35 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }), */
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
         // 👇 Immediately filter out any emissions that belong to the wrong index
-        filter(([idx]) => {
-          const active = this.quizService.getCurrentQuestionIndex();
-          const isCurrent = idx === active;
-          if (!isCurrent) {
-            console.log(`[StaleGuard] Dropping stale emission: idx=${idx}, active=${active}`);
+        filter(([idx, question]) => {
+          // 🧱 skip if text belongs to the wrong question or is empty
+          const activeIdx = this.quizService.getCurrentQuestionIndex();
+          const q = (question ?? '').trim();
+          const isOld = idx !== activeIdx;
+          const isEmpty = q.length === 0;
+        
+          if (isOld || isEmpty) {
+            console.log(`[FrameGuard] Dropping stale/empty frame (idx=${idx}, active=${activeIdx}, empty=${isEmpty})`);
+            return false;
           }
-          return isCurrent;
+        
+          // ✅ ensure first question always passes even before stabilization is set
+          if (idx === 0 && !this._renderStableAfter) {
+            this._renderStableAfter = performance.now();
+            console.log('[InitGuard] Allowing initial frame for Q1');
+          }
+        
+          return true;
         }),
       
-        // 👇 One more filter to drop premature FETs before stabilization window
+        // 👇 only block premature FET *after* initialization
         filter(([idx, , , fet]) => {
           const now = performance.now();
-          const tooEarly = this._renderStableAfter && now < this._renderStableAfter;
+          const hasWindow = !!this._renderStableAfter;
+          const tooEarly = hasWindow && now < this._renderStableAfter;
           const wrongGate = fet?.gate && fet?.idx !== idx;
           if (tooEarly || wrongGate) {
-            console.log(
-              `[PreFilter] Dropping premature FET for Q${idx + 1} (tooEarly=${tooEarly}, wrongGate=${wrongGate})`
-            );
+            console.log(`[PreFilter] Dropping premature FET for Q${idx + 1} (tooEarly=${tooEarly}, wrongGate=${wrongGate})`);
             return false;
           }
           return true;
@@ -798,64 +810,92 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
-      
-          // ────────────────  STABILIZATION GUARD  ────────────────
+        
+          // ────────────────────────────────────────────────
+          // 🧭 Stabilization window — gentler and self-healing
+          // ────────────────────────────────────────────────
           if (this._lastRenderedIndex !== idx) {
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
-            this._renderStableAfter = now + 120; // ~120ms safe zone
+          
+            // shorter hold: only 40 ms
+            this._renderStableAfter = now + 40;
             this._firstStableFrameDone = false;
-      
-            // always force question mode on switch
+            this._fetLockedIndex = null;
+            this._fetLockedFrameTime = 0;
+          
+            // force QUESTION mode once on switch
             this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] Switched → Q${idx + 1}, blocking FET until ${(
-              this._renderStableAfter - now
-            ).toFixed(0)} ms`);
+            console.log(`[Guard] switched → Q${idx + 1}, holding FET 40 ms`);
           }
-      
-          // 🧱 skip any explanation frame within the stabilization window
-          if (mode === 'explanation' && now < this._renderStableAfter) {
-            console.log(`[Guard] Suppressing early FET for Q${idx + 1}`);
-            return this._lastQuestionText || qText || '';
-          }
-      
-          // 🧩 once a valid question has painted, mark as stable
+        
+          // allow explanation immediately after the first visible question frame
           if (!this._firstStableFrameDone && qText.length > 0) {
             this._firstStableFrameDone = true;
-            this._renderStableAfter = now; // allow FET after this point
+            this._renderStableAfter = now; // clear hold instantly
+            console.log(`[Stable] question painted → FET unlocked for Q${idx + 1}`);
           }
-      
-          // 🧩 Prefer showing FET when appropriate
+
+          // 🧱 suppress explanation only inside the brief stabilization window
+          const withinWindow = now < this._renderStableAfter;
+          if (mode === 'explanation' && withinWindow) {
+            console.log(`[Guard] too early FET for Q${idx + 1}`);
+            return this._lastQuestionText || qText;
+          }
+        
+          
+          // 🧩 2️⃣ When in explanation mode and FET is valid, show it — then lock further paints
+          // ────────────────────────────────────────────────
           if (
             mode === 'explanation' &&
             fet?.gate &&
             fetText.length > 0 &&
             this.explanationTextService.currentShouldDisplayExplanation
           ) {
+            // If a FET was already rendered recently for this index, block repaints
+            if (this._fetLockedIndex === idx && this._fetLockedFrameTime && now - this._fetLockedFrameTime < 800) {
+              console.log(`[FETLock] Preventing redundant repaint for Q${idx + 1}`);
+              return this._lastQuestionText || fetText;
+            }
+        
+            // Record definitive FET render and lock for ~800ms
+            this._fetLockedIndex = idx;
+            this._fetLockedFrameTime = now;
+        
+            // Stabilize explanation state
+            this.explanationTextService.setIsExplanationTextDisplayed(true);
+            // this.explanationTextService.setShouldDisplayExplanation(true);
+            console.log(`[Render FET ✅] Locking explanation for Q${idx + 1}`);
+        
             return fetText;
           }
-      
+        
           // ────────────────────────────────────────────────
-          // 🧱 Merge question and banner (multi-answer)
+          // 🧱 3️⃣ Merge question text + banner (multi-answer)
           // ────────────────────────────────────────────────
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
             (qObj.type === QuestionType.MultipleAnswer ||
               (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
-      
+        
           let merged = qText;
+        
+          // 🚫 If a FET was just painted recently, skip repaint for this question
+          if (this._fetLockedIndex === idx && this._fetLockedFrameTime && now - this._fetLockedFrameTime < 800) {
+            console.log(`[LockGuard] Skipping repaint of question mode for Q${idx + 1}`);
+            return this._lastQuestionText || fetText;
+          }
+        
           if (isMulti && bannerText && mode === 'question') {
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
-      
-          // 🧹 Record diagnostics & suppress any leftover FET state
-          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-          this.explanationTextService.setIsExplanationTextDisplayed(false);
-      
+        
+          // 🧹 Record diagnostics & mark question as painted
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
-      
+          this._lastQuestionPaintTime = now;
+        
           console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
