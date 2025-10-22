@@ -168,16 +168,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private combinedSub?: Subscription;
   private _fetHoldUntil = 0;
   private _firstRenderReleased = false;
-  private _fetLockedFrameTime: number = 0;  // timestamp (ms) when FET was last locked
+  private _fetLockedFrameTime: number = 0;   // timestamp (ms) when FET was last locked
+  private _fetLocked: number | null = null;  // stores currently locked explanation index (prevents flicker reentry)
 
   // Tracks which question index was last rendered to prevent cross-frame bleeding.
   private _lastRenderedIndex: number = -1;
 
   // Small map to mirror ExplanationTextService’s gate state, used to locally clear.
   private _gatesByIndex: Map<number, boolean> = new Map();
-
-  // Stores currently locked explanation index (prevents flicker reentry).
-  private _fetLocked: number | null = null;
 
   // 🧭 Frame stabilization fields
   // These track timing between question changes and FET readiness.
@@ -480,32 +478,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // 2️⃣  Question + Correct-count banner
     // ────────────────────────────────────────────────
     const questionText$: Observable<string> = combineLatest([
-      this.quizService.currentQuestionIndex$.pipe(
-        startWith(this.currentQuestionIndexValue ?? 0),
-        map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
+      index$,
+      this.questionToDisplay$.pipe(
+        // Ignore null, '?', empty, or whitespace-only text
+        filter(t => typeof t === 'string' && t.trim().length > 0 && t.trim() !== '?'),
         distinctUntilChanged()
-      ),
-      this.questionToDisplay$.pipe(startWith(''))
+      )
     ]).pipe(
-      // Ignore transient blanks or single-character placeholders
+      // Only pass question text if it matches the *current* index snapshot
       filter(([idx, text]) => {
-        const t = (text ?? '').trim();
-        if (t === '' || t === '?' || t === 'n') return false;
-        return true;
+        const activeIdx = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+        const isCurrent = idx === activeIdx;
+        if (!isCurrent) {
+          console.log(`[QTGuard] Drop stale question text from Q${idx + 1}, active is Q${activeIdx + 1}`);
+        }
+        return isCurrent;
       }),
+    
+      // Debounce just slightly to let the router/loader stabilize
+      debounceTime(20),
+    
       map(([idx, text]) => {
-        const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-        const q = this.quizService.questions?.[idx];
-        const canonical = (q?.questionText ?? '').trim();
-        const safe =
-          // if this emission came from a stale index, use the canonical one
-          idx !== active && canonical ? canonical :
-          (text ?? '').trim() || canonical || `Question ${idx + 1}`;
-        return safe;
+        const clean = (text ?? '').trim();
+        const qObj = this.quizService.questions?.[idx];
+        const fallback =
+          (qObj?.questionText ?? '').trim() ||
+          clean ||
+          this.questionLoadingText ||
+          `Question ${idx + 1}`;
+        return fallback;
       }),
+    
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    
   
     const correctText$: Observable<string> = combineLatest([
       this.quizService.correctAnswersText$.pipe(
@@ -545,73 +552,48 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const fetForIndex$: Observable<FETState> = index$.pipe(
       switchMap((idx) => {
-        // Immediately close all gates from the previous question
-        requestAnimationFrame(() => {
-          if (typeof this.explanationTextService.closeAllGates === 'function') {
-            this.explanationTextService.closeAllGates();
-          }
+        const activeIdx = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+    
+        // 🧹 Immediately close gates from previous index to stop FET bleed
+        if (this.explanationTextService && typeof this.explanationTextService.closeAllGates === 'function') {
+          this.explanationTextService.closeAllGates();
           this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
           this.explanationTextService.setIsExplanationTextDisplayed(false);
-        });
+          console.log(`[FETReset] closed all gates → ready for Q${idx + 1}`);
+        }
     
         return combineLatest([
           this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
-          shouldShow$, // already boolean
-          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false)),
-          firstQuestionPaint$
+          this.explanationTextService.shouldDisplayExplanation$.pipe(startWith(false)),
+          this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false))
         ]).pipe(
-          // 🔒 Only accept explanation text for the *current* index
+          // Drop any FET that belongs to an old index or fires during navigation
           filter(() => {
-            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-            return active === idx;
+            const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
+            const current = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+            const valid = !navBusy && current === idx;
+            if (!valid) console.log(`[FETGuard] dropping stale/nav FET for Q${idx + 1}`);
+            return valid;
           }),
-          /* map(([text, gate, shouldShow, displayed, painted]) => {
-            const rawText = (text ?? '').toString().trim();
-            const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
-            const gateOpen = gate && !navBusy && painted;
-            const displayReady = shouldShow || displayed;
-            const canShowFET = gateOpen && displayReady && rawText.length > 0;
     
-            if (!canShowFET) {
-              return { idx, text: '', gate: false } as FETState;
-            }
+          map(([text, gate, shouldShow, displayed]) => {
+            const raw = (text ?? '').trim();
+            const gateOpen = gate && (shouldShow || displayed);
+            const canShow = gateOpen && raw.length > 0;
     
-            // ✅ Emit only if index still matches (double check)
-            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-            if (active !== idx) {
+            if (!canShow) {
               return { idx, text: '', gate: false } as FETState;
             }
+            return { idx, text: raw, gate: true } as FETState;
+          }),
     
-            return { idx, text: rawText, gate: true } as FETState;
-          }), */
-          map(([text, gate, shouldShow, displayed, painted]) => {
-            const rawText = (text ?? '').toString().trim();
-            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
-            const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
-          
-            // 🧱 HARD GATE: never leak FET from a different index
-            if (active !== idx) {
-              console.log(`[FET Guard] Blocked stale FET from Q${idx + 1} (active=${active + 1})`);
-              return { idx, text: '', gate: false } as FETState;
-            }
-          
-            const gateOpen = gate && !navBusy && painted;
-            const displayReady = shouldShow || displayed;
-            const canShowFET = gateOpen && displayReady && rawText.length > 0;
-          
-            if (!canShowFET) {
-              return { idx, text: '', gate: false } as FETState;
-            }
-          
-            console.log(`[FET OK] Q${idx + 1} gateOpen=${gateOpen} len=${rawText.length}`);
-            return { idx, text: rawText, gate: true } as FETState;
-          }),          
-          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
+          distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate),
+          shareReplay({ bufferSize: 1, refCount: true })
         );
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
+      })
     );
+    
     
   
     // ────────────────────────────────────────────────
@@ -769,7 +751,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
         // ── Only let emissions through when both question and explanation are stable ──
         auditTime(16), // coalesce bursts to one per frame
-
+      
         filter(([idx, question, , fet]) => {
           const qReady = typeof question === 'string' && question.trim().length > 0;
           const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
@@ -794,47 +776,40 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const now = performance.now();
         
           // ────────────────────────────────────────────────
-          // 🔒 Index-switch stabilization
+          // 🧭 Frame stabilization (~1 paint frame)
           // ────────────────────────────────────────────────
           if (this._lastRenderedIndex !== idx) {
-            const prev = this._lastRenderedIndex;
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
-            this._renderStableAfter = now + 60;       // allow question to settle
+            this._renderStableAfter = now + 24;      // one animation frame
             this._fetLockedIndex = null;
             this._fetLockedFrameTime = 0;
-            this._fetCooldownUntil = now + 120;       // ⏸ block old FETs for 120 ms
+            this._firstStableFrameDone = false;
         
-            // always reset mode to question when switching
+            // always start in QUESTION mode for one frame
             this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] Switched → Q${idx + 1} (prev=${prev + 1}), FET cooldown 120 ms`);
+            console.log(`[Guard] → Q${idx + 1} | hold FET 24ms`);
+          }
+        
+          // mark first valid question frame
+          if (!this._firstStableFrameDone && qText.length > 0) {
+            this._firstStableFrameDone = true;
+            this._renderStableAfter = now; // release hold immediately
+            this._lastQuestionPaintTime = now;
           }
         
           // ────────────────────────────────────────────────
-          // ⏱ Question repaint suppression
+          // 🧱 FET Guard — block explanation for 1 frame after question
           // ────────────────────────────────────────────────
-          const recentlyFET = this._fetLockedFrameTime && now - this._fetLockedFrameTime < 50;
-          if (mode === 'question' && recentlyFET) {
-            console.log(`[SyncGuard] Skipping question repaint ${(
-              now - this._fetLockedFrameTime
-            ).toFixed(0)} ms after FET (Q${idx + 1})`);
+          const tooEarly = now - (this._lastQuestionPaintTime ?? 0) < 24;
+          const wrongIdx = fet?.idx !== idx;
+          if (mode === 'explanation' && (tooEarly || wrongIdx)) {
+            console.log(`[DropEarlyFET] Q${idx + 1} tooEarly=${tooEarly}, wrongIdx=${wrongIdx}`);
             return this._lastQuestionText || qText;
           }
         
           // ────────────────────────────────────────────────
-          // 🧱 Block premature / foreign FETs
-          // ────────────────────────────────────────────────
-          const tooEarly = now < this._fetCooldownUntil;
-          const wrongIndex = fet?.idx !== idx;
-          if (fet?.gate && (tooEarly || wrongIndex)) {
-            console.log(
-              `[Guard] Ignoring FET for Q${fet?.idx + 1} during Q${idx + 1} (tooEarly=${tooEarly}, wrongIndex=${wrongIndex})`
-            );
-            return this._lastQuestionText || qText;
-          }
-        
-          // ────────────────────────────────────────────────
-          // 🧩 Render explanation (FET) safely
+          // 🧩 Valid explanation: draw once, then lock for 100 ms
           // ────────────────────────────────────────────────
           if (
             mode === 'explanation' &&
@@ -842,10 +817,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             fetText.length > 0 &&
             this.explanationTextService.currentShouldDisplayExplanation
           ) {
+            if (this._fetLockedIndex === idx && now - (this._fetLockedFrameTime ?? 0) < 100) {
+              return this._lastQuestionText || fetText; // ignore redundant same-frame paints
+            }
             this._fetLockedIndex = idx;
             this._fetLockedFrameTime = now;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
-            console.log(`[Render FET ✅] Q${idx + 1}`);
+            console.log(`[Render FET✅] Q${idx + 1}`);
             return fetText;
           }
         
@@ -863,23 +841,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
         
+          // short freeze after FET to prevent Q→FET→Q flicker
+          if (
+            this._fetLockedIndex === idx &&
+            now - (this._fetLockedFrameTime ?? 0) < 100
+          ) {
+            console.log(`[Freeze] skipping Q repaint (FET lock active)`);
+            return this._lastQuestionText || fetText;
+          }
+        
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
           this._lastQuestionPaintTime = now;
-        
-          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
-        
-        
-        
-        
       
-        // 🚫 Deduplicate identical frames
+        // Deduplicate identical frames
         distinctUntilChanged((a, b) => a.trim() === b.trim()),
         startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
-      ) as Observable<string>;      
+      ) as Observable<string>;       
   }
   
 
