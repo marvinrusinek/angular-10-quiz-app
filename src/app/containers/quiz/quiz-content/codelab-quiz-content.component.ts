@@ -177,6 +177,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   // Stores currently locked explanation index (prevents flicker reentry).
   private _fetLocked: number | null = null;
 
+  // 🧭 Frame stabilization fields
+  // These track timing between question changes and FET readiness.
+  private _indexSwitchTime: number = 0;            // when the last question index changed
+  private _renderStableAfter: number = 0;          // timestamp after which FET can be displayed safely
+  private _firstStableFrameDone: boolean = false;  // true once the question text for current index has rendered
+
   private destroy$ = new Subject<void>();
 
   constructor(
