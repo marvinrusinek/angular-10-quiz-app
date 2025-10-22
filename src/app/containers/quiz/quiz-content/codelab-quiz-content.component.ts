@@ -473,32 +473,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   
     const questionText$: Observable<string> = combineLatest([
       index$,
-      this.questionToDisplay$,
+      this.questionToDisplay$
     ]).pipe(
-      // 🚫 Ignore placeholder emissions like "?" or blanks
-      filter(([_, text]) => {
+      // Wait one microtask to let both streams stabilize
+      switchMap(([idx, text]) => of([idx, text]).pipe(delay(0))),
+    
+      // Only accept question text that matches the quiz model for the current index
+      filter(([idx, text]) => {
+        const qModel = this.quizService.questions?.[idx]?.questionText?.trim() ?? '';
         const t = (text ?? '').trim();
-        return t.length > 0 && t !== '?';
+        return t.length > 0 && t === qModel;
       }),
-      scan(
-        (acc: { idx: number; lastValid: string }, [idx, text]: [number, string]) => {
-          const next = (text ?? '').trim();
-          const lastValid = next || acc.lastValid;
-          return { idx, lastValid };
-        },
-        { idx: 0, lastValid: '' }
-      ),
-      map((v) => {
-        const q = this.quizService.questions?.[v.idx] ?? this.questions?.[v.idx];
-        const model = (q?.questionText ?? '').trim();
-        const safe =
-          model ||
-          v.lastValid ||
-          this.questionLoadingText ||
-          `Question ${v.idx + 1}`;
-        return safe;
-      }),
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
+    
+      // Emit the validated text
+      map(([idx]) => this.quizService.questions![idx].questionText!.trim()),
+    
+      distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
