@@ -312,7 +312,6 @@ export class QuizQuestionLoaderService {
         opt.highlight = false;
         opt.showIcon  = false;
         opt.active    = true;
-        opt.disabled  = false;
       });
       console.log(`[QQ Loader] 🧱 Deep-cloned ${cloned.length} options for Q${index + 1}`);
     } catch (err) {
