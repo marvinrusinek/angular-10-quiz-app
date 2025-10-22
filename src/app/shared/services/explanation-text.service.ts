@@ -99,7 +99,7 @@ export class ExplanationTextService {
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
   // Track which indices currently have open gates (used for cleanup)
-  private _gatesByIndex: Map<number, boolean> = new Map();
+  public _gatesByIndex: Map<number, boolean> = new Map();
 
   // Remember the last question index whose explanation was locked open
   public _fetLocked: number | null = null;
