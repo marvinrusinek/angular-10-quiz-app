@@ -440,7 +440,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     // 1️⃣  Core reactive inputs
     // ────────────────────────────────────────────────
-  
     const index$: Observable<number> = this.quizService.currentQuestionIndex$.pipe(
       startWith(this.currentQuestionIndexValue ?? 0),
       map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
