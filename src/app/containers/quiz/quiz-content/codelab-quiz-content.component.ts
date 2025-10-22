@@ -637,137 +637,46 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>; */
+    let _lastQuestionText = '';
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
-      observeOn(animationFrameScheduler),
-    
-      concatMap(([idx, question, banner, fet, shouldShow]) => {
+      map(([idx, question, banner, fet, shouldShow]) => {
+        const qText = typeof question === 'string' ? question.trim() : '';
+        const bannerText = typeof banner === 'string' ? banner.trim() : '';
+        const fetText = typeof fet?.text === 'string' ? fet.text.trim() : '';
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-        const qText = (question ?? '').trim();
-        const bannerText = (banner ?? '').trim();
 
-        // ────────────────────────────────────────────────
-        // 🚫 Block recycled FET or question frames
-        // ────────────────────────────────────────────────
-        const prevIndex = this._lastRenderedIndex;
-        if (prevIndex !== -1 && idx < prevIndex) {
-          console.log(`[Frame guard] Dropping backward frame (prev=${prevIndex}, now=${idx})`);
-          return this.lastRenderedQuestionTextWithBanner ?? '';
-        }
-
-        // when switching questions → hard close old FET gates synchronously
-        if (prevIndex !== idx) {
-          this._lastRenderedIndex = idx;
-          if (typeof this.explanationTextService.closeAllGates === 'function') {
-            this.explanationTextService.closeAllGates();
-            this._gatesByIndex.clear();
-            this._fetLocked = null;
-            console.log(`[GateReset] Closed all gates on switch → Q${idx + 1}`);
-          }
+        // HARD GUARD: skip any FET that doesn't belong to current question
+        if (fet?.gate && fet?.idx !== idx) {
+          console.log(`[Guard] FET for Q${fet.idx + 1} blocked during Q${idx + 1}`);
+          return _lastQuestionText || (question ?? '').trim() || '';
         }
     
-        // ────────────────────────────────────────────────
-        // 🔒 1️⃣ Hard reset stale FET gates *before* drawing next question
-        // ────────────────────────────────────────────────
-        if (this._lastRenderedIndex !== idx) {
-          const prev = this._lastRenderedIndex;
-          this._lastRenderedIndex = idx;
-    
-          if (this.explanationTextService._gatesByIndex?.size) {
-            this.explanationTextService._gatesByIndex.clear();
-          }
-          this.explanationTextService._fetLocked = null;
-          this.explanationTextService.setIsExplanationTextDisplayed(false);
-          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
-    
-          console.log(`[🧹 Gate reset] from Q${prev + 1} → Q${idx + 1}`);
-    
-          // ⏸ Pause for one animation frame before continuing (lets DOM settle)
-          return new Promise<string>((resolve) =>
-            requestAnimationFrame(() => resolve(''))
-          );
+        // Prefer showing FET when appropriate
+        if (mode === 'explanation' && fet?.gate && fetText.length > 0 &&
+            this.explanationTextService.currentShouldDisplayExplanation) {
+          return fetText;
         }
     
-        // ────────────────────────────────────────────────
-        // 🧩 2️⃣ Explanation (FET) mode
-        // ────────────────────────────────────────────────
-        if (
-          mode === 'explanation' &&
-          fet?.gate === true &&
-          (fet?.text ?? '').trim().length > 0 &&
-          this.explanationTextService.currentShouldDisplayExplanation === true
-        ) {
-          this.explanationTextService._fetLocked = idx;
-          this.explanationTextService.setIsExplanationTextDisplayed(true);
-          return of(fet.text.trim());
-        }
-    
-        // ────────────────────────────────────────────────
-        // 🧱 3️⃣ Merge question text + banner (multi only)
-        // ────────────────────────────────────────────────
+        // Merge question and banner
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
           (qObj.type === QuestionType.MultipleAnswer ||
            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
     
-           let mergedHtml = qText;
+        let merged = qText;
+        _lastQuestionText = merged;
         if (isMulti && bannerText && mode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
-          this.lastRenderedBannerText = bannerText;
+          merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-
-        const normalizedFrame = this.normalizeQuestionFrame(mergedHtml);
-
-        // Skip placeholder / transient question frames (like "?" or lone letters)
-        if (normalizedFrame.length <= 1) {
-          const previousFrame = this.lastRenderedQuestionText;
-
-          if (!this._pendingQuestionFrame) {
-            this._pendingQuestionFrame = normalizedFrame;
-            this._pendingFrameStartedAt = performance.now();
-          }
-
-          if (previousFrame.length > normalizedFrame.length) {
-            console.log(
-              `[Render guard] Suppressing transient placeholder for Q${idx + 1}: "${normalizedFrame || qText}"`
-            );
-            return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
-          }
-
-          if (previousFrame.length === 0) {
-            const elapsed = performance.now() - this._pendingFrameStartedAt;
-            if (elapsed < 750) {
-              console.log(
-                `[Render guard] Holding short frame for Q${idx + 1} (${Math.round(elapsed)}ms): "${normalizedFrame || qText}"`
-              );
-              return EMPTY;
-            }
-
-            console.log(
-              `[Render guard] Timed out waiting for full question for Q${idx + 1}, falling back to placeholder.`
-            );
-            return this.questionLoadingText ?? '';
-          }
-        } else if (this._pendingQuestionFrame) {
-          this._pendingQuestionFrame = null;
-          this._pendingFrameStartedAt = 0;
-        }
-
-        this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        this.lastRenderedQuestionText = normalizedFrame;
-        this._lastQuestionPaintTime = performance.now();
-        this._pendingQuestionFrame = null;
-        this._pendingFrameStartedAt = 0;
-
-        return of(mergedHtml);
+    
+        return merged || ''; // ✅ never emit undefined/null
       }),
-
-      // 🧩 Emit only real visual updates
       filter(v => typeof v === 'string' && v.trim().length > 0),
-      distinctUntilChanged((a, b) => this.normalizeQuestionFrame(a) === this.normalizeQuestionFrame(b)),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
+      startWith(''), // ✅ ensures no "n", "?" or placeholder
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;
+    ) as Observable<string>;    
   }
   
 
