@@ -98,6 +98,12 @@ export class ExplanationTextService {
   private _questionRendered = false;
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
+  // Track which indices currently have open gates (used for cleanup)
+  private _gatesByIndex: Map<number, boolean> = new Map();
+
+  // Remember the last question index whose explanation was locked open
+  public _fetLocked: number | null = null;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1347,30 +1353,16 @@ export class ExplanationTextService {
   }
 
   public closeAllGates(): void {
+    this._gatesByIndex.clear();
+    this._fetLocked = null;
+  
     try {
-      // Close per-index gates
-      for (const gate of this._gatesByIndex.values()) {
-        gate.next(false);
-      }
-      this._gatesByIndex.clear();
-  
-      // Reset explanation display state
-      this.shouldDisplayExplanationSource?.next(false);
-      this.isExplanationTextDisplayedSource?.next(false);
-  
-      // Reset internal text subjects
-      if (this._byIndex) {
-        for (const subj of this._byIndex.values()) {
-          subj.next('');
-        }
-      }
-  
-      this._fetLocked = false;
-      this._activeIndex = -1;
-  
-      console.log('[ExplanationTextService] 🚪 All gates closed');
+      this.setShouldDisplayExplanation(false, { force: true });
+      this.setIsExplanationTextDisplayed(false);
     } catch (err) {
-      console.warn('[ExplanationTextService] ⚠️ closeAllGates failed:', err);
+      console.warn('[ETS] Failed to close gates cleanly', err);
     }
-  }
+  
+    console.log('[ETS] All explanation gates closed');
+  }  
 }
