@@ -789,17 +789,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const qText = (question ?? '').trim();
           const bannerText = (banner ?? '').trim();
           const fetText = (fet?.text ?? '').trim();
+          const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
         
-          // ────────────────────────────────────────────────
-          // 🧭 Snapshot mode ONCE to avoid race with async updates
-          // ────────────────────────────────────────────────
-          const modeSnapshot =
-            this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+          // ────────────────────────────────
+          // 🧭 Frame synchronization guard
+          // ────────────────────────────────
+          // If we're in explanation mode but a question frame arrived within the last 60 ms,
+          // ignore it — this blocks the "back-to-question" flash after FET renders.
+          if (
+            mode === 'explanation' &&
+            this._lastQuestionPaintTime &&
+            now - this._lastQuestionPaintTime < 60
+          ) {
+            console.log(
+              `[SyncGuard] Ignoring stale question repaint within ${(
+                now - this._lastQuestionPaintTime
+              ).toFixed(0)} ms after FET for Q${idx + 1}`
+            );
+            return this._lastQuestionText || fetText || '';
+          }
         
-          // ────────────────────────────────────────────────
-          // 🔄 Stabilization logic — short 40 ms window
-          // ────────────────────────────────────────────────
+          // ────────────────────────────────
+          // 🧩 Normal stabilization (keep yours)
+          // ────────────────────────────────
           if (this._lastRenderedIndex !== idx) {
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
@@ -807,60 +820,42 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this._firstStableFrameDone = false;
             this._fetLockedIndex = null;
             this._fetLockedFrameTime = 0;
-        
-            // Force QUESTION mode on fresh index
-            queueMicrotask(() => {
-              this.quizStateService.displayStateSubject?.next({
-                mode: 'question',
-                answered: false
-              });
-            });
-            console.log(`[Guard] Switched → Q${idx + 1}, hold 40 ms before FET`);
+            this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
+            console.log(`[Guard] switched → Q${idx + 1}, holding FET 40 ms`);
           }
         
-          // 🧱 Skip explanation bursts that arrive too early
-          if (modeSnapshot === 'explanation' && performance.now() < this._renderStableAfter) {
-            console.log(`[Guard] Too-early FET for Q${idx + 1}`);
-            return this._lastQuestionText || qText;
-          }
-        
-          // 🧩 Unlock once the question text has visibly painted
           if (!this._firstStableFrameDone && qText.length > 0) {
             this._firstStableFrameDone = true;
             this._renderStableAfter = now;
-            console.log(`[Stable] Question painted → FET unlocked for Q${idx + 1}`);
+            console.log(`[Stable] question painted → FET unlocked for Q${idx + 1}`);
           }
         
-          // ────────────────────────────────────────────────
-          // 🧩 Show explanation when ready, lock for 800 ms
-          // ────────────────────────────────────────────────
+          const withinWindow = now < this._renderStableAfter;
+          if (mode === 'explanation' && withinWindow) {
+            console.log(`[Guard] too early FET for Q${idx + 1}`);
+            return this._lastQuestionText || qText;
+          }
+        
+          // ────────────────────────────────
+          // 🧠  Render FET (no change)
+          // ────────────────────────────────
           if (
-            modeSnapshot === 'explanation' &&
+            mode === 'explanation' &&
             fet?.gate &&
             fetText.length > 0 &&
             this.explanationTextService.currentShouldDisplayExplanation
           ) {
-            // Prevent redundant repaints during the lock window
-            if (
-              this._fetLockedIndex === idx &&
-              this._fetLockedFrameTime &&
-              now - this._fetLockedFrameTime < 800
-            ) {
-              console.log(`[FETLock] Preventing redundant repaint for Q${idx + 1}`);
-              return this._lastQuestionText || fetText;
-            }
-        
             this._fetLockedIndex = idx;
             this._fetLockedFrameTime = now;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
-            this.explanationTextService.setShouldDisplayExplanation(true);
-            console.log(`[Render FET ✅] Locked explanation for Q${idx + 1}`);
+            this._lastQuestionPaintTime = now; // record FET frame too
+            console.log(`[Render FET ✅] Q${idx + 1}`);
             return fetText;
           }
         
-          // ────────────────────────────────────────────────
-          // 🧱 Merge question text + banner (multi-answer)
-          // ────────────────────────────────────────────────
+          // ────────────────────────────────
+          // 🧱 Merge question text + banner (keep yours)
+          // ────────────────────────────────
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
@@ -868,28 +863,18 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
         
           let merged = qText;
-          if (isMulti && bannerText && modeSnapshot === 'question') {
+          if (isMulti && bannerText && mode === 'question') {
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
         
-          // 🚫 Skip redraws if FET was painted very recently
-          if (
-            this._fetLockedIndex === idx &&
-            this._fetLockedFrameTime &&
-            now - this._fetLockedFrameTime < 800
-          ) {
-            console.log(`[LockGuard] Skipping redundant question repaint for Q${idx + 1}`);
-            return this._lastQuestionText || fetText;
-          }
-        
-          // 🧹 Record diagnostics & mark question as painted
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
           this._lastQuestionPaintTime = now;
         
-          console.log(`[Render OK] Q${idx + 1} | mode=${modeSnapshot} | fetGate=${fet?.gate}`);
+          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
+        
         
         
       
