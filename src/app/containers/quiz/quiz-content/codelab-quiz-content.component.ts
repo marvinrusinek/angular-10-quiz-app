@@ -470,25 +470,39 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     // 2️⃣  Question + Correct-count banner
     // ────────────────────────────────────────────────
-  
     const questionText$: Observable<string> = combineLatest([
       index$,
       this.questionToDisplay$
     ]).pipe(
-      // Wait one microtask to let both streams stabilize
-      switchMap(([idx, text]) => of([idx, text]).pipe(delay(0))),
+      // Small frame delay gives Angular time to update quizService.questions
+      auditTime(16),
     
-      // Only accept question text that matches the quiz model for the current index
-      filter(([idx, text]) => {
-        const qModel = this.quizService.questions?.[idx]?.questionText?.trim() ?? '';
-        const t = (text ?? '').trim();
-        return t.length > 0 && t === qModel;
+      map(([idx, text]) => {
+        const all = this.quizService.questions ?? [];
+        const modelText = (all[idx]?.questionText ?? '').trim();
+        const emitted = (text ?? '').trim();
+    
+        // 🧱 Guard 1: drop blanks or placeholder emissions
+        if (!emitted || emitted === '?' || emitted.length < 2) {
+          console.log(`[Skip] Empty/placeholder emission for Q${idx + 1}`);
+          return null;
+        }
+    
+        // 🧱 Guard 2: ignore any text that doesn’t match the current model
+        if (modelText && emitted !== modelText) {
+          console.log(
+            `[Skip] Mismatch: emitted="${emitted}" vs model="${modelText}" for Q${idx + 1}`
+          );
+          return null;
+        }
+    
+        return modelText || emitted;
       }),
     
-      // Emit the validated text
-      map(([idx]) => this.quizService.questions![idx].questionText!.trim()),
+      // Only pass through verified, non-null question text
+      filter((v): v is string => typeof v === 'string' && v.trim().length > 0),
     
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
