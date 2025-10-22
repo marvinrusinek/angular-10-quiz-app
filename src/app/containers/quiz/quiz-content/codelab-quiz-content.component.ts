@@ -657,14 +657,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const bannerText = (banner ?? '').trim();
         const fetText = (fet?.text ?? '').trim();
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
-
+      
+        // ────────────────────────────────────────────────
         // HARD GUARD: skip any FET that doesn't belong to current question
+        // ────────────────────────────────────────────────
         if (fet?.gate && fet?.idx !== idx) {
           console.log(`[Guard] FET for Q${fet.idx + 1} blocked during Q${idx + 1}`);
           return _lastQuestionText || qText;
         }
-
-        // Prefer showing FET when appropriate
+      
+        // ────────────────────────────────────────────────
+        // 🚫 Block any residual FET emission while in question mode
+        // ────────────────────────────────────────────────
+        if (mode === 'question' && fet?.gate) {
+          console.log(`[Guard] Suppressing stray FET for Q${idx + 1}`);
+          fet.gate = false;
+        }
+      
+        // ────────────────────────────────────────────────
+        // 🧩 Prefer showing FET when appropriate
+        // ────────────────────────────────────────────────
         if (
           mode === 'explanation' &&
           fet?.gate &&
@@ -673,22 +685,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         ) {
           return fetText;
         }
-
-        // Merge question and banner
+      
+        // ────────────────────────────────────────────────
+        // 🧱 Merge question and banner (multi-answer)
+        // ────────────────────────────────────────────────
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
           (qObj.type === QuestionType.MultipleAnswer ||
             (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
-
+      
         let merged = qText;
         if (isMulti && bannerText && mode === 'question') {
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-
+      
+        // ────────────────────────────────────────────────
+        // 🧹 After merging → reset explanation display flags
+        // ────────────────────────────────────────────────
+        this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+        this.explanationTextService.setIsExplanationTextDisplayed(false);
+      
         _lastQuestionText = merged;
         return merged;
-      }),
+      }),      
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       startWith(''),
       shareReplay({ bufferSize: 1, refCount: true })
