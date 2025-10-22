@@ -448,6 +448,11 @@ export class QuizNavigationService {
     if (prevIndex >= 0) {
       this.explanationTextService.closeGateForIndex(prevIndex);
     }
+    // Force a visual blank frame before the next question paints
+    this.quizQuestionLoaderService?.questionToDisplay$?.next('');  
+    // optional micro-pause so Angular finishes tearing down the old view
+    await new Promise<void>(r => requestAnimationFrame(() => r()));
+
     this.resetRenderStateBeforeNavigation(index);
     // this.quizService.clearStoredCorrectAnswersText();
   
