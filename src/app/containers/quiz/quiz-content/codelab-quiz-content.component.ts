@@ -502,29 +502,53 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     );
   
     const fetForIndex$: Observable<FETState> = index$.pipe(
-      switchMap(idx =>
-        combineLatest([
+      switchMap((idx) => {
+        // Immediately close all gates from the previous question
+        requestAnimationFrame(() => {
+          if (typeof this.explanationTextService.closeAllGates === 'function') {
+            this.explanationTextService.closeAllGates();
+          }
+          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
+        });
+    
+        return combineLatest([
           this.explanationTextService.byIndex$(idx).pipe(startWith<string | null>(null)),
           this.explanationTextService.gate$(idx).pipe(startWith(false)),
-          shouldShow$,
+          shouldShow$, // already boolean
           this.explanationTextService.isExplanationTextDisplayed$.pipe(startWith(false)),
           firstQuestionPaint$
         ]).pipe(
+          // 🔒 Only accept explanation text for the *current* index
+          filter(() => {
+            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+            return active === idx;
+          }),
           map(([text, gate, shouldShow, displayed, painted]) => {
             const rawText = (text ?? '').toString().trim();
             const navBusy = this.quizStateService.isNavigatingSubject?.value === true;
             const gateOpen = gate && !navBusy && painted;
             const displayReady = shouldShow || displayed;
             const canShowFET = gateOpen && displayReady && rawText.length > 0;
-  
-            if (!canShowFET) return { idx, text: '', gate: false };
-            return { idx, text: rawText, gate: true };
+    
+            if (!canShowFET) {
+              return { idx, text: '', gate: false } as FETState;
+            }
+    
+            // ✅ Emit only if index still matches (double check)
+            const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+            if (active !== idx) {
+              return { idx, text: '', gate: false } as FETState;
+            }
+    
+            return { idx, text: rawText, gate: true } as FETState;
           }),
           distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate)
-        )
-      ),
+        );
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+    
   
     // ────────────────────────────────────────────────
     // 4️⃣  Final render stream
