@@ -470,30 +470,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // ────────────────────────────────────────────────
     // 2️⃣  Question + Correct-count banner
     // ────────────────────────────────────────────────
-    const questionText$: Observable<string> = this.quizService.currentQuestionIndex$.pipe(
-      startWith(this.currentQuestionIndexValue ?? 0),
-      distinctUntilChanged(),
-      switchMap((idx) =>
-        this.questionToDisplay$.pipe(
-          map(text => ({ idx, text: (text ?? '').trim() })),
-          // Wait until the text matches the *current* active question
-          filter(({ idx: localIdx, text }) => {
-            const active = this.quizService.getCurrentQuestionIndex?.() ?? localIdx;
-            const q = this.quizService.questions?.[localIdx];
-            const sameIdx = localIdx === active;
-            const correctText = (q?.questionText ?? '').trim();
-            const match = sameIdx && text.length > 0 && text === correctText;
-            if (!match) {
-              console.log(`[SYNC HOLD] idx=${localIdx}, active=${active}, text="${text}", correct="${correctText}"`);
-            }
-            return match;
-          }),
-          take(1), // only accept the first valid matching emission per index
-          map(({ text }) => text),
-          startWith(this.questionLoadingText ?? 'Loading...'),
-          distinctUntilChanged()
-        )
+    const questionText$: Observable<string> = combineLatest([
+      this.quizService.currentQuestionIndex$.pipe(
+        startWith(this.currentQuestionIndexValue ?? 0),
+        map(i => (Number.isFinite(i as number) ? Number(i) : 0)),
+        distinctUntilChanged()
       ),
+      this.questionToDisplay$.pipe(startWith(''))
+    ]).pipe(
+      // Ignore transient blanks or single-character placeholders
+      filter(([idx, text]) => {
+        const t = (text ?? '').trim();
+        if (t === '' || t === '?' || t === 'n') return false;
+        return true;
+      }),
+      map(([idx, text]) => {
+        const active = this.quizService.getCurrentQuestionIndex?.() ?? idx;
+        const q = this.quizService.questions?.[idx];
+        const canonical = (q?.questionText ?? '').trim();
+        const safe =
+          // if this emission came from a stale index, use the canonical one
+          idx !== active && canonical ? canonical :
+          (text ?? '').trim() || canonical || `Question ${idx + 1}`;
+        return safe;
+      }),
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
