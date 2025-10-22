@@ -1090,5 +1090,17 @@ export class QuizQuestionLoaderService {
     }
   
     this.questionToDisplay$.next(trimmed);
+  }
+
+  public clearQuestionTextBeforeNavigation(): void {
+    try {
+      // Clear any cached or replayed emissions
+      this.questionToDisplay$.next('');
+      this._lastQuestionText = '';
+      this._lastRenderedIndex = -1;
+      console.log('[Loader] Cleared question text before navigation');
+    } catch (e) {
+      console.warn('[Loader] clearQuestionTextBeforeNavigation error', e);
+    }
   }  
 }

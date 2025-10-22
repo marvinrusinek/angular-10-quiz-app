@@ -455,6 +455,7 @@ export class QuizNavigationService {
 
     this.resetRenderStateBeforeNavigation(index);
     // this.quizService.clearStoredCorrectAnswersText();
+    this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
   
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
     const fallbackQuizId = localStorage.getItem('quizId');
