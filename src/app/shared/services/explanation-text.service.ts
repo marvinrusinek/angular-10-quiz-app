@@ -99,7 +99,7 @@ export class ExplanationTextService {
   public questionRendered$ = new BehaviorSubject<boolean>(false);
 
   // Track which indices currently have open gates (used for cleanup)
-  public _gatesByIndex: Map<number, boolean> = new Map();
+  public _gatesByIndex: Map<number, BehaviorSubject<boolean>> = new Map();
 
   // Remember the last question index whose explanation was locked open
   public _fetLocked: number | null = null;
@@ -1345,9 +1345,9 @@ export class ExplanationTextService {
   }
 
   public closeGateForIndex(index: number): void {
-    const entry = this._byIndex.get(index);
-    if (entry?.gate$) {
-      entry.gate$.next(false);
+    const gate = this._gatesByIndex?.get(index);
+    if (gate) {
+      gate.next(false);
       console.log(`[ETS] Closed gate for Q${index + 1}`);
     }
   }
