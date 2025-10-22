@@ -100,6 +100,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private _pendingQuestionFrame: string | null = null;
   private _pendingFrameStartedAt = 0;
   private _fetLockedIndex: number | null = null;  // keeps track of the last question index whose FET (explanation) is locked in view
+  private _fetCooldownUntil = 0;
 
   // Prevent FET flashback by remembering last opened index and time
   private _lastFetIndex: number | null = null;
@@ -792,53 +793,49 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
         
-          // ────────────────────────────────
-          // 🧭 Frame synchronization guard
-          // ────────────────────────────────
-          // If we're in explanation mode but a question frame arrived within the last 60 ms,
-          // ignore it — this blocks the "back-to-question" flash after FET renders.
-          if (
-            mode === 'explanation' &&
-            this._lastQuestionPaintTime &&
-            now - this._lastQuestionPaintTime < 60
-          ) {
-            console.log(
-              `[SyncGuard] Ignoring stale question repaint within ${(
-                now - this._lastQuestionPaintTime
-              ).toFixed(0)} ms after FET for Q${idx + 1}`
-            );
-            return this._lastQuestionText || fetText || '';
-          }
-        
-          // ────────────────────────────────
-          // 🧩 Normal stabilization (keep yours)
-          // ────────────────────────────────
+          // ────────────────────────────────────────────────
+          // 🔒 Index-switch stabilization
+          // ────────────────────────────────────────────────
           if (this._lastRenderedIndex !== idx) {
+            const prev = this._lastRenderedIndex;
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
-            this._renderStableAfter = now + 40;
-            this._firstStableFrameDone = false;
+            this._renderStableAfter = now + 60;       // allow question to settle
             this._fetLockedIndex = null;
             this._fetLockedFrameTime = 0;
+            this._fetCooldownUntil = now + 120;       // ⏸ block old FETs for 120 ms
+        
+            // always reset mode to question when switching
             this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] switched → Q${idx + 1}, holding FET 40 ms`);
+            console.log(`[Guard] Switched → Q${idx + 1} (prev=${prev + 1}), FET cooldown 120 ms`);
           }
         
-          if (!this._firstStableFrameDone && qText.length > 0) {
-            this._firstStableFrameDone = true;
-            this._renderStableAfter = now;
-            console.log(`[Stable] question painted → FET unlocked for Q${idx + 1}`);
-          }
-        
-          const withinWindow = now < this._renderStableAfter;
-          if (mode === 'explanation' && withinWindow) {
-            console.log(`[Guard] too early FET for Q${idx + 1}`);
+          // ────────────────────────────────────────────────
+          // ⏱ Question repaint suppression
+          // ────────────────────────────────────────────────
+          const recentlyFET = this._fetLockedFrameTime && now - this._fetLockedFrameTime < 50;
+          if (mode === 'question' && recentlyFET) {
+            console.log(`[SyncGuard] Skipping question repaint ${(
+              now - this._fetLockedFrameTime
+            ).toFixed(0)} ms after FET (Q${idx + 1})`);
             return this._lastQuestionText || qText;
           }
         
-          // ────────────────────────────────
-          // 🧠  Render FET (no change)
-          // ────────────────────────────────
+          // ────────────────────────────────────────────────
+          // 🧱 Block premature / foreign FETs
+          // ────────────────────────────────────────────────
+          const tooEarly = now < this._fetCooldownUntil;
+          const wrongIndex = fet?.idx !== idx;
+          if (fet?.gate && (tooEarly || wrongIndex)) {
+            console.log(
+              `[Guard] Ignoring FET for Q${fet?.idx + 1} during Q${idx + 1} (tooEarly=${tooEarly}, wrongIndex=${wrongIndex})`
+            );
+            return this._lastQuestionText || qText;
+          }
+        
+          // ────────────────────────────────────────────────
+          // 🧩 Render explanation (FET) safely
+          // ────────────────────────────────────────────────
           if (
             mode === 'explanation' &&
             fet?.gate &&
@@ -848,14 +845,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             this._fetLockedIndex = idx;
             this._fetLockedFrameTime = now;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
-            this._lastQuestionPaintTime = now; // record FET frame too
             console.log(`[Render FET ✅] Q${idx + 1}`);
             return fetText;
           }
         
-          // ────────────────────────────────
-          // 🧱 Merge question text + banner (keep yours)
-          // ────────────────────────────────
+          // ────────────────────────────────────────────────
+          // 🧱 Merge question text + banner (multi-answer)
+          // ────────────────────────────────────────────────
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
@@ -874,6 +870,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
+        
         
         
         
