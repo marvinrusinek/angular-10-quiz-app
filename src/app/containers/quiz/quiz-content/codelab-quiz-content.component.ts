@@ -638,45 +638,62 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>; */
     let _lastQuestionText = '';
+
     return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
+      filter(([idx, question]) => {
+        // 🧱 skip if the text still belongs to the previous question
+        const activeIdx = this.quizService.getCurrentQuestionIndex();
+        const q = (question ?? '').trim();
+        const isOld = idx !== activeIdx;
+        const isEmpty = q.length === 0;
+        if (isOld || isEmpty) {
+          console.log(`[Frame guard] Drop stale or blank frame (idx=${idx}, active=${activeIdx})`);
+          return false;
+        }
+        return true;
+      }),
       map(([idx, question, banner, fet, shouldShow]) => {
-        const qText = typeof question === 'string' ? question.trim() : '';
-        const bannerText = typeof banner === 'string' ? banner.trim() : '';
-        const fetText = typeof fet?.text === 'string' ? fet.text.trim() : '';
+        const qText = (question ?? '').trim();
+        const bannerText = (banner ?? '').trim();
+        const fetText = (fet?.text ?? '').trim();
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
 
         // HARD GUARD: skip any FET that doesn't belong to current question
         if (fet?.gate && fet?.idx !== idx) {
           console.log(`[Guard] FET for Q${fet.idx + 1} blocked during Q${idx + 1}`);
-          return _lastQuestionText || (question ?? '').trim() || '';
+          return _lastQuestionText || qText;
         }
-    
+
         // Prefer showing FET when appropriate
-        if (mode === 'explanation' && fet?.gate && fetText.length > 0 &&
-            this.explanationTextService.currentShouldDisplayExplanation) {
+        if (
+          mode === 'explanation' &&
+          fet?.gate &&
+          fetText.length > 0 &&
+          this.explanationTextService.currentShouldDisplayExplanation
+        ) {
           return fetText;
         }
-    
+
         // Merge question and banner
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
           (qObj.type === QuestionType.MultipleAnswer ||
-           (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
-    
+            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+
         let merged = qText;
-        _lastQuestionText = merged;
         if (isMulti && bannerText && mode === 'question') {
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-    
-        return merged || ''; // ✅ never emit undefined/null
+
+        _lastQuestionText = merged;
+        return merged;
       }),
-      filter(v => typeof v === 'string' && v.trim().length > 0),
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
-      startWith(''), // ✅ ensures no "n", "?" or placeholder
+      startWith(''),
       shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;    
+    ) as Observable<string>;
+   
   }
   
 
