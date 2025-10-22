@@ -448,7 +448,7 @@ export class QuizNavigationService {
     if (prevIndex >= 0) {
       this.explanationTextService.closeGateForIndex(prevIndex);
     }
-  
+    this.quizNavigationService.resetRenderStateBeforeNavigation(index);
     // this.quizService.clearStoredCorrectAnswersText();
   
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
@@ -936,4 +936,21 @@ export class QuizNavigationService {
       this.questionReady = true; // question reveal triggered
     });
   }
+
+  public resetRenderStateBeforeNavigation(targetIndex: number): void {
+    // Shut down all explanation display state immediately
+    this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+    this.explanationTextService.setIsExplanationTextDisplayed(false);
+    this.explanationTextService.closeAllGates?.();
+  
+    // Drop any lingering question text
+    try {
+      this.quizQuestionLoaderService?.questionToDisplay$?.next('');
+    } catch {}
+  
+    // Reset to question mode so next frame starts clean
+    this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
+  
+    console.log(`[RESET] Render state cleared before navigating → Q${targetIndex + 1}`);
+  }  
 }
