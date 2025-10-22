@@ -709,30 +709,38 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           (qObj.type === QuestionType.MultipleAnswer ||
            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
     
-        let mergedHtml = qText;
-        if (isMulti && bannerText && mode === 'question') {
-          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
-          this.lastRenderedBannerText = bannerText;
-        }
-    
-        this.explanationTextService.markQuestionRendered(true);
-        this.lastRenderedQuestionTextWithBanner = mergedHtml;
-        this._lastQuestionPaintTime = performance.now();
-
-        // Skip placeholder / transient question frames (like "?")
-        if (!qText || qText === '?' || qText.trim().length === 0) {
-          console.log(`[Render guard] Suppressing transient placeholder for Q${idx + 1}`);
-          return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
-        }
-    
-        return of(mergedHtml);
-      }),
-    
-      // 🧩 Emit only real visual updates
-      filter(v => typeof v === 'string' && v.trim().length > 0),
-      distinctUntilChanged((a, b) => a.trim() === b.trim()),
-      shareReplay({ bufferSize: 1, refCount: true })
-    ) as Observable<string>;        
+           let mergedHtml = qText;
+           if (isMulti && bannerText && mode === 'question') {
+             mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+             this.lastRenderedBannerText = bannerText;
+           }
+   
+           const normalizedFrame = this.normalizeQuestionFrame(mergedHtml);
+   
+           // Skip placeholder / transient question frames (like "?" or lone letters)
+           if (normalizedFrame.length <= 1) {
+             const previousFrame = this.lastRenderedQuestionText;
+             if (previousFrame.length > normalizedFrame.length) {
+               console.log(
+                 `[Render guard] Suppressing transient placeholder for Q${idx + 1}: "${normalizedFrame || qText}"`
+               );
+               return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+             }
+           }
+   
+           this.explanationTextService.markQuestionRendered(true);
+           this.lastRenderedQuestionTextWithBanner = mergedHtml;
+           this.lastRenderedQuestionText = normalizedFrame;
+           this._lastQuestionPaintTime = performance.now();
+   
+           return of(mergedHtml);
+         }),
+   
+         // 🧩 Emit only real visual updates
+         filter(v => typeof v === 'string' && v.trim().length > 0),
+         distinctUntilChanged((a, b) => this.normalizeQuestionFrame(a) === this.normalizeQuestionFrame(b)),
+         shareReplay({ bufferSize: 1, refCount: true })
+       ) as Observable<string>;      
   }
   
 
@@ -1516,5 +1524,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       .trim()
       .toLowerCase()
       .replace(/\s+/g, ' ');
+  }
+
+  private normalizeQuestionFrame(markup: string): string {
+    return (markup ?? '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 }
