@@ -778,15 +778,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
 
-          // 🧱 Block early FET emission within 80 ms of a question paint
+          // ────────────────────────────────────────────────
+          // 🧭 Stabilize mode for 1 frame after question index change
+          // ────────────────────────────────────────────────
+          const active = this.quizService.getCurrentQuestionIndex();
           const now = performance.now();
-          if (this._lastQuestionPaintTime && now - this._lastQuestionPaintTime < 80) {
-            if (fet?.gate && fet?.text?.trim()) {
-              console.log(`[FET Guard] Skipping early FET for Q${idx + 1} (<80 ms since question paint)`);
-              return this._lastQuestionText || qText;
-            }
+
+          if (this._lastRenderedIndex !== idx) {
+            // record index switch moment
+            this._lastRenderedIndex = idx;
+            this._lastModeSwitchTime = now;
+
+            // force QUESTION mode immediately on switch
+            this.quizStateService.displayStateSubject?.next({
+              mode: 'question',
+              answered: false
+            });
+
+            console.log(`[ModeGuard] Forcing QUESTION mode for Q${idx + 1} (fresh index)`);
           }
-      
+
+          const sinceSwitch = now - (this._lastModeSwitchTime ?? 0);
+          if (sinceSwitch < 80 && mode === 'explanation') {
+            console.log(`[ModeGuard] Ignoring EXPLANATION frame (<80 ms after Q${idx + 1} load)`);
+            return this._lastQuestionText || (question ?? '').trim();
+          }
+
           if (
             mode === 'explanation' &&
             fet?.gate &&
