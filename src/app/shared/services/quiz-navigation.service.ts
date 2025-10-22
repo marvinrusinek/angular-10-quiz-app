@@ -448,7 +448,7 @@ export class QuizNavigationService {
     if (prevIndex >= 0) {
       this.explanationTextService.closeGateForIndex(prevIndex);
     }
-    this.quizNavigationService.resetRenderStateBeforeNavigation(index);
+    this.resetRenderStateBeforeNavigation(index);
     // this.quizService.clearStoredCorrectAnswersText();
   
     const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
