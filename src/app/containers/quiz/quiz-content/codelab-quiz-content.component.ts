@@ -663,6 +663,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }
         return true;
       }),
+    
       map(([idx, question, banner, fet, shouldShow]) => {
         // 🔒 absolute hard guard against stale frames
         const active = this.quizService.getCurrentQuestionIndex();
@@ -677,7 +678,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         if (!qText) {
           return this._lastQuestionText || this.lastRenderedQuestionTextWithBanner || this.questionLoadingText || '';
         }
-
+    
         const bannerText = (banner ?? '').trim();
         const fetText = (fet?.text ?? '').trim();
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
@@ -705,6 +706,17 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         ) {
           return fetText;
         }
+    
+        // 🧭 Diagnostic guard — skip redundant identical frames
+        if (
+          idx === this._lastRenderedIndex &&
+          qText === this._lastQuestionText &&
+          bannerText === (this.lastRenderedBannerText ?? '') &&
+          (!fet?.gate || fet.text.trim().length === 0)
+        ) {
+          console.log(`[Frame skip] identical frame suppressed for Q${idx + 1}`);
+          return this.lastRenderedQuestionTextWithBanner ?? qText;
+        }
       
         // 🧱 Merge question and banner (multi-answer)
         const qObj = this.quizService.questions?.[idx];
@@ -714,11 +726,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
       
         let merged = qText;
-
+    
         if (isMulti && bannerText && mode === 'question') {
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
-
+    
+        // ✅ After rendering a valid question, update tracking references
+        this._lastRenderedIndex = idx;
         this._lastQuestionText = qText;
         this.lastRenderedQuestionTextWithBanner = merged;
       
@@ -728,12 +742,12 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         _lastQuestionText = merged;
         return merged;
-      }),      
+      }),
+    
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       startWith(''),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
-   
   }
   
 
