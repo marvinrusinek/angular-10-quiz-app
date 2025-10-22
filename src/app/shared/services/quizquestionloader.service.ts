@@ -1083,7 +1083,7 @@ export class QuizQuestionLoaderService {
   
     const trimmed = (text ?? '').trim();
   
-    // ⛔ BLOCK all placeholder emissions (question marks or empties)
+    // BLOCK all placeholder emissions (question marks or empties)
     if (!trimmed || trimmed === '?') {
       console.log(`[BLOCK] Ignored placeholder emission "${trimmed}" for Q${index + 1}`);
       return;
