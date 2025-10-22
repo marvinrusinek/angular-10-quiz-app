@@ -616,6 +616,26 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
+
+        // ────────────────────────────────────────────────
+        // 🚫 Block recycled FET or question frames
+        // ────────────────────────────────────────────────
+        const prevIndex = this._lastRenderedIndex;
+        if (prevIndex !== -1 && idx < prevIndex) {
+          console.log(`[Frame guard] Dropping backward frame (prev=${prevIndex}, now=${idx})`);
+          return this.lastRenderedQuestionTextWithBanner ?? '';
+        }
+
+        // when switching questions → hard close old FET gates synchronously
+        if (prevIndex !== idx) {
+          this._lastRenderedIndex = idx;
+          if (typeof this.explanationTextService.closeAllGates === 'function') {
+            this.explanationTextService.closeAllGates();
+            this._gatesByIndex.clear();
+            this._fetLocked = null;
+            console.log(`[GateReset] Closed all gates on switch → Q${idx + 1}`);
+          }
+        }
     
         // ────────────────────────────────────────────────
         // 🔒 1️⃣ Hard reset stale FET gates *before* drawing next question
