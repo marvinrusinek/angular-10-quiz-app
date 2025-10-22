@@ -766,39 +766,20 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return merged;
       }), */
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
-        // 👇 Immediately filter out any emissions that belong to the wrong index
-        filter(([idx, question]) => {
-          // 🧱 skip if text belongs to the wrong question or is empty
-          const activeIdx = this.quizService.getCurrentQuestionIndex();
-          const q = (question ?? '').trim();
-          const isOld = idx !== activeIdx;
-          const isEmpty = q.length === 0;
-        
-          if (isOld || isEmpty) {
-            console.log(`[FrameGuard] Dropping stale/empty frame (idx=${idx}, active=${activeIdx}, empty=${isEmpty})`);
-            return false;
+        // ── Only let emissions through when both question and explanation are stable ──
+        auditTime(16), // coalesce bursts to one per frame
+
+        filter(([idx, question, , fet]) => {
+          const qReady = typeof question === 'string' && question.trim().length > 0;
+          const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
+          const active = this.quizService.getCurrentQuestionIndex();
+          const valid = idx === active && qReady && fetReady;
+          if (!valid) {
+            console.log(
+              `[StabilityGuard] drop: idx=${idx}, active=${active}, qReady=${qReady}, fetReady=${fetReady}`
+            );
           }
-        
-          // ✅ ensure first question always passes even before stabilization is set
-          if (idx === 0 && !this._renderStableAfter) {
-            this._renderStableAfter = performance.now();
-            console.log('[InitGuard] Allowing initial frame for Q1');
-          }
-        
-          return true;
-        }),
-      
-        // 👇 only block premature FET *after* initialization
-        filter(([idx, , , fet]) => {
-          const now = performance.now();
-          const hasWindow = !!this._renderStableAfter;
-          const tooEarly = hasWindow && now < this._renderStableAfter;
-          const wrongGate = fet?.gate && fet?.idx !== idx;
-          if (tooEarly || wrongGate) {
-            console.log(`[PreFilter] Dropping premature FET for Q${idx + 1} (tooEarly=${tooEarly}, wrongGate=${wrongGate})`);
-            return false;
-          }
-          return true;
+          return valid;
         }),
       
         // 👇 One-frame coalescing
