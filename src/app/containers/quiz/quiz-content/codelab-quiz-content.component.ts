@@ -98,6 +98,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
   private _lastRenderedFrameTime = 0;
   private _lastNavChangeTime = 0;
   private _pendingQuestionFrame: string | null = null;
+  private _pendingFrameStartedAt = 0;
   private _fetLockedIndex: number | null = null;  // keeps track of the last question index whose FET (explanation) is locked in view
 
   // Prevent FET flashback by remembering last opened index and time
@@ -710,37 +711,63 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
     
            let mergedHtml = qText;
-           if (isMulti && bannerText && mode === 'question') {
-             mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
-             this.lastRenderedBannerText = bannerText;
-           }
-   
-           const normalizedFrame = this.normalizeQuestionFrame(mergedHtml);
-   
-           // Skip placeholder / transient question frames (like "?" or lone letters)
-           if (normalizedFrame.length <= 1) {
-             const previousFrame = this.lastRenderedQuestionText;
-             if (previousFrame.length > normalizedFrame.length) {
-               console.log(
-                 `[Render guard] Suppressing transient placeholder for Q${idx + 1}: "${normalizedFrame || qText}"`
-               );
-               return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
-             }
-           }
-   
-           this.explanationTextService.markQuestionRendered(true);
-           this.lastRenderedQuestionTextWithBanner = mergedHtml;
-           this.lastRenderedQuestionText = normalizedFrame;
-           this._lastQuestionPaintTime = performance.now();
-   
-           return of(mergedHtml);
-         }),
-   
-         // 🧩 Emit only real visual updates
-         filter(v => typeof v === 'string' && v.trim().length > 0),
-         distinctUntilChanged((a, b) => this.normalizeQuestionFrame(a) === this.normalizeQuestionFrame(b)),
-         shareReplay({ bufferSize: 1, refCount: true })
-       ) as Observable<string>;      
+        if (isMulti && bannerText && mode === 'question') {
+          mergedHtml = `${qText} <span class="correct-count">${bannerText}</span>`;
+          this.lastRenderedBannerText = bannerText;
+        }
+
+        const normalizedFrame = this.normalizeQuestionFrame(mergedHtml);
+
+        // Skip placeholder / transient question frames (like "?" or lone letters)
+        if (normalizedFrame.length <= 1) {
+          const previousFrame = this.lastRenderedQuestionText;
+
+          if (!this._pendingQuestionFrame) {
+            this._pendingQuestionFrame = normalizedFrame;
+            this._pendingFrameStartedAt = performance.now();
+          }
+
+          if (previousFrame.length > normalizedFrame.length) {
+            console.log(
+              `[Render guard] Suppressing transient placeholder for Q${idx + 1}: "${normalizedFrame || qText}"`
+            );
+            return this.lastRenderedQuestionTextWithBanner ?? this.questionLoadingText ?? '';
+          }
+
+          if (previousFrame.length === 0) {
+            const elapsed = performance.now() - this._pendingFrameStartedAt;
+            if (elapsed < 750) {
+              console.log(
+                `[Render guard] Holding short frame for Q${idx + 1} (${Math.round(elapsed)}ms): "${normalizedFrame || qText}"`
+              );
+              return EMPTY;
+            }
+
+            console.log(
+              `[Render guard] Timed out waiting for full question for Q${idx + 1}, falling back to placeholder.`
+            );
+            return this.questionLoadingText ?? '';
+          }
+        } else if (this._pendingQuestionFrame) {
+          this._pendingQuestionFrame = null;
+          this._pendingFrameStartedAt = 0;
+        }
+
+        this.explanationTextService.markQuestionRendered(true);
+        this.lastRenderedQuestionTextWithBanner = mergedHtml;
+        this.lastRenderedQuestionText = normalizedFrame;
+        this._lastQuestionPaintTime = performance.now();
+        this._pendingQuestionFrame = null;
+        this._pendingFrameStartedAt = 0;
+
+        return of(mergedHtml);
+      }),
+
+      // 🧩 Emit only real visual updates
+      filter(v => typeof v === 'string' && v.trim().length > 0),
+      distinctUntilChanged((a, b) => this.normalizeQuestionFrame(a) === this.normalizeQuestionFrame(b)),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ) as Observable<string>;
   }
   
 
