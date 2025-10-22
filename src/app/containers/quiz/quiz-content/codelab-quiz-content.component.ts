@@ -769,62 +769,57 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return isCurrent;
         }),
       
-        // 👇 Add a one-frame coalescing gate to smooth any residual overlap
+        // 👇 One more filter to drop premature FETs before stabilization window
+        filter(([idx, , , fet]) => {
+          const now = performance.now();
+          const tooEarly = this._renderStableAfter && now < this._renderStableAfter;
+          const wrongGate = fet?.gate && fet?.idx !== idx;
+          if (tooEarly || wrongGate) {
+            console.log(
+              `[PreFilter] Dropping premature FET for Q${idx + 1} (tooEarly=${tooEarly}, wrongGate=${wrongGate})`
+            );
+            return false;
+          }
+          return true;
+        }),
+      
+        // 👇 One-frame coalescing
         observeOn(animationFrameScheduler),
       
-        // 👇 Now your main mapping logic
         map(([idx, question, banner, fet, shouldShow]) => {
           const qText = (question ?? '').trim();
           const bannerText = (banner ?? '').trim();
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
-
+      
           // ────────────────  STABILIZATION GUARD  ────────────────
           if (this._lastRenderedIndex !== idx) {
             this._lastRenderedIndex = idx;
             this._indexSwitchTime = now;
-            this._renderStableAfter = now + 120;     // wait ~120 ms before allowing FET
+            this._renderStableAfter = now + 120; // ~120ms safe zone
             this._firstStableFrameDone = false;
-
-            // always force question mode at switch
+      
+            // always force question mode on switch
             this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] Switched → Q${idx + 1}, blocking FET until ${(this._renderStableAfter - now).toFixed(0)} ms`);
+            console.log(`[Guard] Switched → Q${idx + 1}, blocking FET until ${(
+              this._renderStableAfter - now
+            ).toFixed(0)} ms`);
           }
-
+      
           // 🧱 skip any explanation frame within the stabilization window
           if (mode === 'explanation' && now < this._renderStableAfter) {
-            console.log(`[Guard] Suppressing early FET for Q${idx + 1} (${(this._renderStableAfter - now).toFixed(0)} ms left)`);
+            console.log(`[Guard] Suppressing early FET for Q${idx + 1}`);
             return this._lastQuestionText || qText || '';
           }
-
+      
           // 🧩 once a valid question has painted, mark as stable
           if (!this._firstStableFrameDone && qText.length > 0) {
             this._firstStableFrameDone = true;
             this._renderStableAfter = now; // allow FET after this point
           }
-
-
-          /* if (this._lastRenderedIndex !== idx) {
-            // record index switch moment
-            this._lastRenderedIndex = idx;
-            this._lastModeSwitchTime = now;
-
-            // force QUESTION mode immediately on switch
-            this.quizStateService.displayStateSubject?.next({
-              mode: 'question',
-              answered: false
-            });
-
-            console.log(`[ModeGuard] Forcing QUESTION mode for Q${idx + 1} (fresh index)`);
-          }
-
-          const sinceSwitch = now - (this._lastModeSwitchTime ?? 0);
-          if (sinceSwitch < 80 && mode === 'explanation') {
-            console.log(`[ModeGuard] Ignoring EXPLANATION frame (<80 ms after Q${idx + 1} load)`);
-            return this._lastQuestionText || (question ?? '').trim();
-          } */
-
+      
+          // 🧩 Prefer showing FET when appropriate
           if (
             mode === 'explanation' &&
             fet?.gate &&
@@ -834,6 +829,9 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             return fetText;
           }
       
+          // ────────────────────────────────────────────────
+          // 🧱 Merge question and banner (multi-answer)
+          // ────────────────────────────────────────────────
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
@@ -845,20 +843,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
       
-          // record for diagnostics
+          // 🧹 Record diagnostics & suppress any leftover FET state
+          this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
+          this.explanationTextService.setIsExplanationTextDisplayed(false);
+      
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
-          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
       
+          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
           return merged;
         }),
       
         // 🚫 Deduplicate identical frames
         distinctUntilChanged((a, b) => a.trim() === b.trim()),
-      
         startWith(''),
         shareReplay({ bufferSize: 1, refCount: true })
-      ) as Observable<string>;
+      ) as Observable<string>;      
   }
   
 
