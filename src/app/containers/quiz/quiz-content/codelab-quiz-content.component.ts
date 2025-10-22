@@ -653,6 +653,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         return true;
       }),
       map(([idx, question, banner, fet, shouldShow]) => {
+        // 🔒 absolute hard guard against stale frames
+        const active = this.quizService.getCurrentQuestionIndex();
+        if (idx !== active) {
+          console.log(
+            `[StaleFrameGuard] Dropping emission from Q${idx + 1} (active is Q${active + 1})`
+          );
+          return _lastQuestionText || '';
+        }
+      
         const qText = (question ?? '').trim();
         const bannerText = (banner ?? '').trim();
         const fetText = (fet?.text ?? '').trim();
@@ -666,17 +675,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return _lastQuestionText || qText;
         }
       
-        // ────────────────────────────────────────────────
         // 🚫 Block any residual FET emission while in question mode
-        // ────────────────────────────────────────────────
         if (mode === 'question' && fet?.gate) {
           console.log(`[Guard] Suppressing stray FET for Q${idx + 1}`);
           fet.gate = false;
         }
       
-        // ────────────────────────────────────────────────
         // 🧩 Prefer showing FET when appropriate
-        // ────────────────────────────────────────────────
         if (
           mode === 'explanation' &&
           fet?.gate &&
@@ -686,9 +691,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           return fetText;
         }
       
-        // ────────────────────────────────────────────────
         // 🧱 Merge question and banner (multi-answer)
-        // ────────────────────────────────────────────────
         const qObj = this.quizService.questions?.[idx];
         const isMulti =
           !!qObj &&
@@ -700,9 +703,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           merged = `${qText} <span class="correct-count">${bannerText}</span>`;
         }
       
-        // ────────────────────────────────────────────────
         // 🧹 After merging → reset explanation display flags
-        // ────────────────────────────────────────────────
         this.explanationTextService.setShouldDisplayExplanation(false, { force: true });
         this.explanationTextService.setIsExplanationTextDisplayed(false);
       
