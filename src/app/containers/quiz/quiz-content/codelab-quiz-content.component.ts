@@ -745,12 +745,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }), */
       this._lastRenderedIndex = this.quizService.getCurrentQuestionIndex();
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
-        // ── Only let emissions through when both question and explanation are stable ──
-        auditTime(16), // coalesce bursts to one per frame
-        /* debounce(() => {
-          const navActive = this.quizStateService.isNavigatingSubject?.value === true;
-          return navActive ? timer(40) : of(null);   // wait one frame only when navigating
-        }), */
+        // Only let emissions through when both question and explanation are stable
+        auditTime(16),  // coalesce bursts to one per frame
       
         filter(([idx, question, , fet]) => {
           const qReady = typeof question === 'string' && question.trim().length > 0;
@@ -760,7 +756,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           // NEW: mild stabilization delay after navigation
           const now = performance.now();
           const sinceNav = now - (this.quizQuestionLoaderService._lastNavTime ?? 0);
-          const navHold = sinceNav < 50; // only block for 50 ms after a route change
+          const navHold = sinceNav < 48;  // first ~3 frames after navigation
         
           const valid = idx === active && qReady && fetReady && !navHold;
           if (!valid) {
@@ -772,19 +768,8 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         }),
       
       
-        // 👇 One-frame coalescing
+        // One-frame coalescing after filtering
         observeOn(animationFrameScheduler),
-
-        filter(([idx]) => {
-          const now = performance.now();
-          const sinceNav = now - (this.quizQuestionLoaderService._lastNavTime ?? 0);
-          // block any emissions in the first 48 ms after navigation
-          if (sinceNav < 48) {
-            console.log(`[NavQuietZone] suppress frame Q${idx + 1} (sinceNav=${sinceNav.toFixed(1)} ms)`);
-            return false;
-          }
-          return true;
-        }),
       
         map(([idx, question, banner, fet, shouldShow]) => {
           const qText = (question ?? '').trim();
