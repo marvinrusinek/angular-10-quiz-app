@@ -103,6 +103,8 @@ export class QuizQuestionLoaderService {
   // Timestamp of last safe navigation (used to drop stale emissions)
   public _lastNavTime = 0;
 
+  public _renderFreezeUntil: number = 0;
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
