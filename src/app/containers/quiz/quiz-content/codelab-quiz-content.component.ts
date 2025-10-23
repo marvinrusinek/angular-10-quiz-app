@@ -746,27 +746,30 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this._lastRenderedIndex = this.quizService.getCurrentQuestionIndex();
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
         // Only let emissions through when both question and explanation are stable
-        auditTime(16),  // coalesce bursts to one per frame
+        auditTime(8),
       
         filter(([idx, question, , fet]) => {
+          const active = this.quizService.getCurrentQuestionIndex();
           const qReady = typeof question === 'string' && question.trim().length > 0;
           const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
-          const active = this.quizService.getCurrentQuestionIndex();
-        
-          // NEW: mild stabilization delay after navigation
           const now = performance.now();
-          const sinceNav = now - (this.quizQuestionLoaderService._lastNavTime ?? 0);
-          const navHold = sinceNav < 48;  // first ~3 frames after navigation
-        
-          const valid = idx === active && qReady && fetReady && !navHold;
+          const lastNav = this.quizQuestionLoaderService._lastNavTime ?? 0;
+      
+          // Hold emissions for 2 full frames after navigation
+          const sinceNav = now - lastNav;
+          const quiet = sinceNav < 34; // ~2 × 16 ms frames
+      
+          // Also block any stale index not matching active
+          const valid = !quiet && idx === active && qReady && fetReady;
           if (!valid) {
             console.log(
-              `[StabilityGuard] drop: idx=${idx}, active=${active}, qReady=${qReady}, fetReady=${fetReady}, navHold=${navHold}`
+              `[QuietGate] ⏸ idx=${idx}, active=${active}, qReady=${qReady}, fetReady=${fetReady}, sinceNav=${sinceNav.toFixed(1)}`
             );
           }
           return valid;
         }),
-      
+
+        auditTime(8),
       
         // One-frame coalescing after filtering
         observeOn(animationFrameScheduler),
