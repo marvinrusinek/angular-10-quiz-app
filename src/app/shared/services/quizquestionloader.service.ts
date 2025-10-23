@@ -1051,9 +1051,7 @@ export class QuizQuestionLoaderService {
   
     // Guard: skip stale resets from previous questions
     if (index != null && index !== activeIndex) {
-      console.log(
-        `[SKIP stale resetHeadlineStreams] tried Q${index + 1}, active Q${activeIndex + 1}`
-      );
+      console.log(`[SKIP stale resetHeadlineStreams] tried Q${index + 1}, active Q${activeIndex + 1}`);
       return;
     }
   
@@ -1064,7 +1062,7 @@ export class QuizQuestionLoaderService {
     this.explanationTextService.explanationText$.next('');  // clears explanation
     this.clearQA();  // clears question and options
     this.quizStateService.setDisplayState({
-      mode: 'question',  // force “question” mode
+      mode: 'question',  // force "question" mode
       answered: false
     });
   }
