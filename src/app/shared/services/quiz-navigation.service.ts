@@ -463,7 +463,7 @@ export class QuizNavigationService {
 
       // Allow one full frame to flush Angular’s view
       // Freeze BEFORE clearing the text — this blocks any mid-frame emissions
-      this.quizQuestionLoaderService.freezeQuestionStream(150);
+      this.quizQuestionLoaderService.freezeQuestionStream();
 
       await new Promise<void>(resolve =>
         requestAnimationFrame(() => {
@@ -475,10 +475,6 @@ export class QuizNavigationService {
 
       // Force a second paint-safe delay to ensure no old emission replays
       await new Promise<void>(resolve => setTimeout(resolve, 32));
-
-      // Only unfreeze AFTER Angular and DOM have stabilized
-      this.quizQuestionLoaderService.unfreezeQuestionStream();
-
   
       // Reset explanation state before re-painting
       this.explanationTextService.formattedExplanationSubject.next('');
@@ -572,6 +568,9 @@ export class QuizNavigationService {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
       }
+
+      // Only unfreeze AFTER Angular and DOM have stabilized
+      this.quizQuestionLoaderService.unfreezeQuestionStream();
 
       // Record navigation time for stabilization filters, right after successful navigation and question emission
       try {
