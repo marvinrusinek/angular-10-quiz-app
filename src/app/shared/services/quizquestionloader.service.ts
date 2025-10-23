@@ -104,7 +104,6 @@ export class QuizQuestionLoaderService {
   public _lastNavTime = 0;
 
   public _renderFreezeUntil = 0;
-
   private _questionFreeze = false;
   private _freezeUntil = 0;
   private _frozen = false;
@@ -1135,17 +1134,15 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  public freezeQuestionStream(): void {
+  public freezeQuestionStream(ms: number = 80): void {
     this._frozen = true;
-    this._renderFreezeUntil = performance.now() + 80; // 5 frames worth of safety
-    console.log(`[Loader] 🔒 Question stream frozen until ${this._renderFreezeUntil.toFixed(1)} ms`);
+    this._renderFreezeUntil = performance.now() + ms;
+    console.log(`[Freeze] stream frozen for ${ms} ms`);
   }
   
   public unfreezeQuestionStream(): void {
-    // wait one frame after Angular view reattaches before unfreezing
-    requestAnimationFrame(() => {
-      this._frozen = false;
-      console.log('[Loader] ❄️ Question stream unfrozen');
-    });
+    this._frozen = false;
+    this._renderFreezeUntil = 0;
+    console.log('[Freeze] stream unfrozen');
   }
 }
