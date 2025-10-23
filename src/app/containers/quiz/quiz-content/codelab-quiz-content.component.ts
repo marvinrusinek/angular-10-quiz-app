@@ -746,47 +746,31 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       this._lastRenderedIndex = this.quizService.getCurrentQuestionIndex();
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
         // ── Only let emissions through when both question and explanation are stable ──
-       //  auditTime(16), // coalesce bursts to one per frame
-       debounce(() => {
-        const navActive = this.quizStateService.isNavigatingSubject?.value === true;
-        return navActive ? timer(40) : of(null);   // wait one frame only when navigating
-      }),
+        //  auditTime(16), // coalesce bursts to one per frame
+        debounce(() => {
+          const navActive = this.quizStateService.isNavigatingSubject?.value === true;
+          return navActive ? timer(40) : of(null);   // wait one frame only when navigating
+        }),
       
         filter(([idx, question, , fet]) => {
           const qReady = typeof question === 'string' && question.trim().length > 0;
           const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
           const active = this.quizService.getCurrentQuestionIndex();
         
-          // timestamps tracked from navigation
+          // NEW: mild stabilization delay after navigation
           const now = performance.now();
-          const lastNav = this.quizQuestionLoaderService._lastNavTime ?? 0;
-          const sinceNav = now - lastNav;
+          const sinceNav = now - (this._lastNavTime ?? 0);
+          const navHold = sinceNav < 50; // only block for 50 ms after a route change
         
-          // 🧭 Phase 1: suppress *only* the first 24ms after navigation (too soon)
-          const tooSoon = sinceNav < 24;
-          // 🧩 Phase 2: allow FET even if question not stable after ~70ms
-          const allowFET = sinceNav > 70;
-        
-          const valid =
-            idx === active &&
-            qReady &&
-            (fetReady || allowFET); // let explanation pass once 70ms has elapsed
-        
+          const valid = idx === active && qReady && fetReady && !navHold;
           if (!valid) {
             console.log(
-              `[StabilityGuard] drop idx=${idx}, active=${active}, sinceNav=${sinceNav.toFixed(
-                0
-              )}ms, qReady=${qReady}, fetReady=${fetReady}`
+              `[StabilityGuard] drop: idx=${idx}, active=${active}, qReady=${qReady}, fetReady=${fetReady}, navHold=${navHold}`
             );
           }
-        
-          if (tooSoon) {
-            console.log(`[StabilityGuard] ⏱️ Too soon (<24ms) — dropping`);
-            return false;
-          }
-        
           return valid;
         }),
+      
       
         // 👇 One-frame coalescing
         observeOn(animationFrameScheduler),
