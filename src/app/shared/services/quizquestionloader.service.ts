@@ -105,6 +105,9 @@ export class QuizQuestionLoaderService {
 
   public _renderFreezeUntil = 0;
 
+  private _questionFreeze = false;
+  private _freezeUntil = 0;
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -1119,5 +1122,19 @@ export class QuizQuestionLoaderService {
     } catch (e) {
       console.warn('[Loader] clearQuestionTextBeforeNavigation error', e);
     }
-  }  
+  }
+
+  // Call this before navigation teardown
+  public freezeQuestionStream(durationMs = 120): void {
+    this._questionFreeze = true;
+    this._freezeUntil = performance.now() + durationMs;
+    console.log(`[Loader] 🔒 Question stream frozen for ${durationMs}ms`);
+  }
+
+  // Unfreeze after new question text + DOM are ready
+  public unfreezeQuestionStream(): void {
+    this._questionFreeze = false;
+    this._freezeUntil = 0;
+    console.log(`[Loader] 🔓 Question stream unfrozen`);
+  }
 }
