@@ -1086,8 +1086,11 @@ export class QuizQuestionLoaderService {
   }
 
   public emitQuestionTextSafely(text: string, index: number): void {
-    if (this._frozen) {
-      console.log('[BLOCK] emission blocked while frozen');
+    const now = performance.now();
+  
+    // 🔒 Absolute freeze gate (during route teardown or render reset)
+    if (this._frozen || now < (this._renderFreezeUntil ?? 0)) {
+      console.log(`[BLOCK] emission blocked while frozen (Δ=${(this._renderFreezeUntil - now).toFixed(1)}ms left)`);
       return;
     }
   
@@ -1098,14 +1101,25 @@ export class QuizQuestionLoaderService {
     }
   
     const trimmed = (text ?? '').trim();
-    if (!trimmed || trimmed === '?') return;
   
-    const now = performance.now();
-    if (now - (this._lastNavTime ?? 0) < 80) return;
+    // Ignore placeholders or empty emissions
+    if (!trimmed || trimmed === '?') {
+      console.log(`[BLOCK] Ignored placeholder "${trimmed}" for Q${index + 1}`);
+      return;
+    }
   
+    // Drop emissions that occur too soon after navigation
+    const sinceNav = now - (this._lastNavTime ?? 0);
+    if (sinceNav < 80) {
+      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${sinceNav.toFixed(1)}ms)`);
+      return;
+    }
+  
+    // Passed all guards — safe to emit
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-  }  
+    console.log(`[EMIT] Question text emitted safely for Q${index + 1}`);
+  }
   
   public clearQuestionTextBeforeNavigation(): void {
     try {
@@ -1123,14 +1137,15 @@ export class QuizQuestionLoaderService {
 
   public freezeQuestionStream(): void {
     this._frozen = true;
-    console.log('[Loader] 🔒 Question stream frozen');
+    this._renderFreezeUntil = performance.now() + 80; // 5 frames worth of safety
+    console.log(`[Loader] 🔒 Question stream frozen until ${this._renderFreezeUntil.toFixed(1)} ms`);
   }
   
   public unfreezeQuestionStream(): void {
-    // small unfreeze delay to ensure new DOM context exists
-    setTimeout(() => {
+    // wait one frame after Angular view reattaches before unfreezing
+    requestAnimationFrame(() => {
       this._frozen = false;
       console.log('[Loader] ❄️ Question stream unfrozen');
-    }, 32);
+    });
   }
 }
