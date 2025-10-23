@@ -572,16 +572,22 @@ export class QuizNavigationService {
   
             // Unfreeze after the next frame paints
             requestAnimationFrame(() => {
-              this.quizQuestionLoaderService.unfreezeQuestionStream();
-              this.quizQuestionLoaderService._lastNavTime = performance.now();
+              setTimeout(() => {
+                this.quizQuestionLoaderService.unfreezeQuestionStream();
+                this.quizQuestionLoaderService._lastNavTime = performance.now();
+                console.log('[NAV] 🧊 Unfrozen after 2-frame delay');
+              }, 24); // ~1.5 frames at 60fps
             });
   
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
             requestAnimationFrame(() => {
-              this.quizQuestionLoaderService.unfreezeQuestionStream();
-              this.quizQuestionLoaderService._lastNavTime = performance.now();
+              setTimeout(() => {
+                this.quizQuestionLoaderService.unfreezeQuestionStream();
+                this.quizQuestionLoaderService._lastNavTime = performance.now();
+                console.log('[NAV] 🧊 Unfrozen after 2-frame delay');
+              }, 24); // ~1.5 frames at 60fps
             });
             resolve();
           }
