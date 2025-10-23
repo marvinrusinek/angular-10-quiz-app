@@ -794,6 +794,13 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
+          const freezeUntil = this.quizQuestionLoaderService._renderFreezeUntil ?? 0;
+
+          // Don't render any text until Angular has settled after navigation
+          if (now < freezeUntil) {
+            console.log(`[FreezeWindow] skipping frame for Q${idx + 1} (remaining ${(freezeUntil - now).toFixed(1)}ms)`);
+            return this._lastQuestionText || '';
+          }
       
           // ───────────────────────────────────────────────
           // 🧱 HARD GUARD: drop any frame from an older index
