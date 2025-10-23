@@ -1116,8 +1116,8 @@ export class QuizQuestionLoaderService {
       this._lastQuestionText = '';
       this._lastRenderedIndex = -1;
       console.log('[Loader] Cleared question text before navigation');
-    } catch (e) {
-      console.warn('[Loader] clearQuestionTextBeforeNavigation error', e);
+    } catch (err) {
+      console.warn('[Loader] clearQuestionTextBeforeNavigation error', err);
     }
   }
 
