@@ -456,6 +456,7 @@ export class QuizNavigationService {
 
       // Immediately clear before the browser paints again
       this.quizQuestionLoaderService.questionToDisplay$.next('');
+      this.quizQuestionLoaderService._renderFreezeUntil = performance.now() + 48;  // ~3 frames
       this.quizQuestionLoaderService._lastQuestionText = '';
       this.quizQuestionLoaderService._lastRenderedIndex = -1;
       console.log(`[NAV] ⛔ Pre-cleared Q${prevIndex + 1} before switching`);
