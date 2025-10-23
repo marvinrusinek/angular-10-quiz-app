@@ -197,8 +197,6 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone
   ) {
-    console.log('[Component] Using QuizService instance', this.quizService);
-
     this.nextQuestion$ = this.quizService.nextQuestion$;
     this.previousQuestion$ = this.quizService.previousQuestion$;
 
