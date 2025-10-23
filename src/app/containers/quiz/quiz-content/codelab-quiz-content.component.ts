@@ -781,6 +781,15 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       
         // One-frame coalescing after filtering (kept from your code)
         observeOn(animationFrameScheduler),
+
+        filter(() => {
+          const now = performance.now();
+          if (now < (this.quizQuestionLoaderService._renderFreezeUntil ?? 0)) {
+            console.log('[Guard] Dropping emission inside freeze window');
+            return false;
+          }
+          return true;
+        }),        
       
         map((
           [idx, question, banner, fet, shouldShow]:
