@@ -570,15 +570,19 @@ export class QuizNavigationService {
               }, 120);
             }
   
-            // ✅ Unfreeze *after* new emissions queued
-            this.quizQuestionLoaderService.unfreezeQuestionStream();
-            this.quizQuestionLoaderService._lastNavTime = performance.now();
+            // Unfreeze after the next frame paints
+            requestAnimationFrame(() => {
+              this.quizQuestionLoaderService.unfreezeQuestionStream();
+              this.quizQuestionLoaderService._lastNavTime = performance.now();
+            });
   
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-            this.quizQuestionLoaderService.unfreezeQuestionStream();
-            this.quizQuestionLoaderService._lastNavTime = performance.now();
+            requestAnimationFrame(() => {
+              this.quizQuestionLoaderService.unfreezeQuestionStream();
+              this.quizQuestionLoaderService._lastNavTime = performance.now();
+            });
             resolve();
           }
         });
