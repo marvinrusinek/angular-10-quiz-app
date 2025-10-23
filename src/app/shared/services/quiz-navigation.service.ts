@@ -453,25 +453,29 @@ export class QuizNavigationService {
         this.explanationTextService.closeGateForIndex(prevIndex);
       }
   
-      // Freeze BEFORE clearing anything so mid-frame emissions are blocked
-      this.quizQuestionLoaderService.freezeQuestionStream();
+      // 🧊 Freeze BEFORE clearing — prevents mid-frame leaks from old emissions
+      this.quizQuestionLoaderService.freezeQuestionStream(80);
+      this.quizQuestionLoaderService._lastNavTime = performance.now();
   
-      // Clear immediately, then give Angular one paint to tear down old view
+      // Clear stale render state
       this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
       this.resetRenderStateBeforeNavigation(index);
   
-      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-      await new Promise<void>(resolve => setTimeout(resolve, 32)); // small settle
+      // Allow Angular one frame to settle
+      await new Promise<void>(r => requestAnimationFrame(() => r()));
+      await new Promise<void>(r => setTimeout(r, 32)); // small tear-down buffer
   
-      // Reset explanation state before re-painting
+      // Reset explanation display
       this.explanationTextService.formattedExplanationSubject.next('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
   
+      // ────────────────────────────────────────────────
+      // 🗺 Resolve quiz ID + route URL
+      // ────────────────────────────────────────────────
       const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
       const fallbackQuizId = localStorage.getItem('quizId');
       const quizId = quizIdFromRoute || fallbackQuizId;
-  
       if (!quizId || quizId === 'fallback-id') {
         console.error('[❌ Invalid quizId – fallback used]', quizId);
       }
@@ -486,12 +490,13 @@ export class QuizNavigationService {
   
       const waitForRoute = this.waitForUrl(routeUrl);
   
-      // 🚀 NAVIGATE (frame-safe)
+      // 🚀 ROUTER NAVIGATION (frame-safe)
       if (currentIndex === index && currentUrl === routeUrl) {
         await this.ngZone.run(() =>
           this.router.navigateByUrl('/', { skipLocationChange: true })
         );
       }
+  
       const navSuccess = await this.ngZone.run(() =>
         this.router.navigateByUrl(routeUrl)
       );
@@ -500,55 +505,56 @@ export class QuizNavigationService {
         return false;
       }
   
-      // (Don’t unfreeze yet — wait until we schedule the new question emission)
-  
-      // RESET SELECTION + FEEDBACK
+      // ────────────────────────────────────────────────
+      // 🔁 Reset feedback + selections
+      // ────────────────────────────────────────────────
       this.selectedOptionService.resetAllStates?.();
       (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
       (this.selectedOptionService as any).optionStates?.clear?.();
       this.selectedOptionService.selectedOptionsMap?.clear?.();
       this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
   
-      // FETCH NEW QUESTION
-      const obs = this.quizService.getQuestionByIndex(index);
-      const fresh = await firstValueFrom(obs);
+      // ────────────────────────────────────────────────
+      // 🧩 Fetch question safely
+      // ────────────────────────────────────────────────
+      const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
   
-      // UPDATE “# OF CORRECT ANSWERS” + QUESTION TEXT
-      this.quizService.updateCorrectAnswersText('');
+      // ────────────────────────────────────────────────
+      // 🧩 Compute question + banner
+      // ────────────────────────────────────────────────
+      const isMulti =
+        (fresh.type as any) === QuestionType.MultipleAnswer ||
+        (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
   
-      await new Promise<void>((resolve) => {
-        // Queue emissions together inside the same paint slot
+      const trimmedQ = (fresh.questionText ?? '').trim();
+      const explanationRaw = (fresh.explanation ?? '').trim();
+  
+      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+      const totalOpts = (fresh.options ?? []).length;
+      const banner = isMulti
+        ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
+        : '';
+  
+      // ────────────────────────────────────────────────
+      // 🎨 Emit question + banner in sync
+      // ────────────────────────────────────────────────
+      await new Promise<void>(resolve => {
         requestAnimationFrame(() => {
           try {
-            const isMulti =
-              (fresh.type as any) === QuestionType.MultipleAnswer ||
-              (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
-  
-            const trimmedQ = (fresh.questionText ?? '').trim();
-            const explanationRaw = (fresh.explanation ?? '').trim();
-  
-            const numCorrect = (fresh.options ?? []).filter((o) => o.correct).length;
-            const totalOpts  = (fresh.options ?? []).length;
-            const banner = isMulti
-              ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
-              : '';
-  
-            // Emit question first (still frozen, so it won’t leak if something else fires)
             this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
   
-            // Emit banner on the very next frame (same tick family)
+            // Emit banner next frame
             requestAnimationFrame(() => {
               this.quizService.updateCorrectAnswersText(banner);
             });
   
-            // Pre-arm FET a touch later so Q+banner paint first
+            // Pre-arm formatted explanation text
             if (explanationRaw) {
-              const correctIdxs =
-                this.explanationTextService.getCorrectOptionIndices(fresh as any);
+              const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
@@ -557,29 +563,28 @@ export class QuizNavigationService {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
                   this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
+                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
                 } catch (err) {
                   console.warn('[NAV] ⚠️ FET restore failed:', err);
                 }
               }, 120);
             }
   
-            // ✅ Now that new emissions are queued to the new view, unfreeze.
+            // ✅ Unfreeze *after* new emissions queued
             this.quizQuestionLoaderService.unfreezeQuestionStream();
-  
-            // Stamp nav time AFTER unfreeze so downstream guards know “new” frames
             this.quizQuestionLoaderService._lastNavTime = performance.now();
   
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-            // still unfreeze to avoid deadlock
             this.quizQuestionLoaderService.unfreezeQuestionStream();
+            this.quizQuestionLoaderService._lastNavTime = performance.now();
             resolve();
           }
         });
       });
   
-      // mark navigating=false a frame later
+      // mark navigating=false on next frame
       await new Promise<void>(resolve =>
         requestAnimationFrame(() => {
           this.quizStateService.isNavigatingSubject.next(false);
@@ -594,7 +599,6 @@ export class QuizNavigationService {
       return false;
     } finally {
       this._fetchInProgress = false;
-      // console.debug('[NAV] ✅ Fetch complete');
     }
   }  
   
