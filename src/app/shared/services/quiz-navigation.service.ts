@@ -68,6 +68,10 @@ export class QuizNavigationService {
 
   // Tracks which questions have had their formatted explanation shown early
   private _fetEarlyShown: Set<number> = new Set();
+
+  // Frame-stabilization markers (used by navigation reset)
+  public _lastQuestionText = '';
+  public _lastRenderedIndex = -1;
   
   constructor(
     private explanationTextService: ExplanationTextService,
