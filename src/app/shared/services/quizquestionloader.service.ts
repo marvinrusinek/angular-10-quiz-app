@@ -1121,10 +1121,10 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  public freezeQuestionStream(ms = 80): void {
+  public freezeQuestionStream(duration = 80): void {
     this._frozen = true;
-    this._freezeUntil = performance.now() + ms;
-    console.log(`[Loader] ❄️ Stream frozen for ${ms}ms`);
+    this._renderFreezeUntil = performance.now() + duration;
+    console.log(`[Freeze] Stream frozen for ${duration}ms`);
   }
   
   public unfreezeQuestionStream(): void {
