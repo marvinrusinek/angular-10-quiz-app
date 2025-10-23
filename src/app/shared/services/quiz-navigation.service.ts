@@ -567,9 +567,16 @@ export class QuizNavigationService {
         return false;
       }
 
-      // Record navigation time for stabilization filters
-      this.quizQuestionLoaderService._lastNavTime = performance.now();
-      console.log(`[NAV] ⏱️ Recorded _lastNavTime=${this.quizQuestionLoaderService._lastNavTime.toFixed(2)}`);
+      // Record navigation time for stabilization filters, right after successful navigation and question emission
+      try {
+        // wait one full frame so the new question is painted
+        await new Promise<void>(r => requestAnimationFrame(() => r()));
+        this.quizQuestionLoaderService._lastNavTime = performance.now();
+        console.log(`[NAV] 🕒 navigation stable at ${this.quizQuestionLoaderService._lastNavTime.toFixed(1)} ms`);
+      } catch (err) {
+        console.warn('[NAV] could not mark nav time', err);
+      }
+
   
       console.log('[NAV-DIAG] before waitForRoute', routeUrl);
       await waitForRoute;
