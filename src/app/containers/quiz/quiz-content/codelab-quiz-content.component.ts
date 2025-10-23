@@ -784,7 +784,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // One-frame coalescing after filtering (kept from your code)
         observeOn(animationFrameScheduler),
       
-        map(([idx, question, banner, fet, shouldShow]) => {
+        map((
+          [idx, question, banner, fet, shouldShow]:
+          [number, string, string, FETState, boolean]
+        ) => {
           // … your existing render logic unchanged …
           const qText = (question ?? '').trim();
           const bannerText = (banner ?? '').trim();
