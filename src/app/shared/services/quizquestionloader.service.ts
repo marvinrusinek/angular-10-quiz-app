@@ -1085,7 +1085,10 @@ export class QuizQuestionLoaderService {
   }
 
   public emitQuestionTextSafely(text: string, index: number): void {
-    if (this._frozen && performance.now() < (this._renderFreezeUntil ?? 0)) {
+    const now = performance.now();
+  
+    // Block emissions during active freeze window
+    if (this._frozen && now < (this._renderFreezeUntil ?? 0)) {
       console.log('[BLOCK] emission blocked within freeze window');
       return;
     }
@@ -1097,17 +1100,22 @@ export class QuizQuestionLoaderService {
     }
   
     const trimmed = (text ?? '').trim();
-    if (!trimmed || trimmed === '?') return;
+    if (!trimmed || trimmed === '?') {
+      console.log('[BLOCK] placeholder emission ignored');
+      return;
+    }
   
-    const now = performance.now();
-    if (now < this._freezeUntil) {
-      console.log('[BLOCK] emission blocked by freeze window');
+    // Additional buffer to prevent early post-nav emissions
+    const lastNav = this._lastNavTime ?? 0;
+    if (now - lastNav < 80) {
+      console.log(`[BLOCK] too soon after navigation (Δ=${(now - lastNav).toFixed(1)}ms)`);
       return;
     }
   
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-  }  
+    console.log(`[EMIT] Safe question emission for Q${index + 1}`);
+  }
   
   public clearQuestionTextBeforeNavigation(): void {
     try {
