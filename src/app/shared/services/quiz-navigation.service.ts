@@ -52,7 +52,7 @@ export class QuizNavigationService {
   private navigatingBackSubject = new Subject<boolean>();
   navigatingBack$ = this.navigatingBackSubject.asObservable();
 
-  private navigationToQuestionSubject = new Subject<{ question: QuizQuestion; options: Option[] }>();
+  private navigationToQuestionSubject = new Subject<{ question: QuizQuestion, options: Option[] }>();
   public navigationToQuestion$ = this.navigationToQuestionSubject.asObservable();
 
   private explanationResetSubject = new Subject<void>();
