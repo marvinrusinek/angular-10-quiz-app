@@ -11,6 +11,7 @@ import { QuestionPayload } from '../../../shared/models/QuestionPayload.model';
 import { QuizQuestion } from '../../../shared/models/QuizQuestion.model';
 import { QuizService } from '../../../shared/services/quiz.service';
 import { QuizDataService } from '../../../shared/services/quizdata.service';
+import { QuizQuestionLoaderService } from '../../../shared/services/quizquestionloader.service';
 import { QuizQuestionManagerService } from '../../../shared/services/quizquestionmgr.service';
 import { QuizStateService } from '../../../shared/services/quizstate.service';
 import { ExplanationTextService } from '../../../shared/services/explanation-text.service';
@@ -190,6 +191,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     private quizDataService: QuizDataService,
     private quizStateService: QuizStateService,
     private explanationTextService: ExplanationTextService,
+    private quizQuestionLoaderService: QuizQuestionLoaderService,
     private quizQuestionManagerService: QuizQuestionManagerService,
     private activatedRoute: ActivatedRoute,
     private cdRef: ChangeDetectorRef,
