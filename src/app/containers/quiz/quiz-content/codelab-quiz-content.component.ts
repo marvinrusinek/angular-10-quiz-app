@@ -1592,7 +1592,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             .pipe(
               map((isMultipleAnswer) => ({
                 combinedData,
-                isMultipleAnswer,
+                isMultipleAnswer
               }))
             );
         } else {
