@@ -1085,11 +1085,8 @@ export class QuizQuestionLoaderService {
   }
 
   public emitQuestionTextSafely(text: string, index: number): void {
-    const now = performance.now();
-  
-    // 🔒 Absolute freeze gate (during route teardown or render reset)
-    if (this._frozen || now < (this._renderFreezeUntil ?? 0)) {
-      console.log(`[BLOCK] emission blocked while frozen (Δ=${(this._renderFreezeUntil - now).toFixed(1)}ms left)`);
+    if (this._frozen) {
+      console.log('[BLOCK] emission blocked while frozen');
       return;
     }
   
@@ -1100,37 +1097,27 @@ export class QuizQuestionLoaderService {
     }
   
     const trimmed = (text ?? '').trim();
+    if (!trimmed || trimmed === '?') return;
   
-    // Ignore placeholders or empty emissions
-    if (!trimmed || trimmed === '?') {
-      console.log(`[BLOCK] Ignored placeholder "${trimmed}" for Q${index + 1}`);
+    const now = performance.now();
+    if (now < this._freezeUntil) {
+      console.log('[BLOCK] emission blocked by freeze window');
       return;
     }
   
-    // Drop emissions that occur too soon after navigation
-    const sinceNav = now - (this._lastNavTime ?? 0);
-    if (sinceNav < 80) {
-      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${sinceNav.toFixed(1)}ms)`);
-      return;
-    }
-  
-    // Passed all guards — safe to emit
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-    console.log(`[EMIT] Question text emitted safely for Q${index + 1}`);
-  }
+  }  
   
   public clearQuestionTextBeforeNavigation(): void {
     try {
-      this._lastNavTime = performance.now();  // record navigation start
-
-      // Clear any cached or replayed emissions
-      this.questionToDisplay$.next('');
+      this._frozen = true; // extra safeguard
+      this.questionToDisplay$.next('');  // emit empty to flush template
       this._lastQuestionText = '';
       this._lastRenderedIndex = -1;
       console.log('[Loader] Cleared question text before navigation');
-    } catch (err) {
-      console.warn('[Loader] clearQuestionTextBeforeNavigation error', err);
+    } catch (e) {
+      console.warn('[Loader] clearQuestionTextBeforeNavigation error', e);
     }
   }
 
