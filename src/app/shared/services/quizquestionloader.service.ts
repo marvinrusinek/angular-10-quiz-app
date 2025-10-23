@@ -1134,15 +1134,25 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  public freezeQuestionStream(ms: number = 80): void {
+  public freezeQuestionStream(ms = 80): void {
     this._frozen = true;
-    this._renderFreezeUntil = performance.now() + ms;
-    console.log(`[Freeze] stream frozen for ${ms} ms`);
+    this._freezeUntil = performance.now() + ms;
+    console.log(`[Loader] ❄️ Stream frozen for ${ms}ms`);
   }
   
   public unfreezeQuestionStream(): void {
-    this._frozen = false;
-    this._renderFreezeUntil = 0;
-    console.log('[Freeze] stream unfrozen');
+    const now = performance.now();
+    if (now < this._freezeUntil) {
+      // wait for the remaining time before unfreezing
+      const delay = this._freezeUntil - now;
+      console.log(`[Loader] 🕒 Delaying unfreeze ${delay.toFixed(1)}ms`);
+      setTimeout(() => {
+        this._frozen = false;
+        console.log('[Loader] 🔓 Stream unfrozen (delayed)');
+      }, delay);
+    } else {
+      this._frozen = false;
+      console.log('[Loader] 🔓 Stream unfrozen');
+    }
   }
 }
