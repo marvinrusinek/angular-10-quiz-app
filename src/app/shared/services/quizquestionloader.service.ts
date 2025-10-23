@@ -1085,8 +1085,8 @@ export class QuizQuestionLoaderService {
   }
 
   public emitQuestionTextSafely(text: string, index: number): void {
-    if (this._frozen) {
-      console.log('[BLOCK] emission blocked while frozen');
+    if (this._frozen && performance.now() < (this._renderFreezeUntil ?? 0)) {
+      console.log('[BLOCK] emission blocked within freeze window');
       return;
     }
   
