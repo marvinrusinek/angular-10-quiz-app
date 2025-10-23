@@ -566,6 +566,10 @@ export class QuizNavigationService {
         console.warn('[⚠️ Router navigateByUrl returned false]', routeUrl);
         return false;
       }
+
+      // Record navigation time for stabilization filters
+      this.quizQuestionLoaderService._lastNavTime = performance.now();
+      console.log(`[NAV] ⏱️ Recorded _lastNavTime=${this.quizQuestionLoaderService._lastNavTime.toFixed(2)}`);
   
       console.log('[NAV-DIAG] before waitForRoute', routeUrl);
       await waitForRoute;
