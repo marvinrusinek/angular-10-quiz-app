@@ -1094,22 +1094,31 @@ export class QuizQuestionLoaderService {
     const trimmed = (text ?? '').trim();
     const now = performance.now();
   
-    // BLOCK all placeholder emissions (question marks or empties)
+    // Block all placeholder emissions (empty or question marks)
     if (!trimmed || trimmed === '?') {
       console.log(`[BLOCK] Ignored placeholder emission "${trimmed}" for Q${index + 1}`);
       return;
     }
-
-    // Drop emissions too close to the last navigation (prevents Q2→Q3 flicker)
-    if (now - this._lastNavTime < 80) {
-      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${(now - this._lastNavTime).toFixed(1)}ms)`);
+  
+    // If the question stream is frozen, drop emission entirely
+    if (this._questionFreeze && now < this._freezeUntil) {
+      console.log(`[FREEZE] Skipped emission during freeze (Q${index + 1}, ${Math.round(this._freezeUntil - now)}ms left)`);
       return;
     }
   
+    // Drop emissions too close to navigation start (prevents flicker)
+    const sinceNav = now - (this._lastNavTime ?? 0);
+    if (sinceNav < 80) {
+      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${sinceNav.toFixed(1)}ms)`);
+      return;
+    }
+  
+    // Emit safely when allowed
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
+    console.log(`[EMIT] ✅ Question text emitted for Q${index + 1}`);
   }
-
+  
   public clearQuestionTextBeforeNavigation(): void {
     try {
       this._lastNavTime = performance.now();  // record navigation start
