@@ -462,18 +462,23 @@ export class QuizNavigationService {
       console.log(`[NAV] ⛔ Pre-cleared Q${prevIndex + 1} before switching`);
 
       // Allow one full frame to flush Angular’s view
-      // Clear question + render state in same frame
-      await new Promise<void>(r =>
+      // Freeze BEFORE clearing the text — this blocks any mid-frame emissions
+      this.quizQuestionLoaderService.freezeQuestionStream(150);
+
+      await new Promise<void>(resolve =>
         requestAnimationFrame(() => {
           this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
           this.resetRenderStateBeforeNavigation(index);
-          r();
+          resolve();
         })
       );
 
       // Force a second paint-safe delay to ensure no old emission replays
-      // Allow Angular to fully tear down old DOM frame
-      await new Promise<void>(r => setTimeout(r, 32));
+      await new Promise<void>(resolve => setTimeout(resolve, 32));
+
+      // Only unfreeze AFTER Angular and DOM have stabilized
+      this.quizQuestionLoaderService.unfreezeQuestionStream();
+
   
       // Reset explanation state before re-painting
       this.explanationTextService.formattedExplanationSubject.next('');
