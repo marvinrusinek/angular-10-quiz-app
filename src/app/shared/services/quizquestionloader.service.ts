@@ -96,6 +96,13 @@ export class QuizQuestionLoaderService {
   lastQuizId: string | null = null;
   questionsArray: QuizQuestion[] = [];
 
+  // Frame-stabilization markers (used by navigation reset)
+  public _lastQuestionText = '';
+  public _lastRenderedIndex = -1;
+
+  // Timestamp of last safe navigation (used to drop stale emissions)
+  private _lastNavTime = 0;
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -1082,18 +1089,28 @@ export class QuizQuestionLoaderService {
     }
   
     const trimmed = (text ?? '').trim();
+    const now = performance.now();
   
     // BLOCK all placeholder emissions (question marks or empties)
     if (!trimmed || trimmed === '?') {
       console.log(`[BLOCK] Ignored placeholder emission "${trimmed}" for Q${index + 1}`);
       return;
     }
+
+    // Drop emissions too close to the last navigation (prevents Q2→Q3 flicker)
+    if (now - this._lastNavTime < 80) {
+      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${(now - this._lastNavTime).toFixed(1)}ms)`);
+      return;
+    }
   
+    this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
   }
 
   public clearQuestionTextBeforeNavigation(): void {
     try {
+      this._lastNavTime = performance.now();  // record navigation start
+
       // Clear any cached or replayed emissions
       this.questionToDisplay$.next('');
       this._lastQuestionText = '';
