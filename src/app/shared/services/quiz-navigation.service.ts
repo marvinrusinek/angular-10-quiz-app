@@ -68,10 +68,6 @@ export class QuizNavigationService {
 
   // Tracks which questions have had their formatted explanation shown early
   private _fetEarlyShown: Set<number> = new Set();
-
-  // Frame-stabilization markers (used by navigation reset)
-  public _lastQuestionText = '';
-  public _lastRenderedIndex = -1;
   
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -950,7 +946,7 @@ export class QuizNavigationService {
   private setQuestionReadyAfterDelay(): void {
     this.questionReady = false;
     requestAnimationFrame(() => {
-      this.questionReady = true; // question reveal triggered
+      this.questionReady = true;  // question reveal triggered
     });
   }
 
