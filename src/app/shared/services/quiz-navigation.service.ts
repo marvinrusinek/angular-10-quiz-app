@@ -439,90 +439,82 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
-
-    // STOP all active explanation emissions before anything else
+  
+    // ────────────────────────────────────────────────
+    // 🛑 STEP 1: GLOBAL HARD-MUTE OF EXPLANATION STREAMS
+    // Prevent any ghost FET or explanation emissions for ~100 ms
+    // ────────────────────────────────────────────────
     try {
       const ets: any = this.explanationTextService;
       const now = performance.now();
-
-      // Hard-mute new emissions for 5 frames
-      ets._hardMuteUntil = now + 80;  // ~5×16 ms at 60 Hz
-
-      // Close current gate immediately and reset index/text
+  
+      ets._hardMuteUntil = now + 100;   // ~6 frames @ 60 Hz
       ets._activeIndex = -1;
       ets.formattedExplanationSubject?.next('');
       ets.setShouldDisplayExplanation(false);
       ets.setIsExplanationTextDisplayed(false);
-
-      // Flush BehaviorSubjects if available
+  
+      // Flush maps cleanly
       if (ets._byIndex instanceof Map) {
-        for (const subj of ets._byIndex.values()) {
-          subj?.next?.(null);
-        }
+        for (const subj of ets._byIndex.values()) subj?.next?.(null);
       }
       if (ets._gate instanceof Map) {
-        for (const gate of ets._gate.values()) {
-          gate?.next?.(false);
-        }
+        for (const gate of ets._gate.values()) gate?.next?.(false);
       }
-
-      console.log('[NAV] 🔇 Pre-navigation hard mute applied (80 ms)');
+  
+      console.log('[NAV] 🔇 Global ETS hard-mute applied (100 ms)');
     } catch (err) {
-      console.warn('[NAV] ⚠️ Failed to apply early mute', err);
+      console.warn('[NAV] ⚠️ Failed to pre-mute ETS', err);
     }
   
     try {
       // ────────────────────────────────────────────────
-      // 🧭 Frame-safe navigation reset (prevents Q1→Q2 flash)
+      // 🧭 Frame-safe navigation reset
       // ────────────────────────────────────────────────
       this.quizStateService.isNavigatingSubject.next(true);
   
       const prevIndex = this.quizService.getCurrentQuestionIndex() - 1;
   
       // ────────────────────────────────────────────────
-      // 🚫 HARD RESET EXPLANATION GATES (moved earlier, before freeze)
+      // 🚫 STEP 2: RESET & LOCK EXPLANATION GATES EARLY
+      // Wipe all residual FET emissions and add a short lock window
       // ────────────────────────────────────────────────
       try {
-        if (prevIndex >= 0) {
-          this.explanationTextService.closeGateForIndex(prevIndex);
-        }
-  
         const ets: any = this.explanationTextService;
-        // Wipe all residual FET streams to stop ghost emissions
-        ets._byIndex?.forEach?.((sub$: any) => sub$?.next?.(null));
+        if (prevIndex >= 0) ets.closeGateForIndex(prevIndex);
+  
+        ets._byIndex?.forEach?.((s$: any) => s$?.next?.(null));
         ets.formattedExplanationSubject.next('');
         ets.setShouldDisplayExplanation(false);
         ets.setIsExplanationTextDisplayed(false);
   
-        // Lock all FET gates globally for ~100ms
-        ets._fetGateLockUntil = performance.now() + 100;
-        console.log(`[NAV] 🧱 Hard-locked ETS gates for 100ms (prev=${prevIndex})`);
+        ets._fetGateLockUntil = performance.now() + 120; // 2 frames buffer
+        console.log(`[NAV] 🧱 FET gates locked for 120 ms (prev=${prevIndex})`);
       } catch (err) {
-        console.warn('[NAV] ⚠️ Failed to hard-reset ETS gates', err);
+        console.warn('[NAV] ⚠️ FET lock reset failed', err);
       }
   
       // ────────────────────────────────────────────────
-      // 🧊 Freeze BEFORE clearing — prevents mid-frame leaks from old emissions
+      // 🧊 Freeze BEFORE clearing
       // ────────────────────────────────────────────────
       this.quizQuestionLoaderService.freezeQuestionStream(96);
       this.quizQuestionLoaderService._lastNavTime = performance.now();
   
-      // Clear stale render state
       this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
       this.resetRenderStateBeforeNavigation(index);
   
-      // Allow Angular one frame to settle
+      // Let Angular settle
       await new Promise<void>(r => requestAnimationFrame(() => r()));
-      await new Promise<void>(r => setTimeout(r, 32)); // small tear-down buffer
+      await new Promise<void>(r => setTimeout(r, 32));
   
-      // Reset explanation display
-      // HARD-MUTE explanation emissions for ~3 frames
-      this.explanationTextService._hardMuteUntil = performance.now() + 48; // 3×16ms
-      this.explanationTextService._activeIndex = -1;
-      this.explanationTextService.formattedExplanationSubject.next('');
-      this.explanationTextService.setShouldDisplayExplanation(false);
-      this.explanationTextService.setIsExplanationTextDisplayed(false);
-      console.log('[NAV] 🔇 Hard-muted explanation stream');
+      // Harden mute again for 3 frames
+      const ets2: any = this.explanationTextService;
+      ets2._hardMuteUntil = performance.now() + 48;
+      ets2._activeIndex = -1;
+      ets2.formattedExplanationSubject.next('');
+      ets2.setShouldDisplayExplanation(false);
+      ets2.setIsExplanationTextDisplayed(false);
+      console.log('[NAV] 🔇 Hard-muted explanation stream (reinforced)');
   
       // ────────────────────────────────────────────────
       // 🗺 Resolve quiz ID + route URL
@@ -538,19 +530,17 @@ export class QuizNavigationService {
       const currentUrl = this.router.url;
       const currentIndex = this.quizService.getCurrentQuestionIndex();
   
-      // PREP TIMER + LOCKS
       this.quizQuestionLoaderService.resetQuestionLocksForIndex(currentIndex);
       this.timerService.resetTimerFlagsFor(index);
   
       const waitForRoute = this.waitForUrl(routeUrl);
   
-      // 🚀 ROUTER NAVIGATION (frame-safe)
+      // 🚀 ROUTER NAVIGATION
       if (currentIndex === index && currentUrl === routeUrl) {
         await this.ngZone.run(() =>
           this.router.navigateByUrl('/', { skipLocationChange: true })
         );
       }
-  
       const navSuccess = await this.ngZone.run(() =>
         this.router.navigateByUrl(routeUrl)
       );
@@ -559,101 +549,87 @@ export class QuizNavigationService {
         return false;
       }
   
-      // ────────────────────────────────────────────────
-      // 🔁 Reset feedback + selections
-      // ────────────────────────────────────────────────
+      // 🔁 Reset selections
       this.selectedOptionService.resetAllStates?.();
       (this.selectedOptionService as any)._lockedOptionsMap?.clear?.();
       (this.selectedOptionService as any).optionStates?.clear?.();
       this.selectedOptionService.selectedOptionsMap?.clear?.();
       this.selectedOptionService.clearSelectionsForQuestion(this.currentQuestionIndex);
   
-      // ────────────────────────────────────────────────
-      // 🧩 Fetch question safely
-      // ────────────────────────────────────────────────
+      // 🧩 Fetch question
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
   
-      // ────────────────────────────────────────────────
-      // 🧩 Compute question + banner
-      // ────────────────────────────────────────────────
+      // 🧩 Compute text + banner
       const isMulti =
         (fresh.type as any) === QuestionType.MultipleAnswer ||
         (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
   
       const trimmedQ = (fresh.questionText ?? '').trim();
       const explanationRaw = (fresh.explanation ?? '').trim();
-  
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
       const banner = isMulti
         ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
         : '';
   
-      // ────────────────────────────────────────────────
-      // 🎨 Emit question + banner in sync
-      // ────────────────────────────────────────────────
+      // 🎨 Emit in sync
       await new Promise<void>(resolve => {
         requestAnimationFrame(() => {
           try {
-            // 🧊 Unfreeze SLIGHTLY EARLY (before text emission)
+            // Unfreeze just before emission (tight window)
             setTimeout(() => {
               const now = performance.now();
-              this.quizQuestionLoaderService._renderFreezeUntil = now + 24; // one frame of slack
+              this.quizQuestionLoaderService._renderFreezeUntil = now + 24;
               this.quizQuestionLoaderService.unfreezeQuestionStream();
               this.quizQuestionLoaderService._lastNavTime = now;
               console.log('[NAV] 🧊 Unfrozen just before question emission');
-            }, 16);
+            }, 12);
   
-            // 🧩 Emit question text after unfreeze lift
             requestAnimationFrame(() => {
               this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
               console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
             });
   
-            // 🏷 Emit banner next frame
             requestAnimationFrame(() => {
               this.quizService.updateCorrectAnswersText(banner);
             });
   
-            // Gate FET separately (after stabilization)
             if (explanationRaw) {
               const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
   
-              try {
-                this.explanationTextService.openExclusive(index, formatted);
-                this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
-              } catch (err) {
-                console.warn('[NAV] ⚠️ FET restore failed:', err);
-              }
+              setTimeout(() => {
+                try {
+                  this.explanationTextService.openExclusive(index, formatted);
+                  this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
+                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
+                } catch (err) {
+                  console.warn('[NAV] ⚠️ FET restore failed', err);
+                }
+              }, 160); // separate gate delay
             }
   
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-            // Always unfreeze to prevent deadlock
-            requestAnimationFrame(() => {
-              setTimeout(() => {
-                const now = performance.now();
-                this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
-                this.quizQuestionLoaderService.unfreezeQuestionStream();
-                this.quizQuestionLoaderService._lastNavTime = now;
-                console.log('[NAV] 🧊 Unfrozen after full render-cycle delay (finalizer)');
-              }, 48);
-            });
+            setTimeout(() => {
+              const now = performance.now();
+              this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
+              this.quizQuestionLoaderService.unfreezeQuestionStream();
+              this.quizQuestionLoaderService._lastNavTime = now;
+            }, 48);
             resolve();
           }
         });
       });
   
-      // Mark navigation completion
+      // Navigation completion
       await new Promise<void>(resolve =>
         requestAnimationFrame(() => {
           this.quizStateService.isNavigatingSubject.next(false);
@@ -661,7 +637,6 @@ export class QuizNavigationService {
         })
       );
   
-      // Record navigation timestamp
       const now = performance.now();
       this.explanationTextService.markLastNavTime?.(now);
       this.quizQuestionLoaderService._lastNavTime = now;
@@ -675,6 +650,7 @@ export class QuizNavigationService {
       this._fetchInProgress = false;
     }
   }
+  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
