@@ -442,7 +442,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
 
   private getCombinedDisplayTextStream(): Observable<string> {
     type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
-    interface FETState { idx: number; text: string; gate: boolean }
+    interface FETState { text: string; gate: boolean; idx: number; _emittedAt?: number; }
   
     // ────────────────────────────────────────────────
     // 1️⃣  Core reactive inputs
@@ -743,13 +743,14 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       }), */
       this._lastRenderedIndex = this.quizService.getCurrentQuestionIndex();
       return combineLatest([index$, questionText$, correctText$, fetForIndex$, shouldShow$]).pipe(
+        auditTime(8),
         // ────────────────────────────────────────────────
         // 🧭 Freeze output until both the question text and the new DOM context are ready
         //    - Drop stale index immediately
         //    - Wait ~2 frames after navigation
         //    - Then release on next requestAnimationFrame (DOM is painted)
         // ────────────────────────────────────────────────
-        switchMap(([idx, question, banner, fet, shouldShow]) => {
+        /* switchMap(([idx, question, banner, fet, shouldShow]) => {
           const active = this.quizService.getCurrentQuestionIndex();
           if (idx !== active) {
             console.log(`[QuietGate] ⏸ stale idx=${idx}, active=${active}`);
@@ -774,6 +775,27 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
               observer.complete();
             });
           });
+        }), */
+        filter(([idx, question, , fet]) => {
+          const qReady = typeof question === 'string' && question.trim().length > 0;
+          const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
+          const active = this.quizService.getCurrentQuestionIndex();
+      
+          const now = performance.now();
+          const lastNav = this.quizQuestionLoaderService._lastNavTime ?? 0;
+      
+          // 🚫 HARD FILTER: skip frames that began before the last navigation timestamp
+          const emittedAt = this.explanationTextService._emittedAtByIndex?.get(fet?.idx ?? -1) ?? 0;
+          const staleEmission = emittedAt < lastNav;
+          const tooEarly = now < (this.quizQuestionLoaderService._renderFreezeUntil ?? 0);
+      
+          const valid = !staleEmission && !tooEarly && idx === active && qReady && fetReady;
+          if (!valid) {
+            console.log(
+              `[RenderGuard] drop idx=${idx} active=${active} qReady=${qReady} fetReady=${fetReady} stale=${staleEmission} early=${tooEarly}`
+            );
+          }
+          return valid;
         }),
       
         // (optional) one more coalescing tick if you like
@@ -782,98 +804,41 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         // One-frame coalescing after filtering (kept from your code)
         observeOn(animationFrameScheduler),
 
-        filter(() => {
+        /* filter(() => {
           const now = performance.now();
           if (now < (this.quizQuestionLoaderService._renderFreezeUntil ?? 0)) {
             console.log('[Guard] Dropping emission inside freeze window');
             return false;
           }
           return true;
-        }),        
+        }), */
       
-        map((
-          [idx, question, banner, fet, shouldShow]:
-          [number, string, string, FETState, boolean]
-        ) => {
-          // … your existing render logic unchanged …
+        map(([idx, question, banner, fet, shouldShow]) => {
           const qText = (question ?? '').trim();
           const bannerText = (banner ?? '').trim();
           const fetText = (fet?.text ?? '').trim();
           const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
           const now = performance.now();
-          const freezeUntil = this.quizQuestionLoaderService._renderFreezeUntil ?? 0;
-
-          // Don't render any text until Angular has settled after navigation
-          if (now < freezeUntil) {
-            console.log(`[FreezeWindow] skipping frame for Q${idx + 1} (remaining ${(freezeUntil - now).toFixed(1)}ms)`);
-            return this._lastQuestionText || '';
-          }
       
-          // ───────────────────────────────────────────────
-          // 🧱 HARD GUARD: drop any frame from an older index
-          // ───────────────────────────────────────────────
-          if (typeof this._lastRenderedIndex === 'number' && idx < this._lastRenderedIndex) {
-            console.log(`[FrameDrop] stale idx=${idx} < last=${this._lastRenderedIndex}`);
-            return this._lastQuestionText || qText || '';
-          }
-      
-          // ───────────────────────────────────────────────
-          // 🧭 Stabilization window per index
-          // ───────────────────────────────────────────────
-          if (this._lastRenderedIndex !== idx) {
-            this._lastRenderedIndex = idx;
-            this._indexSwitchTime = now;
-            this._renderStableAfter = now + 48;  // 2–3 frames
-            this._fetLockedIndex = null;
-            this._fetLockedFrameTime = 0;
-            this._firstStableFrameDone = false;
-            this._lastQuestionText = '';
-            this.quizStateService.displayStateSubject?.next({ mode: 'question', answered: false });
-            console.log(`[Guard] → Q${idx + 1} | FET blocked 48 ms`);
-          }
-      
-          // ───────────────────────────────────────────────
-          // 🧩 Once question visible, mark stable
-          // ───────────────────────────────────────────────
-          if (!this._firstStableFrameDone && qText.length > 0) {
-            this._firstStableFrameDone = true;
-            this._renderStableAfter = now; // release FET
-            this._lastQuestionPaintTime = now;
-          }
-      
-          // ───────────────────────────────────────────────
-          // 🚫 Suppress premature FET or mismatched index
-          // ───────────────────────────────────────────────
-          const tooEarly = now < this._renderStableAfter;
-          const wrongIdx = fet?.idx !== idx;
-          if (mode === 'explanation' && (tooEarly || wrongIdx)) {
-            console.log(`[HoldFET] skip early/mismatch FET (tooEarly=${tooEarly}, wrong=${wrongIdx})`);
+          // 🚫 Drop any emission if it predates the current navigation
+          if (fet?._emittedAt && fet._emittedAt < (this.quizQuestionLoaderService._lastNavTime ?? 0)) {
+            console.log(`[DropStaleFET] FET from old route ignored Q${idx + 1}`);
             return this._lastQuestionText || qText;
           }
       
-          // ───────────────────────────────────────────────
-          // ✅ Render valid FET once, then freeze question
-          // ───────────────────────────────────────────────
           if (
             mode === 'explanation' &&
             fet?.gate &&
             fetText.length > 0 &&
             this.explanationTextService.currentShouldDisplayExplanation
           ) {
-            const recent = now - (this._fetLockedFrameTime ?? 0) < 150;
-            if (this._fetLockedIndex === idx && recent) {
-              return this._lastQuestionText || fetText;
-            }
             this._fetLockedIndex = idx;
-            this._fetLockedFrameTime = now;
             this.explanationTextService.setIsExplanationTextDisplayed(true);
-            console.log(`[Render FET✅] Q${idx + 1}`);
+            console.log(`[Render FET ✅] Q${idx + 1}`);
             return fetText;
           }
       
-          // ───────────────────────────────────────────────
-          // 🧱 Merge question + banner
-          // ───────────────────────────────────────────────
+          // 🧩 Merge banner (multi-answer)
           const qObj = this.quizService.questions?.[idx];
           const isMulti =
             !!qObj &&
@@ -885,20 +850,10 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
             merged = `${qText} <span class="correct-count">${bannerText}</span>`;
           }
       
-          // 🚫 Freeze repaints briefly after FET to avoid echo
-          const fetRecentlyLocked =
-            this._fetLockedIndex === idx &&
-            now - (this._fetLockedFrameTime ?? 0) < 120;
-          if (fetRecentlyLocked) {
-            console.log(`[Freeze] skip repaint during FET lock`);
-            return this._lastQuestionText || fetText;
-          }
-      
-          // 🧹 Record diagnostics
           this._lastQuestionText = merged;
           this.lastRenderedQuestionTextWithBanner = merged;
           this._lastQuestionPaintTime = now;
-          console.log(`[Render OK] Q${idx + 1} | mode=${mode} | fetGate=${fet?.gate}`);
+      
           return merged;
         }),
       
