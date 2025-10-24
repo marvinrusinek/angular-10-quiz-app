@@ -447,6 +447,11 @@ export class QuizNavigationService {
     try {
       const ets: any = this.explanationTextService;
       const now = performance.now();
+
+      // block all UI emissions for ~120 ms
+      const quietMs = 120;  // roughly 7 frames at 60Hz
+      this.quizQuestionLoaderService._quietZoneUntil = now + quietMs;
+      ets._quietZoneUntil = now + quietMs;
   
       ets._hardMuteUntil = now + 100;   // ~6 frames @ 60 Hz
       ets._activeIndex = -1;
