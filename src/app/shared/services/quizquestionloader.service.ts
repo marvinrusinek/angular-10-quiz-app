@@ -105,7 +105,7 @@ export class QuizQuestionLoaderService {
 
   public _renderFreezeUntil = 0;
   private _questionFreeze = false;
-  private _freezeUntil = 0;
+  public _freezeUntil = 0;
   private _frozen = false;
   public _isVisualFrozen = false;
   public readonly isVisible$ = new BehaviorSubject<boolean>(true);
@@ -1090,34 +1090,33 @@ export class QuizQuestionLoaderService {
   public emitQuestionTextSafely(text: string, index: number): void {
     const now = performance.now();
   
-    // Block emissions during active freeze window
-    if (this._frozen && now < (this._renderFreezeUntil ?? 0)) {
-      console.log('[BLOCK] emission blocked within freeze window');
+    // Hard block during visual freeze window
+    if (this._frozen || now < (this._renderFreezeUntil ?? 0)) {
+      console.log(`[BLOCK] emission during freeze (Δ=${((this._renderFreezeUntil ?? 0) - now).toFixed(1)}ms left)`);
+      return;
+    }
+  
+    // Additional guard: 40-60 ms quiet zone after navigation
+    if (now - (this._lastNavTime ?? 0) < 60) {
+      console.log(`[BLOCK] emission inside post-nav quiet zone (Δ=${(now - (this._lastNavTime ?? 0)).toFixed(1)}ms)`);
       return;
     }
   
     const activeIndex = this.quizService.getCurrentQuestionIndex();
     if (index !== activeIndex) {
-      console.log(`[SKIP] stale emission for Q${index + 1} (active is Q${activeIndex + 1})`);
+      console.log(`[SKIP] stale emission for Q${index + 1} (active=${activeIndex + 1})`);
       return;
     }
   
     const trimmed = (text ?? '').trim();
     if (!trimmed || trimmed === '?') {
-      console.log('[BLOCK] placeholder emission ignored');
+      console.log(`[BLOCK] placeholder emission ignored for Q${index + 1}`);
       return;
     }
   
-    // Additional buffer to prevent early post-nav emissions
-    const lastNav = this._lastNavTime ?? 0;
-    if (now - lastNav < 80) {
-      console.log(`[BLOCK] too soon after navigation (Δ=${(now - lastNav).toFixed(1)}ms)`);
-      return;
-    }
-  
+    // Passed all gates — safe to render
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-    console.log(`[EMIT] Safe question emission for Q${index + 1}`);
   }
   
   public clearQuestionTextBeforeNavigation(): void {
