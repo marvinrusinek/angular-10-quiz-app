@@ -543,70 +543,48 @@ export class QuizNavigationService {
       await new Promise<void>(resolve => {
         requestAnimationFrame(() => {
           try {
-            this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+            // 🧊 Unfreeze SLIGHTLY EARLY (before text emission)
+            setTimeout(() => {
+              const now = performance.now();
+              this.quizQuestionLoaderService._renderFreezeUntil = now + 24; // one frame of slack
+              this.quizQuestionLoaderService.unfreezeQuestionStream();
+              this.quizQuestionLoaderService._lastNavTime = now;
+              console.log('[NAV] 🧊 Unfrozen just before question emission');
+            }, 16);
   
-            // Emit banner next frame
+            // 🧩 Emit question text after unfreeze lift
+            requestAnimationFrame(() => {
+              this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+              console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
+            });
+  
+            // 🏷 Emit banner next frame
             requestAnimationFrame(() => {
               this.quizService.updateCorrectAnswersText(banner);
             });
   
-            // Pre-arm formatted explanation text
+            // 🧠 Gate FET separately (after stabilization)
             if (explanationRaw) {
               const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
   
-              // Hold FET emission until after visual unfreeze is done
-              const fetDelay = Math.max(
-                140,
-                (this.quizQuestionLoaderService._freezeUntil ?? 0) - performance.now() + 24
-              );
-
               setTimeout(() => {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
                   this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1} (after unfreeze)`);
+                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
                 } catch (err) {
                   console.warn('[NAV] ⚠️ FET restore failed:', err);
                 }
-              }, fetDelay);
+              }, 100);
             }
   
-            // Unfreeze only after router and DOM are stable
-            new Promise<void>((resolve) => {
-              requestAnimationFrame(() => {
-                // Run an async IIFE inside, but we don't await it — we resolve after it finishes
-                (async () => {
-                  try {
-                    // Give Angular one microtask to settle
-                    await new Promise<void>((res) => setTimeout(res, 16));
-
-                    // Wait one frame to ensure new DOM has rendered
-                    await new Promise<void>((res) => requestAnimationFrame(() => res()));
-
-                    // Add small buffer (~40ms) so content components finish init
-                    await new Promise<void>((res) => setTimeout(res, 40));
-
-                    // Finally, unfreeze once all layers are ready
-                    const now = performance.now();
-                    this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
-                    this.quizQuestionLoaderService.unfreezeQuestionStream();
-                    this.quizQuestionLoaderService._lastNavTime = now;
-                    console.log('[NAV] 🧊 Unfrozen after router & DOM stabilization');
-                  } catch (err) {
-                    console.warn('[NAV] ⚠️ Delayed unfreeze failed', err);
-                  } finally {
-                    resolve(); // ✅ resolve outer promise once done
-                  }
-                })();
-              });
-            });
-
+            resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-            // Always unfreeze on the same schedule
+            // Always unfreeze to prevent deadlock
             requestAnimationFrame(() => {
               setTimeout(() => {
                 const now = performance.now();
@@ -637,7 +615,7 @@ export class QuizNavigationService {
     } finally {
       this._fetchInProgress = false;
     }
-  }  
+  }
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
