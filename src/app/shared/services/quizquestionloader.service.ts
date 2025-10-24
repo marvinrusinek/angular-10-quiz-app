@@ -109,6 +109,7 @@ export class QuizQuestionLoaderService {
   private _frozen = false;
   public _isVisualFrozen = false;
   public readonly isVisible$ = new BehaviorSubject<boolean>(true);
+  private _freezeTimer: any = null;
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1132,33 +1133,59 @@ export class QuizQuestionLoaderService {
   }
 
   public freezeQuestionStream(durationMs = 80): void {
-    this._frozen = true;
+    if (this._isVisualFrozen) return; // avoid stacking freezes
     this._isVisualFrozen = true;
-    this.isVisible$.next(false);  // hide during teardown
+    this._frozen = true;
     this._renderFreezeUntil = performance.now() + durationMs;
-    console.log(`[Freeze] logic+visual freeze ${durationMs} ms`);
+    console.log(`[Freeze] Logic+visual freeze started (${durationMs}ms)`);
   
-    setTimeout(() => {
-      this._frozen = false;
-      this._isVisualFrozen = false;
-      this.isVisible$.next(true);  // reveal again
-      console.log('[Freeze] unfreezing complete');
+    // Hide content DOM-side without touching Angular templates
+    const el = document.querySelector('h3[i18n]');
+    if (el) (el as HTMLElement).style.visibility = 'hidden';
+  
+    this._freezeTimer = setTimeout(() => {
+      this.unfreezeQuestionStream();
     }, durationMs + 8);
   }
   
   public unfreezeQuestionStream(): void {
     const now = performance.now();
+  
+    // If still within freeze window, schedule a delayed unfreeze
     if (now < this._freezeUntil) {
-      // wait for the remaining time before unfreezing
       const delay = this._freezeUntil - now;
       console.log(`[Loader] 🕒 Delaying unfreeze ${delay.toFixed(1)}ms`);
-      setTimeout(() => {
+  
+      // Also visually keep the question text hidden during this delay
+      this._isVisualFrozen = true;
+      const el = document.querySelector('h3[i18n]');
+      if (el) (el as HTMLElement).style.visibility = 'hidden';
+  
+      clearTimeout(this._freezeTimer);
+      this._freezeTimer = setTimeout(() => {
+        this._isVisualFrozen = false;
         this._frozen = false;
-        console.log('[Loader] 🔓 Stream unfrozen (delayed)');
-      }, delay);
-    } else {
-      this._frozen = false;
-      console.log('[Loader] 🔓 Stream unfrozen');
+  
+        // Restore visibility one frame after Angular repaint
+        requestAnimationFrame(() => {
+          const el2 = document.querySelector('h3[i18n]');
+          if (el2) (el2 as HTMLElement).style.visibility = 'visible';
+          console.log('[Loader] 🔓 Stream unfrozen (delayed)');
+        });
+      }, delay + 4);
+  
+      return;
     }
-  }
+  
+    // Immediate unfreeze path
+    this._isVisualFrozen = false;
+    this._frozen = false;
+  
+    // Show the element again right after frame stabilization
+    requestAnimationFrame(() => {
+      const el = document.querySelector('h3[i18n]');
+      if (el) (el as HTMLElement).style.visibility = 'visible';
+      console.log('[Loader] 🔓 Stream unfrozen (immediate)');
+    });
+  }  
 }
