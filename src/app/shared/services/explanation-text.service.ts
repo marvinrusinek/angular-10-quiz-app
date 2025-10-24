@@ -1148,25 +1148,33 @@ export class ExplanationTextService {
 
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
-    try {
-      const { text$, gate$ } = this.getOrCreate(index);
-      const trimmed = (formatted ?? '').trim() || null;
+    const { text$, gate$ } = this.getOrCreate(index);
+    const trimmed = (formatted ?? '').trim() || null;
   
+    const now = performance.now();
+    const lastNav = this._lastNavTime ?? 0;
+    const sinceNav = now - lastNav;
+  
+    // 🧩 Delay gate activation if too soon after navigation or question emission
+    const delay = sinceNav < 60 ? 60 - sinceNav : 0;
+    const activate = () => {
       this._activeIndex = index;
-
-      // 🕒 Store timestamp internally
-      this._emittedAtByIndex.set(index, performance.now());
-  
-      // Normal emission: keep text$ pure string
       text$.next(trimmed);
       gate$.next(!!trimmed);
-  
       console.log(
-        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, time=${performance.now().toFixed(1)}`
+        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
       );
-    } catch (err) {
-      console.warn('[ETS] openExclusive failed', err);
+    };
+  
+    if (delay > 0) {
+      setTimeout(activate, delay);
+    } else {
+      activate();
     }
+  
+    // record for diagnostics
+    this._emittedAtByIndex ??= new Map<number, number>();
+    this._emittedAtByIndex.set(index, now);
   }
 
   // Helper to fetch timestamp safely elsewhere
