@@ -1113,7 +1113,7 @@ export class QuizQuestionLoaderService {
   
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-    this.explanationTextService._lastNavTime = performance.now();
+    this._lastNavTime = performance.now();
   }
   
   public clearQuestionTextBeforeNavigation(): void {
