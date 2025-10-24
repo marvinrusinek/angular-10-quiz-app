@@ -1090,30 +1090,35 @@ export class QuizQuestionLoaderService {
   public emitQuestionTextSafely(text: string, index: number): void {
     const now = performance.now();
   
-    // 🧊 Hard freeze: block anything while visual frame is locked
-    if (this._frozen || now < (this._renderFreezeUntil ?? 0)) {
-      console.log(`[BLOCK] emission blocked (freeze active, Δ=${((this._renderFreezeUntil ?? 0) - now).toFixed(1)} ms)`);
+    // ❄ Hard block during freeze window
+    if (this._frozen && now < (this._renderFreezeUntil ?? 0)) {
+      console.log('[BLOCK] emission blocked within freeze window');
       return;
     }
   
     const activeIndex = this.quizService.getCurrentQuestionIndex();
     if (index !== activeIndex) {
-      console.log(`[SKIP] stale emission for Q${index + 1} (active = Q${activeIndex + 1})`);
+      console.log(`[SKIP] stale emission for Q${index + 1} (active=${activeIndex + 1})`);
       return;
     }
   
     const trimmed = (text ?? '').trim();
     if (!trimmed || trimmed === '?') return;
   
-    // guard against emissions immediately after navigation
-    if (now - (this._lastNavTime ?? 0) < 96) {
-      console.log(`[DELAY] blocked early emission for Q${index + 1} (Δ=${(now - (this._lastNavTime ?? 0)).toFixed(1)} ms)`);
+    // 🚫 Don't let question overwrite an active FET window
+    const fetOpen = this.explanationTextService?.isGateOpen?.(index);
+    if (fetOpen) {
+      console.log(`[BLOCK] question emission ignored; FET gate already open for Q${index + 1}`);
       return;
     }
   
+    // 🧭 Navigation cooldown
+    if (now - (this._lastNavTime ?? 0) < 80) return;
+  
+    // ✅ Safe emission
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-    this._lastNavTime = performance.now();
+    this.explanationTextService._lastNavTime = now;
   }
   
   public clearQuestionTextBeforeNavigation(): void {
