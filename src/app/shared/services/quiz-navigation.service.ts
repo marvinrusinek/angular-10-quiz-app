@@ -559,7 +559,7 @@ export class QuizNavigationService {
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
   
-              // ⏸ hold FET emission until after visual unfreeze is done
+              // Hold FET emission until after visual unfreeze is done
               const fetDelay = Math.max(
                 140,
                 (this.quizQuestionLoaderService._freezeUntil ?? 0) - performance.now() + 24
@@ -576,13 +576,15 @@ export class QuizNavigationService {
               }, fetDelay);
             }
   
-            // Unfreeze after the next frame paints
+            // Unfreeze after roughly two paint frames to ensure Angular has rebuilt the new DOM
             requestAnimationFrame(() => {
               setTimeout(() => {
+                const now = performance.now();
+                this.quizQuestionLoaderService._renderFreezeUntil = now + 48; // another frame guard
                 this.quizQuestionLoaderService.unfreezeQuestionStream();
-                this.quizQuestionLoaderService._lastNavTime = performance.now();
-                console.log('[NAV] 🧊 Unfrozen after 2-frame delay');
-              }, 24); // ~1.5 frames at 60fps
+                this.quizQuestionLoaderService._lastNavTime = now;
+                console.log(`[NAV] 🧊 Unfrozen safely at ${now.toFixed(1)}ms (2-frame delay + 1-frame hold)`);
+              }, 24);  // ≈1.5 frames at 60 fps
             });
   
             resolve();
