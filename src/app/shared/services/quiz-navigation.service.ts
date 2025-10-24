@@ -563,22 +563,20 @@ export class QuizNavigationService {
               this.quizService.updateCorrectAnswersText(banner);
             });
   
-            // 🧠 Gate FET separately (after stabilization)
+            // Gate FET separately (after stabilization)
             if (explanationRaw) {
               const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
               const formatted = this.explanationTextService
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
   
-              setTimeout(() => {
-                try {
-                  this.explanationTextService.openExclusive(index, formatted);
-                  this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
-                } catch (err) {
-                  console.warn('[NAV] ⚠️ FET restore failed:', err);
-                }
-              }, 100);
+              try {
+                this.explanationTextService.openExclusive(index, formatted);
+                this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
+                console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
+              } catch (err) {
+                console.warn('[NAV] ⚠️ FET restore failed:', err);
+              }
             }
   
             resolve();
