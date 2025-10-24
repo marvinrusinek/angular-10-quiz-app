@@ -596,14 +596,30 @@ export class QuizNavigationService {
           }
         });
       });
+
+      // Close old FET gates before new question loads
+      try {
+        const prevIndex = this.quizService.getCurrentQuestionIndex() - 1;
+        if (prevIndex >= 0) {
+          this.explanationTextService.closeGateForIndex(prevIndex);
+        }
+
+        // Lock all FET gates briefly to prevent cross-question bleed
+        this.explanationTextService._fetGateLockUntil = performance.now() + 34;  // ~2 frames
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to close old FET gates:', err);
+      }
   
-      // mark navigating=false on next frame
-      await new Promise<void>(resolve =>
+      // Mark navigation completion (next frame)
+      await new Promise<void>((resolve) =>
         requestAnimationFrame(() => {
           this.quizStateService.isNavigatingSubject.next(false);
           resolve();
         })
       );
+
+      // record navigation time for stabilization guards
+      this.explanationTextService.markLastNavTime?.(performance.now());
   
       console.log(`[NAV ✅] Completed safe switch → Q${index + 1}`);
       return true;
