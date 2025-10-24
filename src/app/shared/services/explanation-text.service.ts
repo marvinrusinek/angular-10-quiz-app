@@ -112,6 +112,11 @@ export class ExplanationTextService {
   // Time until which the FET gate is locked (prevents early question re-emission).
   public _fetGateLockUntil = 0;
 
+  private _lastOpenIdx = -1;
+  private _lastOpenAt = 0;
+
+  public _hardMuteUntil = 0;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1143,24 +1148,51 @@ export class ExplanationTextService {
     const trimmed = (formatted ?? '').trim() || null;
   
     const now = performance.now();
-  
-    // 🧱 Prevent FET emissions if the loader is still in quiet or freeze period
-    const loader = (this as any)._loaderRef; // will be set by QuizQuestionLoaderService
-    const freezeGuard = loader?._renderFreezeUntil ?? 0;
-    const quietGuard = loader?._quietUntil ?? 0;
-  
-    if (now < freezeGuard || now < quietGuard) {
-      const delay = Math.max(freezeGuard, quietGuard) - now + 16; // extra 1 frame buffer
-      console.log(`[ETS] ⏸ Delaying FET emission for ${delay.toFixed(1)}ms (freeze/quiet active)`);
-      setTimeout(() => this.openExclusive(index, formatted), delay);
+    const lastNav = this._lastNavTime ?? 0;
+    const sinceNav = now - lastNav;
+
+    // 🔇 Skip any emission if still within global mute window
+    if (now < (this._hardMuteUntil ?? 0)) {
+      console.log(`[ETS] 🔇 Blocked openExclusive during mute window (${((this._hardMuteUntil ?? 0) - now).toFixed(1)}ms left)`);
       return;
     }
   
-    // Normal emission path
-    this._activeIndex = index;
-    text$.next(trimmed);
-    gate$.next(!!trimmed);
-    console.log(`[ETS] ✅ openExclusive(${index}) gate=${!!trimmed}, len=${trimmed?.length ?? 0}`);
+    // 🔒 1. Double-gate: prevent reopen within ~2 frames of previous open
+    const sinceLastOpen = now - this._lastOpenAt;
+    if (index === this._lastOpenIdx && sinceLastOpen < 34) {
+      console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
+      return;
+    }
+    this._lastOpenIdx = index;
+    this._lastOpenAt = now;
+  
+    // 🧩 2. Delay gate activation if too soon after navigation
+    const delay = sinceNav < 72 ? 72 - sinceNav : 0;
+  
+    const activate = () => {
+      this._activeIndex = index;
+      text$.next(trimmed);
+      gate$.next(!!trimmed);
+      console.log(
+        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
+      );
+    };
+  
+    if (delay > 0) {
+      // Extra frame if render is still frozen
+      setTimeout(() => {
+        requestAnimationFrame(activate);
+      }, delay);
+    } else {
+      activate();
+    }
+  
+    // 📊 Record diagnostics
+    this._emittedAtByIndex ??= new Map<number, number>();
+    this._emittedAtByIndex.set(index, now);
+  
+    // 🔒 3. Micro gate-lock window: block any new FET for ~3 frames after this one
+    this._fetGateLockUntil = now + 48;
   }
 
   // Helper to fetch timestamp safely elsewhere
