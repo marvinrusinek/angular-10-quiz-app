@@ -577,37 +577,32 @@ export class QuizNavigationService {
             // Unfreeze only after router and DOM are stable
             await new Promise<void>((resolve) => {
               requestAnimationFrame(() => {
-                // Schedule the async work in a detached async IIFE
+                // We can’t use `await` directly here, so run an async IIFE
                 (async () => {
                   try {
-                    // ────────────────────────────────────────────────
-                    // 🧊 Wait for router + DOM stabilization
-                    // ────────────────────────────────────────────────
+                    // Give Angular a microtask to finish router outlet swap
+                    await new Promise<void>((res) => setTimeout(res, 16));
 
-                    // Give Angular a microtask to finish the router outlet swap
-                    await new Promise<void>(res => setTimeout(res, 16));
+                    // Wait one more frame for the new DOM to render
+                    await new Promise<void>((res) => requestAnimationFrame(() => res()));
 
-                    // Wait one frame for the new DOM to render
-                    await new Promise<void>(res => requestAnimationFrame(() => res()));
+                    // Small buffer (~40 ms) so child components finish initialization
+                    await new Promise<void>((res) => setTimeout(res, 40));
 
-                    // Add small buffer (~40 ms) so content components finish init
-                    await new Promise<void>(res => setTimeout(res, 40));
-
-                    // Finally, unfreeze once all layers are ready
+                    // Finally unfreeze once everything is stable
                     const now = performance.now();
                     this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
                     this.quizQuestionLoaderService.unfreezeQuestionStream();
                     this.quizQuestionLoaderService._lastNavTime = now;
-                    console.log('[NAV] 🧊 Unfrozen after router & DOM stabilization');
+                    console.log("[NAV] 🧊 Unfrozen after router & DOM stabilization");
                   } catch (err) {
-                    console.warn('[NAV] ⚠️ Delayed unfreeze failed', err);
+                    console.warn("[NAV] ⚠️ Delayed unfreeze failed", err);
                   } finally {
-                    resolve(); // ✅ Resolve the outer promise safely
+                    resolve(); // ✅ Safely resolve the outer promise
                   }
-                })(); // ← Immediately invoked async function expression
+                })(); // Run the async function immediately
               });
             });
-
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
             // Always unfreeze on the same schedule
