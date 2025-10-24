@@ -439,6 +439,37 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
+
+    // STOP all active explanation emissions before anything else
+    try {
+      const ets: any = this.explanationTextService;
+      const now = performance.now();
+
+      // Hard-mute new emissions for 5 frames
+      ets._hardMuteUntil = now + 80;  // ~5×16 ms at 60 Hz
+
+      // Close current gate immediately and reset index/text
+      ets._activeIndex = -1;
+      ets.formattedExplanationSubject?.next('');
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+
+      // Flush BehaviorSubjects if available
+      if (ets._byIndex instanceof Map) {
+        for (const subj of ets._byIndex.values()) {
+          subj?.next?.(null);
+        }
+      }
+      if (ets._gate instanceof Map) {
+        for (const gate of ets._gate.values()) {
+          gate?.next?.(false);
+        }
+      }
+
+      console.log('[NAV] 🔇 Pre-navigation hard mute applied (80 ms)');
+    } catch (err) {
+      console.warn('[NAV] ⚠️ Failed to apply early mute', err);
+    }
   
     try {
       // ────────────────────────────────────────────────
