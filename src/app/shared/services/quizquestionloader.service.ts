@@ -108,6 +108,7 @@ export class QuizQuestionLoaderService {
   private _freezeUntil = 0;
   private _frozen = false;
   public _isVisualFrozen = false;
+  public readonly isVisible$ = new BehaviorSubject<boolean>(true);
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1133,14 +1134,15 @@ export class QuizQuestionLoaderService {
   public freezeQuestionStream(durationMs = 80): void {
     this._frozen = true;
     this._isVisualFrozen = true;
+    this.isVisible$.next(false);  // hide during teardown
     this._renderFreezeUntil = performance.now() + durationMs;
-    console.log(`[Freeze] question stream frozen for ${durationMs} ms`);
+    console.log(`[Freeze] logic+visual freeze ${durationMs} ms`);
   
-    // Auto-unfreeze after window expires
     setTimeout(() => {
       this._frozen = false;
       this._isVisualFrozen = false;
-      console.log('[Freeze] auto-unfrozen');
+      this.isVisible$.next(true);  // reveal again
+      console.log('[Freeze] unfreezing complete');
     }, durationMs + 8);
   }
   
