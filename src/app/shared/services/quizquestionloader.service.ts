@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, of, ReplaySubject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { firstValueFrom, lastValueFrom } from '../../shared/utils/rxjs-compat';
 
@@ -33,7 +33,7 @@ export class QuizQuestionLoaderService {
   currentQuestionIndex = 0;
   currentQuestionAnswered = false;
   questionToDisplay = '';
-  questionToDisplay$ = new BehaviorSubject<string>('');
+  public questionToDisplay$ = new ReplaySubject<string>(1);
   // Derived stream that smooths rapid clears/fills (prevents flash)
   public readonly questionDisplay$ = this.questionToDisplay$.pipe(
     debounceTime(0),  // merge empty→real emissions in same tick
@@ -106,10 +106,11 @@ export class QuizQuestionLoaderService {
   public _renderFreezeUntil = 0;
   private _questionFreeze = false;
   public _freezeUntil = 0;
-  private _frozen = false;
+  public _frozen = false;
   public _isVisualFrozen = false;
   public readonly isVisible$ = new BehaviorSubject<boolean>(true);
   private _freezeTimer: any = null;
+  private _quietUntil = 0;
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1133,31 +1134,41 @@ export class QuizQuestionLoaderService {
     }
   }
 
-  public freezeQuestionStream(durationMs = 80): void {
-    if (this._isVisualFrozen) return; // avoid stacking freezes
+  public freezeQuestionStream(durationMs = 120): void {
+    // prevent multiple overlapping freezes
+    if (this._isVisualFrozen) return;
+  
     this._isVisualFrozen = true;
     this._frozen = true;
-    this._renderFreezeUntil = performance.now() + durationMs;
-    console.log(`[Freeze] Logic+visual freeze started (${durationMs}ms)`);
+  
+    // extend the logic freeze window slightly (extra 20–40 ms)
+    const EXTENSION_MS = 40;
+    this._renderFreezeUntil = performance.now() + durationMs + EXTENSION_MS;
+  
+    console.log(`[Freeze] Logic+visual freeze started (${durationMs + EXTENSION_MS} ms)`);
   
     // Hide content DOM-side without touching Angular templates
     const el = document.querySelector('h3[i18n]');
     if (el) (el as HTMLElement).style.visibility = 'hidden';
   
+    clearTimeout(this._freezeTimer);
     this._freezeTimer = setTimeout(() => {
       this.unfreezeQuestionStream();
-    }, durationMs + 8);
+    }, durationMs + EXTENSION_MS + 8);
   }
   
   public unfreezeQuestionStream(): void {
     const now = performance.now();
   
-    // If still within freeze window, schedule a delayed unfreeze
-    if (now < this._freezeUntil) {
-      const delay = this._freezeUntil - now;
-      console.log(`[Loader] 🕒 Delaying unfreeze ${delay.toFixed(1)}ms`);
+    // ⏸ Define a quiet zone after unfreeze to prevent early emissions
+    const QUIET_WINDOW_MS = 120;
   
-      // Also visually keep the question text hidden during this delay
+    // If still within freeze window, schedule a delayed unfreeze
+    if (now < this._renderFreezeUntil) {
+      const delay = this._renderFreezeUntil - now;
+      console.log(`[Loader] 🕒 Delaying unfreeze ${delay.toFixed(1)} ms`);
+  
+      // keep question text hidden visually during this delay
       this._isVisualFrozen = true;
       const el = document.querySelector('h3[i18n]');
       if (el) (el as HTMLElement).style.visibility = 'hidden';
@@ -1166,14 +1177,15 @@ export class QuizQuestionLoaderService {
       this._freezeTimer = setTimeout(() => {
         this._isVisualFrozen = false;
         this._frozen = false;
+        this._quietUntil = performance.now() + QUIET_WINDOW_MS; // add quiet zone
   
         // Restore visibility one frame after Angular repaint
         requestAnimationFrame(() => {
           const el2 = document.querySelector('h3[i18n]');
           if (el2) (el2 as HTMLElement).style.visibility = 'visible';
-          console.log('[Loader] 🔓 Stream unfrozen (delayed)');
+          console.log(`[Loader] 🔓 Stream unfrozen (delayed) + quiet ${QUIET_WINDOW_MS} ms`);
         });
-      }, delay + 4);
+      }, delay + 12);
   
       return;
     }
@@ -1181,12 +1193,13 @@ export class QuizQuestionLoaderService {
     // Immediate unfreeze path
     this._isVisualFrozen = false;
     this._frozen = false;
+    this._quietUntil = now + QUIET_WINDOW_MS;
   
     // Show the element again right after frame stabilization
     requestAnimationFrame(() => {
       const el = document.querySelector('h3[i18n]');
       if (el) (el as HTMLElement).style.visibility = 'visible';
-      console.log('[Loader] 🔓 Stream unfrozen (immediate)');
+      console.log(`[Loader] 🔓 Stream unfrozen (immediate) + quiet ${QUIET_WINDOW_MS} ms`);
     });
   }  
 }
