@@ -118,6 +118,7 @@ export class ExplanationTextService {
   public _hardMuteUntil = 0;
 
   public _quietZoneUntil = 0;
+  private _navBarrier = false;
 
   constructor() {}
 
@@ -1152,6 +1153,11 @@ export class ExplanationTextService {
     const now = performance.now();
     const lastNav = this._lastNavTime ?? 0;
     const sinceNav = now - lastNav;
+
+    if (this.isNavBarrierActive()) {
+      console.log('[ETS] 🚫 Blocked openExclusive: navigation barrier active');
+      return;
+    }
   
     // 🛑 Global quiet-zone check (cross-service guard)
     if (now < (this._quietZoneUntil ?? 0)) {
@@ -1435,5 +1441,19 @@ export class ExplanationTextService {
 
   public markLastNavTime(time: number): void {
     this._lastNavTime = time;
+  }
+
+  public enableNavBarrier(): void {
+    this._navBarrier = true;
+    console.log('[ETS] 🧱 Navigation barrier ENABLED');
+  }
+  
+  public disableNavBarrier(): void {
+    this._navBarrier = false;
+    console.log('[ETS] 🟢 Navigation barrier DISABLED');
+  }
+  
+  public isNavBarrierActive(): boolean {
+    return this._navBarrier;
   }
 }
