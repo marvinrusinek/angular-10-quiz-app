@@ -1152,15 +1152,27 @@ export class ExplanationTextService {
     const now = performance.now();
     const lastNav = this._lastNavTime ?? 0;
     const sinceNav = now - lastNav;
-
+  
+    // 🛑 Global quiet-zone check (cross-service guard)
+    if (now < (this._quietZoneUntil ?? 0)) {
+      const remain = (this._quietZoneUntil ?? 0) - now;
+      console.log(
+        `[ETS] 🚫 Blocked openExclusive during quiet zone (${remain.toFixed(1)}ms left)`
+      );
+      return;
+    }
+  
     // 🔇 Skip any emission if still within global mute window
     if (now < (this._hardMuteUntil ?? 0)) {
-      console.log(`[ETS] 🔇 Blocked openExclusive during mute window (${((this._hardMuteUntil ?? 0) - now).toFixed(1)}ms left)`);
+      const remain = (this._hardMuteUntil ?? 0) - now;
+      console.log(
+        `[ETS] 🔇 Blocked openExclusive during mute window (${remain.toFixed(1)}ms left)`
+      );
       return;
     }
   
     // 🔒 1. Double-gate: prevent reopen within ~2 frames of previous open
-    const sinceLastOpen = now - this._lastOpenAt;
+    const sinceLastOpen = now - (this._lastOpenAt ?? 0);
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
       console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
       return;
@@ -1182,9 +1194,7 @@ export class ExplanationTextService {
   
     if (delay > 0) {
       // Extra frame if render is still frozen
-      setTimeout(() => {
-        requestAnimationFrame(activate);
-      }, delay);
+      setTimeout(() => requestAnimationFrame(activate), delay);
     } else {
       activate();
     }
