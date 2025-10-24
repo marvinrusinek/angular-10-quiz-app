@@ -124,7 +124,9 @@ export class QuizQuestionLoaderService {
     private selectedOptionService: SelectedOptionService,
     private quizStateService: QuizStateService,
     private router: Router
-  ) {}
+  ) {
+    (this.explanationTextService as any)._loaderRef = this;
+  }
 
   public async loadQuestionContents(questionIndex: number): Promise<void> {
     try {
