@@ -575,25 +575,30 @@ export class QuizNavigationService {
             }
   
             // Unfreeze after roughly two paint frames to ensure Angular has rebuilt the new DOM
+            // Unfreeze one full render cycle later (~64 ms total delay)
+            // Unfreeze after roughly two paint frames to ensure Angular has rebuilt the new DOM
             requestAnimationFrame(() => {
               setTimeout(() => {
                 const now = performance.now();
-                this.quizQuestionLoaderService._renderFreezeUntil = now + 48; // another frame guard
+                this.quizQuestionLoaderService._renderFreezeUntil = now + 64; // hold emissions for one more render frame
                 this.quizQuestionLoaderService.unfreezeQuestionStream();
                 this.quizQuestionLoaderService._lastNavTime = now;
-                console.log(`[NAV] 🧊 Unfrozen safely at ${now.toFixed(1)}ms (2-frame delay + 1-frame hold)`);
-              }, 24);  // ≈1.5 frames at 60 fps
+                console.log('[NAV] 🧊 Unfrozen after full render-cycle delay');
+              }, 48); // roughly 3 frames at 60 Hz (~48 ms)
             });
   
             resolve();
           } catch (err) {
             console.warn('[NAV] ⚠️ Banner + question emission failed', err);
+            // Always unfreeze on the same schedule
             requestAnimationFrame(() => {
               setTimeout(() => {
+                const now = performance.now();
+                this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
                 this.quizQuestionLoaderService.unfreezeQuestionStream();
-                this.quizQuestionLoaderService._lastNavTime = performance.now();
-                console.log('[NAV] 🧊 Unfrozen after 2-frame delay');
-              }, 24); // ~1.5 frames at 60fps
+                this.quizQuestionLoaderService._lastNavTime = now;
+                console.log('[NAV] 🧊 Unfrozen after full render-cycle delay (finalizer)');
+              }, 48);
             });
             resolve();
           }
