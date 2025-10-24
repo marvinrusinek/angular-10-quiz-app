@@ -106,6 +106,12 @@ export class ExplanationTextService {
 
   public _emittedAtByIndex: Map<number, number> = new Map();  // track when each explanation text was emitted
 
+  // Timestamp of the most recent navigation (from QuizNavigationService).
+  private _lastNavTime = 0;
+
+  // Time until which the FET gate is locked (prevents early question re-emission).
+  public _fetGateLockUntil = 0;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1131,38 +1137,52 @@ export class ExplanationTextService {
     this._gate.get(idx)!.next(false);
   }
 
-  // (Optional) If you still need this helper, keep it; otherwise remove to reduce surface area
-  public getLastGlobalExplanationIndex(): number | null {
-    // Prefer the explicit numeric tracker (set by emitFormatted)
-    if (this._lastGlobalExplanationIndex !== null) return this._lastGlobalExplanationIndex;
-
-    const sig = this.lastExplanationSignature ?? '';
-    const i = sig.indexOf('question:');
-    if (i === -1) return null;
-    const after = sig.slice(i + 'question:'.length);
-    const j = after.indexOf(':::');
-    const idxStr = (j >= 0 ? after.slice(0, j) : after).trim();
-    const idx = Number(idxStr);
-    return Number.isInteger(idx) && idx >= 0 ? idx : null;
-  }
-
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
     const { text$, gate$ } = this.getOrCreate(index);
     const trimmed = (formatted ?? '').trim() || null;
-  
     const now = performance.now();
     const lastNav = this._lastNavTime ?? 0;
     const sinceNav = now - lastNav;
   
-    // 🧩 Delay gate activation if too soon after navigation or question emission
+    // ────────────────────────────────────────────────
+    // 🧊 MICRO GATE LOCK (prevents cross-question bleed)
+    // ────────────────────────────────────────────────
+    // Hard close *all* gates except the new target
+    for (const [i, g$] of this._gate.entries()) {
+      if (i !== index) {
+        g$.next(false);
+        this._byIndex.get(i)?.next(null);
+      }
+    }
+  
+    // Lock the FET gate briefly (~2 frames)
+    this._fetGateLockUntil = now + 34; // ~2 frames @60Hz
+  
+    // ────────────────────────────────────────────────
+    // 🕒 Slight delay if too soon after navigation
+    // ────────────────────────────────────────────────
     const delay = sinceNav < 60 ? 60 - sinceNav : 0;
+  
     const activate = () => {
+      // Skip if gate still locked (within the 34 ms window)
+      if (performance.now() < this._fetGateLockUntil) {
+        console.log(
+          `[ETS] ⏸ FET gate locked; skipping early openExclusive(${index})`
+        );
+        return;
+      }
+  
       this._activeIndex = index;
       text$.next(trimmed);
       gate$.next(!!trimmed);
+  
+      this._emittedAtByIndex ??= new Map<number, number>();
+      this._emittedAtByIndex.set(index, performance.now());
+  
       console.log(
-        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
+        `[ETS] openExclusive(${index}) gate=${!!trimmed} len=${trimmed?.length ?? 0
+        } delayed=${delay.toFixed(1)}ms`
       );
     };
   
@@ -1171,10 +1191,6 @@ export class ExplanationTextService {
     } else {
       activate();
     }
-  
-    // record for diagnostics
-    this._emittedAtByIndex ??= new Map<number, number>();
-    this._emittedAtByIndex.set(index, now);
   }
 
   // Helper to fetch timestamp safely elsewhere
@@ -1392,5 +1408,18 @@ export class ExplanationTextService {
     }
   
     console.log('[ETS] All explanation gates closed');
-  }  
+  }
+
+  public isGateOpen(index: number): boolean {
+    const gate = this._gate?.get(index);
+    return !!gate && gate.getValue?.() === true;
+  }
+
+  public isFetGateLocked(): boolean {
+    return performance.now() < (this._fetGateLockUntil ?? 0);
+  }
+
+  public markLastNavTime(time: number): void {
+    this._lastNavTime = time;
+  }
 }
