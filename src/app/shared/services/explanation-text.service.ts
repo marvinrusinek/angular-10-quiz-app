@@ -117,6 +117,8 @@ export class ExplanationTextService {
 
   public _hardMuteUntil = 0;
 
+  public _quietZoneUntil = 0;
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {

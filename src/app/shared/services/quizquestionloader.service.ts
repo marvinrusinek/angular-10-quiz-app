@@ -111,6 +111,7 @@ export class QuizQuestionLoaderService {
   public readonly isVisible$ = new BehaviorSubject<boolean>(true);
   private _freezeTimer: any = null;
   private _quietUntil = 0;
+  public _quietZoneUntil = 0;
 
   constructor(
     private explanationTextService: ExplanationTextService,
