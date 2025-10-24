@@ -575,16 +575,14 @@ export class QuizNavigationService {
             }
   
             // Unfreeze after roughly two paint frames to ensure Angular has rebuilt the new DOM
-            // Unfreeze one full render cycle later (~64 ms total delay)
-            // Unfreeze after roughly two paint frames to ensure Angular has rebuilt the new DOM
             requestAnimationFrame(() => {
               setTimeout(() => {
                 const now = performance.now();
-                this.quizQuestionLoaderService._renderFreezeUntil = now + 64; // hold emissions for one more render frame
+                this.quizQuestionLoaderService._renderFreezeUntil = now + 64;  // hold emissions for one more render frame
                 this.quizQuestionLoaderService.unfreezeQuestionStream();
                 this.quizQuestionLoaderService._lastNavTime = now;
                 console.log('[NAV] 🧊 Unfrozen after full render-cycle delay');
-              }, 48); // roughly 3 frames at 60 Hz (~48 ms)
+              }, 48);  // roughly 3 frames at 60 Hz (~48 ms)
             });
   
             resolve();
