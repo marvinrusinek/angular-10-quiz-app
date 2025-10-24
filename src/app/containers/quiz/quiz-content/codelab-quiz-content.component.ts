@@ -780,21 +780,25 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const qReady = typeof question === 'string' && question.trim().length > 0;
           const fetReady = !fet?.gate || (fet?.gate && (fet?.text ?? '').trim().length > 0);
           const active = this.quizService.getCurrentQuestionIndex();
-      
+        
           const now = performance.now();
           const lastNav = this.quizQuestionLoaderService._lastNavTime ?? 0;
-      
-          // 🚫 HARD FILTER: skip frames that began before the last navigation timestamp
           const emittedAt = this.explanationTextService._emittedAtByIndex?.get(fet?.idx ?? -1) ?? 0;
-          const staleEmission = emittedAt < lastNav;
-          const tooEarly = now < (this.quizQuestionLoaderService._renderFreezeUntil ?? 0);
-      
-          const valid = !staleEmission && !tooEarly && idx === active && qReady && fetReady;
+        
+          // 🚧 Drop only *stale* explanation frames — not question frames.
+          const staleFET =
+            fet?.gate &&
+            fet?.idx !== active &&
+            emittedAt < lastNav &&
+            (fet?.text ?? '').trim().length > 0;
+        
+          const valid = qReady && fetReady && !staleFET;
           if (!valid) {
             console.log(
-              `[RenderGuard] drop idx=${idx} active=${active} qReady=${qReady} fetReady=${fetReady} stale=${staleEmission} early=${tooEarly}`
+              `[Guard] drop: idx=${idx}, active=${active}, qReady=${qReady}, fetReady=${fetReady}, staleFET=${staleFET}`
             );
           }
+        
           return valid;
         }),
       
