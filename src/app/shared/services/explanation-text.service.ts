@@ -107,7 +107,7 @@ export class ExplanationTextService {
   public _emittedAtByIndex: Map<number, number> = new Map();  // track when each explanation text was emitted
 
   // Timestamp of the most recent navigation (from QuizNavigationService).
-  private _lastNavTime = 0;
+  public _lastNavTime = 0;
 
   // Time until which the FET gate is locked (prevents early question re-emission).
   public _fetGateLockUntil = 0;
