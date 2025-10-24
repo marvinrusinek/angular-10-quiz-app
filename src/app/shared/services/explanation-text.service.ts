@@ -104,6 +104,8 @@ export class ExplanationTextService {
   // Remember the last question index whose explanation was locked open
   public _fetLocked: number | null = null;
 
+  public _emittedAtByIndex: Map<number, number> = new Map();  // track when each explanation text was emitted
+
   constructor() {}
 
   get currentShouldDisplayExplanation(): boolean {
@@ -1146,12 +1148,30 @@ export class ExplanationTextService {
 
   // Call to open a gate for an index
   public openExclusive(index: number, formatted: string | null): void {
-    const { text$, gate$ } = this.getOrCreate(index);
-    const trimmed = (formatted ?? '').trim() || null;
-    this._activeIndex = index;
-    text$.next(trimmed);
-    gate$.next(!!trimmed);
-    console.log(`[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}`);
+    try {
+      const { text$, gate$ } = this.getOrCreate(index);
+      const trimmed = (formatted ?? '').trim() || null;
+  
+      this._activeIndex = index;
+
+      // 🕒 Store timestamp internally
+      this._emittedAtByIndex.set(index, performance.now());
+  
+      // Normal emission: keep text$ pure string
+      text$.next(trimmed);
+      gate$.next(!!trimmed);
+  
+      console.log(
+        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, time=${performance.now().toFixed(1)}`
+      );
+    } catch (err) {
+      console.warn('[ETS] openExclusive failed', err);
+    }
+  }
+
+  // Helper to fetch timestamp safely elsewhere
+  public getLastEmitTime(index: number): number {
+    return this._emittedAtByIndex.get(index) ?? 0;
   }
 
   public closeOthersExcept(index: number): void {
