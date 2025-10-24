@@ -1141,56 +1141,26 @@ export class ExplanationTextService {
   public openExclusive(index: number, formatted: string | null): void {
     const { text$, gate$ } = this.getOrCreate(index);
     const trimmed = (formatted ?? '').trim() || null;
+  
     const now = performance.now();
-    const lastNav = this._lastNavTime ?? 0;
-    const sinceNav = now - lastNav;
   
-    // ────────────────────────────────────────────────
-    // 🧊 MICRO GATE LOCK (prevents cross-question bleed)
-    // ────────────────────────────────────────────────
-    // Hard close *all* gates except the new target
-    for (const [i, g$] of this._gate.entries()) {
-      if (i !== index) {
-        g$.next(false);
-        this._byIndex.get(i)?.next(null);
-      }
+    // 🧱 Prevent FET emissions if the loader is still in quiet or freeze period
+    const loader = (this as any)._loaderRef; // will be set by QuizQuestionLoaderService
+    const freezeGuard = loader?._renderFreezeUntil ?? 0;
+    const quietGuard = loader?._quietUntil ?? 0;
+  
+    if (now < freezeGuard || now < quietGuard) {
+      const delay = Math.max(freezeGuard, quietGuard) - now + 16; // extra 1 frame buffer
+      console.log(`[ETS] ⏸ Delaying FET emission for ${delay.toFixed(1)}ms (freeze/quiet active)`);
+      setTimeout(() => this.openExclusive(index, formatted), delay);
+      return;
     }
   
-    // Lock the FET gate briefly (~2 frames)
-    this._fetGateLockUntil = now + 34; // ~2 frames @60Hz
-  
-    // ────────────────────────────────────────────────
-    // 🕒 Slight delay if too soon after navigation
-    // ────────────────────────────────────────────────
-    const delay = sinceNav < 60 ? 60 - sinceNav : 0;
-  
-    const activate = () => {
-      // Skip if gate still locked (within the 34 ms window)
-      if (performance.now() < this._fetGateLockUntil) {
-        console.log(
-          `[ETS] ⏸ FET gate locked; skipping early openExclusive(${index})`
-        );
-        return;
-      }
-  
-      this._activeIndex = index;
-      text$.next(trimmed);
-      gate$.next(!!trimmed);
-  
-      this._emittedAtByIndex ??= new Map<number, number>();
-      this._emittedAtByIndex.set(index, performance.now());
-  
-      console.log(
-        `[ETS] openExclusive(${index}) gate=${!!trimmed} len=${trimmed?.length ?? 0
-        } delayed=${delay.toFixed(1)}ms`
-      );
-    };
-  
-    if (delay > 0) {
-      setTimeout(activate, delay);
-    } else {
-      activate();
-    }
+    // Normal emission path
+    this._activeIndex = index;
+    text$.next(trimmed);
+    gate$.next(!!trimmed);
+    console.log(`[ETS] ✅ openExclusive(${index}) gate=${!!trimmed}, len=${trimmed?.length ?? 0}`);
   }
 
   // Helper to fetch timestamp safely elsewhere
