@@ -181,9 +181,7 @@ export class QuizNavigationService {
 
   private async navigateWithOffset(offset: number): Promise<boolean> {
     try {
-      // ────────────────────────────────
       // 🧹 Pre-cleanup (prevent FET & banner flicker)
-      // ────────────────────────────────
       try {
         const ets: any = this.explanationTextService;
   
