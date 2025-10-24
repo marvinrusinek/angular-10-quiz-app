@@ -473,7 +473,7 @@ export class QuizNavigationService {
       // ────────────────────────────────────────────────
       // 🧊 Freeze BEFORE clearing — prevents mid-frame leaks from old emissions
       // ────────────────────────────────────────────────
-      this.quizQuestionLoaderService.freezeQuestionStream(80);
+      this.quizQuestionLoaderService.freezeQuestionStream(96);
       this.quizQuestionLoaderService._lastNavTime = performance.now();
   
       // Clear stale render state
@@ -485,9 +485,13 @@ export class QuizNavigationService {
       await new Promise<void>(r => setTimeout(r, 32)); // small tear-down buffer
   
       // Reset explanation display
+      // HARD-MUTE explanation emissions for ~3 frames
+      this.explanationTextService._hardMuteUntil = performance.now() + 48; // 3×16ms
+      this.explanationTextService._activeIndex = -1;
       this.explanationTextService.formattedExplanationSubject.next('');
       this.explanationTextService.setShouldDisplayExplanation(false);
       this.explanationTextService.setIsExplanationTextDisplayed(false);
+      console.log('[NAV] 🔇 Hard-muted explanation stream');
   
       // ────────────────────────────────────────────────
       // 🗺 Resolve quiz ID + route URL
