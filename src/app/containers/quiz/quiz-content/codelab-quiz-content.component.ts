@@ -785,7 +785,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
           const lastNav = this.quizQuestionLoaderService._lastNavTime ?? 0;
           const emittedAt = this.explanationTextService._emittedAtByIndex?.get(fet?.idx ?? -1) ?? 0;
         
-          // 🚧 Drop only *stale* explanation frames — not question frames.
+          // Drop only *stale* explanation frames — not question frames.
           const staleFET =
             fet?.gate &&
             fet?.idx !== active &&
