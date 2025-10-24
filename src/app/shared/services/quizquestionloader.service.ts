@@ -1090,31 +1090,27 @@ export class QuizQuestionLoaderService {
   public emitQuestionTextSafely(text: string, index: number): void {
     const now = performance.now();
   
-    // Hard block during visual freeze window
+    // 🧊 Hard freeze: block anything while visual frame is locked
     if (this._frozen || now < (this._renderFreezeUntil ?? 0)) {
-      console.log(`[BLOCK] emission during freeze (Δ=${((this._renderFreezeUntil ?? 0) - now).toFixed(1)}ms left)`);
-      return;
-    }
-  
-    // Additional guard: 40-60 ms quiet zone after navigation
-    if (now - (this._lastNavTime ?? 0) < 60) {
-      console.log(`[BLOCK] emission inside post-nav quiet zone (Δ=${(now - (this._lastNavTime ?? 0)).toFixed(1)}ms)`);
+      console.log(`[BLOCK] emission blocked (freeze active, Δ=${((this._renderFreezeUntil ?? 0) - now).toFixed(1)} ms)`);
       return;
     }
   
     const activeIndex = this.quizService.getCurrentQuestionIndex();
     if (index !== activeIndex) {
-      console.log(`[SKIP] stale emission for Q${index + 1} (active=${activeIndex + 1})`);
+      console.log(`[SKIP] stale emission for Q${index + 1} (active = Q${activeIndex + 1})`);
       return;
     }
   
     const trimmed = (text ?? '').trim();
-    if (!trimmed || trimmed === '?') {
-      console.log(`[BLOCK] placeholder emission ignored for Q${index + 1}`);
+    if (!trimmed || trimmed === '?') return;
+  
+    // guard against emissions immediately after navigation
+    if (now - (this._lastNavTime ?? 0) < 96) {
+      console.log(`[DELAY] blocked early emission for Q${index + 1} (Δ=${(now - (this._lastNavTime ?? 0)).toFixed(1)} ms)`);
       return;
     }
   
-    // Passed all gates — safe to render
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
   }
