@@ -1179,7 +1179,7 @@ export class QuizQuestionLoaderService {
       this._freezeTimer = setTimeout(() => {
         this._isVisualFrozen = false;
         this._frozen = false;
-        this._quietUntil = performance.now() + QUIET_WINDOW_MS; // add quiet zone
+        this._quietUntil = performance.now() + QUIET_WINDOW_MS;  // add quiet zone
   
         // Restore visibility one frame after Angular repaint
         requestAnimationFrame(() => {
