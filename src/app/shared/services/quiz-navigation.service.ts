@@ -642,9 +642,11 @@ export class QuizNavigationService {
         })
       );
   
-      const now = performance.now();
-      this.explanationTextService.markLastNavTime?.(now);
-      this.quizQuestionLoaderService._lastNavTime = now;
+      const endNow = performance.now();
+      this.quizQuestionLoaderService._quietZoneUntil = endNow + 40;
+      this.explanationTextService._quietZoneUntil = endNow + 40;
+      this.explanationTextService.markLastNavTime?.(endNow);
+      this.quizQuestionLoaderService._lastNavTime = endNow;
   
       console.log(`[NAV ✅] Completed safe switch → Q${index + 1}`);
       return true;
