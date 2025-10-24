@@ -559,15 +559,21 @@ export class QuizNavigationService {
                 .formatExplanation(fresh as any, correctIdxs, explanationRaw)
                 .trim();
   
+              // ⏸ hold FET emission until after visual unfreeze is done
+              const fetDelay = Math.max(
+                140,
+                (this.quizQuestionLoaderService._freezeUntil ?? 0) - performance.now() + 24
+              );
+
               setTimeout(() => {
                 try {
                   this.explanationTextService.openExclusive(index, formatted);
                   this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
+                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1} (after unfreeze)`);
                 } catch (err) {
                   console.warn('[NAV] ⚠️ FET restore failed:', err);
                 }
-              }, 120);
+              }, fetDelay);
             }
   
             // Unfreeze after the next frame paints
