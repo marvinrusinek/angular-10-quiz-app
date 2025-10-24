@@ -112,6 +112,7 @@ export class QuizQuestionLoaderService {
   private _freezeTimer: any = null;
   private _quietUntil = 0;
   public _quietZoneUntil = 0;
+  private _navBarrier = false;
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1092,23 +1093,45 @@ export class QuizQuestionLoaderService {
   }
 
   public emitQuestionTextSafely(text: string, index: number): void {
+    if (this.isNavBarrierActive()) {
+      console.log('[Loader] 🚫 Blocked emission: navigation barrier active');
+      return;
+    }
+    
     const now = performance.now();
   
-    // 🔒 Block emissions during global quiet zone
+    // Global quiet-zone guard (shared with ETS)
     if (now < (this._quietZoneUntil ?? 0)) {
-      console.log(`[Loader] 🚫 Suppressed emission in quiet zone (${((this._quietZoneUntil - now)).toFixed(1)} ms left)`);
+      const remain = (this._quietZoneUntil ?? 0) - now;
+      console.log(`[Loader] 🚫 Blocked question emission during quiet zone (${remain.toFixed(1)}ms left)`);
       return;
     }
   
-    // existing logic follows...
+    // Standard freeze gating
+    if (this._frozen && now < (this._renderFreezeUntil ?? 0)) {
+      console.log('[Loader] 🧊 Emission blocked within freeze window');
+      return;
+    }
+  
     const activeIndex = this.quizService.getCurrentQuestionIndex();
-    if (index !== activeIndex) return;
+    if (index !== activeIndex) {
+      console.log(`[SKIP] stale emission for Q${index + 1} (active is Q${activeIndex + 1})`);
+      return;
+    }
   
     const trimmed = (text ?? '').trim();
     if (!trimmed || trimmed === '?') return;
   
+    // Anti-early guard — skip emissions too close to navigation
+    if (now - (this._lastNavTime ?? 0) < 80) {
+      console.log(`[Drop] Early emission for Q${index + 1} (Δ=${(now - (this._lastNavTime ?? 0)).toFixed(1)}ms)`);
+      return;
+    }
+  
+    // Safe to emit
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
+    console.log(`[Loader] ✅ Emitted question text safely for Q${index + 1}`);
   }
   
   public clearQuestionTextBeforeNavigation(): void {
@@ -1190,5 +1213,20 @@ export class QuizQuestionLoaderService {
       if (el) (el as HTMLElement).style.visibility = 'visible';
       console.log(`[Loader] 🔓 Stream unfrozen (immediate) + quiet ${QUIET_WINDOW_MS} ms`);
     });
-  }  
+  }
+
+  // Helper control methods
+  public enableNavBarrier(): void {
+    this._navBarrier = true;
+    console.log('[Loader] 🧱 Navigation barrier ENABLED');
+  }
+
+  public disableNavBarrier(): void {
+    this._navBarrier = false;
+    console.log('[Loader] 🟢 Navigation barrier DISABLED');
+  }
+
+  public isNavBarrierActive(): boolean {
+    return this._navBarrier;
+  }
 }
