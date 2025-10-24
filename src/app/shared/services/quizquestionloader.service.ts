@@ -1094,35 +1094,21 @@ export class QuizQuestionLoaderService {
   public emitQuestionTextSafely(text: string, index: number): void {
     const now = performance.now();
   
-    // ❄ Hard block during freeze window
-    if (this._frozen && now < (this._renderFreezeUntil ?? 0)) {
-      console.log('[BLOCK] emission blocked within freeze window');
+    // 🔒 Block emissions during global quiet zone
+    if (now < (this._quietZoneUntil ?? 0)) {
+      console.log(`[Loader] 🚫 Suppressed emission in quiet zone (${((this._quietZoneUntil - now)).toFixed(1)} ms left)`);
       return;
     }
   
+    // existing logic follows...
     const activeIndex = this.quizService.getCurrentQuestionIndex();
-    if (index !== activeIndex) {
-      console.log(`[SKIP] stale emission for Q${index + 1} (active=${activeIndex + 1})`);
-      return;
-    }
+    if (index !== activeIndex) return;
   
     const trimmed = (text ?? '').trim();
     if (!trimmed || trimmed === '?') return;
   
-    // 🚫 Don't let question overwrite an active FET window
-    const fetOpen = this.explanationTextService?.isGateOpen?.(index);
-    if (fetOpen) {
-      console.log(`[BLOCK] question emission ignored; FET gate already open for Q${index + 1}`);
-      return;
-    }
-  
-    // 🧭 Navigation cooldown
-    if (now - (this._lastNavTime ?? 0) < 80) return;
-  
-    // ✅ Safe emission
     this._lastQuestionText = trimmed;
     this.questionToDisplay$.next(trimmed);
-    this.explanationTextService._lastNavTime = now;
   }
   
   public clearQuestionTextBeforeNavigation(): void {
