@@ -603,11 +603,15 @@ export class QuizNavigationService {
         if (prevIndex >= 0) {
           this.explanationTextService.closeGateForIndex(prevIndex);
         }
-
-        // Lock all FET gates briefly to prevent cross-question bleed
-        this.explanationTextService._fetGateLockUntil = performance.now() + 34;  // ~2 frames
+      
+        // Lock both FET and render for a few frames
+        const lockUntil = performance.now() + 72; // ≈4 frames at 60 Hz
+        this.explanationTextService._fetGateLockUntil = lockUntil;
+        this.quizQuestionLoaderService._renderFreezeUntil = lockUntil;
+        this.quizQuestionLoaderService._frozen = true;
+        console.log('[NAV] 🔒 Global freeze window started (FET + render)');
       } catch (err) {
-        console.warn('[NAV] ⚠️ Failed to close old FET gates:', err);
+        console.warn('[NAV] ⚠️ Failed to close FET gates:', err);
       }
   
       // Mark navigation completion (next frame)
@@ -618,9 +622,18 @@ export class QuizNavigationService {
         })
       );
 
-      // record navigation time for stabilization guards
-      this.explanationTextService.markLastNavTime?.(performance.now());
-  
+      // Record navigation timestamp for synchronization guards
+      const now = performance.now();
+      this.explanationTextService.markLastNavTime?.(now);
+      this.quizQuestionLoaderService._lastNavTime = now;
+      
+      // Delay unfreeze slightly after the new view has painted
+      setTimeout(() => {
+        this.quizQuestionLoaderService.unfreezeQuestionStream();
+        this.quizQuestionLoaderService._frozen = false;
+        console.log('[NAV] 🧊 Unfrozen after DOM swap safe window');
+      }, 72);
+
       console.log(`[NAV ✅] Completed safe switch → Q${index + 1}`);
       return true;
     } catch (err) {
