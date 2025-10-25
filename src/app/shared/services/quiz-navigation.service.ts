@@ -452,11 +452,11 @@ export class QuizNavigationService {
       // 🛑 STEP 1: GLOBAL HARD-MUTE + QUIET ZONE
       // ────────────────────────────────────────────────
       const ets: any = this.explanationTextService;
-      const now = performance.now();
+      const now0 = performance.now();
       const quietMs = 120; // ~7 frames @ 60Hz
-      this.quizQuestionLoaderService._quietZoneUntil = now + quietMs;
-      ets._quietZoneUntil = now + quietMs;
-      ets._hardMuteUntil = now + 100;
+      this.quizQuestionLoaderService._quietZoneUntil = now0 + quietMs;
+      ets._quietZoneUntil = now0 + quietMs;
+      ets._hardMuteUntil = now0 + 100;
   
       ets._activeIndex = -1;
       ets.formattedExplanationSubject?.next('');
@@ -502,6 +502,7 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
       this.resetRenderStateBeforeNavigation(index);
   
+      // Let Angular do one paint + a tiny buffer
       await new Promise<void>(r => requestAnimationFrame(() => r()));
       await new Promise<void>(r => setTimeout(r, 32));
   
@@ -561,6 +562,7 @@ export class QuizNavigationService {
       const isMulti =
         (fresh.type as any) === QuestionType.MultipleAnswer ||
         (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
+  
       const trimmedQ = (fresh.questionText ?? '').trim();
       const explanationRaw = (fresh.explanation ?? '').trim();
       const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
@@ -569,65 +571,42 @@ export class QuizNavigationService {
         ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
         : '';
   
-      // 🧩 EMIT
-      await new Promise<void>(resolve => {
-        requestAnimationFrame(() => {
-          try {
-            // 🟢 Lift freeze earlier but keep barriers on
-            setTimeout(() => {
-              const now = performance.now();
-              this.quizQuestionLoaderService._renderFreezeUntil = now + 24;
-              this.quizQuestionLoaderService.unfreezeQuestionStream();
-              this.quizQuestionLoaderService._lastNavTime = now;
-              console.log('[NAV] 🧊 Unfrozen pre-emission (barriers still active)');
-            }, 12);
+      // ────────────────────────────────────────────────
+      // 🎨 EMIT (Unified DOM-stable anchor)
+      // ────────────────────────────────────────────────
+      // 1) Wait until Angular & DOM are fully stable (single anchor).
+      await this.quizQuestionLoaderService.waitForDomStable(32);
   
-            requestAnimationFrame(() => {
-              this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-              console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
-            });
+      // 2) Release both barriers together, then unfreeze.
+      this.quizQuestionLoaderService.disableNavBarrier();
+      this.explanationTextService.disableNavBarrier();
+      this.quizQuestionLoaderService.unfreezeQuestionStream();
+      this.explanationTextService._hardMuteUntil = performance.now() - 1; // clear mute immediately
+      console.log('[NAV] 🟢 DOM stable → barriers released & stream unfrozen');
   
-            requestAnimationFrame(() => {
-              this.quizService.updateCorrectAnswersText(banner);
-            });
+      // 3) Emit question and banner back-to-back in the same stable window.
+      this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+      this.quizService.updateCorrectAnswersText(banner);
   
-            if (explanationRaw) {
-              const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
-              const formatted = this.explanationTextService
-                .formatExplanation(fresh as any, correctIdxs, explanationRaw)
-                .trim();
+      // 4) Arm FET slightly after (one more DOM-stable tick) to avoid racing the question.
+      if (explanationRaw) {
+        const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
+        const formatted = this.explanationTextService
+          .formatExplanation(fresh as any, correctIdxs, explanationRaw)
+          .trim();
   
-              setTimeout(() => {
-                try {
-                  this.explanationTextService.openExclusive(index, formatted);
-                  this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-                  console.log(`[NAV] 🧩 FET pre-armed for Q${index + 1}`);
-                } catch (err) {
-                  console.warn('[NAV] ⚠️ FET restore failed', err);
-                }
-              }, 160);
-            }
+        await this.quizQuestionLoaderService.waitForDomStable(16); // one extra frame
   
-            resolve();
-          } catch (err) {
-            console.warn('[NAV] ⚠️ Banner + question emission failed', err);
-            setTimeout(() => {
-              const now = performance.now();
-              this.quizQuestionLoaderService._renderFreezeUntil = now + 64;
-              this.quizQuestionLoaderService.unfreezeQuestionStream();
-              this.quizQuestionLoaderService._lastNavTime = now;
-            }, 48);
-            resolve();
-          }
-        });
-      });
-  
-      // Release both barriers together
-      setTimeout(() => {
-        this.quizQuestionLoaderService.disableNavBarrier();
-        this.explanationTextService.disableNavBarrier();
-        console.log('[NAV] 🟢 Cross-service barriers released');
-      }, 160); // ≈10 frames at 60Hz
+        // still respect any very-short quiet zone that may remain
+        const nowAfter = performance.now();
+        if (nowAfter >= (this.explanationTextService._quietZoneUntil ?? 0)) {
+          this.explanationTextService.openExclusive(index, formatted);
+          this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
+          console.log(`[NAV] 🧩 FET armed after DOM-stable window for Q${index + 1}`);
+        } else {
+          console.log('[NAV] ⏸ FET skipped due to quiet zone still active');
+        }
+      }
   
       // Navigation completion
       await new Promise<void>(resolve =>
