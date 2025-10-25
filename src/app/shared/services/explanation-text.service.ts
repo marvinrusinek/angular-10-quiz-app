@@ -1159,63 +1159,81 @@ export class ExplanationTextService {
     const sinceNav = now - lastNav;
     const quietUntil = this._quietZoneUntil ?? 0;
   
-    // HARD FIREWALL: Block any FET open during quiet zone or hard mute
+    // ────────────────────────────────────────────────
+    // 🚫 HARD FIREWALL: Block any FET open during quiet zone or hard mute
+    // ────────────────────────────────────────────────
     if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
       const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
-      console.log(`[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`);
+      console.log(
+        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(
+          1
+        )}ms left in quiet/mute zone, idx=${index})`
+      );
       return;
     }
   
-    // Double-gate: prevent reopen within ~2 frames of previous open
+    // ────────────────────────────────────────────────
+    // ⛔ DOUBLE-GATE: prevent reopen within ~2 frames of previous open
+    // ────────────────────────────────────────────────
     const sinceLastOpen = now - this._lastOpenAt;
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
-      console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
+      console.log(
+        `[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`
+      );
       return;
     }
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
     // ────────────────────────────────────────────────
-    // 🧹 STEP 1: Purge any stale explanation from previous question(s)
+    // 🧹 STEP 1: Synchronous purge before CQCC samples
     // ────────────────────────────────────────────────
     if (index !== this._activeIndex) {
+      // Clear the global subjects FIRST (this ensures CQCC sees blanks)
       this.formattedExplanationSubject?.next('');
-      this.shouldDisplayExplanationSource?.next(false);
-      this.isExplanationTextDisplayedSource?.next(false);
-    
+      this.shouldDisplayExplanationSubject?.next(false);
+      this.isExplanationTextDisplayedSubject?.next(false);
+  
+      // Flush all per-index subjects immediately
       if (this._byIndex instanceof Map) {
         for (const [k, subj] of this._byIndex.entries()) subj?.next?.('');
       }
       if (this._gate instanceof Map) {
         for (const [k, gate] of this._gate.entries()) gate?.next?.(false);
       }
-    
-      // ⚡ clear everything synchronously before CQCC combineLatest can sample it
+  
+      // And finally, clear both maps synchronously
       this._byIndex.clear?.();
       this._gate.clear?.();
+  
+      // Short post-purge lock to block reopens during same frame
       this._fetGateLockUntil = now + 64;
-    
+  
       console.log(`[ETS] 🧨 Full FET cache flush before activating index ${index}`);
     }
   
     // ────────────────────────────────────────────────
-    // 🧭 STEP 2: Update the active index *after* purge
+    // 🧭 STEP 2: Update the active index AFTER purge
     // ────────────────────────────────────────────────
     this._activeIndex = index;
   
-    const currentIndex = this._activeIndex ?? -1;
-    if (index !== currentIndex) {
-      console.log(`[ETS] 🚫 Ignoring FET open for idx=${index}; active=${currentIndex}`);
+    // Double check: if somehow race set a different active index
+    if (index !== this._activeIndex) {
+      console.log(`[ETS] 🚫 Ignoring FET open for idx=${index}; active=${this._activeIndex}`);
       return;
     }
   
-    // Delay gate activation if too soon after navigation
+    // ────────────────────────────────────────────────
+    // ⏱️ STEP 3: Apply a small defer window post-navigation
+    // ────────────────────────────────────────────────
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
   
     const activate = () => {
-      // Safety check: ensure we’re still on the same index
+      // Safety check: ensure still same index before emitting
       if (index !== this._activeIndex) {
-        console.log(`[ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`);
+        console.log(
+          `[ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`
+        );
         return;
       }
   
@@ -1227,20 +1245,23 @@ export class ExplanationTextService {
       );
     };
   
+    // Minimal defer if navigation just happened
     if (delay > 0) {
       setTimeout(() => requestAnimationFrame(activate), delay);
     } else {
       requestAnimationFrame(activate);
     }
   
-    // Record diagnostics for debugging / replay analysis
+    // ────────────────────────────────────────────────
+    // 🧩 STEP 4: Record diagnostics + proactive cleanup
+    // ────────────────────────────────────────────────
     this._emittedAtByIndex ??= new Map<number, number>();
     this._emittedAtByIndex.set(index, now);
   
-    // Micro gate-lock window: block any new FET for ~3 frames after this one
+    // Block new FET emissions briefly after this one
     this._fetGateLockUntil = now + 48;
   
-    // Proactive cleanup for any older indexes (avoids "Q1 FET bleed")
+    // Clean up any residuals from older questions (Q1 bleed)
     if (this._byIndex instanceof Map) {
       for (const [idx, subj] of this._byIndex.entries()) {
         if (idx < index - 1) subj?.next?.('');
