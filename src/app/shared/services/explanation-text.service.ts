@@ -109,13 +109,8 @@ export class ExplanationTextService {
   // Timestamp of the most recent navigation (from QuizNavigationService).
   public _lastNavTime = 0;
 
-  // Time until which the FET gate is locked (prevents early question re-emission).
-  public _fetGateLockUntil = 0;
-
   private _lastOpenIdx = -1;
   private _lastOpenAt = 0;
-
-  public _hardMuteUntil = 0;
 
   private _navBarrier = false;
 
@@ -126,7 +121,7 @@ export class ExplanationTextService {
   // Internal guards (already have some of these — keep if they exist)
   public _quietZoneUntil = 0;
   public _hardMuteUntil = 0;
-  public _fetGateLockUntil = 0;
+  public _fetGateLockUntil = 0;  // time until which the FET gate is locked
   public _activeIndex = -1;
 
   constructor() {}
@@ -1168,12 +1163,14 @@ export class ExplanationTextService {
     if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
       const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
       console.log(
-        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`
+        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(
+          1
+        )}ms left in quiet/mute zone, idx=${index})`
       );
       return;
     }
   
-    // 1. Double-gate: prevent reopen within ~2 frames of previous open
+    // Double-gate: prevent reopen within ~2 frames of previous open
     const sinceLastOpen = now - this._lastOpenAt;
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
       console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
@@ -1182,7 +1179,15 @@ export class ExplanationTextService {
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
-    // 2. Delay gate activation if too soon after navigation
+    // Cross-index firewall — prevent FET for old/stale question
+    if (this._activeIndex !== -1 && index < this._activeIndex) {
+      console.log(
+        `[ETS] 🚫 Ignored openExclusive for stale index=${index} (current active=${this._activeIndex})`
+      );
+      return;
+    }
+  
+    // Delay gate activation if too soon after navigation
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
   
     const activate = () => {
@@ -1190,7 +1195,9 @@ export class ExplanationTextService {
       text$.next(trimmed);
       gate$.next(!!trimmed);
       console.log(
-        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
+        `[ETS] ✅ openExclusive(${index}) → gate=${!!trimmed}, len=${
+          trimmed?.length ?? 0
+        }, delayed=${delay.toFixed(1)}ms`
       );
     };
   
@@ -1204,9 +1211,9 @@ export class ExplanationTextService {
     this._emittedAtByIndex ??= new Map<number, number>();
     this._emittedAtByIndex.set(index, now);
   
-    // 3. Micro gate-lock window: block any new FET for ~3 frames after this one
+    // Micro gate-lock window: block any new FET for ~3 frames
     this._fetGateLockUntil = now + 48;
-  }
+  }  
 
   // Helper to fetch timestamp safely elsewhere
   public getLastEmitTime(index: number): number {
