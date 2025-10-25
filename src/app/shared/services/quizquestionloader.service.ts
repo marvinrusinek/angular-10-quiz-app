@@ -1229,4 +1229,14 @@ export class QuizQuestionLoaderService {
   public isNavBarrierActive(): boolean {
     return this._navBarrier;
   }
+
+  // Ensures Angular and the DOM have both fully re-rendered before resuming UI emissions.
+  public async waitForDomStable(extraDelay = 0): Promise<void> {
+    // Wait one microtask to flush Angular change detection
+    await new Promise<void>(res => setTimeout(res, 0));
+    // Wait one animation frame for DOM paint
+    await new Promise<void>(res => requestAnimationFrame(() => res()));
+    // Optional extra buffer
+    if (extraDelay > 0) await new Promise<void>(res => setTimeout(res, extraDelay));
+  }
 }
