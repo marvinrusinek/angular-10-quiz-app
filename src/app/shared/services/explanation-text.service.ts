@@ -1154,32 +1154,19 @@ export class ExplanationTextService {
     const now = performance.now();
     const lastNav = this._lastNavTime ?? 0;
     const sinceNav = now - lastNav;
-
-    if (this.isNavBarrierActive()) {
-      console.log('[ETS] 🚫 Blocked openExclusive: navigation barrier active');
-      return;
-    }
+    const quietUntil = this._quietZoneUntil ?? 0;
   
-    // 🛑 Global quiet-zone check (cross-service guard)
-    if (now < (this._quietZoneUntil ?? 0)) {
-      const remain = (this._quietZoneUntil ?? 0) - now;
+    // HARD FIREWALL: Block any FET open during quiet zone or hard mute
+    if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
+      const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
       console.log(
-        `[ETS] 🚫 Blocked openExclusive during quiet zone (${remain.toFixed(1)}ms left)`
+        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`
       );
       return;
     }
   
-    // 🔇 Skip any emission if still within global mute window
-    if (now < (this._hardMuteUntil ?? 0)) {
-      const remain = (this._hardMuteUntil ?? 0) - now;
-      console.log(
-        `[ETS] 🔇 Blocked openExclusive during mute window (${remain.toFixed(1)}ms left)`
-      );
-      return;
-    }
-  
-    // 🔒 1. Double-gate: prevent reopen within ~2 frames of previous open
-    const sinceLastOpen = now - (this._lastOpenAt ?? 0);
+    // 1. Double-gate: prevent reopen within ~2 frames of previous open
+    const sinceLastOpen = now - this._lastOpenAt;
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
       console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
       return;
@@ -1187,7 +1174,7 @@ export class ExplanationTextService {
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
-    // 🧩 2. Delay gate activation if too soon after navigation
+    // 2. Delay gate activation if too soon after navigation
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
   
     const activate = () => {
@@ -1200,17 +1187,16 @@ export class ExplanationTextService {
     };
   
     if (delay > 0) {
-      // Extra frame if render is still frozen
       setTimeout(() => requestAnimationFrame(activate), delay);
     } else {
       activate();
     }
   
-    // 📊 Record diagnostics
+    // Record diagnostics
     this._emittedAtByIndex ??= new Map<number, number>();
     this._emittedAtByIndex.set(index, now);
   
-    // 🔒 3. Micro gate-lock window: block any new FET for ~3 frames after this one
+    // 3. Micro gate-lock window: block any new FET for ~3 frames after this one
     this._fetGateLockUntil = now + 48;
   }
 
