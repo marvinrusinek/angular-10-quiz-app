@@ -439,7 +439,7 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
-
+  
     const ets: any = this.explanationTextService;
     const qqls: any = this.quizQuestionLoaderService;
   
@@ -454,28 +454,26 @@ export class QuizNavigationService {
       // GLOBAL HARD-MUTE + QUIET ZONE
       qqls._frozen = true;
       qqls._isVisualFrozen = true;
- 
+  
       // Hard-hide the visual immediately so nothing old repaints
       const el = document.querySelector('h3[i18n]');
       if (el) (el as HTMLElement).style.visibility = 'hidden';
-
+  
       const now = performance.now();
-      const quietDuration = 160;  // ~10 frames
-
+      const quietDuration = 160; // ~10 frames
+  
       qqls._quietZoneUntil = now + quietDuration;
       ets._quietZoneUntil = now + quietDuration;
-
+  
       // Mirror to reactive streams so CQCC or any display layer can gate updates
       qqls.quietZoneUntil$?.next(qqls._quietZoneUntil);
-      
-      // Use helper to broadcast and log in ETS
       ets.setQuietZone(quietDuration);
-
+  
       // Additional hard mute on explanation
-      ets._hardMuteUntil = now + 100;  // prevent early emissions
-      ets._fetGateLockUntil = now + 140;    // block FET gates
+      ets._hardMuteUntil = now + 100;
+      ets._fetGateLockUntil = now + 140;
       ets._activeIndex = -1;
-
+  
       ets.formattedExplanationSubject?.next('');
       ets.setShouldDisplayExplanation(false);
       ets.setIsExplanationTextDisplayed(false);
@@ -497,9 +495,7 @@ export class QuizNavigationService {
       this.quizStateService.isNavigatingSubject.next(true);
       const prevIndex = this.quizService.getCurrentQuestionIndex() - 1;
   
-      // ────────────────────────────────────────────────
       // 🚫 STEP 2: RESET & LOCK FET GATES
-      // ────────────────────────────────────────────────
       try {
         const ets: any = this.explanationTextService;
         if (prevIndex >= 0) ets.closeGateForIndex(prevIndex);
@@ -514,28 +510,24 @@ export class QuizNavigationService {
         console.warn('[NAV] ⚠️ FET lock reset failed', err);
       }
   
-      // ────────────────────────────────────────────────
       // 🧊 STEP 3: FREEZE BEFORE CLEARING ANYTHING
-      // ────────────────────────────────────────────────
       this.quizQuestionLoaderService.freezeQuestionStream(96);
       this.quizQuestionLoaderService._lastNavTime = performance.now();
       this.quizQuestionLoaderService.clearQuestionTextBeforeNavigation();
       this.resetRenderStateBeforeNavigation(index);
   
       // Let Angular do one paint + a tiny buffer
-      await new Promise<void>(r => requestAnimationFrame(() => r()));
-      await new Promise<void>(r => setTimeout(r, 32));
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      await new Promise<void>((r) => setTimeout(r, 32));
   
-      // 🟢 reinforce mute briefly after Angular repaint
+      // reinforce mute briefly after Angular repaint
       const ets2: any = this.explanationTextService;
       ets2._hardMuteUntil = performance.now() + 48;
       ets2.formattedExplanationSubject.next('');
       ets2.setShouldDisplayExplanation(false);
       ets2.setIsExplanationTextDisplayed(false);
   
-      // ────────────────────────────────────────────────
       // 🗺 Resolve quiz ID + route URL
-      // ────────────────────────────────────────────────
       const quizIdFromRoute = this.activatedRoute.snapshot.paramMap.get('quizId');
       const fallbackQuizId = localStorage.getItem('quizId');
       const quizId = quizIdFromRoute || fallbackQuizId;
@@ -581,69 +573,79 @@ export class QuizNavigationService {
       // 🧩 PREP TEXTS
       const isMulti =
         (fresh.type as any) === QuestionType.MultipleAnswer ||
-        (Array.isArray(fresh.options) && fresh.options.filter(o => o.correct).length > 1);
+        (Array.isArray(fresh.options) && fresh.options.filter((o) => o.correct).length > 1);
   
       const trimmedQ = (fresh.questionText ?? '').trim();
       const explanationRaw = (fresh.explanation ?? '').trim();
-      const numCorrect = (fresh.options ?? []).filter(o => o.correct).length;
+      const numCorrect = (fresh.options ?? []).filter((o) => o.correct).length;
       const totalOpts = (fresh.options ?? []).length;
       const banner = isMulti
         ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
         : '';
   
       // ────────────────────────────────────────────────
-      // 🎨 EMIT (Unified DOM-stable anchor)
+      // 🎨 EMIT (DROP-IN REPLACEMENT)
       // ────────────────────────────────────────────────
-      // 1) Wait until Angular & DOM are fully stable (single anchor).
-      await this.quizQuestionLoaderService.waitForDomStable(32);
   
-      // 2) Release both barriers together, then unfreeze.
-      this.quizQuestionLoaderService.disableNavBarrier();
-      this.explanationTextService.disableNavBarrier();
-      this.quizQuestionLoaderService.unfreezeQuestionStream();
-      this.explanationTextService._hardMuteUntil = performance.now() - 1; // clear mute immediately
-      console.log('[NAV] 🟢 DOM stable → barriers released & stream unfrozen');
-
-      // Hold visual layer until DOM stabilizes fully before rendering new question
-      await this.quizQuestionLoaderService.enforceRenderGate(80);
+      // Wait until DOM is fully stable
+      await qqls.waitForDomStable(32);
   
-      // Once the DOM is confirmed stable, safely emit the question text and banner
-      requestAnimationFrame(async () => {
-        // Lift the visual lock (makes <h3> visible again) and then emit text
-        this.quizQuestionLoaderService.waitForDomAndLiftVisualLock(64).then(() => {
-          this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-          console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
-        });
-
-        // Emit banner immediately after one frame (no await needed)
+      // Release barriers + clear freezes + make visible
+      qqls.disableNavBarrier();
+      ets.disableNavBarrier();
+      qqls._frozen = false;
+      qqls._isVisualFrozen = false;
+      qqls._freezeUntil = 0;
+      qqls._renderFreezeUntil = 0;
+      qqls._quietZoneUntil = performance.now() - 1;
+      qqls.quietZoneUntil$?.next(qqls._quietZoneUntil);
+      ets._hardMuteUntil = performance.now() - 1;
+  
+      const el2 = document.querySelector('h3[i18n]');
+      if (el2) (el2 as HTMLElement).style.visibility = 'visible';
+  
+      // Emit question and banner together
+      await new Promise<void>((resolve) => {
         requestAnimationFrame(() => {
-          this.quizService.updateCorrectAnswersText(banner);
-          console.log(`[NAV] 🏷 Banner emitted for Q${index + 1}`);
+          try {
+            qqls.emitQuestionTextSafely(trimmedQ, index);
+            console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
+  
+            requestAnimationFrame(() => {
+              this.quizService.updateCorrectAnswersText(banner);
+              console.log(`[NAV] 🏷 Banner emitted for Q${index + 1}`);
+            });
+  
+            resolve();
+          } catch (err) {
+            console.warn('[NAV] ⚠️ Question emission failed', err);
+            qqls._frozen = false;
+            qqls._isVisualFrozen = false;
+            resolve();
+          }
         });
       });
-        
-      // 4) Arm FET slightly after (one more DOM-stable tick) to avoid racing the question.
+  
+      // Arm FET slightly later (safe post-paint)
       if (explanationRaw) {
-        const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
-        const formatted = this.explanationTextService
-          .formatExplanation(fresh as any, correctIdxs, explanationRaw)
-          .trim();
+        const correctIdxs = ets.getCorrectOptionIndices(fresh as any);
+        const formatted = ets.formatExplanation(fresh as any, correctIdxs, explanationRaw).trim();
   
-        await this.quizQuestionLoaderService.waitForDomStable(16); // one extra frame
-  
-        // still respect any very-short quiet zone that may remain
-        const nowAfter = performance.now();
-        if (nowAfter >= (this.explanationTextService._quietZoneUntil ?? 0)) {
-          this.explanationTextService.openExclusive(index, formatted);
-          this.explanationTextService.setShouldDisplayExplanation(false, { force: false });
-          console.log(`[NAV] 🧩 FET armed after DOM-stable window for Q${index + 1}`);
-        } else {
-          console.log('[NAV] ⏸ FET skipped due to quiet zone still active');
-        }
+        setTimeout(() => {
+          const nowAfter = performance.now();
+          const stillQuiet = nowAfter < (ets._quietZoneUntil ?? 0);
+          if (!stillQuiet) {
+            ets.openExclusive(index, formatted);
+            ets.setShouldDisplayExplanation(false, { force: false });
+            console.log(`[NAV] 🧩 FET armed post-paint for Q${index + 1}`);
+          } else {
+            console.log('[NAV] ⏸ FET skipped due to quiet zone still active');
+          }
+        }, 120);
       }
   
       // Navigation completion
-      await new Promise<void>(resolve =>
+      await new Promise<void>((resolve) =>
         requestAnimationFrame(() => {
           this.quizStateService.isNavigatingSubject.next(false);
           resolve();
@@ -651,10 +653,10 @@ export class QuizNavigationService {
       );
   
       const endNow = performance.now();
-      this.quizQuestionLoaderService._quietZoneUntil = endNow + 40;
-      this.explanationTextService._quietZoneUntil = endNow + 40;
-      this.explanationTextService.markLastNavTime?.(endNow);
-      this.quizQuestionLoaderService._lastNavTime = endNow;
+      qqls._quietZoneUntil = endNow + 40;
+      ets._quietZoneUntil = endNow + 40;
+      ets.markLastNavTime?.(endNow);
+      qqls._lastNavTime = endNow;
   
       console.log(`[NAV ✅] Completed safe switch → Q${index + 1}`);
       return true;
@@ -664,7 +666,7 @@ export class QuizNavigationService {
     } finally {
       this._fetchInProgress = false;
     }
-  }
+  }  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
