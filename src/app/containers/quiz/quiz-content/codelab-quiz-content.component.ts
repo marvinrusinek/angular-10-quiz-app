@@ -891,10 +891,32 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     );
   
-    const fetForIndex$: Observable<FETState> = combineLatest([
+    /* const fetForIndex$: Observable<FETState> = combineLatest([
       this.explanationTextService.formattedExplanation$ ?? of(''),
       this.explanationTextService.shouldDisplayExplanation$ ?? of(false)
     ]).pipe(
+      map(([text, gate]) => ({
+        idx: this.explanationTextService._activeIndex ?? 0,
+        text: (text ?? '').trim(),
+        gate: !!gate
+      })),
+      distinctUntilChanged((a, b) => a.text === b.text && a.gate === b.gate && a.idx === b.idx),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ); */
+    const fetForIndex$: Observable<FETState> = combineLatest([
+      this.explanationTextService.formattedExplanation$ ?? of(''),
+      this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
+      this.explanationTextService.quietZoneUntil$?.pipe(startWith(0)) ?? of(0)
+    ]).pipe(
+      filter(() => {
+        const now = performance.now();
+        const until = this.explanationTextService._quietZoneUntil ?? 0;
+        const inQuiet = now < until;
+        if (inQuiet) {
+          console.log(`[CQCC] 🔇 Dropping FET emission (quiet zone ${Math.round(until - now)}ms left)`);
+        }
+        return !inQuiet;
+      }),
       map(([text, gate]) => ({
         idx: this.explanationTextService._activeIndex ?? 0,
         text: (text ?? '').trim(),
