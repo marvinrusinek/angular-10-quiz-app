@@ -1163,9 +1163,7 @@ export class ExplanationTextService {
     if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
       const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
       console.log(
-        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(
-          1
-        )}ms left in quiet/mute zone, idx=${index})`
+        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`
       );
       return;
     }
@@ -1179,25 +1177,29 @@ export class ExplanationTextService {
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
-    // Hard reset if incoming index is newer than the active one, removing any residual text or gates from older questions.
-    if (index > (this._activeIndex ?? -1)) {
+    // ────────────────────────────────────────────────
+    // 🧹 STEP 1: Purge any stale explanation from previous question(s)
+    // ────────────────────────────────────────────────
+    if (index !== this._activeIndex) {
       this.formattedExplanationSubject?.next('');
-      this.shouldDisplayExplanationSource?.next(false);
-      this.isExplanationTextDisplayedSource?.next(false);
+      this.shouldDisplayExplanationSubject?.next(false);
+      this.isExplanationTextDisplayedSubject?.next(false);
   
       if (this._byIndex instanceof Map) {
-        for (const subj of this._byIndex.values()) subj?.next?.(null);
+        for (const subj of this._byIndex.values()) subj?.next?.('');
       }
       if (this._gate instanceof Map) {
         for (const gate of this._gate.values()) gate?.next?.(false);
       }
   
-      console.log(`[ETS] 🔁 Reset stale FET gates before activating index ${index}`);
+      console.log(`[ETS] 🚿 Purged all stale FET before activating index ${index}`);
     }
   
-    // Update the active index to the latest target before activating
+    // ────────────────────────────────────────────────
+    // 🧭 STEP 2: Update the active index *after* purge
+    // ────────────────────────────────────────────────
     this._activeIndex = index;
-
+  
     const currentIndex = this._activeIndex ?? -1;
     if (index !== currentIndex) {
       console.log(`[ETS] 🚫 Ignoring FET open for idx=${index}; active=${currentIndex}`);
@@ -1210,47 +1212,40 @@ export class ExplanationTextService {
     const activate = () => {
       // Safety check: ensure we’re still on the same index
       if (index !== this._activeIndex) {
-        console.log(
-          `[ETS] ⚠️ Skipped FET open for
-          [ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`
-        );
+        console.log(`[ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`);
         return;
       }
-    
+  
       text$.next(trimmed);
       gate$.next(!!trimmed);
-    
+  
       console.log(
-        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${
-        trimmed?.length ?? 0
-        }, delayed=${delay.toFixed(1)}ms`
+        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${trimmed?.length ?? 0}, delayed=${delay.toFixed(1)}ms`
       );
     };
-    
-    // Apply minimal defer if just navigated
+  
     if (delay > 0) {
       setTimeout(() => requestAnimationFrame(activate), delay);
     } else {
       requestAnimationFrame(activate);
     }
-    
+  
     // Record diagnostics for debugging / replay analysis
     this._emittedAtByIndex ??= new Map<number, number>();
     this._emittedAtByIndex.set(index, now);
-    
+  
     // Micro gate-lock window: block any new FET for ~3 frames after this one
     this._fetGateLockUntil = now + 48;
-    
-    // Proactive cleanup for past indexes (avoids “Q1 FET” bleed)
+  
+    // Proactive cleanup for any older indexes (avoids "Q1 FET bleed")
     if (this._byIndex instanceof Map) {
       for (const [idx, subj] of this._byIndex.entries()) {
-        if (idx < index - 1) subj?.next?.(null);
+        if (idx < index - 1) subj?.next?.('');
       }
     }
-    
+  
     console.log(`[ETS] ✅ FET open finalized for Q${index + 1}, active=${this._activeIndex}`);
   }
-        
 
   // Helper to fetch timestamp safely elsewhere
   public getLastEmitTime(index: number): number {
