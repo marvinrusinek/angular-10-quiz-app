@@ -1457,4 +1457,11 @@ export class ExplanationTextService {
   public isNavBarrierActive(): boolean {
     return this._navBarrier;
   }
+
+  public setQuietZone(durationMs: number): void {
+    const until = performance.now() + durationMs;
+    this._quietZoneUntil = until;
+    this.quietZoneUntil$.next(until);
+    console.log(`[ETS] 💤 Quiet zone activated for ${durationMs}ms`);
+  }
 }
