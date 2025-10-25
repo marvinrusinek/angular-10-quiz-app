@@ -588,7 +588,14 @@ export class QuizNavigationService {
       await this.quizQuestionLoaderService.enforceRenderGate(80);
   
       // 3) Emit question and banner back-to-back in the same stable window.
-      this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+      requestAnimationFrame(async () => {
+        // Hold visual until DOM is truly stable
+        await this.quizQuestionLoaderService.holdVisualUntilStable(72);
+      
+        // Then emit question
+        this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+        console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
+      });
 
       // Emit banner on next frame
       requestAnimationFrame(() => {
