@@ -1162,9 +1162,7 @@ export class ExplanationTextService {
     // HARD FIREWALL: Block any FET open during quiet zone or hard mute
     if (now < quietUntil || now < (this._hardMuteUntil ?? 0)) {
       const wait = Math.max(quietUntil, this._hardMuteUntil ?? 0) - now;
-      console.log(
-        `[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`
-      );
+      console.log(`[ETS] 🔇 Suppressing FET open (${wait.toFixed(1)}ms left in quiet/mute zone, idx=${index})`);
       return;
     }
   
@@ -1182,17 +1180,22 @@ export class ExplanationTextService {
     // ────────────────────────────────────────────────
     if (index !== this._activeIndex) {
       this.formattedExplanationSubject?.next('');
-      this.shouldDisplayExplanationSubject?.next(false);
-      this.isExplanationTextDisplayedSubject?.next(false);
-  
+      this.shouldDisplayExplanationSource?.next(false);
+      this.isExplanationTextDisplayedSource?.next(false);
+    
       if (this._byIndex instanceof Map) {
-        for (const subj of this._byIndex.values()) subj?.next?.('');
+        for (const [k, subj] of this._byIndex.entries()) subj?.next?.('');
       }
       if (this._gate instanceof Map) {
-        for (const gate of this._gate.values()) gate?.next?.(false);
+        for (const [k, gate] of this._gate.entries()) gate?.next?.(false);
       }
-  
-      console.log(`[ETS] 🚿 Purged all stale FET before activating index ${index}`);
+    
+      // ⚡ clear everything synchronously before CQCC combineLatest can sample it
+      this._byIndex.clear?.();
+      this._gate.clear?.();
+      this._fetGateLockUntil = now + 64;
+    
+      console.log(`[ETS] 🧨 Full FET cache flush before activating index ${index}`);
     }
   
     // ────────────────────────────────────────────────
