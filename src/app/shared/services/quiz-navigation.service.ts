@@ -450,29 +450,48 @@ export class QuizNavigationService {
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
 
+    // ────────────────────────────────────────────────
+    // 🧩 STEP 0.5: Cross-service quiet patch (no mid-frame emission)
+    // ────────────────────────────────────────────────
     try {
-      // Immediately mark both as frozen so nothing re-renders until safe
+      //const qqls: any = this.quizQuestionLoaderService;
+      //const ets: any  = this.explanationTextService;
+      const now = performance.now();
+
+      // Set synchronized freeze + quiet windows
+      const freezeMs = 200;   // total hard freeze ~12 frames
+      const quietMs  = 180;   // matching quiet zone for CQCC
       qqls._frozen = true;
       qqls._isVisualFrozen = true;
-      qqls._renderFreezeUntil = performance.now() + 120;
-      qqls._quietZoneUntil = performance.now() + 160;
-      ets._quietZoneUntil = performance.now() + 160;
-    
-      // Broadcast this to the CQCC render pipeline so it knows to hold
+      qqls._renderFreezeUntil = now + freezeMs;
+      qqls._quietZoneUntil = now + quietMs;
+      ets._quietZoneUntil = now + quietMs;
+      ets._hardMuteUntil = now + quietMs;
+
+      // Broadcast quiet window downstream to CQCC
       qqls.quietZoneUntil$?.next(qqls._quietZoneUntil);
-      if (typeof ets.setQuietZone === 'function') ets.setQuietZone(160);
-    
-      // Push a blank frame immediately to clear out any lingering Q1 text
-      qqls.emitQuestionTextSafely('', -1);
-      this.quizService.updateCorrectAnswersText('');
-      ets.formattedExplanationSubject?.next('');
-      ets.setShouldDisplayExplanation(false);
-      ets.setIsExplanationTextDisplayed(false);
-    
-      console.log('[NAV] 🔒 Drop-in patch applied: render stream locked & flushed');
+      if (typeof ets.setQuietZone === 'function') ets.setQuietZone(quietMs);
+
+      // Do NOT emit blank text yet — wait one frame to avoid racing Angular
+      requestAnimationFrame(() => {
+        try {
+          // After a frame boundary, flush old visuals cleanly
+          qqls.emitQuestionTextSafely('', -1);
+          this.quizService.updateCorrectAnswersText('');
+          ets.formattedExplanationSubject?.next('');
+          ets.setShouldDisplayExplanation(false);
+          ets.setIsExplanationTextDisplayed(false);
+          console.log('[NAV] 🔒 Quiet patch frame-flush applied');
+        } catch (flushErr) {
+          console.warn('[NAV] ⚠️ Quiet patch flush failed', flushErr);
+        }
+      });
+
+      console.log('[NAV] 🧱 Quiet patch initialized — full freeze+mute window active');
     } catch (err) {
-      console.warn('[NAV] ⚠️ Drop-in patch failed to apply', err);
-    }    
+      console.warn('[NAV] ⚠️ Failed to apply quiet patch', err);
+    }
+
   
     // ────────────────────────────────────────────────
     // 🚫 NEW: FULL FET BLACKOUT (prevents residual FET/expl text)
