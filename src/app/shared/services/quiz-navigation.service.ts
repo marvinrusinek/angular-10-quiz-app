@@ -644,6 +644,27 @@ export class QuizNavigationService {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
         return false;
       }
+
+      try {
+        const ets: any = this.explanationTextService;
+        // Reset any lingering formatted explanation text or gates
+        ets._activeIndex = index; // realign to the current question immediately
+        ets.formattedExplanationSubject?.next('');
+        ets.shouldDisplayExplanationSubject?.next(false);
+        ets.isExplanationTextDisplayedSubject?.next(false);
+      
+        // Also clear all cached per-index subjects
+        if (ets._byIndex instanceof Map) {
+          for (const subj of ets._byIndex.values()) subj?.next?.('');
+        }
+        if (ets._gate instanceof Map) {
+          for (const gate of ets._gate.values()) gate?.next?.(false);
+        }
+      
+        console.log(`[NAV] 🚿 Purged all stale FET for old indices — aligned to Q${index + 1}`);
+      } catch (err) {
+        console.warn('[NAV] ⚠️ Failed to purge FET cache', err);
+      }
   
       // 🧩 PREP TEXTS
       const isMulti =
