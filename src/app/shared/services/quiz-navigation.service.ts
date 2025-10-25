@@ -603,8 +603,8 @@ export class QuizNavigationService {
   
       // 3) Emit question and banner back-to-back in the same stable window.
       requestAnimationFrame(async () => {
-        // Hold visual until DOM is truly stable
-        await this.quizQuestionLoaderService.holdVisualUntilStable(72);
+        // Wait for DOM to stabilize *before* showing anything
+        await this.quizQuestionLoaderService.waitForDomAndLiftVisualLock(64);
       
         // Then emit question
         this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
