@@ -450,8 +450,40 @@ export class QuizNavigationService {
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
   
+    // ────────────────────────────────────────────────
+    // 🚫 NEW: FULL FET BLACKOUT (prevents residual FET/expl text)
+    // ────────────────────────────────────────────────
     try {
+      const nowBlackout = performance.now();
+      const freezeMs = 200; // ~12 frames of total blackout
+  
+      ets._hardMuteUntil = nowBlackout + freezeMs;
+      ets._quietZoneUntil = nowBlackout + freezeMs;
+      qqls._quietZoneUntil = nowBlackout + freezeMs;
+  
+      // Flush all subjects and gates synchronously
+      ets.formattedExplanationSubject?.next('');
+      ets.shouldDisplayExplanationSubject?.next(false);
+      ets.isExplanationTextDisplayedSubject?.next(false);
+  
+      if (ets._byIndex instanceof Map) {
+        for (const subj of ets._byIndex.values()) subj?.next?.(null);
+      }
+      if (ets._gate instanceof Map) {
+        for (const gate of ets._gate.values()) gate?.next?.(false);
+      }
+  
+      ets._activeIndex = -1;
+      ets._fetGateLockUntil = nowBlackout + freezeMs;
+      console.log(`[NAV] 🚫 Full FET blackout for ${freezeMs}ms`);
+    } catch (err) {
+      console.warn('[NAV] ⚠️ Failed FET blackout init', err);
+    }
+  
+    try {
+      // ────────────────────────────────────────────────
       // GLOBAL HARD-MUTE + QUIET ZONE
+      // ────────────────────────────────────────────────
       qqls._frozen = true;
       qqls._isVisualFrozen = true;
   
@@ -583,11 +615,7 @@ export class QuizNavigationService {
         ? this.quizQuestionManagerService.getNumberOfCorrectAnswersText(numCorrect, totalOpts)
         : '';
   
-      // ────────────────────────────────────────────────
       // 🎨 EMIT (DROP-IN REPLACEMENT)
-      // ────────────────────────────────────────────────
-  
-      // Wait until DOM is fully stable
       await qqls.waitForDomStable(32);
   
       // Release barriers + clear freezes + make visible
@@ -666,7 +694,8 @@ export class QuizNavigationService {
     } finally {
       this._fetchInProgress = false;
     }
-  }  
+  }
+  
   
   public async resetUIAndNavigate(index: number, quizIdOverride?: string): Promise<boolean> {
     try {
