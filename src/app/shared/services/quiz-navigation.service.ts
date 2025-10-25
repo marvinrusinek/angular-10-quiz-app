@@ -600,6 +600,7 @@ export class QuizNavigationService {
       // Emit banner on next frame
       requestAnimationFrame(() => {
         this.quizService.updateCorrectAnswersText(banner);
+        console.log(`[NAV] 🏷 Banner emitted for Q${index + 1}`);
       });
   
       // 4) Arm FET slightly after (one more DOM-stable tick) to avoid racing the question.
