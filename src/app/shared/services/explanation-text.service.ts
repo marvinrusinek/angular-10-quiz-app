@@ -1197,6 +1197,12 @@ export class ExplanationTextService {
   
     // Update the active index to the latest target before activating
     this._activeIndex = index;
+
+    const currentIndex = this._activeIndex ?? -1;
+    if (index !== currentIndex) {
+      console.log(`[ETS] 🚫 Ignoring FET open for idx=${index}; active=${currentIndex}`);
+      return;
+    }
   
     // Delay gate activation if too soon after navigation
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
