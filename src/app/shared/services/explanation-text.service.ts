@@ -1170,7 +1170,7 @@ export class ExplanationTextService {
       return;
     }
   
-    // Double-gate: prevent reopen within ~2 frames of previous open
+    // 1️⃣ Double-gate: prevent reopen within ~2 frames of previous open
     const sinceLastOpen = now - this._lastOpenAt;
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
       console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
@@ -1179,41 +1179,73 @@ export class ExplanationTextService {
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
-    // Cross-index firewall — prevent FET for old/stale question
-    if (this._activeIndex !== -1 && index < this._activeIndex) {
-      console.log(
-        `[ETS] 🚫 Ignored openExclusive for stale index=${index} (current active=${this._activeIndex})`
-      );
-      return;
+    // 2️⃣ Hard reset if incoming index is newer than the active one
+    // This kills any residual text or gates from older questions.
+    if (index > (this._activeIndex ?? -1)) {
+      this.formattedExplanationSubject?.next('');
+      this.shouldDisplayExplanationSource?.next(false);
+      this.isExplanationTextDisplayedSource?.next(false);
+  
+      if (this._byIndex instanceof Map) {
+        for (const subj of this._byIndex.values()) subj?.next?.(null);
+      }
+      if (this._gate instanceof Map) {
+        for (const gate of this._gate.values()) gate?.next?.(false);
+      }
+  
+      console.log(`[ETS] 🔁 Reset stale FET gates before activating index ${index}`);
     }
   
-    // Delay gate activation if too soon after navigation
+    // Update the active index to the latest target before activating
+    this._activeIndex = index;
+  
+    // 3️⃣ Delay gate activation if too soon after navigation
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
   
     const activate = () => {
-      this._activeIndex = index;
-      text$.next(trimmed);
-      gate$.next(!!trimmed);
-      console.log(
-        `[ETS] ✅ openExclusive(${index}) → gate=${!!trimmed}, len=${
-          trimmed?.length ?? 0
-        }, delayed=${delay.toFixed(1)}ms`
-      );
-    };
-  
-    if (delay > 0) {
-      setTimeout(() => requestAnimationFrame(activate), delay);
-    } else {
-      activate();
-    }
-  
-    // Record diagnostics
-    this._emittedAtByIndex ??= new Map<number, number>();
-    this._emittedAtByIndex.set(index, now);
-  
-    // Micro gate-lock window: block any new FET for ~3 frames
-    this._fetGateLockUntil = now + 48;
-  }  
+      // Safety check: ensure we’re still on the same index
+      if (index !== this._activeIndex) {
+        console.log(
+          `[ETS] ⚠️ Skipped FET open for
+          [ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`
+          );
+          return;
+        }
+    
+        text$.next(trimmed);
+        gate$.next(!!trimmed);
+    
+        console.log(
+          `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${
+            trimmed?.length ?? 0
+          }, delayed=${delay.toFixed(1)}ms`
+        );
+      };
+    
+      // 4️⃣ Apply minimal defer if just navigated
+      if (delay > 0) {
+        setTimeout(() => requestAnimationFrame(activate), delay);
+      } else {
+        requestAnimationFrame(activate);
+      }
+    
+      // 5️⃣ Record diagnostics for debugging / replay analysis
+      this._emittedAtByIndex ??= new Map<number, number>();
+      this._emittedAtByIndex.set(index, now);
+    
+      // 6️⃣ Micro gate-lock window: block any new FET for ~3 frames after this one
+      this._fetGateLockUntil = now + 48;
+    
+      // 7️⃣ Proactive cleanup for past indexes (avoids “Q1 FET” bleed)
+      if (this._byIndex instanceof Map) {
+        for (const [idx, subj] of this._byIndex.entries()) {
+          if (idx < index - 1) subj?.next?.(null);
+        }
+      }
+    
+      console.log(`[ETS] ✅ FET open finalized for Q${index + 1}, active=${this._activeIndex}`);
+  }
+        
 
   // Helper to fetch timestamp safely elsewhere
   public getLastEmitTime(index: number): number {
