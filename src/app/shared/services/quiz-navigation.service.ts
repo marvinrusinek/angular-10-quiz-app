@@ -464,6 +464,10 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService._quietZoneUntil = now + quietDuration;
       this.explanationTextService._quietZoneUntil = now + quietDuration;
 
+      // 🔁 Mirror to observables for reactive gating in CQCC
+      this.quizQuestionLoaderService.quietZoneUntil$.next(this.quizQuestionLoaderService._quietZoneUntil);
+      this.explanationTextService.quietZoneUntil$.next(this.explanationTextService._quietZoneUntil);
+
       // Additional hard mute on explanation
       const ets: any = this.explanationTextService;
       ets._hardMuteUntil = now + 100;  // prevent early emissions
