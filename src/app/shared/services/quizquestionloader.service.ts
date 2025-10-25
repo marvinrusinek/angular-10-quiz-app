@@ -116,6 +116,8 @@ export class QuizQuestionLoaderService {
   private _navBarrier = false;
   private _navBarrierActive = false;
 
+  public quietZoneUntil$ = new BehaviorSubject<number>(0);
+
   constructor(
     private explanationTextService: ExplanationTextService,
     private feedbackService: FeedbackService,
@@ -1324,5 +1326,9 @@ export class QuizQuestionLoaderService {
     this._isVisualFrozen = false;
     this._frozen = false;
     console.log('[Loader] 🧊 Visual lock lifted after DOM settle');
-  }  
+  }
+
+  public getQuietZoneUntil(): number {
+    return this._quietZoneUntil ?? 0;
+  } 
 }

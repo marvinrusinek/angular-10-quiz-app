@@ -866,7 +866,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
         shareReplay({ bufferSize: 1, refCount: true })
       ) as Observable<string>;      
   } */
-  public getCombinedDisplayTextStream(): Observable<string> {
+  /* public getCombinedDisplayTextStream(): Observable<string> {
     type FETState = { idx: number; text: string; gate: boolean };
     
     // ────────────────────────────────────────────────
@@ -971,7 +971,67 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
+  } */
+  private getCombinedDisplayTextStream(): Observable<string> {
+    type DisplayState = { mode: 'question' | 'explanation'; answered: boolean };
+  
+    const index$ = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    const question$ = this.quizQuestionLoaderService.questionDisplay$.pipe(
+      debounceTime(12),
+      distinctUntilChanged(),
+      filter(q => !!q && q.trim().length > 0)
+    );
+  
+    const explanation$ = this.explanationTextService.formattedExplanation$.pipe(
+      debounceTime(12),
+      distinctUntilChanged()
+    );
+  
+    const shouldDisplayExplanation$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      distinctUntilChanged()
+    );
+  
+    const quietZoneEnd$ = combineLatest([
+      this.quizQuestionLoaderService.quietZoneUntil$,
+      this.explanationTextService.quietZoneUntil$
+    ]).pipe(
+      map(([a, b]) => Math.max(a ?? 0, b ?? 0)),
+      startWith(0),
+      shareReplay(1)
+    );
+  
+    return combineLatest([
+      index$,
+      question$,
+      explanation$,
+      shouldDisplayExplanation$,
+      quietZoneEnd$
+    ]).pipe(
+      // ⏸ Ignore emissions during quiet zone
+      filter(([_, __, ___, ____, quietUntil]) => performance.now() > quietUntil),
+  
+      // 🧩 Decide final text to display
+      map(([idx, qText, eText, showExplanation]) => {
+        if (showExplanation && eText && eText.trim().length > 0) {
+          return eText.trim();
+        }
+        return qText.trim();
+      }),
+  
+      // 🕓 Coalesce updates — prevents 2-frame flicker on Q1→Q2 transitions
+      debounceTime(24),
+      distinctUntilChanged(),
+  
+      tap(txt => console.log('[CQCC combinedDisplayText$]', txt?.slice?.(0, 80))),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   }
+  
   
 
   private emitContentAvailableState(): void {
