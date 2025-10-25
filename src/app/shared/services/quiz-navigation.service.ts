@@ -583,10 +583,17 @@ export class QuizNavigationService {
       this.quizQuestionLoaderService.unfreezeQuestionStream();
       this.explanationTextService._hardMuteUntil = performance.now() - 1; // clear mute immediately
       console.log('[NAV] 🟢 DOM stable → barriers released & stream unfrozen');
+
+      // Hold visual layer until DOM stabilizes
+      await this.quizQuestionLoaderService.enforceRenderGate(80);
   
       // 3) Emit question and banner back-to-back in the same stable window.
       this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-      this.quizService.updateCorrectAnswersText(banner);
+
+      // Emit banner on next frame
+      requestAnimationFrame(() => {
+        this.quizService.updateCorrectAnswersText(banner);
+      });
   
       // 4) Arm FET slightly after (one more DOM-stable tick) to avoid racing the question.
       if (explanationRaw) {
