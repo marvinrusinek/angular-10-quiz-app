@@ -1453,9 +1453,9 @@ export class ExplanationTextService {
   }
 
   public setQuietZone(durationMs: number): void {
-    const until = performance.now() + durationMs;
+    const until = performance.now() + Math.max(0, durationMs);
     this._quietZoneUntil = until;
     this.quietZoneUntil$.next(until);
-    console.log(`[ETS] 💤 Quiet zone activated for ${durationMs}ms`);
+    console.log(`[ETS] ⏸ Quiet zone set for ${durationMs}ms (until=${until.toFixed(1)})`);
   }
 }
