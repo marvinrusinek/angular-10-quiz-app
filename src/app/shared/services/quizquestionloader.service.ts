@@ -1282,4 +1282,29 @@ export class QuizQuestionLoaderService {
       });
     });
   }
+
+  public async holdVisualUntilStable(extra = 48): Promise<void> {
+    const el = document.querySelector('h3[i18n]');
+    if (!el) return;
+  
+    // Immediately hide text before Angular starts reattaching DOM
+    (el as HTMLElement).style.visibility = 'hidden';
+    this._isVisualFrozen = true;
+    this._frozen = true;
+  
+    console.log('[Loader] 🧊 Visual hold ON');
+  
+    // Wait for 2 paint cycles (DOM detach + reattach)
+    await new Promise<void>(resolve => requestAnimationFrame(() => {
+      setTimeout(resolve, extra);
+    }));
+  
+    // Reveal after next frame to ensure content is stable
+    requestAnimationFrame(() => {
+      (el as HTMLElement).style.visibility = 'visible';
+      this._isVisualFrozen = false;
+      this._frozen = false;
+      console.log('[Loader] ✅ Visual hold OFF');
+    });
+  }  
 }
