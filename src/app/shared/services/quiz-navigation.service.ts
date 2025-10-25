@@ -598,25 +598,24 @@ export class QuizNavigationService {
       this.explanationTextService._hardMuteUntil = performance.now() - 1; // clear mute immediately
       console.log('[NAV] 🟢 DOM stable → barriers released & stream unfrozen');
 
-      // Hold visual layer until DOM stabilizes
+      // Hold visual layer until DOM stabilizes fully before rendering new question
       await this.quizQuestionLoaderService.enforceRenderGate(80);
   
-      // 3) Emit question and banner back-to-back in the same stable window.
+      // Once the DOM is confirmed stable, safely emit the question text and banner
       requestAnimationFrame(async () => {
-        // Wait for DOM to stabilize *before* showing anything
-        await this.quizQuestionLoaderService.waitForDomAndLiftVisualLock(64);
-      
-        // Then emit question
-        this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
-        console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
-      });
+        // Lift the visual lock (makes <h3> visible again) and then emit text
+        this.quizQuestionLoaderService.waitForDomAndLiftVisualLock(64).then(() => {
+          this.quizQuestionLoaderService.emitQuestionTextSafely(trimmedQ, index);
+          console.log(`[NAV] 🧩 Question emitted for Q${index + 1}`);
+        });
 
-      // Emit banner on next frame
-      requestAnimationFrame(() => {
-        this.quizService.updateCorrectAnswersText(banner);
-        console.log(`[NAV] 🏷 Banner emitted for Q${index + 1}`);
+        // Emit banner immediately after one frame (no await needed)
+        requestAnimationFrame(() => {
+          this.quizService.updateCorrectAnswersText(banner);
+          console.log(`[NAV] 🏷 Banner emitted for Q${index + 1}`);
+        });
       });
-  
+        
       // 4) Arm FET slightly after (one more DOM-stable tick) to avoid racing the question.
       if (explanationRaw) {
         const correctIdxs = this.explanationTextService.getCorrectOptionIndices(fresh as any);
