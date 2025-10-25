@@ -449,6 +449,30 @@ export class QuizNavigationService {
     qqls.enableNavBarrier();
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
+
+    try {
+      // Immediately mark both as frozen so nothing re-renders until safe
+      qqls._frozen = true;
+      qqls._isVisualFrozen = true;
+      qqls._renderFreezeUntil = performance.now() + 120;
+      qqls._quietZoneUntil = performance.now() + 160;
+      ets._quietZoneUntil = performance.now() + 160;
+    
+      // Broadcast this to the CQCC render pipeline so it knows to hold
+      qqls.quietZoneUntil$?.next(qqls._quietZoneUntil);
+      if (typeof ets.setQuietZone === 'function') ets.setQuietZone(160);
+    
+      // Push a blank frame immediately to clear out any lingering Q1 text
+      qqls.emitQuestionTextSafely('', -1);
+      this.quizService.updateCorrectAnswersText('');
+      ets.formattedExplanationSubject?.next('');
+      ets.setShouldDisplayExplanation(false);
+      ets.setIsExplanationTextDisplayed(false);
+    
+      console.log('[NAV] 🔒 Drop-in patch applied: render stream locked & flushed');
+    } catch (err) {
+      console.warn('[NAV] ⚠️ Drop-in patch failed to apply', err);
+    }    
   
     // ────────────────────────────────────────────────
     // 🚫 NEW: FULL FET BLACKOUT (prevents residual FET/expl text)
