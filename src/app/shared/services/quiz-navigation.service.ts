@@ -439,20 +439,23 @@ export class QuizNavigationService {
       return false;
     }
     this._fetchInProgress = true;
+
+    const ets: any = this.explanationTextService;
+    const qqls: any = this.quizQuestionLoaderService;
   
     // ────────────────────────────────────────────────
     // 🟢 STEP 0: ACTIVATE BARRIERS (cross-service)
     // ────────────────────────────────────────────────
-    this.quizQuestionLoaderService.enableNavBarrier();
-    this.explanationTextService.enableNavBarrier();
+    qqls.enableNavBarrier();
+    ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
   
     try {
       // ────────────────────────────────────────────────
       // 🛑 STEP 1: GLOBAL HARD-MUTE + QUIET ZONE
       // ────────────────────────────────────────────────
-      this.quizQuestionLoaderService._frozen = true;
-      this.quizQuestionLoaderService._isVisualFrozen = true;
+      qqls._frozen = true;
+      qqls._isVisualFrozen = true;
  
       // Hard-hide the visual immediately so nothing old repaints
       const el = document.querySelector('h3[i18n]');
@@ -461,15 +464,16 @@ export class QuizNavigationService {
       const now = performance.now();
       const quietDuration = 160;  // ~10 frames
 
-      this.quizQuestionLoaderService._quietZoneUntil = now + quietDuration;
-      this.explanationTextService._quietZoneUntil = now + quietDuration;
+      qqls._quietZoneUntil = now + quietDuration;
+      ets._quietZoneUntil = now + quietDuration;
 
-      // Mirror to observables for reactive gating in CQCC
-      this.quizQuestionLoaderService.quietZoneUntil$.next(this.quizQuestionLoaderService._quietZoneUntil);
-      this.explanationTextService.setQuietZone(quietDuration);
+      // Mirror to reactive streams so CQCC or any display layer can gate updates
+      qqls.quietZoneUntil$?.next(this.quizQuestionLoaderService._quietZoneUntil);
+      
+      // Use helper to broadcast and log in ETS
+      ets.setQuietZone(quietDuration);
 
       // Additional hard mute on explanation
-      const ets: any = this.explanationTextService;
       ets._hardMuteUntil = now + 100;  // prevent early emissions
       ets._fetGateLockUntil = now + 140;    // block FET gates
       ets._activeIndex = -1;
