@@ -1130,7 +1130,7 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
   } */
-  public getCombinedDisplayTextStream(): Observable<string> {
+  /* public getCombinedDisplayTextStream(): Observable<string> {
     type FETState = { idx: number; text: string; gate: boolean };
   
     // ────────────────────────────────────────────────
@@ -1257,7 +1257,140 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       distinctUntilChanged((a, b) => a.trim() === b.trim()),
       shareReplay({ bufferSize: 1, refCount: true })
     ) as Observable<string>;
-  }  
+  } */
+  public getCombinedDisplayTextStream(): Observable<string> {
+    type FETState = { idx: number; text: string; gate: boolean };
+  
+    // ────────────────────────────────────────────────
+    // Core reactive inputs
+    // ────────────────────────────────────────────────
+    const index$ = this.quizService.currentQuestionIndex$.pipe(
+      startWith(this.currentQuestionIndexValue ?? 0),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    const questionText$ = this.questionToDisplay$.pipe(
+      map(q => (q ?? '').trim()),
+      filter(q => q.length > 0 && q !== '?'),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    const correctText$ = this.quizService.correctAnswersText$.pipe(
+      map(v => (typeof v === 'string' ? v.trim() : '')),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // FET source with explicit idx
+    const fetForIndex$: Observable<FETState> = combineLatest([
+      this.explanationTextService.formattedExplanation$ ?? of(''),
+      this.explanationTextService.shouldDisplayExplanation$ ?? of(false),
+      // expose the ETS active index (fallback to -1 safely)
+      of(null).pipe(map(() => this.explanationTextService._activeIndex ?? -1))
+    ]).pipe(
+      map(([text, gate, idx]) => ({
+        idx,
+        text: (text ?? '').trim(),
+        gate: !!gate
+      })),
+      distinctUntilChanged((a, b) => a.idx === b.idx && a.gate === b.gate && a.text === b.text),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    const shouldShow$ = this.explanationTextService.shouldDisplayExplanation$.pipe(
+      map(Boolean),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // Navigating gate
+    const navigating$ = this.quizStateService.isNavigatingSubject.pipe(
+      startWith(false),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+  
+    // Quiet-zone timestamps (numbers). If you don’t have these subjects yet, expose them
+    // in QQLS and ETS as BehaviorSubject<number> seeded with 0.
+    const qQuietUntil$ = (this as any).quizQuestionLoaderService?.quietZoneUntil$ ?? of(0);
+    const eQuietUntil$ = (this as any).explanationTextService?.quietZoneUntil$ ?? of(0);
+  
+    // ────────────────────────────────────────────────
+    // Combine everything with strong gating
+    // ────────────────────────────────────────────────
+    return combineLatest([
+      index$,            // 0
+      questionText$,     // 1
+      correctText$,      // 2
+      fetForIndex$,      // 3
+      shouldShow$,       // 4
+      navigating$,       // 5
+      qQuietUntil$,      // 6
+      eQuietUntil$       // 7
+    ]).pipe(
+      // If navigating or in quiet zone, hold the last stable string (don’t pass new frames).
+      filter(([, , , , , navigating, qQuiet, eQuiet]) => {
+        const hold = navigating || performance.now() < Math.max(qQuiet || 0, eQuiet || 0);
+        if (hold) {
+          console.log('[VisualGate] ⏸ hold (navigating/quiet-zone)');
+        }
+        return !hold;
+      }),
+  
+      // Coalesce bursts to a single animation frame once gate opens
+      auditTime(8),
+      observeOn(animationFrameScheduler),
+  
+      map(([idx, question, banner, fet, shouldShow]) => {
+        const qText = question.trim();
+        const bannerText = banner.trim();
+        const fetText = (fet?.text ?? '').trim();
+  
+        // HARD GUARD: skip stale index
+        const active = this.quizService.getCurrentQuestionIndex();
+        if (idx !== active) {
+          console.log(`[FrameDrop] stale idx=${idx}, active=${active}`);
+          return this._lastQuestionText || qText;
+        }
+  
+        // Only allow FET if it belongs to the current idx AND gate is open AND mode is explanation
+        const mode = this.quizStateService.displayStateSubject?.value?.mode ?? 'question';
+        const fetAllowed =
+          mode === 'explanation' &&
+          !!shouldShow &&
+          !!fet?.gate &&
+          fetText.length > 0 &&
+          fet.idx === idx;
+  
+        if (fetAllowed) {
+          this._lastQuestionText = fetText;  // remember what we showed
+          return fetText;
+        }
+  
+        // Merge banner only in question mode
+        const qObj = this.quizService.questions?.[idx];
+        const isMulti =
+          !!qObj &&
+          (qObj.type === QuestionType.MultipleAnswer ||
+            (Array.isArray(qObj.options) && qObj.options.some(o => o.correct)));
+  
+        let merged = qText;
+        if (isMulti && bannerText && mode === 'question') {
+          merged = `${qText} <span class="correct-count">${bannerText}</span>`;
+        }
+  
+        this._lastQuestionText = merged;
+        return merged;
+      }),
+  
+      // Don’t re-render identical HTML strings
+      distinctUntilChanged((a, b) => a.trim() === b.trim()),
+      shareReplay({ bufferSize: 1, refCount: true })
+    ) as Observable<string>;
+  }
+  
 
   private emitContentAvailableState(): void {
     this.isContentAvailable$.pipe(takeUntil(this.destroy$)).subscribe({
