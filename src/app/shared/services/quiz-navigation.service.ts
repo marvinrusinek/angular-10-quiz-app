@@ -466,7 +466,7 @@ export class QuizNavigationService {
       ets._quietZoneUntil = now + quietDuration;
 
       // Mirror to reactive streams so CQCC or any display layer can gate updates
-      qqls.quietZoneUntil$?.next(this.quizQuestionLoaderService._quietZoneUntil);
+      qqls.quietZoneUntil$?.next(qqls._quietZoneUntil);
       
       // Use helper to broadcast and log in ETS
       ets.setQuietZone(quietDuration);
