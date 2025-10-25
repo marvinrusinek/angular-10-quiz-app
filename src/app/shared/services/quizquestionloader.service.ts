@@ -1246,5 +1246,40 @@ export class QuizQuestionLoaderService {
         setTimeout(resolve, extra);
       });
     });
-  }  
+  }
+
+  /** 
+   * Ensures no visual update (like question text) occurs until DOM is stable.
+   * Used as a pre-guard during navigation to prevent Q1→Q2 flashes.
+   */
+  public async enforceRenderGate(delayMs = 64): Promise<void> {
+    const now = performance.now();
+
+    // Extend both logic and visual freeze slightly beyond the next paint
+    this._isVisualFrozen = true;
+    this._frozen = true;
+    this._renderFreezeUntil = now + delayMs;
+
+    const el = document.querySelector('h3[i18n]');
+    if (el) (el as HTMLElement).style.visibility = 'hidden';
+    console.log(`[Loader] 🚫 Render gate ON for ${delayMs}ms`);
+
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          this._isVisualFrozen = false;
+          this._frozen = false;
+          this._renderFreezeUntil = performance.now() + 8;  // tiny safety window
+
+          // Reveal only after one paint frame
+          requestAnimationFrame(() => {
+            const el2 = document.querySelector('h3[i18n]');
+            if (el2) (el2 as HTMLElement).style.visibility = 'visible';
+            console.log('[Loader] ✅ Render gate OFF');
+            resolve();
+          });
+        }, delayMs);
+      });
+    });
+  }
 }
