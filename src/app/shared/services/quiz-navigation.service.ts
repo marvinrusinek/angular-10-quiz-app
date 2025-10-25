@@ -451,22 +451,36 @@ export class QuizNavigationService {
       // ────────────────────────────────────────────────
       // 🛑 STEP 1: GLOBAL HARD-MUTE + QUIET ZONE
       // ────────────────────────────────────────────────
+      this.quizQuestionLoaderService._frozen = true;
+      this.quizQuestionLoaderService._isVisualFrozen = true;
+ 
+      // Hard-hide the visual immediately so nothing old repaints
+      const el = document.querySelector('h3[i18n]');
+      if (el) (el as HTMLElement).style.visibility = 'hidden';
+
+      const now = performance.now();
+      const quietDuration = 160; // ~10 frames
+
+      this.quizQuestionLoaderService._quietZoneUntil = now + quietDuration;
+      this.explanationTextService._quietZoneUntil = now + quietDuration;
+
+      // Additional hard mute on explanation
       const ets: any = this.explanationTextService;
-      const now0 = performance.now();
-      const quietMs = 120; // ~7 frames @ 60Hz
-      this.quizQuestionLoaderService._quietZoneUntil = now0 + quietMs;
-      ets._quietZoneUntil = now0 + quietMs;
-      ets._hardMuteUntil = now0 + 100;
-  
+      ets._hardMuteUntil = now + 100;  // prevent early emissions
+      ets._fetGateLockUntil = now + 140;    // block FET gates
       ets._activeIndex = -1;
+
       ets.formattedExplanationSubject?.next('');
       ets.setShouldDisplayExplanation(false);
       ets.setIsExplanationTextDisplayed(false);
   
-      if (ets._byIndex instanceof Map)
+      // Flush any existing active subjects
+      if (ets._byIndex instanceof Map) {
         for (const subj of ets._byIndex.values()) subj?.next?.(null);
-      if (ets._gate instanceof Map)
+      }
+      if (ets._gate instanceof Map) {
         for (const gate of ets._gate.values()) gate?.next?.(false);
+      }
   
       console.log('[NAV] 🔇 Global ETS hard-mute applied (quiet zone 120ms)');
     } catch (err) {
