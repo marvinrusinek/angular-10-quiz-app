@@ -459,14 +459,14 @@ export class QuizNavigationService {
       if (el) (el as HTMLElement).style.visibility = 'hidden';
 
       const now = performance.now();
-      const quietDuration = 160; // ~10 frames
+      const quietDuration = 160;  // ~10 frames
 
       this.quizQuestionLoaderService._quietZoneUntil = now + quietDuration;
       this.explanationTextService._quietZoneUntil = now + quietDuration;
 
-      // 🔁 Mirror to observables for reactive gating in CQCC
+      // Mirror to observables for reactive gating in CQCC
       this.quizQuestionLoaderService.quietZoneUntil$.next(this.quizQuestionLoaderService._quietZoneUntil);
-      this.explanationTextService.quietZoneUntil$.next(this.explanationTextService._quietZoneUntil);
+      this.explanationTextService.setQuietZone(quietDuration);
 
       // Additional hard mute on explanation
       const ets: any = this.explanationTextService;
