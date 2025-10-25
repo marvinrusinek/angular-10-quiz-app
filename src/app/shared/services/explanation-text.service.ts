@@ -1170,7 +1170,7 @@ export class ExplanationTextService {
       return;
     }
   
-    // 1️⃣ Double-gate: prevent reopen within ~2 frames of previous open
+    // Double-gate: prevent reopen within ~2 frames of previous open
     const sinceLastOpen = now - this._lastOpenAt;
     if (index === this._lastOpenIdx && sinceLastOpen < 34) {
       console.log(`[ETS] ⏸ Skipped redundant FET open (${sinceLastOpen.toFixed(1)}ms)`);
@@ -1179,8 +1179,7 @@ export class ExplanationTextService {
     this._lastOpenIdx = index;
     this._lastOpenAt = now;
   
-    // 2️⃣ Hard reset if incoming index is newer than the active one
-    // This kills any residual text or gates from older questions.
+    // Hard reset if incoming index is newer than the active one, removing any residual text or gates from older questions.
     if (index > (this._activeIndex ?? -1)) {
       this.formattedExplanationSubject?.next('');
       this.shouldDisplayExplanationSource?.next(false);
@@ -1199,7 +1198,7 @@ export class ExplanationTextService {
     // Update the active index to the latest target before activating
     this._activeIndex = index;
   
-    // 3️⃣ Delay gate activation if too soon after navigation
+    // Delay gate activation if too soon after navigation
     const delay = sinceNav < 72 ? 72 - sinceNav : 0;
   
     const activate = () => {
@@ -1208,42 +1207,42 @@ export class ExplanationTextService {
         console.log(
           `[ETS] ⚠️ Skipped FET open for
           [ETS] ⚠️ Skipped FET open for outdated index ${index} (active=${this._activeIndex})`
-          );
-          return;
-        }
-    
-        text$.next(trimmed);
-        gate$.next(!!trimmed);
-    
-        console.log(
-          `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${
-            trimmed?.length ?? 0
-          }, delayed=${delay.toFixed(1)}ms`
         );
-      };
-    
-      // 4️⃣ Apply minimal defer if just navigated
-      if (delay > 0) {
-        setTimeout(() => requestAnimationFrame(activate), delay);
-      } else {
-        requestAnimationFrame(activate);
+        return;
       }
     
-      // 5️⃣ Record diagnostics for debugging / replay analysis
-      this._emittedAtByIndex ??= new Map<number, number>();
-      this._emittedAtByIndex.set(index, now);
+      text$.next(trimmed);
+      gate$.next(!!trimmed);
     
-      // 6️⃣ Micro gate-lock window: block any new FET for ~3 frames after this one
-      this._fetGateLockUntil = now + 48;
+      console.log(
+        `[ETS] openExclusive(${index}) → gate=${!!trimmed}, len=${
+        trimmed?.length ?? 0
+        }, delayed=${delay.toFixed(1)}ms`
+      );
+    };
     
-      // 7️⃣ Proactive cleanup for past indexes (avoids “Q1 FET” bleed)
-      if (this._byIndex instanceof Map) {
-        for (const [idx, subj] of this._byIndex.entries()) {
-          if (idx < index - 1) subj?.next?.(null);
-        }
+    // Apply minimal defer if just navigated
+    if (delay > 0) {
+      setTimeout(() => requestAnimationFrame(activate), delay);
+    } else {
+      requestAnimationFrame(activate);
+    }
+    
+    // Record diagnostics for debugging / replay analysis
+    this._emittedAtByIndex ??= new Map<number, number>();
+    this._emittedAtByIndex.set(index, now);
+    
+    // Micro gate-lock window: block any new FET for ~3 frames after this one
+    this._fetGateLockUntil = now + 48;
+    
+    // Proactive cleanup for past indexes (avoids “Q1 FET” bleed)
+    if (this._byIndex instanceof Map) {
+      for (const [idx, subj] of this._byIndex.entries()) {
+        if (idx < index - 1) subj?.next?.(null);
       }
+    }
     
-      console.log(`[ETS] ✅ FET open finalized for Q${index + 1}, active=${this._activeIndex}`);
+    console.log(`[ETS] ✅ FET open finalized for Q${index + 1}, active=${this._activeIndex}`);
   }
         
 
