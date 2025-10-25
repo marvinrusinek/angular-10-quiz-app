@@ -451,9 +451,7 @@ export class QuizNavigationService {
     console.log('[NAV] 🧱 Cross-service barriers enabled');
   
     try {
-      // ────────────────────────────────────────────────
-      // 🛑 STEP 1: GLOBAL HARD-MUTE + QUIET ZONE
-      // ────────────────────────────────────────────────
+      // GLOBAL HARD-MUTE + QUIET ZONE
       qqls._frozen = true;
       qqls._isVisualFrozen = true;
  
