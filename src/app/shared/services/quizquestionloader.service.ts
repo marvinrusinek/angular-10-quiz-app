@@ -32,7 +32,7 @@ export class QuizQuestionLoaderService {
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   currentQuestionAnswered = false;
-  
+
   questionToDisplay = '';
   public questionToDisplay$ = new ReplaySubject<string>(1);
   // Derived stream that smooths rapid clears/fills (prevents flash)
@@ -114,6 +114,7 @@ export class QuizQuestionLoaderService {
   private _quietUntil = 0;
   public _quietZoneUntil = 0;
   private _navBarrier = false;
+  private _navBarrierActive = false;
 
   constructor(
     private explanationTextService: ExplanationTextService,
@@ -1218,13 +1219,19 @@ export class QuizQuestionLoaderService {
 
   // Helper control methods
   public enableNavBarrier(): void {
-    this._navBarrier = true;
-    console.log('[Loader] 🧱 Navigation barrier ENABLED');
+    this._navBarrierActive = true;
+    this._quietZoneUntil = performance.now() + 120;
+    console.log('[Loader] 🚧 Nav barrier enabled');
   }
-
+  
   public disableNavBarrier(): void {
-    this._navBarrier = false;
-    console.log('[Loader] 🟢 Navigation barrier DISABLED');
+    this._navBarrierActive = false;
+    console.log('[Loader] ✅ Nav barrier disabled');
+  }
+  
+  public isInQuietZone(): boolean {
+    const now = performance.now();
+    return this._navBarrierActive || now < this._quietZoneUntil;
   }
 
   public isNavBarrierActive(): boolean {
@@ -1232,12 +1239,12 @@ export class QuizQuestionLoaderService {
   }
 
   // Ensures Angular and the DOM have both fully re-rendered before resuming UI emissions.
-  public async waitForDomStable(extraDelay = 0): Promise<void> {
-    // Wait one microtask to flush Angular change detection
-    await new Promise<void>(res => setTimeout(res, 0));
-    // Wait one animation frame for DOM paint
-    await new Promise<void>(res => requestAnimationFrame(() => res()));
-    // Optional extra buffer
-    if (extraDelay > 0) await new Promise<void>(res => setTimeout(res, extraDelay));
-  }
+  public waitForDomStable(extra = 32): Promise<void> {
+    // Unified DOM settle: 1 frame + small buffer
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        setTimeout(resolve, extra);
+      });
+    });
+  }  
 }
