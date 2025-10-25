@@ -1306,5 +1306,23 @@ export class QuizQuestionLoaderService {
       this._frozen = false;
       console.log('[Loader] ✅ Visual hold OFF');
     });
+  }
+
+  public async waitForDomAndLiftVisualLock(extraDelay = 48): Promise<void> {
+    // Wait one microtask for Angular to flush
+    await new Promise<void>(res => setTimeout(res, 0));
+  
+    // Wait one frame for new DOM to render
+    await new Promise<void>(res => requestAnimationFrame(() => res()));
+  
+    // Add optional buffer (~3 frames)
+    if (extraDelay > 0) await new Promise<void>(res => setTimeout(res, extraDelay));
+  
+    // Restore visibility
+    const el = document.querySelector('h3[i18n]');
+    if (el) (el as HTMLElement).style.visibility = 'visible';
+    this._isVisualFrozen = false;
+    this._frozen = false;
+    console.log('[Loader] 🧊 Visual lock lifted after DOM settle');
   }  
 }
