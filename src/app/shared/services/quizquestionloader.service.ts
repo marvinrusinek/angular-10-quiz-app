@@ -32,6 +32,7 @@ export class QuizQuestionLoaderService {
   currentQuestion: QuizQuestion | null = null;
   currentQuestionIndex = 0;
   currentQuestionAnswered = false;
+  
   questionToDisplay = '';
   public questionToDisplay$ = new ReplaySubject<string>(1);
   // Derived stream that smooths rapid clears/fills (prevents flash)
