@@ -117,6 +117,7 @@ export class ExplanationTextService {
 
   public _hardMuteUntil = 0;
 
+  public quietZoneUntil$ = new BehaviorSubject<number>(0);
   public _quietZoneUntil = 0;
   private _navBarrier = false;
 
