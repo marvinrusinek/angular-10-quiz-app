@@ -117,9 +117,17 @@ export class ExplanationTextService {
 
   public _hardMuteUntil = 0;
 
-  public quietZoneUntil$ = new BehaviorSubject<number>(0);
-  public _quietZoneUntil = 0;
   private _navBarrier = false;
+
+  // Public streams used by CQCC for reactive gating
+  public activeIndex$ = new BehaviorSubject<number>(-1);
+  public quietZoneUntil$ = new BehaviorSubject<number>(0);
+
+  // Internal guards (already have some of these — keep if they exist)
+  public _quietZoneUntil = 0;
+  public _hardMuteUntil = 0;
+  public _fetGateLockUntil = 0;
+  public _activeIndex = -1;
 
   constructor() {}
 
