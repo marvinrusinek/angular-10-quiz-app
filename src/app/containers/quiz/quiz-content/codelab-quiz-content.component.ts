@@ -1316,22 +1316,68 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
     // in QQLS and ETS as BehaviorSubject<number> seeded with 0.
     const qQuietUntil$ = (this as any).quizQuestionLoaderService?.quietZoneUntil$ ?? of(0);
     const eQuietUntil$ = (this as any).explanationTextService?.quietZoneUntil$ ?? of(0);
+
+    // Quiet zone observables (mirrors service-level _quietZoneUntil)
+    // Used to temporarily gate rendering after navigation
+    const qQuiet$ = this.quizQuestionLoaderService.quietZoneUntil$
+    ? this.quizQuestionLoaderService.quietZoneUntil$.pipe(
+        startWith(0),
+        distinctUntilChanged()
+      )
+    : of(0);
+
+    const eQuiet$ = this.explanationTextService.quietZoneUntil$
+    ? this.explanationTextService.quietZoneUntil$.pipe(
+        startWith(0),
+        distinctUntilChanged()
+      )
+    : of(0);
   
     // ────────────────────────────────────────────────
     // Combine everything with strong gating
     // ────────────────────────────────────────────────
-    return combineLatest([
-      index$,            // 0
-      questionText$,     // 1
-      correctText$,      // 2
-      fetForIndex$,      // 3
-      shouldShow$,       // 4
-      navigating$,       // 5
-      qQuietUntil$,      // 6
-      eQuietUntil$       // 7
+    return combineLatest<
+      [
+        number, // index$
+        string, // questionText$
+        string, // correctText$
+        { idx: number; text: string; gate: boolean }, // fetForIndex$
+        boolean, // shouldShow$
+        boolean, // navigating$
+        number,  // qQuiet$
+        number   // eQuiet$
+      ]
+    >([
+      index$,
+      questionText$,
+      correctText$,
+      fetForIndex$,
+      shouldShow$,
+      navigating$,
+      qQuiet$,
+      eQuiet$
     ]).pipe(
       // If navigating or in quiet zone, hold the last stable string (don’t pass new frames).
-      filter(([, , , , , navigating, qQuiet, eQuiet]) => {
+      filter(
+        ([
+          , // idx
+          , // question
+          , // banner
+          , // fet
+          , // shouldShow
+          navigating,
+          qQuiet,
+          eQuiet
+        ]: [
+          number,
+          string,
+          string,
+          { idx: number; text: string; gate: boolean },
+          boolean,
+          boolean,
+          number | null | undefined,
+          number | null | undefined
+        ]) => {
         const hold = navigating || performance.now() < Math.max(qQuiet || 0, eQuiet || 0);
         if (hold) {
           console.log('[VisualGate] ⏸ hold (navigating/quiet-zone)');
@@ -1343,7 +1389,22 @@ export class CodelabQuizContentComponent implements OnInit, OnChanges, OnDestroy
       auditTime(8),
       observeOn(animationFrameScheduler),
   
-      map(([idx, question, banner, fet, shouldShow]) => {
+      map(
+        ([
+          idx,
+          question,
+          banner,
+          fet,
+          shouldShow,
+          ..._rest // absorb navigating, qQuiet, eQuiet silently
+        ]: [
+          number,
+          string,
+          string,
+          { idx: number; text: string; gate: boolean },
+          boolean,
+          ...unknown[]
+        ]) => {
         const qText = question.trim();
         const bannerText = banner.trim();
         const fetText = (fet?.text ?? '').trim();
