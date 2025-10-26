@@ -49,11 +49,10 @@ import { ChangeRouteAnimation } from '../../animations/animations';
 
 type AnimationState = 'animationStarted' | 'none';
 
-
 export interface LoadedQuestionData {
-  question: QuizQuestion;
-  options: Option[];
-  explanation: string;
+  question: QuizQuestion,
+  options: Option[],
+  explanation: string
 }
 
 interface Override { idx: number; html: string; }
