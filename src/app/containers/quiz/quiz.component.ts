@@ -2828,9 +2828,9 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
   
             // Clear BehaviorSubject if it exists
             (ets as any).formattedExplanationSubject?.next(null);
-
+  
             console.log('[QUIZ INIT] 🧹 Cleared old FET cache before starting quiz');
-
+  
             // Reset restoration flag for a new quiz session
             // this.quizStateService.hasRestoredOnce = false;
           } catch (err) {
@@ -2851,11 +2851,25 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
         // Once explanations are ready, wire up navigation
         this.setupNavigation();
   
-        // Trigger a single CD cycle so the UI (quiz/question/options/navigation) 
+        // 🪄 Seed the first question text immediately
+        try {
+          const firstQuestion = this.quizService.questions?.[0];
+          if (firstQuestion) {
+            const trimmed = (firstQuestion.questionText ?? '').trim();
+            if (trimmed.length > 0) {
+              this.questionToDisplay$.next(trimmed);
+              console.log('[QUIZ INIT] 🪄 Seeded initial question text for Q1');
+            }
+          }
+        } catch (err) {
+          console.warn('[QUIZ INIT] ⚠️ Could not seed initial question text', err);
+        }
+  
+        // Trigger a single CD cycle so the UI (quiz/question/options/navigation)
         // appears together, with no flicker
         this.cdRef.markForCheck();
       });
-  }  
+  }
   
   /************* Fetch and display the current question ***************/
   initializeQuestionStreams(): void {
