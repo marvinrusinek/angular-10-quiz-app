@@ -2652,7 +2652,7 @@ export class QuizComponent implements OnInit, OnDestroy, OnChanges, AfterViewIni
               ...option,
               correct: option.correct ?? false  // default to false if `correct` is undefined
             })),
-            explanation: this.explanationTextService.getLatestFormattedExplanation(),
+            explanation: this.explanationTextService.getLatestFormattedExplanation()?.trim() ?? '',
             type: this.quizDataService.questionType as QuestionType,
           };
           this.question = currentQuestion;
