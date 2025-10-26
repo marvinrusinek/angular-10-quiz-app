@@ -994,7 +994,7 @@ export class ExplanationTextService {
   }
 
   public triggerExplanationEvaluation(): void {
-    const currentExplanation = this.formattedExplanationSubject.getValue()?.trim();
+    const currentExplanation = this.getLatestFormattedExplanation();
     const shouldShow = this.shouldDisplayExplanationSource.getValue();
 
     if (shouldShow && currentExplanation) {
