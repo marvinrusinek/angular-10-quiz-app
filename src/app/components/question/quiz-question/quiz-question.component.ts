@@ -1086,6 +1086,9 @@ export class QuizQuestionComponent extends BaseQuestionComponent
       
         // Ensure base quiz state restored
         await this.restoreQuizState();
+
+        // ✅ Mark that restoration has occurred so the UI can safely resume rendering
+        this.quizStateService.hasRestoredOnce = true;
       
         // Ensure options are ready
         if (!Array.isArray(this.optionsToDisplay) || this.optionsToDisplay.length === 0) {
@@ -1178,8 +1181,6 @@ export class QuizQuestionComponent extends BaseQuestionComponent
                 console.warn('[VISIBILITY] ⚠️ Failed post-restore FET refresh', err);
               }
             }, 400);
-            
-            this.quizStateService.hasRestoredOnce = true;
 
             console.log('[VISIBILITY] 🔓 Restore complete, reactive updates re-enabled');
           }, 350);
