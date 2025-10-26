@@ -689,6 +689,8 @@ export class ExplanationTextService {
       return of('No explanation available');
     }
 
+    this._activeIndex = questionIndex;
+
     return this.getFormattedExplanationTextForQuestion(questionIndex).pipe(
       map(
         (explanationText: string) =>
