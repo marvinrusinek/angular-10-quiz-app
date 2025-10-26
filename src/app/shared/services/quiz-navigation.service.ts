@@ -450,12 +450,14 @@ export class QuizNavigationService {
     ets.enableNavBarrier();
     console.log('[NAV] 🧱 Cross-service barriers enabled');
 
+    try {
+      this.explanationTextService.lockDuringTransition(120);
+    } catch {}
+
     // ────────────────────────────────────────────────
     // 🧩 STEP 0.5: Cross-service quiet patch (no mid-frame emission)
     // ────────────────────────────────────────────────
     try {
-      //const qqls: any = this.quizQuestionLoaderService;
-      //const ets: any  = this.explanationTextService;
       const now = performance.now();
 
       // Set synchronized freeze + quiet windows
@@ -644,7 +646,7 @@ export class QuizNavigationService {
       } catch (err) {
         console.warn('[NAV] ⚠️ Could not purge ETS before loading new question', err);
       }
-      
+
       const fresh = await firstValueFrom(this.quizService.getQuestionByIndex(index));
       if (!fresh) {
         console.warn(`[NAV] ⚠️ getQuestionByIndex(${index}) returned null`);
